@@ -153,17 +153,24 @@ namespace ME
      *  MultiArray     *	     
      *******************/
 
-    template <typename T, class... Is>
-    T& MultiArray<T,Is...>::operator()(const Is&... is)
+    template <typename T, class Range>
+    T& MultiArray<T,Is...>::operator()(const typename Range::indexType& i)
     {
-	return mCont[varpos(0, is...)];
+	return i.pos();
     }
 
-    template <typename T, class... Is>
-    const T& MultiArray<T,Is...>::operator()(const Is&... is) const
+    template <typename T, class Range>
+    const T& MultiArray<T,Is...>::operator()(const typename Range::indexType& i) const
     {
-	return mCont[varpos(0, is...)];
+	return i.pos();
     }
+
+    
+    /***************************
+     *   MultiArrayOperation   *
+     ***************************/
+
+    
     
 } // end namespace ME
 

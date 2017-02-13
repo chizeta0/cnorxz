@@ -75,19 +75,24 @@ namespace ME
 	virtual size_t size() const = 0;
 	virtual Index begin() = 0;
 	virtual Index end() = 0;
-	virtual RangeBase* base() = 0;
+	virtual RangeBase<Index>* base() = 0;
 	virtual bool isSubRange() const;
-    protected:
- 	mutable std::string mName;
+
     };
 
+    template <class Range>
+    auto cross(const Range& r1, const Range& r2) -> /**/;
+    
+    template <class Range1, class Range2>
+    auto cross(const Range1& r1, const Range2& r2) -> /**/;
+    
     template <class Index>
     class SubRangeBase : public RangeBase<Index>
     {
     public:
 	virtual bool isSubRange() const override;
     protected:
-	RangeBase* mBase;
+	RangeBase<Index>* mBase;
 	std::vector<bool> mOccupation;
     };
 
@@ -114,7 +119,10 @@ namespace ME
     public:
 
 	static size_t dim = sizeof...(Ranges);
-		
+
+	template <size_t N>
+	auto get() -> decltype( std::get<N>(mSpace) );
+	
     protected:
 	std::tuple<Ranges...> mSpace;
     };
@@ -140,10 +148,15 @@ namespace ME
 	
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const; // = mPos; implement !!!
+
+	std::string& name();
+	const std::string& name() const;
 	
     protected:
 	// translate index into position
 	virtual size_t evaluate(const Index& in) const = 0;
+
+	std::string mName;
 	
 	size_t mPos;
 	RangeBase<Index>* mRange;
@@ -201,8 +214,8 @@ namespace ME
 	
 	MultiArray(const Range& range); // !!!!
 
-	template <typename... Strings>
-	MultiArrayOperation<T,Range>& operator()(const Strings&... str) const;
+	template <class Operation, typename... Strings>
+	MultiArrayOperation<T,Range>& operator()(Operation op, const Strings&... str) const;
 	
 	T& operator()(const typename Range::indexType& i); // implement
 	const T& operator()(const typename Range::indexType& i) const; // implement
@@ -213,22 +226,38 @@ namespace ME
 	std::shared_ptr<Range> mRange;
     };
 
-    template <typename T, class Range>
+    
+    /***************************
+     *   MultiArrayOperation   *
+     ***************************/
+    
+    template <typename T, class Range, class Operation>
     class MultiArrayOperation
     {
     public:
 
-	template <class Range2>
-	MultiArrayOperation<T,Range2> operation(/*some operation*/) const;
+	// only creates maximum output range
+	MultiArrayOperation<T,Range,UnaryOperation> operation(UnaryOperation uo) const;
+
+	// only creates maximum output range
+	template <class Range2, class BinaryOperation, class AnyOperation>
+	auto operation(const MultiArrayOperation<T, Range2, AnyOperation>& in,
+		       BinaryOperation bo) const
+	    -> MultiArrayOperation<T, decltype( cross( Range, Range2 ) ), BinaryOperation>;
 	
-	template <class Range2, class Range3>
-	MultiArrayOperation<T,Range3> operation(const MultiArrayOperation<T,Range2>& in, /*some operation*/) const;
 
-	// execute operation
-	template <typename... Strings>
-	MultiArray<T,Range> operator()(const Strings&... str);
+	// execute AnyOperation
+	// exception if range types are inconsitent with names
+	template<class Range2, class AnyOperation>
+	MultiArrayOperation& operator=(const MultiArrayOperation<T, Range2, AnyOperation>& in);
+
+	
+    private:
+	MultiArray<T,Range>& mMaRef;
+	
+	std::map<size_t,std::string> mIndexNameMap;
+	
     };
-
 
     // =========
     // Code that should finally work:
@@ -236,9 +265,10 @@ namespace ME
     MultiArray<double,/*Tensor*/,/*Tensor*/,/*3DSpace*/,/*3DSpace*/> ma1;
     MultiArray<double,/*Tensor*/,/*Tensor*/,/*3DSpace*/,/*3DSpace*/> ma2;
     MultiArray<double,/*Tensor*/,/*Tensor*/,/*Tensor*/,/*3DSpace*/,/*3DSpace*/,/*3DSpace*/> ma3;
-    
-    ma3 = ( ma1("mu","nu","x","y") * ma2("nu","lambda","y","z") )("mu","nu","lambda","x","y","z");
-    
+
+    ma3("mu","nu","lambda","x","y","z") = ma1("mu","nu","x","y") * ma2("nu","lambda","y","z");
+    //                              operator=               operation()
+    ("mu","nu","lambda","x","y","z") <--- ("mu","nu","x","y","nu","lambda","y","z")
     
 
 } // end namespace ME
