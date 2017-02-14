@@ -59,13 +59,33 @@ namespace ME
     
     enum class RangeType
     {
-	SPACE,
-	MOMENTUM,
-	LORENTZ,
-	SPIN
+	NIL = 0,
+	SPACE = 1,
+	MOMENTUM = 2,
+	LORENTZ = 3,
+	SPIN = 4
     };
 
+    class MultiRangeType
+    {
+    public:
 
+	MultiRangeType& operator=(RangeType& type);
+	MultiRangeType& operator=(const std::vector<MultiRangeType>& multiType);
+
+	MultiRangeType& operator[](size_t num);
+	const MultiRangeType& operator[](size_t num) const;
+	
+	bool multi() const;
+	
+    private:
+	void setType(RangeType type);
+	void setMultiType(const std::vector<MultiRangeType>& multiType);
+	
+	RangeType mType;
+	std::vector<MultiRangeType>* mMultiType;
+    };
+    
     template <class Index>
     class RangeBase
     {
@@ -131,34 +151,62 @@ namespace ME
      *   Index        *
      ******************/
 
-    template <Index>
-    class IndexBase
+    class IndefinitIndexBase
     {
     public:
-	virtual Index& operator=(const Index& in);
+	virtual IndefinitIndexBase& operator=(const IndefinitIndexBase& in) = 0;
 	
-	virtual Index& operator=(size_t pos);
-	virtual Index& operator++();
-	virtual Index& operator--();
-	virtual Index& operator+=(int n);
-	virtual Index& operator-=(int n);
+	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
+	virtual IndefinitIndexBase& operator++() = 0;
+	virtual IndefinitIndexBase& operator--() = 0;
+	virtual IndefinitIndexBase& operator+=(int n) = 0;
+	virtual IndefinitIndexBase& operator-=(int n) = 0;
 	
-	virtual bool operator==(const IndexBase& i);
-	virtual bool operator!=(const IndexBase& i);
+	virtual bool operator==(const IndefinitIndexBase& i) = 0;
+	virtual bool operator!=(const IndefinitIndexBase& i) = 0;
 	
 	virtual size_t dim() const = 0;
-	virtual size_t pos() const; // = mPos; implement !!!
+	virtual size_t pos() const = 0; // = mPos; implement !!!
 
 	std::string& name();
 	const std::string& name() const;
+
+	MultiRangeType rangeType() const = 0;
+
+	virtual bool link(IndefinitIndexBase* toLink);
+	virtual void freeLinked();
+
+    protected:
+	
+	std::string mName;
+	size_t mPos;
+
+	// => change: if two should be linked, link the second in *mLinked
+	// and so on for even more Indices
+	// IndefinitIndexBase* mLinked;
+	std::vector<IndefinitIndexBase*>* mLinked; // if *this modified, modify mLinked the same way
+    };
+    
+    template <class Index>
+    class IndexBase : public IndefinitIndexBase
+    {
+    public:
+	virtual Index& operator=(const Index& in) override;
+	
+	virtual Index& operator=(size_t pos) override;
+	virtual Index& operator++() override;
+	virtual Index& operator--() override;
+	virtual Index& operator+=(int n) override;
+	virtual Index& operator-=(int n) override;
+	
+	virtual bool operator==(const IndexBase& i) override;
+	virtual bool operator!=(const IndexBase& i) override;
+	
+	virtual size_t pos() const override; // = mPos; implement !!!
 	
     protected:
 	// translate index into position
 	virtual size_t evaluate(const Index& in) const = 0;
-
-	std::string mName;
-	
-	size_t mPos;
 	RangeBase<Index>* mRange;
     };
     
@@ -169,8 +217,8 @@ namespace ME
 
 	virtual size_t size() const override;
 	virtual SingleIndexBase& operator=(size_t pos) override;
-	virtual SingleIndexBase& operator=(const U& upos);
-	virtual const U& getMetaPos() const;
+	//virtual SingleIndexBase& operator=(const U& upos);
+	//virtual const U& getMetaPos() const;
 
 	// = 1
 	virtual size_t dim() const override; // implement !!!
@@ -178,7 +226,7 @@ namespace ME
 	virtual size_t evaluate(const Index& in) const override;
     };
 
-    template <class... Indices>template <class... Indices>
+    template <class... Indices>
     class MultiIndex : public IndexBase<MultiIndex<Indices...> >
     {
     public:
@@ -190,6 +238,8 @@ namespace ME
 
 	// dimension of MultiRange
 	virtual size_t dim() const override; // implement !!!
+
+	virtual bool link(IndefinitIndexBase* toLink) override;
 	
     protected:
 	virtual size_t evaluate(const MultiIndex& in) const override;
@@ -231,31 +281,20 @@ namespace ME
      *   MultiArrayOperation   *
      ***************************/
     
-    template <typename T, class Range, class Operation>
-    class MultiArrayOperation
+    class NamedMultiArray
     {
     public:
 
-	// only creates maximum output range
-	MultiArrayOperation<T,Range,UnaryOperation> operation(UnaryOperation uo) const;
-
-	// only creates maximum output range
-	template <class Range2, class BinaryOperation, class AnyOperation>
-	auto operation(const MultiArrayOperation<T, Range2, AnyOperation>& in,
-		       BinaryOperation bo) const
-	    -> MultiArrayOperation<T, decltype( cross( Range, Range2 ) ), BinaryOperation>;
-	
-
 	// execute AnyOperation
 	// exception if range types are inconsitent with names
-	template<class Range2, class AnyOperation>
+	template <class Range2, class AnyOperation>
 	MultiArrayOperation& operator=(const MultiArrayOperation<T, Range2, AnyOperation>& in);
-
+	
+	IndefinitIndexBase& getIndex(const std::string& name);
+	const IndefinitIndexBase& getIndex(const std::string& name) const;
 	
     private:
-	MultiArray<T,Range>& mMaRef;
-	
-	std::map<size_t,std::string> mIndexNameMap;
+	std::map<std::string, IndefinitIndexBase> mIndexNameMap;
 	
     };
 
@@ -268,7 +307,7 @@ namespace ME
 
     ma3("mu","nu","lambda","x","y","z") = ma1("mu","nu","x","y") * ma2("nu","lambda","y","z");
     //                              operator=               operation()
-    ("mu","nu","lambda","x","y","z") <--- ("mu","nu","x","y","nu","lambda","y","z")
+    // ("mu","nu","lambda","x","y","z") <--- ("mu","nu","x","y","nu","lambda","y","z")
     
 
 } // end namespace ME

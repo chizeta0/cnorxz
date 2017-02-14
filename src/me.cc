@@ -5,6 +5,52 @@
 namespace ME
 {
 
+    /*********************
+     *  MultiRangeType   *
+     *********************/
+
+    MultiRangeType& MultiRangeType::operator=(RangeType& type)
+    {
+	setType(type);
+	return *this;
+    }
+    
+    MultiRangeType& MultiRangeType::operator=(const std::vector<MultiRangeType>& multiType)
+    {
+	setMultiType(multiType);
+	return *this;
+    }
+
+    MultiRangeType& MultiRangeType::operator[](size_t num)
+    {
+	return mMultiType->at(num);
+    }
+    
+    const MultiRangeType& MultiRangeType::operator[](size_t num) const
+    {
+	return mMultiType->at(num);
+    }
+    
+    bool MultiRangeType::multi() const
+    {
+	return mType != nullptr;
+    }
+    
+    void MultiRangeType::setType(RangeType type)
+    {
+	mType = type;
+	if(mMultiType != nullptr){
+	    delete mMultiType;
+	}
+	mMultiType = nullptr;
+    }
+    
+    void MultiRangeType::setMultiType(const std::vector<MultiRangeType>& multiType)
+    {
+	mMultiType = new std::vector<MultiRangeType>( multiType );
+	mType = RangeType::NIL;
+    }
+    
     /******************
      *   RangeBase    *
      ******************/
@@ -46,6 +92,41 @@ namespace ME
 	    ++cnt;
 	}
 	return cnt;
+    }
+
+    /************************
+     *  IndefinitIndexBase  *
+     ************************/
+
+    bool IndefinitIndexBase::link(IndefinitIndexBase* toLink)
+    {
+	if(toLink->name() == name() and toLink->rangeType() == rangeType()){
+	    bool isAlready = false;
+	    if(mLinked != nullptr){
+		for(auto& x: *mLinked){
+		    if(x == toLink){
+			isAlready = true;
+			break;
+		    }
+		}
+	    }
+	    else {
+		mLinked = new std::vector<IndefinitIndexBase*>();
+	    }
+	    if(not isAlready){
+		mLinked->push_back(toLink);
+	    }
+	    return true;
+	}
+	else {
+	    return false;
+	}
+    }
+
+    void IndefinitIndexBase::freeLinked()
+    {
+	delete mLinked;
+	mLinked = nullptr;
     }
     
     /**************
@@ -116,7 +197,7 @@ namespace ME
     }
 
     template <typename U, IndexType TYPE>
-    size_t SingleIndexBase<U,TYPE>::evaluate(const Index& in)
+    size_t SingleIndexBase<TYPE>::evaluate(const Index& in)
     {
 	return in.mPos;
     }
@@ -142,11 +223,37 @@ namespace ME
 	    return subIndex.pos();
 	}
     }
-            
+    
     template <class... Indices>
     size_t MultiIndex<Indices...>::evaluate(const MultiIndex<Indices...>& in) const
     {
 	return evaluate_x<sizeof...(Indices)-1>(in);
+    }
+
+    template <class... Indices>
+    bool MultiIndex<Indices...>::link(IndefinitIndexBase* toLink)
+    {
+	if(toLink->name() == name() and toLink->rangeType() == rangeType()){
+	    bool isAlready = false;
+	    if(mLinked != nullptr){
+		for(auto& x: *mLinked){
+		    if(x == toLink){
+			isAlready = true;
+			break;
+		    }
+		}
+	    }
+	    else {
+		mLinked = new std::vector<IndefinitIndexBase*>();
+	    }
+	    if(not isAlready){
+		mLinked->push_back(toLink);
+	    }
+	    return true;
+	}
+	else {
+	    return /*try each element in mIPack*/;
+	}
     }
     
     /*******************
@@ -167,10 +274,18 @@ namespace ME
 
     
     /***************************
-     *   MultiArrayOperation   *
+     *   NamedMultiArray       *
      ***************************/
 
-    
+    IndefinitIndexBase& getIndex(const std::string& name)
+    {
+	return mIndexNameMap.at(name);
+    }
+
+    const IndefinitIndexBase& getIndex(const std::string& name) const
+    {
+	return mIndexNameMap.at(name);
+    }
     
 } // end namespace ME
 
