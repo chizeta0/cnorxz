@@ -77,6 +77,9 @@ namespace ME
 	const MultiRangeType& operator[](size_t num) const;
 	
 	bool multi() const;
+
+	bool operator==(const MultiRangeType& in) const;
+	bool operator!=(const MultiRangeType& in) const;
 	
     private:
 	void setType(RangeType type);
@@ -175,16 +178,16 @@ namespace ME
 
 	virtual bool link(IndefinitIndexBase* toLink);
 	virtual void freeLinked();
+	virtual bool linked() const;
 
+	virtual void setPos(size_t pos);
+	
     protected:
 	
 	std::string mName;
 	size_t mPos;
 
-	// => change: if two should be linked, link the second in *mLinked
-	// and so on for even more Indices
-	// IndefinitIndexBase* mLinked;
-	std::vector<IndefinitIndexBase*>* mLinked; // if *this modified, modify mLinked the same way
+	IndefinitIndexBase* mLinked;
     };
     
     template <class Index>

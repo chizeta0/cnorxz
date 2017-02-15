@@ -35,6 +35,26 @@ namespace ME
     {
 	return mType != nullptr;
     }
+
+    bool MultiRangeType::operator==(const MultiRangeType& in) const
+    {
+	if(multi()){
+	    return *mMultiType == *in.mMultiType;
+	}
+	else {
+	    return mType == in.mType;
+	}
+    }
+    
+    bool MultiRangeType::operator!=(const MultiRangeType& in) const
+    {
+	if(multi()){
+	    return *mMultiType != *in.mMultiType;
+	}
+	else {
+	    return mType != in.mType;
+	}
+    }
     
     void MultiRangeType::setType(RangeType type)
     {
@@ -100,23 +120,21 @@ namespace ME
 
     bool IndefinitIndexBase::link(IndefinitIndexBase* toLink)
     {
-	if(toLink->name() == name() and toLink->rangeType() == rangeType()){
-	    bool isAlready = false;
-	    if(mLinked != nullptr){
-		for(auto& x: *mLinked){
-		    if(x == toLink){
-			isAlready = true;
-			break;
-		    }
-		}
+	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
+	    // throw !!
+	}
+	
+	if(toLink->rangeType() == rangeType() and toLink->name() == name()){
+	    if(mLinked == toLink){
+		return true; // dont link twice the same
+	    }
+	    else if(mLinked == nullptr){
+		mLinked = toLink;
+		return true;
 	    }
 	    else {
-		mLinked = new std::vector<IndefinitIndexBase*>();
+		return mLinked->link(toLink);
 	    }
-	    if(not isAlready){
-		mLinked->push_back(toLink);
-	    }
-	    return true;
 	}
 	else {
 	    return false;
@@ -125,8 +143,20 @@ namespace ME
 
     void IndefinitIndexBase::freeLinked()
     {
-	delete mLinked;
 	mLinked = nullptr;
+    }
+
+    bool IndefinitIndexBase::linked() const
+    {
+	return mLinked != nullptr;
+    }
+
+    void IndefinitIndexBase::setPos(size_t pos)
+    {
+	mPos = pos;
+	if(linked()){
+	    mLinked->setPos(pos);
+	}
     }
     
     /**************
@@ -136,41 +166,41 @@ namespace ME
     template <class Index>
     Index& IndexBase<Index>::operator=(const Index& in)
     {
-	mPos = evaluate(in);
+	setPos( evaluate(in) );
     }
 
     template <class Index>
     Index& IndexBase<Index>::operator=(size_t pos)
     {
-	mPos = pos;
+	setPos( pos );
 	return *this;
     }
 
     template <class Index>
     Index& IndexBase<Index>::operator++()
     {
-	++mPos;
+	setPos( ++mPos );
 	return *this;
     }
 
     template <class Index>
     Index& IndexBase<Index>::operator--()
     {
-	--mPos;
+	setPos( --mPos );
 	return *this;
     }
 
     template <class Index>
     Index& IndexBase<Index>::operator+=(int n)
     {
-	mPos += n;
+	setPos( mPos += n );
 	return *this;
     }
 
     template <class Index>
     Index& IndexBase<Index>::operator-=(int n)
     {
-	mPos -= n;
+	setPos( mPos -= n );
 	return *this;
     }
 
