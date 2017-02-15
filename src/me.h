@@ -356,6 +356,13 @@ namespace ME
 	MultiArrayOperation<std::divides<T>,Range2> operator/(MultiArrayOperationBase<T,Range2>& sec);
 
 	virtual size_t argNum() const;
+
+	IndefinitIndexBase* index();
+
+	virtual void linkIndicesTo(IndefinitIndexBase* target);
+
+	virtual T& get();
+	virtual const T& get() const;
 	
     protected:
 
@@ -369,10 +376,17 @@ namespace ME
     {
     public:
 
+	MultiArrayOperation(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
 	virtual size_t argNum() const override;
+	
+	virtual void linkIndicesTo(IndefinitIndexBase* target) override;
+
+	virtual T& get() override;
+	virtual const T& get() const override;
 	
     protected:
 
+	T mVal;
 	Operation mOp;
 	std::tuple<MultiArrayOperationBase<T,Ranges>... > mSecs;
     };
