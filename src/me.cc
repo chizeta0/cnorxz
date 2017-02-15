@@ -143,7 +143,10 @@ namespace ME
 
     void IndefinitIndexBase::freeLinked()
     {
-	mLinked = nullptr;
+	if(linked()){
+	    mLinked->freeLinked();
+	    mLinked = nullptr;
+	}
     }
 
     bool IndefinitIndexBase::linked() const
@@ -157,6 +160,17 @@ namespace ME
 	if(linked()){
 	    mLinked->setPos(pos);
 	}
+    }
+
+    size_t IndefinitIndexBase::max() const
+    {
+	return static_cast<size_t>( -1 );
+    }
+
+    size_t IndefinitIndexBase::outOfRange() const
+    {
+	int res = pos() - max();
+	return res > 0 ? static_cast<size_t>(res) : 0;
     }
     
     /**************
@@ -216,6 +230,13 @@ namespace ME
 	return mRange != i.mRange or mPos != i.mPos;
     }
 
+    template <class Index>
+    size_t IndexBase<Index>::max() const
+    {
+	return mRange->size();
+    }
+
+    
     /********************
      *  SingleIndexBase *	     
      ********************/
@@ -227,11 +248,22 @@ namespace ME
     }
 
     template <typename U, IndexType TYPE>
+    size_t dim() const
+    {
+	return 1;
+    }
+    
+    template <typename U, IndexType TYPE>
     size_t SingleIndexBase<TYPE>::evaluate(const Index& in)
     {
 	return in.mPos;
     }
-    
+
+    template <typename U, IndexType TYPE>
+    void linkTo(IndefinitIndexBase* target)
+    {
+	target->link(this);
+    }    
 
     /*******************
      *  MultiIndexBase *	     
@@ -239,6 +271,23 @@ namespace ME
 
     namespace
     {
+	template <class MultiIndex, size_t N>
+	IndefinitIndexBase& getIndex(MultiIndex& in, size_t n)
+	{
+	    if(n == N){
+		return in.getIndex<N>();
+	    }
+	    else {
+		return getIndex<N-1>(in, n);
+	    }
+	}
+	
+	template <class MultiIndex>
+	IndefinitIndexBase& getIndex<MultiIndex,0>(MultiIndex& in, size_t n)
+	{
+	    return in.getIndex<0>();
+	}
+		
 	template <size_t N, class MultiIndex>
 	size_t evaluate_x(const MultiIndex& index)
 	{
@@ -252,6 +301,51 @@ namespace ME
 	    const auto& subIndex = index.getIndex<0>();
 	    return subIndex.pos();
 	}
+
+	template <class MultiIndex>
+	void plus(MultiIndex& index, size_t digit, int num)
+	{
+	    IndefinitIndexBase& si = index.getIndex(digit);
+	    si.setPos( si.pos() + num );
+	    size_t oor = si.outOfRange();
+	    if(oor and digit != MultiIndex::mult - 1){
+		plus(index, digit + 1, 1);
+		plus(index, digit, oor - max());
+	    }
+	}
+    }
+
+    
+    template <class... Indices>
+    MultiIndex& MultiIndex<Indices...>::operator++()
+    {
+	setPos( pos() + 1 );
+	plus(*this, 0, 1);
+	return *this;
+    }
+
+    template <class... Indices>
+    MultiIndex& MultiIndex<Indices...>::operator--()
+    {
+	setPos( pos() - 1 );
+	plus(*this, 0, -1);
+	return *this;
+    }
+
+    template <class... Indices>
+    MultiIndex& MultiIndex<Indices...>::operator+=(int n)
+    {
+	setPos( pos() + n );
+	plus(*this, 0, n);
+	return *this;
+    }
+
+    template <class... Indices>
+    MultiIndex& MultiIndex<Indices...>::operator-=(int n)
+    {
+	setPos( pos() - n );
+	plus(*this, 0, 0-n);
+	return *this;
     }
     
     template <class... Indices>
@@ -261,28 +355,87 @@ namespace ME
     }
 
     template <class... Indices>
+    size_t MultiIndex<Indices...>::dim() const
+    {
+	size_t res = 1;
+	for(size_t i = 0; i != sMult; ++i){
+	    res *= getIndex(i).dim();
+	}
+	return res;
+    }
+    
+    template <class... Indices>
     bool MultiIndex<Indices...>::link(IndefinitIndexBase* toLink)
     {
-	if(toLink->name() == name() and toLink->rangeType() == rangeType()){
-	    bool isAlready = false;
-	    if(mLinked != nullptr){
-		for(auto& x: *mLinked){
-		    if(x == toLink){
-			isAlready = true;
-			break;
-		    }
-		}
+	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
+	    // throw !!
+	}
+	
+	if(toLink->rangeType() == rangeType() and toLink->name() == name()){
+	    if(mLinked == toLink){
+		return true; // dont link twice the same
+	    }
+	    else if(mLinked == nullptr){
+		mLinked = toLink;
+		return true;
 	    }
 	    else {
-		mLinked = new std::vector<IndefinitIndexBase*>();
+		return mLinked->link(toLink);
 	    }
-	    if(not isAlready){
-		mLinked->push_back(toLink);
-	    }
-	    return true;
 	}
 	else {
-	    return /*try each element in mIPack*/;
+	    return linkLower(toLink);
+	}
+    }
+
+    template <size_t N>
+    auto& getIndex() -> decltype(std::get<N>(mIPack))
+    {
+	return std::get<N>(mIPack);
+    }
+    
+    template <size_t N>
+    const auto& getIndex() const -> decltype(std::get<N>(mIPack));
+    {
+	return std::get<N>(mIPack);
+    }
+    
+    template <class... Indices>
+    IndefinitIndexBase& MultiIndex<Indices...>::getIndex(size_t n)
+    {
+	if(n >= sMult){
+	    // throw !!
+	}
+	MultiIndex<Indices...>* t = this;
+	return getIndex<sizeof...(Indices)>(*t, n);
+    }
+
+    template <class... Indices>
+    const IndefinitIndexBase& MultiIndex<Indices...>::getIndex(size_t n) const
+    {
+	if(n >= sMult){
+	    // throw !!
+	}
+	MultiIndex<Indices...>* t = this;
+	return getIndex<sizeof...(Indices)>(*t, n);
+    }
+
+    template <class... Indices>
+    bool MultiIndex<Indices...>::linkLower(IndefinitIndexBase* toLink)
+    {
+	bool res = false;
+	for(size_t i = 0; i != sMult; ++i){
+	    res |= getIndex(i).link(toLink);
+	}
+	return res;
+    }
+
+    template <class... Indices>
+    void MultiIndex<Indices...>::linkTo(IndefinitIndexBase* target)
+    {
+	target->link(this);
+	for(size_t i = 0; i != sMult; ++i){
+	    getIndex(i).linkTo(target);
 	}
     }
     
@@ -290,31 +443,72 @@ namespace ME
      *  MultiArray     *	     
      *******************/
 
+    template <typename... Ranges>
+    void giveNames(const std::string& name, /**/);
+
+    template <typename... Ranges>
+    void giveNames(const std::vector<std::string>& names, /**/);
+
+    /*!!!!  giveNames(...)  !!!!!*/
+    
     template <typename T, class Range>
     T& MultiArray<T,Is...>::operator()(const typename Range::indexType& i)
     {
-	return i.pos();
+	return mCont[ i.pos() ];
     }
 
     template <typename T, class Range>
     const T& MultiArray<T,Is...>::operator()(const typename Range::indexType& i) const
     {
-	return i.pos();
+	return mCont[ i.pos() ];
     }
 
+    template <typename T, class Range>
+    template <class... NameTypes>
+    MultiArrayOperation<T,Range>& operator()(const NameTypes&... str) const
+    {
+	auto index = mRange->begin();
+	// give names... !!!
+	return MultiArrayOperation<T,Range>(*this, index);
+    }
     
-    /***************************
-     *   NamedMultiArray       *
-     ***************************/
+    
+    /*********************************
+     *   MultiArrayOperationBase     *
+     *********************************/
 
-    IndefinitIndexBase& getIndex(const std::string& name)
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperationBase<T,Range>&
+    MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T, Range2>& in)
     {
-	return mIndexNameMap.at(name);
+	// perform operation (iterate head index)
     }
 
-    const IndefinitIndexBase& getIndex(const std::string& name) const
+    template <typename T, class Range>
+    template <class Operation, class... Ranges>
+    MultiArrayOperation<Operation>
+    MultiArrayOperationBase<T,Range>::operator()(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs)
     {
-	return mIndexNameMap.at(name);
+	// set operation
+	// set mSecs
+	// link Indices
+    }
+    
+    template <typename T, class Range>
+    size_t MultiArrayOperationBase<T,Range>::argNum() const
+    {
+	return 1;
+    }
+
+    /*****************************
+     *   MultiArrayOperation     *
+     *****************************/
+
+    template <typename T, class Range, class Operation, class... Ranges>
+    size_t MultiArrayOperation<T,Range,Operation,Ranges...>::argNum() const
+    {
+	return sizeof...(Ranges) + 1;
     }
     
 } // end namespace ME
