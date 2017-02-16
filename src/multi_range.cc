@@ -51,6 +51,20 @@ namespace MultiArrayTools
 		plus(index, digit, oor - max());
 	    }
 	}
+
+	template <size_t N>
+	void nameTuple(IndexPack& iPack, Name& name)
+	{
+	    std::get<N>(iPack).name(name.get(N));
+	    nameTuple<N-1>(iPack, name);
+	}
+
+	template <>
+	void nameTuple<0>(IndexPack& iPack, Name& name)
+	{
+	    std::get<0>(iPack).name(name.get(0));
+	}
+	
     }
 
     
@@ -92,6 +106,20 @@ namespace MultiArrayTools
 	return evaluate_x<sizeof...(Indices)-1>(in);
     }
 
+    template <class... Indices>
+    void MultiIndex<Indices...>::name(const Name& nm)
+    {
+	name(nm.own());
+	if(nm.size() >= sizeof...(Indices)){
+	    nameTuple<sizeof...(Indices)-1>(mIPack, nm);
+	}
+	else {
+	    Name nm2 = nm;
+	    nm2.autoName(sizeof...(Indices));
+	    nameTuple<sizeof...(Indices)-1>(mIPack, nm);
+	}
+    }
+    
     template <class... Indices>
     size_t MultiIndex<Indices...>::dim() const
     {

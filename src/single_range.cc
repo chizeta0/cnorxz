@@ -26,7 +26,11 @@ namespace MultiArrayTools
 	return cnt;
     }
 
-
+    template <typename U, IndexType TYPE>
+    size_t SingleRange<U,TYPE>::size() const
+    {
+	return mSpace.size();
+    }
     
     /******************
      *  SingleIndex   *	     
@@ -39,7 +43,7 @@ namespace MultiArrayTools
     }
 
     template <typename U, IndexType TYPE>
-    size_t dim() const
+    size_t SingleIndexBase<U,TYPE>::dim() const
     {
 	return 1;
     }
@@ -51,9 +55,15 @@ namespace MultiArrayTools
     }
 
     template <typename U, IndexType TYPE>
-    void linkTo(IndefinitIndexBase* target)
+    void SingleIndexBase<U,TYPE>::linkTo(IndefinitIndexBase* target)
     {
 	target->link(this);
     }    
 
+    template <typename U, IndexType TYPE>
+    SingleIndex& SingleIndexBase<U,TYPE>::operator=(const U& upos)
+    {
+	setPos( dynamic_cast<SingleRange*>( mRange )->get(upos) );
+    }
+    
 }

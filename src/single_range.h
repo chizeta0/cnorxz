@@ -20,13 +20,10 @@ namespace MultiArrayTools
 
 	DEFAULT_MEMBERS(SingleIndex);
 
-	virtual size_t size() const override;
-	virtual SingleIndexBase& operator=(size_t pos) override;
-	virtual SingleIndexBase& operator=(const U& upos);
+	virtual SingleIndex& operator=(const U& upos);
 	virtual const U& getMetaPos() const;
 
 	virtual size_t dim() const override; // = 1
-
 	virtual void linkTo(IndefinitIndexBase* target) override;
 	
     protected:
@@ -38,6 +35,8 @@ namespace MultiArrayTools
     {
     public:
 	DEFAULT_MEMBERS(SingleRange);
+
+	virtual size_t size() const override;
 	
 	const U& get(size_t pos) const;
 	size_t get(const U& metaPos) const;

@@ -5,9 +5,11 @@
 
 #include <cstdlib>
 #include <string>
+#include <vector>
 
 #include "base_def.h"
 #include "range_base.h"
+#include "name.h"
 
 namespace MultiArrayTools
 {
@@ -27,11 +29,12 @@ namespace MultiArrayTools
 	virtual bool operator!=(const IndefinitIndexBase& i) = 0;
 	
 	virtual size_t dim() const = 0;
-	virtual size_t pos() const = 0; // = mPos; implement !!!
+	virtual size_t pos() const; // = mPos; implement !!!
 
-	std::string& name();
-	const std::string& name() const;
-
+	virtual const std::string& name() const;
+	virtual void name(const std::string& str);
+ 	virtual void name(const Name& nm);
+	
 	MultiRangeType rangeType() const = 0;
 
 	virtual bool link(IndefinitIndexBase* toLink);  

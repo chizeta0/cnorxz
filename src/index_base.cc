@@ -7,6 +7,26 @@ namespace MultiArrayTools
      *  IndefinitIndexBase  *
      ************************/
 
+    size_t IndefinitIndexBase::pos() const
+    {
+	return mPos;
+    }
+    
+    const std::string& IndefinitIndexBase::name() const
+    {
+	return mName;
+    }
+
+    void name(const std::string& str)
+    {
+	mName = str;
+    }
+    
+    void IndefinitIndexBase::name(const Name& nm)
+    {
+	mName = nm.own();
+    }    
+    
     bool IndefinitIndexBase::link(IndefinitIndexBase* toLink)
     {
 	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
