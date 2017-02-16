@@ -544,13 +544,18 @@ namespace ME
 	std::get<0>(itp).linkTo(target);
     }
 
-    template <typename T, class Operation, class Tuple, class... MBases>
-    T callOperation(Operation& op, Tuple& tp, MBases&... secs)
+    template <size_t N, class Operation, class Tuple, class... MBases>
+    auto callOperation(Operation& op, Tuple& tp, MBases&... secs)
+	-> decltype(callOperation(op, tp, std::get<N-1>(tp), secs...))
     {
-	return callOperation(op, tp, std::get</*!!!*/>(tp), secs...);
+	return callOperation(op, tp, std::get<N-1>(tp), secs...);
     }
 
-    // spezialization for termination !!!
+    template <class Operation, class Tuple, class... MBases>
+    auto callOperation<0>(Operation& op, Tuple& tp, MBases&... secs) -> decltype(op(secs.get()...))
+    {
+	return op(secs.get()...);
+    }
     
     template <typename T, class Range, class Operation, class... Ranges>
     size_t MultiArrayOperation<T,Range,Operation,Ranges...>::argNum() const
@@ -568,14 +573,14 @@ namespace ME
     template <typename T, class Range, class Operation, class... Ranges>    
     T& MultiArrayOperation<T,Range,Operation,Ranges...>::get()
     {
-	mVal = mOp();
+	mVal = callOperation<sizeof...(Ranges)>(mOp, mSecs);
 	return mVal;
     }
 
     template <typename T, class Range, class Operation, class... Ranges>    
     const T& MultiArrayOperation<T,Range,Operation,Ranges...>::get() const
     {
-	mVal = mOp()
+	mVal = callOperation<sizeof...(Ranges)>(mOp, mSecs);
 	return mVal;
     }
     
