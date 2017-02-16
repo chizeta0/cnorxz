@@ -37,8 +37,8 @@ namespace MultiArrayTools
 	IndefinitIndexBase& getIndex(size_t n);
 	const IndefinitIndexBase& getIndex(size_t n) const;
 	
-	// dimension of MultiRange
-	virtual size_t dim() const override; // implement !!!
+	// dimension of MultiRange; includes ALL degrees of freedom
+	virtual size_t dim() const override;
 
 	virtual bool link(IndefinitIndexBase* toLink) override;
 	virtual void linkTo(IndefinitIndexBase* target) override;
