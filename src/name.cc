@@ -6,6 +6,7 @@ namespace MultiArrayTools
 
     namespace
     {
+	/*
 	template <class... NameTypes>
 	void giveNames(std::vector<Name>& nvec, const Name& name1, const Name& name2, const NameTypes&... names)
 	{
@@ -16,7 +17,7 @@ namespace MultiArrayTools
 	void giveNames(std::vector<Name>& nvec, const Name& name)
 	{
 	    nvec.push_back(name);
-	}
+	    }*/
 
 	void giveNames(std::vector<Name>& nvec)
 	{
@@ -48,9 +49,14 @@ namespace MultiArrayTools
 	mSub.resize(newSize);
 	if(oldSize < newSize){
 	    for(size_t i = oldSize; i != newSize; ++i){
-		mSub[i] = mMain + to_string( i );
+		mSub[i] = mMain + std::to_string( i );
 	    }
 	}
+    }
+
+    size_t Name::size() const
+    {
+	return mSub.size();
     }
     
 }

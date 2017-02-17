@@ -17,7 +17,7 @@ namespace MultiArrayTools
     {
     public:
 	
-	MultiArrayOperation(MultiArray<T,Range>& ma, const IndefinitIndexBase& iib);
+	MultiArrayOperationBase(MultiArray<T,Range>& ma, const IndefinitIndexBase& iib);
 	
 	// execute AnyOperation
 	// exception if range types are inconsitent with names
@@ -26,19 +26,20 @@ namespace MultiArrayTools
 	
 	
 	template <class Operation, class... Ranges>
-	MultiArrayOperation<Operation> operator()(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
+	MultiArrayOperation<T,Range,Operation,Ranges...>
+	operator()(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
 	
 	template <class Range2>
-	MultiArrayOperation<std::plus<T>,Range2> operator+(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::plus<T>,Range2> operator+(MultiArrayOperationBase<T,Range2>& sec);
 
 	template <class Range2>
-	MultiArrayOperation<std::minus<T>,Range2> operator-(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::minus<T>,Range2> operator-(MultiArrayOperationBase<T,Range2>& sec);
 
 	template <class Range2>
-	MultiArrayOperation<std::multiplies<T>,Range2> operator*(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::multiplies<T>,Range2> operator*(MultiArrayOperationBase<T,Range2>& sec);
 
 	template <class Range2>
-	MultiArrayOperation<std::divides<T>,Range2> operator/(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::divides<T>,Range2> operator/(MultiArrayOperationBase<T,Range2>& sec);
 
 	virtual size_t argNum() const;
 
@@ -61,6 +62,8 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef MultiArrayOperationBase<T,Range> OB;
+	
 	MultiArrayOperation(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
 	virtual size_t argNum() const override;
 	
@@ -80,6 +83,6 @@ namespace MultiArrayTools
 
 }
 
-#include "multi_array_operation.h"
+#include "multi_array_operation.cc"
 
 #endif

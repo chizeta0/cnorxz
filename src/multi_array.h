@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include <memory>
 
 #include "base_def.h"
 #include "multi_array_operation.h"
@@ -25,10 +26,12 @@ namespace MultiArrayTools
 	MultiArray(const Range& range, std::vector<T>&& vec);
 	
 	template <class... NameTypes>
-	MultiArrayOperation<T,Range>& operator()(const NameTypes&... str) const;
+	MultiArrayOperationBase<T,Range> operator()(const NameTypes&... str);
 	
-	T& operator()(const typename Range::indexType& i);
-	const T& operator()(const typename Range::indexType& i) const;
+	T& operator[](const typename Range::IndexType& i);
+	const T& operator[](const typename Range::IndexType& i) const;
+
+	size_t size() const; 
 	
     private:
 	bool mInit = false;

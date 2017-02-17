@@ -17,7 +17,7 @@ namespace MultiArrayTools
 	return mName;
     }
 
-    void name(const std::string& str)
+    void IndefinitIndexBase::name(const std::string& str)
     {
 	mName = str;
     }
@@ -87,63 +87,8 @@ namespace MultiArrayTools
      **************/
 
     template <class Index>
-    Index& IndexBase<Index>::operator=(const Index& in)
-    {
-	setPos( evaluate(in) );
-    }
-
-    template <class Index>
-    Index& IndexBase<Index>::operator=(size_t pos)
-    {
-	setPos( pos );
-	return *this;
-    }
-
-    template <class Index>
-    Index& IndexBase<Index>::operator++()
-    {
-	setPos( ++mPos );
-	return *this;
-    }
-
-    template <class Index>
-    Index& IndexBase<Index>::operator--()
-    {
-	setPos( --mPos );
-	return *this;
-    }
-
-    template <class Index>
-    Index& IndexBase<Index>::operator+=(int n)
-    {
-	setPos( mPos += n );
-	return *this;
-    }
-
-    template <class Index>
-    Index& IndexBase<Index>::operator-=(int n)
-    {
-	setPos( mPos -= n );
-	return *this;
-    }
-
-    template <class Index>
-    bool IndexBase<Index>::operator==(const Index& i)
-    {
-	return mRange == i.mRange and mPos == i.mPos;
-    }
-
-    template <class Index>
-    bool IndexBase<Index>::operator!=(const Index& i)
-    {
-	return mRange != i.mRange or mPos != i.mPos;
-    }
-
-    template <class Index>
     size_t IndexBase<Index>::max() const
     {
 	return mRange->size();
     }
-
-
 }

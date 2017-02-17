@@ -19,9 +19,11 @@ namespace MultiArrayTools
     public:
 
 	DEFAULT_MEMBERS(MultiIndex);
+
+	MultiIndex(Indices&&... inds);
 	
 	typedef std::tuple<Indices...> IndexPack;
-	static size_t sMult = sizeof...(Indices);
+	typedef IndefinitIndexBase IIB;
 	
 	virtual MultiIndex& operator++() override;
 	virtual MultiIndex& operator--() override;
@@ -29,13 +31,13 @@ namespace MultiArrayTools
 	virtual MultiIndex& operator-=(int n) override;
 	
 	template <size_t N>
-	auto& getIndex() -> decltype(std::get<N>(mIPack));
+	auto getIndex(size_t x) -> decltype(std::get<N>(IndexPack()));
 
 	template <size_t N>
-	const auto& getIndex() const -> decltype(std::get<N>(mIPack));
+	auto getIndex(size_t x) const -> decltype(std::get<N>(IndexPack()));
 
-	IndefinitIndexBase& getIndex(size_t n);
-	const IndefinitIndexBase& getIndex(size_t n) const;
+	IndefinitIndexBase& get(size_t n);
+	const IndefinitIndexBase& get(size_t n) const;
 
 	virtual void name(const Name& nm) override;
 	
@@ -54,18 +56,27 @@ namespace MultiArrayTools
     };
 
     template <class... Ranges>
-    class MultiRange : public RangeBase<MultiIndex<typename Ranges::indexType...> >
+    class MultiRange : public RangeBase<MultiIndex<typename Ranges::IndexType...> >
     {
     public:
 
+	typedef std::tuple<Ranges...> SpaceType;
+	
 	DEFAULT_MEMBERS(MultiRange);
-	static size_t dim = sizeof...(Ranges);
+	static const size_t dim = sizeof...(Ranges);
 
 	template <size_t N>
-	auto get() -> decltype( std::get<N>(mSpace) );
+	auto get() -> decltype( std::get<N>(SpaceType()) );
+
+	template <size_t N>
+	auto get() const -> decltype( std::get<N>(SpaceType()) );
+
+	
+	virtual MultiIndex<typename Ranges::IndexType...> begin() const override;
+	virtual MultiIndex<typename Ranges::IndexType...> end() const override;
 	
     protected:
-	std::tuple<Ranges...> mSpace;
+	SpaceType mSpace;
     };
     
 }

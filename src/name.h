@@ -23,6 +23,7 @@ namespace MultiArrayTools
 	const Name& get(size_t n) const;
 
 	void autoName(size_t newSize);
+	size_t size() const;
 	
     private:
 	std::string mMain;
@@ -30,5 +31,7 @@ namespace MultiArrayTools
     };
 
 }
+
+#include "name.cc"
 
 #endif

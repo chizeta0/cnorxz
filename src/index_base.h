@@ -17,16 +17,16 @@ namespace MultiArrayTools
     class IndefinitIndexBase
     {
     public:
-	virtual IndefinitIndexBase& operator=(const IndefinitIndexBase& in) = 0;
 	
 	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
 	virtual IndefinitIndexBase& operator++() = 0;
 	virtual IndefinitIndexBase& operator--() = 0;
 	virtual IndefinitIndexBase& operator+=(int n) = 0;
 	virtual IndefinitIndexBase& operator-=(int n) = 0;
-	
-	virtual bool operator==(const IndefinitIndexBase& i) = 0;
-	virtual bool operator!=(const IndefinitIndexBase& i) = 0;
+
+	// Make this somehow better... !!!
+	//virtual bool operator==(const IndefinitIndexBase& i) = 0;
+	//virtual bool operator!=(const IndefinitIndexBase& i) = 0;
 	
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const; // = mPos; implement !!!
@@ -35,7 +35,7 @@ namespace MultiArrayTools
 	virtual void name(const std::string& str);
  	virtual void name(const Name& nm);
 	
-	MultiRangeType rangeType() const = 0;
+	virtual MultiRangeType rangeType() const = 0;
 
 	virtual bool link(IndefinitIndexBase* toLink);  
 	virtual void freeLinked();
@@ -61,18 +61,9 @@ namespace MultiArrayTools
     class IndexBase : public IndefinitIndexBase
     {
     public:
-	virtual Index& operator=(const Index& in) override;
 	
-	virtual Index& operator=(size_t pos) override;
-	virtual Index& operator++() override;
-	virtual Index& operator--() override;
-	virtual Index& operator+=(int n) override;
-	virtual Index& operator-=(int n) override;
-	
-	virtual bool operator==(const IndexBase& i) override;
-	virtual bool operator!=(const IndexBase& i) override;
-	
-	virtual size_t pos() const override; // = mPos; implement !!!
+	//virtual size_t pos() const override; // = mPos; implement !!!
+	virtual size_t max() const override;
 	
     protected:
 

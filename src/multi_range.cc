@@ -1,5 +1,5 @@
 
-#include "mutli_range.h"
+#include "multi_range.h"
 
 namespace MultiArrayTools
 {
@@ -9,36 +9,52 @@ namespace MultiArrayTools
 
     namespace
     {
-	template <class MultiIndex, size_t N>
-	IndefinitIndexBase& getIndex(MultiIndex& in, size_t n)
-	{
-	    if(n == N){
-		return in.getIndex<N>();
+	template <size_t N>
+	struct IndexGetter
+	{	
+	    template <class MultiIndex>
+	    static IndefinitIndexBase& getIndex(MultiIndex& in, size_t n)
+	    {
+		if(n == N){
+		    return in.getIndex<N>();
+		}
+		else {
+		    return getIndex<N-1>(in, n);
+		}
 	    }
-	    else {
-		return getIndex<N-1>(in, n);
-	    }
-	}
-	
-	template <class MultiIndex>
-	IndefinitIndexBase& getIndex<MultiIndex,0>(MultiIndex& in, size_t n)
-	{
-	    return in.getIndex<0>();
-	}
-		
-	template <size_t N, class MultiIndex>
-	size_t evaluate_x(const MultiIndex& index)
-	{
-	    const auto& subIndex = index.getIndex<N>();
-	    return evaluate_x<N-1>(index) * subIndex.size() + subIndex.pos();
-	}
+	};
 
-	template <class MultiIndex>
-	size_t evaluate_x<0>(const MultiIndex& index)
+	template <>
+	struct IndexGetter<0>
 	{
-	    const auto& subIndex = index.getIndex<0>();
-	    return subIndex.pos();
-	}
+	    template <class MultiIndex>
+	    static IndefinitIndexBase& getIndex(MultiIndex& in, size_t n)
+	    {
+		return in.getIndex<0>();
+	    }
+	};
+
+	template <size_t N>
+	struct Evaluation
+	{
+	    template <class MultiIndex>
+	    static size_t evaluate(const MultiIndex& index)
+	    {
+		const auto& subIndex = index.getIndex<N>(0);
+		return Evaluation<N-1>::evaluate(index) * subIndex.size() + subIndex.pos();
+	    }
+	};
+
+	template <>
+	struct Evaluation<0>
+	{
+	    template <class MultiIndex>
+	    static size_t evaluate(const MultiIndex& index)
+	    {
+		const auto& subIndex = index.getIndex<0>(0);
+		return subIndex.pos();
+	    }
+	};
 
 	template <class MultiIndex>
 	inline void plus(MultiIndex& index, size_t digit, int num)
@@ -48,54 +64,63 @@ namespace MultiArrayTools
 	    size_t oor = si.outOfRange();
 	    if(oor and digit != MultiIndex::mult - 1){
 		plus(index, digit + 1, 1);
-		plus(index, digit, oor - max());
+		plus(index, digit, oor - si.max());
 	    }
 	}
 
 	template <size_t N>
-	void nameTuple(IndexPack& iPack, Name& name)
+	struct TupleNamer
 	{
-	    std::get<N>(iPack).name(name.get(N));
-	    nameTuple<N-1>(iPack, name);
-	}
-
-	template <>
-	void nameTuple<0>(IndexPack& iPack, Name& name)
-	{
-	    std::get<0>(iPack).name(name.get(0));
-	}
+	    template <class IndexPack, class Name>
+	    static void nameTuple(IndexPack& iPack, Name& name)
+	    {
+		std::get<N>(iPack).name(name.get(N));
+		nameTuple<N-1>(iPack, name);
+	    }
+	};
 	
+	template <>
+	struct TupleNamer<0>
+	{
+	    template <class IndexPack, class Name>
+	    static void nameTuple(IndexPack& iPack, Name& name)
+	    {
+		std::get<0>(iPack).name(name.get(0));
+	    }
+	};
     }
 
+    template <class... Indices>
+    MultiIndex<Indices...>::MultiIndex(Indices&&... inds) : mIPack(std::make_tuple(inds...)) {}
     
     template <class... Indices>
-    MultiIndex& MultiIndex<Indices...>::operator++()
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	setPos( pos() + 1 );
+	setPos( IIB::pos() + 1 );
 	plus(*this, 0, 1);
 	return *this;
     }
 
     template <class... Indices>
-    MultiIndex& MultiIndex<Indices...>::operator--()
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	setPos( pos() - 1 );
+	setPos( IIB::pos() - 1 );
 	plus(*this, 0, -1);
 	return *this;
     }
 
     template <class... Indices>
-    MultiIndex& MultiIndex<Indices...>::operator+=(int n)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator+=(int n)
     {
-	setPos( pos() + n );
+	setPos( IIB::pos() + n );
 	plus(*this, 0, n);
 	return *this;
     }
 
     template <class... Indices>
-    MultiIndex& MultiIndex<Indices...>::operator-=(int n)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator-=(int n)
     {
-	setPos( pos() - n );
+	setPos( IIB::pos() - n );
 	plus(*this, 0, 0-n);
 	return *this;
     }
@@ -103,7 +128,7 @@ namespace MultiArrayTools
     template <class... Indices>
     size_t MultiIndex<Indices...>::evaluate(const MultiIndex<Indices...>& in) const
     {
-	return evaluate_x<sizeof...(Indices)-1>(in);
+	return Evaluation<sizeof...(Indices)-1>::evaluate(in);
     }
 
     template <class... Indices>
@@ -111,12 +136,12 @@ namespace MultiArrayTools
     {
 	name(nm.own());
 	if(nm.size() >= sizeof...(Indices)){
-	    nameTuple<sizeof...(Indices)-1>(mIPack, nm);
+	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm);
 	}
 	else {
 	    Name nm2 = nm;
 	    nm2.autoName(sizeof...(Indices));
-	    nameTuple<sizeof...(Indices)-1>(mIPack, nm);
+	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm);
 	}
     }
     
@@ -124,7 +149,7 @@ namespace MultiArrayTools
     size_t MultiIndex<Indices...>::dim() const
     {
 	size_t res = 1;
-	for(size_t i = 0; i != sMult; ++i){
+	for(size_t i = 0; i != sizeof...(Indices); ++i){
 	    res *= getIndex(i).dim();
 	}
 	return res;
@@ -133,20 +158,20 @@ namespace MultiArrayTools
     template <class... Indices>
     bool MultiIndex<Indices...>::link(IndefinitIndexBase* toLink)
     {
-	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
+	if(toLink->rangeType() != IIB::rangeType() and toLink->name() == name()){
 	    // throw !!
 	}
 	
-	if(toLink->rangeType() == rangeType() and toLink->name() == name()){
-	    if(mLinked == toLink){
+	if(toLink->rangeType() == IIB::rangeType() and toLink->name() == name()){
+	    if(IIB::mLinked == toLink){
 		return true; // dont link twice the same
 	    }
-	    else if(mLinked == nullptr){
-		mLinked = toLink;
+	    else if(IIB::mLinked == nullptr){
+		IIB::mLinked = toLink;
 		return true;
 	    }
 	    else {
-		return mLinked->link(toLink);
+		return IIB::mLinked->link(toLink);
 	    }
 	}
 	else {
@@ -154,43 +179,46 @@ namespace MultiArrayTools
 	}
     }
 
-    template <size_t N>
-    auto& MultiIndex<Indices...>::getIndex() -> decltype(std::get<N>(mIPack))
-    {
-	return std::get<N>(mIPack);
-    }
-    
-    template <size_t N>
-    const auto& MultiIndex<Indices...>::getIndex() const -> decltype(std::get<N>(mIPack));
-    {
-	return std::get<N>(mIPack);
-    }
-    
     template <class... Indices>
-    IndefinitIndexBase& MultiIndex<Indices...>::getIndex(size_t n)
+    template <size_t N>
+    auto MultiIndex<Indices...>::getIndex(size_t x) -> decltype(std::get<N>(MultiIndex<Indices...>::IndexPack()))
     {
-	if(n >= sMult){
-	    // throw !!
-	}
-	MultiIndex<Indices...>* t = this;
-	return getIndex<sizeof...(Indices)>(*t, n);
+	return std::get<N>(mIPack);
     }
 
     template <class... Indices>
-    const IndefinitIndexBase& MultiIndex<Indices...>::getIndex(size_t n) const
+    template <size_t N>
+    auto MultiIndex<Indices...>::getIndex(size_t x) const ->
+	decltype(std::get<N>(MultiIndex<Indices...>::IndexPack()))
     {
-	if(n >= sMult){
+	return std::get<N>(mIPack);
+    }
+    
+    template <class... Indices>
+    IndefinitIndexBase& MultiIndex<Indices...>::get(size_t n)
+    {
+	if(n >= sizeof...(Indices)){
 	    // throw !!
 	}
 	MultiIndex<Indices...>* t = this;
-	return getIndex<sizeof...(Indices)>(*t, n);
+	return IndexGetter<sizeof...(Indices)>::getIndex(*t, n);
+    }
+
+    template <class... Indices>
+    const IndefinitIndexBase& MultiIndex<Indices...>::get(size_t n) const
+    {
+	if(n >= sizeof...(Indices)){
+	    // throw !!
+	}
+	MultiIndex<Indices...>* t = this;
+	return IndexGetter<sizeof...(Indices)>::getIndex(*t, n);
     }
 
     template <class... Indices>
     bool MultiIndex<Indices...>::linkLower(IndefinitIndexBase* toLink)
     {
 	bool res = false;
-	for(size_t i = 0; i != sMult; ++i){
+	for(size_t i = 0; i != sizeof...(Indices); ++i){
 	    res |= getIndex(i).link(toLink);
 	}
 	return res;
@@ -200,7 +228,7 @@ namespace MultiArrayTools
     void MultiIndex<Indices...>::linkTo(IndefinitIndexBase* target)
     {
 	target->link(this);
-	for(size_t i = 0; i != sMult; ++i){
+	for(size_t i = 0; i != sizeof...(Indices); ++i){
 	    getIndex(i).linkTo(target);
 	}
     }
@@ -208,12 +236,30 @@ namespace MultiArrayTools
     /******************
      *   MultiRange   *
      ******************/
-    
+
+    template <class... Ranges>
     template <size_t N>
-    auto MultiRange<Ranges...>::get() -> decltype( std::get<N>(mSpace) )
+    auto MultiRange<Ranges...>::get() -> decltype( std::get<N>(MultiRange<Ranges...>::SpaceType()) )
     {
 	return std::get<N>(mSpace);
     }
-    
-    
+
+    template <class... Ranges>
+    template <size_t N>
+    auto MultiRange<Ranges...>::get() const -> decltype( std::get<N>(MultiRange<Ranges...>::SpaceType()) )
+    {
+	return std::get<N>(mSpace);
+    }
+
+    template <class... Ranges>
+    MultiIndex<typename Ranges::IndexType...> MultiRange<Ranges...>::begin() const
+    {
+	return MultiIndex<typename Ranges::IndexType...>(/*!!!!!!*/);
+    }
+
+    template <class... Ranges>
+    MultiIndex<typename Ranges::IndexType...> MultiRange<Ranges...>::end() const
+    {
+	return MultiIndex<typename Ranges::IndexType...>(/*!!!!!!*/);
+    }
 }

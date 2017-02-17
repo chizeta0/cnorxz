@@ -7,60 +7,56 @@ namespace MultiArrayTools
      *  MultiArray     *	     
      *******************/
 
-    namespace
-    {
-	template <typename... Ranges>
-	void giveNames(const std::string& name, /**/);
-	
-	template <typename... Ranges>
-	void giveNames(const std::vector<std::string>& names, /**/);
-
-    }
-    /*!!!!  giveNames(...)  !!!!!*/
-
     template <typename T, class Range>
-    MultiArray(const Range& range) : mRange(&range), mCont(mRange.size())
+    MultiArray<T,Range>::MultiArray(const Range& range) : mRange(new Range(range)), mCont(mRange.size())
     {
 	mInit = true;
     }
 
     template <typename T, class Range>
-    MultiArray(const Range& range, const std::vector<T>& vec) : mRange(&range), mCont(vec)
+    MultiArray<T,Range>::MultiArray(const Range& range, const std::vector<T>& vec) : mRange(new Range(range)),
+										     mCont(vec)
     {
 	mInit = true;
-	if(mCont.size() > mRange.size()){
-	    mCont.erase(mCont.begin() + mRange.size(), mCont.end());
+	if(mCont.size() > mRange->size()){
+	    mCont.erase(mCont.begin() + mRange->size(), mCont.end());
 	}
     }
     
     template <typename T, class Range>
-    MultiArray(const Range& range, std::vector<T>&& vec) : mRange(&range), mCont(vec)
+    MultiArray<T,Range>::MultiArray(const Range& range, std::vector<T>&& vec) : mRange(new Range(range)), mCont(vec)
     {
 	mInit = true;
-	if(mCont.size() > mRange.size()){
-	    mCont.erase(mCont.begin() + mRange.size(), mCont.end());
+	if(mCont.size() > mRange->size()){
+	    mCont.erase(mCont.begin() + mRange->size(), mCont.end());
 	}
     }
     
     template <typename T, class Range>
-    T& MultiArray<T,Is...>::operator()(const typename Range::indexType& i)
+    T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i)
     {
 	return mCont[ i.pos() ];
     }
 
     template <typename T, class Range>
-    const T& MultiArray<T,Is...>::operator()(const typename Range::indexType& i) const
+    const T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i) const
     {
 	return mCont[ i.pos() ];
     }
 
     template <typename T, class Range>
     template <class... NameTypes>
-    MultiArrayOperation<T,Range>& operator()(const NameTypes&... str) const
+    MultiArrayOperationBase<T,Range> MultiArray<T,Range>::operator()(const NameTypes&... str)
     {
 	auto index = mRange->begin();
 	index.name(Name("master", str...));
-	return MultiArrayOperation<T,Range>(*this, index);
+	return MultiArrayOperationBase<T,Range>(*this, index);
     }
 
+    template <typename T, class Range>
+    size_t MultiArray<T,Range>::size() const
+    {
+	return mRange->size();
+    }
+    
 }

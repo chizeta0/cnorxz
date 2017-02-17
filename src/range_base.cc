@@ -7,7 +7,19 @@ namespace MultiArrayTools
      *  MultiRangeType   *
      *********************/
 
-    MultiRangeType& MultiRangeType::operator=(RangeType& type)
+    MultiRangeType::MultiRangeType(const RangeType& type) : mType(type), mMultiType(nullptr) {}
+    
+    MultiRangeType::MultiRangeType(const std::vector<MultiRangeType>& multiType) :
+	mType(RangeType::NIL),
+	mMultiType(new std::vector<MultiRangeType>(multiType)) {}
+
+    MultiRangeType::~MultiRangeType()
+    {
+	delete mMultiType;
+    }
+
+    
+    MultiRangeType& MultiRangeType::operator=(const RangeType& type)
     {
 	setType(type);
 	return *this;
@@ -31,7 +43,7 @@ namespace MultiArrayTools
     
     bool MultiRangeType::multi() const
     {
-	return mType != nullptr;
+	return mMultiType != nullptr;
     }
 
     bool MultiRangeType::operator==(const MultiRangeType& in) const
@@ -79,6 +91,12 @@ namespace MultiArrayTools
 	return false;
     }
 
+    template <class Index>
+    RangeBase<Index>* RangeBase<Index>::base()
+    {
+	return nullptr;
+    }
+    
     /*********************
      *   SubRangeBase    *
      *********************/
