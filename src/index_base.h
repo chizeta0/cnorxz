@@ -30,7 +30,7 @@ namespace MultiArrayTools
 	
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const; // = mPos; implement !!!
-
+	
 	virtual const std::string& name() const;
 	virtual void name(const std::string& str);
  	virtual void name(const Name& nm);

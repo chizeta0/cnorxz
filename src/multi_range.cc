@@ -57,8 +57,8 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static size_t evaluate(const MultiIndex& index)
 	    {
-		//const auto& subIndex = index.getIndex<N>();
-		return Evaluation<N-1>::evaluate(index) * index.getIndex<N>().size() + index.getIndex<N>().pos();
+		const IndefinitIndexBase& subIndex = IndexGetter<N>::getIndex(index, N);
+		return Evaluation<N-1>::evaluate(index) * subIndex.max() + subIndex.pos();
 	    }
 	};
 
@@ -68,8 +68,8 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static size_t evaluate(const MultiIndex& index)
 	    {
-		//const auto& subIndex = index.getIndex<0>();
-		return index.getIndex<0>().pos();
+		const IndefinitIndexBase& subIndex = IndexGetter<0>::getIndex(index, 0);
+		return subIndex.pos();
 	    }
 	};
 
@@ -156,7 +156,7 @@ namespace MultiArrayTools
     IndefinitIndexBase& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IIB::setPos( pos );
-	setIndexPack(mIPack, pos); // -> implement !!!
+	//setIndexPack(mIPack, pos); // -> implement !!!
 	return *this;
     }
 
@@ -207,11 +207,11 @@ namespace MultiArrayTools
     template <class... Indices>
     bool MultiIndex<Indices...>::link(IndefinitIndexBase* toLink)
     {
-	if(toLink->rangeType() != IIB::rangeType() and toLink->name() == IIB::name()){
+	if(toLink->rangeType() != rangeType() and toLink->name() == IIB::name()){
 	    // throw !!
 	}
 	
-	if(toLink->rangeType() == IIB::rangeType() and toLink->name() == IIB::name()){
+	if(toLink->rangeType() == rangeType() and toLink->name() == IIB::name()){
 	    if(IIB::mLinked == toLink){
 		return true; // dont link twice the same
 	    }
@@ -230,7 +230,7 @@ namespace MultiArrayTools
 
     template <class... Indices>
     template <size_t N>
-    auto MultiIndex<Indices...>::getIndex() -> decltype(std::get<N>(mIPack))&
+    auto MultiIndex<Indices...>::getIndex() -> decltype(std::get<N>(mIPack))
     {
 	return std::get<N>(mIPack);
     }
@@ -238,7 +238,7 @@ namespace MultiArrayTools
     template <class... Indices>
     template <size_t N>
     auto MultiIndex<Indices...>::getIndex() const ->
-	const decltype(std::get<N>(mIPack))&
+	const decltype(std::get<N>(mIPack))
     {
 	return std::get<N>(mIPack);
     }

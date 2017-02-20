@@ -44,10 +44,10 @@ namespace MultiArrayTools
 	virtual MultiRangeType rangeType() const override;
 	
 	template <size_t N>
-	auto getIndex() -> decltype(std::get<N>(mIPack))&;
+	auto getIndex() -> decltype(std::get<N>(mIPack));
 
 	template <size_t N>
-	auto getIndex() const -> const decltype(std::get<N>(mIPack))&;
+	auto getIndex() const -> const decltype(std::get<N>(mIPack));
 
 	IndefinitIndexBase& get(size_t n);
 	const IndefinitIndexBase& get(size_t n) const;
