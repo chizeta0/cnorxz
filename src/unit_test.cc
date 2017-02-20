@@ -26,6 +26,28 @@ namespace {
 	
     };
 
+    class TwoDimTest : public ::testing::Test
+    {
+    protected:
+
+	typedef MAT::SingleRange<char,MAT::RangeType::ANY> Range1dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny> Range2dAny;
+	typedef MAT::MultiArray<int,Range2dAny> MultiArray2dAny;
+	
+	TwoDimTest() : r1({'a','b','c'}),
+		       r2({'a','b','c','d'}),
+		       r(r1,r2),
+		       ma(r, {-5,6,2,1,9,54,27,-7,-13,32,90,-67}) {}
+
+	//virtual void SetUp();
+
+	Range1dAny r1;
+	Range1dAny r2;
+	Range2dAny r;
+	MultiArray2dAny ma;
+	
+    };
+    
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);
@@ -39,6 +61,29 @@ namespace {
 	EXPECT_EQ(ma[3], 1);
 	EXPECT_EQ(ma[4], 9);
     }
+
+    TEST_F(TwoDimTest, CorrectExtensions)
+    {
+	EXPECT_EQ(ma.size(), 12);
+    }
+
+    TEST_F(TwoDimTest, CorrectAssigned)
+    {
+	auto i = ma.begin();
+	EXPECT_EQ(ma[i(0,0)], -5);
+	EXPECT_EQ(ma[i(0,1)], 6);
+	EXPECT_EQ(ma[i(0,2)], 2);
+	EXPECT_EQ(ma[i(0,3)], 1);
+	EXPECT_EQ(ma[i(1,0)], 9);
+	EXPECT_EQ(ma[i(1,1)], 54);
+	EXPECT_EQ(ma[i(1,2)], 27);
+	EXPECT_EQ(ma[i(1,3)], -7);
+	EXPECT_EQ(ma[i(2,0)], -13);
+	EXPECT_EQ(ma[i(2,1)], 32);
+	EXPECT_EQ(ma[i(2,2)], 90);
+	EXPECT_EQ(ma[i(2,3)], -67);
+    }
+
    
 } // end namespace 
 

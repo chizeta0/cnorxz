@@ -32,6 +32,9 @@ namespace MultiArrayTools
 	const T& operator[](const typename Range::IndexType& i) const;
 
 	size_t size() const; 
+
+	auto begin() -> decltype(Range().begin());
+	auto end() -> decltype(Range().end());
 	
     private:
 	bool mInit = false;

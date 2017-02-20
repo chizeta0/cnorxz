@@ -58,5 +58,18 @@ namespace MultiArrayTools
     {
 	return mRange->size();
     }
+
+    template <typename T, class Range>
+    auto MultiArray<T,Range>::begin() -> decltype(Range().begin())
+    {
+	return mRange->begin();
+    }
+
+    template <typename T, class Range>
+    auto MultiArray<T,Range>::end() -> decltype(Range().end())
+    {
+	return mRange->end();
+    }
+
     
 }

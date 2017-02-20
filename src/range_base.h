@@ -63,7 +63,8 @@ namespace MultiArrayTools
 	virtual Index end() const = 0;
 	virtual RangeBase<Index>* base();
 	virtual bool isSubRange() const;
-
+	virtual MultiRangeType type() const = 0;
+	
     protected:
 	DEFAULT_MEMBERS(RangeBase);
 	

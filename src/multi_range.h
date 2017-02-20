@@ -17,35 +17,9 @@ namespace MultiArrayTools
     class MultiIndex : public IndexBase<MultiIndex<Indices...> >
     {
     public:
-
-	DEFAULT_MEMBERS(MultiIndex);
-
-	MultiIndex(Indices&&... inds);
-	
 	typedef std::tuple<Indices...> IndexPack;
 	typedef IndefinitIndexBase IIB;
-	
-	virtual MultiIndex& operator++() override;
-	virtual MultiIndex& operator--() override;
-	virtual MultiIndex& operator+=(int n) override;
-	virtual MultiIndex& operator-=(int n) override;
-	
-	template <size_t N>
-	auto getIndex(size_t x) -> decltype(std::get<N>(IndexPack()));
-
-	template <size_t N>
-	auto getIndex(size_t x) const -> decltype(std::get<N>(IndexPack()));
-
-	IndefinitIndexBase& get(size_t n);
-	const IndefinitIndexBase& get(size_t n) const;
-
-	virtual void name(const Name& nm) override;
-	
-	// dimension of MultiRange; includes ALL degrees of freedom
-	virtual size_t dim() const override;
-
-	virtual bool link(IndefinitIndexBase* toLink) override;
-	virtual void linkTo(IndefinitIndexBase* target) override;
+	typedef IndexBase<MultiIndex<Indices...> > IB;
 	
     protected:
 	
@@ -53,6 +27,40 @@ namespace MultiArrayTools
 	virtual size_t evaluate(const MultiIndex& in) const override;
 	
 	IndexPack mIPack;
+
+    public:
+
+	DEFAULT_MEMBERS(MultiIndex);
+
+	MultiIndex(Indices&&... inds);
+	MultiIndex(const IndexPack& ipack);
+	
+	virtual MultiIndex& operator++() override;
+	virtual MultiIndex& operator--() override;
+	virtual MultiIndex& operator+=(int n) override;
+	virtual MultiIndex& operator-=(int n) override;
+
+	virtual IIB& operator=(size_t pos) override;
+	virtual MultiRangeType rangeType() const override;
+	
+	template <size_t N>
+	auto getIndex() -> decltype(std::get<N>(mIPack))&;
+
+	template <size_t N>
+	auto getIndex() const -> const decltype(std::get<N>(mIPack))&;
+
+	IndefinitIndexBase& get(size_t n);
+	const IndefinitIndexBase& get(size_t n) const;
+
+	MultiIndex& operator()(Indices&&... inds);
+	
+	virtual void name(const Name& nm) override;
+	
+	// dimension of MultiRange; includes ALL degrees of freedom
+	virtual size_t dim() const override;
+
+	virtual bool link(IndefinitIndexBase* toLink) override;
+	virtual void linkTo(IndefinitIndexBase* target) override;
     };
 
     template <class... Ranges>
@@ -63,14 +71,20 @@ namespace MultiArrayTools
 	typedef std::tuple<Ranges...> SpaceType;
 	
 	DEFAULT_MEMBERS(MultiRange);
+
+	MultiRange(const Ranges&... rs);
+	
 	static const size_t dim = sizeof...(Ranges);
 
 	template <size_t N>
-	auto get() -> decltype( std::get<N>(SpaceType()) );
+	auto getRange() -> decltype( std::get<N>(SpaceType()) );
 
 	template <size_t N>
-	auto get() const -> decltype( std::get<N>(SpaceType()) );
+	auto getRange() const -> decltype( std::get<N>(SpaceType()) );
 
+	size_t size() const override;
+
+	virtual MultiRangeType type() const override; 
 	
 	virtual MultiIndex<typename Ranges::IndexType...> begin() const override;
 	virtual MultiIndex<typename Ranges::IndexType...> end() const override;

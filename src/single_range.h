@@ -62,6 +62,8 @@ namespace MultiArrayTools
 	const U& get(size_t pos) const;
 	size_t get(const U& metaPos) const;
 
+	virtual MultiRangeType type() const override;
+	
 	SingleIndex<U,TYPE> begin() const override;
 	SingleIndex<U,TYPE> end() const override;
 	

@@ -37,6 +37,12 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
+    MultiRangeType SingleRange<U,TYPE>::type() const
+    {
+	return MultiRangeType(TYPE);
+    }
+    
+    template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE> SingleRange<U,TYPE>::begin() const
     {
 	return SingleIndex<U,TYPE>(0);
