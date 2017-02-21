@@ -9,7 +9,7 @@
     __class_name__(__class_name__&& in) = default; \
     __class_name__& operator=(__class_name__&& in) = default
 
-//#define DEBUG_MODE_X
+#define DEBUG_MODE_X
 
 #ifdef DEBUG_MODE_X
 

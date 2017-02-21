@@ -8,7 +8,7 @@ namespace MultiArrayTools
      *******************/
 
     template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range) : mRange(new Range(range)), mCont(mRange.size())
+    MultiArray<T,Range>::MultiArray(const Range& range) : mRange(new Range(range)), mCont(mRange->size())
     {
 	mInit = true;
     }
@@ -48,9 +48,7 @@ namespace MultiArrayTools
     template <class... NameTypes>
     MultiArrayOperationBase<T,Range> MultiArray<T,Range>::operator()(const NameTypes&... str)
     {
-	auto index = mRange->begin();
-	index.name(Name("master", str...));
-	return MultiArrayOperationBase<T,Range>(*this, index);
+	return MultiArrayOperationBase<T,Range>(*this, Name("master", str...));
     }
 
     template <typename T, class Range>

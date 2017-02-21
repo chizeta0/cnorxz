@@ -6,17 +6,47 @@ namespace MultiArrayTools
     /*********************************
      *   MultiArrayOperationBase     *
      *********************************/
+
+    template <typename T, class Range>
+    MultiArrayOperationBase<T,Range>::
+    MultiArrayOperationBase(MultiArray<T,Range>& ma,
+			    const Name& nm) : mArrayRef(ma),
+					      mIibPtr(new IndexType(mArrayRef.begin()))
+    {
+	mIibPtr->name(nm);
+    }
+
+    template <typename T, class Range>
+    MultiArrayOperationBase<T,Range>::~MultiArrayOperationBase()
+    {
+	delete mIibPtr;
+    }
+
+    template <typename T, class Range>
+    MultiArrayOperationBase<T,Range>&
+    MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T,Range>& in)
+    {
+	CHECK;
+	in.linkIndicesTo(mIibPtr);
+	for(*mIibPtr = mArrayRef.begin(); *mIibPtr != mArrayRef.end(); ++(*mIibPtr)){
+	    // build in vectorization later
+	    get() = in.get();
+	}
+	return *this;
+    }
     
     template <typename T, class Range>
     template <class Range2>
     MultiArrayOperationBase<T,Range>&
     MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T, Range2>& in)
     {
+	CHECK;
 	in.linkIndicesTo(mIibPtr);
 	for(*mIibPtr = mArrayRef.begin(); *mIibPtr != mArrayRef.end(); ++(*mIibPtr)){
 	    // build in vectorization later
 	    get() = in.get();
 	}
+	return *this;
     }
 
     template <typename T, class Range>
@@ -48,13 +78,13 @@ namespace MultiArrayTools
     template <typename T, class Range>
     T& MultiArrayOperationBase<T,Range>::get()
     {
-	return mArrayRef[*mIibPtr];
+	return mArrayRef[*dynamic_cast<IndexType*>(mIibPtr)];
     }
 
     template <typename T, class Range>
     const T& MultiArrayOperationBase<T,Range>::get() const
     {
-	return mArrayRef[*mIibPtr];
+	return mArrayRef[*dynamic_cast<IndexType*>(mIibPtr)];
     }
 
     /*****************************

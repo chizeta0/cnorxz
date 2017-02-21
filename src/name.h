@@ -18,6 +18,9 @@ namespace MultiArrayTools
 	
 	template <class... NameTypes>
 	Name(const std::string& mainName, const NameTypes&... names);
+	
+	template <class... NameTypes>
+ 	Name(char const* mainName, const NameTypes&... names);
 
 	const std::string& own() const;
 	const Name& get(size_t n) const;

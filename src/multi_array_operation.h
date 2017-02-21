@@ -16,8 +16,13 @@ namespace MultiArrayTools
     class MultiArrayOperationBase
     {
     public:
+
+	typedef decltype(MultiArray<T,Range>().begin()) IndexType;
 	
-	MultiArrayOperationBase(MultiArray<T,Range>& ma, const IndefinitIndexBase& iib);
+	MultiArrayOperationBase(MultiArray<T,Range>& ma, const Name& nm);
+	MultiArrayOperationBase& operator=(const MultiArrayOperationBase& in);
+
+	virtual ~MultiArrayOperationBase();
 	
 	// execute AnyOperation
 	// exception if range types are inconsitent with names
@@ -52,8 +57,10 @@ namespace MultiArrayTools
 	
     protected:
 
+	// HERE !!!!!!
+	
 	MultiArray<T,Range>& mArrayRef;
-	IndefinitIndexBase* mIibPtr;
+	IndefinitIndexBase* mIibPtr = nullptr;
 	
     };
 

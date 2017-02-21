@@ -179,14 +179,14 @@ namespace MultiArrayTools
     template <class... Indices>
     void MultiIndex<Indices...>::name(const Name& nm)
     {
-	name(nm.own());
+	IIB::mName = nm.own();
 	if(nm.size() >= sizeof...(Indices)){
 	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm);
 	}
 	else {
 	    Name nm2 = nm;
 	    nm2.autoName(sizeof...(Indices));
-	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm);
+	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm2);
 	}
     }
 

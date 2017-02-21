@@ -47,7 +47,27 @@ namespace {
 	MultiArray2dAny ma;
 	
     };
-    
+
+    class ReorderTest : public ::testing::Test
+    {
+    protected:
+	
+	typedef MAT::SingleRange<char,MAT::RangeType::ANY> Range1dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny> Range2dAny;
+	typedef MAT::MultiArray<int,Range2dAny> MultiArray2dAny;
+
+	ReorderTest() : r1({'a','b','c'}), r2({'a','b'}),
+			ra(r1,r2), rb(r2,r1),
+			ma(ra, {-5,6,2,1,9,54}) {}
+	
+	Range1dAny r1;
+	Range1dAny r2;
+	Range2dAny ra;
+	Range2dAny rb;
+	MultiArray2dAny ma;
+	
+    };
+
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);
@@ -87,6 +107,24 @@ namespace {
 	EXPECT_EQ(ma[i(i1 = 2, i2 = 1)], 32);
 	EXPECT_EQ(ma[i(i1 = 2, i2 = 2)], 90);
 	EXPECT_EQ(ma[i(i1 = 2, i2 = 3)], -67);
+    }
+
+    TEST_F(ReorderTest, ReorderingWorks)
+    {
+	MultiArray2dAny ma2(rb);
+	auto i = ma2.begin();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+	//ma2("alpha","beta");
+	//ma("beta","alpha");
+	CHECK;
+	ma2("alpha","beta") = ma("beta","alpha");
+	EXPECT_EQ(ma2[i(i1 = 0,i2 = 0)],-5);
+	EXPECT_EQ(ma2[i(i1 = 1,i2 = 0)],6);
+	EXPECT_EQ(ma2[i(i1 = 0,i2 = 1)],2);
+	EXPECT_EQ(ma2[i(i1 = 1,i2 = 1)],1);
+	EXPECT_EQ(ma2[i(i1 = 0,i2 = 2)],9);
+	EXPECT_EQ(ma2[i(i1 = 1,i2 = 2)],54);
     }
    
 } // end namespace 

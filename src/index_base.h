@@ -17,6 +17,8 @@ namespace MultiArrayTools
     class IndefinitIndexBase
     {
     public:
+
+	virtual ~IndefinitIndexBase() {}
 	
 	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
 	virtual IndefinitIndexBase& operator++() = 0;
