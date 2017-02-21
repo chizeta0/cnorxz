@@ -26,10 +26,13 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>&
     MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T,Range>& in)
     {
-	CHECK;
 	in.linkIndicesTo(mIibPtr);
-	for(*mIibPtr = mArrayRef.begin(); *mIibPtr != mArrayRef.end(); ++(*mIibPtr)){
+	IndexType& iref = dynamic_cast<IndexType&>(*mIibPtr);
+	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
 	    // build in vectorization later
+	    VCHECK(iref.pos());
+	    VCHECK(in.mIibPtr->pos());
+	    VCHECK(in.get());
 	    get() = in.get();
 	}
 	return *this;
@@ -70,7 +73,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    void MultiArrayOperationBase<T,Range>::linkIndicesTo(IndefinitIndexBase* target)
+    void MultiArrayOperationBase<T,Range>::linkIndicesTo(IndefinitIndexBase* target) const
     {
 	mIibPtr->linkTo(target);
     }
@@ -85,6 +88,18 @@ namespace MultiArrayTools
     const T& MultiArrayOperationBase<T,Range>::get() const
     {
 	return mArrayRef[*dynamic_cast<IndexType*>(mIibPtr)];
+    }
+    
+    template <typename T, class Range>
+    T& MultiArrayOperationBase<T,Range>::get(IndefinitIndexBase* iibPtr)
+    {
+	return mArrayRef[*dynamic_cast<IndexType*>(iibPtr)];
+    }
+
+    template <typename T, class Range>
+    const T& MultiArrayOperationBase<T,Range>::get(IndefinitIndexBase* iibPtr) const
+    {
+	return mArrayRef[*dynamic_cast<IndexType*>(iibPtr)];
     }
 
     /*****************************
@@ -140,7 +155,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range, class Operation, class... Ranges>    
-    void MultiArrayOperation<T,Range,Operation,Ranges...>::linkIndicesTo(IndefinitIndexBase* target)
+    void MultiArrayOperation<T,Range,Operation,Ranges...>::linkIndicesTo(IndefinitIndexBase* target) const
     {
 	OB::mIibPtr->linkTo(target);
 	TupleIndicesLinker<sizeof...(Ranges)>::linkTupleIndicesTo(mSecs, target);

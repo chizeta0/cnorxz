@@ -17,7 +17,7 @@ namespace MultiArrayTools
     class IndefinitIndexBase
     {
     public:
-
+	DEFAULT_MEMBERS(IndefinitIndexBase);
 	virtual ~IndefinitIndexBase() {}
 	
 	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
@@ -53,8 +53,6 @@ namespace MultiArrayTools
 	
     protected:
 
-	DEFAULT_MEMBERS(IndefinitIndexBase);
-	
 	std::string mName;
 	size_t mPos;
 
@@ -65,6 +63,9 @@ namespace MultiArrayTools
     class IndexBase : public IndefinitIndexBase
     {
     public:
+
+	DEFAULT_MEMBERS(IndexBase);
+	IndexBase(RangeBase<Index> const* range);
 	
 	//virtual size_t pos() const override; // = mPos; implement !!!
 	virtual size_t max() const override;
@@ -74,10 +75,6 @@ namespace MultiArrayTools
 	
     protected:
 
-	DEFAULT_MEMBERS(IndexBase);
-
-	IndexBase(RangeBase<Index> const* range);
-	
 	// translate index into position
 	virtual size_t evaluate(const Index& in) const = 0;
 	RangeBase<Index> const* mRange;

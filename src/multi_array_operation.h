@@ -21,7 +21,8 @@ namespace MultiArrayTools
 	
 	MultiArrayOperationBase(MultiArray<T,Range>& ma, const Name& nm);
 	MultiArrayOperationBase& operator=(const MultiArrayOperationBase& in);
-
+	//MultiArrayOperationBase(const MultiArrayOperationBase& in) = default;
+	
 	virtual ~MultiArrayOperationBase();
 	
 	// execute AnyOperation
@@ -50,17 +51,20 @@ namespace MultiArrayTools
 
 	IndefinitIndexBase* index();
 
-	virtual void linkIndicesTo(IndefinitIndexBase* target);
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const;
 
 	virtual T& get();
 	virtual const T& get() const;
+
+	virtual T& get(IndefinitIndexBase* iibPtr);
+	virtual const T& get(IndefinitIndexBase* iibPtr) const;
 	
     protected:
 
 	// HERE !!!!!!
 	
 	MultiArray<T,Range>& mArrayRef;
-	IndefinitIndexBase* mIibPtr = nullptr;
+	IndefinitIndexBase mutable* mIibPtr = nullptr;
 	
     };
 
@@ -74,14 +78,14 @@ namespace MultiArrayTools
 	MultiArrayOperation(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
 	virtual size_t argNum() const override;
 	
-	virtual void linkIndicesTo(IndefinitIndexBase* target) override;
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual T& get() override;
 	virtual const T& get() const override;
 	
     protected:
 
-	T mVal;
+ 	mutable T mVal;
 	Operation mOp;
 	std::tuple<MultiArrayOperationBase<T,Ranges>... > mSecs;
     };

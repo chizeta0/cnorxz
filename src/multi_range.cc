@@ -79,9 +79,9 @@ namespace MultiArrayTools
 	    IndefinitIndexBase& si = index.get(digit);
 	    si.setPos( si.pos() + num );
 	    size_t oor = si.outOfRange();
-	    if(oor and digit != index.dim() - 1){
-		plus(index, digit + 1, 1);
-		plus(index, digit, oor - si.max());
+	    if(oor and digit != 0){
+		plus(index, digit - 1, 1);
+		plus(index, digit, oor - si.max() - 1);
 	    }
 	}
 
@@ -127,8 +127,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	IIB::setPos( IIB::pos() + 1 );
-	plus(*this, 0, 1);
+	plus(*this, sizeof...(Indices)-1, 1);
+	IIB::setPos( evaluate(*this) );
 	return *this;
     }
 
@@ -157,6 +157,18 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    bool MultiIndex<Indices...>::operator==(const MultiIndex<Indices...>& in)
+    {
+	return IB::mRange == in.mRange and IIB::pos() == in.pos();
+    }
+
+    template <class... Indices>
+    bool MultiIndex<Indices...>::operator!=(const MultiIndex<Indices...>& in)
+    {
+	return IB::mRange != in.mRange or IIB::pos() != in.pos();
+    }
+    
+    template <class... Indices>
     IndefinitIndexBase& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IIB::setPos( pos );
@@ -173,7 +185,8 @@ namespace MultiArrayTools
     template <class... Indices>
     size_t MultiIndex<Indices...>::evaluate(const MultiIndex<Indices...>& in) const
     {
-	return Evaluation<sizeof...(Indices)-1>::evaluate(in);
+	size_t res = Evaluation<sizeof...(Indices)-1>::evaluate(in);
+	return res;
     }
 
     template <class... Indices>
@@ -388,6 +401,7 @@ namespace MultiArrayTools
 	static void setEnd(std::tuple<typename Ranges::IndexType...>& i, const std::tuple<Ranges...>& r)
 	{
 	    std::get<N>(i) = std::get<N>(r).end();
+	    std::get<N>(i) -= 1;
 	    IndexSetter<N-1>::setEnd(i,r);
 	}
     };
@@ -405,6 +419,7 @@ namespace MultiArrayTools
 	static void setEnd(std::tuple<typename Ranges::IndexType...>& i, const std::tuple<Ranges...>& r)
 	{
 	    std::get<0>(i) = std::get<0>(r).end();
+	    std::get<0>(i) -= 1;
 	}
     };
 
@@ -449,6 +464,6 @@ namespace MultiArrayTools
     {
 	std::tuple<typename Ranges::IndexType...> is;
 	IndexSetter<sizeof...(Ranges)-1>::setEnd(is,mSpace);
-	return MultiIndex<typename Ranges::IndexType...>(this, is);
+	return ++MultiIndex<typename Ranges::IndexType...>(this, is);
     }
 }

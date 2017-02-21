@@ -115,15 +115,24 @@ namespace {
 	auto i = ma2.begin();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
-	//ma2("alpha","beta");
-	//ma("beta","alpha");
 	CHECK;
 	ma2("alpha","beta") = ma("beta","alpha");
+	VCHECK(i(i1 = 0,i2 = 0).pos());
 	EXPECT_EQ(ma2[i(i1 = 0,i2 = 0)],-5);
+	
+	VCHECK(i(i1 = 1,i2 = 0).pos());
 	EXPECT_EQ(ma2[i(i1 = 1,i2 = 0)],6);
+
+	VCHECK(i(i1 = 0,i2 = 1).pos());
 	EXPECT_EQ(ma2[i(i1 = 0,i2 = 1)],2);
+
+	VCHECK(i(i1 = 1,i2 = 1).pos());
 	EXPECT_EQ(ma2[i(i1 = 1,i2 = 1)],1);
+
+	VCHECK(i(i1 = 0,i2 = 2).pos());
 	EXPECT_EQ(ma2[i(i1 = 0,i2 = 2)],9);
+
+	VCHECK(i(i1 = 1,i2 = 2).pos());
 	EXPECT_EQ(ma2[i(i1 = 1,i2 = 2)],54);
     }
    

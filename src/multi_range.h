@@ -43,6 +43,9 @@ namespace MultiArrayTools
 	virtual MultiIndex& operator+=(int n) override;
 	virtual MultiIndex& operator-=(int n) override;
 
+	bool operator==(const MultiIndex& in);
+	bool operator!=(const MultiIndex& in);
+	
 	virtual IIB& operator=(size_t pos) override;
 	virtual MultiRangeType rangeType() const override;
 	
