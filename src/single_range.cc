@@ -45,13 +45,13 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE> SingleRange<U,TYPE>::begin() const
     {
-	return SingleIndex<U,TYPE>(0);
+	return SingleIndex<U,TYPE>(this, 0);
     }
 
     template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE> SingleRange<U,TYPE>::end() const
     {
-	return SingleIndex<U,TYPE>(mSpace.size());
+	return SingleIndex<U,TYPE>(this, mSpace.size());
     }
     
     /******************
@@ -59,13 +59,15 @@ namespace MultiArrayTools
      ******************/
 
     template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>::SingleIndex(const U& upos, size_t disambig) : IndexBase<SingleIndex<U,TYPE> >()
+    SingleIndex<U,TYPE>::SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
+				     const U& upos, size_t disambig) : IndexBase<SingleIndex<U,TYPE> >(range)
     {
-	IIB::setPos( dynamic_cast<SingleRange<U,TYPE>*>( IB::mRange )->get(upos) );
+	IIB::setPos( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(upos) );
     }
 
     template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>::SingleIndex(size_t pos) : IndexBase<SingleIndex<U,TYPE> >()
+    SingleIndex<U,TYPE>::SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
+				     size_t pos) : IndexBase<SingleIndex<U,TYPE> >(range)
     {
 	IIB::setPos( pos );
     }
@@ -126,7 +128,7 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     const U& SingleIndex<U,TYPE>::getMetaPos() const
     {
-	return dynamic_cast<SingleRange<U,TYPE>*>( IB::mRange )->get(IIB::pos());
+	return dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(IIB::pos());
     }
 
     template <typename U, RangeType TYPE>
@@ -147,11 +149,12 @@ namespace MultiArrayTools
 	target->link(this);
     }    
 
+    /*
     template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(const U& upos)
     {
-	IIB::setPos( dynamic_cast<SingleRange<U,TYPE>*>( IB::mRange )->get(upos) );
+	IIB::setPos( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(upos) );
 	return *this;
-    }
+	}*/
     
 }

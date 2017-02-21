@@ -32,8 +32,11 @@ namespace MultiArrayTools
 
 	DEFAULT_MEMBERS(MultiIndex);
 
-	MultiIndex(Indices&&... inds);
-	MultiIndex(const IndexPack& ipack);
+	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
+		   Indices&&... inds);
+	
+	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
+		   const IndexPack& ipack);
 	
 	virtual MultiIndex& operator++() override;
 	virtual MultiIndex& operator--() override;
@@ -44,15 +47,16 @@ namespace MultiArrayTools
 	virtual MultiRangeType rangeType() const override;
 	
 	template <size_t N>
-	auto getIndex() -> decltype(std::get<N>(mIPack));
+	typename std::tuple_element<N, std::tuple<Indices...> >::type& getIndex();
 
 	template <size_t N>
-	auto getIndex() const -> const decltype(std::get<N>(mIPack));
-
+	typename std::tuple_element<N, std::tuple<Indices...> >::type const& getIndex() const;
+	
 	IndefinitIndexBase& get(size_t n);
 	const IndefinitIndexBase& get(size_t n) const;
 
 	MultiIndex& operator()(Indices&&... inds);
+	MultiIndex& operator()(const Indices&... inds);
 	
 	virtual void name(const Name& nm) override;
 	
@@ -61,8 +65,15 @@ namespace MultiArrayTools
 
 	virtual bool link(IndefinitIndexBase* toLink) override;
 	virtual void linkTo(IndefinitIndexBase* target) override;
+
+	//virtual void assignRange(RangeBase<MultiIndex<Indices...> > const* range) override;
     };
 
+    /*****************************
+     *   IndexGetter Functions   *
+     ****************************/
+    
+  
     template <class... Ranges>
     class MultiRange : public RangeBase<MultiIndex<typename Ranges::IndexType...> >
     {
@@ -81,7 +92,7 @@ namespace MultiArrayTools
 
 	template <size_t N>
 	auto getRange() const -> decltype( std::get<N>(SpaceType()) );
-
+	
 	size_t size() const override;
 
 	virtual MultiRangeType type() const override; 

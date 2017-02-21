@@ -57,7 +57,7 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static size_t evaluate(const MultiIndex& index)
 	    {
-		const IndefinitIndexBase& subIndex = IndexGetter<N>::getIndex(index, N);
+		const auto& subIndex = index.template getIndex<N>();
 		return Evaluation<N-1>::evaluate(index) * subIndex.max() + subIndex.pos();
 	    }
 	};
@@ -68,7 +68,7 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static size_t evaluate(const MultiIndex& index)
 	    {
-		const IndefinitIndexBase& subIndex = IndexGetter<0>::getIndex(index, 0);
+		const auto& subIndex = index.template getIndex<0>();
 		return subIndex.pos();
 	    }
 	};
@@ -108,13 +108,17 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(Indices&&... inds) : mIPack(std::make_tuple(inds...))
+    MultiIndex<Indices...>::MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
+				       Indices&&... inds) : IndexBase<MultiIndex<Indices...> >(range),
+							    mIPack(std::make_tuple(inds...))
     {
 	IIB::mPos = evaluate(*this);
     }
 
     template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(const IndexPack& ipack) : mIPack(ipack)
+    MultiIndex<Indices...>::MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
+				       const IndexPack& ipack) : IndexBase<MultiIndex<Indices...> >(range),
+								 mIPack(ipack)
     {
 	IIB::mPos = evaluate(*this);
     }
@@ -193,6 +197,14 @@ namespace MultiArrayTools
 	IIB::mPos = evaluate(*this);
 	return *this;
     }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const Indices&... inds)
+    {
+	mIPack = std::make_tuple(Indices(inds)...);
+	IIB::mPos = evaluate(*this);
+	return *this;
+    }
     
     template <class... Indices>
     size_t MultiIndex<Indices...>::dim() const
@@ -230,15 +242,14 @@ namespace MultiArrayTools
 
     template <class... Indices>
     template <size_t N>
-    auto MultiIndex<Indices...>::getIndex() -> decltype(std::get<N>(mIPack))
+    typename std::tuple_element<N, std::tuple<Indices...> >::type& MultiIndex<Indices...>::getIndex()
     {
 	return std::get<N>(mIPack);
     }
 
     template <class... Indices>
     template <size_t N>
-    auto MultiIndex<Indices...>::getIndex() const ->
-	const decltype(std::get<N>(mIPack))
+    typename std::tuple_element<N, std::tuple<Indices...> >::type const& MultiIndex<Indices...>::getIndex() const
     {
 	return std::get<N>(mIPack);
     }
@@ -281,7 +292,41 @@ namespace MultiArrayTools
 	    get(i).linkTo(target);
 	}
     }
+    /*
+    template <size_t N>
+    struct RangeAssigner
+    {
+	template <class... Indices>
+	static void assignRange(const RangeBase<MultiIndex<Indices...> >& multiRange,
+				MultiIndex<Indices...>& multiIndex)
+	{
+	    multiIndex.template getIndex<N>().assignRange(nullptr &multiRange.template getRange<N>());
+	    RangeAssigner<N-1>::assignRange(multiRange, multiIndex);
+	}
+    };
 
+    template <>
+    struct RangeAssigner<0>
+    {
+	template <class... Indices>
+	static void assignRange(const RangeBase<MultiIndex<Indices...> >& multiRange,
+				MultiIndex<Indices...>& multiIndex)
+	{
+	    multiIndex.template getIndex<0>().assignRange(nullptr &multiRange.template getRange<0>());
+	}
+    };    
+    
+    template <class... Indices>
+    void MultiIndex<Indices...>::assignRange(RangeBase<MultiIndex<Indices...> > const* range)
+    {
+	if(IB::toNull()){
+	    IB::mRange = range;
+	}
+	MultiIndex<Indices...>& thisRef = *this;
+	RangeAssigner<sizeof...(Indices)-1>::assignRange(*range, thisRef);
+    }*/
+
+   
     /******************
      *   MultiRange   *
      ******************/
@@ -396,7 +441,7 @@ namespace MultiArrayTools
     {
 	std::tuple<typename Ranges::IndexType...> is;
 	IndexSetter<sizeof...(Ranges)-1>::setBegin(is,mSpace);
-	return MultiIndex<typename Ranges::IndexType...>(is);
+	return MultiIndex<typename Ranges::IndexType...>(this, is);
     }
 
     template <class... Ranges>
@@ -404,6 +449,6 @@ namespace MultiArrayTools
     {
 	std::tuple<typename Ranges::IndexType...> is;
 	IndexSetter<sizeof...(Ranges)-1>::setEnd(is,mSpace);
-	return MultiIndex<typename Ranges::IndexType...>(is);
+	return MultiIndex<typename Ranges::IndexType...>(this, is);
     }
 }

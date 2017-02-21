@@ -55,11 +55,12 @@ namespace {
     
     TEST_F(OneDimTest, CorrectAssigned)
     {
-	EXPECT_EQ(ma[0], -5);
-	EXPECT_EQ(ma[1], 6);
-	EXPECT_EQ(ma[2], 2);
-	EXPECT_EQ(ma[3], 1);
-	EXPECT_EQ(ma[4], 9);
+	auto i = ma.begin();
+	EXPECT_EQ(ma[i = 0], -5);
+	EXPECT_EQ(ma[i = 1], 6);
+	EXPECT_EQ(ma[i = 2], 2);
+	EXPECT_EQ(ma[i = 3], 1);
+	EXPECT_EQ(ma[i = 4], 9);
     }
 
     TEST_F(TwoDimTest, CorrectExtensions)
@@ -67,23 +68,26 @@ namespace {
 	EXPECT_EQ(ma.size(), 12);
     }
 
+    
     TEST_F(TwoDimTest, CorrectAssigned)
-    {
+    {    
 	auto i = ma.begin();
-	EXPECT_EQ(ma[i(0,0)], -5);
-	EXPECT_EQ(ma[i(0,1)], 6);
-	EXPECT_EQ(ma[i(0,2)], 2);
-	EXPECT_EQ(ma[i(0,3)], 1);
-	EXPECT_EQ(ma[i(1,0)], 9);
-	EXPECT_EQ(ma[i(1,1)], 54);
-	EXPECT_EQ(ma[i(1,2)], 27);
-	EXPECT_EQ(ma[i(1,3)], -7);
-	EXPECT_EQ(ma[i(2,0)], -13);
-	EXPECT_EQ(ma[i(2,1)], 32);
-	EXPECT_EQ(ma[i(2,2)], 90);
-	EXPECT_EQ(ma[i(2,3)], -67);
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+	
+	EXPECT_EQ(ma[i(i1 = 0, i2 = 0)], -5);
+	EXPECT_EQ(ma[i(i1 = 0, i2 = 1)], 6);
+	EXPECT_EQ(ma[i(i1 = 0, i2 = 2)], 2);
+	EXPECT_EQ(ma[i(i1 = 0, i2 = 3)], 1);
+	EXPECT_EQ(ma[i(i1 = 1, i2 = 0)], 9);
+	EXPECT_EQ(ma[i(i1 = 1, i2 = 1)], 54);
+	EXPECT_EQ(ma[i(i1 = 1, i2 = 2)], 27);
+	EXPECT_EQ(ma[i(i1 = 1, i2 = 3)], -7);
+	EXPECT_EQ(ma[i(i1 = 2, i2 = 0)], -13);
+	EXPECT_EQ(ma[i(i1 = 2, i2 = 1)], 32);
+	EXPECT_EQ(ma[i(i1 = 2, i2 = 2)], 90);
+	EXPECT_EQ(ma[i(i1 = 2, i2 = 3)], -67);
     }
-
    
 } // end namespace 
 

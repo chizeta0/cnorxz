@@ -24,10 +24,13 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(SingleIndex);
 
 	// find better solution !!!
-	SingleIndex(const U& upos, size_t disambig);
-	SingleIndex(size_t pos);
+	SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
+		    const U& upos, size_t disambig);
 
-	virtual SingleIndex& operator=(const U& upos);
+	SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
+		    size_t pos);
+
+	//virtual SingleIndex& operator=(const U& upos);
 
 	virtual SingleIndex& operator=(size_t pos) override;
 	virtual SingleIndex& operator++() override;

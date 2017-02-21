@@ -81,14 +81,36 @@ namespace MultiArrayTools
 	int res = pos() - max();
 	return res > 0 ? static_cast<size_t>(res) : 0;
     }
+
+    bool IndefinitIndexBase::toNull() const
+    {
+	return true;
+    }
     
     /**************
      *  IndexBase *	     
      **************/
 
     template <class Index>
+    IndexBase<Index>::IndexBase(RangeBase<Index> const* range) : mRange(range) {}
+    
+    template <class Index>
     size_t IndexBase<Index>::max() const
     {
 	return mRange->size();
+    }
+
+    template <class Index>
+    bool IndexBase<Index>::toNull() const
+    {
+	return mRange == nullptr;
+    }
+
+    template <class Index>
+    void IndexBase<Index>::assignRange(RangeBase<Index> const* range)
+    {
+	if(toNull()){
+	    mRange = range;
+	}
     }
 }

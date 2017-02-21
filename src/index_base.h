@@ -29,7 +29,7 @@ namespace MultiArrayTools
 	//virtual bool operator!=(const IndefinitIndexBase& i) = 0;
 	
 	virtual size_t dim() const = 0;
-	virtual size_t pos() const; // = mPos; implement !!!
+	virtual size_t pos() const;
 	
 	virtual const std::string& name() const;
 	virtual void name(const std::string& str);
@@ -46,6 +46,8 @@ namespace MultiArrayTools
 
 	virtual size_t max() const;
 	virtual size_t outOfRange() const;
+
+	virtual bool toNull() const;
 	
     protected:
 
@@ -54,7 +56,7 @@ namespace MultiArrayTools
 	std::string mName;
 	size_t mPos;
 
-	IndefinitIndexBase* mLinked;
+	IndefinitIndexBase* mLinked = nullptr;
     };
     
     template <class Index>
@@ -64,14 +66,19 @@ namespace MultiArrayTools
 	
 	//virtual size_t pos() const override; // = mPos; implement !!!
 	virtual size_t max() const override;
+	virtual bool toNull() const override;
+
+	virtual void assignRange(RangeBase<Index> const* range);
 	
     protected:
 
 	DEFAULT_MEMBERS(IndexBase);
+
+	IndexBase(RangeBase<Index> const* range);
 	
 	// translate index into position
 	virtual size_t evaluate(const Index& in) const = 0;
-	RangeBase<Index>* mRange;
+	RangeBase<Index> const* mRange;
     };
 
 }
