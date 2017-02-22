@@ -3,6 +3,8 @@
 #ifndef __base_def_h__
 #define __base_def_h__
 
+#include <cassert>
+
 #define DEFAULT_MEMBERS(__class_name__) __class_name__() = default; \
     __class_name__(const __class_name__& in) = default; \
     __class_name__& operator=(const __class_name__& in) = default; \

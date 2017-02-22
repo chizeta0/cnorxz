@@ -56,9 +56,9 @@ namespace {
 	typedef MAT::MultiRange<Range1dAny,Range1dAny> Range2dAny;
 	typedef MAT::MultiArray<int,Range2dAny> MultiArray2dAny;
 
-	ReorderTest() : r1({'a','b','c'}), r2({'a','b'}),
+	ReorderTest() : r1({'a','b','c'}), r2({'a','b','c','d'}),
 			ra(r1,r2), rb(r2,r1),
-			ma(ra, {-5,6,2,1,9,54}) {}
+			ma(ra, {-5,6,2,1,9,54,27,-7,-13,32,90,-67}) {}
 	
 	Range1dAny r1;
 	Range1dAny r2;
@@ -117,23 +117,22 @@ namespace {
 	auto i2 = i.template getIndex<1>();
 	CHECK;
 	ma2("alpha","beta") = ma("beta","alpha");
-	VCHECK(i(i1 = 0,i2 = 0).pos());
+
 	EXPECT_EQ(ma2[i(i1 = 0,i2 = 0)],-5);
-	
-	VCHECK(i(i1 = 1,i2 = 0).pos());
 	EXPECT_EQ(ma2[i(i1 = 1,i2 = 0)],6);
+	EXPECT_EQ(ma2[i(i1 = 2,i2 = 0)],2);
+	EXPECT_EQ(ma2[i(i1 = 3,i2 = 0)],1);
+	
 
-	VCHECK(i(i1 = 0,i2 = 1).pos());
-	EXPECT_EQ(ma2[i(i1 = 0,i2 = 1)],2);
+	EXPECT_EQ(ma2[i(i1 = 0,i2 = 1)],9);
+	EXPECT_EQ(ma2[i(i1 = 1,i2 = 1)],54);
+	EXPECT_EQ(ma2[i(i1 = 2,i2 = 1)],27);
+	EXPECT_EQ(ma2[i(i1 = 3,i2 = 1)],-7);
 
-	VCHECK(i(i1 = 1,i2 = 1).pos());
-	EXPECT_EQ(ma2[i(i1 = 1,i2 = 1)],1);
-
-	VCHECK(i(i1 = 0,i2 = 2).pos());
-	EXPECT_EQ(ma2[i(i1 = 0,i2 = 2)],9);
-
-	VCHECK(i(i1 = 1,i2 = 2).pos());
-	EXPECT_EQ(ma2[i(i1 = 1,i2 = 2)],54);
+	EXPECT_EQ(ma2[i(i1 = 0,i2 = 2)],-13);
+	EXPECT_EQ(ma2[i(i1 = 1,i2 = 2)],32);
+	EXPECT_EQ(ma2[i(i1 = 2,i2 = 2)],90);
+	EXPECT_EQ(ma2[i(i1 = 3,i2 = 2)],-67);
     }
    
 } // end namespace 

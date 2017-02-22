@@ -66,8 +66,11 @@ namespace MultiArrayTools
     void IndefinitIndexBase::setPos(size_t pos)
     {
 	mPos = pos;
+	//VCHECK(mName);
 	if(linked()){
 	    mLinked->setPos(pos);
+	    mLinked->evalMajor();
+	    //VCHECK(mLinked->name());
 	}
     }
 
@@ -78,13 +81,30 @@ namespace MultiArrayTools
 
     size_t IndefinitIndexBase::outOfRange() const
     {
-	int res = pos() - max();
+	int res = pos() - max() + 1;
 	return res > 0 ? static_cast<size_t>(res) : 0;
     }
 
     bool IndefinitIndexBase::toNull() const
     {
 	return true;
+    }
+
+    void IndefinitIndexBase::evalMajor()
+    {
+	if(not master()){
+	    mMajor->eval();
+	}
+    }
+    
+    bool IndefinitIndexBase::master()
+    {
+	return mMajor == nullptr;
+    }
+
+    void IndefinitIndexBase::subOrd(IndefinitIndexBase* major)
+    {
+	mMajor = major;
     }
     
     /**************
@@ -112,5 +132,11 @@ namespace MultiArrayTools
 	if(toNull()){
 	    mRange = range;
 	}
+    }
+    
+    template <class Index>
+    void IndexBase<Index>::eval()
+    {
+	setPos( evaluate(*dynamic_cast<Index const*>( this )) );
     }
 }

@@ -50,6 +50,12 @@ namespace MultiArrayTools
 	virtual size_t outOfRange() const;
 
 	virtual bool toNull() const;
+
+	virtual void eval() = 0;
+	virtual void evalMajor();
+	virtual bool master();
+
+	virtual void subOrd(IndefinitIndexBase* major);
 	
     protected:
 
@@ -57,6 +63,7 @@ namespace MultiArrayTools
 	size_t mPos;
 
 	IndefinitIndexBase* mLinked = nullptr;
+	IndefinitIndexBase* mMajor = nullptr;
     };
     
     template <class Index>
@@ -72,6 +79,8 @@ namespace MultiArrayTools
 	virtual bool toNull() const override;
 
 	virtual void assignRange(RangeBase<Index> const* range);
+
+	virtual void eval() override;
 	
     protected:
 

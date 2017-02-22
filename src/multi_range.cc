@@ -81,7 +81,7 @@ namespace MultiArrayTools
 	    size_t oor = si.outOfRange();
 	    if(oor and digit != 0){
 		plus(index, digit - 1, 1);
-		plus(index, digit, oor - si.max() - 1);
+		plus(index, digit, -si.max());
 	    }
 	}
 
@@ -105,6 +105,27 @@ namespace MultiArrayTools
 		std::get<0>(iPack).name(name.get(0));
 	    }
 	};
+
+	template <size_t N>
+	struct IndexSubOrder
+	{
+	    template <class IndexPack>
+	    static void subOrd(IndexPack& iPack, IndefinitIndexBase* major)
+	    {
+		std::get<N>(iPack).subOrd(major);
+		IndexSubOrder<N-1>::subOrd(iPack, major);
+	    }
+	};
+	
+	template <>
+	struct IndexSubOrder<0>
+	{
+	    template <class IndexPack>
+	    static void subOrd(IndexPack& iPack, IndefinitIndexBase* major)
+	    {
+		std::get<0>(iPack).subOrd(major);
+	    }
+	};
     }
 
     template <class... Indices>
@@ -112,6 +133,7 @@ namespace MultiArrayTools
 				       Indices&&... inds) : IndexBase<MultiIndex<Indices...> >(range),
 							    mIPack(std::make_tuple(inds...))
     {
+	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
 	IIB::mPos = evaluate(*this);
     }
 
@@ -120,10 +142,10 @@ namespace MultiArrayTools
 				       const IndexPack& ipack) : IndexBase<MultiIndex<Indices...> >(range),
 								 mIPack(ipack)
     {
+	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
 	IIB::mPos = evaluate(*this);
     }
-	
-    
+   
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
@@ -143,8 +165,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator+=(int n)
     {
-	IIB::setPos( IIB::pos() + n );
-	plus(*this, 0, n);
+	plus(*this, sizeof...(Indices)-1, 1);
+	IIB::setPos( evaluate(*this) );
 	return *this;
     }
 
@@ -207,6 +229,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(Indices&&... inds)
     {
 	mIPack = std::make_tuple(inds...);
+	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
 	IIB::mPos = evaluate(*this);
 	return *this;
     }
@@ -215,6 +238,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const Indices&... inds)
     {
 	mIPack = std::make_tuple(Indices(inds)...);
+	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
 	IIB::mPos = evaluate(*this);
 	return *this;
     }
@@ -234,6 +258,7 @@ namespace MultiArrayTools
     {
 	if(toLink->rangeType() != rangeType() and toLink->name() == IIB::name()){
 	    // throw !!
+	    assert(0);
 	}
 	
 	if(toLink->rangeType() == rangeType() and toLink->name() == IIB::name()){
@@ -249,7 +274,13 @@ namespace MultiArrayTools
 	    }
 	}
 	else {
-	    return linkLower(toLink);
+	    if(linkLower(toLink)){
+		IIB::mLinked = nullptr;
+		return true;
+	    }
+	    else {
+		return false;
+	    }
 	}
     }
 
