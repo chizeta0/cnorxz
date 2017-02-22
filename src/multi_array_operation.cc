@@ -30,9 +30,9 @@ namespace MultiArrayTools
 	IndexType& iref = dynamic_cast<IndexType&>(*mIibPtr);
 	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
 	    // build in vectorization later
-	    VCHECK(iref.pos());
-	    VCHECK(in.mIibPtr->pos());
-	    VCHECK(in.get());
+	    //VCHECK(iref.pos());
+	    //VCHECK(in.mIibPtr->pos());
+	    //VCHECK(in.get());
 	    get() = in.get();
 	}
 	return *this;
@@ -43,7 +43,7 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>&
     MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T, Range2>& in)
     {
-	CHECK;
+	//CHECK;
 	in.linkIndicesTo(mIibPtr);
 	for(*mIibPtr = mArrayRef.begin(); *mIibPtr != mArrayRef.end(); ++(*mIibPtr)){
 	    // build in vectorization later
