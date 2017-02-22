@@ -77,6 +77,32 @@ namespace {
 	MultiArray3dAny ma3d;
     };
 
+    class OperationTest : public ::testing::Test
+    {
+    protected:
+	
+	typedef MAT::SingleRange<char,MAT::RangeType::ANY> Range1dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny> Range2dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny,Range1dAny> Range3dAny;
+	typedef MAT::MultiArray<int,Range2dAny> MultiArray2dAny;
+	typedef MAT::MultiArray<int,Range3dAny> MultiArray3dAny;
+
+	OperationTest() : r1({'a','b','c'}), r2({'a','b','c','d'}), r3({'a','b'}),
+			  ra(r1,r2),
+			  r3d(r1,r2,r3),
+			  ma(ra, {-5,6,2,1,9,54,27,-7,-13,32,90,-67}),
+			  ma3d(r3d, {-5,6,2,1,9,54,27,-7,-13,32,90,-67,
+				      -10,16,-2,101,39,-64,81,-22,14,34,95,-62}) {}
+	
+	Range1dAny r1;
+	Range1dAny r2;
+	Range1dAny r3;
+	Range2dAny ra;
+	Range3dAny r3d;
+	MultiArray2dAny ma;
+	MultiArray3dAny ma3d;
+    };
+        
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);
@@ -186,7 +212,7 @@ namespace {
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
-
+	
 	ma3d2("gamma","alpha","beta") = ma3d("alpha","beta","gamma");
 	
 	EXPECT_EQ(ma3d2[i(i1 = 0,i2 = 0,i3 = 0)],-5);
@@ -216,7 +242,45 @@ namespace {
 	EXPECT_EQ(ma3d2[i(i1 = 0,i2 = 2,i3 = 3)],95);
 	EXPECT_EQ(ma3d2[i(i1 = 1,i2 = 2,i3 = 3)],-62);
     }
-   
+
+    TEST_F(OperationTest, CorrectlyAdded)
+    {
+	MultiArray3dAny ma3d2(r3d);
+	auto i = ma3d2.begin();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+	auto i3 = i.template getIndex<2>();
+
+	ma3d2("alpha","beta","gamma") = ma3d("alpha","beta","gamma") + ma("alpha","beta");
+
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 0, i3 = 0)], -10);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 0, i3 = 1)], 1);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 1, i3 = 0)], 8);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 1, i3 = 1)], 7);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 2, i3 = 0)], 11);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 2, i3 = 1)], 56);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 3, i3 = 0)], 28);
+	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 3, i3 = 1)], -6);
+	
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 0, i3 = 0)], -4);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 0, i3 = 1)], 41);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 1, i3 = 0)], 144);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 1, i3 = 1)], -13);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 2, i3 = 0)], 17);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 2, i3 = 1)], 43);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 3, i3 = 0)], -9);
+	EXPECT_EQ(ma3d2[i(i1 = 1, i2 = 3, i3 = 1)], 94);
+
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 0, i3 = 0)], 26);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 0, i3 = 1)], -77);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 1, i3 = 0)], 113);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 1, i3 = 1)], 10);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 2, i3 = 0)], 104);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 2, i3 = 1)], 124);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 3, i3 = 0)], 28);
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 3, i3 = 1)], -129);
+    }
+    
 } // end namespace 
 
 int main(int argc, char** argv)

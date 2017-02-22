@@ -38,6 +38,8 @@ namespace MultiArrayTools
 	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
 		   const IndexPack& ipack);
 	
+ 	virtual ~MultiIndex();
+	
 	virtual MultiIndex& operator++() override;
 	virtual MultiIndex& operator--() override;
 	virtual MultiIndex& operator+=(int n) override;

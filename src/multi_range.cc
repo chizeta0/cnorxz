@@ -145,7 +145,13 @@ namespace MultiArrayTools
 	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
 	IIB::mPos = evaluate(*this);
     }
-   
+
+    template <class... Indices>
+    MultiIndex<Indices...>::~MultiIndex()
+    {
+	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, nullptr);
+    }
+    
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
@@ -256,25 +262,32 @@ namespace MultiArrayTools
     template <class... Indices>
     bool MultiIndex<Indices...>::link(IndefinitIndexBase* toLink)
     {
-	if(toLink->rangeType() != rangeType() and toLink->name() == IIB::name()){
+	if(toLink->rangeType() != rangeType() and
+	   toLink->name() == IIB::name() and
+	   not (IIB::name() == "master")){
 	    // throw !!
 	    assert(0);
 	}
-	
 	if(toLink->rangeType() == rangeType() and toLink->name() == IIB::name()){
-	    if(IIB::mLinked == toLink){
+	    if(IIB::mLinked == toLink or IIB::mSoftLinked == toLink){
 		return true; // dont link twice the same
 	    }
-	    else if(IIB::mLinked == nullptr){
+	    else if(IIB::mLinked == nullptr and IIB::mSoftLinked == nullptr){
 		IIB::mLinked = toLink;
 		return true;
 	    }
 	    else {
-		return IIB::mLinked->link(toLink);
+		if(IIB::mLinked == nullptr){
+		    return IIB::mSoftLinked->link(toLink);
+		}
+		else {
+		    return IIB::mLinked->link(toLink);
+		}
 	    }
 	}
 	else {
 	    if(linkLower(toLink)){
+		IIB::mSoftLinked = IIB::mLinked;
 		IIB::mLinked = nullptr;
 		return true;
 	    }

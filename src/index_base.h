@@ -18,7 +18,7 @@ namespace MultiArrayTools
     {
     public:
 	DEFAULT_MEMBERS(IndefinitIndexBase);
-	virtual ~IndefinitIndexBase() {}
+	virtual ~IndefinitIndexBase();
 	
 	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
 	virtual IndefinitIndexBase& operator++() = 0;
@@ -64,6 +64,7 @@ namespace MultiArrayTools
 
 	IndefinitIndexBase* mLinked = nullptr;
 	IndefinitIndexBase* mMajor = nullptr;
+	IndefinitIndexBase* mSoftLinked = nullptr;
     };
     
     template <class Index>

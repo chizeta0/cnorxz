@@ -11,7 +11,8 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>::
     MultiArrayOperationBase(MultiArray<T,Range>& ma,
 			    const Name& nm) : mArrayRef(ma),
-					      mIibPtr(new IndexType(mArrayRef.begin()))
+					      mIibPtr(new IndexType(mArrayRef.begin())),
+					      mNm(nm)
     {
 	mIibPtr->name(nm);
     }
@@ -19,7 +20,7 @@ namespace MultiArrayTools
     template <typename T, class Range>
     MultiArrayOperationBase<T,Range>::~MultiArrayOperationBase()
     {
-	delete mIibPtr;
+	//delete mIibPtr;
     }
 
     template <typename T, class Range>
@@ -30,11 +31,9 @@ namespace MultiArrayTools
 	IndexType& iref = dynamic_cast<IndexType&>(*mIibPtr);
 	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
 	    // build in vectorization later
-	    //VCHECK(iref.pos());
-	    //VCHECK(in.mIibPtr->pos());
-	    //VCHECK(in.get());
 	    get() = in.get();
 	}
+	mIibPtr->freeLinked();
 	return *this;
     }
     
@@ -43,21 +42,62 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>&
     MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T, Range2>& in)
     {
-	//CHECK;
 	in.linkIndicesTo(mIibPtr);
 	for(*mIibPtr = mArrayRef.begin(); *mIibPtr != mArrayRef.end(); ++(*mIibPtr)){
 	    // build in vectorization later
 	    get() = in.get();
 	}
+	mIibPtr->freeLinked();
 	return *this;
     }
 
     template <typename T, class Range>
     template <class Operation, class... Ranges>
     MultiArrayOperation<T,Range,Operation,Ranges...>
-    MultiArrayOperationBase<T,Range>::operator()(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs)
+    MultiArrayOperationBase<T,Range>::operator()(Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs)
     {
-	return MultiArrayOperation<T,Range,Operation,Ranges...>(op, secs...);
+	return MultiArrayOperation<T,Range,Operation,Ranges...>(mArrayRef, mNm, op, secs...);
+    }
+
+    template <typename T, class Range>
+    template <class Operation, class... Ranges>
+    MultiArrayOperation<T,Range,Operation,Ranges...>
+    MultiArrayOperationBase<T,Range>::operator()(const Operation& op,
+						 const MultiArrayOperationBase<T,Ranges>&... secs)
+    {
+	return MultiArrayOperation<T,Range,Operation,Ranges...>(mArrayRef, mNm, op, secs...);
+    }
+
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperation<T,Range,std::plus<T>,Range2>
+    MultiArrayOperationBase<T,Range>::operator+(const MultiArrayOperationBase<T,Range2>& sec)
+    {
+	return operator()(std::plus<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperation<T,Range,std::minus<T>,Range2>
+    MultiArrayOperationBase<T,Range>::operator-(const MultiArrayOperationBase<T,Range2>& sec)
+    {
+	return operator()(std::minus<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperation<T,Range,std::multiplies<T>,Range2>
+    MultiArrayOperationBase<T,Range>::operator*(const MultiArrayOperationBase<T,Range2>& sec)
+    {
+	return operator()(std::multiplies<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperation<T,Range,std::divides<T>,Range2>
+    MultiArrayOperationBase<T,Range>::operator/(const MultiArrayOperationBase<T,Range2>& sec)
+    {
+	return operator()(std::divides<T>(), sec);
     }
     
     template <typename T, class Range>
@@ -112,7 +152,7 @@ namespace MultiArrayTools
 	template <class IndexTuple>
 	static void linkTupleIndicesTo(IndexTuple& itp, IndefinitIndexBase* target)
 	{
-	    std::get<N>(itp).linkTo(target);
+	    std::get<N>(itp).linkIndicesTo(target);
 	    linkTupleIndicesTo<N-1>(itp, target);
 	}
     };
@@ -123,30 +163,63 @@ namespace MultiArrayTools
 	template <class IndexTuple>
 	static void linkTupleIndicesTo(IndexTuple& itp, IndefinitIndexBase* target)
 	{
-	    std::get<0>(itp).linkTo(target);
+	    std::get<0>(itp).linkIndicesTo(target);
 	}
     };
 
     template <size_t N>
     struct OperationCall
-    {	
-	template <class Operation, class Tuple, class... MBases>
-	auto callOperation(Operation& op, Tuple& tp, MBases&... secs)
-	    -> decltype(callOperation(op, tp, std::get<N-1>(tp), secs...))
+    {
+	template <typename T, class Operation, class Tuple, class... MBases>
+	static auto callOperation(Operation& op, const Tuple& tp, const T& first, const MBases&... secs)
+	    -> decltype(OperationCall<N-1>::template callOperation(op, tp, std::get<N>(tp), secs...))
 	{
-	    return callOperation(op, tp, std::get<N-1>(tp), secs...);
+	    return OperationCall<N-1>::template callOperation(op, tp, first, std::get<N>(tp), secs...);
+	}
+
+	template <typename T, class Operation, class Tuple, class... MBases>
+	static auto callOperation(const Operation& op, const Tuple& tp, const T& first, const MBases&... secs)
+	    -> decltype(OperationCall<N-1>::template callOperation(op, tp, std::get<N>(tp), secs...))
+	{
+	    return OperationCall<N-1>::template callOperation(op, tp, first, std::get<N>(tp), secs...);
 	}
     };
 
     template <>
     struct OperationCall<0>
-    {	
-	template <class Operation, class Tuple, class... MBases>
-	auto callOperation(Operation& op, Tuple& tp, MBases&... secs) -> decltype(op(secs.get()...))
+    {
+	template <typename T, class Operation, class Tuple, class... MBases>
+	static auto callOperation(Operation& op, const Tuple& tp, const T& first, const MBases&... secs)
+	    -> decltype(op(first, std::get<0>(tp).get(), secs.get()...))
 	{
-	    return op(secs.get()...);
+	    return op(first, std::get<0>(tp).get(), secs.get()...);
+	}
+
+	template <typename T, class Operation, class Tuple, class... MBases>
+	static auto callOperation(const Operation& op, const Tuple& tp, const T& first, const MBases&... secs)
+	    -> decltype(op(first.get(), std::get<0>(tp).get(), secs.get()...))
+	{
+	    return op(first, std::get<0>(tp).get(), secs.get()...);
 	}
     };
+
+    template <typename T, class Range, class Operation, class... Ranges>
+    MultiArrayOperation<T,Range,Operation,Ranges...>::
+    MultiArrayOperation(MultiArray<T,Range>& ma, const Name& nm,
+			Operation& op,
+			const MultiArrayOperationBase<T,Ranges>&... secs) :
+	MultiArrayOperationBase<T,Range>(ma, nm),
+	mOp(op),
+	mSecs(std::make_tuple(secs...)) {}
+
+    template <typename T, class Range, class Operation, class... Ranges>
+    MultiArrayOperation<T,Range,Operation,Ranges...>::
+    MultiArrayOperation(MultiArray<T,Range>& ma, const Name& nm,
+			const Operation& op,
+			const MultiArrayOperationBase<T,Ranges>&... secs) :
+	MultiArrayOperationBase<T,Range>(ma, nm),
+	mOp(op),
+	mSecs(std::make_tuple(secs...)) {}
     
     template <typename T, class Range, class Operation, class... Ranges>
     size_t MultiArrayOperation<T,Range,Operation,Ranges...>::argNum() const
@@ -158,20 +231,24 @@ namespace MultiArrayTools
     void MultiArrayOperation<T,Range,Operation,Ranges...>::linkIndicesTo(IndefinitIndexBase* target) const
     {
 	OB::mIibPtr->linkTo(target);
-	TupleIndicesLinker<sizeof...(Ranges)>::linkTupleIndicesTo(mSecs, target);
+	TupleIndicesLinker<sizeof...(Ranges)-1>::linkTupleIndicesTo(mSecs, target);
     }
     
     template <typename T, class Range, class Operation, class... Ranges>    
     T& MultiArrayOperation<T,Range,Operation,Ranges...>::get()
     {
-	mVal = OperationCall<sizeof...(Ranges)>::callOperation(mOp, mSecs);
+	mVal = OperationCall<sizeof...(Ranges)-1>::
+	    template callOperation(mOp, mSecs,
+				   OB::mArrayRef[*dynamic_cast<typename OB::IndexType*>(OB::mIibPtr)]);
 	return mVal;
     }
 
     template <typename T, class Range, class Operation, class... Ranges>    
     const T& MultiArrayOperation<T,Range,Operation,Ranges...>::get() const
     {
-	mVal = OperationCall<sizeof...(Ranges)>::callOperation(mOp, mSecs);
+	mVal = OperationCall<sizeof...(Ranges)-1>::
+	    template callOperation(mOp, mSecs,
+				   OB::mArrayRef[*dynamic_cast<typename OB::IndexType*>(OB::mIibPtr)]);
 	return mVal;
     }
 

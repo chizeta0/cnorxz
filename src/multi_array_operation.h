@@ -33,19 +33,23 @@ namespace MultiArrayTools
 	
 	template <class Operation, class... Ranges>
 	MultiArrayOperation<T,Range,Operation,Ranges...>
-	operator()(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
+	operator()(Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
+
+	template <class Operation, class... Ranges>
+	MultiArrayOperation<T,Range,Operation,Ranges...>
+	operator()(const Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
 	
 	template <class Range2>
-	MultiArrayOperation<T,Range,std::plus<T>,Range2> operator+(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::plus<T>,Range2> operator+(const MultiArrayOperationBase<T,Range2>& sec);
 
 	template <class Range2>
-	MultiArrayOperation<T,Range,std::minus<T>,Range2> operator-(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::minus<T>,Range2> operator-(const MultiArrayOperationBase<T,Range2>& sec);
 
 	template <class Range2>
-	MultiArrayOperation<T,Range,std::multiplies<T>,Range2> operator*(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::multiplies<T>,Range2> operator*(const MultiArrayOperationBase<T,Range2>& sec);
 
 	template <class Range2>
-	MultiArrayOperation<T,Range,std::divides<T>,Range2> operator/(MultiArrayOperationBase<T,Range2>& sec);
+	MultiArrayOperation<T,Range,std::divides<T>,Range2> operator/(const MultiArrayOperationBase<T,Range2>& sec);
 
 	virtual size_t argNum() const;
 
@@ -60,12 +64,10 @@ namespace MultiArrayTools
 	virtual const T& get(IndefinitIndexBase* iibPtr) const;
 	
     protected:
-
-	// HERE !!!!!!
 	
 	MultiArray<T,Range>& mArrayRef;
 	IndefinitIndexBase mutable* mIibPtr = nullptr;
-	
+	Name mNm;
     };
 
     template <typename T, class Range, class Operation, class... Ranges>
@@ -74,8 +76,14 @@ namespace MultiArrayTools
     public:
 
 	typedef MultiArrayOperationBase<T,Range> OB;
+	typedef std::tuple<MultiArrayOperationBase<T,Ranges>... > OBT;
 	
-	MultiArrayOperation(Operation& op, MultiArrayOperationBase<T,Ranges>&... secs);
+	MultiArrayOperation(MultiArray<T,Range>& ma, const Name& nm,
+			    Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
+
+	MultiArrayOperation(MultiArray<T,Range>& ma, const Name& nm,
+			    const Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
+
 	virtual size_t argNum() const override;
 	
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
@@ -87,7 +95,7 @@ namespace MultiArrayTools
 
  	mutable T mVal;
 	Operation mOp;
-	std::tuple<MultiArrayOperationBase<T,Ranges>... > mSecs;
+	OBT mSecs;
     };
 
 

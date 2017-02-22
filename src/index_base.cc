@@ -7,6 +7,14 @@ namespace MultiArrayTools
      *  IndefinitIndexBase  *
      ************************/
 
+    IndefinitIndexBase::~IndefinitIndexBase()
+    {
+	freeLinked();
+	mLinked = nullptr;
+	mMajor = nullptr;
+	mSoftLinked = nullptr;
+    }
+    
     size_t IndefinitIndexBase::pos() const
     {
 	return mPos;
@@ -30,9 +38,9 @@ namespace MultiArrayTools
     bool IndefinitIndexBase::link(IndefinitIndexBase* toLink)
     {
 	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
+	    assert(0);
 	    // throw !!
 	}
-	
 	if(toLink->rangeType() == rangeType() and toLink->name() == name()){
 	    if(mLinked == toLink){
 		return true; // dont link twice the same
@@ -52,9 +60,13 @@ namespace MultiArrayTools
 
     void IndefinitIndexBase::freeLinked()
     {
-	if(linked()){
+	if(mLinked != nullptr){
 	    mLinked->freeLinked();
 	    mLinked = nullptr;
+	}
+	if(mSoftLinked != nullptr){
+	    mSoftLinked->freeLinked();
+	    mSoftLinked = nullptr;
 	}
     }
 
@@ -66,11 +78,9 @@ namespace MultiArrayTools
     void IndefinitIndexBase::setPos(size_t pos)
     {
 	mPos = pos;
-	//VCHECK(mName);
 	if(linked()){
 	    mLinked->setPos(pos);
 	    mLinked->evalMajor();
-	    //VCHECK(mLinked->name());
 	}
     }
 

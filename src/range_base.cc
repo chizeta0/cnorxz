@@ -48,6 +48,9 @@ namespace MultiArrayTools
 
     bool MultiRangeType::operator==(const MultiRangeType& in) const
     {
+	if(multi() xor in.multi()){
+	    return false;
+	}
 	if(multi()){
 	    return *mMultiType == *in.mMultiType;
 	}
@@ -58,6 +61,9 @@ namespace MultiArrayTools
     
     bool MultiRangeType::operator!=(const MultiRangeType& in) const
     {
+	if(multi() xor in.multi()){
+	    return true;
+	}
 	if(multi()){
 	    return *mMultiType != *in.mMultiType;
 	}
