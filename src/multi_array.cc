@@ -69,5 +69,10 @@ namespace MultiArrayTools
 	return mRange->end();
     }
 
+    template <typename T, class Range>
+    bool MultiArray<T,Range>::isSlice() const
+    {
+	return false;
+    }
     
 }

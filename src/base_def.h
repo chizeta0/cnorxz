@@ -80,6 +80,11 @@ namespace MultiArrayTools
     // multi_array_operation.h
     template <typename T, class Range, class Operation, class... Ranges>
     class MultiArrayOperation;
+
+    // slice.h
+    template <typename T, class Range, class MARange, class Index>
+    class Slice;
+    
 }
 
 #endif

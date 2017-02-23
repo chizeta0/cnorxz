@@ -11,10 +11,12 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>::
     MultiArrayOperationBase(MultiArray<T,Range>& ma,
 			    const Name& nm) : mArrayRef(ma),
+					      //mIndex(mArrayRef.begin()),
 					      mIibPtr(new IndexType(mArrayRef.begin())),
 					      mNm(nm)
     {
 	mIibPtr->name(nm);
+	//mIndex.name(nm);
     }
 
     template <typename T, class Range>
@@ -43,7 +45,12 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>::operator=(const MultiArrayOperationBase<T, Range2>& in)
     {
 	in.linkIndicesTo(mIibPtr);
-	for(*mIibPtr = mArrayRef.begin(); *mIibPtr != mArrayRef.end(); ++(*mIibPtr)){
+	IndexType& iref = dynamic_cast<IndexType&>(*mIibPtr);
+	if(mArrayRef.isSlice()){
+	    linkSlice(&in.index(), mIibPtr);
+	    return *this;
+	}
+	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
 	    // build in vectorization later
 	    get() = in.get();
 	}
@@ -121,25 +128,15 @@ namespace MultiArrayTools
     template <typename T, class Range>
     T& MultiArrayOperationBase<T,Range>::get()
     {
+	//return mArrayRef[mIndex];
 	return mArrayRef[*dynamic_cast<IndexType*>(mIibPtr)];
     }
 
     template <typename T, class Range>
     const T& MultiArrayOperationBase<T,Range>::get() const
     {
+	//return mArrayRef[mIndex];
 	return mArrayRef[*dynamic_cast<IndexType*>(mIibPtr)];
-    }
-    
-    template <typename T, class Range>
-    T& MultiArrayOperationBase<T,Range>::get(IndefinitIndexBase* iibPtr)
-    {
-	return mArrayRef[*dynamic_cast<IndexType*>(iibPtr)];
-    }
-
-    template <typename T, class Range>
-    const T& MultiArrayOperationBase<T,Range>::get(IndefinitIndexBase* iibPtr) const
-    {
-	return mArrayRef[*dynamic_cast<IndexType*>(iibPtr)];
     }
 
     /*****************************
@@ -197,7 +194,7 @@ namespace MultiArrayTools
 
 	template <typename T, class Operation, class Tuple, class... MBases>
 	static auto callOperation(const Operation& op, const Tuple& tp, const T& first, const MBases&... secs)
-	    -> decltype(op(first.get(), std::get<0>(tp).get(), secs.get()...))
+	    -> decltype(op(first, std::get<0>(tp).get(), secs.get()...))
 	{
 	    return op(first, std::get<0>(tp).get(), secs.get()...);
 	}
@@ -239,6 +236,7 @@ namespace MultiArrayTools
     {
 	mVal = OperationCall<sizeof...(Ranges)-1>::
 	    template callOperation(mOp, mSecs,
+				   //OB::mArrayRef[OB::mIndex]);
 				   OB::mArrayRef[*dynamic_cast<typename OB::IndexType*>(OB::mIibPtr)]);
 	return mVal;
     }
@@ -248,6 +246,7 @@ namespace MultiArrayTools
     {
 	mVal = OperationCall<sizeof...(Ranges)-1>::
 	    template callOperation(mOp, mSecs,
+				   //OB::mArrayRef[OB::mIndex]);
 				   OB::mArrayRef[*dynamic_cast<typename OB::IndexType*>(OB::mIibPtr)]);
 	return mVal;
     }

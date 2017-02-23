@@ -33,12 +33,17 @@ namespace MultiArrayTools
 
 	size_t size() const; 
 
+	virtual bool isSlice() const;
+	
 	auto begin() -> decltype(Range().begin());
 	auto end() -> decltype(Range().end());
+
+    protected:
+
+	std::shared_ptr<Range> mRange;
 	
     private:
 	bool mInit = false;
-	std::shared_ptr<Range> mRange;
 	std::vector<T> mCont;
     };
 

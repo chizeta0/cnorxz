@@ -53,6 +53,7 @@ namespace MultiArrayTools
 
 	virtual size_t argNum() const;
 
+	//IndexType& index() ;
 	IndefinitIndexBase* index();
 
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const;
@@ -60,13 +61,11 @@ namespace MultiArrayTools
 	virtual T& get();
 	virtual const T& get() const;
 
-	virtual T& get(IndefinitIndexBase* iibPtr);
-	virtual const T& get(IndefinitIndexBase* iibPtr) const;
-	
     protected:
-	
+
 	MultiArray<T,Range>& mArrayRef;
-	IndefinitIndexBase mutable* mIibPtr = nullptr;
+	//mutable IndexType mIndex;
+	IndefinitIndexBase* mIibPtr = nullptr;
 	Name mNm;
     };
 
