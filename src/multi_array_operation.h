@@ -64,7 +64,7 @@ namespace MultiArrayTools
     protected:
 
 	MultiArray<T,Range>& mArrayRef;
-	//mutable IndexType mIndex;
+	mutable IndexType mIndex;
 	IndefinitIndexBase* mIibPtr = nullptr;
 	Name mNm;
     };

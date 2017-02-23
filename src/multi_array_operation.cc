@@ -11,8 +11,8 @@ namespace MultiArrayTools
     MultiArrayOperationBase<T,Range>::
     MultiArrayOperationBase(MultiArray<T,Range>& ma,
 			    const Name& nm) : mArrayRef(ma),
-					      //mIndex(mArrayRef.begin()),
-					      mIibPtr(new IndexType(mArrayRef.begin())),
+					      mIndex(mArrayRef.begin()),
+					      mIibPtr(&mIndex),
 					      mNm(nm)
     {
 	mIibPtr->name(nm);
