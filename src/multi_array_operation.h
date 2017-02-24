@@ -16,6 +16,8 @@ namespace MultiArrayTools
     class MultiArrayOperationBase
     {
     public:
+
+	MultiArrayOperationBase() = default;
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
@@ -38,9 +40,12 @@ namespace MultiArrayTools
 	typedef decltype(MultiArray<T,Range>().begin()) IndexType;
 	
 	MultiArrayOperationRoot(MultiArray<T,Range>& ma, const Name& nm);
-	MultiArrayOperationRoot& operator=(const MultiArrayOperationBase<T>& in);
+	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
+
+	template <class Operation, class... MAOps>
+	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);
 	
-	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in) = delete;
+	//MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in) = delete;
 	//MultiArrayOperationRoot(const MultiArrayOperationRoot& in) = default;
 	
 	// execute AnyOperation
@@ -122,8 +127,6 @@ namespace MultiArrayTools
 	virtual T& get() override;
 	virtual const T& get() const override;
 
-	virtual void executeOp() override;
-	
     protected:
 
  	mutable T mVal;
