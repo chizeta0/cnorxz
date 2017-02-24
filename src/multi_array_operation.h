@@ -12,89 +12,123 @@
 namespace MultiArrayTools
 {
 
-    template <typename T, class Range>
+    template <typename T>
     class MultiArrayOperationBase
     {
     public:
-
-	typedef decltype(MultiArray<T,Range>().begin()) IndexType;
-	
-	MultiArrayOperationBase(MultiArray<T,Range>& ma, const Name& nm);
-	MultiArrayOperationBase& operator=(const MultiArrayOperationBase& in);
-	//MultiArrayOperationBase(const MultiArrayOperationBase& in) = default;
-	
 	virtual ~MultiArrayOperationBase();
-	
-	// execute AnyOperation
-	// exception if range types are inconsitent with names
-	template <class Range2>
-	MultiArrayOperationBase& operator=(const MultiArrayOperationBase<T, Range2>& in);
-	
-	
-	template <class Operation, class... Ranges>
-	MultiArrayOperation<T,Range,Operation,Ranges...>
-	operator()(Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
 
-	template <class Operation, class... Ranges>
-	MultiArrayOperation<T,Range,Operation,Ranges...>
-	operator()(const Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
-	
-	template <class Range2>
-	MultiArrayOperation<T,Range,std::plus<T>,Range2> operator+(const MultiArrayOperationBase<T,Range2>& sec);
-
-	template <class Range2>
-	MultiArrayOperation<T,Range,std::minus<T>,Range2> operator-(const MultiArrayOperationBase<T,Range2>& sec);
-
-	template <class Range2>
-	MultiArrayOperation<T,Range,std::multiplies<T>,Range2> operator*(const MultiArrayOperationBase<T,Range2>& sec);
-
-	template <class Range2>
-	MultiArrayOperation<T,Range,std::divides<T>,Range2> operator/(const MultiArrayOperationBase<T,Range2>& sec);
-
-	virtual size_t argNum() const;
-
-	//IndexType& index() ;
+	virtual size_t argNum() const = 0;
 	IndefinitIndexBase* index();
-
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const;
-
-	virtual T& get();
-	virtual const T& get() const;
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const = 0;
+	
+	virtual T& get() = 0;
+	virtual const T& get() const = 0;
 
     protected:
-
-	MultiArray<T,Range>& mArrayRef;
-	mutable IndexType mIndex;
 	IndefinitIndexBase* mIibPtr = nullptr;
-	Name mNm;
     };
-
-    template <typename T, class Range, class Operation, class... Ranges>
-    class MultiArrayOperation : public MultiArrayOperationBase<T,Range>
+    
+    template <typename T, class Range>
+    class MultiArrayOperationRoot : public MultiArrayOperationBase<T>
     {
     public:
 
-	typedef MultiArrayOperationBase<T,Range> OB;
-	typedef std::tuple<MultiArrayOperationBase<T,Ranges>... > OBT;
+	typedef MultiArrayOperationBase<T> MAOB;
+	typedef decltype(MultiArray<T,Range>().begin()) IndexType;
 	
-	MultiArrayOperation(MultiArray<T,Range>& ma, const Name& nm,
-			    Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
+	MultiArrayOperationRoot(MultiArray<T,Range>& ma, const Name& nm);
+	MultiArrayOperationRoot& operator=(const MultiArrayOperationBase<T>& in);
+	
+	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in) = delete;
+	//MultiArrayOperationRoot(const MultiArrayOperationRoot& in) = default;
+	
+	// execute AnyOperation
+	// exception if range types are inconsitent with names
+	//MultiArrayOperationRoot& operator=(const MultiArrayOperationBase<T>& in);
+	
+	
+	template <class Operation, class... MAOps>
+	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
+	operator()(Operation& op, const MAOps&... secs);
 
-	MultiArrayOperation(MultiArray<T,Range>& ma, const Name& nm,
-			    const Operation& op, const MultiArrayOperationBase<T,Ranges>&... secs);
+	template <class Operation, class... MAOps>
+	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
+	operator()(const Operation& op, const MAOps&... secs);
+	
+	template <class MAOp>
+	auto operator+(const MAOp& sec) -> decltype(operator()(std::plus<T>(), sec));
+
+	template <class MAOp>
+	auto operator-(const MAOp& sec) -> decltype(operator()(std::minus<T>(), sec));
+
+	template <class MAOp>
+	auto operator*(const MAOp& sec) -> decltype(operator()(std::multiplies<T>(), sec));
+
+	template <class MAOp>
+	auto operator/(const MAOp& sec) -> decltype(operator()(std::divides<T>(), sec));
 
 	virtual size_t argNum() const override;
-	
+
+	//IndexType& index() ;
+
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual T& get() override;
 	virtual const T& get() const override;
 	
     protected:
+	
+	MultiArray<T,Range>& mArrayRef;
+	mutable IndexType mIndex;
+	Name mNm;
+    };
+
+    template <typename T, class Operation, class... MAOps>
+    class MultiArrayOperation : public MultiArrayOperationBase<T>
+    {
+    public:
+
+	typedef MultiArrayOperationBase<T> MAOB;
+	typedef std::tuple<MAOps...> OBT;
+	
+	MultiArrayOperation(Operation& op, const MAOps&... secs);
+	MultiArrayOperation(const Operation& op, const MAOps&... secs);
+
+	template <class Operation2, class... MAOps2>
+	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
+	operator()(Operation2& op, const MAOps&... secs);
+	
+	template <class Operation2, class... MAOps2>
+	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
+	operator()(const Operation2& op, const MAOps&... secs);
+	
+	template <class MAOp2>
+	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));
+
+	template <class MAOp2>
+	auto operator-(const MAOp2& sec) -> decltype(operator()(std::minus<T>(), sec));
+
+	template <class MAOp2>
+	auto operator*(const MAOp2& sec) -> decltype(operator()(std::multiplies<T>(), sec));
+
+	template <class MAOp2>
+	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
+	
+	virtual size_t argNum() const override;
+	
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
+
+	virtual T& get() override;
+	virtual const T& get() const override;
+
+	virtual void executeOp() override;
+	
+    protected:
 
  	mutable T mVal;
 	Operation mOp;
-	OBT mSecs;
+	OBT mArgs; // include first arg also here !!!
     };
 
 

@@ -74,11 +74,15 @@ namespace MultiArrayTools
     class MultiArray;
 
     // multi_array_operation.h
-    template <typename T, class Range>
+    template <typename T>
     class MultiArrayOperationBase;
+
+    // multi_array_operation.h
+    template <typename T, class Range>
+    class MultiArrayOperationRoot;
     
     // multi_array_operation.h
-    template <typename T, class Range, class Operation, class... Ranges>
+    template <typename T, class Operation, class... MAOps>
     class MultiArrayOperation;
 
     // slice.h

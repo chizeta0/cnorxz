@@ -46,9 +46,9 @@ namespace MultiArrayTools
 
     template <typename T, class Range>
     template <class... NameTypes>
-    MultiArrayOperationBase<T,Range> MultiArray<T,Range>::operator()(const NameTypes&... str)
+    MultiArrayOperationRoot<T,Range> MultiArray<T,Range>::operator()(const NameTypes&... str)
     {
-	return MultiArrayOperationBase<T,Range>(*this, Name("master", str...));
+	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
     }
 
     template <typename T, class Range>

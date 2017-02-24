@@ -26,7 +26,7 @@ namespace MultiArrayTools
 	MultiArray(const Range& range, std::vector<T>&& vec);
 	
 	template <class... NameTypes>
-	MultiArrayOperationBase<T,Range> operator()(const NameTypes&... str);
+	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
 	
 	T& operator[](const typename Range::IndexType& i);
 	const T& operator[](const typename Range::IndexType& i) const;
