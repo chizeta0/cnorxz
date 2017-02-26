@@ -7,8 +7,9 @@ namespace MultiArrayTools
 
     template <typename T, class Range, class MARange, class Index>
     Slice<T,Range,MARange,Index>::
-    Slice(const Range& range, const Index& slicePos) :
-	MA::mRange(new Range(range)),
+    Slice(MultiArrayBase<T,MARange>& ma, const Index& slicePos) :
+	MultiArrayBase<T,Range>(ma.range()),
+	multiArrayRef(ma),
 	mSlicePos(slicePos) {}
 
     template <typename T, class Range, class MARange, class Index>

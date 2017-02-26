@@ -1,34 +1,66 @@
+// -*- C++ -*-
 
 #include "multi_array.h"
 
 namespace MultiArrayTools
 {
+    /**********************
+     *  MultiArrayBase    *	     
+     **********************/
+
+    template <typename T, class Range>
+    MultiArrayBase<T,Range>::MultiArrayBase(const Range& range) : mRange(new Range(range)) {}
+    
+    template <typename T, class Range>
+    size_t MultiArrayBase<T,Range>::size() const
+    {
+	return mRange->size();
+    }
+    
+    template <typename T, class Range>
+    auto MultiArrayBase<T,Range>::begin() -> decltype(Range().begin())
+    {
+	return mRange->begin();
+    }
+
+    template <typename T, class Range>
+    auto MultiArrayBase<T,Range>::end() -> decltype(Range().end())
+    {
+	return mRange->end();
+    }
+
+    template <typename T, class Range>
+    const Range& MultiArrayBase<T,Range>::range() const
+    {
+	return *mRange;
+    }
+
     /*******************
      *  MultiArray     *	     
      *******************/
 
     template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range) : mRange(new Range(range)), mCont(mRange->size())
-    {
-	mInit = true;
-    }
+    MultiArray<T,Range>::MultiArray(const Range& range) :
+	MultiArrayBase<T,Range>(range),
+	mCont(MAB::mRange->size()) {}
 
     template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range, const std::vector<T>& vec) : mRange(new Range(range)),
-										     mCont(vec)
+    MultiArray<T,Range>::MultiArray(const Range& range, const std::vector<T>& vec) :
+	MultiArrayBase<T,Range>(range),
+	mCont(vec)
     {
-	mInit = true;
-	if(mCont.size() > mRange->size()){
-	    mCont.erase(mCont.begin() + mRange->size(), mCont.end());
+	if(mCont.size() > MAB::mRange->size()){
+	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
 	}
     }
     
     template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range, std::vector<T>&& vec) : mRange(new Range(range)), mCont(vec)
+    MultiArray<T,Range>::MultiArray(const Range& range, std::vector<T>&& vec) :
+	MultiArrayBase<T,Range>(range),
+	mCont(vec)
     {
-	mInit = true;
-	if(mCont.size() > mRange->size()){
-	    mCont.erase(mCont.begin() + mRange->size(), mCont.end());
+	if(mCont.size() > MAB::mRange->size()){
+	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
 	}
     }
     
@@ -49,24 +81,6 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range> MultiArray<T,Range>::operator()(const NameTypes&... str)
     {
 	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
-    }
-
-    template <typename T, class Range>
-    size_t MultiArray<T,Range>::size() const
-    {
-	return mRange->size();
-    }
-
-    template <typename T, class Range>
-    auto MultiArray<T,Range>::begin() -> decltype(Range().begin())
-    {
-	return mRange->begin();
-    }
-
-    template <typename T, class Range>
-    auto MultiArray<T,Range>::end() -> decltype(Range().end())
-    {
-	return mRange->end();
     }
 
     template <typename T, class Range>

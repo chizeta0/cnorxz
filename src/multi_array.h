@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 
 #ifndef __multi_array_h__
@@ -14,11 +13,37 @@
 
 namespace MultiArrayTools
 {
-   
+
     template <typename T, class Range>
-    class MultiArray
+    class MultiArrayBase
     {
     public:
+
+	DEFAULT_MEMBERS(MultiArrayBase);
+	MultiArrayBase(const Range& range);
+	
+	virtual T& operator[](const typename Range::IndexType& i) = 0;
+	virtual const T& operator[](const typename Range::IndexType& i) const = 0;
+
+	virtual size_t size() const; 
+	virtual bool isSlice() const = 0;
+	
+	virtual auto begin() -> decltype(Range().begin());
+	virtual auto end() -> decltype(Range().end());
+
+	virtual const Range& range() const;
+	
+    protected:
+	std::shared_ptr<Range> mRange;
+
+    };
+    
+    template <typename T, class Range>
+    class MultiArray : public MultiArrayBase<T,Range>
+    {
+    public:
+
+	typedef MultiArrayBase<T,Range> MAB;
 
 	DEFAULT_MEMBERS(MultiArray);
 	MultiArray(const Range& range);
@@ -27,23 +52,13 @@ namespace MultiArrayTools
 	
 	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
+
+	T& operator[](const typename Range::IndexType& i) override;
+	const T& operator[](const typename Range::IndexType& i) const override;
 	
-	T& operator[](const typename Range::IndexType& i);
-	const T& operator[](const typename Range::IndexType& i) const;
-
-	size_t size() const; 
-
-	virtual bool isSlice() const;
-	
-	auto begin() -> decltype(Range().begin());
-	auto end() -> decltype(Range().end());
-
-    protected:
-
-	std::shared_ptr<Range> mRange;
+	virtual bool isSlice() const override;
 	
     private:
-	bool mInit = false;
 	std::vector<T> mCont;
     };
 

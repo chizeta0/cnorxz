@@ -39,7 +39,7 @@ namespace MultiArrayTools
 	typedef MultiArrayOperationBase<T> MAOB;
 	typedef decltype(MultiArray<T,Range>().begin()) IndexType;
 	
-	MultiArrayOperationRoot(MultiArray<T,Range>& ma, const Name& nm);
+	MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma, const Name& nm);
 	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
 
 	template <class Operation, class... MAOps>
@@ -84,7 +84,7 @@ namespace MultiArrayTools
 	
     protected:
 	
-	MultiArray<T,Range>& mArrayRef;
+	MultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
     };

@@ -68,6 +68,10 @@ namespace MultiArrayTools
     // multi_range.h    
     template <class... Ranges>
     class MultiRange;
+
+    // multi_array.h
+    template <typename T, class Range>
+    class MultiArrayBase;
     
     // multi_array.h
     template <typename T, class Range>
