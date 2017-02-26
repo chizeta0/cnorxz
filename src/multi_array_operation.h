@@ -102,11 +102,11 @@ namespace MultiArrayTools
 
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	operator()(Operation2& op, const MAOps&... secs);
+	operator()(Operation2& op, const MAOps2&... secs);
 	
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	operator()(const Operation2& op, const MAOps&... secs);
+	operator()(const Operation2& op, const MAOps2&... secs);
 	
 	template <class MAOp2>
 	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));

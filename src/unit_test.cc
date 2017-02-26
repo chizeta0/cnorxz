@@ -297,7 +297,7 @@ namespace {
 	auto i3 = i.template getIndex<2>();
 
 	//ma2("alpha","beta") = ma("alpha","beta") + ma1d("alpha");
-	ma3d2("alpha","beta","gamma") = ma3d("alpha","beta","gamma") + ( ma("alpha","beta") + ma1d("alpha") );
+	ma3d2("alpha","beta","gamma") = ma3d("alpha","beta","gamma") + ma("alpha","beta") + ma1d("alpha");
 
 	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 0, i3 = 0)], -15);
 	EXPECT_EQ(ma3d2[i(i1 = 0, i2 = 0, i3 = 1)], -4);

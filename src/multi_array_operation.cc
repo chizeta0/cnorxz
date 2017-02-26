@@ -1,3 +1,4 @@
+// -*- C++ -*-
 
 #include "multi_array_operation.h"
 
@@ -245,7 +246,7 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... MAOps>
     template <class Operation2, class... MAOps2>
     MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-    MultiArrayOperation<T,Operation,MAOps...>::operator()(Operation2& op, const MAOps&... secs)
+    MultiArrayOperation<T,Operation,MAOps...>::operator()(Operation2& op, const MAOps2&... secs)
     {
 	return MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,
 				   MAOps2...>(op, *this, secs...);
@@ -254,7 +255,7 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... MAOps>
     template <class Operation2, class... MAOps2>
     MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-    MultiArrayOperation<T,Operation,MAOps...>::operator()(const Operation2& op, const MAOps&... secs)
+    MultiArrayOperation<T,Operation,MAOps...>::operator()(const Operation2& op, const MAOps2&... secs)
     {
 	return MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,
 				   MAOps2...>(op, *this, secs...);
@@ -301,7 +302,6 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... MAOps>    
     void MultiArrayOperation<T,Operation,MAOps...>::linkIndicesTo(IndefinitIndexBase* target) const
     {
-	MAOB::mIibPtr->linkTo(target);
 	TupleIndicesLinker<sizeof...(MAOps)-1>::linkTupleIndicesTo(mArgs, target);
     }
     
