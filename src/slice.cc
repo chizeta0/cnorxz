@@ -7,8 +7,8 @@ namespace MultiArrayTools
 
     template <typename T, class Range, class MARange>
     Slice<T,Range,MARange,Index>::
-    Slice() :
-	MultiArrayBase<T,Range>(ma.range()),
+    Slice(const Range& range) :
+	MultiArrayBase<T,Range>(range),
 	mMultiArrayRef(*this) {}
 
     template <typename T, class Range, class MARange>
@@ -18,10 +18,16 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range, class MARange>
-    void Slice<T,Range,MARange,Index>::set(MultiArrayBase<T,MARange>& multiArrayRef, IndefinitIndexBase* MAPtr)
+    void Slice<T,Range,MARange,Index>::set(MultiArrayBase<T,MARange>& multiArrayRef,
+					   const Name& ownNm, // for correct linkage
+					   IndefinitIndexBase* MAPtr, // for desired slice position
+					   const Name& MANm) // for correct linkage)
     {
 	mMultiArrayRef = multiArrayRef;
-	
-	mMAPtr.reset(new typename MARange::IndexType(MAPtr));
+	mMAPtr.reset(new typename MARange::IndexType(*MAPtr));
+	mOwnPtr.reset(new typename Range::IndexType());
+	mMAPtr->name(MANm);
+	mOwnPtr->name(ownNm);
+	mMAPtr->linkTo(mOwnPtr);
     }
 }

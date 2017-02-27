@@ -42,6 +42,11 @@ namespace MultiArrayTools
 	MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma, const Name& nm);
 	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
 
+	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot& in);
+
+	template <class Range2>
+	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot<T,Range2>& in);
+	
 	template <class Operation, class... MAOps>
 	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);
 	
@@ -67,14 +72,24 @@ namespace MultiArrayTools
 
 	virtual size_t argNum() const override;
 
-	//IndexType& index() ;
+	IndexType& index();
 
+	// set index
+	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);
+	
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual T& get() override;
 	virtual const T& get() const override;
+
+	const Name& name() const;
 	
     protected:
+
+	void performAssignment(const MultiArrayOperationBase<T>& in);
+
+	template <class RangeX>
+	MultiArrayOperationRoot& makeSlice(MultiArrayOperationRoot<T,RangeX>& in);
 	
 	MultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;

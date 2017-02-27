@@ -21,7 +21,7 @@ namespace MultiArrayTools
 
 	typedef MultiArrayBase<T,Range> MAB;
 
-	Slice();
+	Slice(const Range& range);
 
 	T& operator[](const typename Range::IndexType& i) override;
 	const T& operator[](const typename Range::IndexType& i) const override;
@@ -34,13 +34,16 @@ namespace MultiArrayTools
 
 	virtual bool isSlice() const override;
 
-	void set(MultiArrayBase<T,MARange>& multiArrayRef, IndefinitIndexBase* MAPtr);
+	void set(MultiArrayBase<T,MARange>& multiArrayRef,
+		 const Name& ownNm,
+		 IndefinitIndexBase* MAPtr,
+		 const Name& MANm);
 	
     private:
 
 	MultiArrayBase<T,MARange>& mMultiArrayRef;
 	std::shared_ptr<IndefinitIndexBase> mMAPtr; // idx ptr for original MA Range
-	IndefinitIndexBase* mOwnPtr; // idx ptr for own Range
+	std::shared_ptr<IndefinitIndexBase> mOwnPtr; // idx ptr for own Range
 	//Index mSlicePos;
     };
     

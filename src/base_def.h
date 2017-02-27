@@ -90,7 +90,7 @@ namespace MultiArrayTools
     class MultiArrayOperation;
 
     // slice.h
-    template <typename T, class Range, class MARange, class Index>
+    template <typename T, class Range, class MARange>
     class Slice;
     
 }

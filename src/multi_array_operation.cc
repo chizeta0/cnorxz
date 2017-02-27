@@ -26,6 +26,28 @@ namespace MultiArrayTools
      *********************************/
 
     template <typename T, class Range>
+    void MultiArrayOperationRoot<T,Range>::performAssignment(const MultiArrayOperationBase<T>& in)
+    {
+	in.linkIndicesTo(MAOB::mIibPtr);
+	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
+	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
+	    // build in vectorization later
+	    get() = in.get();
+	}
+	MAOB::mIibPtr->freeLinked();
+    }
+
+    template <typename T, class Range>
+    template <class RangeX>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::makeSlice(MultiArrayOperationRoot<T,RangeX>& in)
+    {
+	Slice<T,Range,RangeX>& sl = dynamic_cast<Slice<T,Range,RangeX>&>( mArrayRef );
+	sl.set(in.mArrayRef, name(), &in.index(), in.name());
+	return *this;
+    }
+    
+    template <typename T, class Range>
     MultiArrayOperationRoot<T,Range>::
     MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma,
 			    const Name& nm) :
@@ -43,39 +65,45 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationRoot<T,Range>& in)
     {
-	if(mArrayRef.isSlice()){
-	    Slice<T,Range>& sl = dynamic_cast<Slice<T,Range>&>( mArrayRef );
-	    
-	    sl.set()
-	    return *this;
-	}
-	
-	in.linkIndicesTo(MAOB::mIibPtr);
-	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
-
-	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
-	    // build in vectorization later
-	    get() = in.get();
-	}
-	MAOB::mIibPtr->freeLinked();
+	performAssignment(in);
 	return *this;
     }
 
+    template <typename T, class Range>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range>& in)
+    {
+	maketurnSlice(in);
+	if(mArrayRef.isSlice()){
+	    return makeSlice(in);
+	}
+	performAssignment(in);
+	return *this;
+    }
+
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range2>& in)
+    {
+	if(mArrayRef.isSlice()){
+	    return makeSlice(in);
+	}
+	performAssignment(in);
+	return *this;
+    }
+    
     template <typename T, class Range>
     template <class Operation, class... MAOps>
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperation<T,Operation,MAOps...>& in)
     {
-	// NO SLICE CREATION !!! (total array not initialized!!)
-	
-	in.linkIndicesTo(MAOB::mIibPtr);
-	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
-	
-	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
-	    // build in vectorization later
-	    get() = in.get();
+	if(mArrayRef.isSlice()){
+	    // NO SLICE CREATION !!! (total array not initialized!!)
+	    // throw !
+	    assert(0);
 	}
-	MAOB::mIibPtr->freeLinked();
+   	performAssignment(in);
 	return *this;
     }
 
@@ -153,6 +181,12 @@ namespace MultiArrayTools
 	return mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)];
     }
 
+    template <typename T, class Range>
+    const Name& MultiArrayOperationRoot<T,Range>::name() const
+    {
+	return mNm;
+    }
+    
     /*****************************
      *   MultiArrayOperation     *
      *****************************/
