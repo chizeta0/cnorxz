@@ -14,20 +14,19 @@ namespace MultiArrayTools
     // Range = range of slice
     // MARange = original range of multi array of which this is the slice
     // Index = index which determines the slice position (remnant of MARange w.o. Range)
-    template <typename T, class Range, class MARange, class Index>
+    template <typename T, class Range, class MARange/*, class Index*/>
     class Slice : public MultiArrayBase<T,Range> // yes, 'Range' is correct !!!
     {
-	//MA::mCont has to be empty; only make use of the provided functions
     public:
 
-	typedef MultiArrayBase<T,MARange> MAB;
+	typedef MultiArrayBase<T,Range> MAB;
 
-	Slice(MultiArray<T,MARange>& ma, const Index& slicePos);
+	Slice();
 
 	T& operator[](const typename Range::IndexType& i) override;
 	const T& operator[](const typename Range::IndexType& i) const override;
 	
-	Slice& setSlicePos(const Index& slicePos);
+	//Slice& setSlicePos(const Index& slicePos);
 	
 	// link given Index to mMAPtr which is index of total array
 	auto begin() override -> decltype(Range().begin()); 
@@ -35,15 +34,14 @@ namespace MultiArrayTools
 
 	virtual bool isSlice() const override;
 
-	void setPtr(IndefinitIndexBase* MAPtr,
-		    IndefinitIndexBase* ownPtr);
+	void set(MultiArrayBase<T,MARange>& multiArrayRef, IndefinitIndexBase* MAPtr);
 	
     private:
 
-	MultiArrayBase<T,MARange>& multiArrayRef;
-	IndefinitIndexBase* mMAPtr; // idx ptr for original MA Range
+	MultiArrayBase<T,MARange>& mMultiArrayRef;
+	std::shared_ptr<IndefinitIndexBase> mMAPtr; // idx ptr for original MA Range
 	IndefinitIndexBase* mOwnPtr; // idx ptr for own Range
-	Index mSlicePos;
+	//Index mSlicePos;
     };
     
     

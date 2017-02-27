@@ -32,6 +32,9 @@ namespace MultiArrayTools
 	virtual auto end() -> decltype(Range().end());
 
 	virtual const Range& range() const;
+
+	template <class... NameTypes>
+	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
 	
     protected:
 	std::shared_ptr<Range> mRange;
@@ -50,9 +53,6 @@ namespace MultiArrayTools
 	MultiArray(const Range& range, const std::vector<T>& vec);
 	MultiArray(const Range& range, std::vector<T>&& vec);
 	
-	template <class... NameTypes>
-	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
-
 	T& operator[](const typename Range::IndexType& i) override;
 	const T& operator[](const typename Range::IndexType& i) const override;
 	

@@ -43,12 +43,16 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationRoot<T,Range>& in)
     {
+	if(mArrayRef.isSlice()){
+	    Slice<T,Range>& sl = dynamic_cast<Slice<T,Range>&>( mArrayRef );
+	    
+	    sl.set()
+	    return *this;
+	}
+	
 	in.linkIndicesTo(MAOB::mIibPtr);
 	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
-	//if(mArrayRef.isSlice()){
-	//    linkSlice(&in.index(), MAOB::mIibPtr);
-	//    return *this;
-	//}
+
 	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
 	    // build in vectorization later
 	    get() = in.get();
@@ -62,12 +66,11 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperation<T,Operation,MAOps...>& in)
     {
+	// NO SLICE CREATION !!! (total array not initialized!!)
+	
 	in.linkIndicesTo(MAOB::mIibPtr);
 	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
-	//if(mArrayRef.isSlice()){
-	//    linkSlice(&in.index(), MAOB::mIibPtr);
-	//    return *this;
-	//}
+	
 	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
 	    // build in vectorization later
 	    get() = in.get();
@@ -75,26 +78,6 @@ namespace MultiArrayTools
 	MAOB::mIibPtr->freeLinked();
 	return *this;
     }
-
-    /*
-    template <typename T, class Range>
-    template <class Range2>
-    MultiArrayOperationRoot<T,Range>&
-    MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationBase<T, Range2>& in)
-    {
-	in.linkIndicesTo(MAOB::mIibPtr);
-	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
-	if(mArrayRef.isSlice()){
-	    linkSlice(&in.index(), MAOB::mIibPtr);
-	    return *this;
-	}
-	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
-	    // build in vectorization later
-	    get() = in.get();
-	}
-	MAOB::mIibPtr->freeLinked();
-	return *this;
-	}*/
 
     template <typename T, class Range>
     template <class Operation, class... MAOps>

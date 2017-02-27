@@ -35,6 +35,13 @@ namespace MultiArrayTools
 	return *mRange;
     }
 
+    template <typename T, class Range>
+    template <class... NameTypes>
+    MultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameTypes&... str)
+    {
+	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+    }
+    
     /*******************
      *  MultiArray     *	     
      *******************/
@@ -74,13 +81,6 @@ namespace MultiArrayTools
     const T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i) const
     {
 	return mCont[ i.pos() ];
-    }
-
-    template <typename T, class Range>
-    template <class... NameTypes>
-    MultiArrayOperationRoot<T,Range> MultiArray<T,Range>::operator()(const NameTypes&... str)
-    {
-	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
     }
 
     template <typename T, class Range>

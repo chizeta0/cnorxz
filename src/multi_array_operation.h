@@ -45,14 +45,6 @@ namespace MultiArrayTools
 	template <class Operation, class... MAOps>
 	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);
 	
-	//MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in) = delete;
-	//MultiArrayOperationRoot(const MultiArrayOperationRoot& in) = default;
-	
-	// execute AnyOperation
-	// exception if range types are inconsitent with names
-	//MultiArrayOperationRoot& operator=(const MultiArrayOperationBase<T>& in);
-	
-	
 	template <class Operation, class... MAOps>
 	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
 	operator()(Operation& op, const MAOps&... secs);
