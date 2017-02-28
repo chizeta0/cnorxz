@@ -23,14 +23,14 @@ namespace MultiArrayTools
 
 	Slice(const Range& range);
 
-	T& operator[](const typename Range::IndexType& i) override;
-	const T& operator[](const typename Range::IndexType& i) const override;
+	virtual T& operator[](const typename Range::IndexType& i) override;
+	virtual const T& operator[](const typename Range::IndexType& i) const override;
 	
 	//Slice& setSlicePos(const Index& slicePos);
 	
 	// link given Index to mMAPtr which is index of total array
-	auto begin() override -> decltype(Range().begin()); 
-	auto end() override -> decltype(Range().end());
+	virtual auto begin() -> decltype(Range().begin()) override; 
+	virtual auto end() -> decltype(Range().end()) override;
 
 	virtual bool isSlice() const override;
 
@@ -41,7 +41,7 @@ namespace MultiArrayTools
 	
     private:
 
-	MultiArrayBase<T,MARange>& mMultiArrayRef;
+	MultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
 	std::shared_ptr<IndefinitIndexBase> mMAPtr; // idx ptr for original MA Range
 	std::shared_ptr<IndefinitIndexBase> mOwnPtr; // idx ptr for own Range
 	//Index mSlicePos;

@@ -72,6 +72,8 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef IndefinitIndexBase IIB;
+	
 	DEFAULT_MEMBERS(IndexBase);
 	IndexBase(RangeBase<Index> const* range);
 	
@@ -82,6 +84,8 @@ namespace MultiArrayTools
 	virtual void assignRange(RangeBase<Index> const* range);
 
 	virtual void eval() override;
+
+	virtual void copyPos(const Index& in);
 	
     protected:
 

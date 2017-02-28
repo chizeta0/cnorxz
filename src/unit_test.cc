@@ -108,7 +108,34 @@ namespace {
 	MultiArray2dAny ma;
 	MultiArray3dAny ma3d;
     };
-        
+
+    class SliceTest : public ::testing::Test
+    {
+    protected:
+
+	typedef MAT::SingleRange<char,MAT::RangeType::ANY> Range1dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny> Range2dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny,Range1dAny> Range3dAny;
+	typedef MAT::MultiArray<int,Range3dAny> MultiArray3dAny;
+	typedef MAT::Slice<int,Range2dAny,Range3dAny> Slice2d3dAny;
+	
+	SliceTest() : r1({'a','b','c'}), r2({'a','b','c','d'}), r3({'a','b'}),
+		      ra(r1,r3),
+		      rb(r1,r2),
+		      r3d(r1,r2,r3),
+		      ma(r3d, {-5,6,2,1,9,54,27,-7,-13,32,90,-67,
+				  -10,16,-2,101,39,-64,81,-22,14,34,95,-62}) {}
+
+	Range1dAny r1;
+	Range1dAny r2;
+	Range1dAny r3;
+	Range2dAny ra;
+	Range2dAny rb;
+	Range3dAny r3d;
+	MultiArray3dAny ma;
+	//Slice2d3dAny sl;
+    };
+    
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);
@@ -128,7 +155,6 @@ namespace {
     {
 	EXPECT_EQ(ma.size(), 12);
     }
-
     
     TEST_F(TwoDimTest, CorrectAssigned)
     {    
@@ -324,7 +350,46 @@ namespace {
 	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 2, i3 = 0)], 106);
 	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 2, i3 = 1)], 126);
 	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 3, i3 = 0)], 30);
-	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 3, i3 = 1)], -127);    }
+	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 3, i3 = 1)], -127);
+    }
+
+    TEST_F(SliceTest, CorrectSize)
+    {
+	auto i = ma.begin();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+	auto i3 = i.template getIndex<2>();
+	Slice2d3dAny sl(ra);
+	sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];
+	EXPECT_EQ(sl.size(), 6);
+
+	Slice2d3dAny sl2(rb);
+	sl("alpha","beta") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 0, i3 = 1)];
+	EXPECT_EQ(sl.size(), 12);
+    }
+
+    TEST_F(SliceTest, CorrectContent)
+    {
+	auto i = ma.begin();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+	auto i3 = i.template getIndex<2>();
+	Slice2d3dAny sl(ra);
+	sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];
+
+	auto j = sl.begin();
+	auto j1 = j.template getIndex<0>();
+	auto j2 = j.template getIndex<1>();
+	
+	EXPECT_EQ(sl[j(j1 = 0, j2 = 0)], 9);
+	EXPECT_EQ(sl[j(j1 = 0, j2 = 1)], 54);
+
+	EXPECT_EQ(sl[j(j1 = 1, j2 = 0)], -10);
+	EXPECT_EQ(sl[j(j1 = 1, j2 = 1)], 16);
+
+	EXPECT_EQ(sl[j(j1 = 2, j2 = 0)], 14);
+	EXPECT_EQ(sl[j(j1 = 2, j2 = 1)], 34);
+    }
     
 } // end namespace 
 

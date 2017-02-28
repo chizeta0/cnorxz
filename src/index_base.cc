@@ -79,7 +79,7 @@ namespace MultiArrayTools
     {
 	mPos = pos;
 	if(linked()){
-	    mLinked->setPos(pos);
+	    mLinked->setPos(mPos);
 	    mLinked->evalMajor();
 	}
     }
@@ -149,4 +149,11 @@ namespace MultiArrayTools
     {
 	setPos( evaluate(*dynamic_cast<Index const*>( this )) );
     }
+
+    template <class Index>
+    void IndexBase<Index>::copyPos(const Index& in)
+    {
+	IIB::setPos(in.pos());
+    }
+
 }

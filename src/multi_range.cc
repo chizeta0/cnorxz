@@ -126,6 +126,28 @@ namespace MultiArrayTools
 		std::get<0>(iPack).subOrd(major);
 	    }
 	};
+
+	template <size_t N>
+	struct PositionCopy
+	{
+	    template <class MultiIndex>
+	    static void copyPos(MultiIndex& target, const MultiIndex& source)
+	    {
+		target.template getIndex<N>().copyPos( source.template getIndex<N>() );
+		PositionCopy<N-1>::copyPos(target, source);
+	    }
+	};
+
+	template <>
+	struct PositionCopy<0>
+	{
+	    template <class MultiIndex>
+	    static void copyPos(MultiIndex& target, const MultiIndex& source)
+	    {
+		target.template getIndex<0>().copyPos( source.template getIndex<0>() );
+	    }
+	};
+	
     }
 
     template <class... Indices>
@@ -349,6 +371,13 @@ namespace MultiArrayTools
 	    get(i).linkTo(target);
 	}
     }
+
+    template <class... Indices>
+    void MultiIndex<Indices...>::copyPos(const MultiIndex<Indices...>& in)
+    {
+	PositionCopy<sizeof...(Indices)-1>::copyPos(*this, in);
+    }
+    
     /*
     template <size_t N>
     struct RangeAssigner

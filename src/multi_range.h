@@ -71,6 +71,8 @@ namespace MultiArrayTools
 	virtual bool link(IndefinitIndexBase* toLink) override;
 	virtual void linkTo(IndefinitIndexBase* target) override;
 
+	virtual void copyPos(const MultiIndex<Indices...>& in) override;
+	
 	//virtual void assignRange(RangeBase<MultiIndex<Indices...> > const* range) override;
     };
 

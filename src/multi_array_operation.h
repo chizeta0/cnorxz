@@ -74,7 +74,7 @@ namespace MultiArrayTools
 
 	IndexType& index();
 
-	// set index
+	// set index -> implement !!!!!
 	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);
 	
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
@@ -83,6 +83,9 @@ namespace MultiArrayTools
 	virtual const T& get() const override;
 
 	const Name& name() const;
+
+	template <typename U, class RangeX>
+	friend class MultiArrayOperationRoot;
 	
     protected:
 

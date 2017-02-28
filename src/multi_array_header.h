@@ -10,5 +10,6 @@
 #include "multi_range.h"
 #include "multi_array_operation.h"
 #include "multi_array.h"
+#include "slice.h"
 
 #endif
