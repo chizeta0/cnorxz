@@ -359,13 +359,14 @@ namespace {
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
+	CHECK;
 	Slice2d3dAny sl(ra);
+	CHECK;
 	sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];
 	EXPECT_EQ(sl.size(), 6);
-
 	Slice2d3dAny sl2(rb);
-	sl("alpha","beta") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 0, i3 = 1)];
-	EXPECT_EQ(sl.size(), 12);
+	sl2("alpha","beta") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 0, i3 = 1)];
+	EXPECT_EQ(sl2.size(), 12);
     }
 
     TEST_F(SliceTest, CorrectContent)
@@ -376,12 +377,13 @@ namespace {
 	auto i3 = i.template getIndex<2>();
 	Slice2d3dAny sl(ra);
 	sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];
-
+	CHECK;
 	auto j = sl.begin();
 	auto j1 = j.template getIndex<0>();
 	auto j2 = j.template getIndex<1>();
-	
+	CHECK;
 	EXPECT_EQ(sl[j(j1 = 0, j2 = 0)], 9);
+	CHECK;
 	EXPECT_EQ(sl[j(j1 = 0, j2 = 1)], 54);
 
 	EXPECT_EQ(sl[j(j1 = 1, j2 = 0)], -10);

@@ -56,6 +56,8 @@ namespace MultiArrayTools
 	virtual bool master();
 
 	virtual void subOrd(IndefinitIndexBase* major);
+
+	virtual bool virt() const { return true; }
 	
     protected:
 
@@ -83,9 +85,8 @@ namespace MultiArrayTools
 
 	virtual void assignRange(RangeBase<Index> const* range);
 
-	virtual void eval() override;
-
-	virtual void copyPos(const Index& in);
+	//virtual void eval() override;
+	virtual void copyPos(const Index& in) = 0;
 	
     protected:
 

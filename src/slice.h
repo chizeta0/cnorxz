@@ -36,14 +36,16 @@ namespace MultiArrayTools
 
 	void set(MultiArrayBase<T,MARange>& multiArrayRef,
 		 const Name& ownNm,
-		 IndefinitIndexBase* MAPtr,
-		 const Name& MANm);
+		 const typename MARange::IndexType& MAIdx,
+		 const Name& MANm); 
 	
     private:
 
 	MultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
-	std::shared_ptr<IndefinitIndexBase> mMAPtr; // idx ptr for original MA Range
-	std::shared_ptr<IndefinitIndexBase> mOwnPtr; // idx ptr for own Range
+	mutable typename Range::IndexType mOwnIdx;
+	mutable typename MARange::IndexType mMAIdx;
+	//std::shared_ptr<IndefinitIndexBase> mMAPtr; // idx ptr for original MA Range
+	//std::shared_ptr<IndefinitIndexBase> mOwnPtr; // idx ptr for own Range
 	//Index mSlicePos;
     };
     

@@ -48,6 +48,12 @@ namespace MultiArrayTools
 	virtual size_t dim() const override; // = 1
 	virtual void linkTo(IndefinitIndexBase* target) override;
 
+	virtual void copyPos(const SingleIndex& in) override;
+
+	virtual void eval() override;
+
+	virtual bool virt() const override { return false; }
+	
     protected:
 	virtual size_t evaluate(const SingleIndex& in) const override;
     };

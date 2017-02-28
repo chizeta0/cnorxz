@@ -149,12 +149,15 @@ namespace MultiArrayTools
 	target->link(this);
     }    
 
-    /*
     template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(const U& upos)
+    void SingleIndex<U,TYPE>::copyPos(const SingleIndex<U,TYPE>& in)
     {
-	IIB::setPos( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(upos) );
-	return *this;
-	}*/
-    
+	IIB::setPos(in.pos());
+    }
+
+    template <typename U, RangeType TYPE>
+    void SingleIndex<U,TYPE>::eval()
+    {
+	IIB::setPos( evaluate( *this ) );
+    }
 }

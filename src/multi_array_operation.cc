@@ -16,9 +16,9 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    IndefinitIndexBase* MultiArrayOperationBase<T>::index()
+    IndefinitIndexBase& MultiArrayOperationBase<T>::index()
     {
-	return mIibPtr;
+	return *mIibPtr;
     }
     
     /*********************************
@@ -43,7 +43,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::makeSlice(MultiArrayOperationRoot<T,RangeX>& in)
     {
 	Slice<T,Range,RangeX>& sl = dynamic_cast<Slice<T,Range,RangeX>&>( mArrayRef );
-	sl.set(in.mArrayRef, name(), &in.index(), in.name());
+	sl.set(in.mArrayRef, name(), dynamic_cast<typename RangeX::IndexType&>( in.index() ), in.name());
 	return *this;
     }
     
@@ -185,6 +185,13 @@ namespace MultiArrayTools
     const Name& MultiArrayOperationRoot<T,Range>::name() const
     {
 	return mNm;
+    }
+
+    template <typename T, class Range>
+    MultiArrayOperationRoot<T,Range>& MultiArrayOperationRoot<T,Range>::operator[](const IndexType& ind)
+    {
+	mIndex.copyPos(ind);
+	return *this;
     }
     
     /*****************************

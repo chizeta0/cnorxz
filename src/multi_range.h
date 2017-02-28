@@ -30,15 +30,22 @@ namespace MultiArrayTools
 
     public:
 
-	DEFAULT_MEMBERS(MultiIndex);
-
+	MultiIndex() = default;
+	// NO DEFAULT HERE !!!
+	// ( have to subord sub-indices (mMajor) correctly, and not only copy their mMajor pointer to 'in'
+	// which is not major any more in copies!! )
+	MultiIndex(const MultiIndex& in);
+	MultiIndex& operator=(const MultiIndex& in);
+	
+	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range);
+	
 	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
 		   Indices&&... inds);
 	
 	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
 		   const IndexPack& ipack);
 	
- 	virtual ~MultiIndex();
+ 	//virtual ~MultiIndex();
 	
 	virtual MultiIndex& operator++() override;
 	virtual MultiIndex& operator--() override;
@@ -72,7 +79,10 @@ namespace MultiArrayTools
 	virtual void linkTo(IndefinitIndexBase* target) override;
 
 	virtual void copyPos(const MultiIndex<Indices...>& in) override;
-	
+
+	virtual void eval() override;
+
+	virtual bool virt() const override { return false; }
 	//virtual void assignRange(RangeBase<MultiIndex<Indices...> > const* range) override;
     };
 
@@ -101,7 +111,8 @@ namespace MultiArrayTools
 	auto getRange() const -> decltype( std::get<N>(SpaceType()) );
 	
 	size_t size() const override;
-
+	const SpaceType& space() const;
+	
 	virtual MultiRangeType type() const override; 
 	
 	virtual MultiIndex<typename Ranges::IndexType...> begin() const override;

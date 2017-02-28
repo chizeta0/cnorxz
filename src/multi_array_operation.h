@@ -21,7 +21,7 @@ namespace MultiArrayTools
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
-	IndefinitIndexBase* index();
+	IndefinitIndexBase& index();
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const = 0;
 	
 	virtual T& get() = 0;
@@ -71,8 +71,6 @@ namespace MultiArrayTools
 	auto operator/(const MAOp& sec) -> decltype(operator()(std::divides<T>(), sec));
 
 	virtual size_t argNum() const override;
-
-	IndexType& index();
 
 	// set index -> implement !!!!!
 	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);

@@ -18,16 +18,16 @@ namespace MultiArrayTools
 
     template <typename T, class Range, class MARange>
     void Slice<T,Range,MARange>::set(MultiArrayBase<T,MARange>& multiArrayRef,
-					   const Name& ownNm, // for correct linkage
-					   IndefinitIndexBase* MAPtr, // for desired slice position
-					   const Name& MANm) // for correct linkage)
+				     const Name& ownNm, // for correct linkage
+				     const typename MARange::IndexType& MAIdx, // for desired slice position
+				     const Name& MANm) // for correct linkage)
     {
 	mMultiArrayPtr = &multiArrayRef;
-	mMAPtr.reset(new typename MARange::IndexType( dynamic_cast<typename MARange::IndexType&>( *MAPtr ) ) );
-	mOwnPtr.reset(new typename Range::IndexType());
-	mMAPtr->name(MANm);
-	mOwnPtr->name(ownNm);
-	mMAPtr->linkTo(mOwnPtr.get());
+	mMAIdx = MAIdx;
+	mOwnIdx = MAB::mRange->begin();
+	mMAIdx.name(MANm);
+	mOwnIdx.name(ownNm);
+	mMAIdx.linkTo(&mOwnIdx);
     }
 
     template <typename T, class Range, class MARange>
@@ -45,14 +45,16 @@ namespace MultiArrayTools
     template <typename T, class Range, class MARange>
     T& Slice<T,Range,MARange>::operator[](const typename Range::IndexType& i)
     {
-	dynamic_cast<typename Range::IndexType&>(*mOwnPtr).copyPos(i);
-	return (*mMultiArrayPtr)[ dynamic_cast<typename MARange::IndexType&>( *mMAPtr ) ];
+	mOwnIdx.copyPos(i);
+	mOwnIdx = i.pos();
+	return (*mMultiArrayPtr)[ mMAIdx ];
     }
 
     template <typename T, class Range, class MARange>
     const T& Slice<T,Range,MARange>::operator[](const typename Range::IndexType& i) const
     {
-	dynamic_cast<typename Range::IndexType&>(*mOwnPtr).copyPos(i);
-	return (*mMultiArrayPtr)[ dynamic_cast<typename MARange::IndexType&>( *mMAPtr ) ];
+	mOwnIdx.copyPos(i);
+	mOwnIdx = i.pos();
+	return (*mMultiArrayPtr)[ mMAIdx ];
     }
 }
