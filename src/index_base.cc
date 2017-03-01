@@ -17,31 +17,31 @@ namespace MultiArrayTools
     
     size_t IndefinitIndexBase::pos() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return mPos;
     }
     
     const std::string& IndefinitIndexBase::name() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return mName;
     }
 
     void IndefinitIndexBase::name(const std::string& str)
     {
-	assert(not virt());
+	//assert(not virt());
 	mName = str;
     }
     
     void IndefinitIndexBase::name(const Name& nm)
     {
-	assert(not virt());
+	//assert(not virt());
 	mName = nm.own();
     }    
     
     bool IndefinitIndexBase::link(IndefinitIndexBase* toLink)
     {
-	assert(not virt());
+	//assert(not virt());
 	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
 	    assert(0);
 	    // throw !!
@@ -77,13 +77,13 @@ namespace MultiArrayTools
 
     bool IndefinitIndexBase::linked() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return mLinked != nullptr;
     }
 
     void IndefinitIndexBase::setPos(size_t pos)
     {
-	assert(not virt());
+	//assert(not virt());
 	mPos = pos;
 	if(linked()){
 	    mLinked->setPos(mPos);
@@ -93,26 +93,26 @@ namespace MultiArrayTools
 
     size_t IndefinitIndexBase::max() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return static_cast<size_t>( -1 );
     }
 
     size_t IndefinitIndexBase::outOfRange() const
     {
-	assert(not virt());
+	//assert(not virt());
 	int res = pos() - max() + 1;
 	return res > 0 ? static_cast<size_t>(res) : 0;
     }
 
     bool IndefinitIndexBase::toNull() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return true;
     }
 
     void IndefinitIndexBase::evalMajor()
     {
-	assert(not virt());
+	//assert(not virt());
 	if(not master()){
 	    mMajor->eval();
 	}
@@ -120,13 +120,13 @@ namespace MultiArrayTools
     
     bool IndefinitIndexBase::master()
     {
-	assert(not virt());
+	//assert(not virt());
 	return mMajor == nullptr;
     }
 
     void IndefinitIndexBase::subOrd(IndefinitIndexBase* major)
     {
-	assert(not virt());
+	//assert(not virt());
 	mMajor = major;
     }
     
@@ -140,31 +140,29 @@ namespace MultiArrayTools
     template <class Index>
     size_t IndexBase<Index>::max() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return mRange->size();
     }
 
     template <class Index>
     bool IndexBase<Index>::toNull() const
     {
-	assert(not virt());
+	//assert(not virt());
 	return mRange == nullptr;
     }
 
     template <class Index>
     void IndexBase<Index>::assignRange(RangeBase<Index> const* range)
     {
-	assert(not virt());
+	//assert(not virt());
 	if(toNull()){
 	    mRange = range;
 	}
     }
-
-    /*
+    
     template <class Index>
     void IndexBase<Index>::eval()
     {
-	CHECK;
 	setPos( evaluate(*dynamic_cast<Index const*>( this )) );
-	}*/
+    }
 }

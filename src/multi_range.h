@@ -80,9 +80,8 @@ namespace MultiArrayTools
 
 	virtual void copyPos(const MultiIndex<Indices...>& in) override;
 
-	virtual void eval() override;
-
-	virtual bool virt() const override { return false; }
+	//virtual void eval() override;
+	//virtual bool virt() const override { return false; }
 	//virtual void assignRange(RangeBase<MultiIndex<Indices...> > const* range) override;
     };
 

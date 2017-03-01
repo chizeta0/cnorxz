@@ -50,9 +50,8 @@ namespace MultiArrayTools
 
 	virtual void copyPos(const SingleIndex& in) override;
 
-	virtual void eval() override;
-
-	virtual bool virt() const override { return false; }
+	//virtual void eval() override;
+	//virtual bool virt() const override { return false; }
 	
     protected:
 	virtual size_t evaluate(const SingleIndex& in) const override;

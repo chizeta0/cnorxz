@@ -155,9 +155,11 @@ namespace MultiArrayTools
 	IIB::setPos(in.pos());
     }
 
+    /*
     template <typename U, RangeType TYPE>
     void SingleIndex<U,TYPE>::eval()
     {
 	IIB::setPos( evaluate( *this ) );
     }
+    */
 }

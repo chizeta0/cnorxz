@@ -486,12 +486,13 @@ namespace MultiArrayTools
 	PositionCopy<sizeof...(Indices)-1>::copyPos(*this, in);
     }
 
+    /*
     template <class... Indices>
     void MultiIndex<Indices...>::eval()
     {
 	IIB::setPos( evaluate( *this ) );
     }
-    
+    */
     /*
     template <size_t N>
     struct RangeAssigner
