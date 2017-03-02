@@ -27,6 +27,7 @@ namespace MultiArrayTools
     typedef SingleIndex<size_t,RangeType::LORENTZ> LorentzI;
     typedef SingleIndex<int,RangeType::SPACE> Space1dNI;
     typedef SingleIndex<int,RangeType::MOMENTUM> Mom1dNI;
+    typedef SingleIndex<size_t,RangeType::ENSEMBLE> EnsI;
     // ...
 
     // ===== Range Types =====
@@ -36,6 +37,7 @@ namespace MultiArrayTools
     typedef SingleRange<size_t,RangeType::LORENTZ> LorentzR;
     typedef SingleRange<int,RangeType::SPACE> Space1dNR;
     typedef SingleRange<int,RangeType::MOMENTUM> Mom1dNR;
+    typedef SingleRange<size_t, RangeType::ENSEMBLE> EnsR;
     typedef MultiRange<Space1dNR,Space1dNR,Space1dNR> Space3dNR;
     typedef MultiRange<Mom1dNR,Mom1dNR,Mom1dNR> Mom3dNR;
     // ...

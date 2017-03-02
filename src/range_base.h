@@ -19,7 +19,8 @@ namespace MultiArrayTools
 	SPACE = 2,
 	MOMENTUM = 3,
 	LORENTZ = 4,
-	SPIN = 5
+	SPIN = 5,
+	ENSEMBLE = 6
     };
 
     class MultiRangeType
