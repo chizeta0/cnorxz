@@ -18,7 +18,7 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
-    size_t SingleRange<U,TYPE>::get(const U& metaPos) const
+    size_t SingleRange<U,TYPE>::getMeta(const U& metaPos) const
     {
 	size_t cnt = 0;
 	for(auto& x: mSpace){
@@ -129,6 +129,13 @@ namespace MultiArrayTools
     const U& SingleIndex<U,TYPE>::getMetaPos() const
     {
 	return dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(IIB::pos());
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::atMeta(const U& metaPos)
+    {
+	operator=( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->getMeta(metaPos) );
+	return *this;
     }
 
     template <typename U, RangeType TYPE>

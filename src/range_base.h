@@ -52,7 +52,7 @@ namespace MultiArrayTools
 	RangeType mType;
 	std::vector<MultiRangeType>* mMultiType;
     };
-    
+
     template <class Index>
     class RangeBase
     {

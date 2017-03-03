@@ -20,6 +20,7 @@ namespace MultiArrayTools
 	typedef std::tuple<Indices...> IndexPack;
 	typedef IndefinitIndexBase IIB;
 	typedef IndexBase<MultiIndex<Indices...> > IB;
+	typedef std::tuple<decltype(Indices().getMetaPos())...> MetaType;
 	
     protected:
 	
@@ -67,6 +68,9 @@ namespace MultiArrayTools
 	IndefinitIndexBase& get(size_t n);
 	const IndefinitIndexBase& get(size_t n) const;
 
+        MetaType getMetaPos() const;
+	MultiIndex& atMeta(const MetaType& metaPos);
+	
 	MultiIndex& operator()(Indices&&... inds);
 	MultiIndex& operator()(const Indices&... inds);
 	

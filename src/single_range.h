@@ -44,7 +44,8 @@ namespace MultiArrayTools
 	virtual MultiRangeType rangeType() const override;
 
 	virtual const U& getMetaPos() const;
-
+	virtual SingleIndex& atMeta(const U& metaPos);
+	
 	virtual size_t dim() const override; // = 1
 	virtual void linkTo(IndefinitIndexBase* target) override;
 
@@ -68,7 +69,7 @@ namespace MultiArrayTools
 	virtual size_t size() const override;
 	
 	const U& get(size_t pos) const;
-	size_t get(const U& metaPos) const;
+	size_t getMeta(const U& metaPos) const;
 
 	virtual MultiRangeType type() const override;
 	

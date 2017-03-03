@@ -223,6 +223,52 @@ namespace MultiArrayTools
 		rvec.push_back(std::get<sizeof...(Ranges)-1>(rs).type());
 	    }
 	};
+
+	template <size_t N>
+	struct MetaPosGetter
+	{
+	    template <class... Indices>
+	    static void getMetaPos(typename MultiIndex<Indices...>::MetaType& target,
+				   const typename MultiIndex<Indices...>::IndexPack& source)
+	    {
+		std::get<N>(target) = std::get<N>(source).getMetaPos();
+		MetaPosGetter<N-1>::getMetaPos(target, source);
+	    }
+	};
+
+	template <>
+	struct MetaPosGetter<0>
+	{
+	    template <class... Indices>
+	    static void getMetaPos(typename MultiIndex<Indices...>::MetaType& target,
+				   const typename MultiIndex<Indices...>::IndexPack& source)
+	    {
+		std::get<0>(target) = std::get<0>(source).getMetaPos();
+	    }
+	};
+
+	template <size_t N>
+	struct MetaSetter
+	{
+	    template <class... Indices>
+	    static void setMeta(typename MultiIndex<Indices...>::IndexPack& target,
+				const typename MultiIndex<Indices...>::MetaType& source)
+	    {
+		std::get<N>(target).atMeta( std::get<N>(source) );
+		MetaSetter<N-1>::setMeta(target, source);
+	    }
+	};
+
+	template <>
+	struct MetaSetter<0>
+	{
+	    template <class... Indices>
+	    static void setMeta(typename MultiIndex<Indices...>::IndexPack& target,
+				const typename MultiIndex<Indices...>::MetaType& source)
+	    {
+		std::get<0>(target).atMeta( std::get<0>(source) );
+	    }
+	};
 	
     }
 
@@ -445,6 +491,7 @@ namespace MultiArrayTools
     IndefinitIndexBase& MultiIndex<Indices...>::get(size_t n)
     {
 	if(n >= sizeof...(Indices)){
+	    assert(0);
 	    // throw !!
 	}
 	MultiIndex<Indices...>* t = this;
@@ -455,10 +502,26 @@ namespace MultiArrayTools
     const IndefinitIndexBase& MultiIndex<Indices...>::get(size_t n) const
     {
 	if(n >= sizeof...(Indices)){
+	    assert(0);
 	    // throw !!
 	}
 	MultiIndex<Indices...> const* t = this;
 	return IndexGetter<sizeof...(Indices)-1>::getIndex(*t, n);
+    }
+
+    template <class... Indices>
+    typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::getMetaPos() const
+    {
+        MetaType metaTuple;
+	MetaPosGetter<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
+	return metaTuple;
+    }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::atMeta(const MultiIndex<Indices...>::MetaType& metaPos)
+    {
+	MetaSetter<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	return *this;
     }
 
     template <class... Indices>
