@@ -70,7 +70,7 @@ namespace MultiArrayTools
 	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
 	}
     }
-    
+
     template <typename T, class Range>
     T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i)
     {
@@ -87,6 +87,14 @@ namespace MultiArrayTools
     bool MultiArray<T,Range>::isSlice() const
     {
 	return false;
+    }
+
+    template <typename T, class Range>
+    void MultiArray<T,Range>::manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd)
+    {
+	//mb.reset();
+	mb.setup(mCont, manBegin, manEnd);
+	mb.execute();
     }
     
 }

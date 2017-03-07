@@ -9,6 +9,7 @@
 
 #include "base_def.h"
 #include "multi_array_operation.h"
+#include "manipulator.h"
 #include "name.h"
 
 namespace MultiArrayTools
@@ -35,6 +36,8 @@ namespace MultiArrayTools
 
 	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
+
+	virtual void manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd) = 0;
 	
     protected:
 	std::shared_ptr<Range> mRange;
@@ -57,6 +60,11 @@ namespace MultiArrayTools
 	const T& operator[](const typename Range::IndexType& i) const override;
 	
 	virtual bool isSlice() const override;
+
+	virtual void manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd) override;
+	
+	template <typename U, class RangeX>
+	friend class MultiArray;
 	
     private:
 	std::vector<T> mCont;
