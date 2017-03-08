@@ -44,7 +44,7 @@ namespace MultiArrayTools
 	virtual bool linked() const;
 	virtual void linkTo(IndefinitIndexBase* target) = 0; 
 
-	virtual IndefinitIndexBase* getLinked(const std::string& name) = 0;
+	//virtual IndefinitIndexBase* getLinked(const std::string& name) = 0;
 	
 	virtual void setPos(size_t pos);
 

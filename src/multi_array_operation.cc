@@ -154,6 +154,44 @@ namespace MultiArrayTools
     {
 	return operator()(std::divides<T>(), sec);
     }
+
+    template <typename T, class Range>
+    MultiArrayOperationRoot<T,Range> MultiArrayOperationRoot<T,Range>::copyThis()
+    {
+	return MultiArrayOperationRoot<T,Range>(mArrayRef, mNm);
+    }
+    
+    template <typename T, class Range>
+    template <class MAOp>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator+=(const MAOp& sec)
+    {
+	return (*this) = copyThis() + sec;
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator-=(const MAOp& sec)
+    {
+	return (*this) = copyThis() - sec;
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator*=(const MAOp& sec)
+    {
+	return (*this) = copyThis() * sec;
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator/=(const MAOp& sec)
+    {
+	return (*this) = copyThis() / sec;
+    }
     
     template <typename T, class Range>
     size_t MultiArrayOperationRoot<T,Range>::argNum() const

@@ -313,6 +313,44 @@ namespace {
 	EXPECT_EQ(ma3d2[i(i1 = 2, i2 = 3, i3 = 1)], -129);
     }
 
+    TEST_F(OperationTest, CorrectlyAdded2)
+    {
+	//MultiArray3dAny ma3d2(r3d);
+	auto i = ma3d.begin();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+	auto i3 = i.template getIndex<2>();
+
+	ma3d("alpha","beta","gamma") += ma("alpha","beta");
+
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 0, i3 = 0)], -10);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 0, i3 = 1)], 1);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 1, i3 = 0)], 8);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 1, i3 = 1)], 7);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 2, i3 = 0)], 11);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 2, i3 = 1)], 56);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 3, i3 = 0)], 28);
+	EXPECT_EQ(ma3d[i(i1 = 0, i2 = 3, i3 = 1)], -6);
+	
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 0, i3 = 0)], -4);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 0, i3 = 1)], 41);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 1, i3 = 0)], 144);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 1, i3 = 1)], -13);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 2, i3 = 0)], 17);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 2, i3 = 1)], 43);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 3, i3 = 0)], -9);
+	EXPECT_EQ(ma3d[i(i1 = 1, i2 = 3, i3 = 1)], 94);
+
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 0, i3 = 0)], 26);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 0, i3 = 1)], -77);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 1, i3 = 0)], 113);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 1, i3 = 1)], 10);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 2, i3 = 0)], 104);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 2, i3 = 1)], 124);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 3, i3 = 0)], 28);
+	EXPECT_EQ(ma3d[i(i1 = 2, i2 = 3, i3 = 1)], -129);
+    }
+
     TEST_F(OperationTest, CorrectlyAdded_3args)
     {
 	MultiArray3dAny ma3d2(r3d);

@@ -1,4 +1,4 @@
-
+// -*- C++ -*-
 #include "index_base.h"
 
 namespace MultiArrayTools
@@ -9,7 +9,7 @@ namespace MultiArrayTools
     
     IndefinitIndexBase::~IndefinitIndexBase()
     {
-	freeLinked();
+	//freeLinked();
 	mLinked = nullptr;
 	mMajor = nullptr;
 	mSoftLinked = nullptr;

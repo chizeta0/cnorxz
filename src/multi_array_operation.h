@@ -69,7 +69,21 @@ namespace MultiArrayTools
 
 	template <class MAOp>
 	auto operator/(const MAOp& sec) -> decltype(operator()(std::divides<T>(), sec));
+	
+	MultiArrayOperationRoot copyThis();
+	
+	template <class MAOp>
+	MultiArrayOperationRoot& operator+=(const MAOp& sec);
 
+	template <class MAOp>
+	MultiArrayOperationRoot& operator-=(const MAOp& sec);
+
+	template <class MAOp>
+	MultiArrayOperationRoot& operator*=(const MAOp& sec);
+
+	template <class MAOp>
+	MultiArrayOperationRoot& operator/=(const MAOp& sec);
+	
 	virtual size_t argNum() const override;
 
 	// set index -> implement !!!!!
