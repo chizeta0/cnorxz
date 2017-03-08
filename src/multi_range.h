@@ -104,6 +104,7 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(MultiRange);
 
 	MultiRange(const Ranges&... rs);
+	MultiRange(const SpaceType& space);
 	
 	static const size_t dim = sizeof...(Ranges);
 

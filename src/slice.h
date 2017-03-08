@@ -38,15 +38,9 @@ namespace MultiArrayTools
 		 const Name& ownNm,
 		 const typename MARange::IndexType& MAIdx,
 		 const Name& MANm); 
-
-	virtual void manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd) override;
-	
-	// size of coherent data blocks (vectorizable) managed by the slice
-	// = 1 if the smallest index of original array is NOT managed by the slice
-	size_t getBlockSize() const;
 	
     private:
-
+	
 	MultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
 	mutable typename Range::IndexType mOwnIdx;
 	mutable typename MARange::IndexType mMAIdx;

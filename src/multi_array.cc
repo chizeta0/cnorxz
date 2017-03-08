@@ -72,6 +72,32 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
+    template <class Range2, class Range3>
+    MultiArray<T,Range>::MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in) :
+	MultiArrayBase<T,Range>(merge(in.range(), in[ in.begin() ].range()))
+	// assert that Range2 has always same extension
+    {
+	mCont.clear();
+	for(auto i = in.begin(); i != in.end(); ++i){
+	    mCont.insert(mCont.end(), in[i].mCont.begin(), in[i].mCont.end());
+	}
+	assert(mCont.size() == MAB::mRange->size());
+    }
+
+    template <typename T, class Range>
+    template <class Range2, class Range3>
+    MultiArray<T,Range>& MultiArray<T,Range>::operator=(const MultiArray<MultiArray<T,Range2>,Range3> in)
+    {
+	MAB::mRange.reset(new Range(merge(in.range(), in[ in.begin() ].range())));
+	// assert that Range2 has always same extension
+	mCont.clear();
+	for(auto i = in.begin(); i != in.end(); ++i){
+	    mCont.insert(mCont.end(), in[i].mCont.begin(), in[i].mCont.end());
+	}
+	assert(mCont.size() == MAB::mRange->size());
+    }    
+    
+    template <typename T, class Range>
     T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i)
     {
 	return mCont[ i.pos() ];
@@ -89,12 +115,14 @@ namespace MultiArrayTools
 	return false;
     }
 
+    /*
     template <typename T, class Range>
-    void MultiArray<T,Range>::manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd)
+    void MultiArray<T,Range>::manipulate(ManipulatorBase<T>& mb,
+					 const typename Range::IndexType& manBegin,
+					 const typename Range::IndexType& manEnd)
     {
-	//mb.reset();
-	mb.setup(mCont, manBegin, manEnd);
+	mb.setup(mCont, manBegin.pos(), manEnd.pos());
 	mb.execute();
     }
-    
+    */
 }

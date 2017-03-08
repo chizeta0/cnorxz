@@ -43,10 +43,12 @@ namespace MultiArrayTools
 	virtual void freeLinked();
 	virtual bool linked() const;
 	virtual void linkTo(IndefinitIndexBase* target) = 0; 
+
+	virtual IndefinitIndexBase* getLinked(const std::string& name) = 0;
 	
 	virtual void setPos(size_t pos);
 
-	virtual size_t max() const;
+	virtual size_t max() const = 0;
 	virtual size_t outOfRange() const;
 
 	virtual bool toNull() const;

@@ -597,6 +597,9 @@ namespace MultiArrayTools
 
     template <class... Ranges>
     MultiRange<Ranges...>::MultiRange(const Ranges&... rs) : mSpace(std::make_tuple(rs...)) {}
+
+    template <class... Ranges>
+    MultiRange<Ranges...>::MultiRange(const SpaceType& space) : mSpace(space) {}
     
     template <class... Ranges>
     template <size_t N>

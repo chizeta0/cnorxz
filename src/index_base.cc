@@ -91,12 +91,6 @@ namespace MultiArrayTools
 	}
     }
 
-    size_t IndefinitIndexBase::max() const
-    {
-	//assert(not virt());
-	return static_cast<size_t>( -1 );
-    }
-
     size_t IndefinitIndexBase::outOfRange() const
     {
 	//assert(not virt());

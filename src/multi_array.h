@@ -20,6 +20,8 @@ namespace MultiArrayTools
     {
     public:
 
+	// iterator ( containing idx of Range )
+	
 	DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const Range& range);
 	
@@ -37,8 +39,6 @@ namespace MultiArrayTools
 	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
 
-	virtual void manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd) = 0;
-	
     protected:
 	std::shared_ptr<Range> mRange;
 
@@ -55,13 +55,21 @@ namespace MultiArrayTools
 	MultiArray(const Range& range);
 	MultiArray(const Range& range, const std::vector<T>& vec);
 	MultiArray(const Range& range, std::vector<T>&& vec);
+
+	template <class Range2, class Range3>
+	MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
+
+	template <class Range2, class Range3>
+	MultiArray& operator=(const MultiArray<MultiArray<T,Range2>,Range3> in);
 	
 	T& operator[](const typename Range::IndexType& i) override;
 	const T& operator[](const typename Range::IndexType& i) const override;
 	
 	virtual bool isSlice() const override;
 
-	virtual void manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd) override;
+	//	virtual void manipulate(ManipulatorBase<T>& mb,
+	//			const typename Range::IndexType& manBegin,
+	//				const typename Range::IndexType& manEnd);
 	
 	template <typename U, class RangeX>
 	friend class MultiArray;

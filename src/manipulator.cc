@@ -21,7 +21,7 @@ namespace MultiArrayTools
 
     template <typename T>
     BinReader<T>::BinReader(const std::string& fname, size_t readBegin):
-	fs(fname, std::fstream::in | std::fstream::binary),
+	mFs(fname, std::fstream::in | std::fstream::binary),
 	mReadBegin(readBegin) {}
 
     template <typename T>
@@ -37,18 +37,18 @@ namespace MultiArrayTools
 	const size_t blockSize = sizeof(T) * readSize;
 	char* buffer = new char[blockSize];
 
-	mFs.seekg(mReadBegin + MB::mLastPos, fs.beg);
+	mFs.seekg(mReadBegin + MB::mLastPos, mFs.beg);
 	mFs.read(buffer, blockSize);
 	MB::mLastPos += blockSize;
 	
 	T* content = reinterpret_cast<T*>( buffer );
 
-	if(mTargetPtr->size() < MB::mEnd){
+	if(MB::mTargetPtr->size() < MB::mEnd){
 	    assert(0);
 	    // throw
 	}
 	
-	std::copy(&content[0], &content[readSize], mTargetPtr->begin() + MB::mBegin);
+	std::copy(&content[0], &content[readSize], MB::mTargetPtr->begin() + MB::mBegin);
 
 	delete[] buffer;	
     }

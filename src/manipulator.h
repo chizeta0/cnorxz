@@ -33,7 +33,7 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    class BinReader : public ManipulatorBase
+    class BinReader : public ManipulatorBase<T>
     {
     public:
 	typedef ManipulatorBase<T> MB;

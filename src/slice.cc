@@ -57,27 +57,4 @@ namespace MultiArrayTools
 	//mOwnIdx = i.pos();
 	return (*mMultiArrayPtr)[ mMAIdx ];
     }
-
-    template <typename T, class Range, class MARange>
-    void Slice<T,Range,MARange>::manipulate(ManipulatorBase<T>& mb, size_t manBegin, size_t manEnd)
-    {
-	mOwnIdx = manBegin;
-	const size_t blockSize = getBlockSize();
-	const size_t totalManSize = manEnd - manBegin;
-	size_t curBegin = mMAIdx.pos();
-	size_t curBlockNum = (mMAIdx.pos() - mMAIdx.pos() % blockSize) / blockSize;
-	size_t tempEnd = blockSize - mMAIdx.pos() % blockSize + blockSize * curBlockNum;
-	size_t manipulated = 0;
-	for(; manipulated < totalManSize; ){
-	    mMultiArrayPtr->manipulate(mb, curBegin, tempEnd);
-	    // update variables... !!!!
-	}
-    }
-	
-    template <typename T, class Range, class MARange>
-    size_t Slice<T,Range,MARange>::getBlockSize() const
-    {
-	// implement !!!
-	return 1;
-    }
 }
