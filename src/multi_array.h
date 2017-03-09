@@ -39,7 +39,13 @@ namespace MultiArrayTools
 	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
 
+	template <class NameType>
+	MultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master);
+
+	virtual bool isInit() const;
+	
     protected:
+	bool mInit = false;
 	std::shared_ptr<Range> mRange;
 
     };

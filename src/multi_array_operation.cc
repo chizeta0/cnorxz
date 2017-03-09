@@ -74,7 +74,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range>& in)
     {
 	maketurnSlice(in);
-	if(mArrayRef.isSlice()){
+	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
 	    return makeSlice(in);
 	}
 	performAssignment(in);
@@ -86,7 +86,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range2>& in)
     {
-	if(mArrayRef.isSlice()){
+	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
 	    return makeSlice(in);
 	}
 	performAssignment(in);
@@ -98,7 +98,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperation<T,Operation,MAOps...>& in)
     {
-	if(mArrayRef.isSlice()){
+	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
 	    // NO SLICE CREATION !!! (total array not initialized!!)
 	    // throw !
 	    assert(0);

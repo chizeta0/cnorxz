@@ -22,6 +22,7 @@ namespace MultiArrayTools
 				     const typename MARange::IndexType& MAIdx, // for desired slice position
 				     const Name& MANm) // for correct linkage)
     {
+	MAB::mInit = true;
 	mMultiArrayPtr = &multiArrayRef;
 	mMAIdx = MAIdx;
 	mOwnIdx = MAB::mRange->begin();

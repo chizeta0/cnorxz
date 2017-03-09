@@ -41,6 +41,24 @@ namespace MultiArrayTools
     {
 	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
     }
+
+    template <typename T, class Range>
+    template <class NameType>
+    MultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameType& name, bool master)
+    {
+	if(master){
+	    return MultiArrayOperationRoot<T,Range>(*this, name);
+	}
+	else {
+	    return operator()(name);
+	}
+    }
+
+    template <typename T, class Range>
+    bool MultiArrayBase<T,Range>::isInit() const
+    {
+	return mInit;
+    }
     
     /*******************
      *  MultiArray     *	     
@@ -49,13 +67,17 @@ namespace MultiArrayTools
     template <typename T, class Range>
     MultiArray<T,Range>::MultiArray(const Range& range) :
 	MultiArrayBase<T,Range>(range),
-	mCont(MAB::mRange->size()) {}
+	mCont(MAB::mRange->size())
+    {
+	MAB::mInit = true;
+    }
 
     template <typename T, class Range>
     MultiArray<T,Range>::MultiArray(const Range& range, const std::vector<T>& vec) :
 	MultiArrayBase<T,Range>(range),
 	mCont(vec)
     {
+	MAB::mInit = true;
 	if(mCont.size() > MAB::mRange->size()){
 	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
 	}
@@ -66,6 +88,7 @@ namespace MultiArrayTools
 	MultiArrayBase<T,Range>(range),
 	mCont(vec)
     {
+	MAB::mInit = true;
 	if(mCont.size() > MAB::mRange->size()){
 	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
 	}
@@ -77,6 +100,7 @@ namespace MultiArrayTools
 	MultiArrayBase<T,Range>(merge(in.range(), in[ in.begin() ].range()))
 	// assert that Range2 has always same extension
     {
+	MAB::mInit = true;
 	mCont.clear();
 	for(auto i = in.begin(); i != in.end(); ++i){
 	    mCont.insert(mCont.end(), in[i].mCont.begin(), in[i].mCont.end());
@@ -114,7 +138,7 @@ namespace MultiArrayTools
     {
 	return false;
     }
-
+    
     /*
     template <typename T, class Range>
     void MultiArray<T,Range>::manipulate(ManipulatorBase<T>& mb,
