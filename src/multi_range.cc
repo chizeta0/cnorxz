@@ -78,13 +78,18 @@ namespace MultiArrayTools
 	inline void plus(MultiIndex& index, size_t digit, int num)
 	{
 	    IndefinitIndexBase& si = index.get(digit);
-	    //si.setPos( num, &index );
-	    //si.setPos( -num, &index );
-	    si.setPos( si.pos() + num );
+	    si.setPosRel(num);
+	    //si.setPos( si.pos() + num );
 	    size_t oor = si.outOfRange();
-	    if(oor and digit != 0){
-		plus(index, digit - 1, 1);
-		plus(index, digit, -si.max());
+	    if(digit){
+		if(oor > 0){
+		    plus(index, digit - 1, 1);
+		    plus(index, digit, -si.max());
+		}
+		else if(oor < 0){
+		    plus(index, digit - 1, -1);
+		    plus(index, digit, si.max());
+		}
 	    }
 	}
 
@@ -272,6 +277,35 @@ namespace MultiArrayTools
 		std::get<0>(target).atMeta( std::get<0>(source) );
 	    }
 	};
+
+	template <size_t N>
+	struct IndexPackSetter
+	{
+	    template <class IndexPack>
+	    static void setIndexPack(IndexPack& iPack, size_t pos)
+	    {
+		auto i = std::get<N>(iPack);
+		const size_t ownPos = pos % i.max(); 
+		i = ownPos;
+		if(ownPos == pos){
+		    IndexPackSetter<N-1>::setIndexPack(iPack, (pos - ownPos) / i.max() );
+		}
+	    }
+
+	};
+
+	template <>
+	struct IndexPackSetter<0>
+	{
+	    template <class IndexPack>
+	    static void setIndexPack(IndexPack& iPack, size_t pos)
+	    {
+		auto i = std::get<0>(iPack);
+		const size_t ownPos = pos % i.max(); 
+		i = ownPos;
+	    }
+
+	};
 	
     }
 
@@ -324,46 +358,35 @@ namespace MultiArrayTools
 	IIB::mPos = evaluate(*this);
     }
 
-    /*
-    template <class... Indices>
-    MultiIndex<Indices...>::~MultiIndex()
-    {
-	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, nullptr);
-	}*/
-    
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	//CHECK;
 	plus(*this, sizeof...(Indices)-1, 1);
-	setPos(1, this);
+	IIB::setPosRel(1);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	// !!!     >|< (0 does not make sense)
-	plus(*this, 0, -1);
-	setPos(-1, this);
+	plus(*this, sizeof...(Indices)-1, -1);
+	IIB::setPosRel(-1);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator+=(int n)
     {
-	//CHECK;
-	plus(*this, sizeof...(Indices)-1, 1);
-	setPos(n, this);
+	plus(*this, sizeof...(Indices)-1, n);
+	IIB::setPosRel(n);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator-=(int n)
     {
-	// !!!     >|<
-	plus(*this, 0, 0-n);
-	setPos(-n, this);
+	plus(*this, sizeof...(Indices)-1, -n);
+	IIB::setPosRel(-n);
 	return *this;
     }
 
@@ -383,7 +406,7 @@ namespace MultiArrayTools
     IndefinitIndexBase& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IIB::setPos( pos );
-	//setIndexPack(mIPack, pos); // -> implement !!!
+	IndexPackSetter<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
 	return *this;
     }
 
@@ -572,17 +595,6 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    void MultiIndex<Indices...>::setPos(int relPos, IndefinitIndexBase* subIndex)
-    {
-	IIB::mPos += relPos;
-	IIB::evalMajor(IIB::mMajorStep, relPos);
-	if(IIB::linked()){
-	    IIB::mLinked->setPos(relPos, subIndex);
-	    //IIB::mLinked->evalMajor(IIB::mMajorStep, relPos);
-	}
-    }
-
-    template <class... Indices>
     size_t MultiIndex<Indices...>::giveSubStepSize(IndefinitIndexBase* subIndex)
     {
 	size_t sss = 1;
@@ -601,48 +613,6 @@ namespace MultiArrayTools
 	}
     }
     
-    /*
-    template <class... Indices>
-    void MultiIndex<Indices...>::eval()
-    {
-	IIB::setPos( evaluate( *this ) );
-    }
-    */
-    /*
-    template <size_t N>
-    struct RangeAssigner
-    {
-	template <class... Indices>
-	static void assignRange(const RangeBase<MultiIndex<Indices...> >& multiRange,
-				MultiIndex<Indices...>& multiIndex)
-	{
-	    multiIndex.template getIndex<N>().assignRange(nullptr &multiRange.template getRange<N>());
-	    RangeAssigner<N-1>::assignRange(multiRange, multiIndex);
-	}
-    };
-
-    template <>
-    struct RangeAssigner<0>
-    {
-	template <class... Indices>
-	static void assignRange(const RangeBase<MultiIndex<Indices...> >& multiRange,
-				MultiIndex<Indices...>& multiIndex)
-	{
-	    multiIndex.template getIndex<0>().assignRange(nullptr &multiRange.template getRange<0>());
-	}
-    };    
-    
-    template <class... Indices>
-    void MultiIndex<Indices...>::assignRange(RangeBase<MultiIndex<Indices...> > const* range)
-    {
-	if(IB::toNull()){
-	    IB::mRange = range;
-	}
-	MultiIndex<Indices...>& thisRef = *this;
-	RangeAssigner<sizeof...(Indices)-1>::assignRange(*range, thisRef);
-    }*/
-
-   
     /******************
      *   MultiRange   *
      ******************/

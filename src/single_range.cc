@@ -110,13 +110,13 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     bool SingleIndex<U,TYPE>::operator==(const SingleIndex<U,TYPE>& i)
     {
-	return IB::mRange == i.mRange and IIB::pos() == i.mPos;
+	return IB::mRange == i.mRange and IIB::pos() == static_cast<size_t>( i.mPos );
     }
 
     template <typename U, RangeType TYPE>
     bool SingleIndex<U,TYPE>::operator!=(const SingleIndex<U,TYPE>& i)
     {
-	return IB::mRange != i.mRange or IIB::pos() != i.mPos;
+	return IB::mRange != i.mRange or IIB::pos() != static_cast<size_t>( i.mPos );
     }
 
     template <typename U, RangeType TYPE>
@@ -170,17 +170,6 @@ namespace MultiArrayTools
 	}
 	else {
 	    return nullptr;
-	}
-    }
-
-    template <typename U, RangeType TYPE>
-    void SingleIndex<U,TYPE>::setPos(int relPos, IndefinitIndexBase* subIndex)
-    {
-	IIB::mPos += relPos;
-	IIB::evalMajor(IIB::mMajorStep, relPos);
-	if(IIB::linked()){
-	    IIB::mLinked->setPos(relPos, subIndex);
-	    //IIB::mLinked->evalMajor(IIB::mMajorStep, relPos);
 	}
     }
 

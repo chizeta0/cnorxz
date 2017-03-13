@@ -18,7 +18,7 @@ namespace MultiArrayTools
     size_t IndefinitIndexBase::pos() const
     {
 	//assert(not virt());
-	return mPos;
+	return static_cast<size_t>( mPos );
     }
     
     const std::string& IndefinitIndexBase::name() const
@@ -85,18 +85,32 @@ namespace MultiArrayTools
     {
 	//assert(not virt());
 	mPos = pos;
-	//evalMajor();
 	if(linked()){
 	    mLinked->setPos(mPos);
 	    mLinked->evalMajor();
 	}
     }
 
-    size_t IndefinitIndexBase::outOfRange() const
+    void IndefinitIndexBase::setPosRel(int relPos)
     {
-	//assert(not virt());
-	int res = pos() - max() + 1;
-	return res > 0 ? static_cast<size_t>(res) : 0;
+	mPos += relPos;
+	if(linked()){
+	    mLinked->setPosRel(relPos);
+	    mLinked->evalMajor(relPos);
+	}
+    }
+    
+    int IndefinitIndexBase::outOfRange() const
+    {
+	if(mPos < 0){
+	    return mPos;
+	}
+	else if(mPos >= static_cast<int>( max() ) ){
+	    return mPos - max() + 1;
+	}
+	else {
+	    return 0;
+	}
     }
 
     bool IndefinitIndexBase::toNull() const
@@ -115,13 +129,13 @@ namespace MultiArrayTools
 	}
     }
     
-    void IndefinitIndexBase::evalMajor(size_t stepSize, int num)
+    void IndefinitIndexBase::evalMajor(int num)
     {
 	//assert(not virt());
 	//CHECK;
 	if(not master()){
 	    //int start = mMajor->pos();
-	    mMajor->setPos( num * stepSize , this);
+	    mMajor->setPosRel( num * mMajorStep);
 	    //VCHECK(static_cast<int>( mMajor->pos() ) - start);
 	}
     }

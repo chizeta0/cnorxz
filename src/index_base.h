@@ -50,16 +50,16 @@ namespace MultiArrayTools
 
 	// does NOT include sub-index update routine !!
 	// relative position to current
-	virtual void setPos(int relPos, IndefinitIndexBase* subIndex) = 0;
+	virtual void setPosRel(int relPos);
 
 	virtual size_t max() const = 0;
-	virtual size_t outOfRange() const;
+	virtual int outOfRange() const;
 
 	virtual bool toNull() const;
 
 	virtual void eval() = 0;
 	virtual void evalMajor();
-	virtual void evalMajor(size_t stepSize, int num);
+	virtual void evalMajor(int num);
 	virtual bool master();
 
 	virtual void subOrd(IndefinitIndexBase* major);
@@ -72,7 +72,7 @@ namespace MultiArrayTools
     protected:
 
 	std::string mName;
-	size_t mPos;
+	int mPos;
 	size_t mMajorStep;
 	
 	IndefinitIndexBase* mLinked = nullptr;
