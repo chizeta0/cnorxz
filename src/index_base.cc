@@ -66,11 +66,11 @@ namespace MultiArrayTools
     void IndefinitIndexBase::freeLinked()
     {
 	if(mLinked != nullptr){
-	    mLinked->freeLinked();
+	    //mLinked->freeLinked();
 	    mLinked = nullptr;
 	}
 	if(mSoftLinked != nullptr){
-	    mSoftLinked->freeLinked();
+	    //mSoftLinked->freeLinked();
 	    mSoftLinked = nullptr;
 	}
     }
@@ -104,11 +104,12 @@ namespace MultiArrayTools
 	return true;
     }
 
-    void IndefinitIndexBase::evalMajor()
+    void IndefinitIndexBase::evalMajor(size_t stepSize, int num)
     {
 	//assert(not virt());
 	if(not master()){
-	    mMajor->eval();
+	    //mMajor->eval();
+	    mMajor->setPos(static_cast<int>( mMajor->pos() ) + num, this)
 	}
     }
     
@@ -122,6 +123,7 @@ namespace MultiArrayTools
     {
 	//assert(not virt());
 	mMajor = major;
+	mMajorStepSize = mMajor->giveSubStepSize(this);
     }
     
     /**************

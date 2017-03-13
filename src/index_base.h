@@ -45,8 +45,12 @@ namespace MultiArrayTools
 	virtual void linkTo(IndefinitIndexBase* target) = 0; 
 
 	//virtual IndefinitIndexBase* getLinked(const std::string& name) = 0;
-	
+
+	// include sub-index update routine
 	virtual void setPos(size_t pos);
+
+	// does NOT include sub-index update routine !!
+	virtual void setPos(size_t pos, IndefinitIndexBase* subIndex) = 0;
 
 	virtual size_t max() const = 0;
 	virtual size_t outOfRange() const;
@@ -54,18 +58,20 @@ namespace MultiArrayTools
 	virtual bool toNull() const;
 
 	virtual void eval() = 0;
-	virtual void evalMajor();
+	virtual void evalMajor(size_t stepSize, int num);
 	virtual bool master();
 
 	virtual void subOrd(IndefinitIndexBase* major);
-
+	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) = 0;
+	
 	//virtual bool virt() const { return true; }
 	
     protected:
 
 	std::string mName;
 	size_t mPos;
-
+	size_t mMajorStep;
+	
 	IndefinitIndexBase* mLinked = nullptr;
 	IndefinitIndexBase* mMajor = nullptr;
 	IndefinitIndexBase* mSoftLinked = nullptr;
