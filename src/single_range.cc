@@ -162,6 +162,40 @@ namespace MultiArrayTools
 	IIB::setPos(in.pos());
     }
 
+    template <typename U, RangeType TYPE>
+    IndefinitIndexBase* SingleIndex<U,TYPE>::getLinked(const std::string& name)
+    {
+	if(name == IIB::mName){
+	    return this;
+	}
+	else {
+	    return nullptr;
+	}
+    }
+
+    template <typename U, RangeType TYPE>
+    void SingleIndex<U,TYPE>::setPos(int relPos, IndefinitIndexBase* subIndex)
+    {
+	IIB::mPos += relPos;
+	IIB::evalMajor(IIB::mMajorStep, relPos);
+	if(IIB::linked()){
+	    IIB::mLinked->setPos(relPos, subIndex);
+	    //IIB::mLinked->evalMajor(IIB::mMajorStep, relPos);
+	}
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::giveSubStepSize(IndefinitIndexBase* subIndex)
+    {
+	if(subIndex == this){
+	    return 1;
+	}
+	else {
+	    return 0;
+	}
+    }
+    
+    
     /*
     template <typename U, RangeType TYPE>
     void SingleIndex<U,TYPE>::eval()

@@ -51,6 +51,10 @@ namespace MultiArrayTools
 
 	virtual void copyPos(const SingleIndex& in) override;
 
+	virtual IndefinitIndexBase* getLinked(const std::string& name) override;
+	virtual void setPos(int relPos, IndefinitIndexBase* subIndex) override;
+	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) override;
+	
 	//virtual void eval() override;
 	//virtual bool virt() const override { return false; }
 	

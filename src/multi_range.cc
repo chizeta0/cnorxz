@@ -73,10 +73,13 @@ namespace MultiArrayTools
 	    }
 	};
 
+	// rewrite !!
 	template <class MultiIndex>
 	inline void plus(MultiIndex& index, size_t digit, int num)
 	{
 	    IndefinitIndexBase& si = index.get(digit);
+	    //si.setPos( num, &index );
+	    //si.setPos( -num, &index );
 	    si.setPos( si.pos() + num );
 	    size_t oor = si.outOfRange();
 	    if(oor and digit != 0){
@@ -331,32 +334,36 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
+	//CHECK;
 	plus(*this, sizeof...(Indices)-1, 1);
-	IIB::setPos( evaluate(*this) );
+	setPos(1, this);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	IIB::setPos( IIB::pos() - 1 );
+	// !!!     >|< (0 does not make sense)
 	plus(*this, 0, -1);
+	setPos(-1, this);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator+=(int n)
     {
+	//CHECK;
 	plus(*this, sizeof...(Indices)-1, 1);
-	IIB::setPos( evaluate(*this) );
+	setPos(n, this);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator-=(int n)
     {
-	IIB::setPos( IIB::pos() - n );
+	// !!!     >|<
 	plus(*this, 0, 0-n);
+	setPos(-n, this);
 	return *this;
     }
 
@@ -549,6 +556,51 @@ namespace MultiArrayTools
 	PositionCopy<sizeof...(Indices)-1>::copyPos(*this, in);
     }
 
+    template <class... Indices>
+    IndefinitIndexBase* MultiIndex<Indices...>::getLinked(const std::string& name)
+    {
+	if(name == IIB::mName){
+	    return this;
+	}
+	for(size_t i = 0; i != sizeof...(Indices); ++i){
+	    IndefinitIndexBase* iibPtr = get(i).getLinked(name);
+	    if(iibPtr != nullptr){
+		return iibPtr;
+	    }
+	}
+	return nullptr;
+    }
+
+    template <class... Indices>
+    void MultiIndex<Indices...>::setPos(int relPos, IndefinitIndexBase* subIndex)
+    {
+	IIB::mPos += relPos;
+	IIB::evalMajor(IIB::mMajorStep, relPos);
+	if(IIB::linked()){
+	    IIB::mLinked->setPos(relPos, subIndex);
+	    //IIB::mLinked->evalMajor(IIB::mMajorStep, relPos);
+	}
+    }
+
+    template <class... Indices>
+    size_t MultiIndex<Indices...>::giveSubStepSize(IndefinitIndexBase* subIndex)
+    {
+	size_t sss = 1;
+	for(size_t i = sizeof...(Indices)-1; i != 0; --i){
+	    IndefinitIndexBase* iibPtr = &get(i);
+	    if(iibPtr == subIndex){
+		return sss;
+	    }
+	    sss *= iibPtr->max();
+	}
+	if(&get(0) == subIndex){
+	    return sss;
+	}
+	else {
+	    return 0;
+	}
+    }
+    
     /*
     template <class... Indices>
     void MultiIndex<Indices...>::eval()

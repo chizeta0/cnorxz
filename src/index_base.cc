@@ -85,6 +85,7 @@ namespace MultiArrayTools
     {
 	//assert(not virt());
 	mPos = pos;
+	//evalMajor();
 	if(linked()){
 	    mLinked->setPos(mPos);
 	    mLinked->evalMajor();
@@ -104,12 +105,24 @@ namespace MultiArrayTools
 	return true;
     }
 
-    void IndefinitIndexBase::evalMajor(size_t stepSize, int num)
+    void IndefinitIndexBase::evalMajor()
     {
 	//assert(not virt());
 	if(not master()){
-	    //mMajor->eval();
-	    mMajor->setPos(static_cast<int>( mMajor->pos() ) + num, this)
+	    //int start = mMajor->pos();
+	    mMajor->eval();
+	    //VCHECK(static_cast<int>( mMajor->pos() ) - start);
+	}
+    }
+    
+    void IndefinitIndexBase::evalMajor(size_t stepSize, int num)
+    {
+	//assert(not virt());
+	//CHECK;
+	if(not master()){
+	    //int start = mMajor->pos();
+	    mMajor->setPos( num * stepSize , this);
+	    //VCHECK(static_cast<int>( mMajor->pos() ) - start);
 	}
     }
     
@@ -123,7 +136,12 @@ namespace MultiArrayTools
     {
 	//assert(not virt());
 	mMajor = major;
-	mMajorStepSize = mMajor->giveSubStepSize(this);
+	mMajorStep = mMajor->giveSubStepSize(this);
+    }
+
+    size_t IndefinitIndexBase::majorStep() const
+    {
+	return mMajorStep;
     }
     
     /**************

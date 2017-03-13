@@ -153,7 +153,14 @@ namespace {
 
     TEST_F(TwoDimTest, CorrectExtensions)
     {
+	auto i = ma.begin();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
 	EXPECT_EQ(ma.size(), 12);
+	EXPECT_EQ(i1.max(), 3);
+	EXPECT_EQ(i1.majorStep(), 4);
+	EXPECT_EQ(i2.max(), 4);
+	EXPECT_EQ(i2.majorStep(), 1);
     }
     
     TEST_F(TwoDimTest, CorrectAssigned)
@@ -183,7 +190,7 @@ namespace {
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	ma2("alpha","beta") = ma("beta","alpha");
-
+	
 	EXPECT_EQ(ma2[i(i1 = 0,i2 = 0)],-5);
 	EXPECT_EQ(ma2[i(i1 = 1,i2 = 0)],6);
 	EXPECT_EQ(ma2[i(i1 = 2,i2 = 0)],2);
@@ -207,6 +214,14 @@ namespace {
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
+
+	EXPECT_EQ(i1.max(), 3);
+	EXPECT_EQ(i1.majorStep(), 8);
+	EXPECT_EQ(i2.max(), 2);
+	EXPECT_EQ(i2.majorStep(), 4);
+	EXPECT_EQ(i3.max(), 4);
+	EXPECT_EQ(i3.majorStep(), 1);
+	
 	ma3d2("alpha","beta","gamma") = ma3d("alpha","gamma","beta");
 
 	EXPECT_EQ(ma3d2[i(i1 = 0,i2 = 0,i3 = 0)],-5);
