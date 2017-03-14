@@ -53,6 +53,168 @@ namespace MultiArrayTools
     {
 	return SingleIndex<U,TYPE>(this, mSpace.size());
     }
+
+    // specializations
+
+    SingleRange<int,RangeType::SPACE>::SingleRange(int begin, int end) :
+	RangeBase<SingleIndex<int,RangeType::SPACE> >(),
+	mBegin(begin), mEnd(end) {}
+    
+    int SingleRange<int,RangeType::SPACE>::get(size_t pos) const
+    {
+	return mBegin + pos;
+    }
+
+    size_t SingleRange<int,RangeType::SPACE>::getMeta(int metaPos) const
+    {
+	return metaPos - mBegin;
+    }
+
+    
+    size_t SingleRange<int,RangeType::SPACE>::size() const
+    {
+	return mEnd - mBegin;
+    }
+
+    
+    MultiRangeType SingleRange<int,RangeType::SPACE>::type() const
+    {
+	return MultiRangeType(RangeType::SPACE);
+    }
+    
+    
+    SingleIndex<int,RangeType::SPACE> SingleRange<int,RangeType::SPACE>::begin() const
+    {
+	return SingleIndex<int,RangeType::SPACE>(this, 0);
+    }
+
+    
+    SingleIndex<int,RangeType::SPACE> SingleRange<int,RangeType::SPACE>::end() const
+    {
+	return SingleIndex<int,RangeType::SPACE>(this, size());
+    }
+
+    // 
+    
+    
+    SingleRange<size_t,RangeType::ENSEMBLE>::SingleRange(size_t num) :
+	RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >(),
+	mNum(num) {}
+    
+    
+    size_t SingleRange<size_t,RangeType::ENSEMBLE>::get(size_t pos) const
+    {
+	return pos;
+    }
+
+    
+    size_t SingleRange<size_t,RangeType::ENSEMBLE>::getMeta(size_t metaPos) const
+    {
+	return metaPos;
+    }
+
+    
+    size_t SingleRange<size_t,RangeType::ENSEMBLE>::size() const
+    {
+	return mNum;
+    }
+
+    
+    MultiRangeType SingleRange<size_t,RangeType::ENSEMBLE>::type() const
+    {
+	return MultiRangeType(RangeType::ENSEMBLE);
+    }
+    
+    
+    SingleIndex<size_t,RangeType::ENSEMBLE> SingleRange<size_t,RangeType::ENSEMBLE>::begin() const
+    {
+	return SingleIndex<size_t,RangeType::ENSEMBLE>(this, 0);
+    }
+
+    
+    SingleIndex<size_t,RangeType::ENSEMBLE> SingleRange<size_t,RangeType::ENSEMBLE>::end() const
+    {
+	return SingleIndex<size_t,RangeType::ENSEMBLE>(this, size());
+    }
+
+    //
+    
+    VET SingleRange<VET,RangeType::VALUE_ERROR>::get(size_t pos) const
+    {
+	return static_cast<VET>( pos );
+    }
+
+    
+    size_t SingleRange<VET,RangeType::VALUE_ERROR>::getMeta(VET metaPos) const
+    {
+	return static_cast<size_t>( metaPos );
+    }
+
+    
+    size_t SingleRange<VET,RangeType::VALUE_ERROR>::size() const
+    {
+	return 2;
+    }
+
+    
+    MultiRangeType SingleRange<VET,RangeType::VALUE_ERROR>::type() const
+    {
+	return MultiRangeType(RangeType::VALUE_ERROR);
+    }
+    
+    
+    SingleIndex<VET,RangeType::VALUE_ERROR> SingleRange<VET,RangeType::VALUE_ERROR>::begin() const
+    {
+	return SingleIndex<VET,RangeType::VALUE_ERROR>(this, 0);
+    }
+
+    
+    SingleIndex<VET,RangeType::VALUE_ERROR> SingleRange<VET,RangeType::VALUE_ERROR>::end() const
+    {
+	return SingleIndex<VET,RangeType::VALUE_ERROR>(this, size());
+    }
+
+    // 
+
+    
+    size_t SingleRange<size_t,RangeType::LORENTZ>::get(size_t pos) const
+    {
+	return pos;
+    }
+
+    
+    size_t SingleRange<size_t,RangeType::LORENTZ>::getMeta(size_t metaPos) const
+    {
+	return metaPos;
+    }
+
+    
+    size_t SingleRange<size_t,RangeType::LORENTZ>::size() const
+    {
+	#ifdef LORENTZ_DIMENSION
+	return LORENTZ_DIMENSION;
+	#else
+	return 4;
+	#endif
+    }
+
+    
+    MultiRangeType SingleRange<size_t,RangeType::LORENTZ>::type() const
+    {
+	return MultiRangeType(RangeType::LORENTZ);
+    }
+    
+    
+    SingleIndex<size_t,RangeType::LORENTZ> SingleRange<size_t,RangeType::LORENTZ>::begin() const
+    {
+	return SingleIndex<size_t,RangeType::LORENTZ>(this, 0);
+    }
+
+    
+    SingleIndex<size_t,RangeType::LORENTZ> SingleRange<size_t,RangeType::LORENTZ>::end() const
+    {
+	return SingleIndex<size_t,RangeType::LORENTZ>(this, size());
+    }
     
     /******************
      *  SingleIndex   *	     

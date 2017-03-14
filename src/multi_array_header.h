@@ -42,6 +42,7 @@ namespace MultiArrayTools
     typedef SingleRange<size_t, RangeType::ENSEMBLE> EnsR;
     typedef MultiRange<Space1dNR,Space1dNR,Space1dNR> Space3dNR;
     typedef MultiRange<Mom1dNR,Mom1dNR,Mom1dNR> Mom3dNR;
+    typedef SingleRange<VET, RangeType::VALUE_ERROR> ValErrR;
     // ...
     
 }

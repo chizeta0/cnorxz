@@ -20,7 +20,8 @@ namespace MultiArrayTools
 	MOMENTUM = 3,
 	LORENTZ = 4,
 	SPIN = 5,
-	ENSEMBLE = 6
+	ENSEMBLE = 6,
+	VALUE_ERROR = 7
     };
 
     class MultiRangeType
@@ -58,6 +59,8 @@ namespace MultiArrayTools
     {
     public:
 	typedef Index IndexType;
+
+	virtual ~RangeBase() = default;
 	
 	virtual size_t size() const = 0;
 	virtual Index begin() const = 0;

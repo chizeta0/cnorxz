@@ -92,6 +92,9 @@ namespace MultiArrayTools
 	//virtual void assignRange(RangeBase<MultiIndex<Indices...> > const* range) override;
     };
 
+    template <class... Indices>
+    std::ostream& operator<<(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta);
+    
     /*****************************
      *   IndexGetter Functions   *
      ****************************/

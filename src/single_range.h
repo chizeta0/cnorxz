@@ -83,6 +83,93 @@ namespace MultiArrayTools
 	std::vector<U> mSpace;
     };
 
+    // specializaions
+
+    template <>
+    class SingleRange<int,RangeType::SPACE> : public RangeBase<SingleIndex<int,RangeType::SPACE> >
+    {
+    public:
+	DEFAULT_MEMBERS(SingleRange);
+
+	SingleRange(int begin, int end);
+	
+	virtual size_t size() const override;
+	
+	int get(size_t pos) const;
+	size_t getMeta(int metaPos) const;
+
+	virtual MultiRangeType type() const override;
+	
+	SingleIndex<int,RangeType::SPACE> begin() const override;
+	SingleIndex<int,RangeType::SPACE> end() const override;
+	
+    protected:
+	int mBegin;
+	int mEnd;
+    };
+
+    template <>
+    class SingleRange<size_t,RangeType::ENSEMBLE> : public RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >
+    {
+    public:
+	DEFAULT_MEMBERS(SingleRange);
+
+	SingleRange(size_t num);
+	
+	virtual size_t size() const override;
+	
+	size_t get(size_t pos) const;
+	size_t getMeta(size_t metaPos) const;
+
+	virtual MultiRangeType type() const override;
+	
+	SingleIndex<size_t,RangeType::ENSEMBLE> begin() const override;
+	SingleIndex<size_t,RangeType::ENSEMBLE> end() const override;
+	
+    protected:
+	size_t mNum;
+    };
+
+    enum class VET
+    {
+	VALUE = 0,
+	ERROR = 1
+    };
+
+    template <>
+    class SingleRange<VET,RangeType::VALUE_ERROR> : public RangeBase<SingleIndex<VET,RangeType::VALUE_ERROR> >
+    {
+    public:
+	DEFAULT_MEMBERS(SingleRange);
+
+	virtual size_t size() const override;
+	
+	VET get(size_t pos) const;
+	size_t getMeta(VET metaPos) const;
+
+	virtual MultiRangeType type() const override;
+	
+	SingleIndex<VET,RangeType::VALUE_ERROR> begin() const override;
+	SingleIndex<VET,RangeType::VALUE_ERROR> end() const override;
+    };
+
+    template <>
+    class SingleRange<size_t,RangeType::LORENTZ> : public RangeBase<SingleIndex<size_t,RangeType::LORENTZ> >
+    {
+    public:
+	DEFAULT_MEMBERS(SingleRange);
+
+	virtual size_t size() const override;
+	
+	size_t get(size_t pos) const;
+	size_t getMeta(size_t metaPos) const;
+
+	virtual MultiRangeType type() const override;
+	
+	SingleIndex<size_t,RangeType::LORENTZ> begin() const override;
+	SingleIndex<size_t,RangeType::LORENTZ> end() const override;
+    };
+    
 }
 
 #include "single_range.cc"

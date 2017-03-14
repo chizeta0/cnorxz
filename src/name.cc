@@ -66,5 +66,18 @@ namespace MultiArrayTools
     {
 	return mSub.size();
     }
+
+    std::ostream& operator<<(std::ostream& os, const Name& name)
+    {
+	if(name.size() != 0){
+	    for(size_t i = 0; i != name.size(); ++i){
+		os << name.get(i) << '\t';
+	    }
+	}
+	else {
+	    os << name.own();
+	}
+	return os;
+    }
     
 }

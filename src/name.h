@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <ostream>
 
 #include "base_def.h"
 
@@ -33,6 +34,8 @@ namespace MultiArrayTools
 	std::vector<Name> mSub;	
     };
 
+    std::ostream& operator<<(std::ostream& os, const Name& name);
+    
 }
 
 #include "name.cc"

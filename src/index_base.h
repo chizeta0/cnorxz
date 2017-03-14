@@ -45,11 +45,7 @@ namespace MultiArrayTools
 	virtual void linkTo(IndefinitIndexBase* target) = 0; 
 	virtual IndefinitIndexBase* getLinked(const std::string& name) = 0;
 
-	// include sub-index update routine
 	virtual void setPos(size_t pos);
-
-	// does NOT include sub-index update routine !!
-	// relative position to current
 	virtual void setPosRel(int relPos);
 
 	virtual size_t max() const = 0;

@@ -24,6 +24,8 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const Range& range);
+
+	virtual ~MultiArrayBase() = default;
 	
 	virtual T& operator[](const typename Range::IndexType& i) = 0;
 	virtual const T& operator[](const typename Range::IndexType& i) const = 0;

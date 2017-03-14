@@ -612,6 +612,34 @@ namespace MultiArrayTools
 	    return 0;
 	}
     }
+
+    template <size_t N>
+    struct MetaTypePrinter
+    {
+	template <class... Indices>
+	static void print(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta)
+	{
+	    MetaTypePrinter<N-1>::print(os, meta);
+	    os << std::get<N>(meta) << '\t';
+	}
+    };
+
+    template <>
+    struct MetaTypePrinter<0>
+    {
+	template <class... Indices>
+	static void print(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta)
+	{
+	    os << std::get<0>(meta) << '\t';
+	}
+    };
+    
+    template <class... Indices>
+    std::ostream& operator<<(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta)
+    {
+	MetaTypePrinter<sizeof...(Indices)-1>::print(os, meta);
+	return os;
+    }
     
     /******************
      *   MultiRange   *
