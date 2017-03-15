@@ -21,7 +21,7 @@ namespace MultiArrayTools
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
-	IndefinitIndexBase& index();
+	const IndefinitIndexBase& index() const;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const = 0;
 	
 	virtual T& get() = 0;
@@ -37,8 +37,9 @@ namespace MultiArrayTools
     public:
 
 	typedef MultiArrayOperationBase<T> MAOB;
-	typedef decltype(MultiArray<T,Range>().begin()) IndexType;
-	
+	typedef typename Range::IndexType IndexType;
+	//typedef decltype(MultiArray<T,Range>().begin()) IndexType;
+
 	MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma, const Name& nm);
 	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
 
@@ -46,17 +47,20 @@ namespace MultiArrayTools
 
 	template <class Range2>
 	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot<T,Range2>& in);
+
+	template <class Range2>
+	const MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot<T,Range2>& in);
 	
 	template <class Operation, class... MAOps>
 	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);
 	
-	template <class Operation, class... MAOps>
-	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-	operator()(Operation& op, const MAOps&... secs);
+	//template <class Operation, class... MAOps>
+	//MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
+	//operator()(Operation& op, const MAOps&... secs) const;
 
 	template <class Operation, class... MAOps>
 	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-	operator()(const Operation& op, const MAOps&... secs);
+	operator()(const Operation& op, const MAOps&... secs) const;
 	
 	template <class MAOp>
 	auto operator+(const MAOp& sec) -> decltype(operator()(std::plus<T>(), sec));
@@ -83,11 +87,15 @@ namespace MultiArrayTools
 
 	template <class MAOp>
 	MultiArrayOperationRoot& operator/=(const MAOp& sec);
+
+	const MultiArrayBase<T,Range>& operator*() const;
+	MultiArrayBase<T,Range> const* operator->() const;
 	
 	virtual size_t argNum() const override;
 
 	// set index -> implement !!!!!
 	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);
+	const MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
 	
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
@@ -105,6 +113,9 @@ namespace MultiArrayTools
 
 	template <class RangeX>
 	MultiArrayOperationRoot& makeSlice(MultiArrayOperationRoot<T,RangeX>& in);
+
+	template <class RangeX>
+	const MultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
 	
 	MultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;
@@ -124,11 +135,11 @@ namespace MultiArrayTools
 
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	operator()(Operation2& op, const MAOps2&... secs);
+	operator()(Operation2& op, const MAOps2&... secs) const;
 	
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	operator()(const Operation2& op, const MAOps2&... secs);
+	operator()(const Operation2& op, const MAOps2&... secs) const;
 	
 	template <class MAOp2>
 	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));

@@ -288,7 +288,7 @@ namespace MultiArrayTools
     }
     
     template <typename U, RangeType TYPE>
-    const U& SingleIndex<U,TYPE>::getMetaPos() const
+    U SingleIndex<U,TYPE>::getMetaPos() const
     {
 	return dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(IIB::pos());
     }
@@ -346,6 +346,11 @@ namespace MultiArrayTools
 	}
     }
     
+    std::ostream& operator<<(std::ostream& os, VET vet)
+    {
+	os << ( (vet == VET::VALUE) ? std::string("VALUE") : std::string("ERROR") );
+	return os;
+    }
     
     /*
     template <typename U, RangeType TYPE>

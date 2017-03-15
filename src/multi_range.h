@@ -92,9 +92,6 @@ namespace MultiArrayTools
 	//virtual void assignRange(RangeBase<MultiIndex<Indices...> > const* range) override;
     };
 
-    template <class... Indices>
-    std::ostream& operator<<(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta);
-    
     /*****************************
      *   IndexGetter Functions   *
      ****************************/
@@ -106,6 +103,7 @@ namespace MultiArrayTools
     public:
 
 	typedef std::tuple<Ranges...> SpaceType;
+	typedef typename RangeBase<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 	
 	DEFAULT_MEMBERS(MultiRange);
 
@@ -133,6 +131,11 @@ namespace MultiArrayTools
     };
     
 }
+
+template <typename... Ts>
+std::ostream& operator<<(std::ostream& os,
+			 const std::tuple<Ts...>& meta);
+
 
 #include "multi_range.cc"
 

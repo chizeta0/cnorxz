@@ -33,8 +33,8 @@ namespace MultiArrayTools
 	virtual size_t size() const; 
 	virtual bool isSlice() const = 0;
 	
-	virtual auto begin() -> decltype(Range().begin());
-	virtual auto end() -> decltype(Range().end());
+	virtual auto begin() const -> decltype(Range().begin());
+	virtual auto end() const -> decltype(Range().end());
 
 	virtual const Range& range() const;
 

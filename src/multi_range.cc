@@ -236,8 +236,8 @@ namespace MultiArrayTools
 	struct MetaPosGetter
 	{
 	    template <class... Indices>
-	    static void getMetaPos(typename MultiIndex<Indices...>::MetaType& target,
-				   const typename MultiIndex<Indices...>::IndexPack& source)
+	    static void getMetaPos(std::tuple<decltype(Indices().getMetaPos())...>& target,
+				   const std::tuple<Indices...>& source)
 	    {
 		std::get<N>(target) = std::get<N>(source).getMetaPos();
 		MetaPosGetter<N-1>::getMetaPos(target, source);
@@ -248,8 +248,8 @@ namespace MultiArrayTools
 	struct MetaPosGetter<0>
 	{
 	    template <class... Indices>
-	    static void getMetaPos(typename MultiIndex<Indices...>::MetaType& target,
-				   const typename MultiIndex<Indices...>::IndexPack& source)
+	    static void getMetaPos(std::tuple<decltype(Indices().getMetaPos())...>& target,
+				   const std::tuple<Indices...>& source)
 	    {
 		std::get<0>(target) = std::get<0>(source).getMetaPos();
 	    }
@@ -614,32 +614,25 @@ namespace MultiArrayTools
     }
 
     template <size_t N>
-    struct MetaTypePrinter
+    struct TuplePrinter
     {
-	template <class... Indices>
-	static void print(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta)
+	template <typename... Ts>
+	static void print(std::ostream& os, const std::tuple<Ts...>& meta)
 	{
-	    MetaTypePrinter<N-1>::print(os, meta);
+	    TuplePrinter<N-1>::print(os, meta);
 	    os << std::get<N>(meta) << '\t';
 	}
     };
 
     template <>
-    struct MetaTypePrinter<0>
+    struct TuplePrinter<0>
     {
-	template <class... Indices>
-	static void print(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta)
+	template <typename... Ts>
+	static void print(std::ostream& os, const std::tuple<Ts...>& meta)
 	{
 	    os << std::get<0>(meta) << '\t';
 	}
     };
-    
-    template <class... Indices>
-    std::ostream& operator<<(std::ostream& os, typename MultiIndex<Indices...>::MetaType& meta)
-    {
-	MetaTypePrinter<sizeof...(Indices)-1>::print(os, meta);
-	return os;
-    }
     
     /******************
      *   MultiRange   *
@@ -700,4 +693,12 @@ namespace MultiArrayTools
 	IndexSetter<sizeof...(Ranges)-1>::setEnd(is,mSpace);
 	return ++MultiIndex<typename Ranges::IndexType...>(this, is);
     }
+}
+
+template <typename... Ts>
+std::ostream& operator<<(std::ostream& os,
+			 const std::tuple<Ts...>& meta)
+{
+    MultiArrayTools::TuplePrinter<sizeof...(Ts)-1>::print(os, meta);
+    return os;
 }

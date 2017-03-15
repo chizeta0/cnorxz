@@ -29,8 +29,8 @@ namespace MultiArrayTools
 	//Slice& setSlicePos(const Index& slicePos);
 	
 	// link given Index to mMAPtr which is index of total array
-	virtual auto begin() -> decltype(Range().begin()) override; 
-	virtual auto end() -> decltype(Range().end()) override;
+	virtual auto begin() const -> decltype(Range().begin()) override; 
+	virtual auto end() const -> decltype(Range().end()) override;
 
 	virtual bool isSlice() const override;
 
@@ -42,6 +42,37 @@ namespace MultiArrayTools
     private:
 	
 	MultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
+	mutable typename Range::IndexType mOwnIdx;
+	mutable typename MARange::IndexType mMAIdx;
+    };
+
+    template <typename T, class Range, class MARange/*, class Index*/>
+    class ConstSlice : public MultiArrayBase<T,Range> // yes, 'Range' is correct !!!
+    {
+    public:
+
+	typedef MultiArrayBase<T,Range> MAB;
+
+	ConstSlice(const Range& range);
+
+	virtual const T& operator[](const typename Range::IndexType& i) const override;
+	
+	//Slice& setSlicePos(const Index& slicePos);
+	
+	// link given Index to mMAPtr which is index of total array
+	virtual auto begin() const -> decltype(Range().begin()) override; 
+	virtual auto end() const -> decltype(Range().end()) override;
+
+	virtual bool isSlice() const override;
+
+	void set(const MultiArrayBase<T,MARange>& multiArrayRef,
+		 const Name& ownNm,
+		 const typename MARange::IndexType& MAIdx,
+		 const Name& MANm); 
+	
+    private:
+	
+	MultiArrayBase<T,MARange> const* mMultiArrayPtr = nullptr;
 	mutable typename Range::IndexType mOwnIdx;
 	mutable typename MARange::IndexType mMAIdx;
     };

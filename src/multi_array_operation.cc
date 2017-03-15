@@ -16,7 +16,7 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    IndefinitIndexBase& MultiArrayOperationBase<T>::index()
+    const IndefinitIndexBase& MultiArrayOperationBase<T>::index() const
     {
 	return *mIibPtr;
     }
@@ -43,9 +43,22 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::makeSlice(MultiArrayOperationRoot<T,RangeX>& in)
     {
 	Slice<T,Range,RangeX>& sl = dynamic_cast<Slice<T,Range,RangeX>&>( mArrayRef );
-	sl.set(in.mArrayRef, name(), dynamic_cast<typename RangeX::IndexType&>( in.index() ), in.name());
+	sl.set(in.mArrayRef, name(), dynamic_cast<const typename RangeX::IndexType&>( in.index() ), in.name());
 	return *this;
     }
+
+    template <typename T, class Range>
+    template <class RangeX>
+    const MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in)
+    {
+	ConstSlice<T,Range,RangeX>& sl = dynamic_cast<ConstSlice<T,Range,RangeX>&>( mArrayRef );
+	sl.set(in.mArrayRef, name(), dynamic_cast<const typename RangeX::IndexType&>( in.index() ), in.name());
+	return *this;
+    }
+
+    
+    // CONST SLICE !!!!!
     
     template <typename T, class Range>
     MultiArrayOperationRoot<T,Range>::
@@ -92,6 +105,18 @@ namespace MultiArrayTools
 	performAssignment(in);
 	return *this;
     }
+
+    template <typename T, class Range>
+    template <class Range2>
+    const MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationRoot<T,Range2>& in)
+    {
+	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
+	    return makeConstSlice(in);
+	}
+	performAssignment(in);
+	return *this;
+    }
     
     template <typename T, class Range>
     template <class Operation, class... MAOps>
@@ -107,18 +132,18 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <typename T, class Range>
+    /*    template <typename T, class Range>
     template <class Operation, class... MAOps>
     MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-    MultiArrayOperationRoot<T,Range>::operator()(Operation& op, const MAOps&... secs)
+    MultiArrayOperationRoot<T,Range>::operator()(Operation& op, const MAOps&... secs) const
     {
 	return MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>(op, *this, secs...);
-    }
+	}*/
 
     template <typename T, class Range>
     template <class Operation, class... MAOps>
     MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-    MultiArrayOperationRoot<T,Range>::operator()(const Operation& op, const MAOps&... secs)
+    MultiArrayOperationRoot<T,Range>::operator()(const Operation& op, const MAOps&... secs) const
     {
 	return MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>(op, *this, secs...);
     }
@@ -192,6 +217,18 @@ namespace MultiArrayTools
     {
 	return (*this) = copyThis() / sec;
     }
+
+    template <typename T, class Range>
+    const MultiArrayBase<T,Range>& MultiArrayOperationRoot<T,Range>::operator*() const
+    {
+	return mArrayRef;
+    }
+
+    template <typename T, class Range>
+    MultiArrayBase<T,Range> const* MultiArrayOperationRoot<T,Range>::operator->() const
+    {
+	return &mArrayRef;
+    }
     
     template <typename T, class Range>
     size_t MultiArrayOperationRoot<T,Range>::argNum() const
@@ -227,6 +264,13 @@ namespace MultiArrayTools
 
     template <typename T, class Range>
     MultiArrayOperationRoot<T,Range>& MultiArrayOperationRoot<T,Range>::operator[](const IndexType& ind)
+    {
+	mIndex.copyPos(ind);
+	return *this;
+    }
+
+    template <typename T, class Range>
+    const MultiArrayOperationRoot<T,Range>& MultiArrayOperationRoot<T,Range>::operator[](const IndexType& ind) const
     {
 	mIndex.copyPos(ind);
 	return *this;
@@ -308,7 +352,7 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... MAOps>
     template <class Operation2, class... MAOps2>
     MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-    MultiArrayOperation<T,Operation,MAOps...>::operator()(Operation2& op, const MAOps2&... secs)
+    MultiArrayOperation<T,Operation,MAOps...>::operator()(Operation2& op, const MAOps2&... secs) const
     {
 	return MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,
 				   MAOps2...>(op, *this, secs...);
@@ -317,7 +361,7 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... MAOps>
     template <class Operation2, class... MAOps2>
     MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-    MultiArrayOperation<T,Operation,MAOps...>::operator()(const Operation2& op, const MAOps2&... secs)
+    MultiArrayOperation<T,Operation,MAOps...>::operator()(const Operation2& op, const MAOps2&... secs) const
     {
 	return MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,
 				   MAOps2...>(op, *this, secs...);

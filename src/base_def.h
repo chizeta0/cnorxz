@@ -93,6 +93,10 @@ namespace MultiArrayTools
     template <typename T, class Range, class MARange>
     class Slice;
 
+    // slice.h
+    template <typename T, class Range, class MARange>
+    class ConstSlice;
+
     // manipulator.h
     template <typename T>
     class ManipulatorBase;

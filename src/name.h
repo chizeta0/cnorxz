@@ -33,10 +33,10 @@ namespace MultiArrayTools
 	std::string mMain;
 	std::vector<Name> mSub;	
     };
-
-    std::ostream& operator<<(std::ostream& os, const Name& name);
     
 }
+
+std::ostream& operator<<(std::ostream& os, const MultiArrayTools::Name& name);
 
 #include "name.cc"
 

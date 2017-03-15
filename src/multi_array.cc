@@ -18,13 +18,13 @@ namespace MultiArrayTools
     }
     
     template <typename T, class Range>
-    auto MultiArrayBase<T,Range>::begin() -> decltype(Range().begin())
+    auto MultiArrayBase<T,Range>::begin() const -> decltype(Range().begin())
     {
 	return mRange->begin();
     }
 
     template <typename T, class Range>
-    auto MultiArrayBase<T,Range>::end() -> decltype(Range().end())
+    auto MultiArrayBase<T,Range>::end() const -> decltype(Range().end())
     {
 	return mRange->end();
     }
@@ -119,6 +119,7 @@ namespace MultiArrayTools
 	    mCont.insert(mCont.end(), in[i].mCont.begin(), in[i].mCont.end());
 	}
 	assert(mCont.size() == MAB::mRange->size());
+	return *this;
     }    
     
     template <typename T, class Range>

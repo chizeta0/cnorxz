@@ -43,7 +43,7 @@ namespace MultiArrayTools
 
 	virtual MultiRangeType rangeType() const override;
 
-	virtual const U& getMetaPos() const;
+	virtual U getMetaPos() const;
 	virtual SingleIndex& atMeta(const U& metaPos);
 	
 	virtual size_t dim() const override; // = 1
@@ -65,12 +65,15 @@ namespace MultiArrayTools
     class SingleRange : public RangeBase<SingleIndex<U,TYPE> >
     {
     public:
+	typedef typename RangeBase<SingleIndex<U,TYPE> >::IndexType IndexType;
+	
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(const std::vector<U>& space);
 	
 	virtual size_t size() const override;
-	
+
+	//U get(size_t pos) const;
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
 
@@ -89,6 +92,8 @@ namespace MultiArrayTools
     class SingleRange<int,RangeType::SPACE> : public RangeBase<SingleIndex<int,RangeType::SPACE> >
     {
     public:
+	typedef typename RangeBase<SingleIndex<int,RangeType::SPACE> >::IndexType IndexType;
+	
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(int begin, int end);
@@ -112,6 +117,8 @@ namespace MultiArrayTools
     class SingleRange<size_t,RangeType::ENSEMBLE> : public RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >
     {
     public:
+	typedef typename RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >::IndexType IndexType;
+	
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(size_t num);
@@ -136,10 +143,14 @@ namespace MultiArrayTools
 	ERROR = 1
     };
 
+    std::ostream& operator<<(std::ostream& os, VET vet);
+    
     template <>
     class SingleRange<VET,RangeType::VALUE_ERROR> : public RangeBase<SingleIndex<VET,RangeType::VALUE_ERROR> >
     {
     public:
+	typedef typename RangeBase<SingleIndex<VET,RangeType::VALUE_ERROR> >::IndexType IndexType;
+	
 	DEFAULT_MEMBERS(SingleRange);
 
 	virtual size_t size() const override;
@@ -157,6 +168,8 @@ namespace MultiArrayTools
     class SingleRange<size_t,RangeType::LORENTZ> : public RangeBase<SingleIndex<size_t,RangeType::LORENTZ> >
     {
     public:
+	typedef typename RangeBase<SingleIndex<size_t,RangeType::LORENTZ> >::IndexType IndexType;
+	
 	DEFAULT_MEMBERS(SingleRange);
 
 	virtual size_t size() const override;
