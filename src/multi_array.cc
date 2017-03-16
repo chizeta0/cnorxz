@@ -20,7 +20,10 @@ namespace MultiArrayTools
     template <typename T, class Range>
     auto MultiArrayBase<T,Range>::begin() const -> decltype(Range().begin())
     {
-	return mRange->begin();
+	//VCHECK(not mRange);
+	auto i = mRange->begin();
+	//CHECK;
+	return i;
     }
 
     template <typename T, class Range>
@@ -46,8 +49,29 @@ namespace MultiArrayTools
     template <class NameType>
     MultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameType& name, bool master)
     {
+	//CHECK;
 	if(master){
 	    return MultiArrayOperationRoot<T,Range>(*this, name);
+	}
+	else {
+	    return operator()(name);
+	}
+    }
+
+    template <typename T, class Range>
+    template <class... NameTypes>
+    ConstMultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameTypes&... str) const
+    {
+	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+    }
+
+    template <typename T, class Range>
+    template <class NameType>
+    ConstMultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameType& name, bool master) const
+    {
+	//CHECK;
+	if(master){
+	    return ConstMultiArrayOperationRoot<T,Range>(*this, name);
 	}
 	else {
 	    return operator()(name);

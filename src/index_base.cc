@@ -83,6 +83,7 @@ namespace MultiArrayTools
 
     void IndefinitIndexBase::setPos(size_t pos)
     {
+	//CHECK;
 	//assert(not virt());
 	mPos = pos;
 	if(linked()){

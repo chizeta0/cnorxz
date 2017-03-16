@@ -17,22 +17,33 @@ namespace MultiArrayTools
     {
     public:
 
-	MultiArrayOperationBase() = default;
+	MultiArrayOperationBase() /*{ CHECK; }*/ = default;
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
 	const IndefinitIndexBase& index() const;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const = 0;
 	
-	virtual T& get() = 0;
 	virtual const T& get() const = 0;
 
+	virtual void freeIndex();
+	
     protected:
 	IndefinitIndexBase* mIibPtr = nullptr;
     };
     
+    
+    template <typename T>
+    class MutableMultiArrayOperationBase : public MultiArrayOperationBase<T>
+    {
+    public:
+
+	MutableMultiArrayOperationBase() /*{ CHECK; }*/ = default;
+	virtual T& get() = 0;
+    };
+    
     template <typename T, class Range>
-    class MultiArrayOperationRoot : public MultiArrayOperationBase<T>
+    class MultiArrayOperationRoot : public MutableMultiArrayOperationBase<T>
     {
     public:
 
@@ -89,6 +100,7 @@ namespace MultiArrayTools
 	MultiArrayOperationRoot& operator/=(const MAOp& sec);
 
 	const MultiArrayBase<T,Range>& operator*() const;
+	//MultiArrayBase<T,Range>& operator*();
 	MultiArrayBase<T,Range> const* operator->() const;
 	
 	virtual size_t argNum() const override;
@@ -104,6 +116,10 @@ namespace MultiArrayTools
 
 	const Name& name() const;
 
+	virtual void freeIndex() override;
+
+	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
+	
 	template <typename U, class RangeX>
 	friend class MultiArrayOperationRoot;
 	
@@ -118,6 +134,77 @@ namespace MultiArrayTools
 	const MultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
 	
 	MultiArrayBase<T,Range>& mArrayRef;
+	mutable IndexType mIndex;
+	Name mNm;
+    };
+    
+    template <typename T, class Range>
+    class ConstMultiArrayOperationRoot : public MultiArrayOperationBase<T>
+    {
+    public:
+
+	typedef MultiArrayOperationBase<T> MAOB;
+	typedef typename Range::IndexType IndexType;
+	//typedef decltype(MultiArray<T,Range>().begin()) IndexType;
+
+	ConstMultiArrayOperationRoot(const MultiArrayBase<T,Range>& ma, const Name& nm);
+	ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in);
+	
+	const ConstMultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot& in);
+
+	template <class Range2>
+	const ConstMultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot<T,Range2>& in);
+	
+	//template <class Operation, class... MAOps>
+	//MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
+	//operator()(Operation& op, const MAOps&... secs) const;
+
+	template <class Operation, class... MAOps>
+	MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
+	operator()(const Operation& op, const MAOps&... secs) const;
+	
+	template <class MAOp>
+	auto operator+(const MAOp& sec) const -> decltype(operator()(std::plus<T>(), sec));
+
+	template <class MAOp>
+	auto operator-(const MAOp& sec) const -> decltype(operator()(std::minus<T>(), sec));
+
+	template <class MAOp>
+	auto operator*(const MAOp& sec) const -> decltype(operator()(std::multiplies<T>(), sec));
+
+	template <class MAOp>
+	auto operator/(const MAOp& sec) const -> decltype(operator()(std::divides<T>(), sec));
+	
+	ConstMultiArrayOperationRoot copyThis() const;
+	
+	const MultiArrayBase<T,Range>& operator*() const;
+	//MultiArrayBase<T,Range>& operator*();
+	MultiArrayBase<T,Range> const* operator->() const;
+	
+	virtual size_t argNum() const override;
+
+	// set index -> implement !!!!!
+	const ConstMultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
+	
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
+
+	virtual const T& get() const override;
+
+	const Name& name() const;
+
+	virtual void freeIndex() override;
+
+	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
+	
+	template <typename U, class RangeX>
+	friend class MultiArrayOperationRoot;
+	
+    protected:
+
+	template <class RangeX>
+	const ConstMultiArrayOperationRoot& makeConstSlice(const ConstMultiArrayOperationRoot<T,RangeX>& in) const;
+	
+	MultiArrayBase<T,Range> const& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
     };
@@ -157,7 +244,7 @@ namespace MultiArrayTools
 	
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
-	virtual T& get() override;
+	//virtual T& get() override;
 	virtual const T& get() const override;
 
     protected:

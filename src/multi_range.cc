@@ -585,12 +585,15 @@ namespace MultiArrayTools
 	if(name == IIB::mName){
 	    return this;
 	}
+	
 	for(size_t i = 0; i != sizeof...(Indices); ++i){
 	    IndefinitIndexBase* iibPtr = get(i).getLinked(name);
 	    if(iibPtr != nullptr){
+		//CHECK;
 		return iibPtr;
 	    }
 	}
+	//CHECK;
 	return nullptr;
     }
 

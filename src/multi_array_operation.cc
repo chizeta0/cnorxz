@@ -20,6 +20,12 @@ namespace MultiArrayTools
     {
 	return *mIibPtr;
     }
+
+    template <typename T>
+    void MultiArrayOperationBase<T>::freeIndex()
+    {
+	mIibPtr->freeLinked();
+    }
     
     /*********************************
      *   MultiArrayOperationBase     *
@@ -28,12 +34,18 @@ namespace MultiArrayTools
     template <typename T, class Range>
     void MultiArrayOperationRoot<T,Range>::performAssignment(const MultiArrayOperationBase<T>& in)
     {
+	//CHECK;
 	in.linkIndicesTo(MAOB::mIibPtr);
+	//CHECK;
 	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
+	//CHECK;
+	const size_t endPos = mArrayRef.end().pos();
+	std::cout << "assignment: " << endPos << "elements" << std::endl;
 	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
-	    // build in vectorization later
+	    std::cout << iref.pos() << '\r' << std::flush;
 	    get() = in.get();
 	}
+	//CHECK;
 	MAOB::mIibPtr->freeLinked();
     }
 
@@ -64,7 +76,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::
     MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma,
 			    const Name& nm) :
-	MultiArrayOperationBase<T>(),
+	MutableMultiArrayOperationBase<T>(),
 	mArrayRef(ma),
 	mIndex(mArrayRef.begin()),
 	mNm(nm)
@@ -86,6 +98,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range>& in)
     {
+	//CHECK;
 	maketurnSlice(in);
 	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
 	    return makeSlice(in);
@@ -99,6 +112,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range2>& in)
     {
+	//CHECK;
 	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
 	    return makeSlice(in);
 	}
@@ -111,7 +125,9 @@ namespace MultiArrayTools
     const MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationRoot<T,Range2>& in)
     {
+	//CHECK;
 	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
+	    //CHECK;
 	    return makeConstSlice(in);
 	}
 	performAssignment(in);
@@ -123,6 +139,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperation<T,Operation,MAOps...>& in)
     {
+	//CHECK;
 	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
 	    // NO SLICE CREATION !!! (total array not initialized!!)
 	    // throw !
@@ -132,19 +149,12 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    /*    template <typename T, class Range>
-    template <class Operation, class... MAOps>
-    MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-    MultiArrayOperationRoot<T,Range>::operator()(Operation& op, const MAOps&... secs) const
-    {
-	return MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>(op, *this, secs...);
-	}*/
-
     template <typename T, class Range>
     template <class Operation, class... MAOps>
     MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
     MultiArrayOperationRoot<T,Range>::operator()(const Operation& op, const MAOps&... secs) const
     {
+	//CHECK;
 	return MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>(op, *this, secs...);
     }
 
@@ -177,12 +187,14 @@ namespace MultiArrayTools
     auto MultiArrayOperationRoot<T,Range>::operator/(const MAOp& sec)
 	-> decltype(operator()(std::divides<T>(), sec))
     {
+	//CHECK;
 	return operator()(std::divides<T>(), sec);
     }
 
     template <typename T, class Range>
     MultiArrayOperationRoot<T,Range> MultiArrayOperationRoot<T,Range>::copyThis()
     {
+	//CHECK;
 	return MultiArrayOperationRoot<T,Range>(mArrayRef, mNm);
     }
     
@@ -215,6 +227,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>&
     MultiArrayOperationRoot<T,Range>::operator/=(const MAOp& sec)
     {
+	//CHECK;
 	return (*this) = copyThis() / sec;
     }
 
@@ -275,6 +288,188 @@ namespace MultiArrayTools
 	mIndex.copyPos(ind);
 	return *this;
     }
+
+    template <typename T, class Range>
+    void MultiArrayOperationRoot<T,Range>::freeIndex()
+    {
+	MAOB::mIibPtr->freeLinked();
+	mIndex = mArrayRef.begin();
+	MAOB::mIibPtr = &mIndex;
+	MAOB::mIibPtr->name(mNm);
+    }
+
+    /**************************************
+     *   ConstMultiArrayOperationBase     *
+     **************************************/
+    
+    template <typename T, class Range>
+    template <class RangeX>
+    const ConstMultiArrayOperationRoot<T,Range>&
+    ConstMultiArrayOperationRoot<T,Range>::makeConstSlice(const ConstMultiArrayOperationRoot<T,RangeX>& in) const
+    {
+	ConstSlice<T,Range,RangeX>& sl = dynamic_cast<ConstSlice<T,Range,RangeX>&>( mArrayRef );
+	sl.set(in.mArrayRef, name(), dynamic_cast<const typename RangeX::IndexType&>( in.index() ), in.name());
+	return *this;
+    }
+
+    
+    // CONST SLICE !!!!!
+    
+    template <typename T, class Range>
+    ConstMultiArrayOperationRoot<T,Range>::
+    ConstMultiArrayOperationRoot(const MultiArrayBase<T,Range>& ma,
+				 const Name& nm) :
+	MultiArrayOperationBase<T>(),
+	mArrayRef(ma),
+	mIndex(mArrayRef.begin()),
+	mNm(nm)
+    {
+	MAOB::mIibPtr = &mIndex;
+	MAOB::mIibPtr->name(nm);
+	//mIndex.name(nm);
+    }
+
+    template <typename T, class Range>
+    ConstMultiArrayOperationRoot<T,Range>::
+    ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in) :
+	MultiArrayOperationBase<T>(),
+	mArrayRef(in.getCont()),
+	mIndex(mArrayRef.begin()),
+	mNm(in.name())
+    {
+	MAOB::mIibPtr = &mIndex;
+	MAOB::mIibPtr->name(mNm);
+	//mIndex.name(nm);
+    }
+	
+    template <typename T, class Range>
+    const ConstMultiArrayOperationRoot<T,Range>&
+    ConstMultiArrayOperationRoot<T,Range>::operator=(const ConstMultiArrayOperationRoot<T,Range>& in)
+    {
+	//CHECK;
+	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
+	    return makeConstSlice(in);
+	}
+	assert(0);
+	return *this;
+    }
+
+    template <typename T, class Range>
+    template <class Range2>
+    const ConstMultiArrayOperationRoot<T,Range>&
+    ConstMultiArrayOperationRoot<T,Range>::operator=(const ConstMultiArrayOperationRoot<T,Range2>& in)
+    {
+	//CHECK;
+	if(mArrayRef.isSlice() and not mArrayRef.isInit()){
+	    //CHECK;
+	    return makeConstSlice(in);
+	}
+	assert(0);
+	return *this;
+    }
+
+    template <typename T, class Range>
+    template <class Operation, class... MAOps>
+    MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
+    ConstMultiArrayOperationRoot<T,Range>::operator()(const Operation& op, const MAOps&... secs) const
+    {
+	//CHECK;
+	return MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>(op, *this, secs...);
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    auto ConstMultiArrayOperationRoot<T,Range>::operator+(const MAOp& sec) const
+	-> decltype(operator()(std::plus<T>(), sec))
+    {
+	return operator()(std::plus<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    auto ConstMultiArrayOperationRoot<T,Range>::operator-(const MAOp& sec) const
+	-> decltype(operator()(std::minus<T>(), sec))
+    {
+	return operator()(std::minus<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    auto ConstMultiArrayOperationRoot<T,Range>::operator*(const MAOp& sec) const
+	-> decltype(operator()(std::multiplies<T>(), sec))
+    {
+	return operator()(std::multiplies<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    template <class MAOp>
+    auto ConstMultiArrayOperationRoot<T,Range>::operator/(const MAOp& sec) const
+	-> decltype(operator()(std::divides<T>(), sec))
+    {
+	//CHECK;
+	return operator()(std::divides<T>(), sec);
+    }
+
+    template <typename T, class Range>
+    ConstMultiArrayOperationRoot<T,Range> ConstMultiArrayOperationRoot<T,Range>::copyThis() const
+    {
+	//CHECK;
+	return ConstMultiArrayOperationRoot<T,Range>(mArrayRef, mNm);
+    }
+    
+    template <typename T, class Range>
+    const MultiArrayBase<T,Range>& ConstMultiArrayOperationRoot<T,Range>::operator*() const
+    {
+	return mArrayRef;
+    }
+
+    template <typename T, class Range>
+    MultiArrayBase<T,Range> const* ConstMultiArrayOperationRoot<T,Range>::operator->() const
+    {
+	return &mArrayRef;
+    }
+    
+    template <typename T, class Range>
+    size_t ConstMultiArrayOperationRoot<T,Range>::argNum() const
+    {
+	return 1;
+    }
+
+    template <typename T, class Range>
+    void ConstMultiArrayOperationRoot<T,Range>::linkIndicesTo(IndefinitIndexBase* target) const
+    {
+	MAOB::mIibPtr->linkTo(target);
+    }
+
+    template <typename T, class Range>
+    const T& ConstMultiArrayOperationRoot<T,Range>::get() const
+    {
+	//return mArrayRef[mIndex];
+	return mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)];
+    }
+
+    template <typename T, class Range>
+    const Name& ConstMultiArrayOperationRoot<T,Range>::name() const
+    {
+	return mNm;
+    }
+
+    template <typename T, class Range>
+    const ConstMultiArrayOperationRoot<T,Range>& ConstMultiArrayOperationRoot<T,Range>::operator[](const IndexType& ind) const
+    {
+	mIndex.copyPos(ind);
+	return *this;
+    }
+
+    template <typename T, class Range>
+    void ConstMultiArrayOperationRoot<T,Range>::freeIndex()
+    {
+	MAOB::mIibPtr->freeLinked();
+	mIndex = mArrayRef.begin();
+	MAOB::mIibPtr = &mIndex;
+	MAOB::mIibPtr->name(mNm);
+    }
+
     
     /*****************************
      *   MultiArrayOperation     *
@@ -410,14 +605,15 @@ namespace MultiArrayTools
     {
 	TupleIndicesLinker<sizeof...(MAOps)-1>::linkTupleIndicesTo(mArgs, target);
     }
-    
+
+    /*
     template <typename T, class Operation, class... MAOps>    
     T& MultiArrayOperation<T,Operation,MAOps...>::get()
     {
 	mVal = OperationCall<sizeof...(MAOps)-1>::
 	    template callOperation(mOp, mArgs);
 	return mVal;
-    }
+	}*/
 
     template <typename T, class Operation, class... MAOps>    
     const T& MultiArrayOperation<T,Operation,MAOps...>::get() const

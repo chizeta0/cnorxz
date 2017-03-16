@@ -55,6 +55,7 @@ namespace MultiArrayTools
 
 	ConstSlice(const Range& range);
 
+	virtual T& operator[](const typename Range::IndexType& i) override;
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
 	
 	//Slice& setSlicePos(const Index& slicePos);
@@ -71,6 +72,9 @@ namespace MultiArrayTools
 		 const Name& MANm); 
 	
     private:
+
+	// !!!
+	T x = static_cast<T>(0);
 	
 	MultiArrayBase<T,MARange> const* mMultiArrayPtr = nullptr;
 	mutable typename Range::IndexType mOwnIdx;

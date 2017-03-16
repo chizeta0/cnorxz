@@ -28,6 +28,18 @@
 
 namespace MultiArrayTools
 {
+    template <class MultiArray>
+    void checkPtr(const MultiArray& in, bool check = false)
+    {
+	static MultiArray const* ptr = nullptr;
+	if(not check){
+	    ptr = &in;
+	}
+	else {
+	    assert(ptr == &in);
+	}
+    }
+
     /***********************
      *  Provided Types     *
      ***********************/
@@ -82,8 +94,16 @@ namespace MultiArrayTools
     class MultiArrayOperationBase;
 
     // multi_array_operation.h
+    template <typename T>
+    class MutableMultiArrayOperationBase;
+
+    // multi_array_operation.h
     template <typename T, class Range>
     class MultiArrayOperationRoot;
+
+    // multi_array_operation.h
+    template <typename T, class Range>
+    class ConstMultiArrayOperationRoot;
     
     // multi_array_operation.h
     template <typename T, class Operation, class... MAOps>

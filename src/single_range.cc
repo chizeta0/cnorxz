@@ -194,7 +194,7 @@ namespace MultiArrayTools
 	#ifdef LORENTZ_DIMENSION
 	return LORENTZ_DIMENSION;
 	#else
-	return 4;
+	return 1; // 4
 	#endif
     }
 
@@ -327,6 +327,8 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     IndefinitIndexBase* SingleIndex<U,TYPE>::getLinked(const std::string& name)
     {
+	//VCHECK(name);
+	//VCHECK(IIB::mName);
 	if(name == IIB::mName){
 	    return this;
 	}

@@ -104,4 +104,14 @@ namespace MultiArrayTools
 	//mOwnIdx = i.pos();
 	return (*mMultiArrayPtr)[ mMAIdx ];
     }
+
+    
+    template <typename T, class Range, class MARange>
+    T& ConstSlice<T,Range,MARange>::operator[](const typename Range::IndexType& i)
+    {
+	assert(0);
+	mOwnIdx.copyPos(i);
+	//mOwnIdx = i.pos();
+	return x;
+    }
 }
