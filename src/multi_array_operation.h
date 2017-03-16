@@ -59,6 +59,7 @@ namespace MultiArrayTools
 	template <class Range2>
 	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot<T,Range2>& in);
 
+	
 	template <class Range2>
 	const MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot<T,Range2>& in);
 	
@@ -122,6 +123,9 @@ namespace MultiArrayTools
 	
 	template <typename U, class RangeX>
 	friend class MultiArrayOperationRoot;
+
+	template <typename U, class RangeX>
+	friend class ConstMultiArrayOperationRoot;
 	
     protected:
 
@@ -130,6 +134,7 @@ namespace MultiArrayTools
 	template <class RangeX>
 	MultiArrayOperationRoot& makeSlice(MultiArrayOperationRoot<T,RangeX>& in);
 
+	
 	template <class RangeX>
 	const MultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
 	
@@ -149,12 +154,17 @@ namespace MultiArrayTools
 
 	ConstMultiArrayOperationRoot(const MultiArrayBase<T,Range>& ma, const Name& nm);
 	ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in);
-	
+
+	/*
 	const ConstMultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot& in);
 
 	template <class Range2>
 	const ConstMultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot<T,Range2>& in);
-	
+
+	template <class Range2>
+	const ConstMultiArrayOperationRoot& operator=(const MultiArrayOperationRoot<T,Range2>& in);
+	*/
+
 	//template <class Operation, class... MAOps>
 	//MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
 	//operator()(Operation& op, const MAOps&... secs) const;
@@ -197,13 +207,21 @@ namespace MultiArrayTools
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
 	template <typename U, class RangeX>
+	friend class ConstMultiArrayOperationRoot;
+	
+	template <typename U, class RangeX>
 	friend class MultiArrayOperationRoot;
 	
     protected:
 
+	/*
 	template <class RangeX>
-	const ConstMultiArrayOperationRoot& makeConstSlice(const ConstMultiArrayOperationRoot<T,RangeX>& in) const;
-	
+	const ConstMultiArrayOperationRoot& makeConstSlice(const ConstMultiArrayOperationRoot<T,RangeX>& in);
+
+	template <class RangeX>
+	const ConstMultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
+	*/
+	// const
 	MultiArrayBase<T,Range> const& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;

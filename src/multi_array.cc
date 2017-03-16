@@ -62,7 +62,7 @@ namespace MultiArrayTools
     template <class... NameTypes>
     ConstMultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameTypes&... str) const
     {
-	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+	return ConstMultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
     }
 
     template <typename T, class Range>
@@ -158,6 +158,12 @@ namespace MultiArrayTools
 	return mCont[ i.pos() ];
     }
 
+    template <typename T, class Range>
+    bool MultiArray<T,Range>::isConst() const
+    {
+	return false;
+    }
+    
     template <typename T, class Range>
     bool MultiArray<T,Range>::isSlice() const
     {

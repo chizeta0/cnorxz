@@ -38,6 +38,8 @@ namespace MultiArrayTools
 
 	virtual const Range& range() const;
 
+	virtual bool isConst() const = 0;
+	
 	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
 
@@ -78,7 +80,8 @@ namespace MultiArrayTools
 	
 	T& operator[](const typename Range::IndexType& i) override;
 	const T& operator[](const typename Range::IndexType& i) const override;
-	
+
+	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
 	//	virtual void manipulate(ManipulatorBase<T>& mb,

@@ -33,17 +33,29 @@ namespace MultiArrayTools
 	virtual auto end() const -> decltype(Range().end()) override;
 
 	virtual bool isSlice() const override;
-
+	virtual bool isConst() const override;
+	
 	void set(MultiArrayBase<T,MARange>& multiArrayRef,
 		 const Name& ownNm,
 		 const typename MARange::IndexType& MAIdx,
-		 const Name& MANm); 
+		 const Name& MANm);
+
+	void setConst(const MultiArrayBase<T,MARange>& multiArrayRef,
+		      const Name& ownNm,
+		      const typename MARange::IndexType& MAIdx,
+		      const Name& MANm); 
+
+	template <typename U, class RangeX, class MARangeX>	
+	friend class ConstSlice;
 	
     private:
-	
+
+	MultiArrayBase<T,MARange> const* mConstMultiArrayPtr = nullptr;
 	MultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
 	mutable typename Range::IndexType mOwnIdx;
 	mutable typename MARange::IndexType mMAIdx;
+	Name mOwnName;
+	Name mMAName;
     };
 
     template <typename T, class Range, class MARange/*, class Index*/>
@@ -54,6 +66,7 @@ namespace MultiArrayTools
 	typedef MultiArrayBase<T,Range> MAB;
 
 	ConstSlice(const Range& range);
+	ConstSlice(const Slice<T,Range,MARange>& slice);
 
 	virtual T& operator[](const typename Range::IndexType& i) override;
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
@@ -65,12 +78,14 @@ namespace MultiArrayTools
 	virtual auto end() const -> decltype(Range().end()) override;
 
 	virtual bool isSlice() const override;
-
+	virtual bool isConst() const override;
+	
+	/*
 	void set(const MultiArrayBase<T,MARange>& multiArrayRef,
 		 const Name& ownNm,
 		 const typename MARange::IndexType& MAIdx,
-		 const Name& MANm); 
-	
+		 const Name& MANm) const; 
+	*/
     private:
 
 	// !!!

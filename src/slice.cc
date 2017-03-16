@@ -23,6 +23,8 @@ namespace MultiArrayTools
 				     const Name& MANm) // for correct linkage)
     {
 	MAB::mInit = true;
+	mOwnName = ownNm;
+	mMAName = MANm;
 	mMultiArrayPtr = &multiArrayRef;
 	mMAIdx = MAIdx;
 	mOwnIdx = MAB::mRange->begin();
@@ -31,6 +33,24 @@ namespace MultiArrayTools
 	mMAIdx.linkTo(&mOwnIdx);
     }
 
+    template <typename T, class Range, class MARange>
+    void Slice<T,Range,MARange>::setConst(const MultiArrayBase<T,MARange>& multiArrayRef,
+					  const Name& ownNm, // for correct linkage
+					  const typename MARange::IndexType& MAIdx, // for desired slice position
+					  const Name& MANm) // for correct linkage)
+    {
+	MAB::mInit = true;
+	mOwnName = ownNm;
+	mMAName = MANm;
+	mConstMultiArrayPtr = &multiArrayRef;
+	mMAIdx = MAIdx;
+	mOwnIdx = MAB::mRange->begin();
+	mMAIdx.name(MANm);
+	mOwnIdx.name(ownNm);
+	mMAIdx.linkTo(&mOwnIdx);
+    }
+
+    
     template <typename T, class Range, class MARange>
     auto Slice<T,Range,MARange>::begin() const -> decltype(Range().begin())
     {
@@ -58,12 +78,37 @@ namespace MultiArrayTools
 	//mOwnIdx = i.pos();
 	return (*mMultiArrayPtr)[ mMAIdx ];
     }
-
+    
+    template <typename T, class Range, class MARange>
+    bool Slice<T,Range,MARange>::isConst() const
+    {
+	return false;
+    }
+    
     template <typename T, class Range, class MARange>
     ConstSlice<T,Range,MARange>::
     ConstSlice(const Range& range) :
 	MultiArrayBase<T,Range>(range) {}
 
+    template <typename T, class Range, class MARange>
+    ConstSlice<T,Range,MARange>::
+    ConstSlice(const Slice<T,Range,MARange>& slice) :
+	MultiArrayBase<T,Range>(slice.range()),
+	mOwnIdx(slice.mOwnIdx),
+	mMAIdx(slice.mMAIdx)
+    {
+	if(slice.mInit){
+	    MAB::mInit = true;
+	    mMultiArrayPtr = slice.mConstMultiArrayPtr;
+	    mMAIdx = slice.mMAIdx;
+	    mOwnIdx = MAB::mRange->begin();
+	    mMAIdx.name(slice.mMAName);
+	    mOwnIdx.name(slice.mOwnName);
+	    mMAIdx.linkTo(&mOwnIdx);
+	}
+    }
+	
+    
     template <typename T, class Range, class MARange>
     bool ConstSlice<T,Range,MARange>::isSlice() const
     {
@@ -71,10 +116,17 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range, class MARange>
+    bool ConstSlice<T,Range,MARange>::isConst() const
+    {
+	return true;
+    }
+    
+    /*
+    template <typename T, class Range, class MARange>
     void ConstSlice<T,Range,MARange>::set(const MultiArrayBase<T,MARange>& multiArrayRef,
 					  const Name& ownNm, // for correct linkage
 					  const typename MARange::IndexType& MAIdx, // for desired slice position
-					  const Name& MANm) // for correct linkage)
+					  const Name& MANm) const // for correct linkage)
     {
 	MAB::mInit = true;
 	mMultiArrayPtr = &multiArrayRef;
@@ -84,7 +136,7 @@ namespace MultiArrayTools
 	mOwnIdx.name(ownNm);
 	mMAIdx.linkTo(&mOwnIdx);
     }
-
+    */
     template <typename T, class Range, class MARange>
     auto ConstSlice<T,Range,MARange>::begin() const -> decltype(Range().begin())
     {
