@@ -75,7 +75,7 @@ namespace MultiArrayTools
     
     template <typename T, class Range>
     MultiArrayOperationRoot<T,Range>::
-    MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma,
+    MultiArrayOperationRoot(MutableMultiArrayBase<T,Range>& ma,
 			    const Name& nm) :
 	MutableMultiArrayOperationBase<T>(),
 	mArrayRef(ma),

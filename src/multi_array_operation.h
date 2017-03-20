@@ -51,7 +51,7 @@ namespace MultiArrayTools
 	typedef typename Range::IndexType IndexType;
 	//typedef decltype(MultiArray<T,Range>().begin()) IndexType;
 
-	MultiArrayOperationRoot(MultiArrayBase<T,Range>& ma, const Name& nm);
+	MultiArrayOperationRoot(MutableMultiArrayBase<T,Range>& ma, const Name& nm);
 	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
 
 	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot& in);
@@ -138,7 +138,7 @@ namespace MultiArrayTools
 	template <class RangeX>
 	const MultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
 	
-	MultiArrayBase<T,Range>& mArrayRef;
+	MutableMultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
     };

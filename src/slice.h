@@ -15,14 +15,18 @@ namespace MultiArrayTools
     // MARange = original range of multi array of which this is the slice
     // Index = index which determines the slice position (remnant of MARange w.o. Range)
     template <typename T, class Range, class MARange/*, class Index*/>
-    class Slice : public MultiArrayBase<T,Range> // yes, 'Range' is correct !!!
+    class Slice : public MutableMultiArrayBase<T,Range> // yes, 'Range' is correct !!!
     {
     public:
 
 	typedef MultiArrayBase<T,Range> MAB;
 
-	Slice(const Range& range);
-
+	Slice(const Range& range,
+	      MutableMultiArrayBase<T,MARange>& multiArrayRef,
+	      const Name& ownNm,
+	      const typename MARange::IndexType& MAIdx,
+	      const Name& MANm);
+		
 	virtual T& operator[](const typename Range::IndexType& i) override;
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
 	
@@ -34,28 +38,28 @@ namespace MultiArrayTools
 
 	virtual bool isSlice() const override;
 	virtual bool isConst() const override;
-	
-	void set(MultiArrayBase<T,MARange>& multiArrayRef,
-		 const Name& ownNm,
-		 const typename MARange::IndexType& MAIdx,
-		 const Name& MANm);
 
+	/*
+	void set();
+	*/
+
+	/*
 	void setConst(const MultiArrayBase<T,MARange>& multiArrayRef,
 		      const Name& ownNm,
 		      const typename MARange::IndexType& MAIdx,
 		      const Name& MANm); 
-
+	*/
 	template <typename U, class RangeX, class MARangeX>	
 	friend class ConstSlice;
 	
     private:
 
-	MultiArrayBase<T,MARange> const* mConstMultiArrayPtr = nullptr;
-	MultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
-	mutable typename Range::IndexType mOwnIdx;
-	mutable typename MARange::IndexType mMAIdx;
 	Name mOwnName;
 	Name mMAName;
+	MutableMultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
+	mutable typename Range::IndexType mOwnIdx;
+	mutable typename MARange::IndexType mMAIdx;
+	
     };
 
     template <typename T, class Range, class MARange/*, class Index*/>
@@ -65,7 +69,12 @@ namespace MultiArrayTools
 
 	typedef MultiArrayBase<T,Range> MAB;
 
-	ConstSlice(const Range& range);
+	//ConstSlice(const Range& range);
+	ConstSlice(const Range& range,
+		   const MultiArrayBase<T,MARange>& multiArrayRef,
+		   const Name& ownNm,
+		   const typename MARange::IndexType& MAIdx,
+		   const Name& MANm);
 	ConstSlice(const Slice<T,Range,MARange>& slice);
 
 	virtual T& operator[](const typename Range::IndexType& i) override;

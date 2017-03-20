@@ -27,7 +27,6 @@ namespace MultiArrayTools
 
 	virtual ~MultiArrayBase() = default;
 	
-	virtual T& operator[](const typename Range::IndexType& i) = 0;
 	virtual const T& operator[](const typename Range::IndexType& i) const = 0;
 
 	virtual size_t size() const; 
@@ -38,14 +37,8 @@ namespace MultiArrayTools
 
 	virtual const Range& range() const;
 
-	virtual bool isConst() const = 0;
+	virtual bool isConst() const;
 	
-	template <class... NameTypes>
-	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
-
-	template <class NameType>
-	MultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master);
-
 	template <class... NameTypes>
 	ConstMultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str) const;
 
@@ -59,9 +52,31 @@ namespace MultiArrayTools
 	std::shared_ptr<Range> mRange;
 
     };
+
+    template <typename T, class Range>
+    class MutableMultiArrayBase : public MultiArrayBase<T,Range>
+    {
+    public:
+
+	// iterator ( containing idx of Range )
+	
+	DEFAULT_MEMBERS(MutableMultiArrayBase);
+	MutableMultiArrayBase(const Range& range);
+
+	virtual T& operator[](const typename Range::IndexType& i) = 0;
+
+	virtual bool isConst() const override;
+
+	template <class... NameTypes>
+	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
+
+	template <class NameType>
+	MultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master);
+
+    };
     
     template <typename T, class Range>
-    class MultiArray : public MultiArrayBase<T,Range>
+    class MultiArray : public MutableMultiArrayBase<T,Range>
     {
     public:
 

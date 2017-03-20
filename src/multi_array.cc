@@ -39,25 +39,11 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    template <class... NameTypes>
-    MultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameTypes&... str)
+    bool MultiArrayBase<T,Range>::isConst() const
     {
-	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+	return true;
     }
-
-    template <typename T, class Range>
-    template <class NameType>
-    MultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameType& name, bool master)
-    {
-	//CHECK;
-	if(master){
-	    return MultiArrayOperationRoot<T,Range>(*this, name);
-	}
-	else {
-	    return operator()(name);
-	}
-    }
-
+    
     template <typename T, class Range>
     template <class... NameTypes>
     ConstMultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameTypes&... str) const
@@ -83,6 +69,40 @@ namespace MultiArrayTools
     {
 	return mInit;
     }
+
+    /******************************
+     *  MutableMultiArrayBase     *	     
+     ******************************/
+
+    template <typename T, class Range>
+    MutableMultiArrayBase<T,Range>::MutableMultiArrayBase(const Range& range) : MultiArrayBase<T,Range>(range) {}
+    
+    template <typename T, class Range>
+    bool MutableMultiArrayBase<T,Range>::isConst() const
+    {
+	return false;
+    }
+    
+    template <typename T, class Range>
+    template <class... NameTypes>
+    MultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameTypes&... str)
+    {
+	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+    }
+
+    template <typename T, class Range>
+    template <class NameType>
+    MultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameType& name, bool master)
+    {
+	//CHECK;
+	if(master){
+	    return MultiArrayOperationRoot<T,Range>(*this, name);
+	}
+	else {
+	    return operator()(name);
+	}
+    }
+
     
     /*******************
      *  MultiArray     *	     
@@ -90,7 +110,7 @@ namespace MultiArrayTools
 
     template <typename T, class Range>
     MultiArray<T,Range>::MultiArray(const Range& range) :
-	MultiArrayBase<T,Range>(range),
+	MutableMultiArrayBase<T,Range>(range),
 	mCont(MAB::mRange->size())
     {
 	MAB::mInit = true;
@@ -98,7 +118,7 @@ namespace MultiArrayTools
 
     template <typename T, class Range>
     MultiArray<T,Range>::MultiArray(const Range& range, const std::vector<T>& vec) :
-	MultiArrayBase<T,Range>(range),
+	MutableMultiArrayBase<T,Range>(range),
 	mCont(vec)
     {
 	MAB::mInit = true;
@@ -109,7 +129,7 @@ namespace MultiArrayTools
     
     template <typename T, class Range>
     MultiArray<T,Range>::MultiArray(const Range& range, std::vector<T>&& vec) :
-	MultiArrayBase<T,Range>(range),
+	MutableMultiArrayBase<T,Range>(range),
 	mCont(vec)
     {
 	MAB::mInit = true;
@@ -121,7 +141,7 @@ namespace MultiArrayTools
     template <typename T, class Range>
     template <class Range2, class Range3>
     MultiArray<T,Range>::MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in) :
-	MultiArrayBase<T,Range>(merge(in.range(), in[ in.begin() ].range()))
+	MutableMultiArrayBase<T,Range>(merge(in.range(), in[ in.begin() ].range()))
 	// assert that Range2 has always same extension
     {
 	MAB::mInit = true;
