@@ -413,7 +413,7 @@ namespace {
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
 
-	Slice2d3dAny sl(ra, ma, MAT::Name("master", "alpha", "gamma"),
+	Slice2d3dAny sl(ra, MAT::Name("master", "alpha", "gamma"), ma,
 			i(i1 = 0, i2 = 2, i3 = 0),
 			MAT::Name("master", "alpha","beta","gamma"));
 	
@@ -421,7 +421,7 @@ namespace {
 	//sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];
 	EXPECT_EQ(sl.size(), 6);
 
-	Slice2d3dAny sl2(rb, ma, MAT::Name("master", "alpha", "beta"),
+	Slice2d3dAny sl2(rb, MAT::Name("master", "alpha", "beta"), ma,
 			 i(i1 = 0, i2 = 0, i3 = 1),
 			 MAT::Name("master", "alpha","beta","gamma"));
 	
@@ -436,7 +436,7 @@ namespace {
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
-	Slice2d3dAny sl(ra, ma, MAT::Name("master", "alpha", "gamma"),
+	Slice2d3dAny sl(ra, MAT::Name("master", "alpha", "gamma"), ma,
 			i(i1 = 0, i2 = 2, i3 = 0),
 			MAT::Name("master", "alpha","beta","gamma"));
 	//sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];

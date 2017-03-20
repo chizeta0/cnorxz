@@ -8,8 +8,8 @@ namespace MultiArrayTools
     template <typename T, class Range, class MARange>
     Slice<T,Range,MARange>::
     Slice(const Range& range,
-	  MutableMultiArrayBase<T,MARange>& multiArrayRef,
 	  const Name& ownNm, // for correct linkage
+	  MutableMultiArrayBase<T,MARange>& multiArrayRef,
 	  const typename MARange::IndexType& MAIdx, // for desired slice position
 	  const Name& MANm) :
 	MutableMultiArrayBase<T,Range>(range),
@@ -23,6 +23,23 @@ namespace MultiArrayTools
 	mMAIdx.linkTo(&mOwnIdx);
     }
 
+    template <typename T, class Range, class MARange>
+    Slice<T,Range,MARange>::
+    Slice(const Range& range,
+	  const Name& ownNm,
+	  MultiArrayOperationRoot<T,MARange>& mor,
+	  const typename MARange::IndexType& MAIdx) :
+	MutableMultiArrayBase<T,Range>(range),
+	mOwnName(ownNm), mMAName(mor.name()), mMultiArrayPtr(&(*mor)),
+	mMAIdx(MAIdx)
+    {
+	MAB::mInit = true;
+	mOwnIdx = MAB::mRange->begin();
+	mMAIdx.name(mMAName);
+	mOwnIdx.name(ownNm);
+	mMAIdx.linkTo(&mOwnIdx);
+    }
+    
     template <typename T, class Range, class MARange>
     bool Slice<T,Range,MARange>::isSlice() const
     {
@@ -110,11 +127,11 @@ namespace MultiArrayTools
     template <typename T, class Range, class MARange>
     ConstSlice<T,Range,MARange>::
     ConstSlice(const Range& range,
-	       const MultiArrayBase<T,MARange>& multiArrayRef,
 	       const Name& ownNm, // for correct linkage
+	       const MultiArrayBase<T,MARange>& multiArrayRef,
 	       const typename MARange::IndexType& MAIdx, // for desired slice position
 	       const Name& MANm) :
-	MutableMultiArrayBase<T,Range>(range),
+	MultiArrayBase<T,Range>(range),
 	mMultiArrayPtr(&multiArrayRef),
 	mMAIdx(MAIdx)	
     {
@@ -125,6 +142,22 @@ namespace MultiArrayTools
 	mMAIdx.linkTo(&mOwnIdx);
     }
 
+    template <typename T, class Range, class MARange>
+    ConstSlice<T,Range,MARange>::
+    ConstSlice(const Range& range,
+	  const Name& ownNm,
+	  const ConstMultiArrayOperationRoot<T,MARange>& mor,
+	  const typename MARange::IndexType& MAIdx) :
+	MultiArrayBase<T,Range>(range),
+	mMultiArrayPtr(&(*mor)),
+	mMAIdx(MAIdx)
+    {
+	MAB::mInit = true;
+	mOwnIdx = MAB::mRange->begin();
+	mMAIdx.name(mor.name());
+	mOwnIdx.name(ownNm);
+	mMAIdx.linkTo(&mOwnIdx);
+    }
     
     template <typename T, class Range, class MARange>
     ConstSlice<T,Range,MARange>::
@@ -191,15 +224,5 @@ namespace MultiArrayTools
 	mOwnIdx.copyPos(i);
 	//mOwnIdx = i.pos();
 	return (*mMultiArrayPtr)[ mMAIdx ];
-    }
-
-    
-    template <typename T, class Range, class MARange>
-    T& ConstSlice<T,Range,MARange>::operator[](const typename Range::IndexType& i)
-    {
-	assert(0);
-	mOwnIdx.copyPos(i);
-	//mOwnIdx = i.pos();
-	return x;
     }
 }

@@ -22,10 +22,16 @@ namespace MultiArrayTools
 	typedef MultiArrayBase<T,Range> MAB;
 
 	Slice(const Range& range,
-	      MutableMultiArrayBase<T,MARange>& multiArrayRef,
 	      const Name& ownNm,
+	      MutableMultiArrayBase<T,MARange>& multiArrayRef,
 	      const typename MARange::IndexType& MAIdx,
 	      const Name& MANm);
+
+	Slice(const Range& range,
+	      const Name& ownNm,
+	      MultiArrayOperationRoot<T,MARange>& mor,
+	      const typename MARange::IndexType& MAIdx);
+	
 		
 	virtual T& operator[](const typename Range::IndexType& i) override;
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
@@ -71,13 +77,18 @@ namespace MultiArrayTools
 
 	//ConstSlice(const Range& range);
 	ConstSlice(const Range& range,
-		   const MultiArrayBase<T,MARange>& multiArrayRef,
 		   const Name& ownNm,
+		   const MultiArrayBase<T,MARange>& multiArrayRef,
 		   const typename MARange::IndexType& MAIdx,
 		   const Name& MANm);
+
+	ConstSlice(const Range& range,
+		   const Name& ownNm,
+		   const ConstMultiArrayOperationRoot<T,MARange>& mor,
+		   const typename MARange::IndexType& MAIdx);
+	
 	ConstSlice(const Slice<T,Range,MARange>& slice);
 
-	virtual T& operator[](const typename Range::IndexType& i) override;
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
 	
 	//Slice& setSlicePos(const Index& slicePos);
