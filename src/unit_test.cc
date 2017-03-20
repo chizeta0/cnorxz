@@ -143,7 +143,7 @@ namespace {
     
     TEST_F(OneDimTest, CorrectAssigned)
     {
-	auto i = ma.begin();
+	auto i = ma.beginIndex();
 	EXPECT_EQ(ma[i = 0], -5);
 	EXPECT_EQ(ma[i = 1], 6);
 	EXPECT_EQ(ma[i = 2], 2);
@@ -153,7 +153,7 @@ namespace {
 
     TEST_F(TwoDimTest, CorrectExtensions)
     {
-	auto i = ma.begin();
+	auto i = ma.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	EXPECT_EQ(ma.size(), 12);
@@ -165,7 +165,7 @@ namespace {
     
     TEST_F(TwoDimTest, CorrectAssigned)
     {    
-	auto i = ma.begin();
+	auto i = ma.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	
@@ -186,7 +186,7 @@ namespace {
     TEST_F(ReorderTest, ReorderingWorks2d)
     {
 	MultiArray2dAny ma2(rb);
-	auto i = ma2.begin();
+	auto i = ma2.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	ma2("alpha","beta") = ma("beta","alpha");
@@ -210,7 +210,7 @@ namespace {
     TEST_F(ReorderTest, ReorderingWorks3d_Test1)
     {
 	MultiArray3dAny ma3d2(r3db);
-	auto i = ma3d2.begin();
+	auto i = ma3d2.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -255,7 +255,7 @@ namespace {
     TEST_F(ReorderTest, ReorderingWorks3d_Test2)
     {
 	MultiArray3dAny ma3d2(r3dc);
-	auto i = ma3d2.begin();
+	auto i = ma3d2.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -293,7 +293,7 @@ namespace {
     TEST_F(OperationTest, CorrectlyAdded)
     {
 	MultiArray3dAny ma3d2(r3d);
-	auto i = ma3d2.begin();
+	auto i = ma3d2.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -331,7 +331,7 @@ namespace {
     TEST_F(OperationTest, CorrectlyAdded2)
     {
 	//MultiArray3dAny ma3d2(r3d);
-	auto i = ma3d.begin();
+	auto i = ma3d.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -370,7 +370,7 @@ namespace {
     {
 	MultiArray3dAny ma3d2(r3d);
 	//MultiArray2dAny ma2(ra);
-	auto i = ma3d2.begin();
+	auto i = ma3d2.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -408,7 +408,7 @@ namespace {
 
     TEST_F(SliceTest, CorrectSize)
     {
-	auto i = ma.begin();
+	auto i = ma.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -432,7 +432,7 @@ namespace {
 
     TEST_F(SliceTest, CorrectContent)
     {
-	auto i = ma.begin();
+	auto i = ma.beginIndex();
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 	auto i3 = i.template getIndex<2>();
@@ -441,7 +441,7 @@ namespace {
 			MAT::Name("master", "alpha","beta","gamma"));
 	//sl("alpha","gamma") = ma("alpha","beta","gamma")[i(i1 = 0, i2 = 2, i3 = 0)];
 
-	auto j = sl.begin();
+	auto j = sl.beginIndex();
 	auto j1 = j.template getIndex<0>();
 	auto j2 = j.template getIndex<1>();
 

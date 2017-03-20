@@ -36,25 +36,15 @@ namespace MultiArrayTools
 	virtual T& operator[](const typename Range::IndexType& i) override;
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
 	
-	//Slice& setSlicePos(const Index& slicePos);
-	
 	// link given Index to mMAPtr which is index of total array
-	virtual auto begin() const -> decltype(Range().begin()) override; 
-	virtual auto end() const -> decltype(Range().end()) override;
+	virtual auto beginIndex() const -> decltype(Range().begin()) override; 
+	virtual auto endIndex() const -> decltype(Range().end()) override;
 
 	virtual bool isSlice() const override;
 	virtual bool isConst() const override;
 
-	/*
-	void set();
-	*/
-
-	/*
-	void setConst(const MultiArrayBase<T,MARange>& multiArrayRef,
-		      const Name& ownNm,
-		      const typename MARange::IndexType& MAIdx,
-		      const Name& MANm); 
-	*/
+	virtual void link(IndefinitIndexBase* iibPtr) const override;
+	
 	template <typename U, class RangeX, class MARangeX>	
 	friend class ConstSlice;
 	
@@ -65,7 +55,8 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,MARange>* mMultiArrayPtr = nullptr;
 	mutable typename Range::IndexType mOwnIdx;
 	mutable typename MARange::IndexType mMAIdx;
-	
+	typename Range::IndexType mBeginIndex;
+	typename Range::IndexType mEndIndex;
     };
 
     template <typename T, class Range, class MARange/*, class Index*/>
@@ -91,29 +82,22 @@ namespace MultiArrayTools
 
 	virtual const T& operator[](const typename Range::IndexType& i) const override;
 	
-	//Slice& setSlicePos(const Index& slicePos);
-	
 	// link given Index to mMAPtr which is index of total array
-	virtual auto begin() const -> decltype(Range().begin()) override; 
-	virtual auto end() const -> decltype(Range().end()) override;
+	virtual auto beginIndex() const -> decltype(Range().begin()) override; 
+	virtual auto endIndex() const -> decltype(Range().end()) override;
 
 	virtual bool isSlice() const override;
 	virtual bool isConst() const override;
-	
-	/*
-	void set(const MultiArrayBase<T,MARange>& multiArrayRef,
-		 const Name& ownNm,
-		 const typename MARange::IndexType& MAIdx,
-		 const Name& MANm) const; 
-	*/
-    private:
 
-	// !!!
-	T x = static_cast<T>(0);
+	virtual void link(IndefinitIndexBase* iibPtr) const override;
+	
+    private:
 	
 	MultiArrayBase<T,MARange> const* mMultiArrayPtr = nullptr;
 	mutable typename Range::IndexType mOwnIdx;
 	mutable typename MARange::IndexType mMAIdx;
+	typename Range::IndexType mBeginIndex;
+	typename Range::IndexType mEndIndex;
     };
     
     

@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <vector>
 #include <memory>
+#include <iterator>
+#include <algorithm>
 
 #include "base_def.h"
 #include "multi_array_operation.h"
@@ -20,20 +22,70 @@ namespace MultiArrayTools
     {
     public:
 
-	// iterator ( containing idx of Range )
-	
+	class const_iterator : public std::iterator<std::random_access_iterator_tag,T>
+	{
+	public:
+
+	    DEFAULT_MEMBERS(const_iterator);
+	    
+	    const_iterator(const MultiArrayBase& ma);
+	    const_iterator(const MultiArrayBase& ma, const typename Range::IndexType& index);
+	    virtual ~const_iterator() = default;
+	    
+	    // Requirements:
+	    bool operator==(const const_iterator& it) const;
+	    bool operator!=(const const_iterator& it) const;
+
+	    const T& operator*() const;
+	    T const* operator->() const;
+
+	    const_iterator& operator++();
+	    const_iterator operator++(int);
+	    const_iterator& operator--();
+	    const_iterator operator--(int);
+
+	    const_iterator& operator+=(int diff);
+	    const_iterator& operator-=(int diff);
+	    const_iterator operator+(int num) const;
+	    const_iterator operator-(int num) const;
+
+	    int operator-(const const_iterator& it) const;
+
+	    const T& operator[](int num) const;
+
+	    bool operator<(const const_iterator& it) const;
+	    bool operator>(const const_iterator& it) const;
+	    bool operator<=(const const_iterator& it) const;
+	    bool operator>=(const const_iterator& it) const;
+
+	    // Multi Array specific:
+	    
+	    const typename Range::IndexType& index() const;
+	    typename Range::IndexType& index();
+
+	protected:
+	    MultiArrayBase const* mMAPtr = nullptr;
+	    typename Range::IndexType mIndex;
+	};
+
 	DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const Range& range);
 
 	virtual ~MultiArrayBase() = default;
+
+	// only relevant for slices... has no effect for usual multiarrays
+	virtual void link(IndefinitIndexBase* iibPtr) const;
 	
 	virtual const T& operator[](const typename Range::IndexType& i) const = 0;
 
 	virtual size_t size() const; 
 	virtual bool isSlice() const = 0;
+
+	virtual const_iterator begin() const;
+	virtual const_iterator end() const;
 	
-	virtual auto begin() const -> decltype(Range().begin());
-	virtual auto end() const -> decltype(Range().end());
+	virtual auto beginIndex() const -> decltype(Range().begin());
+	virtual auto endIndex() const -> decltype(Range().end());
 
 	virtual const Range& range() const;
 
@@ -58,12 +110,67 @@ namespace MultiArrayTools
     {
     public:
 
-	// iterator ( containing idx of Range )
+	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
+	typedef MultiArrayBase<T,Range> MAB;
+	
+	class iterator : public std::iterator<std::random_access_iterator_tag,T>,
+			 public std::iterator<std::output_iterator_tag,T>
+	{
+	public:
+
+	    DEFAULT_MEMBERS(iterator);
+	    
+	    iterator(MutableMultiArrayBase& ma);
+	    iterator(MutableMultiArrayBase& ma, const typename Range::IndexType& index);
+	    virtual ~iterator() = default;
+	    
+	    // Requirements:
+	    bool operator==(const iterator& it) const;
+	    bool operator!=(const iterator& it) const;
+
+	    const T& operator*() const;
+	    T const* operator->() const;
+	    T& operator*();
+	    T* operator->();
+
+	    iterator& operator++();
+	    iterator operator++(int);
+	    iterator& operator--();
+	    iterator operator--(int);
+
+	    iterator& operator+=(int diff);
+	    iterator& operator-=(int diff);
+	    iterator operator+(int num) const;
+	    iterator operator-(int num) const;
+
+	    int operator-(const iterator& it) const;
+
+	    const T& operator[](int num) const;
+	    T& operator[](int num);
+
+	    bool operator<(const iterator& it) const;
+	    bool operator>(const iterator& it) const;
+	    bool operator<=(const iterator& it) const;
+	    bool operator>=(const iterator& it) const;
+
+	    // Multi Array specific:
+
+	    const typename Range::IndexType& index() const;
+	    typename Range::IndexType& index();
+	    
+	protected:
+	    MutableMultiArrayBase* mMAPtr = nullptr;
+	    typename Range::IndexType mIndex;
+	};
+
 	
 	DEFAULT_MEMBERS(MutableMultiArrayBase);
 	MutableMultiArrayBase(const Range& range);
 
 	virtual T& operator[](const typename Range::IndexType& i) = 0;
+	
+	virtual iterator begin();
+	virtual iterator end();
 
 	virtual bool isConst() const override;
 
@@ -81,7 +188,9 @@ namespace MultiArrayTools
     public:
 
 	typedef MultiArrayBase<T,Range> MAB;
-
+	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
+	typedef typename MutableMultiArrayBase<T,Range>::iterator iterator;
+	
 	DEFAULT_MEMBERS(MultiArray);
 	MultiArray(const Range& range);
 	MultiArray(const Range& range, const std::vector<T>& vec);

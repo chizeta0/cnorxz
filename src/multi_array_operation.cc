@@ -34,14 +34,15 @@ namespace MultiArrayTools
     template <typename T, class Range>
     void MultiArrayOperationRoot<T,Range>::performAssignment(const MultiArrayOperationBase<T>& in)
     {
+#error "WRITE MAOR INTRINSIC CONTRACT FUNCTION"
 	//CHECK;
 	in.linkIndicesTo(MAOB::mIibPtr);
 	//CHECK;
 	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
 	//CHECK;
-	const size_t endPos = mArrayRef.end().pos();
+	const size_t endPos = mArrayRef.endIndex().pos();
 	std::cout << "assignment: " << endPos << " elements" << std::endl;
-	for(iref = mArrayRef.begin().pos(); iref != mArrayRef.end(); ++iref){
+	for(iref = mArrayRef.beginIndex().pos(); iref != mArrayRef.endIndex(); ++iref){
 	    std::cout << iref.pos() << '\r' << std::flush;
 	    get() = in.get();
 	}
@@ -79,7 +80,7 @@ namespace MultiArrayTools
 			    const Name& nm) :
 	MutableMultiArrayOperationBase<T>(),
 	mArrayRef(ma),
-	mIndex(mArrayRef.begin()),
+	mIndex(mArrayRef.beginIndex()),
 	mNm(nm)
     {
 	MAOB::mIibPtr = &mIndex;
@@ -300,7 +301,7 @@ namespace MultiArrayTools
     void MultiArrayOperationRoot<T,Range>::freeIndex()
     {
 	MAOB::mIibPtr->freeLinked();
-	mIndex = mArrayRef.begin();
+	mIndex = mArrayRef.beginIndex();
 	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->name(mNm);
     }
@@ -339,7 +340,7 @@ namespace MultiArrayTools
 				 const Name& nm) :
 	MultiArrayOperationBase<T>(),
 	mArrayRef(ma),
-	mIndex(mArrayRef.begin()),
+	mIndex(mArrayRef.beginIndex()),
 	mNm(nm)
     {
 	MAOB::mIibPtr = &mIndex;
@@ -352,7 +353,7 @@ namespace MultiArrayTools
     ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in) :
 	MultiArrayOperationBase<T>(),
 	mArrayRef(in.getCont()),
-	mIndex(mArrayRef.begin()),
+	mIndex(mArrayRef.beginIndex()),
 	mNm(in.name())
     {
 	MAOB::mIibPtr = &mIndex;
@@ -497,7 +498,7 @@ namespace MultiArrayTools
     void ConstMultiArrayOperationRoot<T,Range>::freeIndex()
     {
 	MAOB::mIibPtr->freeLinked();
-	mIndex = mArrayRef.begin();
+	mIndex = mArrayRef.beginIndex();
 	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->name(mNm);
     }

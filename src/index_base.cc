@@ -81,6 +81,12 @@ namespace MultiArrayTools
 	return mLinked != nullptr;
     }
 
+    bool IndefinitIndexBase::linkedTo(IndefinitIndexBase* link) const
+    {
+	//assert(not virt());
+	return mLinked == link or mSoftLinked == link;
+    }
+
     void IndefinitIndexBase::setPos(size_t pos)
     {
 	//CHECK;
