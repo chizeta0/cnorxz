@@ -22,7 +22,7 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    void MultiArrayOperationBase<T>::freeIndex()
+    void MultiArrayOperationBase<T>::freeIndex() const
     {
 	mIibPtr->freeLinked();
     }
@@ -168,27 +168,37 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    template <class Range2, class ContractOperation>
-    MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range> >
+    template <class Range2, class ContractOperation, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>,MAOps...>
     MultiArrayOperationRoot<T,Range>::contract(const ContractOperation& cop,
-					       const std::string& indexName) const
+					       const std::string& indexName,
+					       const MAOps&... mao) const
     {
+	//typename Range2::IndexType ind;
+	//ind.name(indexName);
+
 	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
 	return MultiArrayContraction<T,ContractOperation,Range2,
-				     MultiArrayOperationRoot<T,Range> >(cop, *this, *ind);
+				     MultiArrayOperationRoot<T,Range>,
+				     MAOps...>(cop, *ind, *this, mao...);
     }
 
     template <typename T, class Range>
-    template <class Range2, class ContractOperation>
-    MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range> >
+    template <class Range2, class ContractOperation, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>,MAOps...>
     MultiArrayOperationRoot<T,Range>::contract(const ContractOperation& cop,
 					       const std::string& indexName,
 					       const typename Range2::IndexType& begin,
-					       const typename Range2::IndexType& end) const
+					       const typename Range2::IndexType& end,
+					       const MAOps&... mao) const
     {
+	//typename Range2::IndexType ind;
+	//ind.name(indexName);
+
 	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
 	return MultiArrayContraction<T,ContractOperation,Range2,
-				     MultiArrayOperationRoot<T,Range> >(cop, *this, *ind, begin, end);
+				     MultiArrayOperationRoot<T,Range>,
+				     MAOps...>(cop, *ind, begin, end, *this, mao...);
     }
 
     
@@ -324,7 +334,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    void MultiArrayOperationRoot<T,Range>::freeIndex()
+    void MultiArrayOperationRoot<T,Range>::freeIndex() const
     {
 	MAOB::mIibPtr->freeLinked();
 	mIndex = mArrayRef.beginIndex();
@@ -438,27 +448,31 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    template <class Range2, class ContractOperation>
-    MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range> >
+    template <class Range2, class ContractOperation, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>,MAOps...>
     ConstMultiArrayOperationRoot<T,Range>::contract(const ContractOperation& cop,
-						    const std::string& indexName) const
+						    const std::string& indexName,
+						    const MAOps&... mao) const
     {
 	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
 	return MultiArrayContraction<T,ContractOperation,Range2,
-				     ConstMultiArrayOperationRoot<T,Range> >(cop, *this, *ind);
+				     ConstMultiArrayOperationRoot<T,Range>,
+				     MAOps...>(cop, *ind, *this, mao...);
     }
 
     template <typename T, class Range>
-    template <class Range2, class ContractOperation>
-    MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range> >
+    template <class Range2, class ContractOperation, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>,MAOps...>
     ConstMultiArrayOperationRoot<T,Range>::contract(const ContractOperation& cop,
 						    const std::string& indexName,
 						    const typename Range2::IndexType& begin,
-						    const typename Range2::IndexType& end) const
+						    const typename Range2::IndexType& end,
+						    const MAOps&... mao) const
     {
 	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
 	return MultiArrayContraction<T,ContractOperation,Range2,
-				     ConstMultiArrayOperationRoot<T,Range> >(cop, *this, *ind, begin, end);
+				     ConstMultiArrayOperationRoot<T,Range>,
+				     MAOps...>(cop, *ind, begin, end, *this, mao...);
     }
 
 
@@ -546,7 +560,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    void ConstMultiArrayOperationRoot<T,Range>::freeIndex()
+    void ConstMultiArrayOperationRoot<T,Range>::freeIndex() const
     {
 	MAOB::mIibPtr->freeLinked();
 	mIndex = mArrayRef.beginIndex();
@@ -646,6 +660,38 @@ namespace MultiArrayTools
 				   MAOps2...>(op, *this, secs...);
     }
 
+    /*
+    template <typename T, class Operation, class... MAOps>
+    template <class Range2, class ContractOperation>
+    MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
+    MultiArrayOperation<T,Operation,MAOps...>::
+    contract(const ContractOperation& cop, const std::string& indexName) const
+    {
+	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
+	//typename Range2::IndexType ind = Range2().begin();
+	//ind.name(indexName);
+	return MultiArrayContraction<T,ContractOperation,Range2,
+				     MultiArrayOperation<T,Operation,MAOps...> >(cop, *this, *ind);
+	
+    }
+    
+    template <typename T, class Operation, class... MAOps>
+    template <class Range2, class ContractOperation>
+    MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
+    MultiArrayOperation<T,Operation,MAOps...>::
+    contract(const ContractOperation& cop, const std::string& indexName,
+	     const typename Range2::IndexType& begin,
+	     const typename Range2::IndexType& end) const
+    {
+	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
+	//typename Range2::IndexType ind = Range2().begin();
+	//ind.name(indexName);
+	return MultiArrayContraction<T,ContractOperation,Range2,
+				     MultiArrayOperation<T,Operation,MAOps...> >(cop, *this, *ind, begin, end);
+
+    }
+    */
+    
     template <typename T, class Operation, class... MAOps>
     template <class MAOp2>
     auto MultiArrayOperation<T,Operation,MAOps...>::operator+(const MAOp2& sec)
@@ -703,11 +749,12 @@ namespace MultiArrayTools
      *   MultiArrayContraction     *
      *******************************/
 
-    template <typename T, class ContractOperation, class Range, class MAOp>
-    MultiArrayContraction<T,ContractOperation,Range,MAOp>::
-    MultiArrayContraction(const ContractOperation& cop, const MAOp& mao,
-			  const typename Range::IndexType& runIndex) :
-	MultiArrayOperation<T,ContractOperation,MAOp>(cop, mao),
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range,MAOps...>::
+    MultiArrayContraction(const ContractOperation& cop,
+			  const typename Range::IndexType& runIndex,
+			  const MAOps&... mao) :
+	MultiArrayOperation<T,ContractOperation,MAOps...>(cop, mao...),
 	mBeginIndex(runIndex), mEndIndex(runIndex),
 	mRunIndex(runIndex)
     {
@@ -716,13 +763,14 @@ namespace MultiArrayTools
 	MAO::linkIndicesTo(&mRunIndex);
     }
 
-    template <typename T, class ContractOperation, class Range, class MAOp>
-    MultiArrayContraction<T,ContractOperation,Range,MAOp>::
-    MultiArrayContraction(const ContractOperation& cop, const MAOp& mao,
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range,MAOps...>::
+    MultiArrayContraction(const ContractOperation& cop,
 			  const typename Range::IndexType& runIndex,
 			  const typename Range::IndexType& beginIndex,
-			  const typename Range::IndexType& endIndex) :
-	MultiArrayOperation<T,ContractOperation,MAOp>(cop, mao),
+			  const typename Range::IndexType& endIndex,
+			  const MAOps&... mao) :
+	MultiArrayOperation<T,ContractOperation,MAOps...>(cop, mao...),
 	mBeginIndex(beginIndex), mEndIndex(endIndex),
 	mRunIndex(runIndex)
     {
@@ -731,14 +779,16 @@ namespace MultiArrayTools
 
     
     // for the moment simplest case only:
-    template <typename T, class ContractOperation, class Range, class MAOp>
-    const T& MultiArrayContraction<T,ContractOperation,Range,MAOp>::get() const
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    const T& MultiArrayContraction<T,ContractOperation,Range,MAOps...>::get() const
     {
 	MAO::mOp.reset();
 	for(mRunIndex.copyPos( mBeginIndex ); mRunIndex.pos() != mEndIndex.pos(); ++mRunIndex){
-	    MAO::mOp(std::get<0>(MAO::mArgs).get() );
+	    OperationCall<sizeof...(MAOps)-1>::
+		template callOperation(MAO::mOp, MAO::mArgs);
+	    //MAO::mOp(std::get<0>(MAO::mArgs).get() );
 	}
-	MAO::mOp.endOp(MAO::mVal);
+	MAO::mOp.endOp();
 	return MAO::mOp();
     }
 }

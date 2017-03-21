@@ -26,10 +26,10 @@ namespace MultiArrayTools
 	
 	virtual const T& get() const = 0;
 
-	virtual void freeIndex();
+	virtual void freeIndex() const;
 	
     protected:
-	IndefinitIndexBase* mIibPtr = nullptr;
+        mutable IndefinitIndexBase* mIibPtr = nullptr;
     };
     
     
@@ -74,15 +74,17 @@ namespace MultiArrayTools
 	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
 	operator()(const Operation& op, const MAOps&... secs) const;
 
-	template < class Range2, class ContractOperation>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range> >
-	contract(const ContractOperation& cop, const std::string& indexName) const;
+	template < class Range2, class ContractOperation, class... MAOps>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>, MAOps...>
+	contract(const ContractOperation& cop, const std::string& indexName,
+		 const MAOps&... mao) const;
 	
-	template <class Range2, class ContractOperation>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range> >
+	template <class Range2, class ContractOperation, class... MAOps>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>, MAOps...>
 	contract(const ContractOperation& cop, const std::string& indexName,
 		 const typename Range2::IndexType& begin,
-		 const typename Range2::IndexType& end) const;
+		 const typename Range2::IndexType& end,
+		 const MAOps&... mao) const;
 
 	
 	template <class MAOp>
@@ -128,7 +130,7 @@ namespace MultiArrayTools
 
 	const Name& name() const;
 
-	virtual void freeIndex() override;
+	virtual void freeIndex() const override;
 
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
@@ -170,16 +172,18 @@ namespace MultiArrayTools
 	MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
 	operator()(const Operation& op, const MAOps&... secs) const;
 
-	template <class Range2, class ContractOperation>
-	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range> >
-	contract(const ContractOperation& cop, const std::string& indexName) const;
+	template <class Range2, class ContractOperation, class... MAOps>
+	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
+	contract(const ContractOperation& cop, const std::string& indexName,
+		 const MAOps&... mao) const;
 
 	
-	template <class Range2, class ContractOperation>
-	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range> >
+	template <class Range2, class ContractOperation, class... MAOps>
+	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
 	contract(const ContractOperation& cop, const std::string& indexName,
 		 const typename Range2::IndexType& begin,
-		 const typename Range2::IndexType& end) const;
+		 const typename Range2::IndexType& end,
+		 const MAOps&... mao) const;
 	
 	template <class MAOp>
 	auto operator+(const MAOp& sec) const -> decltype(operator()(std::plus<T>(), sec));
@@ -210,7 +214,7 @@ namespace MultiArrayTools
 
 	const Name& name() const;
 
-	virtual void freeIndex() override;
+	virtual void freeIndex() const override;
 
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
@@ -253,6 +257,19 @@ namespace MultiArrayTools
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
 	operator()(const Operation2& op, const MAOps2&... secs) const;
+
+	/*
+	template <class Range2, class ContractOperation>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
+	contract(const ContractOperation& cop, const std::string& indexName) const;
+
+	
+	template <class Range2, class ContractOperation>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
+	contract(const ContractOperation& cop, const std::string& indexName,
+		 const typename Range2::IndexType& begin,
+		 const typename Range2::IndexType& end) const;
+	*/
 	
 	template <class MAOp2>
 	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));
@@ -279,21 +296,23 @@ namespace MultiArrayTools
 	OBT mArgs; // include first arg also here !!!
     };
 
-    template <typename T, class ContractOperation, class Range, class MAOp>
-    class MultiArrayContraction : public MultiArrayOperation<T,ContractOperation,MAOp>
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    class MultiArrayContraction : public MultiArrayOperation<T,ContractOperation,MAOps...>
     {
     public:
 	typedef MultiArrayOperationBase<T> MAOB;
-	typedef MultiArrayOperation<T,ContractOperation,MAOp> MAO;
+	typedef MultiArrayOperation<T,ContractOperation,MAOps...> MAO;
 
-	MultiArrayContraction(const ContractOperation& cop, const MAOp& mao,
-			      const typename Range::IndexType& runIndex);
+	MultiArrayContraction(const ContractOperation& cop,
+			      const typename Range::IndexType& runIndex,
+			      const MAOps&... mao);
 
 	
-	MultiArrayContraction(const ContractOperation& cop, const MAOp& mao,
+	MultiArrayContraction(const ContractOperation& cop,
 			      const typename Range::IndexType& runIndex,
 			      const typename Range::IndexType& beginIndex,
-			      const typename Range::IndexType& endIndex);
+			      const typename Range::IndexType& endIndex,
+			      const MAOps&... mao);
 	
 	virtual const T& get() const override;
 

@@ -26,7 +26,7 @@ namespace {
 	    return res += a;
 	}
 	
-	void endOp(T& res) const {}
+	void endOp() const {}
 
 	void reset() const
 	{

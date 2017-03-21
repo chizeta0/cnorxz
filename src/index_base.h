@@ -40,7 +40,7 @@ namespace MultiArrayTools
 	virtual MultiRangeType rangeType() const = 0;
 
 	virtual bool link(IndefinitIndexBase* toLink);  
-	virtual void freeLinked();
+	virtual void freeLinked(); 
 	virtual bool linked() const;
 	virtual bool linkedTo(IndefinitIndexBase* link) const;
 	virtual void linkTo(IndefinitIndexBase* target) = 0; 
