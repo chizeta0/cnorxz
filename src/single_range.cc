@@ -56,24 +56,24 @@ namespace MultiArrayTools
 
     // specializations
 
-    SingleRange<int,RangeType::SPACE>::SingleRange(int begin, int end) :
+    SingleRange<int,RangeType::SPACE>::SingleRange(size_t ext) :
 	RangeBase<SingleIndex<int,RangeType::SPACE> >(),
-	mBegin(begin), mEnd(end) {}
+	mExt(ext) {}
     
     int SingleRange<int,RangeType::SPACE>::get(size_t pos) const
     {
-	return mBegin + pos;
+	return (pos <= mExt / 2) ? static_cast<int>( pos ) : static_cast<int>( pos ) - static_cast<int>( mExt );
     }
 
     size_t SingleRange<int,RangeType::SPACE>::getMeta(int metaPos) const
     {
-	return metaPos - mBegin;
+	return (metaPos < 0) ? metaPos + mExt : metaPos;
     }
 
     
     size_t SingleRange<int,RangeType::SPACE>::size() const
     {
-	return mEnd - mBegin;
+	return mExt;
     }
 
     

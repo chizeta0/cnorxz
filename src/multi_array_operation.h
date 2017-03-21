@@ -258,12 +258,12 @@ namespace MultiArrayTools
 	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
 	operator()(const Operation2& op, const MAOps2&... secs) const;
 
-	/*
+	
 	template <class Range2, class ContractOperation>
 	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
 	contract(const ContractOperation& cop, const std::string& indexName) const;
 
-	
+	/*
 	template <class Range2, class ContractOperation>
 	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
 	contract(const ContractOperation& cop, const std::string& indexName,
@@ -306,7 +306,6 @@ namespace MultiArrayTools
 	MultiArrayContraction(const ContractOperation& cop,
 			      const typename Range::IndexType& runIndex,
 			      const MAOps&... mao);
-
 	
 	MultiArrayContraction(const ContractOperation& cop,
 			      const typename Range::IndexType& runIndex,

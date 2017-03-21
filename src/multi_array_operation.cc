@@ -660,13 +660,14 @@ namespace MultiArrayTools
 				   MAOps2...>(op, *this, secs...);
     }
 
-    /*
+    
     template <typename T, class Operation, class... MAOps>
     template <class Range2, class ContractOperation>
     MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
     MultiArrayOperation<T,Operation,MAOps...>::
     contract(const ContractOperation& cop, const std::string& indexName) const
     {
+#error "HERE"
 	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
 	//typename Range2::IndexType ind = Range2().begin();
 	//ind.name(indexName);
@@ -674,7 +675,8 @@ namespace MultiArrayTools
 				     MultiArrayOperation<T,Operation,MAOps...> >(cop, *this, *ind);
 	
     }
-    
+
+    /*    
     template <typename T, class Operation, class... MAOps>
     template <class Range2, class ContractOperation>
     MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >

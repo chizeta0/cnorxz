@@ -96,7 +96,7 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(SingleRange);
 
-	SingleRange(int begin, int end);
+	SingleRange(size_t ext);
 	
 	virtual size_t size() const override;
 	
@@ -109,8 +109,7 @@ namespace MultiArrayTools
 	SingleIndex<int,RangeType::SPACE> end() const override;
 	
     protected:
-	int mBegin;
-	int mEnd;
+	size_t mExt;
     };
 
     template <>
