@@ -82,8 +82,8 @@ namespace MultiArrayTools
 	template <class Range2, class ContractOperation, class... MAOps>
 	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>, MAOps...>
 	contract(const ContractOperation& cop, const std::string& indexName,
-		 const typename Range2::IndexType& begin,
-		 const typename Range2::IndexType& end,
+		 size_t begin,
+		 size_t end,
 		 const MAOps&... mao) const;
 
 	
@@ -181,8 +181,8 @@ namespace MultiArrayTools
 	template <class Range2, class ContractOperation, class... MAOps>
 	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
 	contract(const ContractOperation& cop, const std::string& indexName,
-		 const typename Range2::IndexType& begin,
-		 const typename Range2::IndexType& end,
+		 size_t begin,
+		 size_t end,
 		 const MAOps&... mao) const;
 	
 	template <class MAOp>
@@ -310,8 +310,8 @@ namespace MultiArrayTools
 	
 	MultiArrayContraction(const ContractOperation& cop,
 			      const typename Range::IndexType& runIndex,
-			      const typename Range::IndexType& beginIndex,
-			      const typename Range::IndexType& endIndex,
+			      size_t begin,
+			      size_t end,
 			      const MAOps&... mao);
 	
 	virtual const T& get() const override;

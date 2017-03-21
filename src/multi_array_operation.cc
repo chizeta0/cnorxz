@@ -188,8 +188,8 @@ namespace MultiArrayTools
     MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>,MAOps...>
     MultiArrayOperationRoot<T,Range>::contract(const ContractOperation& cop,
 					       const std::string& indexName,
-					       const typename Range2::IndexType& begin,
-					       const typename Range2::IndexType& end,
+					       size_t begin,
+					       size_t end,
 					       const MAOps&... mao) const
     {
 	//typename Range2::IndexType ind;
@@ -465,8 +465,8 @@ namespace MultiArrayTools
     MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>,MAOps...>
     ConstMultiArrayOperationRoot<T,Range>::contract(const ContractOperation& cop,
 						    const std::string& indexName,
-						    const typename Range2::IndexType& begin,
-						    const typename Range2::IndexType& end,
+						    size_t begin,
+						    size_t end,
 						    const MAOps&... mao) const
     {
 	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
@@ -767,13 +767,15 @@ namespace MultiArrayTools
     MultiArrayContraction<T,ContractOperation,Range,MAOps...>::
     MultiArrayContraction(const ContractOperation& cop,
 			  const typename Range::IndexType& runIndex,
-			  const typename Range::IndexType& beginIndex,
-			  const typename Range::IndexType& endIndex,
+			  size_t begin,
+			  size_t end,
 			  const MAOps&... mao) :
 	MultiArrayOperation<T,ContractOperation,MAOps...>(cop, mao...),
-	mBeginIndex(beginIndex), mEndIndex(endIndex),
+	mBeginIndex(runIndex), mEndIndex(runIndex),
 	mRunIndex(runIndex)
     {
+	mBeginIndex.setPos(begin);
+	mEndIndex.setPos(end);
 	MAO::linkIndicesTo(&mRunIndex);
     }
 
