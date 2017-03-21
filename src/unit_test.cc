@@ -9,6 +9,33 @@
 namespace MAT = MultiArrayTools;
 
 namespace {
+
+    template <typename T>
+    struct sum
+    {
+    public:
+	sum() = default;
+
+	T& operator()() const
+	{
+	    return res;
+	}
+	
+	T& operator()(const T& a) const
+	{
+	    return res += a;
+	}
+	
+	void endOp(T& res) const {}
+
+	void reset() const
+	{
+	    res = static_cast<T>(0);
+	}
+	
+    private:
+	mutable T res = static_cast<T>(0);
+    };
     
     class OneDimTest : public ::testing::Test
     {
@@ -134,6 +161,32 @@ namespace {
 	Range3dAny r3d;
 	MultiArray3dAny ma;
 	//Slice2d3dAny sl;
+    };
+
+    class ContractionTest : public ::testing::Test
+    {
+    protected:
+	typedef MAT::SingleRange<char,MAT::RangeType::ANY> Range1dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny> Range2dAny;
+	typedef MAT::MultiRange<Range1dAny,Range1dAny,Range1dAny> Range3dAny;
+	typedef MAT::MultiArray<int,Range3dAny> MultiArray3dAny;
+	typedef MAT::Slice<int,Range2dAny,Range3dAny> Slice2d3dAny;
+	typedef MAT::MultiArray<int,Range2dAny> MultiArray2dAny;
+	
+	ContractionTest() : r1({'a','b','c'}), r2({'a','b','c','d'}), r3({'a','b'}),
+			    ra(r1,r3),
+			    rb(r1,r2),
+			    r3d(r1,r2,r3),
+			    ma(r3d, {-5,6,2,1,9,54,27,-7,-13,32,90,-67,
+					-10,16,-2,101,39,-64,81,-22,14,34,95,-62}) {}
+	
+	Range1dAny r1;
+	Range1dAny r2;
+	Range1dAny r3;
+	Range2dAny ra;
+	Range2dAny rb;
+	Range3dAny r3d;
+	MultiArray3dAny ma;
     };
     
     TEST_F(OneDimTest, CorrectExtensions)
@@ -453,6 +506,26 @@ namespace {
 
 	EXPECT_EQ(sl[j(j1 = 2, j2 = 0)], 14);
 	EXPECT_EQ(sl[j(j1 = 2, j2 = 1)], 34);
+    }
+
+    TEST_F(ContractionTest, ContractionWorks)
+    {
+	MultiArray2dAny ma2(ra);
+
+	ma2("alpha","gamma") = ma("alpha","beta","gamma").contract<Range1dAny>(sum<int>(),"beta");
+
+	auto i = ma2.beginIndex();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+
+	EXPECT_EQ(ma2[i(i1 = 0, i2 = 0)], 33);
+	EXPECT_EQ(ma2[i(i1 = 0, i2 = 1)], 54);
+
+	EXPECT_EQ(ma2[i(i1 = 1, i2 = 0)], 65);
+	EXPECT_EQ(ma2[i(i1 = 1, i2 = 1)], 82);
+
+	EXPECT_EQ(ma2[i(i1 = 2, i2 = 0)], 229);
+	EXPECT_EQ(ma2[i(i1 = 2, i2 = 1)], -114);
     }
     
 } // end namespace 

@@ -73,6 +73,17 @@ namespace MultiArrayTools
 	template <class Operation, class... MAOps>
 	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
 	operator()(const Operation& op, const MAOps&... secs) const;
+
+	template < class Range2, class ContractOperation>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range> >
+	contract(const ContractOperation& cop, const std::string& indexName) const;
+	
+	template <class Range2, class ContractOperation>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range> >
+	contract(const ContractOperation& cop, const std::string& indexName,
+		 const typename Range2::IndexType& begin,
+		 const typename Range2::IndexType& end) const;
+
 	
 	template <class MAOp>
 	auto operator+(const MAOp& sec) -> decltype(operator()(std::plus<T>(), sec));
@@ -131,13 +142,13 @@ namespace MultiArrayTools
 
 	void performAssignment(const MultiArrayOperationBase<T>& in);
 
+	/*
 	template <class RangeX>
 	MultiArrayOperationRoot& makeSlice(MultiArrayOperationRoot<T,RangeX>& in);
-
 	
 	template <class RangeX>
 	const MultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
-	
+	*/
 	MutableMultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
@@ -155,23 +166,20 @@ namespace MultiArrayTools
 	ConstMultiArrayOperationRoot(const MultiArrayBase<T,Range>& ma, const Name& nm);
 	ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in);
 
-	/*
-	const ConstMultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot& in);
-
-	template <class Range2>
-	const ConstMultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot<T,Range2>& in);
-
-	template <class Range2>
-	const ConstMultiArrayOperationRoot& operator=(const MultiArrayOperationRoot<T,Range2>& in);
-	*/
-
-	//template <class Operation, class... MAOps>
-	//MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-	//operator()(Operation& op, const MAOps&... secs) const;
-
 	template <class Operation, class... MAOps>
 	MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
 	operator()(const Operation& op, const MAOps&... secs) const;
+
+	template <class Range2, class ContractOperation>
+	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range> >
+	contract(const ContractOperation& cop, const std::string& indexName) const;
+
+	
+	template <class Range2, class ContractOperation>
+	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range> >
+	contract(const ContractOperation& cop, const std::string& indexName,
+		 const typename Range2::IndexType& begin,
+		 const typename Range2::IndexType& end) const;
 	
 	template <class MAOp>
 	auto operator+(const MAOp& sec) const -> decltype(operator()(std::plus<T>(), sec));
@@ -262,7 +270,6 @@ namespace MultiArrayTools
 	
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
-	//virtual T& get() override;
 	virtual const T& get() const override;
 
     protected:
@@ -272,8 +279,30 @@ namespace MultiArrayTools
 	OBT mArgs; // include first arg also here !!!
     };
 
+    template <typename T, class ContractOperation, class Range, class MAOp>
+    class MultiArrayContraction : public MultiArrayOperation<T,ContractOperation,MAOp>
+    {
+    public:
+	typedef MultiArrayOperationBase<T> MAOB;
+	typedef MultiArrayOperation<T,ContractOperation,MAOp> MAO;
 
+	MultiArrayContraction(const ContractOperation& cop, const MAOp& mao,
+			      const typename Range::IndexType& runIndex);
 
+	
+	MultiArrayContraction(const ContractOperation& cop, const MAOp& mao,
+			      const typename Range::IndexType& runIndex,
+			      const typename Range::IndexType& beginIndex,
+			      const typename Range::IndexType& endIndex);
+	
+	virtual const T& get() const override;
+
+    protected:
+	typename Range::IndexType mBeginIndex;
+	typename Range::IndexType mEndIndex;
+        mutable typename Range::IndexType mRunIndex;
+    };
+    
 }
 
 #include "multi_array_operation.cc"

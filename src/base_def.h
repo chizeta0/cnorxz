@@ -113,6 +113,10 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... MAOps>
     class MultiArrayOperation;
 
+    // multi_array_operation.h
+    template <typename T, class Operation, class Range, class MAOp>
+    class MultiArrayContraction;
+    
     // slice.h
     template <typename T, class Range, class MARange>
     class Slice;
