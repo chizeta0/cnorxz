@@ -175,6 +175,12 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;
 
 	template <class... NameTypes>
+	ConstMultiArrayOperationRoot<T,Range> operator()(bool x, const NameTypes&... str) const
+	{
+	    return MAB::operator()(str...);
+	}
+	
+	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
 
 	template <class NameType>

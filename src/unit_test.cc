@@ -178,7 +178,8 @@ namespace {
 			    rb(r1,r2),
 			    r3d(r1,r2,r3),
 			    ma(r3d, {-5,6,2,1,9,54,27,-7,-13,32,90,-67,
-					-10,16,-2,101,39,-64,81,-22,14,34,95,-62}) {}
+					-10,16,-2,101,39,-64,81,-22,14,34,95,-62}),
+			    max(ra, {-5,6,2,1,9,54}){}
 	
 	Range1dAny r1;
 	Range1dAny r2;
@@ -187,8 +188,10 @@ namespace {
 	Range2dAny rb;
 	Range3dAny r3d;
 	MultiArray3dAny ma;
+	MultiArray2dAny max;
     };
-    
+
+    /*
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);
@@ -507,7 +510,7 @@ namespace {
 	EXPECT_EQ(sl[j(j1 = 2, j2 = 0)], 14);
 	EXPECT_EQ(sl[j(j1 = 2, j2 = 1)], 34);
     }
-
+    */
     TEST_F(ContractionTest, ContractionWorks)
     {
 	MultiArray2dAny ma2(ra);
@@ -526,6 +529,27 @@ namespace {
 
 	EXPECT_EQ(ma2[i(i1 = 2, i2 = 0)], 229);
 	EXPECT_EQ(ma2[i(i1 = 2, i2 = 1)], -114);
+    }
+    
+    TEST_F(ContractionTest, ContractionWorks_2)
+    {
+	MultiArray2dAny ma2(ra);
+
+	ma2("alpha","gamma") = ma("alpha","beta","gamma").contract<Range1dAny>(sum<int>(),"beta")
+	    * max("alpha","gamma");
+
+	auto i = ma2.beginIndex();
+	auto i1 = i.template getIndex<0>();
+	auto i2 = i.template getIndex<1>();
+
+	EXPECT_EQ(ma2[i(i1 = 0, i2 = 0)], -275);
+	EXPECT_EQ(ma2[i(i1 = 0, i2 = 1)], 324);
+
+	EXPECT_EQ(ma2[i(i1 = 1, i2 = 0)], 130);
+	EXPECT_EQ(ma2[i(i1 = 1, i2 = 1)], 82);
+
+	EXPECT_EQ(ma2[i(i1 = 2, i2 = 0)], 2061);
+	EXPECT_EQ(ma2[i(i1 = 2, i2 = 1)], -6156);
     }
     
 } // end namespace 

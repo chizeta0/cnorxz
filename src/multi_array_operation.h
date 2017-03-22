@@ -22,6 +22,7 @@ namespace MultiArrayTools
 
 	virtual size_t argNum() const = 0;
 	const IndefinitIndexBase& index() const;
+	virtual IndefinitIndexBase* getLinked(const std::string& name) const = 0;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const = 0;
 	
 	virtual const T& get() const = 0;
@@ -65,7 +66,11 @@ namespace MultiArrayTools
 	
 	template <class Operation, class... MAOps>
 	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);
-	
+
+	template <class Operation, class Range2, class... MAOps>
+	MultiArrayOperationRoot<T,Range>&
+	operator=(const MultiArrayContraction<T,Operation,Range2,MAOps...>& in);
+
 	//template <class Operation, class... MAOps>
 	//MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
 	//operator()(Operation& op, const MAOps&... secs) const;
@@ -122,7 +127,8 @@ namespace MultiArrayTools
 	// set index -> implement !!!!!
 	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);
 	const MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
-	
+
+	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual T& get() override;
@@ -207,7 +213,8 @@ namespace MultiArrayTools
 
 	// set index -> implement !!!!!
 	const ConstMultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
-	
+
+	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual const T& get() const override;
@@ -259,17 +266,11 @@ namespace MultiArrayTools
 	operator()(const Operation2& op, const MAOps2&... secs) const;
 
 	
-	template <class Range2, class ContractOperation>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
-	contract(const ContractOperation& cop, const std::string& indexName) const;
-
-	/*
-	template <class Range2, class ContractOperation>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...> >
+	template <class Range2, class ContractOperation, class... MAOps2>
+	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
 	contract(const ContractOperation& cop, const std::string& indexName,
-		 const typename Range2::IndexType& begin,
-		 const typename Range2::IndexType& end) const;
-	*/
+		 const MAOps2&... mao) const;
+
 	
 	template <class MAOp2>
 	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));
@@ -284,7 +285,8 @@ namespace MultiArrayTools
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
 	
 	virtual size_t argNum() const override;
-	
+
+	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual const T& get() const override;
@@ -296,6 +298,64 @@ namespace MultiArrayTools
 	OBT mArgs; // include first arg also here !!!
     };
 
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    class MultiArrayContraction : public MultiArrayOperationBase<T>
+    {
+    public:
+
+	typedef MultiArrayOperationBase<T> MAOB;
+	typedef std::tuple<MAOps...> OBT;
+	
+	MultiArrayContraction(ContractOperation& op, const MAOps&... secs);
+	MultiArrayContraction(const ContractOperation& op, const MAOps&... secs);
+
+	template <class Operation2, class... MAOps2>
+	MultiArrayOperation<T,Operation2,MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
+	operator()(Operation2& op, const MAOps2&... secs) const;
+	
+	template <class Operation2, class... MAOps2>
+	MultiArrayOperation<T,Operation2,MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
+	operator()(const Operation2& op, const MAOps2&... secs) const;
+
+	
+	template <class Range2, class ContractOperation2, class... MAOps2>
+	MultiArrayContraction<T,ContractOperation2,Range2,
+			      MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
+	contract(const ContractOperation2& cop, const std::string& indexName,
+		 const MAOps2&... mao) const;
+
+	
+	template <class MAOp2>
+	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));
+
+	template <class MAOp2>
+	auto operator-(const MAOp2& sec) -> decltype(operator()(std::minus<T>(), sec));
+
+	template <class MAOp2>
+	auto operator*(const MAOp2& sec) -> decltype(operator()(std::multiplies<T>(), sec));
+
+	template <class MAOp2>
+	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
+	
+	virtual size_t argNum() const override;
+
+	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
+
+	virtual const T& get() const override;
+
+    protected:
+
+ 	mutable T mVal;
+	ContractOperation mOp;
+	OBT mArgs; // include first arg also here !!!
+	typename Range::IndexType mBeginIndex;
+	typename Range::IndexType mEndIndex;
+        mutable typename Range::IndexType mRunIndex;
+
+    };
+
+    /*
     template <typename T, class ContractOperation, class Range, class... MAOps>
     class MultiArrayContraction : public MultiArrayOperation<T,ContractOperation,MAOps...>
     {
@@ -312,7 +372,7 @@ namespace MultiArrayTools
 			      size_t begin,
 			      size_t end,
 			      const MAOps&... mao);
-	
+
 	virtual const T& get() const override;
 
     protected:
@@ -320,7 +380,7 @@ namespace MultiArrayTools
 	typename Range::IndexType mEndIndex;
         mutable typename Range::IndexType mRunIndex;
     };
-    
+    */
 }
 
 #include "multi_array_operation.cc"
