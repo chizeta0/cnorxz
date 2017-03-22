@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <tuple>
+#include <cmath>
 
 #include "base_def.h"
 #include "index_base.h"
@@ -53,6 +54,7 @@ namespace MultiArrayTools
 	//typedef decltype(MultiArray<T,Range>().begin()) IndexType;
 
 	MultiArrayOperationRoot(MutableMultiArrayBase<T,Range>& ma, const Name& nm);
+	MultiArrayOperationRoot(const MultiArrayOperationRoot& in);
 	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
 
 	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot& in);
@@ -173,7 +175,8 @@ namespace MultiArrayTools
 
 	ConstMultiArrayOperationRoot(const MultiArrayBase<T,Range>& ma, const Name& nm);
 	ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in);
-
+	ConstMultiArrayOperationRoot(const ConstMultiArrayOperationRoot& in);
+	
 	template <class Operation, class... MAOps>
 	MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
 	operator()(const Operation& op, const MAOps&... secs) const;
@@ -305,10 +308,19 @@ namespace MultiArrayTools
 
 	typedef MultiArrayOperationBase<T> MAOB;
 	typedef std::tuple<MAOps...> OBT;
-	
-	MultiArrayContraction(ContractOperation& op, const MAOps&... secs);
-	MultiArrayContraction(const ContractOperation& op, const MAOps&... secs);
 
+	MultiArrayContraction(const ContractOperation& op,
+			      //const std::string runIndexName,
+			      const typename Range::IndexType& runIndex,
+			      const MAOps&... args);
+
+	MultiArrayContraction(const ContractOperation& op,
+			      //const std::string runIndexName,
+			      const typename Range::IndexType& runIndex,
+			      size_t begin, size_t end,
+			      const MAOps&... args);
+
+	
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
 	operator()(Operation2& op, const MAOps2&... secs) const;

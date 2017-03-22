@@ -439,6 +439,26 @@ namespace MultiArrayTools
 	}
     }
 
+    template <typename T, class Range>
+    template <class... NameTypes>
+    ConstMultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameTypes&... str) const
+    {
+	return ConstMultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+    }
+
+    template <typename T, class Range>
+    template <class NameType>
+    ConstMultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameType& name, bool master) const
+    {
+	//CHECK;
+	if(master){
+	    return ConstMultiArrayOperationRoot<T,Range>(*this, name);
+	}
+	else {
+	    return operator()(name);
+	}
+    }
+
     
     /*******************
      *  MultiArray     *	     

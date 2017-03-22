@@ -191,7 +191,6 @@ namespace {
 	MultiArray2dAny max;
     };
 
-    /*
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);
@@ -510,7 +509,7 @@ namespace {
 	EXPECT_EQ(sl[j(j1 = 2, j2 = 0)], 14);
 	EXPECT_EQ(sl[j(j1 = 2, j2 = 1)], 34);
     }
-    */
+
     TEST_F(ContractionTest, ContractionWorks)
     {
 	MultiArray2dAny ma2(ra);
@@ -542,7 +541,7 @@ namespace {
 	auto i1 = i.template getIndex<0>();
 	auto i2 = i.template getIndex<1>();
 
-	EXPECT_EQ(ma2[i(i1 = 0, i2 = 0)], -275);
+	EXPECT_EQ(ma2[i(i1 = 0, i2 = 0)], -165);
 	EXPECT_EQ(ma2[i(i1 = 0, i2 = 1)], 324);
 
 	EXPECT_EQ(ma2[i(i1 = 1, i2 = 0)], 130);

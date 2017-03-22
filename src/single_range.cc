@@ -194,7 +194,7 @@ namespace MultiArrayTools
 	#ifdef LORENTZ_DIMENSION
 	return LORENTZ_DIMENSION;
 	#else
-	return 1; // 4
+	return 4; // 4
 	#endif
     }
 
