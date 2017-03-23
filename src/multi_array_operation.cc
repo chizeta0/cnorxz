@@ -20,7 +20,7 @@ namespace MultiArrayTools
     {
 	return *mIibPtr;
     }
-
+    
     template <typename T>
     void MultiArrayOperationBase<T>::freeIndex() const
     {
@@ -306,6 +306,7 @@ namespace MultiArrayTools
     template <typename T, class Range>
     void MultiArrayOperationRoot<T,Range>::linkIndicesTo(IndefinitIndexBase* target) const
     {
+	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->linkTo(target);
     }
 
@@ -553,6 +554,7 @@ namespace MultiArrayTools
     template <typename T, class Range>
     void ConstMultiArrayOperationRoot<T,Range>::linkIndicesTo(IndefinitIndexBase* target) const
     {
+	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->linkTo(target);
     }
 
@@ -798,7 +800,8 @@ namespace MultiArrayTools
     {
 	mBeginIndex.setPos(0);
 	mEndIndex.setPos(mRunIndex.max());
-	linkIndicesTo(&mRunIndex);
+	// DON'T link here !!
+	//linkIndicesTo(&mRunIndex);
     }
 
     template <typename T, class ContractOperation, class Range, class... MAOps>
@@ -815,7 +818,8 @@ namespace MultiArrayTools
     {
 	mBeginIndex.setPos(begin);
 	mEndIndex.setPos(end);
-	linkIndicesTo(&mRunIndex);
+	// DON'T link here !!
+	//linkIndicesTo(&mRunIndex);
     }
 
     
@@ -897,10 +901,19 @@ namespace MultiArrayTools
     {
 	return LinkedIndexGetter<sizeof...(MAOps)-1>::getLinked(mArgs, name, nullptr);
     }
+
+    template <typename T, class ContractOperation, class Range, class... MAOps>    
+    void MultiArrayContraction<T,ContractOperation,Range,MAOps...>::setInternalLinks() const
+    {
+	linkIndicesTo(&mRunIndex);
+    }
     
     template <typename T, class ContractOperation, class Range, class... MAOps>    
     void MultiArrayContraction<T,ContractOperation,Range,MAOps...>::linkIndicesTo(IndefinitIndexBase* target) const
     {
+	if(target != &mRunIndex){
+	    setInternalLinks();
+	}
 	TupleIndicesLinker<sizeof...(MAOps)-1>::linkTupleIndicesTo(mArgs, target);
     }
 

@@ -15,7 +15,7 @@ include_directories(src)
 
 add_executable(utest src/unit_test.cc)
 target_link_libraries(utest ${GTEST_BOTH_LIBRARIES})
-add_test(AllTests utest)
+add_test(NAME utest COMMAND utest)
 
 #install(TARGETS testm DESTINATION install)
 

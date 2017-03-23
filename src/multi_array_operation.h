@@ -27,6 +27,8 @@ namespace MultiArrayTools
 	
 	virtual const T& get() const = 0;
 
+	virtual void setInternalLinks() const {}
+	
 	virtual void freeIndex() const;
 	
     protected:
@@ -285,7 +287,7 @@ namespace MultiArrayTools
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
 	
 	virtual size_t argNum() const override;
-
+	
 	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
 	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
@@ -344,6 +346,8 @@ namespace MultiArrayTools
 
 	template <class MAOp2>
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
+
+	virtual void setInternalLinks() const override;
 	
 	virtual size_t argNum() const override;
 
