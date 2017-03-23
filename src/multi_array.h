@@ -192,12 +192,6 @@ namespace MultiArrayTools
 	template <class NameType>
 	MultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master);
 
-	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str) const;
-	
-	template <class NameType>
-	ConstMultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master) const;
-	
     };
     
     template <typename T, class Range>
