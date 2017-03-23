@@ -191,7 +191,6 @@ namespace {
 	MultiArray2dAny max;
     };
 
-
     TEST_F(OneDimTest, CorrectExtensions)
     {
 	EXPECT_EQ(ma.size(), 5);

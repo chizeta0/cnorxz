@@ -179,6 +179,12 @@ namespace MultiArrayTools
 	{
 	    return MAB::operator()(str...);
 	}
+
+	template <class... NameTypes>
+	ConstMultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str) const;
+
+	template <class NameType>
+	ConstMultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master) const;
 	
 	template <class... NameTypes>
 	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
