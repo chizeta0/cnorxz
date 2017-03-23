@@ -305,9 +305,17 @@ namespace MultiArrayTools
 
 	typedef MultiArrayOperationBase<T> MAOB;
 	typedef std::tuple<MAOps...> OBT;
-	
-	MultiArrayContraction(ContractOperation& op, const MAOps&... secs);
-	MultiArrayContraction(const ContractOperation& op, const MAOps&... secs);
+
+	MultiArrayContraction(const ContractOperation& cop,
+			      const typename Range::IndexType& runIndex,
+			      const MAOps&... args);
+
+	MultiArrayContraction(const ContractOperation& cop,
+			      const typename Range::IndexType& runIndex,
+			      size_t begin,
+			      size_t end,
+			      const MAOps&... mao);
+
 
 	template <class Operation2, class... MAOps2>
 	MultiArrayOperation<T,Operation2,MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>

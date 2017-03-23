@@ -777,7 +777,7 @@ namespace MultiArrayTools
     {
 	mVal = OperationCall<sizeof...(MAOps)-1>::
 	    template callOperation(mOp, mArgs);
-	std::cout << mVal << std::endl;
+	//std::cout << mVal << std::endl;
 	return mVal;
     }
 
@@ -788,12 +788,37 @@ namespace MultiArrayTools
 
     template <typename T, class ContractOperation, class Range, class... MAOps>
     MultiArrayContraction<T,ContractOperation,Range,MAOps...>::
-    MultiArrayContraction(const ContractOperation& op,
+    MultiArrayContraction(const ContractOperation& cop,
 			  const typename Range::IndexType& runIndex,
-			  const MAOps&... args) :
-	mOp(op),
-	mArgs(std::make_tuple(args...)) {}
+			  const MAOps&... mao) :
+	mOp(cop),
+	mArgs(std::make_tuple(mao...)),
+    	mBeginIndex(runIndex), mEndIndex(runIndex),
+	mRunIndex(runIndex)
+    {
+	mBeginIndex.setPos(0);
+	mEndIndex.setPos(mRunIndex.max());
+	linkIndicesTo(&mRunIndex);
+    }
 
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    MultiArrayContraction<T,ContractOperation,Range,MAOps...>::
+    MultiArrayContraction(const ContractOperation& cop,
+			  const typename Range::IndexType& runIndex,
+			  size_t begin,
+			  size_t end,
+			  const MAOps&... mao) :
+	mOp(cop),
+	mArgs(std::make_tuple(mao...)),
+	mBeginIndex(runIndex), mEndIndex(runIndex),
+	mRunIndex(runIndex)
+    {
+	mBeginIndex.setPos(begin);
+	mEndIndex.setPos(end);
+	linkIndicesTo(&mRunIndex);
+    }
+
+    
     // !!!!!
     
     template <typename T, class ContractOperation, class Range, class... MAOps>
@@ -815,8 +840,8 @@ namespace MultiArrayTools
     }
 
     
-    template <typename T, class ContractOperation2, class Range, class... MAOps>
-    template <class Range2, class ContractOperation, class... MAOps2>
+    template <typename T, class ContractOperation, class Range, class... MAOps>
+    template <class Range2, class ContractOperation2, class... MAOps2>
     MultiArrayContraction<T,ContractOperation2,Range2,
 			  MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
     MultiArrayContraction<T,ContractOperation,Range,MAOps...>::
@@ -890,7 +915,7 @@ namespace MultiArrayTools
 	    //MAO::mOp(std::get<0>(MAO::mArgs).get() );
 	}
 	mOp.endOp();
-	std::cout << MAO::mOp() << std::endl;
+	//std::cout << mOp() << std::endl;
 	return mOp();
     }
 
