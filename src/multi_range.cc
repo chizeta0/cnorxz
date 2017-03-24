@@ -80,7 +80,7 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static inline void plus(MultiIndex& index, int num)
 	    {
-		IndefinitIndexBase& si = index.get(DIGIT);
+		auto& si = index.template getIndex<DIGIT>();
 		si.setPosRel(num);
 		size_t oor = si.outOfRange();
 		if(oor > 0){
@@ -96,26 +96,28 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static inline void pp(MultiIndex& index)
 	    {
-		IndefinitIndexBase& si = index.get(DIGIT);
-		si.setPosRel(1);
-		size_t oor = si.outOfRange();
-		if(oor > 0){
+		auto& si = index.template getIndex<DIGIT>();
+		//IndefinitIndexBase& si = index.get(DIGIT);
+		if(si.pos() == si.max()-1){
+		    si.setPos(0);
 		    SubIteration<DIGIT-1>::pp(index);
-		    // set pos to zero ??
-		    SubIteration<DIGIT>::plus(index, -si.max()); // This can be done faster because we know the pos
+		}
+		else {
+		    si.setPosRel(1);
 		}
 	    }
 
 	    template <class MultiIndex>
 	    static inline void mm(MultiIndex& index)
 	    {
-		IndefinitIndexBase& si = index.get(DIGIT);
-		si.setPosRel(-1);
-		size_t oor = si.outOfRange();
-		if(oor < 0){
+		auto& si = index.template getIndex<DIGIT>();
+		//IndefinitIndexBase& si = index.get(DIGIT);
+		if(si.pos() == si.max()-1){
+		    si.setPos(si.max()-1);
 		    SubIteration<DIGIT-1>::mm(index);
-		    // or to max here ??
-		    SubIteration<DIGIT>::plus(index, si.max()); // This can be done faster because we know the pos
+		}
+		else {
+		    si.setPosRel(1);
 		}
 	    }
 	};
@@ -126,21 +128,24 @@ namespace MultiArrayTools
 	    template <class MultiIndex>
 	    static inline void plus(MultiIndex& index, int num)
 	    {
-		IndefinitIndexBase& si = index.get(0);
+		auto& si = index.template getIndex<0>();
+		//IndefinitIndexBase& si = index.get(0);
 		si.setPosRel(num);
 	    }
 
 	    template <class MultiIndex>
 	    static inline void pp(MultiIndex& index)
 	    {
-		IndefinitIndexBase& si = index.get(0);
+		auto& si = index.template getIndex<0>();
+		//IndefinitIndexBase& si = index.get(0);
 		si.setPosRel(1);
 	    }
 
 	    template <class MultiIndex>
 	    static inline void mm(MultiIndex& index)
 	    {
-		IndefinitIndexBase& si = index.get(0);
+		auto& si = index.template getIndex<0>();
+		//IndefinitIndexBase& si = index.get(0);
 		si.setPosRel(-1);
 	    }
 	};

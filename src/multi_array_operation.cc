@@ -44,7 +44,7 @@ namespace MultiArrayTools
 	std::cout << "assignment: " << endPos << " elements" << std::endl;
 	// assignment loop
 	for(iref = mArrayRef.beginIndex().pos(); iref != mArrayRef.endIndex(); ++iref){
-	    std::cout << iref.pos() << '\r' << std::flush;
+	    //std::cout << iref.pos() << '\r' << std::flush;
 	    get() = in.get();
 	    //assert(not std::isnan( get() ));
 	}
