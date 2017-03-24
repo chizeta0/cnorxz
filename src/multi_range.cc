@@ -74,24 +74,76 @@ namespace MultiArrayTools
 	};
 
 	// rewrite !!
-	template <class MultiIndex>
-	inline void plus(MultiIndex& index, size_t digit, int num)
+	template <size_t DIGIT>
+	struct SubIteration
 	{
-	    IndefinitIndexBase& si = index.get(digit);
-	    si.setPosRel(num);
-	    //si.setPos( si.pos() + num );
-	    size_t oor = si.outOfRange();
-	    if(digit){
+	    template <class MultiIndex>
+	    static inline void plus(MultiIndex& index, int num)
+	    {
+		IndefinitIndexBase& si = index.get(DIGIT);
+		si.setPosRel(num);
+		size_t oor = si.outOfRange();
 		if(oor > 0){
-		    plus(index, digit - 1, 1);
-		    plus(index, digit, -si.max());
+		    SubIteration<DIGIT-1>::pp(index);
+		    SubIteration<DIGIT>::plus(index, -si.max());
 		}
 		else if(oor < 0){
-		    plus(index, digit - 1, -1);
-		    plus(index, digit, si.max());
+		    SubIteration<DIGIT-1>::mm(index);
+		    SubIteration<DIGIT>::plus(index, si.max());
 		}
 	    }
-	}
+
+	    template <class MultiIndex>
+	    static inline void pp(MultiIndex& index)
+	    {
+		IndefinitIndexBase& si = index.get(DIGIT);
+		si.setPosRel(1);
+		size_t oor = si.outOfRange();
+		if(oor > 0){
+		    SubIteration<DIGIT-1>::pp(index);
+		    // set pos to zero ??
+		    SubIteration<DIGIT>::plus(index, -si.max()); // This can be done faster because we know the pos
+		}
+	    }
+
+	    template <class MultiIndex>
+	    static inline void mm(MultiIndex& index)
+	    {
+		IndefinitIndexBase& si = index.get(DIGIT);
+		si.setPosRel(-1);
+		size_t oor = si.outOfRange();
+		if(oor < 0){
+		    SubIteration<DIGIT-1>::mm(index);
+		    // or to max here ??
+		    SubIteration<DIGIT>::plus(index, si.max()); // This can be done faster because we know the pos
+		}
+	    }
+	};
+
+	template <>
+	struct SubIteration<0>
+	{
+	    template <class MultiIndex>
+	    static inline void plus(MultiIndex& index, int num)
+	    {
+		IndefinitIndexBase& si = index.get(0);
+		si.setPosRel(num);
+	    }
+
+	    template <class MultiIndex>
+	    static inline void pp(MultiIndex& index)
+	    {
+		IndefinitIndexBase& si = index.get(0);
+		si.setPosRel(1);
+	    }
+
+	    template <class MultiIndex>
+	    static inline void mm(MultiIndex& index)
+	    {
+		IndefinitIndexBase& si = index.get(0);
+		si.setPosRel(-1);
+	    }
+	};
 
 	template <size_t N>
 	struct TupleNamer
@@ -361,7 +413,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	plus(*this, sizeof...(Indices)-1, 1);
+	SubIteration<sizeof...(Indices)-1>::pp(*this);
+	//plus(*this, sizeof...(Indices)-1, 1);
 	IIB::setPosRel(1);
 	return *this;
     }
@@ -369,7 +422,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	plus(*this, sizeof...(Indices)-1, -1);
+	SubIteration<sizeof...(Indices)-1>::mm(*this);
+	//plus(*this, sizeof...(Indices)-1, -1);
 	IIB::setPosRel(-1);
 	return *this;
     }
@@ -377,7 +431,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator+=(int n)
     {
-	plus(*this, sizeof...(Indices)-1, n);
+	SubIteration<sizeof...(Indices)-1>::plus(*this, n);
+	//plus(*this, sizeof...(Indices)-1, n);
 	IIB::setPosRel(n);
 	return *this;
     }
@@ -385,7 +440,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator-=(int n)
     {
-	plus(*this, sizeof...(Indices)-1, -n);
+	SubIteration<sizeof...(Indices)-1>::plus(*this, -n);
+	//plus(*this, sizeof...(Indices)-1, -n);
 	IIB::setPosRel(-n);
 	return *this;
     }
