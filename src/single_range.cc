@@ -96,6 +96,41 @@ namespace MultiArrayTools
 
     // 
     
+    SingleRange<size_t,RangeType::SPACE>::SingleRange(size_t ext) :
+	RangeBase<SingleIndex<size_t,RangeType::SPACE> >(),
+	mExt(ext) {}
+    
+    size_t SingleRange<size_t,RangeType::SPACE>::get(size_t pos) const
+    {
+	return pos;
+    }
+
+    size_t SingleRange<size_t,RangeType::SPACE>::getMeta(size_t metaPos) const
+    {
+	return metaPos;
+    }
+    
+    size_t SingleRange<size_t,RangeType::SPACE>::size() const
+    {
+	return mExt;
+    }
+    
+    MultiRangeType SingleRange<size_t,RangeType::SPACE>::type() const
+    {
+	return MultiRangeType(RangeType::SPACE);
+    }
+   
+    SingleIndex<size_t,RangeType::SPACE> SingleRange<size_t,RangeType::SPACE>::begin() const
+    {
+	return SingleIndex<size_t,RangeType::SPACE>(this, 0);
+    }
+    
+    SingleIndex<size_t,RangeType::SPACE> SingleRange<size_t,RangeType::SPACE>::end() const
+    {
+	return SingleIndex<size_t,RangeType::SPACE>(this, size());
+    }
+
+    // 
     
     SingleRange<size_t,RangeType::ENSEMBLE>::SingleRange(size_t num) :
 	RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >(),

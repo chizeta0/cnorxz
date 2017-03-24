@@ -113,6 +113,30 @@ namespace MultiArrayTools
     };
 
     template <>
+    class SingleRange<size_t,RangeType::SPACE> : public RangeBase<SingleIndex<size_t,RangeType::SPACE> >
+    {
+    public:
+	typedef typename RangeBase<SingleIndex<int,RangeType::SPACE> >::IndexType IndexType;
+	
+	DEFAULT_MEMBERS(SingleRange);
+
+	SingleRange(size_t ext);
+	
+	virtual size_t size() const override;
+	
+	size_t get(size_t pos) const;
+	size_t getMeta(size_t metaPos) const;
+
+	virtual MultiRangeType type() const override;
+	
+	SingleIndex<size_t,RangeType::SPACE> begin() const override;
+	SingleIndex<size_t,RangeType::SPACE> end() const override;
+	
+    protected:
+	size_t mExt;
+    };
+
+    template <>
     class SingleRange<size_t,RangeType::ENSEMBLE> : public RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >
     {
     public:
