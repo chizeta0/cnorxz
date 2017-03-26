@@ -368,33 +368,6 @@ namespace MultiArrayTools
         mutable typename Range::IndexType mRunIndex;
 
     };
-
-    /*
-    template <typename T, class ContractOperation, class Range, class... MAOps>
-    class MultiArrayContraction : public MultiArrayOperation<T,ContractOperation,MAOps...>
-    {
-    public:
-	typedef MultiArrayOperationBase<T> MAOB;
-	typedef MultiArrayOperation<T,ContractOperation,MAOps...> MAO;
-
-	MultiArrayContraction(const ContractOperation& cop,
-			      const typename Range::IndexType& runIndex,
-			      const MAOps&... mao);
-	
-	MultiArrayContraction(const ContractOperation& cop,
-			      const typename Range::IndexType& runIndex,
-			      size_t begin,
-			      size_t end,
-			      const MAOps&... mao);
-
-	virtual const T& get() const override;
-
-    protected:
-	typename Range::IndexType mBeginIndex;
-	typename Range::IndexType mEndIndex;
-        mutable typename Range::IndexType mRunIndex;
-    };
-    */
 }
 
 #include "multi_array_operation.cc"
