@@ -513,6 +513,66 @@ namespace MultiArrayTools
 	MAOB::mIibPtr->name(mNm);
     }
 
+    /********************************
+     *   MultiArrayOperationMap     *
+     ********************************/
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::
+    MultiArrayOperationMap(MultiArrayOperationRoot<T,OutRange>& root, const MapFunction mf) :
+	MultiArrayOperationBase<T>(),
+	mMF(mf),
+	mRoot(root)
+	//mIndex(mArrayRef.beginIndex()),
+	//mNm(nm)
+    {
+	MAOB::mIibPtr = &mIndex;
+	//MAOB::mIibPtr->name(nm);
+	//mIndex.name(nm);
+    }
+	
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,InRange>& in)
+    {
+	mIndex = dynamic_cast<typename InRange::IndexType&>( in.getIndex() );
+	MAOB::mIibPtr = &mIndex;
+	mNm = in.name();
+	mIndex.setPos( mIndex.max() );
+	typename OutRange::IndexType endIndex = mIndex;
+
+	// Implement Map Functions !!!!
+	mRoot.linkIndicesTo( &mMF.index() );
+	mMF.linkIndicesTo( &mIndex );
+
+	MultiArray<size_t,OutRange> cnt(mRoot->range());
+	auto cnto = cnt(mRoot.name(), true);
+	cnto.linkIndicesTo( &mMF.index() )
+	
+	for(mIndex.setPos(0); mIndex != endIndex; ++mIndex){
+	    mRoot.get() += in.get();
+	    ++cnto.get();
+	}
+	mRoot /= cnto;
+    }
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    virtual size_t argNum() const override;
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    virtual void setInternalLinks() const override;
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    virtual const T& get() const override;
+
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    virtual T& get() override;
+    
     
     /*****************************
      *   MultiArrayOperation     *

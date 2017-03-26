@@ -154,13 +154,6 @@ namespace MultiArrayTools
 
 	void performAssignment(const MultiArrayOperationBase<T>& in);
 
-	/*
-	template <class RangeX>
-	MultiArrayOperationRoot& makeSlice(MultiArrayOperationRoot<T,RangeX>& in);
-	
-	template <class RangeX>
-	const MultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
-	*/
 	MutableMultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
@@ -238,19 +231,37 @@ namespace MultiArrayTools
 	
     protected:
 
-	/*
-	template <class RangeX>
-	const ConstMultiArrayOperationRoot& makeConstSlice(const ConstMultiArrayOperationRoot<T,RangeX>& in);
-
-	template <class RangeX>
-	const ConstMultiArrayOperationRoot& makeConstSlice(const MultiArrayOperationRoot<T,RangeX>& in);
-	*/
-	// const
 	MultiArrayBase<T,Range> const& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
     };
 
+    template <typename T, class MapFunction, class InRange, class OutRange>
+    class MultiArrayOperationMap : public MutableMultiArrayOperationBase<T>
+    {
+    public:
+	typedef MultiArrayOperationBase<T> MAOB;
+	
+	MultiArrayOperationMap(MultiArrayOperationRoot<T,OutRange>& root, const MapFunction mf);
+	MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,InRange>& in);
+
+	virtual size_t argNum() const override;
+
+	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
+	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
+
+	virtual void setInternalLinks() const override;
+	
+	virtual const T& get() const override;
+	virtual T& get() override;
+	// !!!!
+    protected:
+	MapFunction mMF;
+	MultiArrayOperationRoot<T,OutRange>& mRoot;
+	mutable IndexType mIndex; // Index of incoming range
+	Name mNm; // Name of incoming range
+    };
+    
     template <typename T, class Operation, class... MAOps>
     class MultiArrayOperation : public MultiArrayOperationBase<T>
     {

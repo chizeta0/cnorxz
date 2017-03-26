@@ -211,6 +211,8 @@ namespace MultiArrayTools
 	template <class Range2, class Range3>
 	MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
 
+	// implement contstructor using FunctionalMultiArray as Input !!!
+	
 	template <class Range2, class Range3>
 	MultiArray& operator=(const MultiArray<MultiArray<T,Range2>,Range3> in);
 	
@@ -231,6 +233,26 @@ namespace MultiArrayTools
 	std::vector<T> mCont;
     };
 
+    template <typename T, class Range>
+    class FunctionalMultiArray : public MultiArrayBase<T>
+    {
+    public:
+	typedef MultiArrayBase<T,Range> MAB;
+	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
+
+	DEFAULT_MEMBERS(FunctionalMultiArray);
+	FunctionalMultiArray(const Range& range, /*Function*/);
+
+	T& operator[](const typename Range::IndexType& i) override;
+	const T& operator[](const typename Range::IndexType& i) const override;
+
+	virtual bool isConst() const override;	
+	virtual bool isSlice() const override;
+
+    protected:
+	// FUNCTION !!!!
+    };
+    
 }
 
 #include "multi_array.cc"
