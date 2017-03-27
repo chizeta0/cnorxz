@@ -532,11 +532,13 @@ namespace MultiArrayTools
     }
 	
     template <typename T, class MapFunction, class InRange, class OutRange>
-    MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,InRange>& in)
+    MultiArrayOperationMap& MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::
+    operator=(const ConstMultiArrayOperationRoot<T,InRange>& in)
     {
 	mIndex = dynamic_cast<typename InRange::IndexType&>( in.getIndex() );
 	MAOB::mIibPtr = &mIndex;
 	mNm = in.name();
+	mIndex.name(mNm); // to be sure...
 	mIndex.setPos( mIndex.max() );
 	typename OutRange::IndexType endIndex = mIndex;
 
@@ -546,34 +548,51 @@ namespace MultiArrayTools
 
 	MultiArray<size_t,OutRange> cnt(mRoot->range());
 	auto cnto = cnt(mRoot.name(), true);
-	cnto.linkIndicesTo( &mMF.index() )
+	cnto.linkIndicesTo( &mMF.index() );
 	
-	for(mIndex.setPos(0); mIndex != endIndex; ++mIndex){
-	    mRoot.get() += in.get();
+	for(mIndex.setPos(0), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){
+	    get() += in.get();
 	    ++cnto.get();
 	}
+	// CHECK whether T / size_t mixture works!!
 	mRoot /= cnto;
     }
 
     template <typename T, class MapFunction, class InRange, class OutRange>
-    virtual size_t argNum() const override;
+    size_t MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::argNum() const
+    {
+	return 1;
+    }
 
     template <typename T, class MapFunction, class InRange, class OutRange>
-    virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
+    IndefinitIndexBase* MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::
+    getLinked(const std::string& name) const
+    {
+	return mRoot.getLinked(name);
+    }
 
     template <typename T, class MapFunction, class InRange, class OutRange>
-    virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
+    void MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::linkIndicesTo(IndefinitIndexBase* target) const
+    {
+	mRoot.linkIndicesTo(target);
+    }
 
     template <typename T, class MapFunction, class InRange, class OutRange>
-    virtual void setInternalLinks() const override;
+    void MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::setInternalLinks() const
+    { }
 
     template <typename T, class MapFunction, class InRange, class OutRange>
-    virtual const T& get() const override;
+    const T& MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::get() const
+    {
+	return mRoot.get();
+    }
 
     template <typename T, class MapFunction, class InRange, class OutRange>
-    virtual T& get() override;
-    
-    
+    T& MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::get()
+    {
+	return mRoot.get();
+    }
+        
     /*****************************
      *   MultiArrayOperation     *
      *****************************/
@@ -625,6 +644,10 @@ namespace MultiArrayTools
 	    -> decltype(op(std::get<0>(tp).get(), args.get()...))
 	{
 	    return op(std::get<0>(tp).get(), args.get()...);
+	    /*
+	    return op(static_cast<typename Operation::result_type>( std::get<0>(tp).get() ),
+		      static_cast<typename Operation::result_type>( args.get() )...);
+	    */
 	}
 
 	template <class Operation, class Tuple, class... MAOps>

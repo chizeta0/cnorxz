@@ -555,4 +555,38 @@ namespace MultiArrayTools
 	mb.execute();
     }
     */
+
+
+    /****************************
+     *   FunctionalMultiArray   *	     
+     ****************************/
+
+    template <typename T, class Range, class Function>
+    FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range) :
+	MultiArrayBase<T>(range), mFunc() {}
+
+    template <typename T, class Range, class Function>
+    FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range,
+								 const Function& func) :
+	MultiArrayBase<T>(range), mFunc(func) {}
+
+    template <typename T, class Range, class Function>
+    const T& FunctionalMultiArray<T,Range,Function>::operator[](const typename Range::IndexType& i) const
+    {
+	mVal = mFunc(i);
+	return mVal;
+    }
+
+    template <typename T, class Range, class Function>
+    bool FunctionalMultiArray<T,Range,Function>::isConst() const
+    {
+	return true;
+    }
+
+    template <typename T, class Range, class Function>
+    bool FunctionalMultiArray<T,Range,Function>::isSlice() const
+    {
+	return false;
+    }
+    
 }

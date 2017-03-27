@@ -233,7 +233,7 @@ namespace MultiArrayTools
 	std::vector<T> mCont;
     };
 
-    template <typename T, class Range>
+    template <typename T, class Range, class Function>
     class FunctionalMultiArray : public MultiArrayBase<T>
     {
     public:
@@ -241,15 +241,17 @@ namespace MultiArrayTools
 	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
 
 	DEFAULT_MEMBERS(FunctionalMultiArray);
-	FunctionalMultiArray(const Range& range, /*Function*/);
+	FunctionalMultiArray(const Range& range);
+	FunctionalMultiArray(const Range& range, const Function& func);
 
-	T& operator[](const typename Range::IndexType& i) override;
-	const T& operator[](const typename Range::IndexType& i) const override;
+	virtual const T& operator[](const typename Range::IndexType& i) const override;
 
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
     protected:
+	mutable T mVal;
+	Function mFunc;
 	// FUNCTION !!!!
     };
     

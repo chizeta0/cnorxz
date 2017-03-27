@@ -18,6 +18,8 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef T ValType;
+	
 	MultiArrayOperationBase() /*{ CHECK; }*/ = default;
 	virtual ~MultiArrayOperationBase();
 
