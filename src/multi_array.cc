@@ -563,12 +563,12 @@ namespace MultiArrayTools
 
     template <typename T, class Range, class Function>
     FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range) :
-	MultiArrayBase<T>(range), mFunc() {}
+	MultiArrayBase<T,Range>(range), mFunc() {}
 
     template <typename T, class Range, class Function>
     FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range,
 								 const Function& func) :
-	MultiArrayBase<T>(range), mFunc(func) {}
+	MultiArrayBase<T,Range>(range), mFunc(func) {}
 
     template <typename T, class Range, class Function>
     const T& FunctionalMultiArray<T,Range,Function>::operator[](const typename Range::IndexType& i) const

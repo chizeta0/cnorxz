@@ -22,6 +22,8 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef T value_type;
+	
 	class const_iterator : public std::iterator<std::random_access_iterator_tag,T>
 	{
 	public:
@@ -234,7 +236,7 @@ namespace MultiArrayTools
     };
 
     template <typename T, class Range, class Function>
-    class FunctionalMultiArray : public MultiArrayBase<T>
+    class FunctionalMultiArray : public MultiArrayBase<T,Range>
     {
     public:
 	typedef MultiArrayBase<T,Range> MAB;
@@ -252,7 +254,6 @@ namespace MultiArrayTools
     protected:
 	mutable T mVal;
 	Function mFunc;
-	// FUNCTION !!!!
     };
     
 }

@@ -12,25 +12,52 @@
 namespace MultiArrayTools
 {
 
-    // Maps... are ConstMultiArrayOperationRoots where the corresponding MultiArray defines the map
-    template <class OutIndex, class... Maps>
+    // Map is a ConstMultiArrayOperationRoot where the corresponding MultiArray defines the map
+    template <class InRange, class OutRange>
     class IndexMapFunction
     {
     public:
 
-	typedef std::tuple<Maps...> MapType;
+	typedef OutRange OR;
+	typedef typename OutRange::IndexType OutIndex;
+
+	IndexMapFunction(const MultiArrayBase<typename OutRange::IndexType,InRange>& ma,
+			 const OutRange& outRange,
+			 const Name& inName, const Name& outName);
 	
 	void linkIndicesTo(IndefinitIndexBase* target);
-	void eval();
+	void eval() const;
 	
-	IndefinitIndexBase& index();
+	IndefinitIndexBase& index() const;
 	
     private:
 	
-	MapType mMap;
-	OutIndex mOIndex;
+	ConstMultiArrayOperationRoot<typename OutRange::IndexType,InRange> mMap;
+	std::shared_ptr<OutRange> mOutRange;
+	mutable typename OutRange::IndexType mOIndex;	
     };
 
+    class vec3d2Function
+    {
+    public:
+
+	typedef SingleIndex<int,RangeType::SPACE> CoordIndex;
+	typedef MultiIndex<CoordIndex,CoordIndex,CoordIndex> InIndex;
+	typedef SingleIndex<size_t,RangeType::DISTANCE> OutSubIndex;
+	typedef MultiIndex<OutSubIndex> OutIndex;
+	
+	vec3d2Function() = default;
+	//vec3d2Function(std::shared_ptr<OutRange>& outRange);
+	vec3d2Function(const vec3d2Function& in) = default;
+	vec3d2Function& operator=(const vec3d2Function& in) = default;
+	
+	OutIndex operator()(const InIndex& i) const;
+
+    private:
+	//std::shared_ptr<OutRange> mOutRange;
+	mutable OutIndex out;
+    };
+    
 }
 
 #include "ma_functional.cc"

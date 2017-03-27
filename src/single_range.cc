@@ -96,38 +96,38 @@ namespace MultiArrayTools
 
     // 
     
-    SingleRange<size_t,RangeType::SPACE>::SingleRange(size_t ext) :
-	RangeBase<SingleIndex<size_t,RangeType::SPACE> >(),
+    SingleRange<size_t,RangeType::DISTANCE>::SingleRange(size_t ext) :
+	RangeBase<SingleIndex<size_t,RangeType::DISTANCE> >(),
 	mExt(ext) {}
     
-    size_t SingleRange<size_t,RangeType::SPACE>::get(size_t pos) const
+    size_t SingleRange<size_t,RangeType::DISTANCE>::get(size_t pos) const
     {
 	return pos;
     }
 
-    size_t SingleRange<size_t,RangeType::SPACE>::getMeta(size_t metaPos) const
+    size_t SingleRange<size_t,RangeType::DISTANCE>::getMeta(size_t metaPos) const
     {
 	return metaPos;
     }
     
-    size_t SingleRange<size_t,RangeType::SPACE>::size() const
+    size_t SingleRange<size_t,RangeType::DISTANCE>::size() const
     {
 	return mExt;
     }
     
-    MultiRangeType SingleRange<size_t,RangeType::SPACE>::type() const
+    MultiRangeType SingleRange<size_t,RangeType::DISTANCE>::type() const
     {
-	return MultiRangeType(RangeType::SPACE);
+	return MultiRangeType(RangeType::DISTANCE);
     }
    
-    SingleIndex<size_t,RangeType::SPACE> SingleRange<size_t,RangeType::SPACE>::begin() const
+    SingleIndex<size_t,RangeType::DISTANCE> SingleRange<size_t,RangeType::DISTANCE>::begin() const
     {
-	return SingleIndex<size_t,RangeType::SPACE>(this, 0);
+	return SingleIndex<size_t,RangeType::DISTANCE>(this, 0);
     }
     
-    SingleIndex<size_t,RangeType::SPACE> SingleRange<size_t,RangeType::SPACE>::end() const
+    SingleIndex<size_t,RangeType::DISTANCE> SingleRange<size_t,RangeType::DISTANCE>::end() const
     {
-	return SingleIndex<size_t,RangeType::SPACE>(this, size());
+	return SingleIndex<size_t,RangeType::DISTANCE>(this, size());
     }
 
     // 

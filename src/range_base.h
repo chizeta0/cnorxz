@@ -21,7 +21,8 @@ namespace MultiArrayTools
 	LORENTZ = 4,
 	SPIN = 5,
 	ENSEMBLE = 6,
-	VALUE_ERROR = 7
+	VALUE_ERROR = 7,
+	DISTANCE = 8
     };
 
     class MultiRangeType

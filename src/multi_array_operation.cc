@@ -175,6 +175,13 @@ namespace MultiArrayTools
 				     MAOps...>(cop, *ind, begin, end, *this, mao...);
     }
 
+    template <typename T, class Range>
+    template<class TotalInRange, class InRange, class OutRange>
+    MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range>
+    MultiArrayOperationRoot<T,Range>::map(const IndexMapFunction<InRange,OutRange>& imf)
+    {
+	return MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range>(*this, imf);
+    }
     
     template <typename T, class Range>
     template <class MAOp>
@@ -517,10 +524,11 @@ namespace MultiArrayTools
      *   MultiArrayOperationMap     *
      ********************************/
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::
-    MultiArrayOperationMap(MultiArrayOperationRoot<T,OutRange>& root, const MapFunction mf) :
-	MultiArrayOperationBase<T>(),
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
+    MultiArrayOperationMap(MultiArrayOperationRoot<T,TotalRange>& root,
+			   const IndexMapFunction<InRange,OutRange>& mf) :
+	MutableMultiArrayOperationBase<T>(),
 	mMF(mf),
 	mRoot(root)
 	//mIndex(mArrayRef.beginIndex()),
@@ -531,11 +539,41 @@ namespace MultiArrayTools
 	//mIndex.name(nm);
     }
 	
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    MultiArrayOperationMap& MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::
-    operator=(const ConstMultiArrayOperationRoot<T,InRange>& in)
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>&
+    MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
+    operator=(const MultiArrayOperationRoot<T,TotalInRange>& in)
     {
-	mIndex = dynamic_cast<typename InRange::IndexType&>( in.getIndex() );
+	mIndex = dynamic_cast<typename TotalInRange::IndexType const&>( in.index() );
+	MAOB::mIibPtr = &mIndex;
+	mNm = in.name();
+	mIndex.name(mNm); // to be sure...
+	mIndex.setPos( mIndex.max() );
+	typename TotalInRange::IndexType endIndex = mIndex;
+
+	// Implement Map Functions !!!!
+	mRoot.linkIndicesTo( &mMF.index() );
+	mMF.linkIndicesTo( &mIndex );
+
+	MultiArray<size_t,TotalRange> cnt(mRoot->range());
+	auto cnto = cnt(mRoot.name(), true);
+	cnto.linkIndicesTo( &mMF.index() );
+	
+	for(mIndex.setPos(0), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){
+	    get() += in.get();
+	    ++cnto.get();
+	}
+	// CHECK whether T / size_t mixture works!!
+	mRoot /= cnto;
+	return *this;
+    }
+
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>&
+    MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
+    operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in)
+    {
+	mIndex = dynamic_cast<typename InRange::IndexType&>( in.index() );
 	MAOB::mIibPtr = &mIndex;
 	mNm = in.name();
 	mIndex.name(mNm); // to be sure...
@@ -556,39 +594,42 @@ namespace MultiArrayTools
 	}
 	// CHECK whether T / size_t mixture works!!
 	mRoot /= cnto;
+	return *this;
     }
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    size_t MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::argNum() const
+    
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    size_t MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::argNum() const
     {
 	return 1;
     }
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    IndefinitIndexBase* MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    IndefinitIndexBase* MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
     getLinked(const std::string& name) const
     {
 	return mRoot.getLinked(name);
     }
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    void MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::linkIndicesTo(IndefinitIndexBase* target) const
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    void MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
+    linkIndicesTo(IndefinitIndexBase* target) const
     {
 	mRoot.linkIndicesTo(target);
     }
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    void MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::setInternalLinks() const
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    void MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::setInternalLinks() const
     { }
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    const T& MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::get() const
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    const T& MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::get() const
     {
 	return mRoot.get();
     }
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
-    T& MultiArrayOperationMap<T,MapFunction,InRange,OutRange>::get()
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    T& MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::get()
     {
 	return mRoot.get();
     }

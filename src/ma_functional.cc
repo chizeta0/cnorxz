@@ -4,49 +4,48 @@
 
 namespace MultiArrayTools
 {
-    namespace
+
+    template <class InRange, class OutRange>
+    IndexMapFunction<InRange,OutRange>::
+    IndexMapFunction(const MultiArrayBase<typename OutRange::IndexType,InRange>& ma,
+		     const OutRange& outRange,
+		     const Name& inName, const Name& outName) : mMap(ma, inName),
+								mOutRange(new OutRange( outRange )),
+								mOIndex(mOutRange->begin())
     {
-
-	template <size_t N>
-	struct MapEvaluation
-	{
-	    template <class OutIndex, class MapTuple>
-	    static void eval(OutIndex& oi, const MapTuple& mt)
-	    {
-		oi.template getIndex<N>() = std::get<N>(mt);
-		MapEvaluation<N-1>::eval(oi, mt);
-	    }
-	};
-	
-	template <>
-	struct MapEvaluation<0>
-	{
-	    template <class OutIndex, class MapTuple>
-	    static void eval(OutIndex& oi, const MapTuple& mt)
-	    {
-		oi.template getIndex<0>() = std::get<0>(mt);
-	    }
-	};
-	
-    } // anonymous namespace
-
+	mOIndex.name(outName);
+    }
     
-    template <class OutIndex, class... Maps>
-    void IndexMapFunction<OutIndex,Maps...>::linkIndicesTo(IndefinitIndexBase* target)
+    template <class InRange, class OutRange>
+    void IndexMapFunction<InRange,OutRange>::linkIndicesTo(IndefinitIndexBase* target)
     {
-	/*!!!!*/
+	mMap.linkIndicesTo(target);
     }
 
-    template <class OutIndex, class... Maps>
-    void IndexMapFunction<OutIndex,Maps...>::eval()
+    template <class InRange, class OutRange>
+    void IndexMapFunction<InRange,OutRange>::eval() const
     {
-	MapEvaluation<sizeof...(Maps)-1>::eval(mOIndex, mMap);
+	mOIndex.copyPos( mMap.get() );
     }
 
-    template <class OutIndex, class... Maps>
-    IndefinitIndexBase& IndexMapFunction<OutIndex,Maps...>::index()
+    template <class InRange, class OutRange>
+    IndefinitIndexBase& IndexMapFunction<InRange,OutRange>::index() const
     {
 	return mOIndex;
     }    
-    
+
+
+    /*
+    vec3d2Function::vec3d2Function(std::shared_ptr<OutRange>& outRange) : mOutRange(outRange),
+									  out(mOutRange->begin()) {} 
+    */
+    vec3d2Function::OutIndex vec3d2Function::operator()(const InIndex& i) const
+    {
+	OutSubIndex& osi = out.template getIndex<0>();
+	
+	osi.atMeta( i.template getIndex<0>().getMetaPos() * i.template getIndex<0>().getMetaPos() +
+		    i.template getIndex<1>().getMetaPos() * i.template getIndex<1>().getMetaPos() +
+		    i.template getIndex<2>().getMetaPos() * i.template getIndex<2>().getMetaPos() );
+	return out;
+    }
 }

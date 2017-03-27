@@ -18,7 +18,7 @@ namespace MultiArrayTools
     {
     public:
 
-	typedef T ValType;
+	typedef T value_type;
 	
 	MultiArrayOperationBase() /*{ CHECK; }*/ = default;
 	virtual ~MultiArrayOperationBase();
@@ -97,6 +97,9 @@ namespace MultiArrayTools
 		 size_t end,
 		 const MAOps&... mao) const;
 
+	template<class TotalInRange, class InRange, class OutRange>
+	MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range>
+	map(const IndexMapFunction<InRange,OutRange>& imf);
 	
 	template <class MAOp>
 	auto operator+(const MAOp& sec) -> decltype(operator()(std::plus<T>(), sec));
@@ -238,15 +241,18 @@ namespace MultiArrayTools
 	Name mNm;
     };
 
-    template <typename T, class MapFunction, class InRange, class OutRange>
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
     class MultiArrayOperationMap : public MutableMultiArrayOperationBase<T>
     {
     public:
 	typedef MultiArrayOperationBase<T> MAOB;
 	
-	MultiArrayOperationMap(MultiArrayOperationRoot<T,OutRange>& root, const MapFunction mf);
-	MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,InRange>& in);
+	MultiArrayOperationMap(MultiArrayOperationRoot<T,TotalRange>& root,
+			       const IndexMapFunction<InRange,OutRange>& mf);
 
+	MultiArrayOperationMap& operator=(const MultiArrayOperationRoot<T,TotalInRange>& in);
+	MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in);
+	
 	virtual size_t argNum() const override;
 
 	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
@@ -258,9 +264,9 @@ namespace MultiArrayTools
 	virtual T& get() override;
 	// !!!!
     protected:
-	MapFunction mMF;
-	MultiArrayOperationRoot<T,OutRange>& mRoot;
-	mutable IndexType mIndex; // Index of incoming range
+	IndexMapFunction<InRange,OutRange> mMF;
+	MultiArrayOperationRoot<T,TotalRange>& mRoot;
+	mutable typename TotalInRange::IndexType mIndex; // Index of incoming range
 	Name mNm; // Name of incoming range
     };
     

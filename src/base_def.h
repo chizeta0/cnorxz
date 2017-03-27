@@ -108,6 +108,10 @@ namespace MultiArrayTools
     // multi_array_operation.h
     template <typename T, class Range>
     class ConstMultiArrayOperationRoot;
+
+    // multi_array_operation.h
+    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
+    class MultiArrayOperationMap;
     
     // multi_array_operation.h
     template <typename T, class Operation, class... MAOps>
@@ -132,6 +136,13 @@ namespace MultiArrayTools
     // manipulator.h
     template <typename T>
     class BinReader;
+
+    // ma_functional.h
+    template <class InRange, class OutRange>
+    class IndexMapFunction;
+
+    // ma_functional.h
+    class vec3d2Function;
 }
 
 #endif

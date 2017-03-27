@@ -14,6 +14,7 @@
 #include "slice.h"
 #include "manipulator.h"
 #include "range_transformer.h"
+#include "ma_functional.h"
 
 namespace MultiArrayTools
 {
@@ -38,6 +39,7 @@ namespace MultiArrayTools
     typedef SingleRange<double,RangeType::ANY> GenericFR;
     typedef SingleRange<size_t,RangeType::LORENTZ> LorentzR;
     typedef SingleRange<int,RangeType::SPACE> Space1dNR;
+    typedef SingleRange<size_t,RangeType::DISTANCE> DistanceNR;
     typedef SingleRange<int,RangeType::MOMENTUM> Mom1dNR;
     typedef SingleRange<size_t, RangeType::ENSEMBLE> EnsR;
     typedef MultiRange<Space1dNR,Space1dNR,Space1dNR> Space3dNR;
