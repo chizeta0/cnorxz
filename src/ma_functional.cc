@@ -13,6 +13,7 @@ namespace MultiArrayTools
 								mOutRange(new OutRange( outRange )),
 								mOIndex(mOutRange->begin())
     {
+	//CHECK;
 	mOIndex.name(outName);
     }
     
@@ -35,10 +36,10 @@ namespace MultiArrayTools
     }    
 
 
-    /*
-    vec3d2Function::vec3d2Function(std::shared_ptr<OutRange>& outRange) : mOutRange(outRange),
-									  out(mOutRange->begin()) {} 
-    */
+    
+    vec3d2Function::vec3d2Function(const OutRange& outRange) : mOutRange(new OutRange( outRange )),
+							       out(mOutRange->begin()) {} 
+    
     vec3d2Function::OutIndex vec3d2Function::operator()(const InIndex& i) const
     {
 	OutSubIndex& osi = out.template getIndex<0>();

@@ -243,7 +243,7 @@ namespace MultiArrayTools
 	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
 
 	DEFAULT_MEMBERS(FunctionalMultiArray);
-	FunctionalMultiArray(const Range& range);
+	//FunctionalMultiArray(const Range& range);
 	FunctionalMultiArray(const Range& range, const Function& func);
 
 	virtual const T& operator[](const typename Range::IndexType& i) const override;

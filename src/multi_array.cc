@@ -183,6 +183,7 @@ namespace MultiArrayTools
     template <typename T, class Range>
     auto MultiArrayBase<T,Range>::beginIndex() const -> decltype(Range().begin())
     {
+	//CHECK;
 	return mRange->begin();
     }
 
@@ -561,14 +562,15 @@ namespace MultiArrayTools
      *   FunctionalMultiArray   *	     
      ****************************/
 
+    /*
     template <typename T, class Range, class Function>
     FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range) :
 	MultiArrayBase<T,Range>(range), mFunc() {}
-
+    */
     template <typename T, class Range, class Function>
     FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range,
 								 const Function& func) :
-	MultiArrayBase<T,Range>(range), mFunc(func) {}
+	MultiArrayBase<T,Range>(range), mFunc(func) { /*CHECK;*/ }
 
     template <typename T, class Range, class Function>
     const T& FunctionalMultiArray<T,Range,Function>::operator[](const typename Range::IndexType& i) const

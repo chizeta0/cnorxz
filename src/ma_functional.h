@@ -21,9 +21,13 @@ namespace MultiArrayTools
 	typedef OutRange OR;
 	typedef typename OutRange::IndexType OutIndex;
 
+	//IndexMapFunction() = default;
+	
 	IndexMapFunction(const MultiArrayBase<typename OutRange::IndexType,InRange>& ma,
 			 const OutRange& outRange,
 			 const Name& inName, const Name& outName);
+
+	IndexMapFunction(const IndexMapFunction& in) = default;
 	
 	void linkIndicesTo(IndefinitIndexBase* target);
 	void eval() const;
@@ -45,16 +49,17 @@ namespace MultiArrayTools
 	typedef MultiIndex<CoordIndex,CoordIndex,CoordIndex> InIndex;
 	typedef SingleIndex<size_t,RangeType::DISTANCE> OutSubIndex;
 	typedef MultiIndex<OutSubIndex> OutIndex;
-	
-	vec3d2Function() = default;
-	//vec3d2Function(std::shared_ptr<OutRange>& outRange);
-	vec3d2Function(const vec3d2Function& in) = default;
-	vec3d2Function& operator=(const vec3d2Function& in) = default;
+	typedef MultiRange<SingleRange<size_t,RangeType::DISTANCE> > OutRange;
+
+	DEFAULT_MEMBERS(vec3d2Function);
+
+	vec3d2Function(const OutRange& outRange);
+	//vec3d2Function& operator=(const vec3d2Function& in) = default;
 	
 	OutIndex operator()(const InIndex& i) const;
-
+	
     private:
-	//std::shared_ptr<OutRange> mOutRange;
+	std::shared_ptr<OutRange> mOutRange;
 	mutable OutIndex out;
     };
     

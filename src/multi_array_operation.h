@@ -21,6 +21,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	
 	MultiArrayOperationBase() /*{ CHECK; }*/ = default;
+	//MultiArrayOperationBase(const MultiArrayOperationBase& in) = default;
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
@@ -45,6 +46,7 @@ namespace MultiArrayTools
     public:
 
 	MutableMultiArrayOperationBase() /*{ CHECK; }*/ = default;
+	//MutableMultiArrayOperationBase(const MutableMultiArrayOperationBase& in) = default;
 	virtual T& get() = 0;
     };
     
@@ -250,6 +252,8 @@ namespace MultiArrayTools
 	MultiArrayOperationMap(MultiArrayOperationRoot<T,TotalRange>& root,
 			       const IndexMapFunction<InRange,OutRange>& mf);
 
+	MultiArrayOperationMap(const MultiArrayOperationMap& in) = default;
+	
 	MultiArrayOperationMap& operator=(const MultiArrayOperationRoot<T,TotalInRange>& in);
 	MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in);
 	

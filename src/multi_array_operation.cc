@@ -44,8 +44,10 @@ namespace MultiArrayTools
 	std::cout << "assignment: " << endPos << " elements" << std::endl;
 	// assignment loop
 	for(iref = mArrayRef.beginIndex().pos(); iref != mArrayRef.endIndex(); ++iref){
+	    //std::cout << get() << " / " << in.get() << std::endl;
 	    //std::cout << iref.pos() << '\r' << std::flush;
 	    get() = in.get();
+	    
 	    //assert(not std::isnan( get() ));
 	}
 	//CHECK;
@@ -61,8 +63,10 @@ namespace MultiArrayTools
 	mIndex(mArrayRef.beginIndex()),
 	mNm(nm)
     {
+	//CHECK;
 	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->name(nm);
+	//CHECK;
 	//mIndex.name(nm);
     }
 
@@ -74,8 +78,10 @@ namespace MultiArrayTools
 	mIndex(mArrayRef.beginIndex()),
 	mNm(in.mNm)
     {
+	//CHECK;
 	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->name(mNm);
+	//CHECK;
 	//mIndex.name(nm);
     }
     
@@ -180,7 +186,10 @@ namespace MultiArrayTools
     MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range>
     MultiArrayOperationRoot<T,Range>::map(const IndexMapFunction<InRange,OutRange>& imf)
     {
-	return MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range>(*this, imf);
+	//CHECK;
+	MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range> mom(*this, imf);
+	//CHECK;
+	return mom;
     }
     
     template <typename T, class Range>
@@ -292,7 +301,7 @@ namespace MultiArrayTools
     {
 	//CHECK;
 	//return mArrayRef[mIndex];
-	assert(MAOB::mIibPtr == &mIndex);
+	//assert(MAOB::mIibPtr == &mIndex);
 	//VCHECK(mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)]);
 	return mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)];
     }
@@ -302,7 +311,7 @@ namespace MultiArrayTools
     {
 	//CHECK;
 	//return mArrayRef[mIndex];
-	assert(MAOB::mIibPtr == &mIndex);
+	//assert(MAOB::mIibPtr == &mIndex);
 	//VCHECK(mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)]);
 	return mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)];
     }
@@ -494,7 +503,7 @@ namespace MultiArrayTools
     const T& ConstMultiArrayOperationRoot<T,Range>::get() const
     {
 	//CHECK;
-	assert(MAOB::mIibPtr == &mIndex);
+	//assert(MAOB::mIibPtr == &mIndex);
 	return mArrayRef[*dynamic_cast<IndexType*>(MAOB::mIibPtr)];
     }
 
@@ -534,37 +543,46 @@ namespace MultiArrayTools
 	//mIndex(mArrayRef.beginIndex()),
 	//mNm(nm)
     {
+	//CHECK;
 	MAOB::mIibPtr = &mIndex;
+	//CHECK;
 	//MAOB::mIibPtr->name(nm);
 	//mIndex.name(nm);
     }
-	
+    
     template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
     MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>&
     MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
     operator=(const MultiArrayOperationRoot<T,TotalInRange>& in)
     {
 	mIndex = dynamic_cast<typename TotalInRange::IndexType const&>( in.index() );
+	
 	MAOB::mIibPtr = &mIndex;
 	mNm = in.name();
 	mIndex.name(mNm); // to be sure...
-	mIndex.setPos( mIndex.max() );
+		
 	typename TotalInRange::IndexType endIndex = mIndex;
+	endIndex.setPos( mIndex.max() );
+	
+	std::cout << "map assignment: " << endIndex.pos() << " elements" << std::endl;
 
-	// Implement Map Functions !!!!
+	mRoot.linkIndicesTo( &mIndex );
 	mRoot.linkIndicesTo( &mMF.index() );
 	mMF.linkIndicesTo( &mIndex );
-
-	MultiArray<size_t,TotalRange> cnt(mRoot->range());
-	auto cnto = cnt(mRoot.name(), true);
+	in.linkIndicesTo( &mIndex );
+	
+	MultiArray<T,TotalRange> cnt(mRoot->range());
+	MultiArrayOperationRoot<T,TotalRange> cnto(cnt, mRoot.name());
+	cnto.linkIndicesTo( &mIndex );
 	cnto.linkIndicesTo( &mMF.index() );
 	
 	for(mIndex.setPos(0), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){
 	    get() += in.get();
-	    ++cnto.get();
+	    cnto.get() += 1.;
 	}
+	mRoot.freeIndex();
 	// CHECK whether T / size_t mixture works!!
-	mRoot /= cnto;
+	mRoot /= cnt(mRoot.name(), true);
 	return *this;
     }
 
@@ -573,27 +591,34 @@ namespace MultiArrayTools
     MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
     operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in)
     {
-	mIndex = dynamic_cast<typename InRange::IndexType&>( in.index() );
+	mIndex = dynamic_cast<typename TotalInRange::IndexType const&>( in.index() );
+	
 	MAOB::mIibPtr = &mIndex;
 	mNm = in.name();
 	mIndex.name(mNm); // to be sure...
-	mIndex.setPos( mIndex.max() );
-	typename OutRange::IndexType endIndex = mIndex;
+		
+	typename TotalInRange::IndexType endIndex = mIndex;
+	endIndex.setPos( mIndex.max() );
+	
+	std::cout << "map assignment: " << endIndex.pos() << " elements" << std::endl;
 
-	// Implement Map Functions !!!!
+	mRoot.linkIndicesTo( &mIndex );
 	mRoot.linkIndicesTo( &mMF.index() );
 	mMF.linkIndicesTo( &mIndex );
-
-	MultiArray<size_t,OutRange> cnt(mRoot->range());
-	auto cnto = cnt(mRoot.name(), true);
+	in.linkIndicesTo( &mIndex );
+	
+	MultiArray<T,TotalRange> cnt(mRoot->range());
+	MultiArrayOperationRoot<T,TotalRange> cnto(cnt, mRoot.name());
+	cnto.linkIndicesTo( &mIndex );
 	cnto.linkIndicesTo( &mMF.index() );
 	
 	for(mIndex.setPos(0), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){
 	    get() += in.get();
-	    ++cnto.get();
+	    cnto.get() += 1.;
 	}
+	mRoot.freeIndex();
 	// CHECK whether T / size_t mixture works!!
-	mRoot /= cnto;
+	mRoot /= cnt(mRoot.name(), true);
 	return *this;
     }
 
