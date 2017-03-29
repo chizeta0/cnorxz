@@ -67,10 +67,16 @@ namespace MultiArrayTools
 
 	template <class Range2>
 	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot<T,Range2>& in);
-
 	
 	template <class Range2>
 	const MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot<T,Range2>& in);
+
+	template <class Range2>
+	MultiArrayOperationRoot& operator=(ConstMultiArrayOperationRoot<T,Range2>& in);
+	
+	template <class Range2>
+	const MultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot<T,Range2>& in);
+
 	
 	template <class Operation, class... MAOps>
 	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);

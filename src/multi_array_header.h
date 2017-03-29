@@ -31,6 +31,8 @@ namespace MultiArrayTools
     typedef SingleIndex<int,RangeType::SPACE> Space1dNI;
     typedef SingleIndex<int,RangeType::MOMENTUM> Mom1dNI;
     typedef SingleIndex<size_t,RangeType::ENSEMBLE> EnsI;
+    typedef SingleIndex<std::array<int,3>, RangeType::MOMENTUM> LinMomI;
+    typedef SingleIndex<std::array<int,4>, RangeType::MOMENTUM> LinMom4dI;
     // ...
 
     // ===== Range Types =====
@@ -45,6 +47,8 @@ namespace MultiArrayTools
     typedef MultiRange<Space1dNR,Space1dNR,Space1dNR> Space3dNR;
     typedef MultiRange<Mom1dNR,Mom1dNR,Mom1dNR> Mom3dNR;
     typedef SingleRange<VET, RangeType::VALUE_ERROR> ValErrR;
+    typedef SingleRange<std::array<int,3>, RangeType::MOMENTUM> LinMomR;
+    typedef SingleRange<std::array<int,4>, RangeType::MOMENTUM> LinMom4dR;
     // ...
     
 }

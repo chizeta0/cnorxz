@@ -27,6 +27,7 @@ namespace MultiArrayTools
 	const Name& get(size_t n) const;
 
 	void autoName(size_t newSize);
+	void remove(const std::string& s);
 	size_t size() const;
 	
     private:

@@ -224,6 +224,8 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
+	const T* data() const;
+
 	//	virtual void manipulate(ManipulatorBase<T>& mb,
 	//			const typename Range::IndexType& manBegin,
 	//				const typename Range::IndexType& manEnd);

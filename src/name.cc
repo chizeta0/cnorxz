@@ -63,6 +63,16 @@ namespace MultiArrayTools
 	}
     }
 
+    void Name::remove(const std::string& s)
+    {
+	for(size_t i = 0; i != mSub.size(); ++i){
+	    if(mSub[i].own() == s){
+		mSub.erase(mSub.begin()+i);
+		break;
+	    }
+	}
+    }
+
     size_t Name::size() const
     {
 	return mSub.size();

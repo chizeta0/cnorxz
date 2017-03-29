@@ -123,6 +123,28 @@ namespace MultiArrayTools
 	freeIndex();
 	return *this;
     }
+
+    template <typename T, class Range>
+    template <class Range2>
+    MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator=(ConstMultiArrayOperationRoot<T,Range2>& in)
+    {
+	performAssignment(in);
+	freeIndex();
+	return *this;
+    }
+
+    
+    template <typename T, class Range>
+    template <class Range2>
+    const MultiArrayOperationRoot<T,Range>&
+    MultiArrayOperationRoot<T,Range>::operator=(const ConstMultiArrayOperationRoot<T,Range2>& in)
+    {
+	performAssignment(in);
+	freeIndex();
+	return *this;
+    }
+
     
     template <typename T, class Range>
     template <class Operation, class... MAOps>

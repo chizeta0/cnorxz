@@ -545,6 +545,12 @@ namespace MultiArrayTools
     {
 	return false;
     }
+
+    template <typename T, class Range>
+    const T* MultiArray<T,Range>::data() const
+    {
+	return mCont.data();
+    }
     
     /*
     template <typename T, class Range>
