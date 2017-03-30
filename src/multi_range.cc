@@ -710,14 +710,14 @@ namespace MultiArrayTools
     
     template <class... Ranges>
     template <size_t N>
-    auto MultiRange<Ranges...>::getRange() -> decltype( std::get<N>(MultiRange<Ranges...>::SpaceType()) )
+    typename std::tuple_element<N, std::tuple<Ranges...> >::type& MultiRange<Ranges...>::getRange()
     {
 	return std::get<N>(mSpace);
     }
 
     template <class... Ranges>
     template <size_t N>
-    auto MultiRange<Ranges...>::getRange() const -> decltype( std::get<N>(MultiRange<Ranges...>::SpaceType()) )
+    typename std::tuple_element<N, std::tuple<Ranges...> >::type const& MultiRange<Ranges...>::getRange() const
     {
 	return std::get<N>(mSpace);
     }

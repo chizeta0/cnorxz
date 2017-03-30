@@ -112,11 +112,13 @@ namespace MultiArrayTools
 	
 	static const size_t dim = sizeof...(Ranges);
 
+	static MultiRange<Ranges...> oType() { return MultiRange<Ranges...>(); }
+	
 	template <size_t N>
-	auto getRange() -> decltype( std::get<N>(SpaceType()) );
+	typename std::tuple_element<N, std::tuple<Ranges...> >::type& getRange();
 
 	template <size_t N>
-	auto getRange() const -> decltype( std::get<N>(SpaceType()) );
+	typename std::tuple_element<N, std::tuple<Ranges...> >::type const& getRange() const;
 	
 	size_t size() const override;
 	const SpaceType& space() const;

@@ -70,6 +70,8 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(const std::vector<U>& space);
+
+	static SingleRange<U,TYPE> oType() { return SingleRange<U,TYPE>(); }
 	
 	virtual size_t size() const override;
 
@@ -97,6 +99,8 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(size_t ext);
+
+	static SingleRange<int,RangeType::SPACE> oType() { return SingleRange<int,RangeType::SPACE>(); }
 	
 	virtual size_t size() const override;
 	
@@ -121,6 +125,8 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(size_t ext);
+
+	static SingleRange<size_t,RangeType::DISTANCE> oType() { return SingleRange<size_t,RangeType::DISTANCE>(); }
 	
 	virtual size_t size() const override;
 	
@@ -145,6 +151,8 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(SingleRange);
 
 	SingleRange(size_t num);
+
+	static SingleRange<size_t,RangeType::ENSEMBLE> oType() { return SingleRange<size_t,RangeType::ENSEMBLE>(); }
 	
 	virtual size_t size() const override;
 	
@@ -176,6 +184,9 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(SingleRange);
 
+	static SingleRange<VET,RangeType::VALUE_ERROR> oType()
+	{ return SingleRange<VET,RangeType::VALUE_ERROR>(); }
+	
 	virtual size_t size() const override;
 	
 	VET get(size_t pos) const;
@@ -195,6 +206,8 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(SingleRange);
 
+	static SingleRange<size_t,RangeType::LORENTZ> oType() { return SingleRange<size_t,RangeType::LORENTZ>(); }
+	
 	virtual size_t size() const override;
 	
 	size_t get(size_t pos) const;
