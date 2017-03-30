@@ -49,4 +49,21 @@ namespace MultiArrayTools
 		    i.template getIndex<2>().getMetaPos() * i.template getIndex<2>().getMetaPos() );
 	return out;
     }
+
+    pyProjFunction::pyProjFunction(const OutRange& outRange) : mOutRange(new OutRange( outRange )),
+							       out(mOutRange->begin()) {} 
+
+    pyProjFunction::OutIndex pyProjFunction::operator()(const InIndex& i) const
+    {
+	DistIndex& di = out.template getIndex<0>();
+	ScalProdIndex& si = out.template getIndex<1>();
+	di.atMeta( i.template getIndex<1>().getMetaPos() * i.template getIndex<1>().getMetaPos() +
+		   i.template getIndex<2>().getMetaPos() * i.template getIndex<2>().getMetaPos() +
+		   i.template getIndex<3>().getMetaPos() * i.template getIndex<3>().getMetaPos() );
+
+	si.atMeta( i.template getIndex<1>().getMetaPos() * i.template getIndex<0>().getMetaPos()[0]
+		   i.template getIndex<2>().getMetaPos() * i.template getIndex<0>().getMetaPos()[1]
+		   i.template getIndex<3>().getMetaPos() * i.template getIndex<0>().getMetaPos()[2] );
+	return out;
+    }
 }

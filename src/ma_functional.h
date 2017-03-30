@@ -62,6 +62,26 @@ namespace MultiArrayTools
 	std::shared_ptr<OutRange> mOutRange;
 	mutable OutIndex out;
     };
+
+    class pyProjFunction
+    {
+    public:
+	typedef SingleIndex<int,RangeType::SPACE> CoordIndex;
+	typedef SingleIndex<std::array<int,3>,RangeType::MOMETUM> MomIndex;
+	typedef MultiIndex<MomIndex,CoordIndex,CoordIndex,CoordIndex> InIndex;
+	typedef SingleIndex<size_t,RangeType::DISTANCE> DistIndex;
+	typedef SingleIndex<int,RangeType::SPACE> ScalProdIndex;
+	typedef MultiIndex<DistIndex,ScalProdIndex> OutIndex;
+
+	DEFAULT_MEMBERS(pyProjFunction);
+
+	pyProjFunction(const OutRange& outRange);
+	OutIndex operator()(const InIndex& i) const;
+
+    private:
+	std::shared_ptr<OutRange> mOutRange;
+	mutable OutIndex out;
+    };
     
 }
 
