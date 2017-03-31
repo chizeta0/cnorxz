@@ -61,8 +61,8 @@ namespace MultiArrayTools
 		   i.template getIndex<2>().getMetaPos() * i.template getIndex<2>().getMetaPos() +
 		   i.template getIndex<3>().getMetaPos() * i.template getIndex<3>().getMetaPos() );
 
-	si.atMeta( i.template getIndex<1>().getMetaPos() * i.template getIndex<0>().getMetaPos()[0]
-		   i.template getIndex<2>().getMetaPos() * i.template getIndex<0>().getMetaPos()[1]
+	si.atMeta( i.template getIndex<1>().getMetaPos() * i.template getIndex<0>().getMetaPos()[0] +
+		   i.template getIndex<2>().getMetaPos() * i.template getIndex<0>().getMetaPos()[1] +
 		   i.template getIndex<3>().getMetaPos() * i.template getIndex<0>().getMetaPos()[2] );
 	return out;
     }
