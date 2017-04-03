@@ -57,13 +57,18 @@ namespace MultiArrayTools
     {
 	DistIndex& di = out.template getIndex<0>();
 	ScalProdIndex& si = out.template getIndex<1>();
-	di.atMeta( i.template getIndex<1>().getMetaPos() * i.template getIndex<1>().getMetaPos() +
-		   i.template getIndex<2>().getMetaPos() * i.template getIndex<2>().getMetaPos() +
-		   i.template getIndex<3>().getMetaPos() * i.template getIndex<3>().getMetaPos() );
-
-	si.atMeta( i.template getIndex<1>().getMetaPos() * i.template getIndex<0>().getMetaPos()[0] +
-		   i.template getIndex<2>().getMetaPos() * i.template getIndex<0>().getMetaPos()[1] +
-		   i.template getIndex<3>().getMetaPos() * i.template getIndex<0>().getMetaPos()[2] );
+	const int xx = i.template getIndex<1>().getMetaPos();
+	const int yy = i.template getIndex<2>().getMetaPos();
+	const int zz = i.template getIndex<3>().getMetaPos();
+	if(xx == 0 or yy == 0 or zz == 0){ // anistotropy in C2
+	    di.atMeta(0);
+	    si.atMeta(0);
+	}
+	
+	di.atMeta( xx * xx + yy * yy + zz * zz );
+	si.atMeta( abs( xx * i.template getIndex<0>().getMetaPos()[0] +
+			yy * i.template getIndex<0>().getMetaPos()[1] +
+			zz * i.template getIndex<0>().getMetaPos()[2] ) );
 	return out;
     }
 }
