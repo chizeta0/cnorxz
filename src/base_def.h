@@ -144,6 +144,12 @@ namespace MultiArrayTools
 
     // ma_functional.h
     class vec3d2Function;
+
+    // ma_functional.h
+    class pyProjFunction;
+
+    // ma_functional.h
+    class pyProjNoSymFunction;
 }
 
 #endif

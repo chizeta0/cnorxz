@@ -71,4 +71,26 @@ namespace MultiArrayTools
 			zz * i.template getIndex<0>().getMetaPos()[2] ) );
 	return out;
     }
+
+    pyProjNoSymFunction::pyProjNoSymFunction(const OutRange& outRange) : mOutRange(new OutRange( outRange )),
+									 out(mOutRange->begin()) {} 
+
+    pyProjNoSymFunction::OutIndex pyProjNoSymFunction::operator()(const InIndex& i) const
+    {
+	DistIndex& di = out.template getIndex<0>();
+	ScalProdIndex& si = out.template getIndex<1>();
+	const int xx = i.template getIndex<1>().getMetaPos();
+	const int yy = i.template getIndex<2>().getMetaPos();
+	const int zz = i.template getIndex<3>().getMetaPos();
+	if(xx == 0 or yy == 0 or zz == 0){ // anistotropy in C2
+	    di.atMeta(0);
+	    si.atMeta(0);
+	}
+	
+	di.atMeta( xx * xx + yy * yy + zz * zz );
+	si.atMeta( xx * i.template getIndex<0>().getMetaPos()[0] +
+		   yy * i.template getIndex<0>().getMetaPos()[1] +
+		   zz * i.template getIndex<0>().getMetaPos()[2] );
+	return out;
+    }
 }
