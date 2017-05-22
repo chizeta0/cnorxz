@@ -13,7 +13,7 @@
 
 namespace MultiArrayTools
 {
-
+    
     class IndefinitIndexBase
     {
     public:
@@ -33,18 +33,17 @@ namespace MultiArrayTools
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const;
 	
-	virtual const std::string& name() const;
-	virtual void name(const std::string& str);
- 	virtual void name(const Name& nm);
-	
 	virtual MultiRangeType rangeType() const = 0;
 
 	virtual void setPos(size_t pos);
 	virtual void setPosRel(int relPos);
 
+	virtual IndefinitIndexBase& toFirst();
+	virtual IndefinitIndexBase& toLast();
+	
 	virtual size_t max() const = 0;
 	virtual int outOfRange() const;
-
+	virtual bool atEdge() const;
 	virtual bool toNull() const;
 
 	virtual void eval() = 0;
@@ -54,18 +53,11 @@ namespace MultiArrayTools
 
 	virtual void subOrd(IndefinitIndexBase* major);
 	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) = 0;
-
-	virtual size_t majorStep() const;
-	
-	//virtual bool virt() const { return true; }
 	
     protected:
 
-	std::string mName;
 	int mPos;
-	size_t mMajorStep;
-	
-	IndefinitIndexBase* mMajor = nullptr;
+	std::map<IndefinitIndexBase*,size_t> mMajor;
     };
     
     template <class Index>

@@ -13,6 +13,8 @@
 namespace MultiArrayTools
 {
 
+    typedef std::vector<std::shared_ptr<IndefinitIndexBase> > IndexList;
+    
     template <typename T>
     class MultiArrayOperationBase
     {
@@ -21,18 +23,15 @@ namespace MultiArrayTools
 	typedef T value_type;
 	
 	MultiArrayOperationBase() /*{ CHECK; }*/ = default;
-	//MultiArrayOperationBase(const MultiArrayOperationBase& in) = default;
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
-	const IndefinitIndexBase& index() const;
+	const IndefinitIndexBase& index() const = 0;
 	
 	virtual const T& get() const = 0;
 
-	
-	
-    protected:
-        mutable IndefinitIndexBase* mIibPtr = nullptr;
+	virtual IndexList getIndices() const = 0;
+	virtual void setInternalIndex(const IndexList& il) = 0;
     };
     
     
@@ -42,7 +41,6 @@ namespace MultiArrayTools
     public:
 
 	MutableMultiArrayOperationBase() /*{ CHECK; }*/ = default;
-	//MutableMultiArrayOperationBase(const MutableMultiArrayOperationBase& in) = default;
 	virtual T& get() = 0;
     };
     
@@ -157,7 +155,7 @@ namespace MultiArrayTools
     protected:
 
 	void performAssignment(const MultiArrayOperationBase<T>& in);
-
+	
 	MutableMultiArrayBase<T,Range>& mArrayRef;
 	mutable IndexType mIndex;
 	Name mNm;
@@ -316,13 +314,14 @@ namespace MultiArrayTools
 
 	typedef MultiArrayOperationBase<T> MAOB;
 	typedef std::tuple<MAOps...> OBT;
-
+	typedef typename Range::IndexType RunIndexType;
+	
 	MultiArrayContraction(const ContractOperation& cop,
-			      const typename Range::IndexType& runIndex,
+			      const RunIndexType& runIndex,
 			      const MAOps&... mao);
 
 	MultiArrayContraction(const ContractOperation& cop,
-			      const typename Range::IndexType& runIndex,
+			      const RunIndexType& runIndex,
 			      size_t begin,
 			      size_t end,
 			      const MAOps&... mao);
@@ -364,9 +363,9 @@ namespace MultiArrayTools
  	mutable T mVal;
 	ContractOperation mOp;
 	OBT mArgs; // include first arg also here !!!
-	typename Range::IndexType mBeginIndex;
-	typename Range::IndexType mEndIndex;
-        mutable typename Range::IndexType mRunIndex;
+	RunIndexType mBeginIndex;
+	RunIndexType mEndIndex;
+        mutable RunIndexType mRunIndex;
 
     };
 }

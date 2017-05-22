@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "base_def.h"
+#include "multi_range.h"
 #include "multi_array_operation.h"
 #include "manipulator.h"
 #include "name.h"
@@ -17,11 +18,15 @@
 namespace MultiArrayTools
 {
 
-    template <typename T, class Range>
+    template <class... Ranges>
+    using TopRange = MultiRange<Ranges...>;
+    
+    template <typename T, class... Ranges>
     class MultiArrayBase
     {
     public:
 
+	typedef TopRange<Ranges...> TopRangeType
 	typedef T value_type;
 	
 	class const_iterator : public std::iterator<std::random_access_iterator_tag,T>
@@ -31,7 +36,7 @@ namespace MultiArrayTools
 	    DEFAULT_MEMBERS(const_iterator);
 	    
 	    const_iterator(const MultiArrayBase& ma);
-	    const_iterator(const MultiArrayBase& ma, const typename Range::IndexType& index);
+	    const_iterator(const MultiArrayBase& ma, const typename TopRangeType::IndexType& index);
 	    virtual ~const_iterator() = default;
 	    
 	    // Requirements:
@@ -62,23 +67,23 @@ namespace MultiArrayTools
 
 	    // Multi Array specific:
 	    
-	    const typename Range::IndexType& index() const;
-	    typename Range::IndexType& index();
+	    const typename TopRangeType::IndexType& index() const;
+	    typename TopRangeType::IndexType& index();
 
 	protected:
 	    MultiArrayBase const* mMAPtr = nullptr;
-	    typename Range::IndexType mIndex;
+	    typename TopRangeType::IndexType mIndex;
 	};
 
 	DEFAULT_MEMBERS(MultiArrayBase);
-	MultiArrayBase(const Range& range);
+	MultiArrayBase(const TopRangeType& range);
 
 	virtual ~MultiArrayBase() = default;
 
 	// only relevant for slices... has no effect for usual multiarrays
 	virtual void link(IndefinitIndexBase* iibPtr) const;
 	
-	virtual const T& operator[](const typename Range::IndexType& i) const = 0;
+	virtual const T& operator[](const typename TopRangeType::IndexType& i) const = 0;
 
 	virtual size_t size() const; 
 	virtual bool isSlice() const = 0;
@@ -89,31 +94,33 @@ namespace MultiArrayTools
 	virtual auto beginIndex() const -> decltype(Range().begin());
 	virtual auto endIndex() const -> decltype(Range().end());
 
-	virtual const Range& range() const;
+	virtual const TopRangeType& range() const;
 
 	virtual bool isConst() const;
 	
 	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str) const;
+	ConstMultiArrayOperationRoot<T,TopRangeType> operator()(const NameTypes&... str) const;
 
 	template <class NameType>
-	ConstMultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master) const;
+	ConstMultiArrayOperationRoot<T,TopRangeType> operator()(const NameType& name, bool master) const;
 
 	virtual bool isInit() const;
 	
     protected:
 	bool mInit = false;
-	std::shared_ptr<Range> mRange;
+	std::shared_ptr<TopRangeType> mRange;
 
     };
 
-    template <typename T, class Range>
-    class MutableMultiArrayBase : public MultiArrayBase<T,Range>
+    template <typename T, class... Ranges>
+    class MutableMultiArrayBase : public MultiArrayBase<T,Ranges...>
     {
     public:
 
-	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
-	typedef MultiArrayBase<T,Range> MAB;
+	typedef typename MultiArrayBase<T,Ranges...>::const_iterator const_iterator;
+	typedef MultiArrayBase<T,Ranges...> MAB;
+	typedef typename MAB::TopRangeType TopRangeType;
+	typedef typename TopRangeType::IndexType IndexType;
 	
 	class iterator : public std::iterator<std::random_access_iterator_tag,T>,
 			 public std::iterator<std::output_iterator_tag,T>
@@ -123,7 +130,7 @@ namespace MultiArrayTools
 	    DEFAULT_MEMBERS(iterator);
 	    
 	    iterator(MutableMultiArrayBase& ma);
-	    iterator(MutableMultiArrayBase& ma, const typename Range::IndexType& index);
+	    iterator(MutableMultiArrayBase& ma, const IndexType& index);
 	    virtual ~iterator() = default;
 	    
 	    // Requirements:
@@ -157,19 +164,19 @@ namespace MultiArrayTools
 
 	    // Multi Array specific:
 
-	    const typename Range::IndexType& index() const;
-	    typename Range::IndexType& index();
+	    const IndexType& index() const;
+	    IndexType& index();
 	    
 	protected:
 	    MutableMultiArrayBase* mMAPtr = nullptr;
-	    typename Range::IndexType mIndex;
+	    IndexType mIndex;
 	};
 
 	
 	DEFAULT_MEMBERS(MutableMultiArrayBase);
-	MutableMultiArrayBase(const Range& range);
+	MutableMultiArrayBase(const TopRangeType& range);
 
-	virtual T& operator[](const typename Range::IndexType& i) = 0;
+	virtual T& operator[](const IndexType& i) = 0;
 	
 	virtual iterator begin();
 	virtual iterator end();
@@ -177,38 +184,40 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;
 
 	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,Range> operator()(bool x, const NameTypes&... str) const
+	ConstMultiArrayOperationRoot<T,Ranges...> operator()(bool x, const NameTypes&... str) const
 	{
 	    return MAB::operator()(str...);
 	}
 
 	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str) const;
+	ConstMultiArrayOperationRoot<T,Ranges...> operator()(const NameTypes&... str) const;
 
 	template <class NameType>
-	ConstMultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master) const;
+	ConstMultiArrayOperationRoot<T,Ranges...> operator()(const NameType& name, bool master) const;
 	
 	template <class... NameTypes>
-	MultiArrayOperationRoot<T,Range> operator()(const NameTypes&... str);
+	MultiArrayOperationRoot<T,Ranges...> operator()(const NameTypes&... str);
 
 	template <class NameType>
-	MultiArrayOperationRoot<T,Range> operator()(const NameType& name, bool master);
+	MultiArrayOperationRoot<T,Ranges...> operator()(const NameType& name, bool master);
 
     };
     
-    template <typename T, class Range>
-    class MultiArray : public MutableMultiArrayBase<T,Range>
+    template <typename T, class Ranges...>
+    class MultiArray : public MutableMultiArrayBase<T,Ranges...>
     {
     public:
 
-	typedef MultiArrayBase<T,Range> MAB;
-	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
-	typedef typename MutableMultiArrayBase<T,Range>::iterator iterator;
+	typedef MultiArrayBase<T,Ranges...> MAB;
+	typedef typename MultiArrayBase<T,Ranges...>::const_iterator const_iterator;
+	typedef typename MutableMultiArrayBase<T,Ranges...>::iterator iterator;
+	typedef typename MAB::TopRangeType TopRangeType;
+	typedef typename TopRangeType::IndexType IndexType;
 	
 	DEFAULT_MEMBERS(MultiArray);
-	MultiArray(const Range& range);
-	MultiArray(const Range& range, const std::vector<T>& vec);
-	MultiArray(const Range& range, std::vector<T>&& vec);
+	MultiArray(const TopRangeType& range);
+	MultiArray(const TopRangeType& range, const std::vector<T>& vec);
+	MultiArray(const TopRangeType& range, std::vector<T>&& vec);
 
 	template <class Range2, class Range3>
 	MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
@@ -218,8 +227,8 @@ namespace MultiArrayTools
 	template <class Range2, class Range3>
 	MultiArray& operator=(const MultiArray<MultiArray<T,Range2>,Range3> in);
 	
-	T& operator[](const typename Range::IndexType& i) override;
-	const T& operator[](const typename Range::IndexType& i) const override;
+	T& operator[](const IndexType& i) override;
+	const T& operator[](const IndexType& i) const override;
 
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
@@ -227,8 +236,8 @@ namespace MultiArrayTools
 	const T* data() const;
 
 	//	virtual void manipulate(ManipulatorBase<T>& mb,
-	//			const typename Range::IndexType& manBegin,
-	//				const typename Range::IndexType& manEnd);
+	//			const typename Ranges...::IndexType& manBegin,
+	//				const typename Ranges...::IndexType& manEnd);
 	
 	template <typename U, class RangeX>
 	friend class MultiArray;
@@ -237,18 +246,20 @@ namespace MultiArrayTools
 	std::vector<T> mCont;
     };
 
-    template <typename T, class Range, class Function>
-    class FunctionalMultiArray : public MultiArrayBase<T,Range>
+    template <typename T, class Ranges..., class Function>
+    class FunctionalMultiArray : public MultiArrayBase<T,Ranges...>
     {
     public:
-	typedef MultiArrayBase<T,Range> MAB;
-	typedef typename MultiArrayBase<T,Range>::const_iterator const_iterator;
-
+	typedef MultiArrayBase<T,Ranges...> MAB;
+	typedef typename MultiArrayBase<T,Ranges...>::const_iterator const_iterator;
+	typedef typename MAB::TopRangeType TopRangeType;
+	typedef typename TopRangeType::IndexType IndexType;
+	
 	DEFAULT_MEMBERS(FunctionalMultiArray);
-	//FunctionalMultiArray(const Range& range);
-	FunctionalMultiArray(const Range& range, const Function& func);
+	//FunctionalMultiArray(const Ranges...& range);
+	FunctionalMultiArray(const TopRangeType& range, const Function& func);
 
-	virtual const T& operator[](const typename Range::IndexType& i) const override;
+	virtual const T& operator[](const IndexType& i) const override;
 
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;

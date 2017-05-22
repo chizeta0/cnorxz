@@ -9,10 +9,7 @@ namespace MultiArrayTools
     
     IndefinitIndexBase::~IndefinitIndexBase()
     {
-	//freeLinked();
-	mLinked = nullptr;
 	mMajor = nullptr;
-	mSoftLinked = nullptr;
     }
     
     size_t IndefinitIndexBase::pos() const
@@ -21,42 +18,26 @@ namespace MultiArrayTools
 	return static_cast<size_t>( mPos );
     }
     
-    const std::string& IndefinitIndexBase::name() const
-    {
-	//assert(not virt());
-	return mName;
-    }
-
-    void IndefinitIndexBase::name(const std::string& str)
-    {
-	//assert(not virt());
-	mName = str;
-    }
-    
-    void IndefinitIndexBase::name(const Name& nm)
-    {
-	//assert(not virt());
-	mName = nm.own();
-    }    
-
     void IndefinitIndexBase::setPos(size_t pos)
     {
 	//CHECK;
 	//assert(not virt());
 	mPos = pos;
-	if(linked()){
-	    mLinked->setPos(mPos);
-	    mLinked->evalMajor();
-	}
     }
 
     void IndefinitIndexBase::setPosRel(int relPos)
     {
 	mPos += relPos;
-	if(linked()){
-	    mLinked->setPosRel(relPos);
-	    mLinked->evalMajor(relPos);
-	}
+    }
+    // MAJOR INDEX UPDATE !!!!!
+    void IndefinitIndexBase::toFirst()
+    {
+	mPos = 0;
+    }
+    
+    void IndefinitIndexBase::toLast()
+    {
+	mPos = max() - 1;
     }
     
     int IndefinitIndexBase::outOfRange() const
@@ -72,6 +53,11 @@ namespace MultiArrayTools
 	}
     }
 
+    bool atEdge() const
+    {
+	return mPos == max();
+    }
+    
     bool IndefinitIndexBase::toNull() const
     {
 	//assert(not virt());
