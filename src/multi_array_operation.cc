@@ -36,7 +36,7 @@ namespace MultiArrayTools
     {
 	//#error "WRITE MAOR INTRINSIC CONTRACT FUNCTION"
 	//CHECK;
-	in.linkIndicesTo(MAOB::mIibPtr);
+
 	//CHECK;
 	IndexType& iref = dynamic_cast<IndexType&>(*MAOB::mIibPtr);
 	//CHECK;
@@ -51,7 +51,7 @@ namespace MultiArrayTools
 	    //assert(not std::isnan( get() ));
 	}
 	//CHECK;
-	MAOB::mIibPtr->freeLinked();
+
     }
 
     template <typename T, class Range>
@@ -90,7 +90,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationRoot<T,Range>& in)
     {
 	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
 
@@ -99,7 +99,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range>& in)
     {
 	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
 
@@ -109,7 +109,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(MultiArrayOperationRoot<T,Range2>& in)
     {
 	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
 
@@ -120,7 +120,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperationRoot<T,Range2>& in)
     {
 	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
 
@@ -130,7 +130,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(ConstMultiArrayOperationRoot<T,Range2>& in)
     {
 	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
 
@@ -141,7 +141,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(const ConstMultiArrayOperationRoot<T,Range2>& in)
     {
 	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
 
@@ -152,7 +152,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayOperation<T,Operation,MAOps...>& in)
     {
    	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
     
@@ -162,7 +162,7 @@ namespace MultiArrayTools
     MultiArrayOperationRoot<T,Range>::operator=(const MultiArrayContraction<T,Operation,Range2,MAOps...>& in)
     {
    	performAssignment(in);
-	freeIndex();
+
 	return *this;
     }
     
@@ -306,19 +306,6 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    IndefinitIndexBase* MultiArrayOperationRoot<T,Range>::getLinked(const std::string& name) const
-    {
-	return mIndex.getLinked(name);
-    }
-    
-    template <typename T, class Range>
-    void MultiArrayOperationRoot<T,Range>::linkIndicesTo(IndefinitIndexBase* target) const
-    {
-	MAOB::mIibPtr = &mIndex;
-	MAOB::mIibPtr->linkTo(target);
-    }
-
-    template <typename T, class Range>
     T& MultiArrayOperationRoot<T,Range>::get()
     {
 	//CHECK;
@@ -361,7 +348,6 @@ namespace MultiArrayTools
     template <typename T, class Range>
     void MultiArrayOperationRoot<T,Range>::freeIndex() const
     {
-	MAOB::mIibPtr->freeLinked();
 	mIndex = mArrayRef.beginIndex();
 	MAOB::mIibPtr = &mIndex;
 	MAOB::mIibPtr->name(mNm);
@@ -428,7 +414,7 @@ namespace MultiArrayTools
 						    const std::string& indexName,
 						    const MAOps&... mao) const
     {
-	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
+	// !!!!!
 	return MultiArrayContraction<T,ContractOperation,Range2,
 				     ConstMultiArrayOperationRoot<T,Range>,
 				     MAOps...>(cop, *ind, *this, mao...);
@@ -443,7 +429,7 @@ namespace MultiArrayTools
 						    size_t end,
 						    const MAOps&... mao) const
     {
-	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( mIndex.getLinked(indexName) );
+	// !!!!
 	return MultiArrayContraction<T,ContractOperation,Range2,
 				     ConstMultiArrayOperationRoot<T,Range>,
 				     MAOps...>(cop, *ind, begin, end, *this, mao...);
@@ -509,19 +495,6 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range>
-    IndefinitIndexBase* ConstMultiArrayOperationRoot<T,Range>::getLinked(const std::string& name) const
-    {
-	return mIndex.getLinked(name);
-    }
-    
-    template <typename T, class Range>
-    void ConstMultiArrayOperationRoot<T,Range>::linkIndicesTo(IndefinitIndexBase* target) const
-    {
-	MAOB::mIibPtr = &mIndex;
-	MAOB::mIibPtr->linkTo(target);
-    }
-
-    template <typename T, class Range>
     const T& ConstMultiArrayOperationRoot<T,Range>::get() const
     {
 	//CHECK;
@@ -540,15 +513,6 @@ namespace MultiArrayTools
     {
 	mIndex.copyPos(ind);
 	return *this;
-    }
-
-    template <typename T, class Range>
-    void ConstMultiArrayOperationRoot<T,Range>::freeIndex() const
-    {
-	MAOB::mIibPtr->freeLinked();
-	mIndex = mArrayRef.beginIndex();
-	MAOB::mIibPtr = &mIndex;
-	MAOB::mIibPtr->name(mNm);
     }
 
     /********************************
@@ -588,15 +552,10 @@ namespace MultiArrayTools
 	
 	std::cout << "map assignment: " << endIndex.pos() << " elements" << std::endl;
 
-	mRoot.linkIndicesTo( &mIndex );
-	mRoot.linkIndicesTo( &mMF.index() );
-	mMF.linkIndicesTo( &mIndex );
-	in.linkIndicesTo( &mIndex );
+	// !!!!!
 	
 	MultiArray<T,TotalRange> cnt(mRoot->range());
 	MultiArrayOperationRoot<T,TotalRange> cnto(cnt, mRoot.name());
-	cnto.linkIndicesTo( &mIndex );
-	cnto.linkIndicesTo( &mMF.index() );
 	
 	for(mIndex.setPos(0), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){
 	    get() += in.get();
@@ -624,16 +583,9 @@ namespace MultiArrayTools
 	
 	std::cout << "map assignment: " << endIndex.pos() << " elements" << std::endl;
 
-	mRoot.linkIndicesTo( &mIndex );
-	mRoot.linkIndicesTo( &mMF.index() );
-	mMF.linkIndicesTo( &mIndex );
-	in.linkIndicesTo( &mIndex );
-	
+	//!!!!!!!
 	MultiArray<T,TotalRange> cnt(mRoot->range());
 	MultiArrayOperationRoot<T,TotalRange> cnto(cnt, mRoot.name());
-	cnto.linkIndicesTo( &mIndex );
-	cnto.linkIndicesTo( &mMF.index() );
-	
 	for(mIndex.setPos(0), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){
 	    get() += in.get();
 	    cnto.get() += 1.;
@@ -652,24 +604,6 @@ namespace MultiArrayTools
     }
 
     template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
-    IndefinitIndexBase* MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
-    getLinked(const std::string& name) const
-    {
-	return mRoot.getLinked(name);
-    }
-
-    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
-    void MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::
-    linkIndicesTo(IndefinitIndexBase* target) const
-    {
-	mRoot.linkIndicesTo(target);
-    }
-
-    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
-    void MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::setInternalLinks() const
-    { }
-
-    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
     const T& MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,TotalRange>::get() const
     {
 	return mRoot.get();
@@ -684,27 +618,6 @@ namespace MultiArrayTools
     /*****************************
      *   MultiArrayOperation     *
      *****************************/
-
-    template <size_t N>
-    struct TupleIndicesLinker
-    {
-	template <class IndexTuple>
-	static void linkTupleIndicesTo(IndexTuple& itp, IndefinitIndexBase* target)
-	{
-	    std::get<N>(itp).linkIndicesTo(target);
-	    TupleIndicesLinker<N-1>::linkTupleIndicesTo(itp, target);
-	}
-    };
-    
-    template <>
-    struct TupleIndicesLinker<0>
-    {
-	template <class IndexTuple>
-	static void linkTupleIndicesTo(IndexTuple& itp, IndefinitIndexBase* target)
-	{
-	    std::get<0>(itp).linkIndicesTo(target);
-	}
-    };
 
     template <size_t N>
     struct OperationCall
@@ -743,37 +656,6 @@ namespace MultiArrayTools
 	    -> decltype(op(std::get<0>(tp).get(), args.get()...))
 	{
 	    return op(std::get<0>(tp).get(), args.get()...);
-	}
-    };
-
-    template <size_t N>
-    struct LinkedIndexGetter
-    {
-	template <class Tuple>
-	static IndefinitIndexBase* getLinked(const Tuple& optuple,
-					     const std::string& name,
-					     IndefinitIndexBase* current)
-	{
-	    if(current == nullptr){
-		current = std::get<N>(optuple).getLinked(name);
-		LinkedIndexGetter<N-1>::getLinked(optuple, name, current);
-	    }
-	    return current;
-	}
-    };
-
-    template <>
-    struct LinkedIndexGetter<0>
-    {
-	template <class Tuple>
-	static IndefinitIndexBase* getLinked(const Tuple& optuple,
-					     const std::string& name,
-					     IndefinitIndexBase* current)
-	{
-	    if(current == nullptr){
-		current = std::get<0>(optuple).getLinked(name);
-	    }
-	    return current;
 	}
     };
     
@@ -816,7 +698,7 @@ namespace MultiArrayTools
 	     const std::string& indexName,
 	     const MAOps2&... mao) const
     {
-	typename Range2::IndexType* ind = dynamic_cast<typename Range2::IndexType*>( getLinked(indexName) );
+	// !!!
 	return MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...>,
 				     MAOps2...>(cop, *ind, *this, mao...);
     }
@@ -859,19 +741,6 @@ namespace MultiArrayTools
 	return sizeof...(MAOps) + 1;
     }
 
-    template <typename T, class Operation, class... MAOps>
-    IndefinitIndexBase* MultiArrayOperation<T,Operation,MAOps...>::getLinked(const std::string& name) const
-    {
-	return LinkedIndexGetter<sizeof...(MAOps)-1>::getLinked(mArgs, name, nullptr);
-    }
-    
-    template <typename T, class Operation, class... MAOps>    
-    void MultiArrayOperation<T,Operation,MAOps...>::linkIndicesTo(IndefinitIndexBase* target) const
-    {
-	TupleIndicesLinker<sizeof...(MAOps)-1>::linkTupleIndicesTo(mArgs, target);
-    }
-
-    
     template <typename T, class Operation, class... MAOps>
     const T& MultiArrayOperation<T,Operation,MAOps...>::get() const
     {
@@ -990,28 +859,6 @@ namespace MultiArrayTools
     {
 	return sizeof...(MAOps) + 1;
     }
-
-    template <typename T, class ContractOperation, class Range, class... MAOps>
-    IndefinitIndexBase* MultiArrayContraction<T,ContractOperation,Range,MAOps...>::getLinked(const std::string& name) const
-    {
-	return LinkedIndexGetter<sizeof...(MAOps)-1>::getLinked(mArgs, name, nullptr);
-    }
-
-    template <typename T, class ContractOperation, class Range, class... MAOps>    
-    void MultiArrayContraction<T,ContractOperation,Range,MAOps...>::setInternalLinks() const
-    {
-	linkIndicesTo(&mRunIndex);
-    }
-    
-    template <typename T, class ContractOperation, class Range, class... MAOps>    
-    void MultiArrayContraction<T,ContractOperation,Range,MAOps...>::linkIndicesTo(IndefinitIndexBase* target) const
-    {
-	if(target != &mRunIndex){
-	    setInternalLinks();
-	}
-	TupleIndicesLinker<sizeof...(MAOps)-1>::linkTupleIndicesTo(mArgs, target);
-    }
-
 
     template <typename T, class ContractOperation, class Range, class... MAOps>
     const T& MultiArrayContraction<T,ContractOperation,Range,MAOps...>::get() const

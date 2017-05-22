@@ -26,14 +26,10 @@ namespace MultiArrayTools
 
 	virtual size_t argNum() const = 0;
 	const IndefinitIndexBase& index() const;
-	virtual IndefinitIndexBase* getLinked(const std::string& name) const = 0;
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const = 0;
 	
 	virtual const T& get() const = 0;
 
-	virtual void setInternalLinks() const {}
 	
-	virtual void freeIndex() const;
 	
     protected:
         mutable IndefinitIndexBase* mIibPtr = nullptr;
@@ -145,15 +141,10 @@ namespace MultiArrayTools
 	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);
 	const MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
 
-	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
-
 	virtual T& get() override;
 	virtual const T& get() const override;
 
 	const Name& name() const;
-
-	virtual void freeIndex() const override;
 
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
@@ -224,15 +215,9 @@ namespace MultiArrayTools
 
 	// set index -> implement !!!!!
 	const ConstMultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
-
-	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
-
 	virtual const T& get() const override;
 
 	const Name& name() const;
-
-	virtual void freeIndex() const override;
 
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
@@ -264,11 +249,6 @@ namespace MultiArrayTools
 	MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in);
 	
 	virtual size_t argNum() const override;
-
-	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
-
-	virtual void setInternalLinks() const override;
 	
 	virtual const T& get() const override;
 	virtual T& get() override;
@@ -319,9 +299,6 @@ namespace MultiArrayTools
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
 	
 	virtual size_t argNum() const override;
-	
-	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual const T& get() const override;
 
@@ -377,13 +354,8 @@ namespace MultiArrayTools
 
 	template <class MAOp2>
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
-
-	virtual void setInternalLinks() const override;
 	
 	virtual size_t argNum() const override;
-
-	virtual IndefinitIndexBase* getLinked(const std::string& name) const override;
-	virtual void linkIndicesTo(IndefinitIndexBase* target) const override;
 
 	virtual const T& get() const override;
 

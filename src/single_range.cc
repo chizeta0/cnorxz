@@ -348,28 +348,9 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
-    void SingleIndex<U,TYPE>::linkTo(IndefinitIndexBase* target)
-    {
-	target->link(this);
-    }    
-
-    template <typename U, RangeType TYPE>
     void SingleIndex<U,TYPE>::copyPos(const SingleIndex<U,TYPE>& in)
     {
 	IIB::setPos(in.pos());
-    }
-
-    template <typename U, RangeType TYPE>
-    IndefinitIndexBase* SingleIndex<U,TYPE>::getLinked(const std::string& name)
-    {
-	//VCHECK(name);
-	//VCHECK(IIB::mName);
-	if(name == IIB::mName){
-	    return this;
-	}
-	else {
-	    return nullptr;
-	}
     }
 
     template <typename U, RangeType TYPE>

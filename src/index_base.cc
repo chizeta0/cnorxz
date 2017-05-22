@@ -38,54 +38,6 @@ namespace MultiArrayTools
 	//assert(not virt());
 	mName = nm.own();
     }    
-    
-    bool IndefinitIndexBase::link(IndefinitIndexBase* toLink)
-    {
-	//assert(not virt());
-	if(toLink->rangeType() != rangeType() and toLink->name() == name()){
-	    assert(0);
-	    // throw !!
-	}
-	if(toLink->rangeType() == rangeType() and toLink->name() == name()){
-	    if(mLinked == toLink){
-		return true; // dont link twice the same
-	    }
-	    else if(mLinked == nullptr){
-		mLinked = toLink;
-		return true;
-	    }
-	    else {
-		return mLinked->link(toLink);
-	    }
-	}
-	else {
-	    return false;
-	}
-    }
-
-    void IndefinitIndexBase::freeLinked()
-    {
-	if(mLinked != nullptr){
-	    //mLinked->freeLinked();
-	    mLinked = nullptr;
-	}
-	if(mSoftLinked != nullptr){
-	    //mSoftLinked->freeLinked();
-	    mSoftLinked = nullptr;
-	}
-    }
-
-    bool IndefinitIndexBase::linked() const
-    {
-	//assert(not virt());
-	return mLinked != nullptr;
-    }
-
-    bool IndefinitIndexBase::linkedTo(IndefinitIndexBase* link) const
-    {
-	//assert(not virt());
-	return mLinked == link or mSoftLinked == link;
-    }
 
     void IndefinitIndexBase::setPos(size_t pos)
     {

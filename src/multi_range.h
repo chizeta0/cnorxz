@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <tuple>
+#include <memory>
 
 #include "base_def.h"
 #include "range_base.h"
@@ -17,9 +18,9 @@ namespace MultiArrayTools
     class MultiIndex : public IndexBase<MultiIndex<Indices...> >
     {
     public:
-	typedef std::tuple<Indices...> IndexPack;
+	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef IndefinitIndexBase IIB;
-	typedef IndexBase<MultiIndex<Indices...> > IB;
+	typedef IndexBase<MultiIndex<std::shared_ptr<Indices>...> > IB;
 	typedef std::tuple<decltype(Indices().getMetaPos())...> MetaType;
 	
     protected:
@@ -38,12 +39,12 @@ namespace MultiArrayTools
 	MultiIndex(const MultiIndex& in);
 	MultiIndex& operator=(const MultiIndex& in);
 	
-	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range);
+	MultiIndex(RangeBase<MultiIndex<std::shared_ptr<Indices>...> > const* range);
 	
-	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
+	MultiIndex(RangeBase<MultiIndex<std::shared_ptr<Indices>...> > const* range,
 		   Indices&&... inds);
 	
-	MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
+	MultiIndex(RangeBase<MultiIndex<std::shared_ptr<Indices>...> > const* range,
 		   const IndexPack& ipack);
 	
  	//virtual ~MultiIndex();
@@ -60,10 +61,12 @@ namespace MultiArrayTools
 	virtual MultiRangeType rangeType() const override;
 	
 	template <size_t N>
-	typename std::tuple_element<N, std::tuple<Indices...> >::type& getIndex();
+	auto getIndex() ->;
+	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Indices>...> >::type& getIndex();
 
 	template <size_t N>
-	typename std::tuple_element<N, std::tuple<Indices...> >::type const& getIndex() const;
+	auto getIndex() const ->;
+	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Indices>...> >::type const& getIndex() const;
 	
 	IndefinitIndexBase& get(size_t n);
 	const IndefinitIndexBase& get(size_t n) const;
@@ -79,12 +82,8 @@ namespace MultiArrayTools
 	// dimension of MultiRange; includes ALL degrees of freedom
 	virtual size_t dim() const override;
 
-	virtual bool link(IndefinitIndexBase* toLink) override;
-	virtual void linkTo(IndefinitIndexBase* target) override;
+	virtual void copyPos(const MultiIndex<std::shared_ptr<Indices>...>& in) override;
 
-	virtual void copyPos(const MultiIndex<Indices...>& in) override;
-
-	virtual IndefinitIndexBase* getLinked(const std::string& name) override;
 	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) override;
 	
 	//virtual void eval() override;
@@ -102,23 +101,24 @@ namespace MultiArrayTools
     {
     public:
 
-	typedef std::tuple<Ranges...> SpaceType;
-	typedef typename RangeBase<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
+	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
+	typedef typename RangeBase<MultiIndex<typename Ranges::IndexType...> >::IndexType
+	IndexType;
 	
 	DEFAULT_MEMBERS(MultiRange);
 
-	MultiRange(const Ranges&... rs);
+	MultiRange(const std::shared_ptr<Ranges>&... rs);
 	MultiRange(const SpaceType& space);
 	
 	static const size_t dim = sizeof...(Ranges);
 
-	static MultiRange<Ranges...> oType() { return MultiRange<Ranges...>(); }
-	
-	template <size_t N>
-	typename std::tuple_element<N, std::tuple<Ranges...> >::type& getRange();
+	template <size_t N> // !!! return ref to range, not the corresp. shared ptr
+	auto getRange() -> ;
+	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Ranges>...> >::type& getRange();
 
-	template <size_t N>
-	typename std::tuple_element<N, std::tuple<Ranges...> >::type const& getRange() const;
+	template <size_t N> // !!!
+	auto getRange() const ->;
+	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Ranges>...> >::type const& getRange() const;
 	
 	size_t size() const override;
 	const SpaceType& space() const;

@@ -47,11 +47,8 @@ namespace MultiArrayTools
 	virtual SingleIndex& atMeta(const U& metaPos);
 	
 	virtual size_t dim() const override; // = 1
-	virtual void linkTo(IndefinitIndexBase* target) override;
-
 	virtual void copyPos(const SingleIndex& in) override;
 
-	virtual IndefinitIndexBase* getLinked(const std::string& name) override;
 	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) override;
 	
 	//virtual void eval() override;

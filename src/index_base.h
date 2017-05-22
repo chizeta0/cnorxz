@@ -39,13 +39,6 @@ namespace MultiArrayTools
 	
 	virtual MultiRangeType rangeType() const = 0;
 
-	virtual bool link(IndefinitIndexBase* toLink);  
-	virtual void freeLinked(); 
-	virtual bool linked() const;
-	virtual bool linkedTo(IndefinitIndexBase* link) const;
-	virtual void linkTo(IndefinitIndexBase* target) = 0; 
-	virtual IndefinitIndexBase* getLinked(const std::string& name) = 0;
-
 	virtual void setPos(size_t pos);
 	virtual void setPosRel(int relPos);
 
@@ -72,9 +65,7 @@ namespace MultiArrayTools
 	int mPos;
 	size_t mMajorStep;
 	
-	IndefinitIndexBase* mLinked = nullptr;
 	IndefinitIndexBase* mMajor = nullptr;
-	IndefinitIndexBase* mSoftLinked = nullptr;
     };
     
     template <class Index>
