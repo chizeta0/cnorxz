@@ -18,7 +18,7 @@ namespace MultiArrayTools
     {
     public:
 	DEFAULT_MEMBERS(IndefinitIndexBase);
-	virtual ~IndefinitIndexBase();
+	virtual ~IndefinitIndexBase() = default; 
 	
 	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
 	virtual IndefinitIndexBase& operator++() = 0;
@@ -26,32 +26,26 @@ namespace MultiArrayTools
 	virtual IndefinitIndexBase& operator+=(int n) = 0;
 	virtual IndefinitIndexBase& operator-=(int n) = 0;
 
-	// Make this somehow better... !!!
-	//virtual bool operator==(const IndefinitIndexBase& i) = 0;
-	//virtual bool operator!=(const IndefinitIndexBase& i) = 0;
+	bool operator==(const IndefinitIndexBase& i) const;
+	bool operator!=(const IndefinitIndexBase& i) const;
 	
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const;
 	
 	virtual MultiRangeType rangeType() const = 0;
 
-	virtual void setPos(size_t pos);
-	virtual void setPosRel(int relPos);
+	virtual IndefinitIndexBase& setPos(size_t pos, IndefinitIndexBase* ctrlPtr = nullptr);
+	virtual IndefinitIndexBase& setPosRel(int relPos, IndefinitIndexBase* ctrlPtr = nullptr);
 
-	virtual IndefinitIndexBase& toFirst();
-	virtual IndefinitIndexBase& toLast();
+	virtual IndefinitIndexBase& toFirst(IndefinitIndexBase* ctrlPtr = nullptr);
+	virtual IndefinitIndexBase& toLast(IndefinitIndexBase* ctrlPtr = nullptr);
 	
 	virtual size_t max() const = 0;
 	virtual int outOfRange() const;
 	virtual bool atEdge() const;
-	virtual bool toNull() const;
+	virtual bool master() const;
 
-	virtual void eval() = 0;
-	virtual void evalMajor();
-	virtual void evalMajor(int num);
-	virtual bool master();
-
-	virtual void subOrd(IndefinitIndexBase* major);
+	virtual IndefinitIndexBase& subOrd(IndefinitIndexBase* major);
 	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) = 0;
 	
     protected:
@@ -72,11 +66,8 @@ namespace MultiArrayTools
 	
 	//virtual size_t pos() const override; // = mPos; implement !!!
 	virtual size_t max() const override;
-	virtual bool toNull() const override;
 
 	virtual void assignRange(RangeBase<Index> const* range);
-
-	virtual void eval() override;
 	virtual void copyPos(const Index& in) = 0;
 	
     protected:

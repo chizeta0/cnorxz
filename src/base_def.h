@@ -52,6 +52,9 @@ namespace MultiArrayTools
     class MultiRangeType;
 
     // range_base.h
+    class IndefinitRangeBase;
+    
+    // range_base.h
     template <class Index>
     class RangeBase;
 

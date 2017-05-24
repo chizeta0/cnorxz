@@ -13,7 +13,7 @@
 namespace MultiArrayTools
 {
 
-    typedef std::vector<std::shared_ptr<IndefinitIndexBase> > IndexList;
+    typedef std::map<Name,std::shared_ptr<IndefinitIndexBase> > IndexList;
     
     template <typename T>
     class MultiArrayOperationBase
@@ -29,12 +29,8 @@ namespace MultiArrayTools
 	const IndefinitIndexBase& index() const = 0;
 	
 	virtual const T& get() const = 0;
-
-	virtual IndexList getIndices() const = 0;
-	virtual void setInternalIndex(const IndexList& il) = 0;
     };
-    
-    
+   
     template <typename T>
     class MutableMultiArrayOperationBase : public MultiArrayOperationBase<T>
     {
@@ -143,7 +139,6 @@ namespace MultiArrayTools
 	virtual const T& get() const override;
 
 	const Name& name() const;
-
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
 	template <typename U, class RangeX>
@@ -216,7 +211,6 @@ namespace MultiArrayTools
 	virtual const T& get() const override;
 
 	const Name& name() const;
-
 	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
 	
 	template <typename U, class RangeX>
@@ -250,6 +244,7 @@ namespace MultiArrayTools
 	
 	virtual const T& get() const override;
 	virtual T& get() override;
+	
 	// !!!!
     protected:
 	IndexMapFunction<InRange,OutRange> mMF;
@@ -297,9 +292,8 @@ namespace MultiArrayTools
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
 	
 	virtual size_t argNum() const override;
-
 	virtual const T& get() const override;
-
+	
     protected:
 
  	mutable T mVal;
@@ -355,9 +349,8 @@ namespace MultiArrayTools
 	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
 	
 	virtual size_t argNum() const override;
-
 	virtual const T& get() const override;
-
+	
     protected:
 
  	mutable T mVal;

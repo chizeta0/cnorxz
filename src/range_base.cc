@@ -112,6 +112,11 @@ namespace MultiArrayTools
     {
 	return true;
     }
-
+    
+    template <class Index>
+    RangeBase<Index>* SubRangeBase<Index>::base()
+    {
+	return mBase;
+    }
 
 }

@@ -291,7 +291,7 @@ namespace MultiArrayTools
     {
 	return mNm;
     }
-
+    
     template <typename T, class Range>
     MultiArrayOperationRoot<T,Range>& MultiArrayOperationRoot<T,Range>::operator[](const IndexType& ind)
     {
@@ -469,14 +469,15 @@ namespace MultiArrayTools
 	mIndex = dynamic_cast<typename TotalInRange::IndexType const&>( in.index() );
 	
 	mNm = in.name();
-	mIndex.name(mNm); // to be sure...
 		
 	typename TotalInRange::IndexType endIndex = mIndex;
-	endIndex.setPos( mIndex.max() );
+	++endIndex.toLast();
 	
 	std::cout << "map assignment: " << endIndex.pos() << " elements" << std::endl;
 
-	// !!!!!
+	IndexList il = in.getIndices();
+	setInternalIndex(il);
+	in.setInternalIndex(il);
 	
 	MultiArray<T,TotalRange> cnt(mRoot->range());
 	MultiArrayOperationRoot<T,TotalRange> cnto(cnt, mRoot.name());
@@ -485,7 +486,6 @@ namespace MultiArrayTools
 	    get() += in.get();
 	    cnto.get() += 1.;
 	}
-	mRoot.freeIndex();
 	// CHECK whether T / size_t mixture works!!
 	mRoot /= cnt(mRoot.name(), true);
 	return *this;
@@ -497,16 +497,17 @@ namespace MultiArrayTools
     operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in)
     {
 	mIndex = dynamic_cast<typename TotalInRange::IndexType const&>( in.index() );
-	
 	mNm = in.name();
-	mIndex.name(mNm); // to be sure...
 		
 	typename TotalInRange::IndexType endIndex = mIndex;
 	++endIndex.toLast();
 	
 	std::cout << "map assignment: " << endIndex.pos() << " elements" << std::endl;
 
-	//!!!!!!!
+	IndexList il = in.getIndices();
+	setInternalIndex(il);
+	in.setInternalIndex(il);
+	
 	MultiArray<T,TotalRange> cnt(mRoot->range());
 	MultiArrayOperationRoot<T,TotalRange> cnto(cnt, mRoot.name());
 	for(mIndex.toFirst(), mMF.eval(); mIndex != endIndex; ++mIndex, mMF.eval()){

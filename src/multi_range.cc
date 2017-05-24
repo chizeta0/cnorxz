@@ -77,17 +77,18 @@ namespace MultiArrayTools
 	template <size_t DIGIT>
 	struct SubIteration
 	{
+	    // use 'plus' as few as possible !!
 	    template <class MultiIndex>
 	    static inline void plus(MultiIndex& index, int num)
 	    {
 		auto& si = index.template getIndex<DIGIT>();
-		si.setPosRel(num);
+		si.setPosRel(num, &index);
 		size_t oor = si.outOfRange();
-		if(oor > 0){
+		while(oor > 0){
 		    SubIteration<DIGIT-1>::pp(index);
 		    SubIteration<DIGIT>::plus(index, -si.max());
 		}
-		else if(oor < 0){
+		while(oor < 0){
 		    SubIteration<DIGIT-1>::mm(index);
 		    SubIteration<DIGIT>::plus(index, si.max());
 		}
@@ -97,13 +98,12 @@ namespace MultiArrayTools
 	    static inline void pp(MultiIndex& index)
 	    {
 		auto& si = index.template getIndex<DIGIT>();
-		//IndefinitIndexBase& si = index.get(DIGIT);
-		if(si.pos() == si.max()-1){
-		    si.setPos(0);
+		if(si.pos() == si.atEdge()){
+		    si.setPos(0, &index);
 		    SubIteration<DIGIT-1>::pp(index);
 		}
 		else {
-		    si.setPosRel(1);
+		    si.setPosRel(1, &index);
 		}
 	    }
 
@@ -111,13 +111,12 @@ namespace MultiArrayTools
 	    static inline void mm(MultiIndex& index)
 	    {
 		auto& si = index.template getIndex<DIGIT>();
-		//IndefinitIndexBase& si = index.get(DIGIT);
-		if(si.pos() == si.max()-1){
-		    si.setPos(si.max()-1);
+		if(si.pos() == si.atEdge()){
+		    si.setPos(si.atEdge(), &index);
 		    SubIteration<DIGIT-1>::mm(index);
 		}
 		else {
-		    si.setPosRel(1);
+		    si.setPosRel(1, &index);
 		}
 	    }
 	};
@@ -129,45 +128,21 @@ namespace MultiArrayTools
 	    static inline void plus(MultiIndex& index, int num)
 	    {
 		auto& si = index.template getIndex<0>();
-		//IndefinitIndexBase& si = index.get(0);
-		si.setPosRel(num);
+		si.setPosRel(num, &index);
 	    }
 
 	    template <class MultiIndex>
 	    static inline void pp(MultiIndex& index)
 	    {
 		auto& si = index.template getIndex<0>();
-		//IndefinitIndexBase& si = index.get(0);
-		si.setPosRel(1);
+		si.setPosRel(1, &index);
 	    }
 
 	    template <class MultiIndex>
 	    static inline void mm(MultiIndex& index)
 	    {
 		auto& si = index.template getIndex<0>();
-		//IndefinitIndexBase& si = index.get(0);
-		si.setPosRel(-1);
-	    }
-	};
-
-	template <size_t N>
-	struct TupleNamer
-	{
-	    template <class IndexPack, class Name>
-	    static void nameTuple(IndexPack& iPack, Name& name)
-	    {
-		std::get<N>(iPack).name(name.get(N));
-		TupleNamer<N-1>::nameTuple(iPack, name);
-	    }
-	};
-	
-	template <>
-	struct TupleNamer<0>
-	{
-	    template <class IndexPack, class Name>
-	    static void nameTuple(IndexPack& iPack, Name& name)
-	    {
-		std::get<0>(iPack).name(name.get(0));
+		si.setPosRel(-1, &index);
 	    }
 	};
 
@@ -416,6 +391,10 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    MultiIndex<Indices...>::MultiIndex(std::vector<std::shared_ptr<IndefinitIndexBase> >& indexList) :
+	// !!!!
+    
+    template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
 	SubIteration<sizeof...(Indices)-1>::pp(*this);
@@ -464,7 +443,7 @@ namespace MultiArrayTools
     }
     
     template <class... Indices>
-    IndefinitIndexBase& MultiIndex<Indices...>::operator=(size_t pos)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IIB::setPos( pos );
 	IndexPackSetter<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
@@ -482,20 +461,6 @@ namespace MultiArrayTools
     {
 	size_t res = Evaluation<sizeof...(Indices)-1>::evaluate(in);
 	return res;
-    }
-
-    template <class... Indices>
-    void MultiIndex<Indices...>::name(const Name& nm)
-    {
-	IIB::mName = nm.own();
-	if(nm.size() >= sizeof...(Indices)){
-	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm);
-	}
-	else {
-	    Name nm2 = nm;
-	    nm2.autoName(sizeof...(Indices));
-	    TupleNamer<sizeof...(Indices)-1>::nameTuple(mIPack, nm2);
-	}
     }
 
     template <class... Indices>
@@ -602,7 +567,7 @@ namespace MultiArrayTools
 	    return 0;
 	}
     }
-
+    
     template <size_t N>
     struct TuplePrinter
     {
@@ -684,6 +649,15 @@ namespace MultiArrayTools
 	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> is;
 	IndexSetter<sizeof...(Ranges)-1>::setEnd(is,mSpace);
 	return ++MultiIndex<typename Ranges::IndexType...>(this, is);
+    }
+
+    template <class... Ranges>
+    std::shared_ptr<IndefinitIndexBase> MultiRange<Ranges...>::indexInstance() const
+    {
+	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> is;
+	IndexSetter<sizeof...(Ranges)-1>::setBegin(is,mSpace);
+	std::shared_ptr<IndefinitIndexBase> sptr(new MultiIndex<typename Ranges::IndexType...>(this, is));
+	return sptr;
     }
 }
 

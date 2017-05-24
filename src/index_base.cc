@@ -7,37 +7,68 @@ namespace MultiArrayTools
      *  IndefinitIndexBase  *
      ************************/
     
-    IndefinitIndexBase::~IndefinitIndexBase()
-    {
-	mMajor = nullptr;
-    }
-    
     size_t IndefinitIndexBase::pos() const
     {
 	//assert(not virt());
 	return static_cast<size_t>( mPos );
     }
-    
-    void IndefinitIndexBase::setPos(size_t pos)
+
+    bool IndefinitIndexBase::operator==(const IndefinitIndexBase& i) const
     {
-	//CHECK;
-	//assert(not virt());
+	return rangeType() == in.rangeType() and pos() == in.pos();
+    }
+    
+    bool IndefinitIndexBase::operator!=(const IndefinitIndexBase& i) const
+    {
+	return rangeType() != in.rangeType() or pos() != in.pos();
+    }
+    
+    IndefinitIndexBase& IndefinitIndexBase::setPos(size_t pos, IndefinitIndexBase* ctrlPtr)
+    {
 	mPos = pos;
+	for(auto mm: mMajor){
+	    if(mm.first == ctrlPtr){
+		continue;
+	    }
+	    mm.first->setPos(mm.first->pos() % mm.second + mm.second * pos, this);
+	}
+	return *this;
     }
 
-    void IndefinitIndexBase::setPosRel(int relPos)
+    IndefinitIndexBase& IndefinitIndexBase::setPosRel(int relPos, IndefinitIndexBase* ctrlPtr)
     {
 	mPos += relPos;
+	for(auto mm: mMajor){
+	    if(mm.first == ctrlPtr){
+		continue;
+	    }
+	    mm.first->setPosRel(mm.second * relPos, this);
+	}
+	return *this;
     }
-    // MAJOR INDEX UPDATE !!!!!
-    void IndefinitIndexBase::toFirst()
+
+    IndefinitIndexBase& IndefinitIndexBase::toFirst(IndefinitIndexBase* ctrlPtr)
     {
 	mPos = 0;
+	for(auto mm: mMajor){
+	    if(mm.first == ctrlPtr){
+		continue;
+	    }
+	    mm.first->setPos(mm.first->pos() % mm.second, this);
+	}
+	return *this;
     }
     
-    void IndefinitIndexBase::toLast()
+    IndefinitIndexBase& IndefinitIndexBase::toLast(IndefinitIndexBase* ctrlPtr)
     {
 	mPos = max() - 1;
+	for(auto mm: mMajor){
+	    if(mm.first == ctrlPtr){
+		continue;
+	    }
+	    mm.first->setPos(mm.first->pos() % mm.second + mm.second * mPos, this);
+	}
+	return *this;
     }
     
     int IndefinitIndexBase::outOfRange() const
@@ -58,49 +89,15 @@ namespace MultiArrayTools
 	return mPos == max();
     }
     
-    bool IndefinitIndexBase::toNull() const
+    bool IndefinitIndexBase::master() const
     {
-	//assert(not virt());
-	return true;
+	return mMajor.size() == 0;
     }
 
-    void IndefinitIndexBase::evalMajor()
+    IndefinitIndexBase& IndefinitIndexBase::subOrd(IndefinitIndexBase* major)
     {
-	//assert(not virt());
-	if(not master()){
-	    //int start = mMajor->pos();
-	    mMajor->eval();
-	    //VCHECK(static_cast<int>( mMajor->pos() ) - start);
-	}
-    }
-    
-    void IndefinitIndexBase::evalMajor(int num)
-    {
-	//assert(not virt());
-	//CHECK;
-	if(not master()){
-	    //int start = mMajor->pos();
-	    mMajor->setPosRel( num * mMajorStep);
-	    //VCHECK(static_cast<int>( mMajor->pos() ) - start);
-	}
-    }
-    
-    bool IndefinitIndexBase::master()
-    {
-	//assert(not virt());
-	return mMajor == nullptr;
-    }
-
-    void IndefinitIndexBase::subOrd(IndefinitIndexBase* major)
-    {
-	//assert(not virt());
-	mMajor = major;
-	mMajorStep = mMajor->giveSubStepSize(this);
-    }
-
-    size_t IndefinitIndexBase::majorStep() const
-    {
-	return mMajorStep;
+	mMajor[major] = major->giveSubStepSize(this);
+	return *this;
     }
     
     /**************
@@ -118,24 +115,11 @@ namespace MultiArrayTools
     }
 
     template <class Index>
-    bool IndexBase<Index>::toNull() const
-    {
-	//assert(not virt());
-	return mRange == nullptr;
-    }
-
-    template <class Index>
     void IndexBase<Index>::assignRange(RangeBase<Index> const* range)
     {
 	//assert(not virt());
 	if(toNull()){
 	    mRange = range;
 	}
-    }
-    
-    template <class Index>
-    void IndexBase<Index>::eval()
-    {
-	setPos( evaluate(*dynamic_cast<Index const*>( this )) );
     }
 }
