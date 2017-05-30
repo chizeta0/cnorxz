@@ -324,6 +324,18 @@ namespace MultiArrayTools
 		}
 	    }
 
+	    template <class IndexPack, class... Indices>
+	    static auto setFromPointerList(IndexPack& ipack,
+					   std::vector<std::shared_ptr<IndefinitIndexBase> >& ptrList,
+					   std::shared_ptr<Indices>&... inds)
+		-> decltype(IndexPackSetter<N-1>::setFromPointerList(ipack,
+								     std::shared_ptr<decltype(std::get<N>(ipack))>,
+								     newPtr, inds...))
+	    {
+		typedef std::shared_ptr<decltype(std::get<N>(ipack))> NewIndexPtrType;
+		NewIndexPtrType newPtr = dynamic_pointer_cast<NewIndexPtrType>(ptrList.at(N));
+		return IndexPackSetter<N-1>::setFromPointerList(ipack, ptrList, newPtr, inds...);
+	    }
 	};
 
 	template <>
@@ -336,9 +348,20 @@ namespace MultiArrayTools
 		const size_t ownPos = pos % i.max(); 
 		i = ownPos;
 	    }
+	    
+	    template <class IndexPack, class... Indices>
+	    static auto setFromPointerList(IndexPack& ipack,
+					   std::vector<std::shared_ptr<IndefinitIndexBase> >& ptrList,
+					   std::shared_ptr<Indices>&... inds)
+		-> decltype(std::make_tuple(std::shared_ptr<decltype(std::get<0>(ipack))>, inds...))
+	    {
+		typedef std::shared_ptr<decltype(std::get<0>(ipack))> NewIndexPtrType;
+		NewIndexPtrType newPtr = dynamic_pointer_cast<NewIndexPtrType>(ptrList.at(0));
+		return std::make_tuple(newPtr, inds...);
+	    }
 
 	};
-	
+
     }
 
     template <class... Indices>
@@ -391,8 +414,11 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(std::vector<std::shared_ptr<IndefinitIndexBase> >& indexList) :
-	// !!!!
+    MultiIndex<Indices...>::MultiIndex(std::vector<std::shared_ptr<IndefinitIndexBase> >& indexList)
+    {
+	mIPack = IndexPackSetter<sizeof...(Indices)-1>::setFromPointerList(mIPack, indexList);
+	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
+    }
     
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()

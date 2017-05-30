@@ -15,9 +15,13 @@ endif()
 
 include_directories(src)
 
-add_executable(utest src/unit_test.cc)
-target_link_libraries(utest ${GTEST_BOTH_LIBRARIES})
-add_test(NAME utest COMMAND utest)
+#add_executable(utest src/unit_test.cc)
+#target_link_libraries(utest ${GTEST_BOTH_LIBRARIES})
+#add_test(NAME utest COMMAND utest)
+
+add_executable(iutest src/index_unit_test.cc)
+target_link_libraries(iutest ${GTEST_BOTH_LIBRARIES})
+add_test(NAME iutest COMMAND utest)
 
 #install(TARGETS testm DESTINATION install)
 
