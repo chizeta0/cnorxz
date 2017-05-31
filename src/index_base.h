@@ -26,8 +26,8 @@ namespace MultiArrayTools
 	virtual IndefinitIndexBase& operator+=(int n) = 0;
 	virtual IndefinitIndexBase& operator-=(int n) = 0;
 
-	bool operator==(const IndefinitIndexBase& i) const;
-	bool operator!=(const IndefinitIndexBase& i) const;
+	bool operator==(const IndefinitIndexBase& in) const;
+	bool operator!=(const IndefinitIndexBase& in) const;
 	
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const;
@@ -62,19 +62,17 @@ namespace MultiArrayTools
 	typedef IndefinitIndexBase IIB;
 	
 	DEFAULT_MEMBERS(IndexBase);
-	IndexBase(RangeBase<Index> const* range);
+	IndexBase(std::shared_ptr<const RangeBase<Index> >& rangePtr);
 	
 	//virtual size_t pos() const override; // = mPos; implement !!!
 	virtual size_t max() const override;
-
-	virtual void assignRange(RangeBase<Index> const* range);
 	virtual void copyPos(const Index& in) = 0;
 	
     protected:
 
 	// translate index into position
 	virtual size_t evaluate(const Index& in) const = 0;
-	RangeBase<Index> const* mRange;
+	std::shared_ptr<const RangeBase<Index> > mRangePtr;
     };
 
 }

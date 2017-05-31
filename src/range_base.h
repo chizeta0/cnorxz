@@ -58,15 +58,15 @@ namespace MultiArrayTools
     class IndefinitRangeBase
     {
     public:
+
 	virtual ~IndefinitRangeBase() = default;
 
+	static std::shared_ptr<IndefinitRangeBase> makeInstance(const MultiRangeType& mrt); // !!!
+	
 	virtual size_t size() const = 0;
 	virtual bool isSubRange() const = 0;
 	virtual MultiRangeType type() const = 0;
 	virtual std::shared_ptr<IndefinitIndexBase> indexInstance() const = 0;
-	
-    protected:
-	DEFAULT_MEMBERS(RangeBase);
     };
     
     template <class Index>
@@ -75,14 +75,12 @@ namespace MultiArrayTools
     public:
 	typedef Index IndexType;
 
-	virtual Index begin() const = 0;
-	virtual Index end() const = 0;
+	virtual IndexType begin() const = 0;
+	virtual IndexType end() const = 0;
 	virtual RangeBase<Index>* base();
 	virtual bool isSubRange() const override;
-	
-    protected:
-	DEFAULT_MEMBERS(RangeBase);
-	
+
+	virtual std::shared_ptr<IndefinitIndexBase> indexInstance() const override;
     };
   
     //template <class Range>
@@ -96,6 +94,7 @@ namespace MultiArrayTools
     {
     public:
 	virtual bool isSubRange() const override;
+	virtual RangeBase<Index>* base() override;
     protected:
 	DEFAULT_MEMBERS(SubRangeBase);
 	RangeBase<Index>* mBase;

@@ -13,12 +13,12 @@ namespace MultiArrayTools
 	return static_cast<size_t>( mPos );
     }
 
-    bool IndefinitIndexBase::operator==(const IndefinitIndexBase& i) const
+    bool IndefinitIndexBase::operator==(const IndefinitIndexBase& in) const
     {
 	return rangeType() == in.rangeType() and pos() == in.pos();
     }
     
-    bool IndefinitIndexBase::operator!=(const IndefinitIndexBase& i) const
+    bool IndefinitIndexBase::operator!=(const IndefinitIndexBase& in) const
     {
 	return rangeType() != in.rangeType() or pos() != in.pos();
     }
@@ -84,9 +84,9 @@ namespace MultiArrayTools
 	}
     }
 
-    bool atEdge() const
+    bool IndefinitIndexBase::atEdge() const
     {
-	return mPos == max();
+	return static_cast<size_t>( mPos ) == max();
     }
     
     bool IndefinitIndexBase::master() const
@@ -105,21 +105,12 @@ namespace MultiArrayTools
      **************/
 
     template <class Index>
-    IndexBase<Index>::IndexBase(RangeBase<Index> const* range) : mRange(range) {}
+    IndexBase<Index>::IndexBase(std::shared_ptr<const RangeBase<Index> >& rangePtr) : mRangePtr(rangePtr) {}
     
     template <class Index>
     size_t IndexBase<Index>::max() const
     {
 	//assert(not virt());
 	return mRange->size();
-    }
-
-    template <class Index>
-    void IndexBase<Index>::assignRange(RangeBase<Index> const* range)
-    {
-	//assert(not virt());
-	if(toNull()){
-	    mRange = range;
-	}
     }
 }
