@@ -3,6 +3,134 @@
 
 namespace MultiArrayTools
 {
+    /******************
+     *  SingleIndex   *	     
+     ******************/
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>::SingleIndex(const U& upos,
+				     std::shared_ptr<const RangeBase<SingleIndex<U,TYPE> > >& rangePtr) :
+	IndexBase<SingleIndex<U,TYPE> >(rangePtr)
+    {
+	IIB::setPos( dynamic_pointer_cast<const SingleRange<U,TYPE> >( IB::mRangePtr )->get(upos) );
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>::SingleIndex(std::shared_ptr<const RangeBase<SingleIndex<U,TYPE> > >& rangePtr,
+				     size_t pos) : IndexBase<SingleIndex<U,TYPE> >(range)
+    {
+	IIB::setPos( pos );
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(size_t pos)
+    {
+	IIB::setPos( pos );
+	return *this;
+    }
+    
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator++()
+    {
+	IIB::setPos( IIB::pos() + 1 );
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator--()
+    {
+	IIB::setPos( IIB::pos() - 1 );
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator+=(int n)
+    {
+	IIB::setPos( IIB::pos() + n );
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator-=(int n)
+    {
+	IIB::setPos( IIB::pos() - n );
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    bool SingleIndex<U,TYPE>::operator==(const SingleIndex<U,TYPE>& i)
+    {
+	return IB::mRange == i.mRange and IIB::pos() == static_cast<size_t>( i.mPos );
+    }
+
+    template <typename U, RangeType TYPE>
+    bool SingleIndex<U,TYPE>::operator!=(const SingleIndex<U,TYPE>& i)
+    {
+	return IB::mRange != i.mRange or IIB::pos() != static_cast<size_t>( i.mPos );
+    }
+
+    template <typename U, RangeType TYPE>
+    MultiRangeType SingleIndex<U,TYPE>::rangeType() const
+    {
+	return MultiRangeType(TYPE);
+    }
+    
+    template <typename U, RangeType TYPE>
+    U SingleIndex<U,TYPE>::getMetaPos() const
+    {
+	return dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(IIB::pos());
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::atMeta(const U& metaPos)
+    {
+	operator=( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->getMeta(metaPos) );
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::dim() const
+    {
+	return 1;
+    }
+    
+    template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::evaluate(const SingleIndex<U,TYPE>& in) const
+    {
+	return in.pos();
+    }
+
+    template <typename U, RangeType TYPE>
+    void SingleIndex<U,TYPE>::copyPos(const SingleIndex<U,TYPE>& in)
+    {
+	IIB::setPos(in.pos());
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::giveSubStepSize(IndefinitIndexBase* subIndex)
+    {
+	if(subIndex == this){
+	    return 1;
+	}
+	else {
+	    return 0;
+	}
+    }
+    
+    std::ostream& operator<<(std::ostream& os, VET vet)
+    {
+	os << ( (vet == VET::VALUE) ? std::string("VALUE") : std::string("ERROR") );
+	return os;
+    }
+    
+    /*
+    template <typename U, RangeType TYPE>
+    void SingleIndex<U,TYPE>::eval()
+    {
+	IIB::setPos( evaluate( *this ) );
+    }
+    */
+
     /********************
      *   SingleRange    *
      ********************/
@@ -251,130 +379,4 @@ namespace MultiArrayTools
 	return SingleIndex<size_t,RangeType::LORENTZ>(this, size());
     }
     
-    /******************
-     *  SingleIndex   *	     
-     ******************/
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>::SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
-				     const U& upos, size_t disambig) : IndexBase<SingleIndex<U,TYPE> >(range)
-    {
-	IIB::setPos( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(upos) );
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>::SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
-				     size_t pos) : IndexBase<SingleIndex<U,TYPE> >(range)
-    {
-	IIB::setPos( pos );
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(size_t pos)
-    {
-	IIB::setPos( pos );
-	return *this;
-    }
-    
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator++()
-    {
-	IIB::setPos( IIB::pos() + 1 );
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator--()
-    {
-	IIB::setPos( IIB::pos() - 1 );
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator+=(int n)
-    {
-	IIB::setPos( IIB::pos() + n );
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator-=(int n)
-    {
-	IIB::setPos( IIB::pos() - n );
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    bool SingleIndex<U,TYPE>::operator==(const SingleIndex<U,TYPE>& i)
-    {
-	return IB::mRange == i.mRange and IIB::pos() == static_cast<size_t>( i.mPos );
-    }
-
-    template <typename U, RangeType TYPE>
-    bool SingleIndex<U,TYPE>::operator!=(const SingleIndex<U,TYPE>& i)
-    {
-	return IB::mRange != i.mRange or IIB::pos() != static_cast<size_t>( i.mPos );
-    }
-
-    template <typename U, RangeType TYPE>
-    MultiRangeType SingleIndex<U,TYPE>::rangeType() const
-    {
-	return MultiRangeType(TYPE);
-    }
-    
-    template <typename U, RangeType TYPE>
-    U SingleIndex<U,TYPE>::getMetaPos() const
-    {
-	return dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->get(IIB::pos());
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::atMeta(const U& metaPos)
-    {
-	operator=( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRange )->getMeta(metaPos) );
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::dim() const
-    {
-	return 1;
-    }
-    
-    template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::evaluate(const SingleIndex<U,TYPE>& in) const
-    {
-	return in.pos();
-    }
-
-    template <typename U, RangeType TYPE>
-    void SingleIndex<U,TYPE>::copyPos(const SingleIndex<U,TYPE>& in)
-    {
-	IIB::setPos(in.pos());
-    }
-
-    template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::giveSubStepSize(IndefinitIndexBase* subIndex)
-    {
-	if(subIndex == this){
-	    return 1;
-	}
-	else {
-	    return 0;
-	}
-    }
-    
-    std::ostream& operator<<(std::ostream& os, VET vet)
-    {
-	os << ( (vet == VET::VALUE) ? std::string("VALUE") : std::string("ERROR") );
-	return os;
-    }
-    
-    /*
-    template <typename U, RangeType TYPE>
-    void SingleIndex<U,TYPE>::eval()
-    {
-	IIB::setPos( evaluate( *this ) );
-    }
-    */
 }

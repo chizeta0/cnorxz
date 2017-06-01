@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include <memory>
 
 #include "base_def.h"
 #include "index_base.h"
@@ -23,12 +24,10 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(SingleIndex);
 
-	// find better solution !!!
-	SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
-		    const U& upos, size_t disambig);
+	SingleIndex(const U& upos, std::shared_ptr<const RangeBase<SingleIndex<U,TYPE> > >& rangePtr);
 
-	SingleIndex(RangeBase<SingleIndex<U,TYPE> > const* range,
-		    size_t pos);
+	SingleIndex(std::shared_ptr<const RangeBase<SingleIndex<U,TYPE> > >& rangePtr,
+		    size_t pos = 0);
 
 	//virtual SingleIndex& operator=(const U& upos);
 
@@ -63,10 +62,6 @@ namespace MultiArrayTools
     {
     public:
 	typedef typename RangeBase<SingleIndex<U,TYPE> >::IndexType IndexType;
-	
-	DEFAULT_MEMBERS(SingleRange);
-
-	SingleRange(const std::vector<U>& space);
 
 	static SingleRange<U,TYPE> oType() { return SingleRange<U,TYPE>(); }
 	
@@ -82,6 +77,9 @@ namespace MultiArrayTools
 	SingleIndex<U,TYPE> end() const override;
 	
     protected:
+	
+	SingleRange(const std::vector<U>& space);
+
 	std::vector<U> mSpace;
     };
 
@@ -92,10 +90,6 @@ namespace MultiArrayTools
     {
     public:
 	typedef typename RangeBase<SingleIndex<int,RangeType::SPACE> >::IndexType IndexType;
-	
-	DEFAULT_MEMBERS(SingleRange);
-
-	SingleRange(size_t ext);
 
 	static SingleRange<int,RangeType::SPACE> oType() { return SingleRange<int,RangeType::SPACE>(); }
 	
@@ -110,6 +104,9 @@ namespace MultiArrayTools
 	SingleIndex<int,RangeType::SPACE> end() const override;
 	
     protected:
+	
+	SingleRange(size_t ext);
+
 	size_t mExt;
     };
 
@@ -118,10 +115,6 @@ namespace MultiArrayTools
     {
     public:
 	typedef typename RangeBase<SingleIndex<size_t,RangeType::DISTANCE> >::IndexType IndexType;
-	
-	DEFAULT_MEMBERS(SingleRange);
-
-	SingleRange(size_t ext);
 
 	static SingleRange<size_t,RangeType::DISTANCE> oType() { return SingleRange<size_t,RangeType::DISTANCE>(); }
 	
@@ -136,6 +129,9 @@ namespace MultiArrayTools
 	SingleIndex<size_t,RangeType::DISTANCE> end() const override;
 	
     protected:
+	
+	SingleRange(size_t ext);
+
 	size_t mExt;
     };
 
@@ -144,10 +140,6 @@ namespace MultiArrayTools
     {
     public:
 	typedef typename RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >::IndexType IndexType;
-	
-	DEFAULT_MEMBERS(SingleRange);
-
-	SingleRange(size_t num);
 
 	static SingleRange<size_t,RangeType::ENSEMBLE> oType() { return SingleRange<size_t,RangeType::ENSEMBLE>(); }
 	
@@ -162,6 +154,9 @@ namespace MultiArrayTools
 	SingleIndex<size_t,RangeType::ENSEMBLE> end() const override;
 	
     protected:
+	
+	SingleRange(size_t num);
+
 	size_t mNum;
     };
 
@@ -178,8 +173,6 @@ namespace MultiArrayTools
     {
     public:
 	typedef typename RangeBase<SingleIndex<VET,RangeType::VALUE_ERROR> >::IndexType IndexType;
-	
-	DEFAULT_MEMBERS(SingleRange);
 
 	static SingleRange<VET,RangeType::VALUE_ERROR> oType()
 	{ return SingleRange<VET,RangeType::VALUE_ERROR>(); }
@@ -200,8 +193,6 @@ namespace MultiArrayTools
     {
     public:
 	typedef typename RangeBase<SingleIndex<size_t,RangeType::LORENTZ> >::IndexType IndexType;
-	
-	DEFAULT_MEMBERS(SingleRange);
 
 	static SingleRange<size_t,RangeType::LORENTZ> oType() { return SingleRange<size_t,RangeType::LORENTZ>(); }
 	

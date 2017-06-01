@@ -95,12 +95,7 @@ namespace MultiArrayTools
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
 	typedef typename RangeBase<MultiIndex<typename Ranges::IndexType...> >::IndexType
 	IndexType;
-	
-	DEFAULT_MEMBERS(MultiRange);
 
-	MultiRange(const std::shared_ptr<Ranges>&... rs);
-	MultiRange(const SpaceType& space);
-	
 	static const size_t dim = sizeof...(Ranges);
 	
 	template <size_t N> // !!! return ref to range, not the corresp. shared ptr
@@ -122,6 +117,14 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<IndefinitIndexBase> indexInstance() const override;
 	
     protected:
+
+	MultiRange() = delete;
+	MultiRange(const MultiRange& in) = delete;
+	MultiRange& operator=(const MultiRange& in) = delete;
+	
+	MultiRange(const std::shared_ptr<Ranges>&... rs);
+	MultiRange(const SpaceType& space);
+	
 	SpaceType mSpace;
     };
     

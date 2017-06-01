@@ -86,6 +86,7 @@ namespace MultiArrayTools
 	mMultiType = new std::vector<MultiRangeType>( multiType );
 	mType = RangeType::NIL;
     }
+
     
     /******************
      *   RangeBase    *
