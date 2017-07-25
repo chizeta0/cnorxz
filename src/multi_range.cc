@@ -362,62 +362,106 @@ namespace MultiArrayTools
 
 	};
 
+	template <size_t N>
+	struct SubIndexConstruct
+	{
+	    template <class MRange, class... Indices>
+	    void construct(std::tuple<std::shared_ptr<Indices>...>& ip,
+			   const MRange& range)
+	    {
+		typedef decltype(range.template get<N>()) SubIndexType;
+		typedef decltype(std::get<N>(ip).get()) wTypeFromIndexPack;
+
+		static_assert(is_same<SubIndexType,SubIndexType>::value,
+			      "inconsiśtent types");
+		
+		std::get<N>(ip).swap( std::make_shared<SubIndexType> ( range.template get<N>() ) );
+		SubIndexConstruct<N-1>::construct(ip, range);
+	    }
+
+	    template <class... Indices>
+	    void copy(std::tuple<std::shared_ptr<Indices>...>& ip,
+		      const MultiIndex<Indices...>& ind)
+	    {
+		typedef decltype(ind.template get<N>()) SubIndexType;
+		std::get<N>(ip).swap( std::make_shared<SubIndexType>( ind.template get<N>() ) );
+		SubIndexConstruct<N-1>::copy(ip, ind);
+	    }
+	};
+
+	template <>
+	struct SubIndexConstruct<0>
+	{
+	    template <class MRange, class... Indices>
+	    void construct(std::tuple<std::shared_ptr<Indices>...>& ip,
+			   const MRange& range)
+	    {
+		typedef decltype(range.template get<0>()) SubIndexType;
+		typedef decltype(std::get<0>(ip).get()) wTypeFromIndexPack;
+
+		static_assert(std::is_same<SubIndexType,SubIndexType>::value,
+			      "inconsiśtent types");
+		
+		std::get<0>(ip).swap( std::make_shared<SubIndexType> ( range.template get<0>() ) );
+	    }
+
+	    template <class... Indices>
+	    void copy(std::tuple<std::shared_ptr<Indices>...>& ip,
+		      const MultiIndex<Indices...>& ind)
+	    {
+		typedef decltype(ind.template get<0>()) SubIndexType;
+		std::get<0>(ip).swap( std::make_shared<SubIndexType>( ind.template get<0>() ) );
+	    }
+
+	};
+
+	template <size_t N>
+	struct PosGetter
+	{
+	    template <class... Indices>
+	    size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
+	    {
+		return std::get<N>(iPtrTup)->pos() +
+		    PosGetter<N-1>::makePos(iPtrTup) * std::get<N-1>(iPtrTup)->max();
+	    }
+	};
+
+	template <>
+	struct PosGetter<0>
+	{
+	    template <class... Indices>
+	    size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
+	    {
+		return std::get<0>(iPtrTup)->pos();
+	    }
+	};
+	
     }
 
     template <class... Indices>
     MultiIndex<Indices...>::MultiIndex(const MultiIndex<Indices...>& in) :
-	IndexBase<MultiIndex<Indices...> >(in),
-	mIPack(in.mIPack)
+	IndexInterface<std::tuple<decltype(Indices().meta())...> >(in)
     {
-	// THAT's the point:
-	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
-	IIB::mPos = evaluate(*this);
+	SubIndexConstruct<sizeof...(Indices)-1>::copy(mIPack, in);
+	mPos = PosGetter<sizeof...(Indices)-1>::makePos(mIPack);
     }
-
+	
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(const MultiIndex<Indices...>& in)
     {
-	IndexBase<MultiIndex<Indices...> >::operator=(in);
-	mIPack = in.mIPack;
-
-	// THAT's the point:
-	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
-	IIB::mPos = evaluate(*this);
+	IndexI::operator=(in);
+	SubIndexConstruct<sizeof...(Indices)-1>::copy(mIPack, in);
+	mPos = PosGetter<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
     
     template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(RangeBase<MultiIndex<Indices...> > const* range) :
-	IndexBase<MultiIndex<Indices...> >(range),
-	mIPack()
+    template <class MRange>
+    MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
+	IndexInterface<std::tuple<decltype(Indices().meta())...> >(range, 0)
     {
-	operator=(IB::mRange->begin());
-	IIB::mPos = evaluate(*this);
-    }
-    
-    template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
-				       Indices&&... inds) : IndexBase<MultiIndex<Indices...> >(range),
-							    mIPack(std::make_tuple(inds...))
-    {
-	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
-	IIB::mPos = evaluate(*this);
-    }
-
-    template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(RangeBase<MultiIndex<Indices...> > const* range,
-				       const IndexPack& ipack) : IndexBase<MultiIndex<Indices...> >(range),
-								 mIPack(ipack)
-    {
-	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
-	IIB::mPos = evaluate(*this);
-    }
-
-    template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(std::vector<std::shared_ptr<IndefinitIndexBase> >& indexList)
-    {
-	mIPack = IndexPackSetter<sizeof...(Indices)-1>::setFromPointerList(mIPack, indexList);
-	IndexSubOrder<sizeof...(Indices)-1>::subOrd(mIPack, this);
+	SubIndexConstruct<sizeof...(Indices)-1>::construct(mIPack, *range);
+	mPos = PosGetter<sizeof...(Indices)-1>::makePos(mIPack);
     }
     
     template <class... Indices>

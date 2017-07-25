@@ -14,67 +14,48 @@
 namespace MultiArrayTools
 {
     
-    class IndefinitIndexBase
+    class IndexBase
     {
     public:
-	DEFAULT_MEMBERS(IndefinitIndexBase);
-	virtual ~IndefinitIndexBase() = default; 
+	DEFAULT_MEMBERS(IndexBase);
+	IndexBase(const RangeBase& range, size_t pos);
+	virtual ~IndexBase() = default; 
 	
-	virtual IndefinitIndexBase& operator=(size_t pos) = 0;
-	virtual IndefinitIndexBase& operator++() = 0;
-	virtual IndefinitIndexBase& operator--() = 0;
-	virtual IndefinitIndexBase& operator+=(int n) = 0;
-	virtual IndefinitIndexBase& operator-=(int n) = 0;
+	virtual IndexBase& operator=(size_t pos) = 0;
+	virtual IndexBase& operator++() = 0;
+	virtual IndexBase& operator--() = 0;
+	virtual IndexBase& operator+=(int n) = 0;
+	virtual IndexBase& operator-=(int n) = 0;
 
-	bool operator==(const IndefinitIndexBase& in) const;
-	bool operator!=(const IndefinitIndexBase& in) const;
+	bool operator==(const IndexBase& in) const;
+	bool operator!=(const IndexBase& in) const;
 	
 	virtual size_t dim() const = 0;
 	virtual size_t pos() const;
+	virtual size_t max() const;
+
+	virtual bool last() const = 0;
+	virtual bool first() const = 0;
 	
-	virtual MultiRangeType rangeType() const = 0;
-
-	virtual IndefinitIndexBase& setPos(size_t pos, IndefinitIndexBase* ctrlPtr = nullptr);
-	virtual IndefinitIndexBase& setPosRel(int relPos, IndefinitIndexBase* ctrlPtr = nullptr);
-
-	virtual IndefinitIndexBase& toFirst(IndefinitIndexBase* ctrlPtr = nullptr);
-	virtual IndefinitIndexBase& toLast(IndefinitIndexBase* ctrlPtr = nullptr);
-	
-	virtual size_t max() const = 0;
-	virtual int outOfRange() const;
-	virtual bool atEdge() const;
-	virtual bool master() const;
-
-	virtual IndefinitIndexBase& subOrd(IndefinitIndexBase* major);
-	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) = 0;
+	virtual operator size_t() const;
 	
     protected:
 
-	int mPos;
-	std::map<IndefinitIndexBase*,size_t> mMajor;
+	std::shared_ptr<RangeBase> mRangePtr;
+	size_t mPos;
     };
-    
-    template <class Index>
-    class IndexBase : public IndefinitIndexBase
+
+    template <typename MetaType>
+    class IndexInterface : public IndexBase
     {
     public:
 
-	typedef IndefinitIndexBase IIB;
+	IndexInterface(const RangeBase& range, size_t pos);
 	
-	DEFAULT_MEMBERS(IndexBase);
-	IndexBase(std::shared_ptr<const RangeBase<Index> >& rangePtr);
-	
-	//virtual size_t pos() const override; // = mPos; implement !!!
-	virtual size_t max() const override;
-	virtual void copyPos(const Index& in) = 0;
-	
-    protected:
-
-	// translate index into position
-	virtual size_t evaluate(const Index& in) const = 0;
-	std::shared_ptr<const RangeBase<Index> > mRangePtr;
+	MetaType& meta() = 0;
+	const MetaType& meta() const = 0;
     };
-
+    
 }
 
 #include "index_base.cc"

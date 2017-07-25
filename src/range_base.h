@@ -25,92 +25,32 @@ namespace MultiArrayTools
 	DISTANCE = 8
     };
 
-    class MultiRangeType
+    class RangeBase
     {
     public:
 
-	DEFAULT_MEMBERS(MultiRangeType);
-
-	MultiRangeType(const RangeType& type);
-	MultiRangeType(const std::vector<MultiRangeType>& multiType);
-
-	~MultiRangeType();
-	
-	MultiRangeType& operator=(const RangeType& type);
-	MultiRangeType& operator=(const std::vector<MultiRangeType>& multiType);
-
-	MultiRangeType& operator[](size_t num);
-	const MultiRangeType& operator[](size_t num) const;
-	
-	bool multi() const;
-
-	bool operator==(const MultiRangeType& in) const;
-	bool operator!=(const MultiRangeType& in) const;
-	
-    private:
-	void setType(RangeType type);
-	void setMultiType(const std::vector<MultiRangeType>& multiType);
-	
-	RangeType mType;
-	std::vector<MultiRangeType>* mMultiType;
-    };
-
-    class IndefinitRangeBase
-    {
-    public:
-
-	virtual ~IndefinitRangeBase() = default;
+	virtual ~RangeBase() = default;
 
 	virtual size_t size() const = 0;
-	virtual bool isSubRange() const = 0;
-	virtual MultiRangeType type() const = 0;
-	virtual std::shared_ptr<IndefinitIndexBase> indexInstance() const = 0;
-
-    protected:
-	// only constructable via Factory
+	virtual size_t dim() const = 0;
 	
-	IndefinitRangeBase() = default;
-	IndefinitRangeBase(const IndefinitRangeBase& in) = delete;
-	IndefinitRangeBase& operator=(const IndefinitRangeBase& in) = delete;
+	virtual std::shared_ptr<IndexBase> index() const = 0;
+	
+    protected:
+	
     };
-    
+
     template <class Index>
-    class RangeBase : public IndefinitRangeBase
+    class RangeInterface : public RangeBase
     {
     public:
+
 	typedef Index IndexType;
 
-	virtual IndexType begin() const = 0;
-	virtual IndexType end() const = 0;
-	virtual RangeBase<Index>* base();
-	virtual bool isSubRange() const override;
-
-	virtual std::shared_ptr<IndefinitIndexBase> indexInstance() const override;
-
-    protected:
-	RangeBase() = default;
-	RangeBase(const RangeBase& in) = delete;
-	RangeBase& operator=(const RangeBase& in) = delete;
+	virtual Index begin() = 0;
+	virtual Index end() = 0;
     };
-  
-    //template <class Range>
-    //auto cross(const Range& r1, const Range& r2) -> /**/;
     
-    //template <class Range1, class Range2>
-    //auto cross(const Range1& r1, const Range2& r2) -> /**/;
-    
-    template <class Index>
-    class SubRangeBase : public RangeBase<Index>
-    {
-    public:
-	virtual bool isSubRange() const override;
-	virtual RangeBase<Index>* base() override;
-    protected:
-	DEFAULT_MEMBERS(SubRangeBase);
-	RangeBase<Index>* mBase;
-	std::vector<bool> mOccupation;
-    };
-
 }
 
 #include "range_base.cc"
