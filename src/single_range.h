@@ -14,69 +14,47 @@
 namespace MultiArrayTools
 {
 
-    template <typename U, RangeType TYPE>
-    class SingleIndex : public IndexBase<SingleIndex<U,TYPE> >
+    template <typename U>
+    class SingleIndex : public IndexInterface<U>
     {
     public:
-
-	typedef IndexBase<SingleIndex<U,TYPE> > IB;
-	typedef IndefinitIndexBase IIB;
-	
 	DEFAULT_MEMBERS(SingleIndex);
 
-	SingleIndex(const U& upos, std::shared_ptr<const RangeBase<SingleIndex<U,TYPE> > >& rangePtr);
-
-	SingleIndex(std::shared_ptr<const RangeBase<SingleIndex<U,TYPE> > >& rangePtr,
-		    size_t pos = 0);
-
-	//virtual SingleIndex& operator=(const U& upos);
+	template <RangeType TYPE>
+	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
 	virtual SingleIndex& operator=(size_t pos) override;
 	virtual SingleIndex& operator++() override;
 	virtual SingleIndex& operator--() override;
-	virtual SingleIndex& operator+=(int n) override;
-	virtual SingleIndex& operator-=(int n) override;
 
-	virtual bool operator==(const SingleIndex& i);
-	virtual bool operator!=(const SingleIndex& i);
-
-	virtual MultiRangeType rangeType() const override;
-
-	virtual U getMetaPos() const;
-	virtual SingleIndex& atMeta(const U& metaPos);
+	virtual U meta() const;
+	virtual SingleIndex& at(const U& metaPos);
 	
 	virtual size_t dim() const override; // = 1
-	virtual void copyPos(const SingleIndex& in) override;
-
-	virtual size_t giveSubStepSize(IndefinitIndexBase* subIndex) override;
-	
-	//virtual void eval() override;
-	//virtual bool virt() const override { return false; }
-	
-    protected:
-	virtual size_t evaluate(const SingleIndex& in) const override;
+	virtual bool last() const override;
+	virtual bool first() const override;
     };
 
     template <typename U, RangeType TYPE>
-    class SingleRange : public RangeBase<SingleIndex<U,TYPE> >
+    class SingleRange : public RangeInterface<SingleIndex<U> >
     {
     public:
-	typedef typename RangeBase<SingleIndex<U,TYPE> >::IndexType IndexType;
-
-	static SingleRange<U,TYPE> oType() { return SingleRange<U,TYPE>(); }
+	typedef typename RangeBase<SingleIndex<U> >::IndexType IndexType;
 	
 	virtual size_t size() const override;
 
-	//U get(size_t pos) const;
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
-
-	virtual MultiRangeType type() const override;
 	
-	SingleIndex<U,TYPE> begin() const override;
-	SingleIndex<U,TYPE> end() const override;
+	virtual SingleIndex<U> begin() const override;
+	virtual SingleIndex<U> end() const override;
+
+	friend SingleRangeFactory<U,TYPE>;
 	
     protected:
+
+	SingleRange() = delete;
+	SingleRange(const SingleRange& in) = delete;
 	
 	SingleRange(const std::vector<U>& space);
 

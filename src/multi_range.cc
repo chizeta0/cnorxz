@@ -398,6 +398,29 @@ namespace MultiArrayTools
 	PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
 	return *this;
     }
+
+    /*************************
+     *   MultiRangeFactory   *
+     *************************/
+
+    template <class... Ranges>
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<Ranges>&... rs)
+    {
+	mProd = std::make_shared< MultiRange<Ranges...> >( rs... );
+    }
+    
+    template <class... Ranges>
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& st)
+    {
+	mProd = std::make_shared< MultiRange<Ranges...> >( st );
+    }
+    
+    template <class... Ranges>
+    std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::create()
+    {
+	setSelf();
+	return mProd;
+    }
     
     /******************
      *   MultiRange   *
@@ -422,14 +445,6 @@ namespace MultiArrayTools
     {
 	return PackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
-    
-    template <class... Ranges>
-    MultiRangeType MultiRange<Ranges...>::type() const
-    {
-	std::vector<MultiRangeType> rvec;
-	PackNum<sizeof...(Ranges)-1>::buildRangeVec(rvec, mSpace);
-	return MultiRangeType(rvec);
-    }
 
     template <class... Ranges>
     const typename MultiRange<Ranges...>::SpaceType& MultiRange<Ranges...>::space() const
@@ -440,26 +455,22 @@ namespace MultiArrayTools
     template <class... Ranges>
     MultiIndex<typename Ranges::IndexType...> MultiRange<Ranges...>::begin() const
     {
-	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> is;
-	PackNum<sizeof...(Ranges)-1>::setBegin(is,mSpace);
-	return MultiIndex<typename Ranges::IndexType...>(this, is);
+	MultiIndex<typename Ranges::IndexType...> i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
+	return i = 0;
     }
 
     template <class... Ranges>
     MultiIndex<typename Ranges::IndexType...> MultiRange<Ranges...>::end() const
     {
-	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> is;
-	PackNum<sizeof...(Ranges)-1>::setEnd(is,mSpace);
-	return ++MultiIndex<typename Ranges::IndexType...>(this, is);
+	MultiIndex<typename Ranges::IndexType...> i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
+	return i = size();
     }
 
     template <class... Ranges>
-    std::shared_ptr<IndefinitIndexBase> MultiRange<Ranges...>::indexInstance() const
+    std::shared_ptr<IndexBase> MultiRange<Ranges...>::index() const
     {
-	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> is;
-	PackNum<sizeof...(Ranges)-1>::setBegin(is,mSpace);
-	std::shared_ptr<IndefinitIndexBase> sptr(new MultiIndex<typename Ranges::IndexType...>(this, is));
-	return sptr;
+	return std::make_shared<MultiIndex<typename Ranges::IndexType...> >
+	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
     }
 }
 

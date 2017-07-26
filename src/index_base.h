@@ -18,15 +18,13 @@ namespace MultiArrayTools
     {
     public:
 	DEFAULT_MEMBERS(IndexBase);
-	IndexBase(const RangeBase& range, size_t pos);
+	IndexBase(const std::shared_ptr<RangeBase>& range, size_t pos);
 	virtual ~IndexBase() = default; 
 	
 	virtual IndexBase& operator=(size_t pos) = 0;
 	virtual IndexBase& operator++() = 0;
 	virtual IndexBase& operator--() = 0;
-	virtual IndexBase& operator+=(int n) = 0;
-	virtual IndexBase& operator-=(int n) = 0;
-
+	
 	bool operator==(const IndexBase& in) const;
 	bool operator!=(const IndexBase& in) const;
 	

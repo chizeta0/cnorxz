@@ -26,6 +26,11 @@ namespace MultiArrayTools
 	return mPos;
     }
 
+    size_t IndexBase::max() const
+    {
+	return mRangePtr->size();
+    }
+
     operator IndexBase::size_t() const
     {
 	return mPos;

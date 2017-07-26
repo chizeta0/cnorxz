@@ -60,11 +60,25 @@ namespace MultiArrayTools
 
     };
 
-    /*****************************
-     *   IndexGetter Functions   *
-     ****************************/
+    /*************************
+     *   MultiRangeFactory   *
+     *************************/
+
+    template <class... Ranges>
+    class MultiRangeFactory : public RangeFactory
+    {
+    public:
+	MultiRangeFactory() = delete;
+	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
+	MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& st);
+	
+	virtual std::shared_ptr<RangeBase> create() override;
+    };
     
-  
+    /******************
+     *   MultiRange   *
+     ******************/
+      
     template <class... Ranges>
     class MultiRange : public RangeInterface<MultiIndex<typename Ranges::IndexType...> >
     {
@@ -89,6 +103,8 @@ namespace MultiArrayTools
 	virtual typename IndexType end() const override;
 
 	virtual std::shared_ptr<IndexBase> index() const override;
+
+	friend MultiRangeFactory<Ranges...>;
 	
     protected:
 
