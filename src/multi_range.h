@@ -21,15 +21,13 @@ namespace MultiArrayTools
 	
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<decltype(Indices().meta())...> MetaType;
-	typedef IndexInterface<MetaType> IndexI;
-	
+	typedef IndexInterface<MetaType> IndexI;	
 	
     public:
 	
 	MultiIndex() = default;
 	// NO DEFAULT HERE !!!
-	// ( have to subord sub-indices (mMajor) correctly, and not only copy their mMajor pointer to 'in'
-	// which is not major any more in copies!! )
+	// ( have to assign sub-indices (ptr!) correctly )
 	MultiIndex(const MultiIndex& in);
 	MultiIndex& operator=(const MultiIndex& in);
 
@@ -38,24 +36,22 @@ namespace MultiArrayTools
 	
 	virtual MultiIndex& operator++() override;
 	virtual MultiIndex& operator--() override;
-	virtual MultiIndex& operator+=(int n) override;
-	virtual MultiIndex& operator-=(int n) override;
-	
 	virtual MultiIndex& operator=(size_t pos) override;
+
+	template <size_t DIR>
+	MultiIndex& up();
+
+	template <size_t DIR>
+	MultiIndex& down();
 	
 	template <size_t N>
 	auto get() const -> decltype(*std::get<N>(mIPack))&;
-	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Indices>...> >::type const& getIndex() const;
-	
+		
 	const IndexBase& get(size_t n) const;
 	
         virtual MetaType meta() const override;
-	MultiIndex& atMeta(const MetaType& metaPos);
+	virtual MultiIndex& at(const MetaType& metaPos) override;
 	
-	MultiIndex& operator()(Indices&&... inds);
-	MultiIndex& operator()(const Indices&... inds);
-	
-	// dimension of MultiRange; includes ALL degrees of freedom
 	virtual size_t dim() const override;
 	
     protected:
