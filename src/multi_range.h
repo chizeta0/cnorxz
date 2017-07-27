@@ -65,12 +65,12 @@ namespace MultiArrayTools
      *************************/
 
     template <class... Ranges>
-    class MultiRangeFactory : public RangeFactory
+    class MultiRangeFactory : public RangeFactoryBase
     {
     public:
 	MultiRangeFactory() = delete;
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
-	MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& st);
+	MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& space);
 	
 	virtual std::shared_ptr<RangeBase> create() override;
     };
@@ -85,8 +85,7 @@ namespace MultiArrayTools
     public:
 
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
-	typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType
-	IndexType;
+	typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
 	static const size_t dim = sizeof...(Ranges);
 
@@ -94,8 +93,8 @@ namespace MultiArrayTools
 	auto get() const ->;
 	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Ranges>...> >::type const& getRange() const;
 
-	size_t dim() const override;
-	size_t size() const override;
+	virtual size_t dim() const override;
+	virtual size_t size() const override;
 	
 	const SpaceType& space() const;
 	

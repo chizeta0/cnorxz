@@ -33,7 +33,7 @@ namespace MultiArrayTools
 
     operator IndexBase::size_t() const
     {
-	return mPos;
+	return pos();
     }
     
     /**********************
