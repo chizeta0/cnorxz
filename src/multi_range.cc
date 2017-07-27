@@ -69,7 +69,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	mPos += /*!!!*/;
+	mPos += PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
 	PackNum<DIR>::pp( mIPack );
 	return *this;
     }
@@ -79,7 +79,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	mPos -= /*!!!*/;
+	mPos -= PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
 	PackNum<DIR>::mm( mIPack );
 	return *this;
     }

@@ -15,9 +15,9 @@ namespace MultiArrayTools
     public:
 
 	ContainerRangeFactory() = delete;
-	ContainerRangeFactory(const std::shared_ptr<Ranges...>& rs);
+	ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	ContainerRangeFactory(const ContainerRange<Ranges...>::SpaceType& space);
-
+	
 	virtual std::shared_ptr<RangeBase> create() override; 
 	
     protected:
@@ -49,7 +49,7 @@ namespace MultiArrayTools
 	ContainerRange() = default;
 	ContainerRange(const ContainerRange& in) = delete;
 
-	ContainerRange(const std::shared_ptr<Ranges...>& rs);
+	ContainerRange(const std::shared_ptr<Ranges>&... rs);
 	ContainerRange(const SpaceType& space);
 
 	SpaceType mSpace;	
@@ -84,8 +84,8 @@ namespace MultiArrayTools
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
 	
     protected:
-
-	bool externControl = false;
+	
+	bool mExternControl = false;
 	IndexPack mIPack;
     };
     

@@ -9,8 +9,8 @@ namespace MultiArrayHelper
     template <size_t N>
     struct PackNum
     {
-	template <class MultiIndex>
-	static IndexBase& getIndex(MultiIndex& in, size_t n)
+	template <class IndexType>
+	static IndexBase& getIndex(IndexType& in, size_t n)
 	{
 	    if(n == N){
 		return in.getIndex<N>();
@@ -20,8 +20,8 @@ namespace MultiArrayHelper
 	    }
 	}
 	
-	template <class MultiIndex>
-	static const IndexBase& getIndex(const MultiIndex& in, size_t n)
+	template <class IndexType>
+	static const IndexBase& getIndex(const IndexType& in, size_t n)
 	{
 	    if(n == N){
 		return in.getIndex<N>();
@@ -63,17 +63,16 @@ namespace MultiArrayHelper
 	    return std::get<N>(rt).size() * PackNum<N-1>::getSize(rt);
 	}
 	
-	template <class... Indices>
+	template <template <class...> IndexType, class... Indices>
 	static void getMetaPos(std::tuple<decltype(Indices().meta())...>& target,
-			       const typename MultiIndex<Indices...>::IndexPack& source)
+			       const typename IndexType<Indices...>::IndexPack& source)
 	{
 	    std::get<N>(target) = std::get<N>(source)->meta();
 	    PackNum<N-1>::getMetaPos(target, source);
 	}
 	
-	template <class... Indices>
-	static void setMeta(typename MultiIndex<Indices...>::IndexPack& target,
-			    const typename MultiIndex<Indices...>::MetaType& source)
+	template <class IndexPack>
+	static void setMeta(IndexPack& target, const MetaType& source)
 	{
 	    std::get<N>(target).atMeta( std::get<N>(source) );
 	    PackNum<N-1>::setMeta(target, source);
@@ -104,9 +103,9 @@ namespace MultiArrayHelper
 	    PackNum<N-1>::construct(ip, range);
 	}
 	
-	template <class... Indices>
+	template <template<class...> IndexType, class... Indices>
 	static void copy(std::tuple<std::shared_ptr<Indices>...>& ip,
-			 const MultiIndex<Indices...>& ind)
+			 const IndexType<Indices...>& ind)
 	{
 	    typedef decltype(ind.template get<N>()) SubIndexType;
 	    std::get<N>(ip).swap( std::make_shared<SubIndexType>( ind.template get<N>() ) );
@@ -125,7 +124,21 @@ namespace MultiArrayHelper
 	{
 	    PackNum<N-1>::print(os, meta);
 	    os << std::get<N>(meta) << '\t';
-	}	    
+	}
+
+	template <class Pack, class IndexType, class... Indices>
+	static void swapIndices(Pack& ipack, const std::shared_ptr<Indices>&... ninds,
+				const std::shared_ptr<IndexType>& nind)
+	{
+	    std::get<N>(ipack).swap( nind );
+	    PackNum<N-1>::swapIndices(ipack, ninds...);
+	}
+
+	template <class... Indices>
+	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
+	{
+	    return std::get<sizeof...(Indices)-N-1>(pack)->size() * PackNum<N-1>::blockSize(pack);
+	}
 	
     };
     
@@ -144,14 +157,14 @@ namespace MultiArrayHelper
 	    return in.getIndex<0>();
 	}
 	
-	template <class MultiIndex>
+	template <class... Indices>
 	static inline void pp(std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
 	    auto& si = *std::get<0>(ip);
 	    ++si;
 	}
 	
-	template <class MultiIndex>
+	template <class... Indices>
 	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
 	    auto& si = *std::get<0>(ip);
@@ -164,16 +177,15 @@ namespace MultiArrayHelper
 	    return std::get<0>(rt).size();
 	}
 	
-	template <class... Indices>
+	template <template <class...> IndexType, class... Indices>
 	static void getMetaPos(std::tuple<decltype(Indices().meta())...>& target,
-			       const typename MultiIndex<Indices...>::IndexPack& source)
+			       const typename IndexType<Indices...>::IndexPack& source)
 	{
 	    std::get<0>(target) = std::get<0>(source)->meta();
 	}
 	
-	template <class... Indices>
-	static void setMeta(typename MultiIndex<Indices...>::IndexPack& target,
-			    const typename MultiIndex<Indices...>::MetaType& source)
+	template <class IndexPack>
+	static void setMeta(IndexPack& target, const MetaType& source)
 	{
 	    std::get<0>(target).atMeta( std::get<0>(source) );
 	}
@@ -199,9 +211,9 @@ namespace MultiArrayHelper
 	    std::get<0>(ip).swap( std::make_shared<SubIndexType>( range.template get<0>() ) );
 	}
 	
-	template <class... Indices>
+	template <template<class...> IndexType, class... Indices>
 	static void copy(std::tuple<std::shared_ptr<Indices>...>& ip,
-			 const MultiIndex<Indices...>& ind)
+			 const IndexType<Indices...>& ind)
 	{
 	    typedef decltype(ind.template get<0>()) SubIndexType;
 	    std::get<0>(ip).swap( std::make_shared<SubIndexType>( ind.template get<0>() ) );
@@ -218,6 +230,19 @@ namespace MultiArrayHelper
 	{
 	    os << std::get<0>(meta) << '\t';
 	}
+
+	template <class Pack, class IndexType>
+	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind)
+	{
+	    std::get<0>(ipack).swap( nind );
+	}
+
+	template <class... Indices>
+	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
+	{
+	    return std::get<sizeof...(Indices)-1>(pack)->size();
+	}
+	
     };
     
 } // end namespace MultiArrayHelper
