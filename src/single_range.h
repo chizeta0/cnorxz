@@ -36,6 +36,19 @@ namespace MultiArrayTools
     };
 
     template <typename U, RangeType TYPE>
+    class SingleRangeFactory : public RangeFactoryBase
+    {
+    public:
+	
+	typedef SingleRange<U,TYPE> oType;
+
+	SingleRangeFactory() = delete;
+	SingleRangeFactory(const std::vector<U>& space);
+	std::shared_ptr<RangeBase> create();
+	
+    };
+    
+    template <typename U, RangeType TYPE>
     class SingleRange : public RangeInterface<SingleIndex<U> >
     {
     public:

@@ -63,6 +63,23 @@ namespace MultiArrayTools
     {
 	return mPos == 0;
     }
+
+    /********************
+     *   SingleRange    *
+     ********************/
+
+    template <typename U, RangeType TYPE>
+    SingleRangeFactory<U,TYPE>::SingleRangeFactory(const std::vector<U>& space)
+    {
+	mProd = std::make_shared<oType>( space );
+    }
+
+    template <typename U, RangeType TYPE>
+    std::shared_ptr<RangeBase> SingleRangeFactory<U,TYPE>::create()
+    {
+	setSelf();
+	return mProd;
+    }
     
     /********************
      *   SingleRange    *

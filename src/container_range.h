@@ -14,6 +14,8 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef ContainerRange<Ranges...> oType;
+	
 	ContainerRangeFactory() = delete;
 	ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	ContainerRangeFactory(const ContainerRange<Ranges...>::SpaceType& space);

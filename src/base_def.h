@@ -49,42 +49,59 @@ namespace MultiArrayTools
     enum class RangeType;
 
     // range_base.h
-    class MultiRangeType;
-
-    // range_base.h
-    class IndefinitRangeBase;
-    
-    // range_base.h
-    template <class Index>
     class RangeBase;
 
     // range_base.h
+    class RangeFactoryBase;
+    
+    // range_base.h
     template <class Index>
-    class SubRangeBase;
+    class RangeInterface;
 
     // index_base.h
-    class IndefinitIndexBase;
-
-    // index_base.h
-    template <class Index>
     class IndexBase;
 
-    // single_range.h
-    template <typename U, RangeType TYPE>
-    class SingleIndex;
+    // index_base.h
+    template <typename MetaType>
+    class IndexInterface;
 
     // single_range.h    
     template <typename U, RangeType TYPE>
     class SingleRange;
 
-    // multi_range.h
-    template <class... Indices>
-    class MultiIndex;
+    // single_range.h    
+    template <typename U, RangeType TYPE>
+    class SingleRangeFactory;
 
+    // single_range.h
+    template <typename U>
+    class SingleIndex;
+    
+    // multi_range.h
+    template <class... Ranges>
+    class MultiRangeFactory;
+    
     // multi_range.h    
     template <class... Ranges>
     class MultiRange;
 
+    // multi_range.h
+    template <class... Indices>
+    class MultiIndex;
+
+    // container_range.h
+    template <class... Ranges>
+    class ContainerRangeFactory;
+
+    // container_range.h
+    template <class... Ranges>
+    class ContainerRange;
+
+    // container_range.h
+    template <class... Indices>
+    class ContainerIndex;
+    
+    /*
     // multi_array.h
     template <typename T, class Range>
     class MultiArrayBase;
@@ -153,6 +170,7 @@ namespace MultiArrayTools
 
     // ma_functional.h
     class pyProjNoSymFunction;
+    */
 }
 
 #endif

@@ -68,6 +68,8 @@ namespace MultiArrayTools
     class MultiRangeFactory : public RangeFactoryBase
     {
     public:
+	typedef MultiRange<Ranges...> oType;
+	
 	MultiRangeFactory() = delete;
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& space);
