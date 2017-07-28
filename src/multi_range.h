@@ -121,11 +121,6 @@ namespace MultiArrayTools
     
 }
 
-template <typename... Ts>
-std::ostream& operator<<(std::ostream& os,
-			 const std::tuple<Ts...>& meta);
-
-
 #include "multi_range.cc"
 
 #endif

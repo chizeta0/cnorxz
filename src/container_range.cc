@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 #include "container_range.h"
-#include "numpack.h"
+#include "pack_num.h"
 
 namespace MultiArrayTools
 {

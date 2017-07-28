@@ -12,7 +12,7 @@ namespace {
 
     using namespace MAT;
     
-    class ConnectionTest : public ::testing::Test
+    class IndexTest : public ::testing::Test
     {
     protected:
 
@@ -28,7 +28,7 @@ namespace {
 	typedef ContainerRangeFactory<M3Range,SRange> CRF;
 	typedef CRF::oType CRange;
 
-	ConnectionTest()
+	IndexTest()
 	{
 	    rfbptr.swap( std::make_shared<SRF>( { 'e', 'b', 'n' } ) );
 	    sr1ptr = std::dynamic_pointer_cast<SRange>( rfbptr.create() );
@@ -53,9 +53,30 @@ namespace {
 	std::shared_ptr<M3Range> m3rptr;
     };
 
-    TEST_F(ConnectionTest, UnlinkedIteration)
+    TEST_F(IndexTest, SingleIndex_SimpleCall)
     {
-	EXPECT_EQ(i3d.pos(), 0);
+	auto si = sr1ptr->begin();
+	EXPECT_EQ(si.max(), 3);
+	EXPECT_EQ(si.pos(), 0);
+	EXPECT_EQ(si.first(), true);
+	EXPECT_EQ(si.last(), false);
+	EXPECT_EQ(si.meta(), 'e');
+	si.at('n');
+	EXPECT_EQ(si.pos(), si.max()-1);
+	EXPECT_EQ(si.first(), false);
+	EXPECT_EQ(si.last(), true);
+	si = 1;
+	EXPECT_EQ(si.meta(), 'b');
+	++si;
+	EXPECT_EQ(si.meta(), 'n');
+	auto si2 = sr1ptr->end();
+	--si2;
+	EXPECT_EQ(si == si2, true);
+	EXPECT_EQ(si != si2, false);
+	auto si3 = sr2ptr->end();
+	--si3;
+	EXPECT_EQ(si == si3, false);
+	EXPECT_EQ(si != si3, true);
     }
     
 } // end namespace 

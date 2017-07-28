@@ -120,21 +120,13 @@ namespace MultiArrayTools
 	return 1;
     }
 
-    // put this in the interface class !!!
-    template <typename U, RangeType TYPE>
-    std::shared_ptr<IndexBase> SingleRange<U,TYPE>::index() const
-    {
-	return std::make_shared<SingleIndex<U> >
-	    ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( mThis ) );
-    }
-    
     template <typename U, RangeType TYPE>
     SingleIndex<U> SingleRange<U,TYPE>::begin() const
     {
 	SingleIndex<U> i(mThis);
 	return i = 0;
     }
-
+    
     template <typename U, RangeType TYPE>
     SingleIndex<U> SingleRange<U,TYPE>::end() const
     {
@@ -142,6 +134,15 @@ namespace MultiArrayTools
 	return i = size();
     }
 
+    // put this in the interface class !!!
+    template <typename U, RangeType TYPE>
+    std::shared_ptr<IndexBase> SingleRange<U,TYPE>::index() const
+    {
+	return std::make_shared<SingleIndex<U> >
+	    ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( mThis ) );
+    }
+
+    /*
     // specializations (not updated!!!)
 
     SingleRange<int,RangeType::SPACE>::SingleRange(size_t ext) :
@@ -338,5 +339,5 @@ namespace MultiArrayTools
     {
 	return SingleIndex<size_t,RangeType::LORENTZ>(this, size());
     }
-    
+    */    
 }

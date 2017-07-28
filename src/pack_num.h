@@ -1,7 +1,9 @@
 // -*- C++ -*-
 
 #include <cstdlib>
+#include <type_traits>
 #include <tuple>
+#include <memory>
 
 namespace MultiArrayHelper
 {
@@ -118,13 +120,6 @@ namespace MultiArrayHelper
 	    return std::get<N>(iPtrTup)->pos() +
 		PackNum<N-1>::makePos(iPtrTup) * std::get<N-1>(iPtrTup)->max();
 	}
-	
-	template <typename... Ts>
-	static void print(std::ostream& os, const std::tuple<Ts...>& meta)
-	{
-	    PackNum<N-1>::print(os, meta);
-	    os << std::get<N>(meta) << '\t';
-	}
 
 	template <class Pack, class IndexType, class... Indices>
 	static void swapIndices(Pack& ipack, const std::shared_ptr<Indices>&... ninds,
@@ -225,12 +220,6 @@ namespace MultiArrayHelper
 	    return std::get<0>(iPtrTup)->pos();
 	}
 	
-	template <typename... Ts>
-	static void print(std::ostream& os, const std::tuple<Ts...>& meta)
-	{
-	    os << std::get<0>(meta) << '\t';
-	}
-
 	template <class Pack, class IndexType>
 	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind)
 	{

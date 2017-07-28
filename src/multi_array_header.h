@@ -9,12 +9,13 @@
 #include "index_base.h"
 #include "single_range.h"
 #include "multi_range.h"
-#include "multi_array_operation.h"
-#include "multi_array.h"
-#include "slice.h"
-#include "manipulator.h"
-#include "range_transformer.h"
-#include "ma_functional.h"
+#include "container_range.h"
+//#include "multi_array_operation.h"
+//#include "multi_array.h"
+//#include "slice.h"
+//#include "manipulator.h"
+//#include "range_transformer.h"
+//#include "ma_functional.h"
 
 namespace MultiArrayTools
 {
@@ -22,7 +23,7 @@ namespace MultiArrayTools
     /*********************************
      *   Some standard definitions   *
      *********************************/
-
+    /*
     // ===== Index Types =====
 
     typedef SingleIndex<size_t,RangeType::ANY> GenericNI;
@@ -50,7 +51,7 @@ namespace MultiArrayTools
     typedef SingleRange<std::array<int,3>, RangeType::MOMENTUM> LinMomR;
     typedef SingleRange<std::array<int,4>, RangeType::MOMENTUM> LinMom4dR;
     // ...
-    
+    */
 }
 
 #endif

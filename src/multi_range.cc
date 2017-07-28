@@ -1,6 +1,6 @@
 
 #include "multi_range.h"
-#include "packnum.h"
+#include "pack_num.h"
 
 namespace MultiArrayTools
 {
@@ -196,12 +196,4 @@ namespace MultiArrayTools
 	return std::make_shared<MultiIndex<typename Ranges::IndexType...> >
 	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
     }
-}
-
-template <typename... Ts>
-std::ostream& operator<<(std::ostream& os,
-			 const std::tuple<Ts...>& meta)
-{
-    MultiArrayTools::PackNum<sizeof...(Ts)-1>::print(os, meta);
-    return os;
 }

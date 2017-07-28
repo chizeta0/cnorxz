@@ -4,7 +4,12 @@
 #define __container_range_h__
 
 #include <cstdlib>
+#include <tuple>
+#include <memory>
+
 #include "base_def.h"
+#include "range_base.h"
+#include "index_base.h"
 
 namespace MultiArrayTools
 {

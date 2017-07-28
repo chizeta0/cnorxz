@@ -61,7 +61,8 @@ namespace MultiArrayTools
 	
 	virtual SingleIndex<U> begin() const override;
 	virtual SingleIndex<U> end() const override;
-
+	virtual std::shared_ptr<IndexBase> index() const override;
+	
 	friend SingleRangeFactory<U,TYPE>;
 	
     protected:
@@ -73,7 +74,7 @@ namespace MultiArrayTools
 
 	std::vector<U> mSpace;
     };
-
+    /*
     // specializaions
 
     template <>
@@ -197,7 +198,7 @@ namespace MultiArrayTools
 	SingleIndex<size_t,RangeType::LORENTZ> begin() const override;
 	SingleIndex<size_t,RangeType::LORENTZ> end() const override;
     };
-    
+    */
 }
 
 #include "single_range.cc"
