@@ -10,77 +10,7 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
-    /*****************************
-     *   ContainerRangeFactory   *
-     *****************************/
-
-    template <class... Ranges>
-    ContainerRangeFactory<Ranges...>::ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs)
-    {
-	mProd = std::make_shared<ContainerRange<Ranges...> >( rs... );
-    }
     
-    template <class... Ranges>
-    ContainerRangeFactory<Ranges...>::
-    ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space)
-    {
-	mProd = std::make_shared<ContainerRange<Ranges...> >( space );
-    }
-
-    template <class... Ranges>
-    std::shared_ptr<RangeBase> ContainerRangeFactory<Ranges...>::create()
-    {
-	setSelf();
-	return mProd;
-    }
-    
-    /**********************
-     *   ContainerRange   *
-     **********************/
-
-    template <class... Ranges>
-    ContainerRange<Ranges...>::ContainerRange(const std::shared_ptr<Ranges>&... rs) :
-	mSpace( std::make_tuple( rs... ) ) {}
-
-    template <class... Ranges>
-    ContainerRange<Ranges...>::ContainerRange(const SpaceType& space) : mSpace( space ) {}
-
-    template <class... Ranges>
-    size_t ContainerRange<Ranges...>::dim() const
-    {
-	return sizeof...(Ranges);
-    }
-
-    template <class... Ranges>
-    size_t ContainerRange<Ranges...>::size() const
-    {
-	return PackNum<sizeof...(Ranges)-1>::getSize(mSpace);
-    }
-
-    template <class... Ranges>
-    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::begin() const
-    {
-	ContainerIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( RB::mThis ) );
-	return i = 0;
-    }
-
-    template <class... Ranges>
-    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::end() const
-    {
-	ContainerIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( RB::mThis ) );
-	return i = size();
-    }
-
-    template <class... Ranges>
-    std::shared_ptr<IndexBase> ContainerRange<Ranges...>::index() const
-    {
-	return std::make_shared<ContainerIndex<typename Ranges::IndexType...> >
-	    ( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( RB::mThis ) );
-    }
-    
-
     /**********************
      *   ContainerIndex   *
      **********************/
@@ -113,6 +43,9 @@ namespace MultiArrayTools
     template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator++()
     {
+	if(mExternControl){
+	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	}
 	PackNum<sizeof...(Indices)-1>::pp( mIPack );
 	++IB::mPos;
 	return *this;
@@ -121,6 +54,9 @@ namespace MultiArrayTools
     template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator--()
     {
+	if(mExternControl){
+	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	}
 	PackNum<sizeof...(Indices)-1>::mm( mIPack );
 	--IB::mPos;
 	return *this;
@@ -166,11 +102,97 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    bool ContainerIndex<Indices...>::first() const
+    {
+	return pos() == 0;
+    }
+
+    template <class... Indices>
+    bool ContainerIndex<Indices...>::last() const
+    {
+	return pos() == IB::mRangePtr->size() - 1;
+    }
+
+    
+    template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator()(const std::shared_ptr<Indices>&... inds)
     {
 	PackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds...);
 	mExternControl = true;
 	return *this;
     }    
+    
+    /*****************************
+     *   ContainerRangeFactory   *
+     *****************************/
+
+    template <class... Ranges>
+    ContainerRangeFactory<Ranges...>::ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs)
+    {
+	mProd = std::shared_ptr<ContainerRange<Ranges...> >( new ContainerRange<Ranges...>( rs... ) );
+    }
+    
+    template <class... Ranges>
+    ContainerRangeFactory<Ranges...>::
+    ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space)
+    {
+	mProd = std::shared_ptr<ContainerRange<Ranges...> >( new ContainerRange<Ranges...>( space ) );
+    }
+
+    template <class... Ranges>
+    std::shared_ptr<RangeBase> ContainerRangeFactory<Ranges...>::create()
+    {
+	setSelf();
+	return mProd;
+    }
+    
+    /**********************
+     *   ContainerRange   *
+     **********************/
+
+    template <class... Ranges>
+    ContainerRange<Ranges...>::ContainerRange(const std::shared_ptr<Ranges>&... rs) :
+	mSpace( std::make_tuple( rs... ) ) {}
+
+    template <class... Ranges>
+    ContainerRange<Ranges...>::ContainerRange(const SpaceType& space) : mSpace( space ) {}
+
+    template <class... Ranges>
+    size_t ContainerRange<Ranges...>::dim() const
+    {
+	return sizeof...(Ranges);
+    }
+
+    template <class... Ranges>
+    size_t ContainerRange<Ranges...>::size() const
+    {
+	return PackNum<sizeof...(Ranges)-1>::getSize(mSpace);
+    }
+
+    template <class... Ranges>
+    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::begin() const
+    {
+	ContainerIndex<typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
+	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	return i = 0;
+    }
+
+    template <class... Ranges>
+    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::end() const
+    {
+	ContainerIndex<typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
+	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	return i = size();
+    }
+
+    template <class... Ranges>
+    std::shared_ptr<IndexBase> ContainerRange<Ranges...>::index() const
+    {
+	return std::make_shared<ContainerIndex<typename Ranges::IndexType...> >
+	    ( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
+	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+    }
     
 } // end namespace MultiArrayTools

@@ -13,6 +13,47 @@
 
 namespace MultiArrayTools
 {
+
+    template <class... Indices>
+    class ContainerIndex : public IndexInterface<std::tuple<decltype(Indices().meta())...> >
+    {
+    public:
+
+	typedef IndexBase IB;
+	typedef std::tuple<decltype(Indices().meta())...> MetaType;
+	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
+	typedef IndexInterface<std::tuple<decltype(Indices().meta())...> > IndexI;
+
+    protected:
+	bool mExternControl = false;
+	IndexPack mIPack;
+    
+    public:
+	ContainerIndex() = default;
+
+	ContainerIndex(const ContainerIndex& in);
+	ContainerIndex& operator=(const ContainerIndex& in);
+
+	template <class MRange>
+	ContainerIndex(const std::shared_ptr<MRange>& range);
+
+	virtual ContainerIndex& operator++() override;
+	virtual ContainerIndex& operator--() override;
+	virtual ContainerIndex& operator=(size_t pos) override;
+
+	virtual MetaType meta() const override;
+	virtual ContainerIndex& at(const MetaType& metaPos) override;
+
+	virtual bool first() const override;
+	virtual bool last() const override;
+	
+	virtual size_t dim() const override;
+	virtual size_t pos() const override; // recalculate when externalControl == true
+	
+	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
+	
+    };
+
     
     template <class... Ranges>
     class ContainerRangeFactory : public RangeFactoryBase
@@ -39,7 +80,18 @@ namespace MultiArrayTools
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
 	typedef typename RangeInterface<ContainerIndex<typename Ranges::IndexType...> >::IndexType IndexType;
+	
+    protected:
+	ContainerRange() = default;
+	ContainerRange(const ContainerRange& in) = delete;
+	ContainerRange& operator=(const ContainerRange& in) = delete;
+	
+	ContainerRange(const std::shared_ptr<Ranges>&... rs);
+	ContainerRange(const SpaceType& space);
 
+	SpaceType mSpace;	
+
+    public:	
 	static const size_t sdim = sizeof...(Ranges);
 
 	virtual size_t dim() const override;
@@ -52,53 +104,8 @@ namespace MultiArrayTools
 
 	friend ContainerRangeFactory<Ranges...>;
 	
-    protected:
-
-	ContainerRange() = default;
-	ContainerRange(const ContainerRange& in) = delete;
-
-	ContainerRange(const std::shared_ptr<Ranges>&... rs);
-	ContainerRange(const SpaceType& space);
-
-	SpaceType mSpace;	
     };
-    
-    template <class... Indices>
-    class ContainerIndex : public IndexInterface<std::tuple<decltype(Indices().meta())...> >
-    {
-    public:
-
-	typedef IndexBase IB;
-	typedef std::tuple<decltype(Indices().meta())...> MetaType;
-	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
-	typedef IndexInterface<std::tuple<decltype(Indices().meta())...> > IndexI;
-	
-	ContainerIndex() = default;
-
-	ContainerIndex(const ContainerIndex& in);
-	ContainerIndex& operator=(const ContainerIndex& in);
-
-	template <class MRange>
-	ContainerIndex(const std::shared_ptr<MRange>& range);
-
-	virtual ContainerIndex& operator++() override;
-	virtual ContainerIndex& operator--() override;
-	virtual ContainerIndex& operator=(size_t pos) override;
-
-	virtual MetaType meta() const override;
-	virtual ContainerIndex& at(const MetaType& metaPos) override;
-
-	virtual size_t dim() const override;
-	virtual size_t pos() const override; // recalculate when externalControl == true
-	
-	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
-	
-    protected:
-	
-	bool mExternControl = false;
-	IndexPack mIPack;
-    };
-    
+   
 } // end namespace MultiArrayTools
 
 #include "container_range.cc"

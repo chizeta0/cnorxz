@@ -122,14 +122,16 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::begin() const
     {
-	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( RB::mThis ) );
+	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	return i = 0;
     }
     
     template <typename U, RangeType TYPE>
     typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::end() const
     {
-	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( RB::mThis ) );
+	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	return i = size();
     }
 
@@ -138,7 +140,8 @@ namespace MultiArrayTools
     std::shared_ptr<IndexBase> SingleRange<U,TYPE>::index() const
     {
 	return std::make_shared<SingleIndex<U,TYPE> >
-	    ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( RB::mThis ) );
+	    ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
     }
 
     /*

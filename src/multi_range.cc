@@ -204,7 +204,8 @@ namespace MultiArrayTools
     typename MultiRange<Ranges...>::IndexType MultiRange<Ranges...>::begin() const
     {
 	MultiIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( RB::mThis ) );
+	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >
+	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	return i = 0;
     }
 
@@ -212,7 +213,8 @@ namespace MultiArrayTools
     typename MultiRange<Ranges...>::IndexType MultiRange<Ranges...>::end() const
     {
 	MultiIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( RB::mThis ) );
+	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >
+	       ( std::shared_ptr<RangeBase>( RB::mThis )) );
 	return i = size();
     }
 
@@ -220,6 +222,7 @@ namespace MultiArrayTools
     std::shared_ptr<IndexBase> MultiRange<Ranges...>::index() const
     {
 	return std::make_shared<MultiIndex<typename Ranges::IndexType...> >
-	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >( RB::mThis ) );
+	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >
+	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
     }
 }

@@ -48,7 +48,7 @@ namespace MultiArrayTools
     public:
 
 	virtual ~RangeBase() = default;
-
+	    
 	virtual size_t size() const = 0;
 	virtual size_t dim() const = 0;
 	
@@ -62,7 +62,7 @@ namespace MultiArrayTools
     protected:
 
 	RangeBase() = default;
-	std::shared_ptr<RangeBase> mThis;
+	std::weak_ptr<RangeBase> mThis;
     };
 
     template <class Index>
