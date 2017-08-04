@@ -23,7 +23,7 @@ namespace MultiArrayTools
 	
 	ContainerRangeFactory() = delete;
 	ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs);
-	ContainerRangeFactory(const ContainerRange<Ranges...>::SpaceType& space);
+	ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space);
 	
 	virtual std::shared_ptr<RangeBase> create() override; 
 	
@@ -36,16 +36,17 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
 	typedef typename RangeInterface<ContainerIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
-	static const size_t dim = sizeof...(Ranges);
+	static const size_t sdim = sizeof...(Ranges);
 
 	virtual size_t dim() const override;
 	virtual size_t size() const override;
 
-	virtual typename IndexType begin() const override;
-	virtual typename IndexType end() const override;
+	virtual IndexType begin() const override;
+	virtual IndexType end() const override;
 
 	virtual std::shared_ptr<IndexBase> index() const override;
 
@@ -67,8 +68,10 @@ namespace MultiArrayTools
     {
     public:
 
+	typedef IndexBase IB;
 	typedef std::tuple<decltype(Indices().meta())...> MetaType;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
+	typedef IndexInterface<std::tuple<decltype(Indices().meta())...> > IndexI;
 	
 	ContainerIndex() = default;
 

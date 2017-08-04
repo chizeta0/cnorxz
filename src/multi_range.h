@@ -19,12 +19,15 @@ namespace MultiArrayTools
     {
     public:
 	
+	typedef IndexBase IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<decltype(Indices().meta())...> MetaType;
 	typedef IndexInterface<MetaType> IndexI;	
-	
+
+    protected:
+	IndexPack mIPack;
+
     public:
-	
 	MultiIndex() = default;
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
@@ -45,7 +48,7 @@ namespace MultiArrayTools
 	MultiIndex& down();
 	
 	template <size_t N>
-	auto get() const -> decltype(*std::get<N>(mIPack))&;
+	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 		
 	const IndexBase& get(size_t n) const;
 	
@@ -53,11 +56,6 @@ namespace MultiArrayTools
 	virtual MultiIndex& at(const MetaType& metaPos) override;
 	
 	virtual size_t dim() const override;
-	
-    protected:
-	
-	IndexPack mIPack;
-
     };
 
     /*************************
@@ -72,7 +70,7 @@ namespace MultiArrayTools
 	
 	MultiRangeFactory() = delete;
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
-	MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& space);
+	MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& space);
 	
 	virtual std::shared_ptr<RangeBase> create() override;
     };
@@ -85,30 +83,11 @@ namespace MultiArrayTools
     class MultiRange : public RangeInterface<MultiIndex<typename Ranges::IndexType...> >
     {
     public:
-
+	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
 	typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
-	static const size_t dim = sizeof...(Ranges);
-
-	template <size_t N> // !!!
-	auto get() const ->;
-	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Ranges>...> >::type const& getRange() const;
-
-	virtual size_t dim() const override;
-	virtual size_t size() const override;
-	
-	const SpaceType& space() const;
-	
-	virtual typename IndexType begin() const override;
-	virtual typename IndexType end() const override;
-
-	virtual std::shared_ptr<IndexBase> index() const override;
-
-	friend MultiRangeFactory<Ranges...>;
-	
     protected:
-
 	MultiRange() = delete;
 	MultiRange(const MultiRange& in) = delete;
 	MultiRange& operator=(const MultiRange& in) = delete;
@@ -117,6 +96,27 @@ namespace MultiArrayTools
 	MultiRange(const SpaceType& space);
 	
 	SpaceType mSpace;
+	
+    public:
+	
+	static const size_t sdim = sizeof...(Ranges);
+
+	template <size_t N>
+	auto get() const -> decltype( *std::get<N>( mSpace ) )&;
+	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Ranges>...> >::type const& getRange() const;
+
+	virtual size_t dim() const override;
+	virtual size_t size() const override;
+	
+	const SpaceType& space() const;
+	
+	virtual IndexType begin() const override;
+	virtual IndexType end() const override;
+
+	virtual std::shared_ptr<IndexBase> index() const override;
+
+	friend MultiRangeFactory<Ranges...>;
+	
     };
     
 }

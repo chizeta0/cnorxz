@@ -19,7 +19,7 @@ namespace MultiArrayTools
 	IndexInterface<std::tuple<decltype(Indices().meta())...> >(in)
     {
 	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
     }
 	
     template <class... Indices>
@@ -27,7 +27,7 @@ namespace MultiArrayTools
     {
 	IndexI::operator=(in);
 	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
     
@@ -37,14 +37,14 @@ namespace MultiArrayTools
 	IndexInterface<std::tuple<decltype(Indices().meta())...> >(range, 0)
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
     }
     
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
 	PackNum<sizeof...(Indices)-1>::pp( mIPack );
-	++mPos;
+	++IB::mPos;
 	return *this;
     }
 
@@ -52,14 +52,14 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
 	PackNum<sizeof...(Indices)-1>::mm( mIPack );
-	--mPos;
+	--IB::mPos;
 	return *this;
     }
     
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
     {
-	mPos = pos;
+	IB::mPos = pos;
 	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
 	return *this;
     }
@@ -69,7 +69,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	mPos += PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
+	IB::mPos += PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
 	PackNum<DIR>::pp( mIPack );
 	return *this;
     }
@@ -79,7 +79,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	mPos -= PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
+	IB::mPos -= PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
 	PackNum<DIR>::mm( mIPack );
 	return *this;
     }
@@ -92,7 +92,7 @@ namespace MultiArrayTools
     
     template <class... Indices>
     template <size_t N>
-    auto MultiIndex<Indices...>::get() const -> const decltype(*std::get<N>(mIPack))&
+    auto MultiIndex<Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
     {
 	return *std::get<N>(mIPack);
     }
@@ -105,7 +105,7 @@ namespace MultiArrayTools
 	    // throw !!
 	}
 	MultiIndex<Indices...> const* t = this;
-	return IndexGetter<sizeof...(Indices)-1>::getIndex(*t, n);
+	return PackNum<sizeof...(Indices)-1>::getIndex(*t, n);
     }
 
     template <class... Indices>
@@ -134,7 +134,7 @@ namespace MultiArrayTools
     }
     
     template <class... Ranges>
-    MultiRangeFactory<Ranges...>::MultiRangeFactory(const MultiRange<Ranges...>::SpaceType& st)
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& st)
     {
 	mProd = std::make_shared< MultiRange<Ranges...> >( st );
     }
@@ -154,11 +154,11 @@ namespace MultiArrayTools
     MultiRange<Ranges...>::MultiRange(const std::shared_ptr<Ranges>&... rs) : mSpace(std::make_tuple(rs...)) {}
 
     template <class... Ranges>
-    MultiRange<Ranges...>::MultiRange(const SpaceType& space) : mSpace(space) {}
+    MultiRange<Ranges...>::MultiRange(const SpaceType& space) : mSpace( space ) {}
 
     template <class... Ranges>
     template <size_t N>
-    auto getRange() const -> const decltype(*std::get<N>(mSpace))&
+    auto MultiRange<Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
     //typename std::tuple_element<N, std::tuple<Ranges...> >::type const& MultiRange<Ranges...>::getRange() const
     {
 	return *std::get<N>(mSpace);
@@ -177,16 +177,18 @@ namespace MultiArrayTools
     }
     
     template <class... Ranges>
-    MultiIndex<typename Ranges::IndexType...> MultiRange<Ranges...>::begin() const
+    typename MultiRange<Ranges...>::IndexType MultiRange<Ranges...>::begin() const
     {
-	MultiIndex<typename Ranges::IndexType...> i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
+	MultiIndex<typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( RB::mThis ) );
 	return i = 0;
     }
 
     template <class... Ranges>
-    MultiIndex<typename Ranges::IndexType...> MultiRange<Ranges...>::end() const
+    typename MultiRange<Ranges...>::IndexType MultiRange<Ranges...>::end() const
     {
-	MultiIndex<typename Ranges::IndexType...> i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
+	MultiIndex<typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >( RB::mThis ) );
 	return i = size();
     }
 
@@ -194,6 +196,6 @@ namespace MultiArrayTools
     std::shared_ptr<IndexBase> MultiRange<Ranges...>::index() const
     {
 	return std::make_shared<MultiIndex<typename Ranges::IndexType...> >
-	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >( mThis ) );
+	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >( RB::mThis ) );
     }
 }

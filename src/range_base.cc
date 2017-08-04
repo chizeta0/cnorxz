@@ -3,6 +3,16 @@
 
 namespace MultiArrayTools
 {
+
+    /*************************
+     *   RangeFactoryBase    *
+     *************************/
+    
+    void RangeFactoryBase::setSelf()
+    {
+	mProd->mThis = mProd;
+    }
+    
     /******************
      *   RangeBase    *
      ******************/

@@ -37,9 +37,10 @@ namespace MultiArrayTools
 	
     protected:
 
-	// call this function before returning product !!
-	void setSelf() { mProd->mThis = mProd; }
 	std::shared_ptr<RangeBase> mProd;
+	
+	// call this function before returning product !!
+	void setSelf();
     };
     
     class RangeBase

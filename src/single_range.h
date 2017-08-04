@@ -14,13 +14,15 @@
 namespace MultiArrayTools
 {
 
-    template <typename U>
+    template <typename U, RangeType TYPE>
     class SingleIndex : public IndexInterface<U>
     {
     public:
-	DEFAULT_MEMBERS(SingleIndex);
 
-	template <RangeType TYPE>
+	typedef IndexBase IB;
+	
+	DEFAULT_MEMBERS(SingleIndex);
+	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
 	virtual SingleIndex& operator=(size_t pos) override;
@@ -49,18 +51,20 @@ namespace MultiArrayTools
     };
     
     template <typename U, RangeType TYPE>
-    class SingleRange : public RangeInterface<SingleIndex<U> >
+    class SingleRange : public RangeInterface<SingleIndex<U,TYPE> >
     {
     public:
-	typedef typename RangeBase<SingleIndex<U> >::IndexType IndexType;
+	typedef RangeBase RB;
+	typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
 	
 	virtual size_t size() const override;
-
+	virtual size_t dim() const override;
+	
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
 	
-	virtual SingleIndex<U> begin() const override;
-	virtual SingleIndex<U> end() const override;
+	virtual SingleIndex<U,TYPE> begin() const override;
+	virtual SingleIndex<U,TYPE> end() const override;
 	virtual std::shared_ptr<IndexBase> index() const override;
 	
 	friend SingleRangeFactory<U,TYPE>;

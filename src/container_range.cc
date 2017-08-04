@@ -21,7 +21,8 @@ namespace MultiArrayTools
     }
     
     template <class... Ranges>
-    ContainerRangeFactory<Ranges...>::ContainerRangeFactory(const ContainerRange<Ranges...>::SpaceType& space)
+    ContainerRangeFactory<Ranges...>::
+    ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space)
     {
 	mProd = std::make_shared<ContainerRange<Ranges...> >( space );
     }
@@ -57,18 +58,18 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    typename IndexType ContainerRange<Ranges...>::begin() const
+    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::begin() const
     {
 	ContainerIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( mThis ) );
+	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( RB::mThis ) );
 	return i = 0;
     }
 
     template <class... Ranges>
-    typename IndexType ContainerRange<Ranges...>::end() const
+    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::end() const
     {
 	ContainerIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( mThis ) );
+	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( RB::mThis ) );
 	return i = size();
     }
 
@@ -76,7 +77,7 @@ namespace MultiArrayTools
     std::shared_ptr<IndexBase> ContainerRange<Ranges...>::index() const
     {
 	return std::make_shared<ContainerIndex<typename Ranges::IndexType...> >
-	    ( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( mThis ) );
+	    ( std::dynamic_pointer_cast<ContainerRange<Ranges...> >( RB::mThis ) );
     }
     
 
@@ -89,7 +90,7 @@ namespace MultiArrayTools
 	IndexInterface<std::tuple<decltype(Indices().meta())...> >(in)
     {
 	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
     }
 
     template <class... Indices>
@@ -97,7 +98,7 @@ namespace MultiArrayTools
     {
 	IndexI::operator=(in);
 	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
 
@@ -106,14 +107,14 @@ namespace MultiArrayTools
     ContainerIndex<Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range)
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
     }
 
     template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator++()
     {
 	PackNum<sizeof...(Indices)-1>::pp( mIPack );
-	++mPos;
+	++IB::mPos;
 	return *this;
     }
 
@@ -121,7 +122,7 @@ namespace MultiArrayTools
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator--()
     {
 	PackNum<sizeof...(Indices)-1>::mm( mIPack );
-	--mPos;
+	--IB::mPos;
 	return *this;
 
     }
@@ -129,7 +130,7 @@ namespace MultiArrayTools
     template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator=(size_t pos)
     {
-	mPos = pos;
+	IB::mPos = pos;
 	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
 	return *this;
     }
@@ -159,9 +160,9 @@ namespace MultiArrayTools
     size_t ContainerIndex<Indices...>::pos() const
     {
 	if(mExternControl){
-	    mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	}
-	return mPos;
+	return IB::mPos;
     }
 
     template <class... Indices>

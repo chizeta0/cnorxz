@@ -31,7 +31,7 @@ namespace MultiArrayTools
 	return mRangePtr->size();
     }
 
-    operator IndexBase::size_t() const
+    IndexBase::operator size_t() const
     {
 	return pos();
     }
@@ -41,7 +41,7 @@ namespace MultiArrayTools
      **********************/
 
     template <typename MetaType>
-    IndexInterface::IndexInterface(const RangeBase& range, size_t pos) :
+    IndexInterface<MetaType>::IndexInterface(const RangeBase& range, size_t pos) :
 	IndexBase(range, pos) {}
     
 }
