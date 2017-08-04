@@ -20,6 +20,7 @@ namespace MultiArrayTools
     public:
 
 	typedef IndexBase IB;
+	typedef U MetaType;
 	
 	DEFAULT_MEMBERS(SingleIndex);
 	
@@ -29,8 +30,8 @@ namespace MultiArrayTools
 	virtual SingleIndex& operator++() override;
 	virtual SingleIndex& operator--() override;
 
-	virtual U meta() const;
-	virtual SingleIndex& at(const U& metaPos);
+	virtual U meta() const override;
+	virtual SingleIndex& at(const U& metaPos) override;
 	
 	virtual size_t dim() const override; // = 1
 	virtual bool last() const override;
@@ -63,8 +64,8 @@ namespace MultiArrayTools
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
 	
-	virtual SingleIndex<U,TYPE> begin() const override;
-	virtual SingleIndex<U,TYPE> end() const override;
+	virtual IndexType begin() const override;
+	virtual IndexType end() const override;
 	virtual std::shared_ptr<IndexBase> index() const override;
 	
 	friend SingleRangeFactory<U,TYPE>;

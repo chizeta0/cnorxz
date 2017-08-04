@@ -10,9 +10,9 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
-    /**********************
-     *   MultiIndexBase   *	     
-     **********************/
+    /******************
+     *   MultiIndex   *
+     ******************/
     
     template <class... Indices>
     MultiIndex<Indices...>::MultiIndex(const MultiIndex<Indices...>& in) :
@@ -123,6 +123,18 @@ namespace MultiArrayTools
 	return *this;
     }
 
+    template <class... Indices>
+    bool MultiIndex<Indices...>::first() const
+    {
+	return IB::mPos == 0;
+    }
+
+    template <class... Indices>
+    bool MultiIndex<Indices...>::last() const
+    {
+	return IB::mPos == IB::mRangePtr->size() - 1;
+    }
+    
     /*************************
      *   MultiRangeFactory   *
      *************************/
@@ -130,13 +142,13 @@ namespace MultiArrayTools
     template <class... Ranges>
     MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<Ranges>&... rs)
     {
-	mProd = std::make_shared< MultiRange<Ranges...> >( rs... );
+	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( rs... ) );
     }
     
     template <class... Ranges>
     MultiRangeFactory<Ranges...>::MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& st)
     {
-	mProd = std::make_shared< MultiRange<Ranges...> >( st );
+	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( st ) );
     }
     
     template <class... Ranges>
@@ -159,11 +171,23 @@ namespace MultiArrayTools
     template <class... Ranges>
     template <size_t N>
     auto MultiRange<Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
-    //typename std::tuple_element<N, std::tuple<Ranges...> >::type const& MultiRange<Ranges...>::getRange() const
     {
 	return *std::get<N>(mSpace);
     }
 
+    template <class... Ranges>
+    template <size_t N>
+    auto MultiRange<Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
+    {
+	return std::get<N>(mSpace);
+    }
+
+    template <class... Ranges>
+    size_t MultiRange<Ranges...>::dim() const
+    {
+	return sdim;
+    }
+    
     template <class... Ranges>
     size_t MultiRange<Ranges...>::size() const
     {

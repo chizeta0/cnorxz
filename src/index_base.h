@@ -48,10 +48,11 @@ namespace MultiArrayTools
     {
     public:
 
-	IndexInterface(const RangeBase& range, size_t pos);
+	DEFAULT_MEMBERS(IndexInterface);
 	
-	MetaType& meta() = 0;
-	const MetaType& meta() const = 0;
+	IndexInterface(const std::shared_ptr<RangeBase>& rangePtr, size_t pos);
+	virtual MetaType meta() const = 0;
+	virtual IndexInterface& at(const MetaType& meta) = 0;
     };
     
 }

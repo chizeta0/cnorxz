@@ -54,6 +54,9 @@ namespace MultiArrayTools
 	
         virtual MetaType meta() const override;
 	virtual MultiIndex& at(const MetaType& metaPos) override;
+
+	virtual bool first() const override;
+	virtual bool last() const override;
 	
 	virtual size_t dim() const override;
     };
@@ -103,7 +106,9 @@ namespace MultiArrayTools
 
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mSpace ) )&;
-	//typename std::tuple_element<N, std::tuple<std::shared_ptr<Ranges>...> >::type const& getRange() const;
+
+	template <size_t N>
+	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
 	virtual size_t dim() const override;
 	virtual size_t size() const override;

@@ -35,13 +35,13 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     U SingleIndex<U,TYPE>::meta() const
     {
-	return dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRangePtr )->get( IB::pos() );
+	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->get( IB::pos() );
     }
 
     template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::at(const U& metaPos)
     {
-	operator=( dynamic_cast<SingleRange<U,TYPE> const*>( IB::mRangePtr )->getMeta( metaPos ) );
+	operator=( std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos ) );
 	return *this;
     }
 
@@ -70,7 +70,7 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     SingleRangeFactory<U,TYPE>::SingleRangeFactory(const std::vector<U>& space)
     {
-	mProd = std::make_shared<oType>( space );
+	mProd = std::shared_ptr<oType>( new SingleRange<U,TYPE>( space ) );
     }
 
     template <typename U, RangeType TYPE>
@@ -120,16 +120,16 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE> SingleRange<U,TYPE>::begin() const
+    typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::begin() const
     {
-	SingleIndex<U,TYPE> i( RB::mThis );
+	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( RB::mThis ) );
 	return i = 0;
     }
     
     template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE> SingleRange<U,TYPE>::end() const
+    typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::end() const
     {
-	SingleIndex<U,TYPE> i( RB::mThis );
+	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >( RB::mThis ) );
 	return i = size();
     }
 

@@ -11,6 +11,21 @@ namespace MAT = MultiArrayTools;
 namespace {
 
     using namespace MAT;
+
+    template <class Factory, typename T>
+    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
+    {
+	std::vector<T> tmp = ilist;
+	auto nptr = std::make_shared<Factory>( tmp );
+	fptr = nptr;
+    }
+
+    template <class Factory, class... Rs>
+    void swapMFactory(std::shared_ptr<RangeFactoryBase>& fptr, const Rs&... rs)
+    {
+	auto nptr = std::make_shared<Factory>( rs... );
+	fptr = nptr;
+    }
     
     class IndexTest : public ::testing::Test
     {
@@ -30,21 +45,21 @@ namespace {
 
 	IndexTest()
 	{
-	    rfbptr.swap( std::make_shared<SRF>( { 'e', 'b', 'n' } ) );
-	    sr1ptr = std::dynamic_pointer_cast<SRange>( rfbptr.create() );
+	    swapFactory<SRF>(rfbptr, { 'e', 'b', 'n' } );
+	    sr1ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
 
-	    rfbptr.swap( std::make_shared<SRF>( { 'x', 'y', 'l', 'f' } ) );
-	    sr2ptr = std::dynamic_pointer_cast<SRange>( rfbptr.create() );
+	    swapFactory<SRF>(rfbptr, { 'x', 'y', 'l', 'f' } );
+	    sr2ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
 
-	    rfbptr.swap( std::make_shared<SRF>( { 'a', 'b' } ) );
-	    std::shared_ptr<SRange> temp1 = std::dynamic_pointer_cast<SRange>( rfbptr.create() );
-	    rfbptr.swap( std::make_shared<SRF>( { '1' } ) );
-	    std::shared_ptr<SRange> temp2 = std::dynamic_pointer_cast<SRange>( rfbptr.create() );
-	    rfbptr.swap( std::make_shared<SRF>( { '0', '7' } ) );
-	    std::shared_ptr<SRange> temp3 = std::dynamic_pointer_cast<SRange>( rfbptr.create() );
+	    swapFactory<SRF>(rfbptr, { 'a', 'b' } );
+	    std::shared_ptr<SRange> temp1 = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+	    swapFactory<SRF>(rfbptr, { '1' } );
+	    std::shared_ptr<SRange> temp2 = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+	    swapFactory<SRF>(rfbptr, { '0', '7' } );
+	    std::shared_ptr<SRange> temp3 = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
 
-	    rfbptr.swap( std::make_shared<M3RF>( temp1, temp2, temp3 ) );
-	    m3rptr = std::dynamic_pointer_cast<M3Range>( rfbptr.create() );
+	    swapMFactory<M3RF>(rfbptr, temp1, temp2, temp3 );
+	    m3rptr = std::dynamic_pointer_cast<M3Range>( rfbptr->create() );
 	}
 
 	std::shared_ptr<RangeFactoryBase> rfbptr;

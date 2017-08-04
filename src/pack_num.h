@@ -43,9 +43,9 @@ namespace MultiArrayHelper
 	static inline void pp(std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
 	    auto& si = *std::get<N>(ip);
-	    if(si.pos() == si.last()){
+	    if(si.last()){
 		si = 0;
-		PackNum<N-1>::pp(index);
+		PackNum<N-1>::pp(ip);
 	    }
 	    else {
 		++si;
@@ -56,9 +56,9 @@ namespace MultiArrayHelper
 	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
 	    auto& si = *std::get<N>(ip);
-	    if(si.pos() == si.atEdge()){
+	    if(si.first()){
 		si = si.max();
-		PackNum<N-1>::mm(index);
+		PackNum<N-1>::mm(ip);
 	    }
 	    else {
 		--si;
@@ -68,12 +68,12 @@ namespace MultiArrayHelper
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt)
 	{
-	    return std::get<N>(rt).size() * PackNum<N-1>::getSize(rt);
+	    return std::get<N>(rt)->size() * PackNum<N-1>::getSize(rt);
 	}
 	
-	template <template <class...> class IndexType, class... Indices>
-	static void getMetaPos(std::tuple<decltype(Indices().meta())...>& target,
-			       const typename IndexType<Indices...>::IndexPack& source)
+	template <class IndexPack, class MetaType>
+	static void getMetaPos(MetaType& target,
+			       const IndexPack& source)
 	{
 	    std::get<N>(target) = std::get<N>(source)->meta();
 	    PackNum<N-1>::getMetaPos(target, source);
@@ -82,14 +82,14 @@ namespace MultiArrayHelper
 	template <class IndexPack, typename MetaType>
 	static void setMeta(IndexPack& target, const MetaType& source)
 	{
-	    std::get<N>(target).atMeta( std::get<N>(source) );
+	    std::get<N>(target)->at( std::get<N>(source) );
 	    PackNum<N-1>::setMeta(target, source);
 	}
 	
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos)
 	{
-	    auto i = std::get<N>(iPack);
+	    auto i = *std::get<N>(iPack).get();
 	    const size_t ownPos = pos % i.max(); 
 	    i = ownPos;
 	    if(ownPos == pos){
@@ -101,13 +101,14 @@ namespace MultiArrayHelper
 	static void construct(std::tuple<std::shared_ptr<Indices>...>& ip,
 			      const MRange& range)
 	{
-	    typedef decltype(range.template get<N>()) SubIndexType;
-	    typedef decltype(std::get<N>(ip).get()) TypeFromIndexPack;
+	    typedef typename std::remove_reference<decltype(range.template get<N>())>::type SubRangeType;
+	    typedef typename SubRangeType::IndexType SubIndexType;
+	    typedef typename std::remove_reference<decltype(*std::get<N>(ip).get())>::type TypeFromIndexPack;
 	    
 	    static_assert(std::is_same<SubIndexType,TypeFromIndexPack>::value,
 			  "inconsiśtent types");
 	    
-	    std::get<N>(ip).swap( std::make_shared<SubIndexType>( range.template get<N>() ) );
+	    std::get<N>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<N>() ) );
 	    PackNum<N-1>::construct(ip, range);
 	}
 	
@@ -115,8 +116,8 @@ namespace MultiArrayHelper
 	static void copy(std::tuple<std::shared_ptr<Indices>...>& ip,
 			 const IndexType<Indices...>& ind)
 	{
-	    typedef decltype(ind.template get<N>()) SubIndexType;
-	    std::get<N>(ip).swap( std::make_shared<SubIndexType>( ind.template get<N>() ) );
+	    typedef typename std::remove_reference<decltype(ind.template get<N>())>::type SubIndexType;
+	    std::get<N>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( ind.template get<N>() ) );
 	    PackNum<N-1>::copy(ip, ind);
 	}
 	
@@ -175,12 +176,12 @@ namespace MultiArrayHelper
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt)
 	{
-	    return std::get<0>(rt).size();
+	    return std::get<0>(rt)->size();
 	}
 	
-	template <template <class...> class IndexType, class... Indices>
-	static void getMetaPos(std::tuple<decltype(Indices().meta())...>& target,
-			       const typename IndexType<Indices...>::IndexPack& source)
+	template <class IndexPack, class MetaType>
+	static void getMetaPos(MetaType& target,
+			       const IndexPack& source)
 	{
 	    std::get<0>(target) = std::get<0>(source)->meta();
 	}
@@ -188,13 +189,13 @@ namespace MultiArrayHelper
 	template <class IndexPack, typename MetaType>
 	static void setMeta(IndexPack& target, const MetaType& source)
 	{
-	    std::get<0>(target).atMeta( std::get<0>( source ) );
+	    std::get<0>(target)->at( std::get<0>( source ) );
 	}
 	
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos)
 	{
-	    auto i = std::get<0>(iPack);
+	    auto i = *std::get<0>(iPack);
 	    const size_t ownPos = pos % i.max(); 
 	    i = ownPos;
 	}
@@ -203,21 +204,22 @@ namespace MultiArrayHelper
 	static void construct(std::tuple<std::shared_ptr<Indices>...>& ip,
 			      const MRange& range)
 	{
-	    typedef decltype(range.template get<0>()) SubIndexType;
-	    typedef decltype(std::get<0>(ip).get()) TypeFromIndexPack;
+	    typedef typename std::remove_reference<decltype(range.template get<0>())>::type SubRangeType;
+	    typedef typename SubRangeType::IndexType SubIndexType;
+	    typedef typename std::remove_reference<decltype(*std::get<0>(ip).get())>::type TypeFromIndexPack;
 	    
 	    static_assert(std::is_same<SubIndexType,TypeFromIndexPack>::value,
 			  "inconsiśtent types");
 	    
-	    std::get<0>(ip).swap( std::make_shared<SubIndexType>( range.template get<0>() ) );
+	    std::get<0>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<0>() ) );
 	}
 	
 	template <template<class...> class IndexType, class... Indices>
 	static void copy(std::tuple<std::shared_ptr<Indices>...>& ip,
 			 const IndexType<Indices...>& ind)
 	{
-	    typedef decltype(ind.template get<0>()) SubIndexType;
-	    std::get<0>(ip).swap( std::make_shared<SubIndexType>( ind.template get<0>() ) );
+	    typedef typename std::remove_reference<decltype(ind.template get<0>())>::type SubIndexType;
+	    std::get<0>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( ind.template get<0>() ) );
 	}
 	
 	template <class... Indices>

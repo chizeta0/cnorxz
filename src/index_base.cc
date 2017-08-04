@@ -41,7 +41,7 @@ namespace MultiArrayTools
      **********************/
 
     template <typename MetaType>
-    IndexInterface<MetaType>::IndexInterface(const RangeBase& range, size_t pos) :
-	IndexBase(range, pos) {}
+    IndexInterface<MetaType>::IndexInterface(const std::shared_ptr<RangeBase>& rangePtr, size_t pos) :
+	IndexBase(rangePtr, pos) {}
     
 }

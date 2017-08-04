@@ -72,8 +72,8 @@ namespace MultiArrayTools
 
 	typedef Index IndexType;
 
-	virtual Index begin() = 0;
-	virtual Index end() = 0;
+	virtual Index begin() const = 0;
+	virtual Index end() const = 0;
 
     protected:
 	RangeInterface() = default;
