@@ -93,7 +93,33 @@ namespace {
 	EXPECT_EQ(si == si3, false);
 	EXPECT_EQ(si != si3, true);
     }
-    
+
+    TEST_F(IndexTest, MultiIndex_SimpleCall)
+    {
+	auto mi = m3rptr->begin();
+	EXPECT_EQ(mi.max(), 4);
+	EXPECT_EQ(mi.pos(), 0);
+	EXPECT_EQ(mi.first(), true);
+	EXPECT_EQ(mi.last(), false);
+	EXPECT_EQ(mi.meta() == std::make_tuple('a','1','0'), true);
+	mi.at(std::make_tuple('b','1','7'));
+	EXPECT_EQ(mi.pos(), mi.max()-1);
+	EXPECT_EQ(mi.first(), false);
+	EXPECT_EQ(mi.last(), true);
+	mi = 1;
+	EXPECT_EQ(mi.meta() == std::make_tuple('a','1','7'), true);
+	++mi;
+	EXPECT_EQ(mi.meta() == std::make_tuple('b','1','0'), true);
+	++mi;
+	auto mi2 = m3rptr->end();
+	--mi2;
+	EXPECT_EQ(mi == mi2, true);
+	EXPECT_EQ(mi != mi2, false);
+	--mi2;
+	EXPECT_EQ(mi == mi2, false);
+	EXPECT_EQ(mi != mi2, true);
+    }
+
 } // end namespace 
 
 int main(int argc, char** argv)

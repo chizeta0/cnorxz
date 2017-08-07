@@ -175,7 +175,8 @@ namespace MultiArrayTools
 	ContainerIndex<typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
-	return i = 0;
+	i = 0;
+	return i;
     }
 
     template <class... Ranges>
@@ -184,7 +185,8 @@ namespace MultiArrayTools
 	ContainerIndex<typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
-	return i = size();
+	i = size();
+	return i;
     }
 
     template <class... Ranges>

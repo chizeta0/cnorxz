@@ -120,6 +120,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::at(const MultiIndex<Indices...>::MetaType& metaPos)
     {
 	PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
 
@@ -206,7 +207,8 @@ namespace MultiArrayTools
 	MultiIndex<typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
-	return i = 0;
+	i = 0;
+	return i;
     }
 
     template <class... Ranges>
@@ -215,7 +217,8 @@ namespace MultiArrayTools
 	MultiIndex<typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis )) );
-	return i = size();
+	i = size();
+	return i;
     }
 
     template <class... Ranges>

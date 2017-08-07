@@ -124,7 +124,8 @@ namespace MultiArrayTools
     {
 	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
-	return i = 0;
+	i = 0;
+	return i;
     }
     
     template <typename U, RangeType TYPE>
@@ -132,7 +133,8 @@ namespace MultiArrayTools
     {
 	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
-	return i = size();
+	i = size();
+	return i;
     }
 
     // put this in the interface class !!!

@@ -89,7 +89,7 @@ namespace MultiArrayHelper
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos)
 	{
-	    auto i = *std::get<N>(iPack).get();
+	    auto& i = *std::get<N>(iPack).get();
 	    const size_t ownPos = pos % i.max(); 
 	    i = ownPos;
 	    if(ownPos == pos){
@@ -195,7 +195,7 @@ namespace MultiArrayHelper
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos)
 	{
-	    auto i = *std::get<0>(iPack);
+	    auto& i = *std::get<0>(iPack);
 	    const size_t ownPos = pos % i.max(); 
 	    i = ownPos;
 	}
