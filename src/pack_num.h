@@ -92,9 +92,7 @@ namespace MultiArrayHelper
 	    auto& i = *std::get<N>(iPack).get();
 	    const size_t ownPos = pos % i.max(); 
 	    i = ownPos;
-	    if(ownPos == pos){
-		PackNum<N-1>::setIndexPack(iPack, (pos - ownPos) / i.max() );
-	    }
+	    PackNum<N-1>::setIndexPack(iPack, (pos - ownPos) / i.max() );
 	}
 	
 	template <class MRange, class... Indices>
@@ -125,21 +123,21 @@ namespace MultiArrayHelper
 	static size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
 	{
 	    return std::get<N>(iPtrTup)->pos() +
-		PackNum<N-1>::makePos(iPtrTup) * std::get<N-1>(iPtrTup)->max();
+		PackNum<N-1>::makePos(iPtrTup) * std::get<N>(iPtrTup)->max();
 	}
 
 	template <class Pack, class IndexType, class... Indices>
-	static void swapIndices(Pack& ipack, const std::shared_ptr<Indices>&... ninds,
-				const std::shared_ptr<IndexType>& nind)
+	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind,
+				const std::shared_ptr<Indices>&... ninds)
 	{
-	    std::get<N>(ipack).swap( nind );
+	    std::get<std::tuple_size<Pack>::value-N-1>(ipack) = nind;
 	    PackNum<N-1>::swapIndices(ipack, ninds...);
 	}
 
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
 	{
-	    return std::get<sizeof...(Indices)-N-1>(pack)->size() * PackNum<N-1>::blockSize(pack);
+	    return std::get<sizeof...(Indices)-N-1>(pack)->max() * PackNum<N-1>::blockSize(pack);
 	}
 	
     };
@@ -231,13 +229,13 @@ namespace MultiArrayHelper
 	template <class Pack, class IndexType>
 	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind)
 	{
-	    std::get<0>(ipack).swap( nind );
+	    std::get<std::tuple_size<Pack>::value-1>(ipack) = nind;
 	}
 
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
 	{
-	    return std::get<sizeof...(Indices)-1>(pack)->size();
+	    return std::get<sizeof...(Indices)-1>(pack)->max();
 	}
 	
     };

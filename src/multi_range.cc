@@ -96,6 +96,13 @@ namespace MultiArrayTools
     {
 	return *std::get<N>(mIPack);
     }
+
+    template <class... Indices>
+    template <size_t N>
+    auto MultiIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    {
+	return std::get<N>(mIPack);
+    }
     
     template <class... Indices>
     const IndexBase& MultiIndex<Indices...>::get(size_t n) const

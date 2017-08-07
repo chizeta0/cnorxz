@@ -49,7 +49,10 @@ namespace MultiArrayTools
 	
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
-		
+
+	template <size_t N>
+	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
+	
 	const IndexBase& get(size_t n) const;
 	
         virtual MetaType meta() const override;

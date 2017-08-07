@@ -34,7 +34,8 @@ namespace MultiArrayTools
 
     template <class... Indices>
     template <class MRange>
-    ContainerIndex<Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range)
+    ContainerIndex<Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range) :
+	IndexInterface<std::tuple<decltype(Indices().meta())...> >(range, 0)
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -93,24 +94,31 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    size_t ContainerIndex<Indices...>::pos() const
+    ContainerIndex<Indices...>& ContainerIndex<Indices...>::sync()
     {
 	if(mExternControl){
 	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	}
-	return IB::mPos;
+	return *this;
     }
-
+    
+    template <class... Indices>
+    template <size_t N>
+    auto ContainerIndex<Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
+    {
+	return *std::get<N>( mIPack );
+    }
+        
     template <class... Indices>
     bool ContainerIndex<Indices...>::first() const
     {
-	return pos() == 0;
+	return IB::pos() == 0;
     }
 
     template <class... Indices>
     bool ContainerIndex<Indices...>::last() const
     {
-	return pos() == IB::mRangePtr->size() - 1;
+	return IB::pos() == IB::mRangePtr->size() - 1;
     }
 
     
@@ -119,8 +127,14 @@ namespace MultiArrayTools
     {
 	PackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds...);
 	mExternControl = true;
-	return *this;
+	return sync();
     }    
+
+    template <class... Indices>
+    ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator()()
+    {
+	return sync();
+    }
     
     /*****************************
      *   ContainerRangeFactory   *
@@ -170,6 +184,20 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
+    template <size_t N>
+    auto ContainerRange<Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
+    {
+	return *std::get<N>( mSpace );
+    }
+
+    template <class... Ranges>
+    template <size_t N>
+    auto ContainerRange<Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
+    {
+	return std::get<N>( mSpace );
+    }
+    
+    template <class... Ranges>
     typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::begin() const
     {
 	ContainerIndex<typename Ranges::IndexType...>
@@ -188,7 +216,7 @@ namespace MultiArrayTools
 	i = size();
 	return i;
     }
-
+    
     template <class... Ranges>
     std::shared_ptr<IndexBase> ContainerRange<Ranges...>::index() const
     {

@@ -48,10 +48,16 @@ namespace MultiArrayTools
 	virtual bool last() const override;
 	
 	virtual size_t dim() const override;
-	virtual size_t pos() const override; // recalculate when externalControl == true
+
+	ContainerIndex& sync(); // recalculate 'IB::mPos' when externalControl == true
+	
+	template <size_t N>
+	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 	
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
-	
+
+	ContainerIndex& operator()(); // -> sync; just to shorten the code
+
     };
 
     
@@ -97,9 +103,15 @@ namespace MultiArrayTools
 	virtual size_t dim() const override;
 	virtual size_t size() const override;
 
+	template <size_t N>
+	auto get() const -> decltype( *std::get<N>( mSpace ) )&;
+
+	template <size_t N>
+	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
+	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
-
+	
 	virtual std::shared_ptr<IndexBase> index() const override;
 
 	friend ContainerRangeFactory<Ranges...>;
