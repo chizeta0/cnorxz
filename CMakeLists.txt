@@ -23,6 +23,11 @@ add_executable(iutest src/index_unit_test.cc)
 target_link_libraries(iutest ${GTEST_BOTH_LIBRARIES})
 add_test(NAME iutest COMMAND iutest)
 
+add_executable(mautest src/ma_unit_test.cc)
+target_link_libraries(mautest ${GTEST_BOTH_LIBRARIES})
+add_test(NAME mautest COMMAND mautest)
+
+
 #install(TARGETS testm DESTINATION install)
 
 set(CMAKE_INSTALL_PREFIX ..)

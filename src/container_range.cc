@@ -84,6 +84,7 @@ namespace MultiArrayTools
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::at(const MetaType& metaPos)
     {
 	PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
 

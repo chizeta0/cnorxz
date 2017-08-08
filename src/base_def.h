@@ -101,7 +101,6 @@ namespace MultiArrayTools
     template <class... Indices>
     class ContainerIndex;
     
-    /*
     // multi_array.h
     template <typename T, class Range>
     class MultiArrayBase;
@@ -113,7 +112,7 @@ namespace MultiArrayTools
     // multi_array.h
     template <typename T, class Range>
     class MultiArray;
-
+    /*
     // multi_array_operation.h
     template <typename T>
     class MultiArrayOperationBase;

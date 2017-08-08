@@ -8,225 +8,212 @@ namespace MultiArrayTools
      *  MultiArrayBase::const_iterator    *	     
      **************************************/
 
-    template <typename T, class Range>
-    MultiArrayBase<T,Range>::const_iterator::const_iterator(const MultiArrayBase<T,Range>& ma):
-	mMAPtr(&ma), mIndex(mMAPtr->beginIndex())
-    { }
+    template <typename T, class CRange>
+    MultiArrayBase<T,CRange>::const_iterator::const_iterator(const MultiArrayBase<T,CRange>& ma):
+	mMAPtr(&ma), mPos(0) { }
 
-    template <typename T, class Range>
-    MultiArrayBase<T,Range>::const_iterator::const_iterator(const MultiArrayBase<T,Range>& ma,
-							    const typename Range::IndexType& index):
-	mMAPtr(&ma), mIndex(index)
-    { }
+    template <typename T, class CRange>
+    MultiArrayBase<T,CRange>::const_iterator::const_iterator(const MultiArrayBase<T,CRange>& ma,
+							     const typename CRange::IndexType& index):
+	mMAPtr(&ma), mPos(index.pos()) { }
     
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::const_iterator::operator==(const const_iterator& it) const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::const_iterator::operator==(const const_iterator& it) const
     {
-	return mMAPtr == it.mMAPtr and mIndex.pos() == it.mIndex.pos();
+	return mMAPtr == it.mMAPtr and mPos == it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::const_iterator::operator!=(const const_iterator& it) const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::const_iterator::operator!=(const const_iterator& it) const
     {
-	return mMAPtr != it.mMAPtr or mIndex.pos() != it.mIndex.pos();
+	return mMAPtr != it.mMAPtr or mPos != it.mPos;
     }
     
-    template <typename T, class Range>
-    const T& MultiArrayBase<T,Range>::const_iterator::operator*() const
+    template <typename T, class CRange>
+    const T& MultiArrayBase<T,CRange>::const_iterator::operator*() const
     {
-	return (*mMAPtr)[mIndex];
+	return mMAPtr->data()[mPos];
     }
 
-    template <typename T, class Range>
-    T const* MultiArrayBase<T,Range>::const_iterator::operator->() const
+    template <typename T, class CRange>
+    T const* MultiArrayBase<T,CRange>::const_iterator::operator->() const
     {
-	return &(*mMAPtr)[mIndex];
+	return &mMAPtr->data()[mPos];
     }
     
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator& MultiArrayBase<T,Range>::const_iterator::operator++()
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator& MultiArrayBase<T,CRange>::const_iterator::operator++()
     {
-	++mIndex;
+	++mPos;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator MultiArrayBase<T,Range>::const_iterator::operator++(int)
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator MultiArrayBase<T,CRange>::const_iterator::operator++(int)
     {
 	const_iterator tmp(*this);
-	++mIndex;
+	++mPos;
 	return tmp;
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator& MultiArrayBase<T,Range>::const_iterator::operator--()
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator& MultiArrayBase<T,CRange>::const_iterator::operator--()
     {
-	--mIndex;
+	--mPos;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator MultiArrayBase<T,Range>::const_iterator::operator--(int)
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator MultiArrayBase<T,CRange>::const_iterator::operator--(int)
     {
 	const_iterator tmp(*this);
-	--mIndex;
+	--mPos;
 	return tmp;
     }
     
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator& MultiArrayBase<T,Range>::const_iterator::operator+=(int diff)
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator& MultiArrayBase<T,CRange>::const_iterator::operator+=(int diff)
     {
-	mIndex += diff;
+	mPos += diff;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator& MultiArrayBase<T,Range>::const_iterator::operator-=(int diff)
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator& MultiArrayBase<T,CRange>::const_iterator::operator-=(int diff)
     {
-	mIndex -= diff;
+	mPos -= diff;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator MultiArrayBase<T,Range>::const_iterator::operator+(int num) const
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator MultiArrayBase<T,CRange>::const_iterator::operator+(int num) const
     {
 	const_iterator tmp(*this);
 	tmp += num;
 	return tmp;
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator MultiArrayBase<T,Range>::const_iterator::operator-(int num) const
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator MultiArrayBase<T,CRange>::const_iterator::operator-(int num) const
     {
 	const_iterator tmp(*this);
 	tmp -= num;
     }
     
-    template <typename T, class Range>
-    int MultiArrayBase<T,Range>::const_iterator::operator-(const const_iterator& it) const
+    template <typename T, class CRange>
+    int MultiArrayBase<T,CRange>::const_iterator::operator-(const const_iterator& it) const
     {
-	return mIndex.pos() - it.mIndex.pos();
+	return mPos - it.mPos;
     }
     
-    template <typename T, class Range>
-    const T& MultiArrayBase<T,Range>::const_iterator::operator[](int num) const
+    template <typename T, class CRange>
+    const T& MultiArrayBase<T,CRange>::const_iterator::operator[](int num) const
     {
 	return *(operator+(num));
     }
     
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::const_iterator::operator<(const const_iterator& it) const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::const_iterator::operator<(const const_iterator& it) const
     {
-	return mIndex.pos() < it.mIndex.pos();
+	return mPos < it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::const_iterator::operator>(const const_iterator& it) const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::const_iterator::operator>(const const_iterator& it) const
     {
-	return mIndex.pos() > it.mIndex.pos();
+	return mPos > it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::const_iterator::operator<=(const const_iterator& it) const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::const_iterator::operator<=(const const_iterator& it) const
     {
-	return mIndex.pos() <= it.mIndex.pos();
+	return mPos <= it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::const_iterator::operator>=(const const_iterator& it) const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::const_iterator::operator>=(const const_iterator& it) const
     {
-	return mIndex.pos() >= it.mIndex.pos();
+	return mPos >= it.mPos;
     }
 
-    template <typename T, class Range>
-    const typename Range::IndexType& MultiArrayBase<T,Range>::const_iterator::index() const
+    template <typename T, class CRange>
+    typename CRange::IndexType MultiArrayBase<T,CRange>::const_iterator::index() const
     {
-	return mIndex;
+	auto i = mMAPtr->beginIndex();
+	i = mPos;
+	return i;
     }
-
-    template <typename T, class Range>
-    typename Range::IndexType& MultiArrayBase<T,Range>::const_iterator::index()
-    {
-	return mIndex;
-    }
-
     
     /**********************
      *  MultiArrayBase    *	     
      **********************/
 
-    template <typename T, class Range>
-    MultiArrayBase<T,Range>::MultiArrayBase(const Range& range) : mRange(new Range(range)) {}
-
-    template <typename T, class Range>
-    void MultiArrayBase<T,Range>::link(IndefinitIndexBase* iibPtr) const
-    { }
+    template <typename T, class CRange>
+    MultiArrayBase<T,CRange>::MultiArrayBase(const std::shared_ptr<CRange>& range) : mRange(range) {}
     
-    template <typename T, class Range>
-    size_t MultiArrayBase<T,Range>::size() const
+    template <typename T, class CRange>
+    size_t MultiArrayBase<T,CRange>::size() const
     {
 	return mRange->size();
     }
 
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator MultiArrayBase<T,Range>::begin() const
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator MultiArrayBase<T,CRange>::begin() const
     {
 	return const_iterator(*this, beginIndex());
     }
     
-    template <typename T, class Range>
-    typename MultiArrayBase<T,Range>::const_iterator MultiArrayBase<T,Range>::end() const
+    template <typename T, class CRange>
+    typename MultiArrayBase<T,CRange>::const_iterator MultiArrayBase<T,CRange>::end() const
     {
 	return const_iterator(*this, endIndex());
     }
     
-    template <typename T, class Range>
-    auto MultiArrayBase<T,Range>::beginIndex() const -> decltype(Range().begin())
+    template <typename T, class CRange>
+    typename CRange::IndexType MultiArrayBase<T,CRange>::beginIndex() const
     {
-	//CHECK;
 	return mRange->begin();
     }
 
-    template <typename T, class Range>
-    auto MultiArrayBase<T,Range>::endIndex() const -> decltype(Range().end())
+    template <typename T, class CRange>
+    typename CRange::IndexType MultiArrayBase<T,CRange>::endIndex() const
     {
 	return mRange->end();
     }
 
-    template <typename T, class Range>
-    const Range& MultiArrayBase<T,Range>::range() const
+    template <typename T, class CRange>
+    const CRange& MultiArrayBase<T,CRange>::range() const
     {
 	return *mRange;
     }
 
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::isConst() const
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::isConst() const
     {
 	return true;
     }
-    
-    template <typename T, class Range>
+    /*    
+    template <typename T, class CRange>
     template <class... NameTypes>
-    ConstMultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameTypes&... str) const
+    ConstMultiArrayOperationRoot<T,CRange> MultiArrayBase<T,CRange>::operator()(const NameTypes&... str) const
     {
-	return ConstMultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+	return ConstMultiArrayOperationRoot<T,CRange>(*this, Name("master", str...));
     }
 
-    template <typename T, class Range>
+    template <typename T, class CRange>
     template <class NameType>
-    ConstMultiArrayOperationRoot<T,Range> MultiArrayBase<T,Range>::operator()(const NameType& name, bool master) const
+    ConstMultiArrayOperationRoot<T,CRange> MultiArrayBase<T,CRange>::operator()(const NameType& name, bool master) const
     {
-	//CHECK;
 	if(master){
-	    return ConstMultiArrayOperationRoot<T,Range>(*this, name);
+	    return ConstMultiArrayOperationRoot<T,CRange>(*this, name);
 	}
 	else {
 	    return operator()(name);
 	}
     }
-
-    template <typename T, class Range>
-    bool MultiArrayBase<T,Range>::isInit() const
+    */
+    template <typename T, class CRange>
+    bool MultiArrayBase<T,CRange>::isInit() const
     {
 	return mInit;
     }
@@ -235,246 +222,243 @@ namespace MultiArrayTools
      *  MutableMultiArrayBase::iterator     *	     
      ****************************************/
     
-    template <typename T, class Range>
-    MutableMultiArrayBase<T,Range>::iterator::iterator(MutableMultiArrayBase<T,Range>& ma):
-	mMAPtr(&ma), mIndex(mMAPtr->beginIndex())
+    template <typename T, class CRange>
+    MutableMultiArrayBase<T,CRange>::iterator::iterator(MutableMultiArrayBase<T,CRange>& ma):
+	mMAPtr(&ma), mPos(0)
     { }
     
-    template <typename T, class Range>
-    MutableMultiArrayBase<T,Range>::iterator::iterator(MutableMultiArrayBase<T,Range>& ma,
-						       const typename Range::IndexType& index):
-	mMAPtr(&ma), mIndex(index)
+    template <typename T, class CRange>
+    MutableMultiArrayBase<T,CRange>::iterator::iterator(MutableMultiArrayBase<T,CRange>& ma,
+							const typename CRange::IndexType& index):
+	mMAPtr(&ma), mPos(index.pos())
     { }
     
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::iterator::operator==(const iterator& it) const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::iterator::operator==(const iterator& it) const
     {
-	return mMAPtr == it.mMAPtr and mIndex.pos() == it.mIndex.pos();
+	return mMAPtr == it.mMAPtr and mPos == it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::iterator::operator!=(const iterator& it) const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::iterator::operator!=(const iterator& it) const
     {
-	return mMAPtr != it.mMAPtr or mIndex.pos() != it.mIndex.pos();
+	return mMAPtr != it.mMAPtr or mPos != it.mPos;
     }
     
-    template <typename T, class Range>
-    const T& MutableMultiArrayBase<T,Range>::iterator::operator*() const
+    template <typename T, class CRange>
+    const T& MutableMultiArrayBase<T,CRange>::iterator::operator*() const
     {
-	return (*mMAPtr)[mIndex];
+	return mMAPtr->data()[mPos];
     }
 
-    template <typename T, class Range>
-    T const* MutableMultiArrayBase<T,Range>::iterator::operator->() const
+    template <typename T, class CRange>
+    T const* MutableMultiArrayBase<T,CRange>::iterator::operator->() const
     {
-	return &(*mMAPtr)[mIndex];
+	return &mMAPtr->data()[mPos];
     }
 
-    template <typename T, class Range>
-    T& MutableMultiArrayBase<T,Range>::iterator::operator*()
+    template <typename T, class CRange>
+    T& MutableMultiArrayBase<T,CRange>::iterator::operator*()
     {
-	return (*mMAPtr)[mIndex];
+	return mMAPtr->data()[mPos];
     }
 
-    template <typename T, class Range>
-    T* MutableMultiArrayBase<T,Range>::iterator::operator->()
+    template <typename T, class CRange>
+    T* MutableMultiArrayBase<T,CRange>::iterator::operator->()
     {
-	return &(*mMAPtr)[mIndex];
+	return &mMAPtr->data()[mPos];
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator& MutableMultiArrayBase<T,Range>::iterator::operator++()
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator& MutableMultiArrayBase<T,CRange>::iterator::operator++()
     {
-	++mIndex;
+	++mPos;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator MutableMultiArrayBase<T,Range>::iterator::operator++(int)
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator MutableMultiArrayBase<T,CRange>::iterator::operator++(int)
     {
 	iterator tmp(*this);
-	++mIndex;
+	++mPos;
 	return tmp;
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator& MutableMultiArrayBase<T,Range>::iterator::operator--()
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator& MutableMultiArrayBase<T,CRange>::iterator::operator--()
     {
-	--mIndex;
+	--mPos;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator MutableMultiArrayBase<T,Range>::iterator::operator--(int)
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator MutableMultiArrayBase<T,CRange>::iterator::operator--(int)
     {
 	iterator tmp(*this);
-	--mIndex;
+	--mPos;
 	return tmp;
     }
     
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator& MutableMultiArrayBase<T,Range>::iterator::operator+=(int diff)
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator& MutableMultiArrayBase<T,CRange>::iterator::operator+=(int diff)
     {
-	mIndex += diff;
+	mPos += diff;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator& MutableMultiArrayBase<T,Range>::iterator::operator-=(int diff)
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator& MutableMultiArrayBase<T,CRange>::iterator::operator-=(int diff)
     {
-	mIndex -= diff;
+	mPos -= diff;
 	return *this;
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator MutableMultiArrayBase<T,Range>::iterator::operator+(int num) const
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator MutableMultiArrayBase<T,CRange>::iterator::operator+(int num) const
     {
 	iterator tmp(*this);
 	tmp += num;
 	return tmp;
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator MutableMultiArrayBase<T,Range>::iterator::operator-(int num) const
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator MutableMultiArrayBase<T,CRange>::iterator::operator-(int num) const
     {
 	iterator tmp(*this);
 	tmp -= num;
     }
     
-    template <typename T, class Range>
-    int MutableMultiArrayBase<T,Range>::iterator::operator-(const iterator& it) const
+    template <typename T, class CRange>
+    int MutableMultiArrayBase<T,CRange>::iterator::operator-(const iterator& it) const
     {
-	return mIndex.pos() - it.mIndex.pos();
+	return mPos - it.mPos;
     }
     
-    template <typename T, class Range>
-    const T& MutableMultiArrayBase<T,Range>::iterator::operator[](int num) const
+    template <typename T, class CRange>
+    const T& MutableMultiArrayBase<T,CRange>::iterator::operator[](int num) const
     {
 	return *(operator+(num));
     }
 
-    template <typename T, class Range>
-    T& MutableMultiArrayBase<T,Range>::iterator::operator[](int num)
+    template <typename T, class CRange>
+    T& MutableMultiArrayBase<T,CRange>::iterator::operator[](int num)
     {
 	return *(operator+(num));
     }
     
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::iterator::operator<(const iterator& it) const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::iterator::operator<(const iterator& it) const
     {
-	return mIndex.pos() < it.mIndex.pos();
+	return mPos < it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::iterator::operator>(const iterator& it) const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::iterator::operator>(const iterator& it) const
     {
-	return mIndex.pos() > it.mIndex.pos();
+	return mPos > it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::iterator::operator<=(const iterator& it) const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::iterator::operator<=(const iterator& it) const
     {
-	return mIndex.pos() <= it.mIndex.pos();
+	return mPos <= it.mPos;
     }
 
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::iterator::operator>=(const iterator& it) const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::iterator::operator>=(const iterator& it) const
     {
-	return mIndex.pos() >= it.mIndex.pos();
+	return mPos >= it.mPos;
     }
 
-    template <typename T, class Range>
-    const typename Range::IndexType& MutableMultiArrayBase<T,Range>::iterator::index() const
+    template <typename T, class CRange>
+    typename CRange::IndexType MutableMultiArrayBase<T,CRange>::iterator::index() const
     {
-	return mIndex;
-    }
-
-    template <typename T, class Range>
-    typename Range::IndexType& MutableMultiArrayBase<T,Range>::iterator::index()
-    {
-	return mIndex;
+	auto i = mMAPtr->beginIndex();
+	i = mPos;
+	return i;
     }    
     
     /******************************
      *  MutableMultiArrayBase     *	     
      ******************************/
 
-    template <typename T, class Range>
-    MutableMultiArrayBase<T,Range>::MutableMultiArrayBase(const Range& range) : MultiArrayBase<T,Range>(range) {}
+    template <typename T, class CRange>
+    MutableMultiArrayBase<T,CRange>::MutableMultiArrayBase(const std::shared_ptr<CRange>& range) :
+	MultiArrayBase<T,CRange>(range) {}
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator MutableMultiArrayBase<T,Range>::begin()
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator MutableMultiArrayBase<T,CRange>::begin()
     {
 	return iterator(*this, MAB::beginIndex());
     }
 
-    template <typename T, class Range>
-    typename MutableMultiArrayBase<T,Range>::iterator MutableMultiArrayBase<T,Range>::end()
+    template <typename T, class CRange>
+    typename MutableMultiArrayBase<T,CRange>::iterator MutableMultiArrayBase<T,CRange>::end()
     {
 	return iterator(*this, MAB::endIndex());
     }
     
-    template <typename T, class Range>
-    bool MutableMultiArrayBase<T,Range>::isConst() const
+    template <typename T, class CRange>
+    bool MutableMultiArrayBase<T,CRange>::isConst() const
     {
 	return false;
     }
-    
-    template <typename T, class Range>
+    /*    
+    template <typename T, class CRange>
     template <class... NameTypes>
-    MultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameTypes&... str)
+    MultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameTypes&... str)
     {
-	return MultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+	return MultiArrayOperationRoot<T,CRange>(*this, Name("master", str...));
     }
 
-    template <typename T, class Range>
+    template <typename T, class CRange>
     template <class NameType>
-    MultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameType& name, bool master)
+    MultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameType& name, bool master)
     {
 	//CHECK;
 	if(master){
-	    return MultiArrayOperationRoot<T,Range>(*this, name);
+	    return MultiArrayOperationRoot<T,CRange>(*this, name);
 	}
 	else {
 	    return operator()(name);
 	}
     }
 
-    template <typename T, class Range>
+    template <typename T, class CRange>
     template <class... NameTypes>
-    ConstMultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameTypes&... str) const
+    ConstMultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameTypes&... str) const
     {
-	return ConstMultiArrayOperationRoot<T,Range>(*this, Name("master", str...));
+	return ConstMultiArrayOperationRoot<T,CRange>(*this, Name("master", str...));
     }
     
-    template <typename T, class Range>
+    template <typename T, class CRange>
     template <class NameType>
-    ConstMultiArrayOperationRoot<T,Range> MutableMultiArrayBase<T,Range>::operator()(const NameType& name, bool master) const
+    ConstMultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameType& name, bool master) const
     {
 	//CHECK;
 	if(master){
-	    return ConstMultiArrayOperationRoot<T,Range>(*this, name);
+	    return ConstMultiArrayOperationRoot<T,CRange>(*this, name);
 	}
 	else {
 	    return operator()(name);
 	}
     }
-    
+    */
     /*******************
      *  MultiArray     *	     
      *******************/
 
-    template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range) :
-	MutableMultiArrayBase<T,Range>(range),
+    template <typename T, class CRange>
+    MultiArray<T,CRange>::MultiArray(const std::shared_ptr<CRange>& range) :
+	MutableMultiArrayBase<T,CRange>(range),
 	mCont(MAB::mRange->size())
     {
 	MAB::mInit = true;
     }
 
-    template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range, const std::vector<T>& vec) :
-	MutableMultiArrayBase<T,Range>(range),
+    template <typename T, class CRange>
+    MultiArray<T,CRange>::MultiArray(const std::shared_ptr<CRange>& range, const std::vector<T>& vec) :
+	MutableMultiArrayBase<T,CRange>(range),
 	mCont(vec)
     {
 	MAB::mInit = true;
@@ -483,9 +467,9 @@ namespace MultiArrayTools
 	}
     }
     
-    template <typename T, class Range>
-    MultiArray<T,Range>::MultiArray(const Range& range, std::vector<T>&& vec) :
-	MutableMultiArrayBase<T,Range>(range),
+    template <typename T, class CRange>
+    MultiArray<T,CRange>::MultiArray(const std::shared_ptr<CRange>& range, std::vector<T>&& vec) :
+	MutableMultiArrayBase<T,CRange>(range),
 	mCont(vec)
     {
 	MAB::mInit = true;
@@ -494,10 +478,10 @@ namespace MultiArrayTools
 	}
     }
 
-    template <typename T, class Range>
+    template <typename T, class CRange>
     template <class Range2, class Range3>
-    MultiArray<T,Range>::MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in) :
-	MutableMultiArrayBase<T,Range>(merge(in.range(), in[ in.beginIndex() ].range()))
+    MultiArray<T,CRange>::MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in) :
+	MutableMultiArrayBase<T,CRange>(merge(in.range(), in[ in.beginIndex() ].range()))
 	// assert that Range2 has always same extension
     {
 	MAB::mInit = true;
@@ -508,9 +492,10 @@ namespace MultiArrayTools
 	assert(mCont.size() == MAB::mRange->size());
     }
 
-    template <typename T, class Range>
+    /*
+    template <typename T, class CRange>
     template <class Range2, class Range3>
-    MultiArray<T,Range>& MultiArray<T,Range>::operator=(const MultiArray<MultiArray<T,Range2>,Range3> in)
+    MultiArray<T,CRange>& MultiArray<T,CRange>::operator=(const MultiArray<MultiArray<T,Range2>,Range3> in)
     {
 	MAB::mRange.reset(new Range(merge(in.range(), in[ in.beginIndex() ].range())));
 	// assert that Range2 has always same extension
@@ -520,41 +505,47 @@ namespace MultiArrayTools
 	}
 	assert(mCont.size() == MAB::mRange->size());
 	return *this;
-    }    
+	} */   
 
-    template <typename T, class Range>
-    T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i)
+    template <typename T, class CRange>
+    T& MultiArray<T,CRange>::operator[](const typename CRange::IndexType& i)
     {
 	return mCont[ i.pos() ];
     }
 
-    template <typename T, class Range>
-    const T& MultiArray<T,Range>::operator[](const typename Range::IndexType& i) const
+    template <typename T, class CRange>
+    const T& MultiArray<T,CRange>::operator[](const typename CRange::IndexType& i) const
     {
 	return mCont[ i.pos() ];
     }
 
-    template <typename T, class Range>
-    bool MultiArray<T,Range>::isConst() const
+    template <typename T, class CRange>
+    bool MultiArray<T,CRange>::isConst() const
     {
 	return false;
     }
     
-    template <typename T, class Range>
-    bool MultiArray<T,Range>::isSlice() const
+    template <typename T, class CRange>
+    bool MultiArray<T,CRange>::isSlice() const
     {
 	return false;
     }
 
-    template <typename T, class Range>
-    const T* MultiArray<T,Range>::data() const
+    template <typename T, class CRange>
+    const T* MultiArray<T,CRange>::data() const
+    {
+	return mCont.data();
+    }
+
+    template <typename T, class CRange>
+    T* MultiArray<T,CRange>::data()
     {
 	return mCont.data();
     }
     
     /*
-    template <typename T, class Range>
-    void MultiArray<T,Range>::manipulate(ManipulatorBase<T>& mb,
+    template <typename T, class CRange>
+    void MultiArray<T,CRange>::manipulate(ManipulatorBase<T>& mb,
 					 const typename Range::IndexType& manBegin,
 					 const typename Range::IndexType& manEnd)
     {
@@ -571,28 +562,28 @@ namespace MultiArrayTools
     /*
     template <typename T, class Range, class Function>
     FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range) :
-	MultiArrayBase<T,Range>(range), mFunc() {}
+	MultiArrayBase<T,CRange>(range), mFunc() {}
     */
-    template <typename T, class Range, class Function>
-    FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range,
-								 const Function& func) :
-	MultiArrayBase<T,Range>(range), mFunc(func) { /*CHECK;*/ }
+    template <typename T, class CRange, class Function>
+    FunctionalMultiArray<T,CRange,Function>::FunctionalMultiArray(const std::shared_ptr<CRange>& range,
+								  const Function& func) :
+	MultiArrayBase<T,CRange>(range), mFunc(func) { /*CHECK;*/ }
 
-    template <typename T, class Range, class Function>
-    const T& FunctionalMultiArray<T,Range,Function>::operator[](const typename Range::IndexType& i) const
+    template <typename T, class CRange, class Function>
+    const T& FunctionalMultiArray<T,CRange,Function>::operator[](const typename CRange::IndexType& i) const
     {
 	mVal = mFunc(i);
 	return mVal;
     }
 
-    template <typename T, class Range, class Function>
-    bool FunctionalMultiArray<T,Range,Function>::isConst() const
+    template <typename T, class CRange, class Function>
+    bool FunctionalMultiArray<T,CRange,Function>::isConst() const
     {
 	return true;
     }
 
-    template <typename T, class Range, class Function>
-    bool FunctionalMultiArray<T,Range,Function>::isSlice() const
+    template <typename T, class CRange, class Function>
+    bool FunctionalMultiArray<T,CRange,Function>::isSlice() const
     {
 	return false;
     }
