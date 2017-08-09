@@ -225,8 +225,8 @@ namespace MultiArrayTools
 	virtual bool isSlice() const override;
 
 	template <class Range2>
-	MultiArray& operator()(const std::shared_ptr<Range2>& nr); // reformat array using 'nr' which in
-	//                                                            total must have the same size as mRange
+	MultiArray<T,Range2> format(const std::shared_ptr<Range2>& nr); // reformat array using 'nr' which in
+	//                                                                 total must have the same size as mRange
 	
 	const T* data() const override;
 	T* data() override;

@@ -532,6 +532,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class CRange>
+    template <class Range2>
+    MultiArray<T,Range2> MultiArray<T,CRange>::format(const std::shared_ptr<Range2>& nr)
+    {
+	assert(MAB::mRange->size() == nr->size());
+	return MultiArray<T,Range2>( nr, std::move(mCont) );
+    }
+    
+    template <typename T, class CRange>
     const T* MultiArray<T,CRange>::data() const
     {
 	return mCont.data();
