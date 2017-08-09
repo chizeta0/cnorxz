@@ -22,12 +22,10 @@ namespace MultiArrayTools
 
 	typedef T value_type;
 	
-	MultiArrayOperationBase() /*{ CHECK; }*/ = default;
+	MultiArrayOperationBase() = default;
 	virtual ~MultiArrayOperationBase();
 
 	virtual size_t argNum() const = 0;
-	const IndefinitIndexBase& index() const = 0;
-	
 	virtual const T& get() const = 0;
     };
    
@@ -36,7 +34,7 @@ namespace MultiArrayTools
     {
     public:
 
-	MutableMultiArrayOperationBase() /*{ CHECK; }*/ = default;
+	MutableMultiArrayOperationBase() = default;
 	virtual T& get() = 0;
     };
     

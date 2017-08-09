@@ -75,6 +75,7 @@ namespace MultiArrayTools
 	virtual ~MultiArrayBase() = default;
 	
 	virtual const T& operator[](const typename CRange::IndexType& i) const = 0;
+	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const = 0;
 
 	virtual const T* data() const = 0;
 	
@@ -167,7 +168,8 @@ namespace MultiArrayTools
 	MutableMultiArrayBase(const std::shared_ptr<CRange>& range);
 
 	virtual T& operator[](const IndexType& i) = 0;
-
+	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
+	
 	virtual T* data() = 0;
 	
 	virtual iterator begin();
@@ -218,9 +220,11 @@ namespace MultiArrayTools
 	//template <class Range2, class Range3>
 	//MultiArray& operator=(const MultiArray<MultiArray<T,Range2>,Range3> in);
 	
-	T& operator[](const IndexType& i) override;
-	const T& operator[](const IndexType& i) const override;
-
+	virtual T& operator[](const IndexType& i) override;
+	virtual const T& operator[](const IndexType& i) const override;
+	virtual T& at(const typename CRange::IndexType::MetaType& meta) override;
+	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
+	
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 

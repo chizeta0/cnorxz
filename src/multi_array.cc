@@ -520,6 +520,18 @@ namespace MultiArrayTools
     }
 
     template <typename T, class CRange>
+    T& MultiArray<T,CRange>::at(const typename CRange::IndexType::MetaType& meta)
+    {
+	return mCont[ MAB::beginIndex().at(meta).pos() ];
+    }
+
+    template <typename T, class CRange>
+    const T& MultiArray<T,CRange>::at(const typename CRange::IndexType::MetaType& meta) const
+    {
+	return mCont[ MAB::beginIndex().at(meta).pos() ];
+    }
+	
+    template <typename T, class CRange>
     bool MultiArray<T,CRange>::isConst() const
     {
 	return false;
