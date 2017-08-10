@@ -13,353 +13,131 @@
 namespace MultiArrayTools
 {
 
-    typedef std::map<Name,std::shared_ptr<IndefinitIndexBase> > IndexList;
+    /*
+     * OperationBase
+     * MutableOperationBase
+     * 
+     * OperationMaster : MutableOperationBase
+     * 
+     * OperationTemplate<...>
+     * ConstOperationRoot : OperationBase, OperationTemplate<...>
+     * OperationRoot : MutableOperationBase, 
+     *                 OperationTemplate<...>
+     * 
+     */
+    
+    
+    typedef std::map<Name,std::shared_ptr<IndexBase> > IndexList;
     
     template <typename T>
-    class MultiArrayOperationBase
+    class OperationBase
     {
     public:
 
 	typedef T value_type;
 	
-	MultiArrayOperationBase() = default;
-	virtual ~MultiArrayOperationBase();
+	OperationBase() = default;
+	virtual ~OperationBase();
 
-	virtual size_t argNum() const = 0;
+	//virtual size_t argNum() const = 0;
 	virtual const T& get() const = 0;
     };
    
     template <typename T>
-    class MutableMultiArrayOperationBase : public MultiArrayOperationBase<T>
+    class MutableOperationBase : public OperationBase<T>
     {
     public:
 
-	MutableMultiArrayOperationBase() = default;
+	MutableOperationBase() = default;
 	virtual T& get() = 0;
     };
     
-    template <typename T, class Range>
-    class MultiArrayOperationRoot : public MutableMultiArrayOperationBase<T>
+    template <typename T, class... Ranges>
+    class OperationMaster : public MutableOperationBase<T>
     {
     public:
 
-	typedef MultiArrayOperationBase<T> MAOB;
-	typedef typename Range::IndexType IndexType;
-	//typedef decltype(MultiArray<T,Range>().begin()) IndexType;
+	typedef OperationBase<T> OB;
+	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 
-	MultiArrayOperationRoot(MutableMultiArrayBase<T,Range>& ma, const Name& nm);
-	MultiArrayOperationRoot(const MultiArrayOperationRoot& in);
-	MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot& in);
-
-	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot& in);
-
-	template <class Range2>
-	MultiArrayOperationRoot& operator=(MultiArrayOperationRoot<T,Range2>& in);
+	OperationMaster(OperationRoot<T,Ranges...>&& root);
 	
-	template <class Range2>
-	const MultiArrayOperationRoot& operator=(const MultiArrayOperationRoot<T,Range2>& in);
-
-	template <class Range2>
-	MultiArrayOperationRoot& operator=(ConstMultiArrayOperationRoot<T,Range2>& in);
-	
-	template <class Range2>
-	const MultiArrayOperationRoot& operator=(const ConstMultiArrayOperationRoot<T,Range2>& in);
-
-	
-	template <class Operation, class... MAOps>
-	MultiArrayOperationRoot& operator=(const MultiArrayOperation<T,Operation,MAOps...>& in);
-
-	template <class Operation, class Range2, class... MAOps>
-	MultiArrayOperationRoot<T,Range>&
-	operator=(const MultiArrayContraction<T,Operation,Range2,MAOps...>& in);
-
-	//template <class Operation, class... MAOps>
-	//MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-	//operator()(Operation& op, const MAOps&... secs) const;
-
-	template <class Operation, class... MAOps>
-	MultiArrayOperation<T,Operation,MultiArrayOperationRoot<T,Range>, MAOps...>
-	operator()(const Operation& op, const MAOps&... secs) const;
-
-	template < class Range2, class ContractOperation, class... MAOps>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>, MAOps...>
-	contract(const ContractOperation& cop, const std::string& indexName,
-		 const MAOps&... mao) const;
-	
-	template <class Range2, class ContractOperation, class... MAOps>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperationRoot<T,Range>, MAOps...>
-	contract(const ContractOperation& cop, const std::string& indexName,
-		 size_t begin,
-		 size_t end,
-		 const MAOps&... mao) const;
-
-	template<class TotalInRange, class InRange, class OutRange>
-	MultiArrayOperationMap<T,InRange,TotalInRange,OutRange,Range>
-	map(const IndexMapFunction<InRange,OutRange>& imf);
-	
-	template <class MAOp>
-	auto operator+(const MAOp& sec) -> decltype(operator()(std::plus<T>(), sec));
-
-	template <class MAOp>
-	auto operator-(const MAOp& sec) -> decltype(operator()(std::minus<T>(), sec));
-
-	template <class MAOp>
-	auto operator*(const MAOp& sec) -> decltype(operator()(std::multiplies<T>(), sec));
-
-	template <class MAOp>
-	auto operator/(const MAOp& sec) -> decltype(operator()(std::divides<T>(), sec));
-	
-	MultiArrayOperationRoot copyThis();
-	
-	template <class MAOp>
-	MultiArrayOperationRoot& operator+=(const MAOp& sec);
-
-	template <class MAOp>
-	MultiArrayOperationRoot& operator-=(const MAOp& sec);
-
-	template <class MAOp>
-	MultiArrayOperationRoot& operator*=(const MAOp& sec);
-
-	template <class MAOp>
-	MultiArrayOperationRoot& operator/=(const MAOp& sec);
-
-	const MultiArrayBase<T,Range>& operator*() const;
-	//MultiArrayBase<T,Range>& operator*();
-	MultiArrayBase<T,Range> const* operator->() const;
-	
-	virtual size_t argNum() const override;
-
-	// set index -> implement !!!!!
-	MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind);
-	const MultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
-
 	virtual T& get() override;
 	virtual const T& get() const override;
 
-	const Name& name() const;
-	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
-	
-	template <typename U, class RangeX>
-	friend class MultiArrayOperationRoot;
-
-	template <typename U, class RangeX>
-	friend class ConstMultiArrayOperationRoot;
-	
     protected:
 
 	void performAssignment(const MultiArrayOperationBase<T>& in);
 	
-	MutableMultiArrayBase<T,Range>& mArrayRef;
+	MutableMultiArrayBase<T,CRange>& mArrayRef;
 	mutable IndexType mIndex;
-	Name mNm;
     };
+
     
-    template <typename T, class Range>
-    class ConstMultiArrayOperationRoot : public MultiArrayOperationBase<T>
+    template <typename T, class... Ranges>
+    class ConstOperationRoot : public OperationBase<T>,
+			       public OperationTemplate<ConstOperationRoot<T,CRange> >
     {
     public:
-
-	typedef MultiArrayOperationBase<T> MAOB;
-	typedef typename Range::IndexType IndexType;
-	//typedef decltype(MultiArray<T,Range>().begin()) IndexType;
-
-	ConstMultiArrayOperationRoot(const MultiArrayBase<T,Range>& ma, const Name& nm);
-	ConstMultiArrayOperationRoot(const MultiArrayOperationRoot<T,Range>& in);
-	ConstMultiArrayOperationRoot(const ConstMultiArrayOperationRoot& in);
 	
-	template <class Operation, class... MAOps>
-	MultiArrayOperation<T,Operation,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
-	operator()(const Operation& op, const MAOps&... secs) const;
-
-	template <class Range2, class ContractOperation, class... MAOps>
-	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
-	contract(const ContractOperation& cop, const std::string& indexName,
-		 const MAOps&... mao) const;
-
+	typedef OperationBase<T> OB;
+	typedef OperationTemplate<ConstOperationRoot<T,CRange> > OT;
+	typedef ContainerRange<Ranges...> CRange;
+	typedef typename CRange::IndexType IndexType;
 	
-	template <class Range2, class ContractOperation, class... MAOps>
-	MultiArrayContraction<T,ContractOperation,Range2,ConstMultiArrayOperationRoot<T,Range>, MAOps...>
-	contract(const ContractOperation& cop, const std::string& indexName,
-		 size_t begin,
-		 size_t end,
-		 const MAOps&... mao) const;
+	ConstOperationRoot(const MultiArrayBase<T,CRange>& ma,
+			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
-	template <class MAOp>
-	auto operator+(const MAOp& sec) const -> decltype(operator()(std::plus<T>(), sec));
-
-	template <class MAOp>
-	auto operator-(const MAOp& sec) const -> decltype(operator()(std::minus<T>(), sec));
-
-	template <class MAOp>
-	auto operator*(const MAOp& sec) const -> decltype(operator()(std::multiplies<T>(), sec));
-
-	template <class MAOp>
-	auto operator/(const MAOp& sec) const -> decltype(operator()(std::divides<T>(), sec));
-	
-	ConstMultiArrayOperationRoot copyThis() const;
-	
-	const MultiArrayBase<T,Range>& operator*() const;
-	//MultiArrayBase<T,Range>& operator*();
-	MultiArrayBase<T,Range> const* operator->() const;
-	
-	virtual size_t argNum() const override;
-
-	// set index -> implement !!!!!
-	const ConstMultiArrayOperationRoot<T,Range>& operator[](const IndexType& ind) const;
 	virtual const T& get() const override;
-
-	const Name& name() const;
-	const MultiArrayBase<T,Range>& getCont() const { return mArrayRef; }
-	
-	template <typename U, class RangeX>
-	friend class ConstMultiArrayOperationRoot;
-	
-	template <typename U, class RangeX>
-	friend class MultiArrayOperationRoot;
 	
     protected:
-
-	MultiArrayBase<T,Range> const& mArrayRef;
-	mutable IndexType mIndex;
-	Name mNm;
+	
+	MultiArrayBase<T,CRange> const& mArrayRef;
+	std::shared_ptr<IndexType> mIndex;
     };
 
-    template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
-    class MultiArrayOperationMap : public MutableMultiArrayOperationBase<T>
+    template <typename T, class... Ranges>
+    class OperationRoot : public MutableOperationBase<T>,
+			  public OperationTemplate<OperationRoot<T,CRange> >
     {
     public:
-	typedef MultiArrayOperationBase<T> MAOB;
 	
-	MultiArrayOperationMap(MultiArrayOperationRoot<T,TotalRange>& root,
-			       const IndexMapFunction<InRange,OutRange>& mf);
-
-	MultiArrayOperationMap(const MultiArrayOperationMap& in) = default;
+	typedef OperationBase<T> OB;
+	typedef OperationTemplate<OperationRoot<T,CRange> > OT;
+	typedef ContainerRange<Ranges...> CRange;
+	typedef typename CRange::IndexType IndexType;
 	
-	MultiArrayOperationMap& operator=(const MultiArrayOperationRoot<T,TotalInRange>& in);
-	MultiArrayOperationMap& operator=(const ConstMultiArrayOperationRoot<T,TotalInRange>& in);
-	
-	virtual size_t argNum() const override;
-	
+	OperationRoot(MutableMultiArrayBase<T,CRange>& ma,
+		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
+		
 	virtual const T& get() const override;
 	virtual T& get() override;
 	
-	// !!!!
     protected:
-	IndexMapFunction<InRange,OutRange> mMF;
-	MultiArrayOperationRoot<T,TotalRange>& mRoot;
-	mutable typename TotalInRange::IndexType mIndex; // Index of incoming range
-	Name mNm; // Name of incoming range
+	
+	MutableMultiArrayBase<T,CRange>& mArrayRef;
+	std::shared_ptr<IndexType> mIndex;
     };
-    
-    template <typename T, class Operation, class... MAOps>
-    class MultiArrayOperation : public MultiArrayOperationBase<T>
+
+    template <typename T, class OpFunction, class... Ops>
+    class Operation : public OperationBase<T>,
+		      public OperationTemplate<Operation<T,OpFunction,Ops...> >
     {
     public:
-
-	typedef MultiArrayOperationBase<T> MAOB;
-	typedef std::tuple<MAOps...> OBT;
 	
-	MultiArrayOperation(Operation& op, const MAOps&... secs);
-	MultiArrayOperation(const Operation& op, const MAOps&... secs);
-
-	template <class Operation2, class... MAOps2>
-	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	operator()(Operation2& op, const MAOps2&... secs) const;
+	typedef OperationBase<T> OB;
+	typedef OperationTemplate<Operation<T,OpFunction,Ops...> > OT;
+	typedef OpFunction F;
 	
-	template <class Operation2, class... MAOps2>
-	MultiArrayOperation<T,Operation2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	operator()(const Operation2& op, const MAOps2&... secs) const;
-
+	Operation(Ops&&... ops);
 	
-	template <class Range2, class ContractOperation, class... MAOps2>
-	MultiArrayContraction<T,ContractOperation,Range2,MultiArrayOperation<T,Operation,MAOps...>,MAOps2...>
-	contract(const ContractOperation& cop, const std::string& indexName,
-		 const MAOps2&... mao) const;
-
-	
-	template <class MAOp2>
-	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));
-
-	template <class MAOp2>
-	auto operator-(const MAOp2& sec) -> decltype(operator()(std::minus<T>(), sec));
-
-	template <class MAOp2>
-	auto operator*(const MAOp2& sec) -> decltype(operator()(std::multiplies<T>(), sec));
-
-	template <class MAOp2>
-	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
-	
-	virtual size_t argNum() const override;
 	virtual const T& get() const override;
-	
+		
     protected:
-
- 	mutable T mVal;
-	Operation mOp;
-	OBT mArgs; // include first arg also here !!!
+	std::tuple<Ops...> mOps;
+	T res;
     };
 
-    template <typename T, class ContractOperation, class Range, class... MAOps>
-    class MultiArrayContraction : public MultiArrayOperationBase<T>
-    {
-    public:
-
-	typedef MultiArrayOperationBase<T> MAOB;
-	typedef std::tuple<MAOps...> OBT;
-	typedef typename Range::IndexType RunIndexType;
-	
-	MultiArrayContraction(const ContractOperation& cop,
-			      const RunIndexType& runIndex,
-			      const MAOps&... mao);
-
-	MultiArrayContraction(const ContractOperation& cop,
-			      const RunIndexType& runIndex,
-			      size_t begin,
-			      size_t end,
-			      const MAOps&... mao);
-
-	template <class Operation2, class... MAOps2>
-	MultiArrayOperation<T,Operation2,MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
-	operator()(Operation2& op, const MAOps2&... secs) const;
-	
-	template <class Operation2, class... MAOps2>
-	MultiArrayOperation<T,Operation2,MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
-	operator()(const Operation2& op, const MAOps2&... secs) const;
-
-	
-	template <class Range2, class ContractOperation2, class... MAOps2>
-	MultiArrayContraction<T,ContractOperation2,Range2,
-			      MultiArrayContraction<T,ContractOperation,Range,MAOps...>,MAOps2...>
-	contract(const ContractOperation2& cop, const std::string& indexName,
-		 const MAOps2&... mao) const;
-
-	
-	template <class MAOp2>
-	auto operator+(const MAOp2& sec) -> decltype(operator()(std::plus<T>(), sec));
-
-	template <class MAOp2>
-	auto operator-(const MAOp2& sec) -> decltype(operator()(std::minus<T>(), sec));
-
-	template <class MAOp2>
-	auto operator*(const MAOp2& sec) -> decltype(operator()(std::multiplies<T>(), sec));
-
-	template <class MAOp2>
-	auto operator/(const MAOp2& sec) -> decltype(operator()(std::divides<T>(), sec));
-	
-	virtual size_t argNum() const override;
-	virtual const T& get() const override;
-	
-    protected:
-
- 	mutable T mVal;
-	ContractOperation mOp;
-	OBT mArgs; // include first arg also here !!!
-	RunIndexType mBeginIndex;
-	RunIndexType mEndIndex;
-        mutable RunIndexType mRunIndex;
-
-    };
-}
 
 #include "multi_array_operation.cc"
 
