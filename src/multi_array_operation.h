@@ -51,6 +51,15 @@ namespace MultiArrayTools
 	MutableOperationBase() = default;
 	virtual T& get() = 0;
     };
+
+    template <class OperationClass>
+    class OperationTemplate
+    {
+    public:
+	
+	template <class Second>
+	Operation<OperationClass,Second> operator+(const Second& in) const;
+    };
     
     template <typename T, class... Ranges>
     class OperationMaster : public MutableOperationBase<T>
@@ -60,17 +69,18 @@ namespace MultiArrayTools
 	typedef OperationBase<T> OB;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 
-	OperationMaster(OperationRoot<T,Ranges...>&& root);
-	
+	OperationMaster(MutableMultiArrayBase& ma, OperationBase<T>& second,
+			const ContainerRange<Ranges...>::IndexType& index);
+		
 	virtual T& get() override;
 	virtual const T& get() const override;
 
     protected:
 
-	void performAssignment(const MultiArrayOperationBase<T>& in);
-	
+	//void performAssignment(const OperationBase<T>& in);
+	OperationBase<T> const& mSecond;
 	MutableMultiArrayBase<T,CRange>& mArrayRef;
-	mutable IndexType mIndex;
+	std::shared_ptr<IndexType> mIndex;
     };
 
     
@@ -109,7 +119,9 @@ namespace MultiArrayTools
 	
 	OperationRoot(MutableMultiArrayBase<T,CRange>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
-		
+
+	OperationMaster<T,Ranges...> operator=(const OperationBase<T>& in);
+	
 	virtual const T& get() const override;
 	virtual T& get() override;
 	

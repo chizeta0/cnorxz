@@ -30,6 +30,15 @@ namespace MultiArrayTools
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<Indices...>& ci)
+    {
+	IndexI::operator=(in);
+	PackNum<sizeof...(Indices)-1>::copyInst(mIPack, ci);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	return *this;
+    }
     
     template <class... Indices>
     template <class MRange>

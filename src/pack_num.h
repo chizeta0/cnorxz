@@ -118,6 +118,14 @@ namespace MultiArrayHelper
 	    std::get<N>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( ind.template get<N>() ) );
 	    PackNum<N-1>::copy(ip, ind);
 	}
+
+	template <template<class...> class IndexType, class... Indices>
+	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
+			     const IndexType<Indices...>& ind)
+	{
+	    std::get<N>(ip) = ind.template getPtr<N>() ;
+	    PackNum<N-1>::copy(ip, ind);
+	}
 	
 	template <class... Indices>
 	static size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
@@ -218,6 +226,13 @@ namespace MultiArrayHelper
 	{
 	    typedef typename std::remove_reference<decltype(ind.template get<0>())>::type SubIndexType;
 	    std::get<0>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( ind.template get<0>() ) );
+	}
+
+	template <template<class...> class IndexType, class... Indices>
+	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
+			     const IndexType<Indices...>& ind)
+	{
+	    std::get<0>(ip) = ind.template getPtr<0>();
 	}
 	
 	template <class... Indices>

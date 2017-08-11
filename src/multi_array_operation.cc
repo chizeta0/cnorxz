@@ -13,16 +13,31 @@ namespace MultiArrayTools
     // purely virtual at the moment
 
 
+    /***************************
+     *   OperationTemplate     *
+     ***************************/
+
+    template <class OperationClass>
+    template <class Second>
+    Operation<OperationClass,Second> OperationTemplate<OperationClass>::operator+(Second&& in) const
+    {
+	return Operation<double,std::plus<double>,OperationClass,Second>(*this, in);
+    }
+    
     /*************************
      *   OperationMaster     *
      *************************/
 
     template <typename T, class... Ranges>
-    OperationMaster<T,Ranges...>::OperationMaster(MutableMultiArrayBase& ma,
-						  const ContainerRange<Ranges...>::IndexType& index) :
+    OperationMaster<T,Ranges...>::
+    OperationMaster(MutableMultiArrayBase& ma,
+		    std::shared_ptr<ContainerRange<Ranges...>::IndexType>& index) :
 	mArrayRef(ma), mIndex()
     {
-	(*mIndex) = index; // implement corresp member fucntion in MultiIndex
+	(*mIndex) = *index;
+	for(*mIndex = 0; mIndex->pos() != mIndex->max(); ++(*mIndex)){
+	    get() = mSecond.get();
+	}
     }
     
     template <typename T, class... Ranges>
@@ -69,6 +84,12 @@ namespace MultiArrayTools
 	mIndex(indices...);
     }
 
+    template <typename T, class... Ranges>
+    OperationMaster<T,Ranges...> OperationRoot<T,Ranges...>::operator=(const OperationBase<T>& in)
+    {
+	return OperationMaster<T,Ranges...>(mArrayRef, in, mIndex);
+    }
+    
     template <typename T, class... Ranges>
     const T& OperationRoot<T,Ranges...>::get() const
     {

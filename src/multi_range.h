@@ -33,6 +33,7 @@ namespace MultiArrayTools
 	// ( have to assign sub-indices (ptr!) correctly )
 	MultiIndex(const MultiIndex& in);
 	MultiIndex& operator=(const MultiIndex& in);
+	MultiIndex& operator=(const ContainerIndex<Indices...>& ci);
 
 	template <class MRange>
 	MultiIndex(const std::shared_ptr<MRange>& range);
