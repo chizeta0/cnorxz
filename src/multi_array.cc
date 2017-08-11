@@ -544,7 +544,7 @@ namespace MultiArrayTools
     template <typename T, class CRange, class Function>
     FunctionalMultiArray<T,CRange,Function>::FunctionalMultiArray(const std::shared_ptr<CRange>& range,
 								  const Function& func) :
-	MultiArrayBase<T,CRange>(range), mFunc(func) { /*CHECK;*/ }
+	MultiArrayBase<T,CRange>(range), mFunc(func) {}
 
     template <typename T, class CRange, class Function>
     const T& FunctionalMultiArray<T,CRange,Function>::operator[](const typename CRange::IndexType& i) const

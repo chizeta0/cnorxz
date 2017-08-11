@@ -14,7 +14,7 @@ namespace MultiArrayTools
     /**********************
      *   ContainerIndex   *
      **********************/
-
+    /*
     template <class... Indices>
     ContainerIndex<Indices...>::ContainerIndex(const ContainerIndex& in) :
 	IndexInterface<std::tuple<typename Indices::MetaType...> >(in)
@@ -31,7 +31,7 @@ namespace MultiArrayTools
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
-
+    */
     template <class... Indices>
     template <class MRange>
     ContainerIndex<Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range) :
@@ -145,7 +145,7 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    const std::shared_ptr<typename ContainerIndex<Indices...>::RangeType>& ContainerIndex<Indices...>::range() const;
+    std::shared_ptr<typename ContainerIndex<Indices...>::RangeType> ContainerIndex<Indices...>::range() const
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }

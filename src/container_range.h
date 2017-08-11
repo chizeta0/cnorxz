@@ -32,8 +32,8 @@ namespace MultiArrayTools
     public:
 	ContainerIndex() = delete;
 
-	ContainerIndex(const ContainerIndex& in);
-	ContainerIndex& operator=(const ContainerIndex& in);
+	//ContainerIndex(const ContainerIndex& in);
+	//ContainerIndex& operator=(const ContainerIndex& in);
 
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range);
@@ -62,7 +62,7 @@ namespace MultiArrayTools
 
 	ContainerIndex& operator()(); // -> sync; just to shorten the code
 
-	const std::shared_ptr<RangeType>& range() const;
+	std::shared_ptr<RangeType> range() const;
     };
 
     

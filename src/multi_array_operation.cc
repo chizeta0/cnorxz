@@ -39,14 +39,13 @@ namespace MultiArrayTools
 	mSecond(second), mArrayRef(ma), mIndex()
     {
 	MultiRangeFactory<Ranges...> mrf( index->range() );
-	mIndex = mrf.create();	
-	CHECK;
+	std::shared_ptr<MultiRange<Ranges...> > mr =
+	    std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
+	mIndex = std::make_shared<IndexType>( mr->begin() );
 	(*mIndex) = *index;
-	CHECK;
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); ++(*mIndex)){
 	    get() = mSecond.get();
 	}
-	CHECK;
     }
     
     template <typename T, class... Ranges>
@@ -72,15 +71,13 @@ namespace MultiArrayTools
 	OperationBase<T>(), OperationTemplate<ConstOperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
-	CHECK;
 	mIndex(indices...);
-	CHECK;
     }
 
     template <typename T, class... Ranges>
     const T& ConstOperationRoot<T,Ranges...>::get() const
     {
-	return mArrayRef[ *mIndex ];
+	return mArrayRef[ (*mIndex)() ];
     }
     
     /***********************
@@ -94,9 +91,7 @@ namespace MultiArrayTools
 	MutableOperationBase<T>(), OperationTemplate<OperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
-	CHECK;
 	(*mIndex)(indices...);
-	CHECK;
     }
 
     template <typename T, class... Ranges>
@@ -108,13 +103,13 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const T& OperationRoot<T,Ranges...>::get() const
     {
-	return mArrayRef[ *mIndex ];
+	return mArrayRef[ (*mIndex)() ];
     }
 
     template <typename T, class... Ranges>
     T& OperationRoot<T,Ranges...>::get()
     {
-	return mArrayRef[ *mIndex ];
+	return mArrayRef[ (*mIndex)() ];
     }
 
     /***********************

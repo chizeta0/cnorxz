@@ -23,10 +23,10 @@ namespace MultiArrayTools
 	typedef U MetaType;
 	typedef SingleRange<U,TYPE> RangeType;
 	
-	DEFAULT_MEMBERS_X(SingleIndex);
+	//DEFAULT_MEMBERS_X(SingleIndex);
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
-
+	
 	virtual SingleIndex& operator=(size_t pos) override;
 	virtual SingleIndex& operator++() override;
 	virtual SingleIndex& operator--() override;

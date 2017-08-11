@@ -66,8 +66,12 @@ namespace {
 	MultiArray<double,CRange> res(crptr);
 
 	auto i = std::dynamic_pointer_cast<SRange::IndexType>( srptr->index() );
-	CHECK;
 	res.operator()<SRange>(i) = ma1.operator()<SRange>(i) + ma2.operator()<SRange>(i);
+
+	EXPECT_EQ( fabs( res.at('a') - (2.917+8.870) ) < 0.0001, true);
+	EXPECT_EQ( fabs( res.at('l') - (9.436+4.790) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at('f') - (0.373+8.215) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at('g') - (7.192+5.063) ) < 0.0001, true );
     }
 
 } // anonymous namspace

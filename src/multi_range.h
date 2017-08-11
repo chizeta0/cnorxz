@@ -32,8 +32,8 @@ namespace MultiArrayTools
 	MultiIndex() = delete;
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
-	MultiIndex(const MultiIndex& in);
-	MultiIndex& operator=(const MultiIndex& in);
+	//MultiIndex(const MultiIndex& in);
+	//MultiIndex& operator=(const MultiIndex& in);
 	MultiIndex& operator=(ContainerIndex<Indices...>& ci);
 
 	template <class MRange>
@@ -65,7 +65,7 @@ namespace MultiArrayTools
 	
 	virtual size_t dim() const override;
 
-	const std::shared_ptr<RangeType>& range() const;
+	std::shared_ptr<RangeType> range() const;
     };
 
     /*************************
