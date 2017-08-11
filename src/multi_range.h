@@ -15,25 +15,26 @@ namespace MultiArrayTools
 {
     
     template <class... Indices>
-    class MultiIndex : public IndexInterface<std::tuple<decltype(Indices().meta())...> >
+    class MultiIndex : public IndexInterface<std::tuple<typename Indices::MetaType...> >
     {
     public:
 	
 	typedef IndexBase IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
-	typedef std::tuple<decltype(Indices().meta())...> MetaType;
+	typedef std::tuple<typename Indices::MetaType...> MetaType;
 	typedef IndexInterface<MetaType> IndexI;	
-
+	typedef MultiRange<typename Indices::RangeType...> RangeType;
+	
     protected:
 	IndexPack mIPack;
 
     public:
-	MultiIndex() = default;
+	MultiIndex() = delete;
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
 	MultiIndex(const MultiIndex& in);
 	MultiIndex& operator=(const MultiIndex& in);
-	MultiIndex& operator=(const ContainerIndex<Indices...>& ci);
+	MultiIndex& operator=(ContainerIndex<Indices...>& ci);
 
 	template <class MRange>
 	MultiIndex(const std::shared_ptr<MRange>& range);
@@ -63,6 +64,8 @@ namespace MultiArrayTools
 	virtual bool last() const override;
 	
 	virtual size_t dim() const override;
+
+	const std::shared_ptr<RangeType>& range() const;
     };
 
     /*************************
@@ -78,6 +81,7 @@ namespace MultiArrayTools
 	MultiRangeFactory() = delete;
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& space);
+	MultiRangeFactory(const std::shared_ptr<ContainerRange<Ranges...> >& cr);
 	
 	virtual std::shared_ptr<RangeBase> create() override;
     };

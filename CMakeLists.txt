@@ -27,6 +27,9 @@ add_executable(mautest src/ma_unit_test.cc)
 target_link_libraries(mautest ${GTEST_BOTH_LIBRARIES})
 add_test(NAME mautest COMMAND mautest)
 
+add_executable(oputest src/op_unit_test.cc)
+target_link_libraries(oputest ${GTEST_BOTH_LIBRARIES})
+add_test(NAME oputest COMMAND oputest)
 
 #install(TARGETS testm DESTINATION install)
 

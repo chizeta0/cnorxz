@@ -182,9 +182,9 @@ namespace MultiArrayTools
     }
 
     template <typename T, class CRange>
-    const CRange& MultiArrayBase<T,CRange>::range() const
+    const std::shared_ptr<CRange>& MultiArrayBase<T,CRange>::range() const
     {
-	return *mRange;
+	return mRange;
     }
 
     template <typename T, class CRange>
@@ -192,26 +192,15 @@ namespace MultiArrayTools
     {
 	return true;
     }
-    /*    
+    
     template <typename T, class CRange>
-    template <class... NameTypes>
-    ConstMultiArrayOperationRoot<T,CRange> MultiArrayBase<T,CRange>::operator()(const NameTypes&... str) const
+    template <class... SubRanges>
+    ConstOperationRoot<T,SubRanges...>
+    MultiArrayBase<T,CRange>::operator()(std::shared_ptr<typename SubRanges::IndexType>&... inds) const
     {
-	return ConstMultiArrayOperationRoot<T,CRange>(*this, Name("master", str...));
+	return ConstOperationRoot<T,SubRanges...>(*this, inds...);
     }
-
-    template <typename T, class CRange>
-    template <class NameType>
-    ConstMultiArrayOperationRoot<T,CRange> MultiArrayBase<T,CRange>::operator()(const NameType& name, bool master) const
-    {
-	if(master){
-	    return ConstMultiArrayOperationRoot<T,CRange>(*this, name);
-	}
-	else {
-	    return operator()(name);
-	}
-    }
-    */
+    
     template <typename T, class CRange>
     bool MultiArrayBase<T,CRange>::isInit() const
     {
@@ -403,47 +392,15 @@ namespace MultiArrayTools
     {
 	return false;
     }
-    /*    
-    template <typename T, class CRange>
-    template <class... NameTypes>
-    MultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameTypes&... str)
-    {
-	return MultiArrayOperationRoot<T,CRange>(*this, Name("master", str...));
-    }
 
     template <typename T, class CRange>
-    template <class NameType>
-    MultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameType& name, bool master)
+    template <class... SubRanges>
+    OperationRoot<T,SubRanges...>
+    MutableMultiArrayBase<T,CRange>::operator()(std::shared_ptr<typename SubRanges::IndexType>&... inds)
     {
-	//CHECK;
-	if(master){
-	    return MultiArrayOperationRoot<T,CRange>(*this, name);
-	}
-	else {
-	    return operator()(name);
-	}
+	return OperationRoot<T,SubRanges...>(*this, inds...);
     }
 
-    template <typename T, class CRange>
-    template <class... NameTypes>
-    ConstMultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameTypes&... str) const
-    {
-	return ConstMultiArrayOperationRoot<T,CRange>(*this, Name("master", str...));
-    }
-    
-    template <typename T, class CRange>
-    template <class NameType>
-    ConstMultiArrayOperationRoot<T,CRange> MutableMultiArrayBase<T,CRange>::operator()(const NameType& name, bool master) const
-    {
-	//CHECK;
-	if(master){
-	    return ConstMultiArrayOperationRoot<T,CRange>(*this, name);
-	}
-	else {
-	    return operator()(name);
-	}
-    }
-    */
     /*******************
      *  MultiArray     *	     
      *******************/

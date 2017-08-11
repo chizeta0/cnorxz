@@ -26,6 +26,11 @@
     __class_name__(__class_name__&& in) = default; \
     __class_name__& operator=(__class_name__&& in) = default
 
+#define DEFAULT_MEMBERS_X(__class_name__) __class_name__(const __class_name__& in) = default; \
+    __class_name__& operator=(const __class_name__& in) = default; \
+    __class_name__(__class_name__&& in) = default; \
+    __class_name__& operator=(__class_name__&& in) = default
+
 
 namespace MultiArrayTools
 {
@@ -112,30 +117,39 @@ namespace MultiArrayTools
     // multi_array.h
     template <typename T, class Range>
     class MultiArray;
+
+    // multi_array_operation.h
+    template <typename T>
+    class OperationBase;
+
+    // multi_array_operation.h
+    template <typename T>
+    class MutableOperationBase;
+
+    // multi_array_operation.h
+    template <class OperationClass>
+    class OperationTemplate;
+    
+    // multi_array_operation.h
+    template <typename T, class... Ranges>
+    class OperationMaster;
+    
+    // multi_array_operation.h
+    template <typename T, class... Ranges>
+    class OperationRoot;
+
+    // multi_array_operation.h
+    template <typename T, class... Ranges>
+    class ConstOperationRoot;
+
+    // multi_array_operation.h
+    template <typename T, class OpFunction, class... Ops>
+    class Operation;
+
     /*
-    // multi_array_operation.h
-    template <typename T>
-    class MultiArrayOperationBase;
-
-    // multi_array_operation.h
-    template <typename T>
-    class MutableMultiArrayOperationBase;
-
-    // multi_array_operation.h
-    template <typename T, class Range>
-    class MultiArrayOperationRoot;
-
-    // multi_array_operation.h
-    template <typename T, class Range>
-    class ConstMultiArrayOperationRoot;
-
     // multi_array_operation.h
     template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>
     class MultiArrayOperationMap;
-    
-    // multi_array_operation.h
-    template <typename T, class Operation, class... MAOps>
-    class MultiArrayOperation;
 
     // multi_array_operation.h
     template <typename T, class ContractOperation, class Range, class... MAOps>

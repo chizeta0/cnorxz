@@ -16,7 +16,7 @@ namespace MultiArrayTools
     
     template <class... Indices>
     MultiIndex<Indices...>::MultiIndex(const MultiIndex<Indices...>& in) :
-	IndexInterface<std::tuple<decltype(Indices().meta())...> >(in)
+	IndexInterface<std::tuple<typename Indices::MetaType...> >(in)
     {
 	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -33,17 +33,19 @@ namespace MultiArrayTools
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<Indices...>& ci)
-    {
-	IndexI::operator=(in);
+    {	
+	CHECK;
 	PackNum<sizeof...(Indices)-1>::copyInst(mIPack, ci);
+	CHECK;
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	CHECK;
 	return *this;
     }
     
     template <class... Indices>
     template <class MRange>
     MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<std::tuple<decltype(Indices().meta())...> >(range, 0)
+	IndexInterface<std::tuple<typename Indices::MetaType...> >(range, 0)
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -151,6 +153,12 @@ namespace MultiArrayTools
     {
 	return IB::mPos == IB::mRangePtr->size() - 1;
     }
+
+    template <class... Indices>
+    const std::shared_ptr<typename MultiIndex<Indices...>::RangeType>& MultiIndex<Indices...>::range() const
+    {
+	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
+    }
     
     /*************************
      *   MultiRangeFactory   *
@@ -166,6 +174,12 @@ namespace MultiArrayTools
     MultiRangeFactory<Ranges...>::MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& st)
     {
 	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( st ) );
+    }
+
+    template <class... Ranges>
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<ContainerRange<Ranges...> >& cr)
+    {
+	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( cr->space() ) );
     }
     
     template <class... Ranges>

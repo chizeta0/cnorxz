@@ -32,7 +32,7 @@ namespace {
     {
 	return std::make_tuple(ts...);
     }
-    
+
     class OpTest_1Dim : public ::testing::Test
     {
     protected:
@@ -48,7 +48,7 @@ namespace {
 	    swapFactory<SRF>(rfbptr, {'a', 'l', 'f', 'g'} );
 	    srptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
 
-	    swapMFactory<CRF>(srptr);
+	    swapMFactory<CRF>(rfbptr, srptr);
 	    crptr = std::dynamic_pointer_cast<CRange>( rfbptr->create() );
 	}
 
@@ -65,8 +65,9 @@ namespace {
 	MultiArray<double,CRange> ma2(crptr, v2);
 	MultiArray<double,CRange> res(crptr);
 
-	std::map<std::string,std::shared_ptr<SRange::IndexType> > m;
-	res(m["mu"]) = ma1(m["mu"]) + ma2(m["mu"]);
+	auto i = std::dynamic_pointer_cast<SRange::IndexType>( srptr->index() );
+	CHECK;
+	res.operator()<SRange>(i) = ma1.operator()<SRange>(i) + ma2.operator()<SRange>(i);
     }
 
 } // anonymous namspace

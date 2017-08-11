@@ -17,7 +17,7 @@ namespace MultiArrayTools
 
     template <class... Indices>
     ContainerIndex<Indices...>::ContainerIndex(const ContainerIndex& in) :
-	IndexInterface<std::tuple<decltype(Indices().meta())...> >(in)
+	IndexInterface<std::tuple<typename Indices::MetaType...> >(in)
     {
 	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -35,7 +35,7 @@ namespace MultiArrayTools
     template <class... Indices>
     template <class MRange>
     ContainerIndex<Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<std::tuple<decltype(Indices().meta())...> >(range, 0)
+	IndexInterface<std::tuple<typename Indices::MetaType...> >(range, 0)
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -109,7 +109,14 @@ namespace MultiArrayTools
     {
 	return *std::get<N>( mIPack );
     }
-        
+
+    template <class... Indices>
+    template <size_t N>
+    auto ContainerIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    {
+	return std::get<N>( mIPack );
+    }
+    
     template <class... Indices>
     bool ContainerIndex<Indices...>::first() const
     {
@@ -135,6 +142,12 @@ namespace MultiArrayTools
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator()()
     {
 	return sync();
+    }
+
+    template <class... Indices>
+    const std::shared_ptr<typename ContainerIndex<Indices...>::RangeType>& ContainerIndex<Indices...>::range() const;
+    {
+	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
     
     /*****************************
@@ -197,7 +210,13 @@ namespace MultiArrayTools
     {
 	return std::get<N>( mSpace );
     }
-    
+
+    template <class... Ranges>
+    const typename ContainerRange<Ranges...>::SpaceType& ContainerRange<Ranges...>::space() const
+    {
+	return mSpace;
+    }
+        
     template <class... Ranges>
     typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::begin() const
     {

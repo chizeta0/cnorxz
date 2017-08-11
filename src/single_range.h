@@ -21,8 +21,9 @@ namespace MultiArrayTools
 
 	typedef IndexBase IB;
 	typedef U MetaType;
+	typedef SingleRange<U,TYPE> RangeType;
 	
-	DEFAULT_MEMBERS(SingleIndex);
+	DEFAULT_MEMBERS_X(SingleIndex);
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 

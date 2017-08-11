@@ -18,10 +18,14 @@ namespace MultiArrayTools
      ***************************/
 
     template <class OperationClass>
+    OperationTemplate<OperationClass>::OperationTemplate(OperationClass* oc) : mOc(oc) {}
+    
+    template <class OperationClass>
     template <class Second>
-    Operation<OperationClass,Second> OperationTemplate<OperationClass>::operator+(Second&& in) const
+    Operation<double,std::plus<double>,OperationClass,Second>
+    OperationTemplate<OperationClass>::operator+(const Second& in) const
     {
-	return Operation<double,std::plus<double>,OperationClass,Second>(*this, in);
+    	return Operation<double,std::plus<double>,OperationClass,Second>(*mOc, in);
     }
     
     /*************************
@@ -30,26 +34,31 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     OperationMaster<T,Ranges...>::
-    OperationMaster(MutableMultiArrayBase& ma,
-		    std::shared_ptr<ContainerRange<Ranges...>::IndexType>& index) :
-	mArrayRef(ma), mIndex()
+    OperationMaster(MutableMultiArrayBase<T,CRange>& ma, const OperationBase<T>& second,
+		    std::shared_ptr<typename CRange::IndexType>& index) :
+	mSecond(second), mArrayRef(ma), mIndex()
     {
+	MultiRangeFactory<Ranges...> mrf( index->range() );
+	mIndex = mrf.create();	
+	CHECK;
 	(*mIndex) = *index;
+	CHECK;
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); ++(*mIndex)){
 	    get() = mSecond.get();
 	}
+	CHECK;
     }
     
     template <typename T, class... Ranges>
     T& OperationMaster<T,Ranges...>::get()
     {
-	return mArrayRef.data()[ mIndex.pos() ];
+	return mArrayRef.data()[ mIndex->pos() ];
     }
     
     template <typename T, class... Ranges>
     const T& OperationMaster<T,Ranges...>::get() const
     {
-	return mArrayRef.data()[ mIndex.pos() ];
+	return mArrayRef.data()[ mIndex->pos() ];
     }
     
     /****************************
@@ -57,18 +66,21 @@ namespace MultiArrayTools
      ****************************/
 
     template <typename T, class... Ranges>
-    ConstOperationRoot<T,CRange,Ranges...>::
+    ConstOperationRoot<T,Ranges...>::
     ConstOperationRoot(const MultiArrayBase<T,CRange>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mArrayRef(ma), mIndex(mArrayRef)
+	OperationBase<T>(), OperationTemplate<ConstOperationRoot<T,Ranges...> >(this),
+	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
+	CHECK;
 	mIndex(indices...);
+	CHECK;
     }
 
     template <typename T, class... Ranges>
     const T& ConstOperationRoot<T,Ranges...>::get() const
     {
-	return mArrayRef[ mIndex ];
+	return mArrayRef[ *mIndex ];
     }
     
     /***********************
@@ -79,9 +91,12 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,CRange>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mArrayRef(ma), mIndex(mArrayRef)
+	MutableOperationBase<T>(), OperationTemplate<OperationRoot<T,Ranges...> >(this),
+	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
-	mIndex(indices...);
+	CHECK;
+	(*mIndex)(indices...);
+	CHECK;
     }
 
     template <typename T, class... Ranges>
@@ -93,26 +108,28 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const T& OperationRoot<T,Ranges...>::get() const
     {
-	return mArrayRef[ mIndex ];
+	return mArrayRef[ *mIndex ];
     }
 
     template <typename T, class... Ranges>
     T& OperationRoot<T,Ranges...>::get()
     {
-	return mArrayRef[ mIndex ];
+	return mArrayRef[ *mIndex ];
     }
 
     /***********************
      *   OperationRoot     *
      ***********************/
-
+    
     template <typename T, class OpFunction, class... Ops>
-    Operation<T,OpFunction,Ops...>::Operation(Ops&&... ops) : mOps(ops...) {}
+    Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :
+	OperationBase<T>(), OperationTemplate<Operation<T,OpFunction,Ops...> >(this),
+	mOps(ops...) {}
 
     template <typename T, class OpFunction, class... Ops>
     const T& Operation<T,OpFunction,Ops...>::get() const
     {
-	mRes = F(mOps);
+	mRes = PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps);
 	return mRes;
     }
 }

@@ -15,21 +15,22 @@ namespace MultiArrayTools
 {
 
     template <class... Indices>
-    class ContainerIndex : public IndexInterface<std::tuple<decltype(Indices().meta())...> >
+    class ContainerIndex : public IndexInterface<std::tuple<typename Indices::MetaType...> >
     {
     public:
 
 	typedef IndexBase IB;
-	typedef std::tuple<decltype(Indices().meta())...> MetaType;
+	typedef std::tuple<typename Indices::MetaType...>  MetaType;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
-	typedef IndexInterface<std::tuple<decltype(Indices().meta())...> > IndexI;
+	typedef IndexInterface<std::tuple<typename Indices::MetaType...> > IndexI;
+	typedef ContainerRange<typename Indices::RangeType...> RangeType;
 
     protected:
 	bool mExternControl = false;
 	IndexPack mIPack;
     
     public:
-	ContainerIndex() = default;
+	ContainerIndex() = delete;
 
 	ContainerIndex(const ContainerIndex& in);
 	ContainerIndex& operator=(const ContainerIndex& in);
@@ -54,10 +55,14 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 	
+	template <size_t N>
+	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
+	
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
 
 	ContainerIndex& operator()(); // -> sync; just to shorten the code
 
+	const std::shared_ptr<RangeType>& range() const;
     };
 
     
@@ -108,6 +113,8 @@ namespace MultiArrayTools
 
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
+
+	const SpaceType& space() const;
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;

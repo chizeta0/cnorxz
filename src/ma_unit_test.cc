@@ -178,7 +178,7 @@ namespace {
     {
 	MultiArray<double,MATest_MDim::CRange> ma(crptr, vv);
 	EXPECT_EQ( ma.size(), 24 );
-	EXPECT_EQ( ma.range().dim(), 2 );
+	EXPECT_EQ( ma.range()->dim(), 2 );
 
 	auto i = ma.beginIndex();
 	EXPECT_EQ( ma[ i.at( mkt( mkt('x', 'a'), '1' ) ) ], 2.917);

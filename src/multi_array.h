@@ -17,7 +17,8 @@
 
 namespace MultiArrayTools
 {
-    
+
+    // Explicitely specify subranges in template argument !!!
     template <typename T, class CRange>
     class MultiArrayBase
     {
@@ -88,16 +89,13 @@ namespace MultiArrayTools
 	virtual typename CRange::IndexType beginIndex() const;
 	virtual typename CRange::IndexType endIndex() const;
 
-	virtual const CRange& range() const;
+	virtual const std::shared_ptr<CRange>& range() const;
 
 	virtual bool isConst() const;
-	/*
-	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,CRange> operator()(const NameTypes&... str) const;
 
-	template <class NameType>
-	ConstMultiArrayOperationRoot<T,CRange> operator()(const NameType& name, bool master) const;
-	*/
+	template <class... SubRanges>
+	ConstOperationRoot<T,SubRanges...> operator()(std::shared_ptr<typename SubRanges::IndexType>&... inds) const;
+	
 	virtual bool isInit() const;
 
     protected:
@@ -176,25 +174,9 @@ namespace MultiArrayTools
 	virtual iterator end();
 
 	virtual bool isConst() const override;
-	/*
-	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,CRange> operator()(bool x, const NameTypes&... str) const
-	{
-	    return MAB::operator()(str...);
-	}
 
-	template <class... NameTypes>
-	ConstMultiArrayOperationRoot<T,CRange> operator()(const NameTypes&... str) const;
-
-	template <class NameType>
-	ConstMultiArrayOperationRoot<T,CRange> operator()(const NameType& name, bool master) const;
-	
-	template <class... NameTypes>
-	MultiArrayOperationRoot<T,CRange> operator()(const NameTypes&... str);
-
-	template <class NameType>
-	MultiArrayOperationRoot<T,CRange> operator()(const NameType& name, bool master);
-	*/
+	template <class... SubRanges>
+	OperationRoot<T,SubRanges...> operator()(std::shared_ptr<typename SubRanges::IndexType>&... inds);
     };
     
     template <typename T, class CRange>

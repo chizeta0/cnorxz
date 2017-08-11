@@ -147,6 +147,12 @@ namespace MultiArrayHelper
 	{
 	    return std::get<sizeof...(Indices)-N-1>(pack)->max() * PackNum<N-1>::blockSize(pack);
 	}
+
+	template <typename T, class Func, class ArgTuple, class... Args>
+	static T unpackArgs(const ArgTuple& tp, const Args&... args)
+	{
+	    return PackNum<N-1>::template unpackArgs<T,Func>(tp, std::get<N>(tp).get(), args...);
+	}
 	
     };
     
@@ -251,6 +257,15 @@ namespace MultiArrayHelper
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
 	{
 	    return std::get<sizeof...(Indices)-1>(pack)->max();
+	}
+
+	template <typename T, class Func, class ArgTuple, class... Args>
+	static T unpackArgs(const ArgTuple& tp, const Args&... args)
+	{
+	    static_assert(sizeof...(Args) == std::tuple_size<ArgTuple>::value-1,
+			  "inconsistent number of arguments");
+	    static Func f;
+	    return f(std::get<0>(tp).get(), args...);
 	}
 	
     };

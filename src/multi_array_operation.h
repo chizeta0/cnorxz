@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "base_def.h"
-#include "index_base.h"
 
 namespace MultiArrayTools
 {
@@ -26,9 +25,6 @@ namespace MultiArrayTools
      * 
      */
     
-    
-    typedef std::map<Name,std::shared_ptr<IndexBase> > IndexList;
-    
     template <typename T>
     class OperationBase
     {
@@ -37,7 +33,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	
 	OperationBase() = default;
-	virtual ~OperationBase();
+	virtual ~OperationBase() = default;
 
 	//virtual size_t argNum() const = 0;
 	virtual const T& get() const = 0;
@@ -56,9 +52,13 @@ namespace MultiArrayTools
     class OperationTemplate
     {
     public:
+
+	OperationTemplate(OperationClass* oc);
 	
 	template <class Second>
-	Operation<OperationClass,Second> operator+(const Second& in) const;
+	Operation<double,std::plus<double>,OperationClass,Second> operator+(const Second& in) const;
+    private:
+	OperationClass* mOc;
     };
     
     template <typename T, class... Ranges>
@@ -67,10 +67,11 @@ namespace MultiArrayTools
     public:
 
 	typedef OperationBase<T> OB;
+	typedef ContainerRange<Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 
-	OperationMaster(MutableMultiArrayBase& ma, OperationBase<T>& second,
-			const ContainerRange<Ranges...>::IndexType& index);
+	OperationMaster(MutableMultiArrayBase<T,CRange>& ma, const OperationBase<T>& second,
+			std::shared_ptr<typename CRange::IndexType>& index);
 		
 	virtual T& get() override;
 	virtual const T& get() const override;
@@ -86,12 +87,12 @@ namespace MultiArrayTools
     
     template <typename T, class... Ranges>
     class ConstOperationRoot : public OperationBase<T>,
-			       public OperationTemplate<ConstOperationRoot<T,CRange> >
+			       public OperationTemplate<ConstOperationRoot<T,Ranges...> >
     {
     public:
 	
 	typedef OperationBase<T> OB;
-	typedef OperationTemplate<ConstOperationRoot<T,CRange> > OT;
+	typedef OperationTemplate<ConstOperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	
@@ -108,12 +109,12 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     class OperationRoot : public MutableOperationBase<T>,
-			  public OperationTemplate<OperationRoot<T,CRange> >
+			  public OperationTemplate<OperationRoot<T,Ranges...> >
     {
     public:
 	
 	typedef OperationBase<T> OB;
-	typedef OperationTemplate<OperationRoot<T,CRange> > OT;
+	typedef OperationTemplate<OperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	
@@ -141,15 +142,16 @@ namespace MultiArrayTools
 	typedef OperationTemplate<Operation<T,OpFunction,Ops...> > OT;
 	typedef OpFunction F;
 	
-	Operation(Ops&&... ops);
+	Operation(const Ops&... ops);
 	
 	virtual const T& get() const override;
 		
     protected:
 	std::tuple<Ops...> mOps;
-	T res;
+	mutable T mRes;
     };
 
+}
 
 #include "multi_array_operation.cc"
 
