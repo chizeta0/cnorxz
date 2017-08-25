@@ -34,7 +34,7 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     OperationMaster<T,Ranges...>::
-    OperationMaster(MutableMultiArrayBase<T,CRange>& ma, const OperationBase<T>& second,
+    OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OperationBase<T>& second,
 		    std::shared_ptr<typename CRange::IndexType>& index) :
 	mSecond(second), mArrayRef(ma), mIndex()
     {
@@ -66,7 +66,7 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     ConstOperationRoot<T,Ranges...>::
-    ConstOperationRoot(const MultiArrayBase<T,CRange>& ma,
+    ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	OperationBase<T>(), OperationTemplate<ConstOperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
@@ -86,7 +86,7 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
-    OperationRoot(MutableMultiArrayBase<T,CRange>& ma,
+    OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	MutableOperationBase<T>(), OperationTemplate<OperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )

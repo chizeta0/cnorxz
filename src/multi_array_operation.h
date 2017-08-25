@@ -70,7 +70,7 @@ namespace MultiArrayTools
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 
-	OperationMaster(MutableMultiArrayBase<T,CRange>& ma, const OperationBase<T>& second,
+	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OperationBase<T>& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
 		
 	virtual T& get() override;
@@ -80,7 +80,7 @@ namespace MultiArrayTools
 
 	//void performAssignment(const OperationBase<T>& in);
 	OperationBase<T> const& mSecond;
-	MutableMultiArrayBase<T,CRange>& mArrayRef;
+	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
     };
 
@@ -96,14 +96,14 @@ namespace MultiArrayTools
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	
-	ConstOperationRoot(const MultiArrayBase<T,CRange>& ma,
+	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
 	virtual const T& get() const override;
 	
     protected:
 	
-	MultiArrayBase<T,CRange> const& mArrayRef;
+	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
     };
 
@@ -118,7 +118,7 @@ namespace MultiArrayTools
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	
-	OperationRoot(MutableMultiArrayBase<T,CRange>& ma,
+	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	OperationMaster<T,Ranges...> operator=(const OperationBase<T>& in);
@@ -128,7 +128,7 @@ namespace MultiArrayTools
 	
     protected:
 	
-	MutableMultiArrayBase<T,CRange>& mArrayRef;
+	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
     };
 

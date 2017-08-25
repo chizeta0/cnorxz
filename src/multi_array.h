@@ -19,12 +19,14 @@ namespace MultiArrayTools
 {
 
     // Explicitely specify subranges in template argument !!!
-    template <typename T, class CRange>
+    template <typename T, class... SRanges>
     class MultiArrayBase
     {
     public:
 
 	typedef T value_type;
+	typedef ContainerRange<SRanges...> CRange;
+	typedef typename CRange::IndexType IndexType;
 	
 	class const_iterator : public std::iterator<std::random_access_iterator_tag,T>
 	{
@@ -63,15 +65,15 @@ namespace MultiArrayTools
 	    bool operator>=(const const_iterator& it) const;
 
 	    // Multi Array specific:
-	    typename CRange::IndexType index() const;
-
+	    typename ContainerRange<SRanges...>::IndexType index() const;
+	    
 	protected:
 	    MultiArrayBase const* mMAPtr = nullptr;
 	    size_t mPos;
 	};
 
 	DEFAULT_MEMBERS(MultiArrayBase);
-	MultiArrayBase(const std::shared_ptr<CRange>& range);
+	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
 
 	virtual ~MultiArrayBase() = default;
 	
@@ -86,15 +88,14 @@ namespace MultiArrayTools
 	virtual const_iterator begin() const;
 	virtual const_iterator end() const;
 	
-	virtual typename CRange::IndexType beginIndex() const;
-	virtual typename CRange::IndexType endIndex() const;
+	virtual IndexType beginIndex() const;
+	virtual IndexType endIndex() const;
 
 	virtual const std::shared_ptr<CRange>& range() const;
 
 	virtual bool isConst() const;
 
-	template <class... SubRanges>
-	ConstOperationRoot<T,SubRanges...> operator()(std::shared_ptr<typename SubRanges::IndexType>&... inds) const;
+	ConstOperationRoot<T,SRanges...> operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const;
 	
 	virtual bool isInit() const;
 
@@ -104,13 +105,14 @@ namespace MultiArrayTools
 
     };
 
-    template <typename T, class CRange>
-    class MutableMultiArrayBase : public MultiArrayBase<T,CRange>
+    template <typename T, class... SRanges>
+    class MutableMultiArrayBase : public MultiArrayBase<T,SRanges...>
     {
     public:
 
-	typedef typename MultiArrayBase<T,CRange>::const_iterator const_iterator;
-	typedef MultiArrayBase<T,CRange> MAB;
+	typedef ContainerRange<SRanges...> CRange;
+	typedef typename MultiArrayBase<T,SRanges...>::const_iterator const_iterator;
+	typedef MultiArrayBase<T,SRanges...> MAB;
 	typedef typename CRange::IndexType IndexType;
 	
 	class iterator : public std::iterator<std::random_access_iterator_tag,T>,
@@ -163,7 +165,7 @@ namespace MultiArrayTools
 
 	
 	DEFAULT_MEMBERS(MutableMultiArrayBase);
-	MutableMultiArrayBase(const std::shared_ptr<CRange>& range);
+	MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
 
 	virtual T& operator[](const IndexType& i) = 0;
 	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
@@ -175,27 +177,27 @@ namespace MultiArrayTools
 
 	virtual bool isConst() const override;
 
-	template <class... SubRanges>
-	OperationRoot<T,SubRanges...> operator()(std::shared_ptr<typename SubRanges::IndexType>&... inds);
+	OperationRoot<T,SRanges...> operator()(std::shared_ptr<typename SRanges::IndexType>&... inds);
     };
     
-    template <typename T, class CRange>
-    class MultiArray : public MutableMultiArrayBase<T,CRange>
+    template <typename T, class... SRanges>
+    class MultiArray : public MutableMultiArrayBase<T,SRanges...>
     {
     public:
 
-	typedef MultiArrayBase<T,CRange> MAB;
-	typedef typename MultiArrayBase<T,CRange>::const_iterator const_iterator;
-	typedef typename MutableMultiArrayBase<T,CRange>::iterator iterator;
+	typedef ContainerRange<SRanges...> CRange;
+	typedef MultiArrayBase<T,SRanges...> MAB;
+	typedef typename MultiArrayBase<T,SRanges...>::const_iterator const_iterator;
+	typedef typename MutableMultiArrayBase<T,SRanges...>::iterator iterator;
 	typedef typename CRange::IndexType IndexType;
 	
 	DEFAULT_MEMBERS(MultiArray);
-	MultiArray(const std::shared_ptr<CRange>& range);
-	MultiArray(const std::shared_ptr<CRange>& range, const std::vector<T>& vec);
-	MultiArray(const std::shared_ptr<CRange>& range, std::vector<T>&& vec);
+	MultiArray(const std::shared_ptr<SRanges>&... ranges);
+	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
+	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
 
-	template <class Range2, class Range3>
-	MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
+	// template <class Range2, class Range3>
+	// MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
 
 	// implement contstructor using FunctionalMultiArray as Input !!!
 	
@@ -210,8 +212,8 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
-	template <class Range2>
-	MultiArray<T,Range2> format(const std::shared_ptr<Range2>& nr); // reformat array using 'nr' which in
+	template <class... SRanges2>
+	MultiArray<T,SRanges2...> format(const std::shared_ptr<SRanges2>&... nrs); // reformat array using 'nr' which in
 	//                                                                 total must have the same size as mRange
 	
 	const T* data() const override;
@@ -221,24 +223,26 @@ namespace MultiArrayTools
 	//			const typename CRange::IndexType& manBegin,
 	//				const typename CRange::IndexType& manEnd);
 	
-	template <typename U, class RangeX>
+	template <typename U, class... SRanges2>
 	friend class MultiArray;
 	
     private:
 	std::vector<T> mCont;
     };
 
-    template <typename T, class CRange, class Function>
-    class FunctionalMultiArray : public MultiArrayBase<T,CRange>
+    template <typename T, class Function, class... SRanges>
+    class FunctionalMultiArray : public MultiArrayBase<T,SRanges...>
     {
     public:
+
+	typedef ContainerRange<SRanges...> CRange;
 	typedef MultiArrayBase<T,CRange> MAB;
 	typedef typename MultiArrayBase<T,CRange>::const_iterator const_iterator;
 	typedef typename CRange::IndexType IndexType;
 	
 	DEFAULT_MEMBERS(FunctionalMultiArray);
 	//FunctionalMultiArray(const CRange& range);
-	FunctionalMultiArray(const std::shared_ptr<CRange>& range, const Function& func);
+	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges, const Function& func);
 
 	virtual const T& operator[](const IndexType& i) const override;
 

@@ -41,21 +41,15 @@ namespace {
 	typedef SingleRangeFactory<char,RangeType::ANY> SRF;
 	typedef SRF::oType SRange;
 
-	typedef ContainerRangeFactory<SRange> CRF;
-	typedef CRF::oType CRange;
-
 	MATest_1Dim()
 	{
 	    swapFactory<SRF>(rfbptr, {'x', 'y', 'l', 'f', 'g'} );
 	    srptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
 
-	    swapMFactory<CRF>(rfbptr, srptr);
-	    crptr = std::dynamic_pointer_cast<CRange>( rfbptr->create() );
 	}
 
 	std::shared_ptr<RangeFactoryBase> rfbptr;
 	std::shared_ptr<SRange> srptr;
-	std::shared_ptr<CRange> crptr;
 	std::vector<double> vv = { 3.141, 2.718, 1.618, 0.693, 0.577 };
     };
 
@@ -70,13 +64,6 @@ namespace {
 	typedef MultiRangeFactory<SRange,SRange> MRF;
 	typedef MRF::oType MRange;
 	
-	typedef ContainerRangeFactory<MRange,SRange> CRF;
-	typedef CRF::oType CRange;
-
-	typedef ContainerRangeFactory<SRange> CRF2;
-	typedef CRF2::oType CRange2;
-
-
 	MATest_MDim()
 	{
 	    swapFactory<SRF>(rfbptr, {'x', 'y'} );
@@ -96,8 +83,6 @@ namespace {
 	    swapMFactory<MRF>(rfbptr, sr1ptr, sr2ptr);
 	    mrptr = std::dynamic_pointer_cast<MRange>( rfbptr->create() );
 	    
-	    swapMFactory<CRF>(rfbptr, mrptr, sr3ptr);
-	    crptr = std::dynamic_pointer_cast<CRange>( rfbptr->create() );
 	}
 	
 	std::shared_ptr<RangeFactoryBase> rfbptr;
@@ -106,7 +91,6 @@ namespace {
 	std::shared_ptr<SRange> sr3ptr;
 	std::shared_ptr<SRange> sr4ptr;
 	std::shared_ptr<MRange> mrptr;
-	std::shared_ptr<CRange> crptr;
 	std::vector<double> vv = { 2.917, 9.436, 0.373, 7.192, 7.315, 1.536, 4.892, 0.280,
 				   8.870, 4.790, 8.215, 5.063, 1.530, 3.084, 1.609, 4.847,
 				   8.175, 0.112, 6.712, 6.408, 1.959, 0.331, 4.209, 2.951 };
@@ -114,7 +98,7 @@ namespace {
     
     TEST_F(MATest_1Dim, SimpleCall)
     {
-	MultiArray<double,MATest_1Dim::CRange> ma(crptr, vv);
+	MultiArray<double,MATest_1Dim::SRange> ma(srptr, vv);
 	EXPECT_EQ( ma.size(), 5);
 	EXPECT_EQ( ma.isConst(), false);
 	EXPECT_EQ( ma.isSlice(), false);	
@@ -131,7 +115,7 @@ namespace {
     TEST_F(MATest_1Dim, ForLoop)
     {
 	std::vector<double> v2 = { 0.693 , 2.718, 3.141, 1.618, 9.98 };
-	MultiArray<double,MATest_1Dim::CRange> ma(crptr, std::move( v2 ) );
+	MultiArray<double,MATest_1Dim::SRange> ma(srptr, std::move( v2 ) );
 	size_t cnt = 0;
 	for(auto el: ma){
 
@@ -157,14 +141,12 @@ namespace {
     {
 	swapFactory<SRF>( rfbptr, { 'a', 'c', 'e', 'g', 'i' } );
 	std::shared_ptr<SRange> sr2 = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
-	swapMFactory<CRF>( rfbptr, sr2 );
-	std::shared_ptr<CRange> cr2 = std::dynamic_pointer_cast<CRange>( rfbptr->create() );
 	
-	MultiArray<double,MATest_1Dim::CRange> ma(crptr, vv);
+	MultiArray<double,MATest_1Dim::SRange> ma(srptr, vv);
 	auto i = ma.beginIndex();
 	EXPECT_EQ( ma[ i.at('x') ], 3.141);
 
-	auto ma2 = ma.format( cr2 );
+	auto ma2 = ma.format( sr2 );
 	auto j = ma2.beginIndex();
 	
 	EXPECT_EQ( ma[ j.at('a') ], 3.141);
@@ -176,7 +158,7 @@ namespace {
 
     TEST_F(MATest_MDim, SimpleCall)
     {
-	MultiArray<double,MATest_MDim::CRange> ma(crptr, vv);
+	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
 	EXPECT_EQ( ma.size(), 24 );
 	EXPECT_EQ( ma.range()->dim(), 2 );
 
@@ -193,7 +175,7 @@ namespace {
     
     TEST_F(MATest_MDim, ReFormat)
     {
-	MultiArray<double,MATest_MDim::CRange> ma(crptr, vv);
+	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
 
 	auto ma2 = ma.format( sr4ptr );
 	auto i = ma2.beginIndex();

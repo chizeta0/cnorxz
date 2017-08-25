@@ -40,33 +40,26 @@ namespace {
 	typedef SingleRangeFactory<char,RangeType::ANY> SRF;
 	typedef SRF::oType SRange;
 
-	typedef ContainerRangeFactory<SRange> CRF;
-	typedef CRF::oType CRange;
-
 	OpTest_1Dim()
 	{
 	    swapFactory<SRF>(rfbptr, {'a', 'l', 'f', 'g'} );
 	    srptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
-
-	    swapMFactory<CRF>(rfbptr, srptr);
-	    crptr = std::dynamic_pointer_cast<CRange>( rfbptr->create() );
 	}
 
 	std::shared_ptr<RangeFactoryBase> rfbptr;
 	std::shared_ptr<SRange> srptr;
-	std::shared_ptr<CRange> crptr;
 	std::vector<double> v1 = { 2.917, 9.436, 0.373, 7.192 };
 	std::vector<double> v2 = { 8.870, 4.790, 8.215, 5.063 };
     };
 
     TEST_F(OpTest_1Dim, ExecOp)
     {
-	MultiArray<double,CRange> ma1(crptr, v1);
-	MultiArray<double,CRange> ma2(crptr, v2);
-	MultiArray<double,CRange> res(crptr);
+	MultiArray<double,SRange> ma1(srptr, v1);
+	MultiArray<double,SRange> ma2(srptr, v2);
+	MultiArray<double,SRange> res(srptr);
 
 	auto i = std::dynamic_pointer_cast<SRange::IndexType>( srptr->index() );
-	res.operator()<SRange>(i) = ma1.operator()<SRange>(i) + ma2.operator()<SRange>(i);
+	res(i) = ma1(i) + ma2(i);
 
 	EXPECT_EQ( fabs( res.at('a') - (2.917+8.870) ) < 0.0001, true);
 	EXPECT_EQ( fabs( res.at('l') - (9.436+4.790) ) < 0.0001, true );
