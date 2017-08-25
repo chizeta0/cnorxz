@@ -51,6 +51,48 @@ namespace {
 	std::vector<double> v1 = { 2.917, 9.436, 0.373, 7.192 };
 	std::vector<double> v2 = { 8.870, 4.790, 8.215, 5.063 };
     };
+    
+    class OpTest_MDim : public ::testing::Test
+    {
+    protected:
+
+	typedef SingleRangeFactory<char,RangeType::ANY> SRF;
+	typedef SRF::oType SRange;
+
+	typedef MultiRangeFactory<SRange,SRange> MRF;
+	typedef MRF::oType MRange;
+	
+	OpTest_MDim()
+	{
+	    swapFactory<SRF>(rfbptr, {'x', 'l', 'f', 'g'} );
+	    sr1ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+	    swapFactory<SRF>(rfbptr, {'1', '2', '3'} );
+	    sr2ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+	    swapFactory<SRF>(rfbptr, {'a', 'b'} );
+	    sr3ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+	    swapFactory<SRF>(rfbptr, {'A', 'B'} );
+	    sr4ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+	    swapMFactory<MRF>(rfbptr, sr2ptr, sr3ptr);
+	    mr1ptr = std::dynamic_pointer_cast<MRange>( rfbptr->create() );
+
+	    swapMFactory<MRF>(rfbptr, sr2ptr, sr4ptr);
+	    mr2ptr = std::dynamic_pointer_cast<MRange>( rfbptr->create() );
+	}
+
+	std::shared_ptr<RangeFactoryBase> rfbptr;
+	std::shared_ptr<SRange> sr1ptr;
+	std::shared_ptr<SRange> sr2ptr;
+	std::shared_ptr<SRange> sr3ptr;
+	std::shared_ptr<SRange> sr4ptr;
+	std::shared_ptr<MRange> mr1ptr;
+	std::shared_ptr<MRange> mr2ptr;
+	std::vector<double> v1 = { 2.917, 9.436, 0.373 };
+	std::vector<double> v2 = { 8.870, 4.790 };
+    };
 
     TEST_F(OpTest_1Dim, ExecOp)
     {
@@ -67,6 +109,28 @@ namespace {
 	EXPECT_EQ( fabs( res.at('g') - (7.192+5.063) ) < 0.0001, true );
     }
 
+    TEST_F(OpTest_MDim, ExecOp1)
+    {
+	MultiArray<double,SRange,SRange> res(sr2ptr,sr4ptr);
+	MultiArray<double,SRange> ma1(sr2ptr, v1);
+	MultiArray<double,SRange> ma2(sr4ptr, v2);
+
+	auto i1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
+	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
+	
+	res(i1,i2) = ma1(i1) + ma2(i2);
+
+	EXPECT_EQ( fabs( res.at(mkt('1','A')) - (2.917 + 8.870) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt('1','B')) - (2.917 + 4.790) ) < 0.0001, true );
+
+	EXPECT_EQ( fabs( res.at(mkt('2','A')) - (9.436 + 8.870) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt('2','B')) - (9.436 + 4.790) ) < 0.0001, true );
+
+	EXPECT_EQ( fabs( res.at(mkt('3','A')) - (0.373 + 8.870) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt('3','B')) - (0.373 + 4.790) ) < 0.0001, true );
+
+    }
+    
 } // anonymous namspace
 
 int main(int argc, char** argv)

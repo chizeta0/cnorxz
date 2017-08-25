@@ -13,7 +13,7 @@
 
 namespace MultiArrayTools
 {
-
+    
     template <class... Indices>
     class ContainerIndex : public IndexInterface<std::tuple<typename Indices::MetaType...> >
     {
@@ -63,6 +63,7 @@ namespace MultiArrayTools
 	ContainerIndex& operator()(); // -> sync; just to shorten the code
 
 	std::shared_ptr<RangeType> range() const;
+	virtual std::string id() const override { return std::string("con") + std::to_string(IB::mId); }
     };
 
     

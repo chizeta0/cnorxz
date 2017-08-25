@@ -37,6 +37,8 @@ namespace MultiArrayTools
 	virtual size_t dim() const override; // = 1
 	virtual bool last() const override;
 	virtual bool first() const override;
+
+	virtual std::string id() const override { return std::string("sin") + std::to_string(IB::mId); }
     };
 
     template <typename U, RangeType TYPE>

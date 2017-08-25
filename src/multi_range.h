@@ -66,6 +66,8 @@ namespace MultiArrayTools
 	virtual size_t dim() const override;
 
 	std::shared_ptr<RangeType> range() const;
+
+	virtual std::string id() const override { return std::string("mul") + std::to_string(IB::mId); }
     };
 
     /*************************

@@ -9,7 +9,10 @@ namespace MultiArrayTools
 
     IndexBase::IndexBase(const std::shared_ptr<RangeBase>& range,
 			 size_t pos) : mRangePtr(range),
-				       mPos(pos) {}
+				       mPos(pos)
+    {
+	mId = indexId();
+    }
     
     bool IndexBase::operator==(const IndexBase& in) const
     {

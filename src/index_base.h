@@ -13,11 +13,22 @@
 
 namespace MultiArrayTools
 {
+    size_t indexId()
+    {
+	static size_t id = 0;
+	++id;
+	return id;
+    }
     
     class IndexBase
     {
     public:
-	DEFAULT_MEMBERS(IndexBase);
+	//DEFAULT_MEMBERS(IndexBase);
+
+	IndexBase() { mId = indexId(); }
+	IndexBase(IndexBase&& in) = default;
+	IndexBase& operator=(IndexBase&& in) = default;
+	
 	IndexBase(const std::shared_ptr<RangeBase>& range, size_t pos);
 	virtual ~IndexBase() = default; 
 	
@@ -36,11 +47,13 @@ namespace MultiArrayTools
 	virtual bool first() const = 0;
 	
 	virtual operator size_t() const;
-	
+
+	virtual std::string id() const { return std::to_string( mId ); }
     protected:
 
 	std::shared_ptr<RangeBase> mRangePtr;
 	size_t mPos;
+	size_t mId;
     };
 
     template <typename MetaType>
