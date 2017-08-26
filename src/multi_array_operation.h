@@ -12,6 +12,11 @@
 namespace MultiArrayTools
 {
 
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
+    
     /*
      * OperationBase
      * MutableOperationBase
@@ -35,8 +40,13 @@ namespace MultiArrayTools
 	OperationBase() = default;
 	virtual ~OperationBase() = default;
 
+	virtual OperationBase& block(const std::shared_ptr<IndexBase>& blockIndex) = 0;
+	
 	//virtual size_t argNum() const = 0;
-	virtual const T& get() const = 0;
+	virtual const BlockBase<T>& get(const IndexBase& ind) const = 0;
+
+    protected:
+ 	mutable std::shared_ptr<BlockBase> mBlockPtr;
     };
    
     template <typename T>
@@ -45,7 +55,7 @@ namespace MultiArrayTools
     public:
 
 	MutableOperationBase() = default;
-	virtual T& get() = 0;
+	virtual BlockBase<T>& get(const IndexBase& ind) = 0;
     };
 
     template <class OperationClass>
@@ -87,8 +97,8 @@ namespace MultiArrayTools
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OperationBase<T>& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
 		
-	virtual T& get() override;
-	virtual const T& get() const override;
+	virtual BlockBase<T>& get(const IndexBase& ind) override;
+	virtual const BlockBase<T>& get(const IndexBase& ind) const override;
 
     protected:
 
@@ -113,7 +123,7 @@ namespace MultiArrayTools
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
-	virtual const T& get() const override;
+	virtual const BlockBase<T>& get(const IndexBase& ind) const override;
 	
     protected:
 	
@@ -137,8 +147,8 @@ namespace MultiArrayTools
 
 	OperationMaster<T,Ranges...> operator=(const OperationBase<T>& in);
 	
-	virtual const T& get() const override;
-	virtual T& get() override;
+	virtual const BlockBase<T>& get(const IndexBase& ind) const override;
+	virtual BlockBase<T>& get(const IndexBase& ind) override;
 	
     protected:
 	
@@ -158,11 +168,11 @@ namespace MultiArrayTools
 	
 	Operation(const Ops&... ops);
 	
-	virtual const T& get() const override;
+	virtual const BlockBase<T>& get(const IndexBase& ind) const override;
 		
     protected:
 	std::tuple<Ops...> mOps;
-	mutable T mRes;
+	mutable BlockResult<T> mRes;
     };
 
 }

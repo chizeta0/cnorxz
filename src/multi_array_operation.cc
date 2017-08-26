@@ -4,7 +4,10 @@
 
 namespace MultiArrayTools
 {
-
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
        
     /*********************************
      *   MultiArrayOperationBase     *
@@ -73,13 +76,13 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... Ranges>
-    T& OperationMaster<T,Ranges...>::get()
+    BlockBase<T>& OperationMaster<T,Ranges...>::get(const IndexBase& ind)
     {
 	return mArrayRef.data()[ mIndex->pos() ];
     }
     
     template <typename T, class... Ranges>
-    const T& OperationMaster<T,Ranges...>::get() const
+    const BlockBase<T>& OperationMaster<T,Ranges...>::get(const IndexBase& ind) const
     {
 	return mArrayRef.data()[ mIndex->pos() ];
     }
@@ -99,7 +102,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    const T& ConstOperationRoot<T,Ranges...>::get() const
+    const BlockBase<T>& ConstOperationRoot<T,Ranges...>::get(const IndexBase& ind) const
     {
 	return mArrayRef[ (*mIndex)() ];
     }
@@ -125,13 +128,13 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... Ranges>
-    const T& OperationRoot<T,Ranges...>::get() const
+    const BlockBase<T>& OperationRoot<T,Ranges...>::get(const IndexBase& ind) const
     {
 	return mArrayRef[ (*mIndex)() ];
     }
 
     template <typename T, class... Ranges>
-    T& OperationRoot<T,Ranges...>::get()
+    BlockBase<T>& OperationRoot<T,Ranges...>::get(const IndexBase& ind)
     {
 	return mArrayRef[ (*mIndex)() ];
     }
@@ -146,7 +149,7 @@ namespace MultiArrayTools
 	mOps(ops...) {}
 
     template <typename T, class OpFunction, class... Ops>
-    const T& Operation<T,OpFunction,Ops...>::get() const
+    const BlockBase<T>& Operation<T,OpFunction,Ops...>::get(const IndexBase& ind) const
     {
 	mRes = PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps);
 	return mRes;
