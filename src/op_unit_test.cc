@@ -93,6 +93,7 @@ namespace {
 	std::vector<double> v1 = { 2.917, 9.436, 0.373 };
 	std::vector<double> v2 = { 8.870, 4.790 };
 	std::vector<double> v3 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
+	std::vector<double> v4 = { 1.470, 2.210 };
     };
 
     TEST_F(OpTest_1Dim, ExecOp)
@@ -118,7 +119,7 @@ namespace {
 
 	auto i1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
 	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
-	
+
 	res(i1,i2) = ma1(i1) + ma2(i2);
 
 	EXPECT_EQ( fabs( res.at(mkt('1','A')) - (2.917 + 8.870) ) < 0.0001, true );
@@ -137,29 +138,59 @@ namespace {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
 	MultiArray<double,MRange> ma1(mr1ptr, v3);
 	MultiArray<double,SRange> ma2(sr4ptr, v2);
-
+	MultiArray<double,SRange> ma3(sr4ptr, v4);
+	
 	auto i1 = std::dynamic_pointer_cast<MRange::IndexType>( mr1ptr->index() );
 	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
 	
-	res(i1,i2) = ma1(i1) + ma2(i2);
+	res(i1,i2) = ma1(i1) + ma2(i2) + ma3(i2);
 
-	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'A')) - (0.353 + 8.870) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'B')) - (0.353 + 4.790) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('1','b'),'A')) - (4.005 + 8.870) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('1','b'),'B')) - (4.005 + 4.790) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'A')) - (0.353 + 8.870 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'B')) - (0.353 + 4.790 + 2.210) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','b'),'A')) - (4.005 + 8.870 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','b'),'B')) - (4.005 + 4.790 + 2.210) ) < 0.0001, true );
 
-	EXPECT_EQ( fabs( res.at(mkt(mkt('2','a'),'A')) - (1.070 + 8.870) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('2','a'),'B')) - (1.070 + 4.790) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('2','b'),'A')) - (2.310 + 8.870) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('2','b'),'B')) - (2.310 + 4.790) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','a'),'A')) - (1.070 + 8.870 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','a'),'B')) - (1.070 + 4.790 + 2.210) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','b'),'A')) - (2.310 + 8.870 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','b'),'B')) - (2.310 + 4.790 + 2.210) ) < 0.0001, true );
 
-	EXPECT_EQ( fabs( res.at(mkt(mkt('3','a'),'A')) - (9.243 + 8.870) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('3','a'),'B')) - (9.243 + 4.790) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'A')) - (2.911 + 8.870) ) < 0.0001, true );
-	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'B')) - (2.911 + 4.790) ) < 0.0001, true );
-
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','a'),'A')) - (9.243 + 8.870 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','a'),'B')) - (9.243 + 4.790 + 2.210) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'A')) - (2.911 + 8.870 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'B')) - (2.911 + 4.790 + 2.210) ) < 0.0001, true );
     }
 
+    TEST_F(OpTest_MDim, ExecOp3)
+    {
+	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
+	MultiArray<double,MRange> ma1(mr1ptr, v3);
+	MultiArray<double,SRange> ma2(sr2ptr, v1);
+	MultiArray<double,SRange> ma3(sr4ptr, v4);
+
+	auto si1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
+	auto si2 = std::dynamic_pointer_cast<SRange::IndexType>( sr3ptr->index() );
+	auto si3 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
+	auto mi = std::dynamic_pointer_cast<MRange::IndexType>( mr1ptr->index() );
+	mi->operator()(si1,si2);
+	
+	res(mi,si3) = ma1(mi) + ma2(si1) + ma3(si3);
+
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'A')) - (0.353 + 2.917 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'B')) - (0.353 + 2.917 + 2.210) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','b'),'A')) - (4.005 + 2.917 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('1','b'),'B')) - (4.005 + 2.917 + 2.210) ) < 0.0001, true );
+
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','a'),'A')) - (1.070 + 9.436 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','a'),'B')) - (1.070 + 9.436 + 2.210) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','b'),'A')) - (2.310 + 9.436 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('2','b'),'B')) - (2.310 + 9.436 + 2.210) ) < 0.0001, true );
+
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','a'),'A')) - (9.243 + 0.373 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','a'),'B')) - (9.243 + 0.373 + 2.210) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'A')) - (2.911 + 0.373 + 1.470) ) < 0.0001, true );
+	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'B')) - (2.911 + 0.373 + 2.210) ) < 0.0001, true );
+    }
     
 } // anonymous namspace
 

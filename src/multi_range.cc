@@ -157,6 +157,14 @@ namespace MultiArrayTools
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
+    {
+	PackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
+	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	return *this;
+    }
     
     /*************************
      *   MultiRangeFactory   *

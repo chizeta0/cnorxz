@@ -67,6 +67,12 @@ namespace MultiArrayTools
 
 	std::shared_ptr<RangeType> range() const;
 
+	// raplace instances (in contrast to its analogon in ContainerIndex
+	// MultiIndices CANNOT be influences be its subindices, so there is
+	// NO foreign/external controll)
+	// Do NOT share index instances between two or more MultiIndex instances
+	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
+	
 	virtual std::string id() const override { return std::string("mul") + std::to_string(IB::mId); }
     };
 
