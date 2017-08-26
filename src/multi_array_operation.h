@@ -56,7 +56,21 @@ namespace MultiArrayTools
 	OperationTemplate(OperationClass* oc);
 	
 	template <class Second>
-	Operation<double,std::plus<double>,OperationClass,Second> operator+(const Second& in) const;
+	auto operator+(const Second& in) const
+	    -> Operation<double,std::plus<double>,OperationClass,Second>;
+	
+	template <class Second>
+	auto operator-(const Second& in) const
+	    -> Operation<double,std::minus<double>,OperationClass,Second>;
+	
+	template <class Second>
+	auto operator*(const Second& in) const
+	    -> Operation<double,std::multiplies<double>,OperationClass,Second>;
+	
+	template <class Second>
+	auto operator/(const Second& in) const
+	    -> Operation<double,std::divides<double>,OperationClass,Second>;
+	
     private:
 	OperationClass* mOc;
     };

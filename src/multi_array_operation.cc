@@ -22,12 +22,36 @@ namespace MultiArrayTools
     
     template <class OperationClass>
     template <class Second>
-    Operation<double,std::plus<double>,OperationClass,Second>
-    OperationTemplate<OperationClass>::operator+(const Second& in) const
+    auto OperationTemplate<OperationClass>::operator+(const Second& in) const
+	-> Operation<double,std::plus<double>,OperationClass,Second>
     {
     	return Operation<double,std::plus<double>,OperationClass,Second>(*mOc, in);
     }
+
+    template <class OperationClass>
+    template <class Second>
+    auto OperationTemplate<OperationClass>::operator-(const Second& in) const
+	-> Operation<double,std::minus<double>,OperationClass,Second>
+    {
+    	return Operation<double,std::minus<double>,OperationClass,Second>(*mOc, in);
+    }
     
+    template <class OperationClass>
+    template <class Second>
+    auto OperationTemplate<OperationClass>::operator*(const Second& in) const
+	-> Operation<double,std::multiplies<double>,OperationClass,Second>
+    {
+    	return Operation<double,std::multiplies<double>,OperationClass,Second>(*mOc, in);
+    }
+
+    template <class OperationClass>
+    template <class Second>
+    auto OperationTemplate<OperationClass>::operator/(const Second& in) const
+	-> Operation<double,std::divides<double>,OperationClass,Second>
+    {
+    	return Operation<double,std::divides<double>,OperationClass,Second>(*mOc, in);
+    }
+
     /*************************
      *   OperationMaster     *
      *************************/
