@@ -26,11 +26,35 @@ namespace MultiArrayHelper
 	OpFunction f;
 	BlockResult<T> res(mSize);
 	for(size_t i = 0; i != mSize; ++i){
-	    res[i] = f(this->operator[](i), in[i]);
+	    res[i] = f((*this)[i], in[i]);
 	}
 	return res;
     }
 
+    template <typename T>
+    BlockResult<T> BlockBase<T>::operator+(const BlockBase& in)
+    {
+	return operate<std::plus<T> >(in);
+    }
+
+    template <typename T>
+    BlockResult<T> BlockBase<T>::operator-(const BlockBase& in)
+    {
+	return operate<std::minus<T> >(in);
+    }
+    
+    template <typename T>
+    BlockResult<T> BlockBase<T>::operator*(const BlockBase& in)
+    {
+	return operate<std::multiplies<T> >(in);
+    }
+    
+    template <typename T>
+    BlockResult<T> BlockBase<T>::operator/(const BlockBase& in)
+    {
+	return operate<std::divides<T> >(in);
+    }
+    
     /*************
      *   Block   *
      *************/
@@ -51,6 +75,13 @@ namespace MultiArrayHelper
     const T& Block<T>::operator[](size_t i) const
     {
 	return *(mBegPtr + i);
+    }
+
+    template <typename T>
+    Block<T>& Block<T>::set(const T* nbeg)
+    {
+	mBegPtr = nbeg;
+	return *this;
     }
     
     /******************
@@ -73,26 +104,42 @@ namespace MultiArrayHelper
     {
 	return mVal;
     }
-    
+
+    template <typename T>
+    BlockValue<T>& BlockValue<T>::set(const T* nbeg)
+    {
+	mVal = *nbeg;
+	return *this;
+    }
+
     /******************
      *   SplitBlock   *
      ******************/
 
     template <typename T>
-    SplitBlock<T>::SplitBlock(std::vector<T*>&& begPtrVec) :
-	BlockBase<T>(begPtrVec.size()),
-	mBegPtr(begPtrVec) {}
+    SplitBlock<T>::SplitBlock(const std::vector<T>& data, size_t begPos,
+			      size_t stepSize, size_t size) :
+	BlockBase<T>(size),
+	mStepSize(stepSize),
+	mBegPtr(data.data() + begPos) {}
 
     template <typename T>
     BlockType SplitBlock<T>::type() const
     {
 	return BlockType::SPLIT;
     }
+
+    template <typename T>
+    const T& SplitBlock<T>::operator[](size_t pos) const
+    {
+	return *(mBegPtr + pos*mStepSize);
+    }	
     
     template <typename T>
-    const T& SplitBlock<T>::operator[](size_t i) const
+    SplitBlock<T>& SplitBlock<T>::set(const T* nbeg)
     {
-	return *(mBegPtrVec[i]);
+	mBegPtr = nbeg;
+	return *this;
     }
     
     /*******************
@@ -122,6 +169,10 @@ namespace MultiArrayHelper
 	return mRes[i];
     }
 
-
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::set(const T* nbeg)
+    {
+	return *this;
+    }
     
 } // end namespace MultiArrayHelper

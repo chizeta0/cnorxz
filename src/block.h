@@ -16,7 +16,7 @@ namespace MultiArrayHelper
 	BLOCK = 1,
 	VALUE = 2,
 	SPLIT = 3,
-	RESULT = 4	
+	RESULT = 4,
     };
     
     // manage vectorization in the future !!
@@ -33,8 +33,15 @@ namespace MultiArrayHelper
 	virtual size_t size() const;
 	virtual const T& operator[](size_t pos) const = 0;
 
+	virtual BlockBase& set(const T* nbeg) = 0;
+	
 	template <class OpFunction>
 	BlockResult<T> operate(const BlockBase& in);
+
+	BlockResult<T> operator+(const BlockBase& in);
+	BlockResult<T> operator-(const BlockBase& in);
+	BlockResult<T> operator*(const BlockBase& in);
+	BlockResult<T> operator/(const BlockBase& in);
 	
     protected:
 	size_t mSize;
@@ -49,9 +56,10 @@ namespace MultiArrayHelper
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-
+	virtual Block& set(const T* nbeg) override;
+	
     protected:
-	T* mBegPtr;
+	const T* mBegPtr;
     };
 
     template <typename T>
@@ -63,28 +71,29 @@ namespace MultiArrayHelper
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-
-	virtual BlockBase& set(size_t begPos) override;
+	virtual BlockValue& set(const T* nbeg) override;
 	
     protected:
 	T mVal;
     };
 
+       
     template <typename T>
     class SplitBlock : public BlockBase<T>
     {
     public:
 
 	SplitBlock() = default;
-	SplitBlock(std::vector<T*>&& begPtrVec);
+	SplitBlock(const std::vector<T>& data, size_t begPos,
+		   size_t stepSize, size_t size);
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-
-	virtual BlockBase& set(size_t begPos) override;
+	virtual SplitBlock& set(const T* nbeg) override;
 	
     protected:
-	std::vector<T*> mBegPtrVec;
+	size_t mStepSize;
+	const T* mBegPtr;	
     };
 
     template <typename T>
@@ -97,8 +106,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t i);
-
-	virtual BlockBase& set(size_t begPos) override;
+	virtual BlockResult& set(const T* nbeg) override;
 	
     protected:
 	std::vector<T> mRes;

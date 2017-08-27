@@ -26,33 +26,33 @@ namespace MultiArrayTools
     template <class OperationClass>
     template <class Second>
     auto OperationTemplate<OperationClass>::operator+(const Second& in) const
-	-> Operation<double,std::plus<double>,OperationClass,Second>
+	-> Operation<value_type,std::plus<value_type>,OperationClass,Second>
     {
-    	return Operation<double,std::plus<double>,OperationClass,Second>(*mOc, in);
+    	return Operation<value_type,std::plus<value_type>,OperationClass,Second>(*mOc, in);
     }
 
     template <class OperationClass>
     template <class Second>
     auto OperationTemplate<OperationClass>::operator-(const Second& in) const
-	-> Operation<double,std::minus<double>,OperationClass,Second>
+	-> Operation<value_type,std::minus<value_type>,OperationClass,Second>
     {
-    	return Operation<double,std::minus<double>,OperationClass,Second>(*mOc, in);
+    	return Operation<value_type,std::minus<value_type>,OperationClass,Second>(*mOc, in);
     }
     
     template <class OperationClass>
     template <class Second>
     auto OperationTemplate<OperationClass>::operator*(const Second& in) const
-	-> Operation<double,std::multiplies<double>,OperationClass,Second>
+	-> Operation<value_type,std::multiplies<value_type>,OperationClass,Second>
     {
-    	return Operation<double,std::multiplies<double>,OperationClass,Second>(*mOc, in);
+    	return Operation<value_type,std::multiplies<value_type>,OperationClass,Second>(*mOc, in);
     }
 
     template <class OperationClass>
     template <class Second>
     auto OperationTemplate<OperationClass>::operator/(const Second& in) const
-	-> Operation<double,std::divides<double>,OperationClass,Second>
+	-> Operation<double,std::divides<value_type>,OperationClass,Second>
     {
-    	return Operation<double,std::divides<double>,OperationClass,Second>(*mOc, in);
+    	return Operation<value_type,std::divides<value_type>,OperationClass,Second>(*mOc, in);
     }
 
     /*************************
@@ -76,13 +76,13 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... Ranges>
-    BlockBase<T>& OperationMaster<T,Ranges...>::get(const IndexBase& ind)
+    BlockBase<T>& OperationMaster<T,Ranges...>::get()
     {
 	return mArrayRef.data()[ mIndex->pos() ];
     }
     
     template <typename T, class... Ranges>
-    const BlockBase<T>& OperationMaster<T,Ranges...>::get(const IndexBase& ind) const
+    const BlockBase<T>& OperationMaster<T,Ranges...>::get() const
     {
 	return mArrayRef.data()[ mIndex->pos() ];
     }
@@ -102,7 +102,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    const BlockBase<T>& ConstOperationRoot<T,Ranges...>::get(const IndexBase& ind) const
+    const BlockBase<T>& ConstOperationRoot<T,Ranges...>::get() const
     {
 	return mArrayRef[ (*mIndex)() ];
     }
@@ -128,13 +128,13 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... Ranges>
-    const BlockBase<T>& OperationRoot<T,Ranges...>::get(const IndexBase& ind) const
+    const BlockBase<T>& OperationRoot<T,Ranges...>::get() const
     {
 	return mArrayRef[ (*mIndex)() ];
     }
 
     template <typename T, class... Ranges>
-    BlockBase<T>& OperationRoot<T,Ranges...>::get(const IndexBase& ind)
+    BlockBase<T>& OperationRoot<T,Ranges...>::get()
     {
 	return mArrayRef[ (*mIndex)() ];
     }
@@ -149,7 +149,7 @@ namespace MultiArrayTools
 	mOps(ops...) {}
 
     template <typename T, class OpFunction, class... Ops>
-    const BlockBase<T>& Operation<T,OpFunction,Ops...>::get(const IndexBase& ind) const
+    const BlockBase<T>& Operation<T,OpFunction,Ops...>::get() const
     {
 	mRes = PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps);
 	return mRes;
