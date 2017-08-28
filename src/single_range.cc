@@ -12,6 +12,12 @@ namespace MultiArrayTools
 	IndexInterface<U>(range, 0) {}
 
     template <typename U, RangeType TYPE>
+    IndexType SingleIndex<U,TYPE>::type() const
+    {
+	return IndexType::SINGLE;
+    }
+	
+    template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(size_t pos)
     {
 	IB::mPos = pos;
@@ -63,6 +69,12 @@ namespace MultiArrayTools
 	return IB::mPos == 0;
     }
 
+    template <typename U, RangeType TYPE>
+    std::shared_ptr<const IndexBase> SingleIndex<U,TYPE>::getPtr(size_t n) const
+    {
+	return std::shared_ptr<const IndexBase>();
+    }
+    
     /********************
      *   SingleRange    *
      ********************/

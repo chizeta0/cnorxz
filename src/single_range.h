@@ -26,6 +26,8 @@ namespace MultiArrayTools
 	//DEFAULT_MEMBERS_X(SingleIndex);
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
+
+	virtual IndexType type() const override;
 	
 	virtual SingleIndex& operator=(size_t pos) override;
 	virtual SingleIndex& operator++() override;
@@ -38,6 +40,8 @@ namespace MultiArrayTools
 	virtual bool last() const override;
 	virtual bool first() const override;
 
+	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const override;
+	
 	virtual std::string id() const override { return std::string("sin") + std::to_string(IB::mId); }
     };
 

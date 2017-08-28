@@ -8,7 +8,43 @@ namespace MultiArrayTools
     {
 	using namespace MultiArrayHelper;
     }
-       
+
+    void seekIndexInst(std::shared_ptr<const IndexBase> i, std::vector<std::shared_ptr<const IndexBase> >& ivec)
+    {
+	for(size_t inum = 0; inum != i->range()->dim(); ++inum){
+	    auto ii = i->getPtr(inum);
+	    if(ii->type() == IndexType::MULTI){
+		seekIndexInst(ii, ivec);
+	    }
+	    ivec.push_back(ii);
+	}
+    }
+    
+    BlockType getBlockType(std::shared_ptr<const IndexBase> i,
+			   std::shared_ptr<const IndexBase> j, bool first)
+    {
+	BlockType out = BlockType::VALUE;
+	for(size_t inum = 0; inum != i->range()->dim(); ++inum){
+	    if(ii == j){
+		if(inum == 0){
+		    out = BlockType::BLOCK;
+		}
+		else {
+		    out = BlockType::SPLIT;
+		}
+		continue;
+	    }
+	    
+	    if(ii->type() == IndexType::MULTI){		
+		BlockType tmp = getBlockType(ii, j, ivec);
+		if(tmp != BlockType::VALUE){
+		    out = tmp;
+		}
+	    }
+	}
+	return out;
+    }
+    
     /*********************************
      *   MultiArrayOperationBase     *
      *********************************/
@@ -86,6 +122,20 @@ namespace MultiArrayTools
     {
 	return mArrayRef.data()[ mIndex->pos() ];
     }
+
+    template <typename T, class... Ranges>
+    std::vector<BlockType> OperationMaster<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    {
+	// seek index with smallest number of SPLITs !!!
+	
+    }
+
+    template <typename T, class... Ranges>
+    OperationMaster<T,Ranges...>& OperationMaster<T,Ranges...>::block() const
+    {
+	mBlockPtr->set( &mArrayRef[ (*mIndex) ] );
+	return *this;
+    }
     
     /****************************
      *   ConstOperationRoot     *
@@ -104,7 +154,21 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const BlockBase<T>& ConstOperationRoot<T,Ranges...>::get() const
     {
-	return mArrayRef[ (*mIndex)() ];
+	block();
+	return *mBlockPtr;
+    }
+
+    template <typename T, class... Ranges>
+    std::vector<BlockType> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    {
+	// !!!
+    }
+
+    template <typename T, class... Ranges>
+    ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::block() const
+    {
+	mBlockPtr->set( &mArrayRef[ (*mIndex)() ] );
+	return *this;
     }
     
     /***********************
@@ -130,15 +194,30 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const BlockBase<T>& OperationRoot<T,Ranges...>::get() const
     {
-	return mArrayRef[ (*mIndex)() ];
+	block();
+	return *mBlockPtr;
     }
 
     template <typename T, class... Ranges>
     BlockBase<T>& OperationRoot<T,Ranges...>::get()
     {
-	return mArrayRef[ (*mIndex)() ];
+	block();
+	return *mBlockPtr; // issue: const !!!
     }
 
+    template <typename T, class... Ranges>
+    std::vector<BlockType> OperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    {
+	// !!!
+    }
+
+    template <typename T, class... Ranges>
+    OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::block() const
+    {
+	mBlockPtr->set( &mArrayRef[ (*mIndex)() ] );
+	return *this;
+    }
+    
     /***********************
      *   OperationRoot     *
      ***********************/
@@ -154,4 +233,18 @@ namespace MultiArrayTools
 	mRes = PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps);
 	return mRes;
     }
+
+    template <typename T, class... Ranges>
+    std::vector<BlockType> Operation<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    {
+	// !!!
+    }
+
+    template <typename T, class... Ranges>
+    Operation<T,Ranges...>& Operation<T,Ranges...>::block() const
+    {
+	mBlockPtr->set( &mArrayRef[ (*mIndex)() ] );
+	return *this;
+    }
+
 }

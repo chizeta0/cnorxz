@@ -29,6 +29,11 @@ namespace MultiArrayTools
      *                 OperationTemplate<...>
      * 
      */
+
+    void seekIndexInst(std::shared_ptr<const IndexBase> i, std::vector<std::shared_ptr<const IndexBase> >& ivec);
+
+    BlockType getBlockType(std::shared_ptr<const IndexBase> i,
+			   std::shared_ptr<const IndexBase> j, bool first);
     
     template <typename T>
     class OperationBase
@@ -40,7 +45,9 @@ namespace MultiArrayTools
 	OperationBase() = default;
 	virtual ~OperationBase() = default;
 
-	virtual OperationBase& block(const std::shared_ptr<IndexBase>& blockIndex) = 0;
+	 // init block, return resulting type (BLOCK, VALUE, SPLIT)
+	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const = 0;
+	virtual OperationBase& block() const = 0; // update block
 	
 	//virtual size_t argNum() const = 0;
 	virtual const BlockBase<T>& get() const = 0;
@@ -104,6 +111,9 @@ namespace MultiArrayTools
 	virtual BlockBase<T>& get() override;
 	virtual const BlockBase<T>& get() const override;
 
+	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual OperationMaster& block() const override;
+	
     protected:
 
 	//void performAssignment(const OperationBase<T>& in);
@@ -129,6 +139,9 @@ namespace MultiArrayTools
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
 	virtual const BlockBase<T>& get() const override;
+
+	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual ConstOperationRoot& block() const override;
 	
     protected:
 	
@@ -155,6 +168,9 @@ namespace MultiArrayTools
 	
 	virtual const BlockBase<T>& get() const override;
 	virtual BlockBase<T>& get() override;
+
+	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual OperationRoot& block() const override;
 	
     protected:
 	
@@ -176,7 +192,10 @@ namespace MultiArrayTools
 	Operation(const Ops&... ops);
 	
 	virtual const BlockBase<T>& get() const override;
-		
+
+	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual Operation& block() const override;
+	
     protected:
 	std::tuple<Ops...> mOps;
 	mutable BlockResult<T> mRes;

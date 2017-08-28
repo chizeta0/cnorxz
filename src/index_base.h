@@ -19,6 +19,12 @@ namespace MultiArrayTools
 	++id;
 	return id;
     }
+
+    enum class IndexType{
+	SINGLE = 0,
+	MULTI = 1,
+	CONT = 2	
+    };    
     
     class IndexBase
     {
@@ -31,6 +37,8 @@ namespace MultiArrayTools
 	
 	IndexBase(const std::shared_ptr<RangeBase>& range, size_t pos);
 	virtual ~IndexBase() = default; 
+
+	virtual IndexType type() const = 0;
 	
 	virtual IndexBase& operator=(size_t pos) = 0;
 	virtual IndexBase& operator++() = 0;
@@ -45,6 +53,8 @@ namespace MultiArrayTools
 
 	virtual bool last() const = 0;
 	virtual bool first() const = 0;
+
+	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const = 0;
 	
 	virtual operator size_t() const;
 

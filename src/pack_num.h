@@ -21,7 +21,7 @@ namespace MultiArrayHelper
 	static IndexBase& getIndex(IndexType& in, size_t n)
 	{
 	    if(n == N){
-		return in.getIndex<N>();
+		return in.template get<N>();
 	    }
 	    else {
 		return PackNum<N-1>::getIndex(in, n);
@@ -32,10 +32,21 @@ namespace MultiArrayHelper
 	static const IndexBase& getIndex(const IndexType& in, size_t n)
 	{
 	    if(n == N){
-		return in.getIndex<N>();
+		return in.template get<N>();
 	    }
 	    else {
 		return PackNum<N-1>::getIndex(in, n);
+	    }
+	}
+
+	template <class IndexType>
+	static std::shared_ptr<const IndexBase> getIndexPtr(const IndexType& in, size_t n)
+	{
+	    if(n == N){
+		return in.template getPtr<N>();
+	    }
+	    else {
+		return PackNum<N-1>::getIndexPtr(in, n);
 	    }
 	}
 	
@@ -163,13 +174,19 @@ namespace MultiArrayHelper
 	template <class MultiIndex>
 	static IndexBase& getIndex(MultiIndex& in, size_t n)
 	{
-	    return in.getIndex<0>();
+	    return in.template get<0>();
 	}
 	
 	template <class MultiIndex>
 	static const IndexBase& getIndex(const MultiIndex& in, size_t n)
 	{
-	    return in.getIndex<0>();
+	    return in.template get<0>();
+	}
+
+	template <class IndexType>
+	static std::shared_ptr<const IndexBase> getIndexPtr(const IndexType& in, size_t n)
+	{
+	    return in.template getPtr<0>();
 	}
 	
 	template <class... Indices>

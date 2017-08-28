@@ -38,6 +38,8 @@ namespace MultiArrayTools
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range);
 
+	virtual IndexType type() const override;
+	
 	virtual ContainerIndex& operator++() override;
 	virtual ContainerIndex& operator--() override;
 	virtual ContainerIndex& operator=(size_t pos) override;
@@ -57,6 +59,8 @@ namespace MultiArrayTools
 	
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
+
+	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const override;
 	
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
 

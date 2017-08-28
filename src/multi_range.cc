@@ -48,6 +48,12 @@ namespace MultiArrayTools
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
     }
+
+    template <class... Indices>
+    IndexType MultiIndex<Indices...>::type() const
+    {
+	return IndexType::MULTI;
+    }
     
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
@@ -122,6 +128,17 @@ namespace MultiArrayTools
 	}
 	MultiIndex<Indices...> const* t = this;
 	return PackNum<sizeof...(Indices)-1>::getIndex(*t, n);
+    }
+
+    template <class... Indices>
+    std::shared_ptr<const IndexBase> MultiIndex<Indices...>::getPtr(size_t n) const
+    {
+	if(n >= sizeof...(Indices)){
+	    assert(0);
+	    // throw !!
+	}
+	MultiIndex<Indices...> const* t = this;
+	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
     }
 
     template <class... Indices>

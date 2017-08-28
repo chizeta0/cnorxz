@@ -42,6 +42,12 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    IndexType ContainerIndex<Indices...>::type() const
+    {
+	return IndexType::CONT;
+    }
+    
+    template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator++()
     {
 	if(mExternControl){
@@ -115,6 +121,17 @@ namespace MultiArrayTools
     auto ContainerIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>( mIPack );
+    }
+
+    template <class... Indices>
+    std::shared_ptr<const IndexBase> ContainerIndex<Indices...>::getPtr(size_t n) const
+    {
+	if(n >= sizeof...(Indices)){
+	    assert(0);
+	    // throw !!
+	}
+	ContainerIndex<Indices...> const* t = this;
+	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
     }
     
     template <class... Indices>
