@@ -106,6 +106,8 @@ namespace MultiArrayTools
 	    std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
 	mIndex = std::make_shared<IndexType>( mr->begin() );
 	(*mIndex) = *index;
+	// -> find optimal block index !!!
+	// -> lock this index !!!
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); ++(*mIndex)){
 	    get() = mSecond.get();
 	}
@@ -114,13 +116,15 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     BlockBase<T>& OperationMaster<T,Ranges...>::get()
     {
-	return mArrayRef.data()[ mIndex->pos() ];
+	block();
+	return *mBlockPtr;
     }
     
     template <typename T, class... Ranges>
     const BlockBase<T>& OperationMaster<T,Ranges...>::get() const
     {
-	return mArrayRef.data()[ mIndex->pos() ];
+	block();
+	return *mBlockPtr;
     }
 
     template <typename T, class... Ranges>

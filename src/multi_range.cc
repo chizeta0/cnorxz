@@ -47,6 +47,7 @@ namespace MultiArrayTools
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	PackNum<sizeof...(Indices)>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
     }
 
     template <class... Indices>
@@ -58,16 +59,15 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	PackNum<sizeof...(Indices)-1>::pp( mIPack );
-	++IB::mPos;
+	// return step size -> add to IB::mPos
+	IB::mPos += PackNum<sizeof...(Indices)-1>::pp( mIPack, mBlockSizes );
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	PackNum<sizeof...(Indices)-1>::mm( mIPack );
-	--IB::mPos;
+	IB::mPos -= PackNum<sizeof...(Indices)-1>::mm( mIPack, mBlockSizes );
 	return *this;
     }
     
@@ -175,6 +175,14 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
 
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::lock(std::shared_ptr<const IndexBase>& idx)
+    {
+	IB::mLocked = (idx.get() == this);
+	PackNum<sizeof...(Indices)-1>::lock(mIPack, idx);
+	return *this;
+    }
+    
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {

@@ -49,30 +49,65 @@ namespace MultiArrayHelper
 		return PackNum<N-1>::getIndexPtr(in, n);
 	    }
 	}
+
+	template <class... Indices>
+	static void lock(std::tuple<std::shared_ptr<Indices>...>& ip,
+			 std::shared_ptr<const IndexBase>& toLock)
+	{
+	    std::get<N>(ip)->lock(toLock);
+	    PackNum<N-1>::lock(ip, toLock);
+	}
 	
 	template <class... Indices>
-	static inline void pp(std::tuple<std::shared_ptr<Indices>...>& ip)
+	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
+				   std::tuple<std::shared_ptr<Indices>...>& ip)
+	{
+	    if(N == sizeof...(Indices)){
+		std::get<N>(bs) = 1;
+	    }
+	    else {
+		std::get<N>(bs) = PackNum<sizeof...(Indices)-N-1>::blockSize(ip);
+		PackNum<N-1>::initBlockSizes(bs, ip);
+	    }
+	}
+	
+	template <class... Indices>
+	static inline size_t pp(std::tuple<std::shared_ptr<Indices>...>& ip,
+				std::array<size_t,sizeof...(Indices)>& bs)
 	{
 	    auto& si = *std::get<N>(ip);
-	    if(si.last()){
+	    if(si.last() or si.locked()){
 		si = 0;
 		PackNum<N-1>::pp(ip);
 	    }
 	    else {
 		++si;
 	    }
+	    if(si.locked()){
+		return std::get<N-1>(bs) - std::get<N>(bs) + 1;
+	    }
+	    else {
+		return 1;
+	    }
 	}
 	
 	template <class... Indices>
-	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip)
+	static inline size_t mm(std::tuple<std::shared_ptr<Indices>...>& ip,
+				std::array<size_t,sizeof...(Indices)>& bs)
 	{
 	    auto& si = *std::get<N>(ip);
-	    if(si.first()){
+	    if(si.first() or si.locked()){
 		si = si.max();
 		PackNum<N-1>::mm(ip);
 	    }
 	    else {
 		--si;
+	    }
+	    if(si.locked()){
+		return std::get<N-1>(bs) - std::get<N>(bs) + 1;
+	    }
+	    else {
+		return 1;
 	    }
 	}
 	
@@ -188,19 +223,50 @@ namespace MultiArrayHelper
 	{
 	    return in.template getPtr<0>();
 	}
-	
+
 	template <class... Indices>
-	static inline void pp(std::tuple<std::shared_ptr<Indices>...>& ip)
+	static void lock(std::tuple<std::shared_ptr<Indices>...>& ip,
+			 std::shared_ptr<const IndexBase>& toLock)
 	{
-	    auto& si = *std::get<0>(ip);
-	    ++si;
+	    std::get<0>(ip)->lock(toLock);
 	}
 	
 	template <class... Indices>
-	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip)
+	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
+				   std::tuple<std::shared_ptr<Indices>...>& ip)
+	{
+	    std::get<0>(bs) = PackNum<sizeof...(Indices)-1>::blockSize(ip);
+	}
+	
+	template <class... Indices>
+	static inline size_t pp(std::tuple<std::shared_ptr<Indices>...>& ip,
+			      std::array<size_t,sizeof...(Indices)+1>& bs)
 	{
 	    auto& si = *std::get<0>(ip);
-	    --si;
+	    if(si.locked()){
+		si = si.max()+1;
+		return std::get<0>(bs) - std::get<1>(bs) + 1;
+	    }
+	    else {		
+		++si;
+		return 1;
+	    }
+	}
+	
+	template <class... Indices>
+	static inline size_t mm(std::tuple<std::shared_ptr<Indices>...>& ip,
+			      std::array<size_t,sizeof...(Indices)>& bs)
+	{
+	    auto& si = *std::get<0>(ip);
+	    if(si.locked()){
+		si = 0;
+		--si;
+		return std::get<0>(bs) - std::get<1>(bs) + 1;
+	    }
+	    else {		
+		--si;
+		return 1;
+	    }
 	}
 	
 	template <class RangeTuple>

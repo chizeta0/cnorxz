@@ -27,7 +27,8 @@ namespace MultiArrayTools
 	
     protected:
 	IndexPack mIPack;
-
+	std::array<size_t,sizeof...(Indices)+1> mBlockSizes;
+	
     public:
 	MultiIndex() = delete;
 	// NO DEFAULT HERE !!!
@@ -70,6 +71,8 @@ namespace MultiArrayTools
 
 	std::shared_ptr<RangeType> range() const;
 
+	virtual MultiIndex& lock(std::shared_ptr<const IndexBase>& idx) override;
+	
 	// raplace instances (in contrast to its analogon in ContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)

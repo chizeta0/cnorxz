@@ -34,6 +34,7 @@ namespace MultiArrayTools
 
     BlockType getBlockType(std::shared_ptr<const IndexBase> i,
 			   std::shared_ptr<const IndexBase> j, bool first);
+
     
     template <typename T>
     class OperationBase
@@ -120,6 +121,7 @@ namespace MultiArrayTools
 	OperationBase<T> const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
+
     };
 
     

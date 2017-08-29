@@ -34,6 +34,18 @@ namespace MultiArrayTools
 	return mRangePtr->size();
     }
 
+    bool IndexBase::locked() const
+    {
+	return mLocked;
+    }
+    
+    IndexBase& IndexBase::lock(std::shared_ptr<const IndexBase>& idx)
+    {
+	mLocked = (idx.get() == this);
+	return *this;
+    }
+
+    
     IndexBase::operator size_t() const
     {
 	return pos();
