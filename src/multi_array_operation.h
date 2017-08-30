@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <tuple>
 #include <cmath>
+#include <map>
+#include <utility>
 
 #include "base_def.h"
 
@@ -32,9 +34,73 @@ namespace MultiArrayTools
 
     void seekIndexInst(std::shared_ptr<const IndexBase> i, std::vector<std::shared_ptr<const IndexBase> >& ivec);
 
-    BlockType getBlockType(std::shared_ptr<const IndexBase> i,
-			   std::shared_ptr<const IndexBase> j, bool first);
+    
+    // <block type, step size within actual instance>
+    typedef std::pair<BlockType,size_t> BTSS;
+    
+    BTSS getBlockType(std::shared_ptr<const IndexBase> i,
+		      std::shared_ptr<const IndexBase> j, bool first);
 
+    template <typename T>
+    std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize);
+
+    template <typename T>
+    std::shared_ptr<MutableBlockBase<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize);
+
+    size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt)
+    {
+	size_t out = 0;
+	for(auto& xx: mp){
+	    if(xx.first == bt){
+		++out;
+	    }
+	}
+	return out;
+    }
+
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<const IndexBase>, std::vector<BTSS> > mp,
+				  BlockType bt)
+    {
+	size_t minNum = getBTNum( *mp.begin(), bt );
+	for(auto& mm: mp){
+	    size_t tmp = getBTNum( mm.second, bt );
+	    if(tmp < minNum){
+		minNum = tmp;
+	    }
+	}
+
+	for(auto mit = mp.begin(); mit != mp.end(); ){
+	    size_t tmp = getBTNum( mit->second, bt );
+	    if(tmp > minNum){
+		mit = mp.erase(mit);
+	    }
+	    else {
+		++mit;
+	    }
+	}
+
+    }
+    
+    template <typename T>
+    std::shared_ptr<const IndexBase> seekBlockIndex(std::shared_ptr<const IndexBase>& ownIdx,
+						    const OperationBase<T>& second)
+    {
+	std::vector<std::shared_ptr<const IndexBase> > ivec;
+	seekIndexInst(ownIdx, ivec);
+	std::map<std::shared_ptr<const IndexBase>, std::vector<BTSS> > mp;
+	
+	for(auto& xx: ivec){
+	    mp[xx] = second.block(xx);
+	}
+
+	// seek minimal number of VALUEs => guarantees absence of conflicting blocks
+	minimizeAppearanceOfType(mp, BlockType::VALUE);
+
+	// seek mininmal number of SPLITs => maximal vectorization possible
+	minimizeAppearanceOfType(mp, BlockType::SPLIT);
+	
+	return *mp.begin();
+    }
     
     template <typename T>
     class OperationBase
@@ -52,9 +118,6 @@ namespace MultiArrayTools
 	
 	//virtual size_t argNum() const = 0;
 	virtual const BlockBase<T>& get() const = 0;
-
-    protected:
- 	mutable std::shared_ptr<BlockBase> mBlockPtr;
     };
    
     template <typename T>
@@ -109,7 +172,7 @@ namespace MultiArrayTools
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OperationBase<T>& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
 		
-	virtual BlockBase<T>& get() override;
+	virtual MutableBlockBase<T>& get() override;
 	virtual const BlockBase<T>& get() const override;
 
 	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
@@ -121,7 +184,7 @@ namespace MultiArrayTools
 	OperationBase<T> const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-
+	mutable std::shared_ptr<MutableBlockBase> mBlockPtr;
     };
 
     
@@ -149,6 +212,7 @@ namespace MultiArrayTools
 	
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
+ 	mutable std::shared_ptr<BlockBase> mBlockPtr;
     };
 
     template <typename T, class... Ranges>
@@ -169,7 +233,7 @@ namespace MultiArrayTools
 	OperationMaster<T,Ranges...> operator=(const OperationBase<T>& in);
 	
 	virtual const BlockBase<T>& get() const override;
-	virtual BlockBase<T>& get() override;
+	virtual MutableBlockBase<T>& get() override;
 
 	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
 	virtual OperationRoot& block() const override;
@@ -178,6 +242,7 @@ namespace MultiArrayTools
 	
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
+	mutable std::shared_ptr<MutableBlockBase> mBlockPtr;
     };
 
     template <typename T, class OpFunction, class... Ops>

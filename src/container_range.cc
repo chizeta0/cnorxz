@@ -79,6 +79,22 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    size_t ContainerIndex<Indices...>::pp(std::shared_ptr<const IndexBase>& idxPtr)
+    {
+	size_t tmp = pp(mIPack, mBlockSizes, idxPtr);
+	IB::mPos += tmp;
+	return tmp;
+    }
+
+    template <class... Indices>
+    size_t ContainerIndex<Indices...>::mm(std::shared_ptr<const IndexBase>& idxPtr)
+    {
+	size_t tmp = mm(mIPack, mBlockSizes, idxPtr);
+	IB::mPos -= tmp;
+	return tmp;
+    }
+    
+    template <class... Indices>
     typename ContainerIndex<Indices...>::MetaType ContainerIndex<Indices...>::meta() const
     {
 	MetaType metaTuple;

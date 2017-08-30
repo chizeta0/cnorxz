@@ -39,6 +39,20 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::pp(std::shared_ptr<const IndexBase>& idxPtr)
+    {
+	++(*this);
+	return 1;
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::mm(std::shared_ptr<const IndexBase>& idxPtr)
+    {
+	--(*this);
+	return 1;
+    }
+    
+    template <typename U, RangeType TYPE>
     U SingleIndex<U,TYPE>::meta() const
     {
 	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->get( IB::pos() );

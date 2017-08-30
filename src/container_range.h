@@ -44,6 +44,9 @@ namespace MultiArrayTools
 	virtual ContainerIndex& operator--() override;
 	virtual ContainerIndex& operator=(size_t pos) override;
 
+	virtual size_t pp(std::shared_ptr<const IndexBase>& idxPtr) override;
+	virtual size_t mm(std::shared_ptr<const IndexBase>& idxPtr) override;
+	
 	virtual MetaType meta() const override;
 	virtual ContainerIndex& at(const MetaType& metaPos) override;
 

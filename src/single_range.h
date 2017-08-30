@@ -33,6 +33,9 @@ namespace MultiArrayTools
 	virtual SingleIndex& operator++() override;
 	virtual SingleIndex& operator--() override;
 
+	virtual size_t pp(std::shared_ptr<const IndexBase>& idxPtr) override;
+	virtual size_t mm(std::shared_ptr<const IndexBase>& idxPtr) override;
+	
 	virtual U meta() const override;
 	virtual SingleIndex& at(const U& metaPos) override;
 	

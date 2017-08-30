@@ -43,6 +43,9 @@ namespace MultiArrayTools
 	virtual IndexBase& operator=(size_t pos) = 0;
 	virtual IndexBase& operator++() = 0;
 	virtual IndexBase& operator--() = 0;
+
+	virtual size_t pp(std::shared_ptr<const IndexBase>& idxPtr) = 0;
+	virtual size_t mm(std::shared_ptr<const IndexBase>& idxPtr) = 0;
 	
 	bool operator==(const IndexBase& in) const;
 	bool operator!=(const IndexBase& in) const;
@@ -53,9 +56,9 @@ namespace MultiArrayTools
 
 	virtual bool last() const = 0;
 	virtual bool first() const = 0;
-
-	virtual bool locked() const;
-	virtual IndexBase& lock(std::shared_ptr<const IndexBase>& idx);
+	
+	//virtual bool locked() const;
+	//virtual IndexBase& lock(std::shared_ptr<const IndexBase>& idx);
 	
 	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const = 0;
 	
@@ -67,7 +70,7 @@ namespace MultiArrayTools
 	std::shared_ptr<RangeBase> mRangePtr;
 	size_t mPos;
 	size_t mId;
-	bool mLocked = false;
+	//bool mLocked = false;
     };
 
     template <typename MetaType>

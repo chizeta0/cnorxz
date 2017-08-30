@@ -105,7 +105,7 @@ namespace MultiArrayTools
     // container_range.h
     template <class... Indices>
     class ContainerIndex;
-    
+
     // multi_array.h
     template <typename T, class... SRanges>
     class MultiArrayBase;
@@ -118,6 +118,42 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     class MultiArray;
 
+    // block.h
+    template <typename T>
+    class BlockBase;
+
+    // block.h
+    template <typename T>
+    class MutableBlockBase;
+
+    // block.h
+    template <typename T>
+    class Block;
+
+    // block.h
+    template <typename T>
+    class MBlock;
+
+    // block.h
+    template <typename T>
+    class BlockValue;
+
+    // block.h
+    template <typename T>
+    class MBlockValue;
+
+    // block.h
+    template <typename T>
+    class SplitBlock;
+
+    // block.h
+    template <typename T>
+    class MSplitBlock;
+
+    // block.h
+    template <typename T>
+    class BlockResult;
+    
     // multi_array_operation.h
     template <typename T>
     class OperationBase;

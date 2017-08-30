@@ -48,6 +48,18 @@ namespace MultiArrayHelper
     };
 
     template <typename T>
+    class MutableBlockBase : public BlockBase<T>
+    {
+    public:
+
+	MutableBlockBase() = default;
+	MutableBlockBase(size_t size);
+	
+	virtual T& operator[](size_t pos) override;
+	
+    };
+    
+    template <typename T>
     class Block : public BlockBase<T>
     {
     public:
@@ -63,6 +75,22 @@ namespace MultiArrayHelper
     };
 
     template <typename T>
+    class MBlock : public MutableBlockBase<T>
+    {
+    public:
+	MBlock() = default;
+	MBlock(std::vector<T>& data, size_t begPos, size_t size);
+
+	virtual BlockType type() const override;
+	virtual const T& operator[](size_t pos) const override;
+	virtual T& operator[](size_t pos) override;
+	virtual Block& set(const T* nbeg) override;
+	
+    protected:
+	T* mBegPtr;
+    };    
+    
+    template <typename T>
     class BlockValue : public BlockBase<T>
     {
     public:
@@ -77,7 +105,22 @@ namespace MultiArrayHelper
 	T mVal;
     };
 
-       
+    template <typename T>
+    class MBlockValue : public MutableBlockBase<T>
+    {
+    public:
+	MBlockValue() = default;
+	MBlockValue(T& val, size_t size);
+
+	virtual BlockType type() const override;
+	virtual const T& operator[](size_t pos) const override;
+	virtual T& operator[](size_t pos) override;
+	virtual BlockValue& set(const T* nbeg) override;
+	
+    protected:
+	T& mVal;
+    };
+    
     template <typename T>
     class SplitBlock : public BlockBase<T>
     {
@@ -97,7 +140,27 @@ namespace MultiArrayHelper
     };
 
     template <typename T>
-    class BlockResult : public BlockBase<T>
+    class MSplitBlock : public MutableBlockBase<T>
+    {
+    public:
+
+	MSplitBlock() = default;
+	MSplitBlock(std::vector<T>& data, size_t begPos,
+		    size_t stepSize, size_t size);
+
+	virtual BlockType type() const override;
+	virtual const T& operator[](size_t pos) const override;
+	virtual T& operator[](size_t pos) override;
+	virtual SplitBlock& set(const T* nbeg) override;
+	
+    protected:
+	size_t mStepSize;
+	T* mBegPtr;	
+    };
+
+    
+    template <typename T>
+    class BlockResult : public MutableBlockBase<T>
     {
     public:
 	BlockResult() = default;
@@ -105,7 +168,7 @@ namespace MultiArrayHelper
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-	virtual T& operator[](size_t i);
+	virtual T& operator[](size_t i) override;
 	virtual BlockResult& set(const T* nbeg) override;
 	
     protected:

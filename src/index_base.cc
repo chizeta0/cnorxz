@@ -33,7 +33,7 @@ namespace MultiArrayTools
     {
 	return mRangePtr->size();
     }
-
+    /*
     bool IndexBase::locked() const
     {
 	return mLocked;
@@ -44,7 +44,7 @@ namespace MultiArrayTools
 	mLocked = (idx.get() == this);
 	return *this;
     }
-
+    */
     
     IndexBase::operator size_t() const
     {

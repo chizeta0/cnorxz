@@ -59,15 +59,16 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	// return step size -> add to IB::mPos
-	IB::mPos += PackNum<sizeof...(Indices)-1>::pp( mIPack, mBlockSizes );
+	PackNum<sizeof...(Indices)-1>::pp( mIPack );
+	++IB::mPos;
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	IB::mPos -= PackNum<sizeof...(Indices)-1>::mm( mIPack, mBlockSizes );
+	PackNum<sizeof...(Indices)-1>::mm( mIPack );
+	--IB::mPos;
 	return *this;
     }
     
@@ -80,12 +81,28 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    size_t MultiIndex<Indices...>::pp(std::shared_ptr<const IndexBase>& idxPtr)
+    {
+	size_t tmp = pp(mIPack, mBlockSizes, idxPtr);
+	IB::mPos += tmp;
+	return tmp;
+    }
+
+    template <class... Indices>
+    size_t MultiIndex<Indices...>::mm(std::shared_ptr<const IndexBase>& idxPtr)
+    {
+	size_t tmp = mm(mIPack, mBlockSizes, idxPtr);
+	IB::mPos -= tmp;
+	return tmp;
+    }
+
+    template <class... Indices>
     template <size_t DIR>
     MultiIndex<Indices...>& MultiIndex<Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
 	IB::mPos += PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	PackNum<DIR>::pp( mIPack );
+	PackNum<DIR+1>::pp( mIPack );
 	return *this;
     }
 
@@ -95,7 +112,7 @@ namespace MultiArrayTools
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
 	IB::mPos -= PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	PackNum<DIR>::mm( mIPack );
+	PackNum<DIR+1>::mm( mIPack );
 	return *this;
     }
     
@@ -141,6 +158,15 @@ namespace MultiArrayTools
 	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
     }
 
+    size_t getStepSize(size_t n) const
+    {
+	if(n >= sizeof...(Indices)){
+	    assert(0);
+	    // throw !!
+	}
+	return mBlockSizes[n+1];
+    }
+    
     template <class... Indices>
     typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::meta() const
     {
@@ -174,14 +200,14 @@ namespace MultiArrayTools
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
-
+    /*
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::lock(std::shared_ptr<const IndexBase>& idx)
     {
 	IB::mLocked = (idx.get() == this);
 	PackNum<sizeof...(Indices)-1>::lock(mIPack, idx);
 	return *this;
-    }
+	}*/
     
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
