@@ -79,17 +79,17 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    size_t ContainerIndex<Indices...>::pp(std::shared_ptr<const IndexBase>& idxPtr)
+    size_t ContainerIndex<Indices...>::pp(std::shared_ptr<IndexBase>& idxPtr)
     {
-	size_t tmp = pp(mIPack, mBlockSizes, idxPtr);
+	size_t tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtr);
 	IB::mPos += tmp;
 	return tmp;
     }
 
     template <class... Indices>
-    size_t ContainerIndex<Indices...>::mm(std::shared_ptr<const IndexBase>& idxPtr)
+    size_t ContainerIndex<Indices...>::mm(std::shared_ptr<IndexBase>& idxPtr)
     {
-	size_t tmp = mm(mIPack, mBlockSizes, idxPtr);
+	size_t tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtr);
 	IB::mPos -= tmp;
 	return tmp;
     }
@@ -140,7 +140,7 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    std::shared_ptr<const IndexBase> ContainerIndex<Indices...>::getPtr(size_t n) const
+    std::shared_ptr<IndexBase> ContainerIndex<Indices...>::getPtr(size_t n) const
     {
 	if(n >= sizeof...(Indices)){
 	    assert(0);
@@ -149,7 +149,18 @@ namespace MultiArrayTools
 	ContainerIndex<Indices...> const* t = this;
 	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
     }
+
     
+    template <class... Indices>
+    size_t ContainerIndex<Indices...>::getStepSize(size_t n) const
+    {
+	if(n >= sizeof...(Indices)){
+	    assert(0);
+	    // throw !!
+	}
+	return mBlockSizes[n+1];
+    }
+	
     template <class... Indices>
     bool ContainerIndex<Indices...>::first() const
     {

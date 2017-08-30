@@ -33,8 +33,8 @@ namespace MultiArrayTools
 	virtual SingleIndex& operator++() override;
 	virtual SingleIndex& operator--() override;
 
-	virtual size_t pp(std::shared_ptr<const IndexBase>& idxPtr) override;
-	virtual size_t mm(std::shared_ptr<const IndexBase>& idxPtr) override;
+	virtual size_t pp(std::shared_ptr<IndexBase>& idxPtr) override;
+	virtual size_t mm(std::shared_ptr<IndexBase>& idxPtr) override;
 	
 	virtual U meta() const override;
 	virtual SingleIndex& at(const U& metaPos) override;
@@ -43,7 +43,8 @@ namespace MultiArrayTools
 	virtual bool last() const override;
 	virtual bool first() const override;
 
-	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const override;
+	virtual std::shared_ptr<IndexBase> getPtr(size_t n) const override;
+	virtual size_t getStepSize(size_t n) const override;
 	
 	virtual std::string id() const override { return std::string("sin") + std::to_string(IB::mId); }
     };

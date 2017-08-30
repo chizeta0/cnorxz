@@ -39,14 +39,14 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::pp(std::shared_ptr<const IndexBase>& idxPtr)
+    size_t SingleIndex<U,TYPE>::pp(std::shared_ptr<IndexBase>& idxPtr)
     {
 	++(*this);
 	return 1;
     }
 
     template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::mm(std::shared_ptr<const IndexBase>& idxPtr)
+    size_t SingleIndex<U,TYPE>::mm(std::shared_ptr<IndexBase>& idxPtr)
     {
 	--(*this);
 	return 1;
@@ -84,9 +84,15 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
-    std::shared_ptr<const IndexBase> SingleIndex<U,TYPE>::getPtr(size_t n) const
+    std::shared_ptr<IndexBase> SingleIndex<U,TYPE>::getPtr(size_t n) const
     {
-	return std::shared_ptr<const IndexBase>();
+	return std::shared_ptr<IndexBase>();
+    }
+
+    template <typename U, RangeType TYPE>    
+    size_t SingleIndex<U,TYPE>::getStepSize(size_t n) const
+    {
+	return 1;
     }
     
     /********************

@@ -117,43 +117,7 @@ namespace MultiArrayTools
     // multi_array.h
     template <typename T, class... SRanges>
     class MultiArray;
-
-    // block.h
-    template <typename T>
-    class BlockBase;
-
-    // block.h
-    template <typename T>
-    class MutableBlockBase;
-
-    // block.h
-    template <typename T>
-    class Block;
-
-    // block.h
-    template <typename T>
-    class MBlock;
-
-    // block.h
-    template <typename T>
-    class BlockValue;
-
-    // block.h
-    template <typename T>
-    class MBlockValue;
-
-    // block.h
-    template <typename T>
-    class SplitBlock;
-
-    // block.h
-    template <typename T>
-    class MSplitBlock;
-
-    // block.h
-    template <typename T>
-    class BlockResult;
-    
+   
     // multi_array_operation.h
     template <typename T>
     class OperationBase;
@@ -163,7 +127,7 @@ namespace MultiArrayTools
     class MutableOperationBase;
 
     // multi_array_operation.h
-    template <class OperationClass>
+    template <typename T, class OperationClass>
     class OperationTemplate;
     
     // multi_array_operation.h
@@ -220,6 +184,49 @@ namespace MultiArrayTools
     // ma_functional.h
     class pyProjNoSymFunction;
     */
+}
+
+namespace MultiArrayHelper
+{
+    // block.h
+    enum class BlockType;
+    
+    // block.h
+    template <typename T>
+    class BlockBase;
+
+    // block.h
+    template <typename T>
+    class MutableBlockBase;
+
+    // block.h
+    template <typename T>
+    class Block;
+
+    // block.h
+    template <typename T>
+    class MBlock;
+
+    // block.h
+    template <typename T>
+    class BlockValue;
+
+    // block.h
+    template <typename T>
+    class MBlockValue;
+
+    // block.h
+    template <typename T>
+    class SplitBlock;
+
+    // block.h
+    template <typename T>
+    class MSplitBlock;
+
+    // block.h
+    template <typename T>
+    class BlockResult;
+
 }
 
 #endif

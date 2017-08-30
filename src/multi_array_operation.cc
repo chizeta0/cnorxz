@@ -9,9 +9,9 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
-    void seekIndexInst(std::shared_ptr<const IndexBase> i, std::vector<std::shared_ptr<const IndexBase> >& ivec)
+    void seekIndexInst(std::shared_ptr<IndexBase> i, std::vector<std::shared_ptr<IndexBase> >& ivec)
     {
-	for(size_t inum = 0; inum != i->range()->dim(); ++inum){
+	for(size_t inum = 0; inum != i->rangePtr()->dim(); ++inum){
 	    auto ii = i->getPtr(inum);
 	    if(ii->type() == IndexType::MULTI){
 		seekIndexInst(ii, ivec);
@@ -20,16 +20,15 @@ namespace MultiArrayTools
 	}
     }
 
-    // !!!
-    BTSS getBlockType(std::shared_ptr<const IndexBase> i,
-					     std::shared_ptr<const IndexBase> j, bool first)
+    BTSS getBlockType(std::shared_ptr<IndexBase> i,
+		      std::shared_ptr<IndexBase> j, bool first)
     {
 	// returning BlockType and step size is redundant (change in the future)
 	// stepSize == 0 => VALUE
 	// stepSize == 1 => BLOCK
 	// stepSize > 1 => SPLIT :)
 	BTSS out(BlockType::VALUE, 0);
-	for(size_t inum = 0; inum != i->range()->dim(); ++inum){
+	for(size_t inum = 0; inum != i->rangePtr()->dim(); ++inum){
 	    auto ii = i->getPtr(inum);
 	    if(ii == j){
 		if(inum == 0 and first){
@@ -79,6 +78,62 @@ namespace MultiArrayTools
 	    return std::make_shared<MSplitBlock<T> >(vec, 0, stepSize, blockSize);
 	}
     }
+
+    size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt)
+    {
+	size_t out = 0;
+	for(auto& xx: mp){
+	    if(xx.first == bt){
+		++out;
+	    }
+	}
+	return out;
+    }
+
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> > mp,
+				  BlockType bt)
+    {
+	size_t minNum = getBTNum( mp.begin()->second, bt );
+	for(auto& mm: mp){
+	    size_t tmp = getBTNum( mm.second, bt );
+	    if(tmp < minNum){
+		minNum = tmp;
+	    }
+	}
+
+	for(auto mit = mp.begin(); mit != mp.end(); ){
+	    size_t tmp = getBTNum( mit->second, bt );
+	    if(tmp > minNum){
+		mit = mp.erase(mit);
+	    }
+	    else {
+		++mit;
+	    }
+	}
+
+    }
+    
+    template <typename T>
+    std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
+						    const OperationBase<T>& second)
+    {
+	std::vector<std::shared_ptr<IndexBase> > ivec;
+	seekIndexInst(ownIdx, ivec);
+	std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> > mp;
+	
+	for(auto& xx: ivec){
+	    mp[xx] = second.block(xx);
+	}
+
+	// seek minimal number of VALUEs => guarantees absence of conflicting blocks
+	minimizeAppearanceOfType(mp, BlockType::VALUE);
+
+	// seek mininmal number of SPLITs => maximal vectorization possible
+	minimizeAppearanceOfType(mp, BlockType::SPLIT);
+	
+	return mp.begin()->first;
+    }
+
     
     /*********************************
      *   MultiArrayOperationBase     *
@@ -91,39 +146,39 @@ namespace MultiArrayTools
      *   OperationTemplate     *
      ***************************/
 
-    template <class OperationClass>
-    OperationTemplate<OperationClass>::OperationTemplate(OperationClass* oc) : mOc(oc) {}
+    template <typename T, class OperationClass>
+    OperationTemplate<T,OperationClass>::OperationTemplate(OperationClass* oc) : mOc(oc) {}
     
-    template <class OperationClass>
+    template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<OperationClass>::operator+(const Second& in) const
-	-> Operation<value_type,std::plus<value_type>,OperationClass,Second>
+    auto OperationTemplate<T,OperationClass>::operator+(const Second& in) const
+	-> Operation<T,std::plus<T>,OperationClass,Second>
     {
-    	return Operation<value_type,std::plus<value_type>,OperationClass,Second>(*mOc, in);
+    	return Operation<T,std::plus<T>,OperationClass,Second>(*mOc, in);
     }
 
-    template <class OperationClass>
+    template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<OperationClass>::operator-(const Second& in) const
-	-> Operation<value_type,std::minus<value_type>,OperationClass,Second>
+    auto OperationTemplate<T,OperationClass>::operator-(const Second& in) const
+	-> Operation<T,std::minus<T>,OperationClass,Second>
     {
-    	return Operation<value_type,std::minus<value_type>,OperationClass,Second>(*mOc, in);
+    	return Operation<T,std::minus<T>,OperationClass,Second>(*mOc, in);
     }
     
-    template <class OperationClass>
+    template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<OperationClass>::operator*(const Second& in) const
-	-> Operation<value_type,std::multiplies<value_type>,OperationClass,Second>
+    auto OperationTemplate<T,OperationClass>::operator*(const Second& in) const
+	-> Operation<T,std::multiplies<T>,OperationClass,Second>
     {
-    	return Operation<value_type,std::multiplies<value_type>,OperationClass,Second>(*mOc, in);
+    	return Operation<T,std::multiplies<T>,OperationClass,Second>(*mOc, in);
     }
 
-    template <class OperationClass>
+    template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<OperationClass>::operator/(const Second& in) const
-	-> Operation<double,std::divides<value_type>,OperationClass,Second>
+    auto OperationTemplate<T,OperationClass>::operator/(const Second& in) const
+	-> Operation<T,std::divides<T>,OperationClass,Second>
     {
-    	return Operation<value_type,std::divides<value_type>,OperationClass,Second>(*mOc, in);
+    	return Operation<T,std::divides<T>,OperationClass,Second>(*mOc, in);
     }
 
     /*************************
@@ -142,16 +197,16 @@ namespace MultiArrayTools
 	mIndex = std::make_shared<IndexType>( mr->begin() );
 	(*mIndex) = *index;
 
-	auto blockIndex = seekBlockIndex(mIndex, second);
+	auto blockIndex = seekBlockIndex( mIndex, second);
 	block(blockIndex);
 	second.block(blockIndex);
-	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndex) )){
+	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndex) ){
 	    get() = mSecond.get();
 	}
     }
     
     template <typename T, class... Ranges>
-    BlockBase<T>& OperationMaster<T,Ranges...>::get()
+    MutableBlockBase<T>& OperationMaster<T,Ranges...>::get()
     {
 	block();
 	return *mBlockPtr;
@@ -165,7 +220,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    std::vector<BTSS> OperationMaster<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    std::vector<BTSS> OperationMaster<T,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
@@ -187,7 +242,7 @@ namespace MultiArrayTools
     ConstOperationRoot<T,Ranges...>::
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	OperationBase<T>(), OperationTemplate<ConstOperationRoot<T,Ranges...> >(this),
+	OperationBase<T>(), OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
 	mIndex(indices...);
@@ -201,7 +256,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
@@ -223,7 +278,7 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	MutableOperationBase<T>(), OperationTemplate<OperationRoot<T,Ranges...> >(this),
+	MutableOperationBase<T>(), OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
 	(*mIndex)(indices...);
@@ -243,14 +298,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    BlockBase<T>& OperationRoot<T,Ranges...>::get()
+    MutableBlockBase<T>& OperationRoot<T,Ranges...>::get()
     {
 	block();
 	return *mBlockPtr;
     }
 
     template <typename T, class... Ranges>
-    std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
@@ -270,7 +325,7 @@ namespace MultiArrayTools
     
     template <typename T, class OpFunction, class... Ops>
     Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :
-	OperationBase<T>(), OperationTemplate<Operation<T,OpFunction,Ops...> >(this),
+	OperationBase<T>(), OperationTemplate<T,Operation<T,OpFunction,Ops...> >(this),
 	mOps(ops...) {}
 
     template <typename T, class OpFunction, class... Ops>
@@ -280,18 +335,18 @@ namespace MultiArrayTools
 	return mRes;
     }
 
-    template <typename T, class... Ranges>
-    std::vector<BTSS> Operation<T,Ranges...>::block(const std::shared_ptr<IndexBase>& blockIndex) const
+    template <typename T, class OpFunction, class... Ops>
+    std::vector<BTSS> Operation<T,OpFunction,Ops...>::block(const std::shared_ptr<IndexBase> blockIndex) const
     {
 	std::vector<BTSS> btv;
-	PackNum<sizeof...(Ranges)-1>::makeBlockTypeVec(btv, mOps, blockIndex);
+	PackNum<sizeof...(Ops)-1>::makeBlockTypeVec(btv, mOps, blockIndex);
 	return btv;
     }
 
-    template <typename T, class... Ranges>
-    Operation<T,Ranges...>& Operation<T,Ranges...>::block() const
+    template <typename T, class OpFunction, class... Ops>
+    Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::block() const
     {
-	mBlockPtr->set( &mArrayRef[ (*mIndex)() ] );
+	//mBlockPtr->set( &mArrayRef[ (*mIndex)() ] );
 	return *this;
     }
 

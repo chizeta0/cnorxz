@@ -32,14 +32,14 @@ namespace MultiArrayTools
      * 
      */
 
-    void seekIndexInst(std::shared_ptr<const IndexBase> i, std::vector<std::shared_ptr<const IndexBase> >& ivec);
+    void seekIndexInst(std::shared_ptr<IndexBase> i, std::vector<std::shared_ptr<IndexBase> >& ivec);
 
     
     // <block type, step size within actual instance>
     typedef std::pair<BlockType,size_t> BTSS;
     
-    BTSS getBlockType(std::shared_ptr<const IndexBase> i,
-		      std::shared_ptr<const IndexBase> j, bool first);
+    BTSS getBlockType(std::shared_ptr<IndexBase> i,
+		      std::shared_ptr<IndexBase> j, bool first);
 
     template <typename T>
     std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize);
@@ -47,73 +47,26 @@ namespace MultiArrayTools
     template <typename T>
     std::shared_ptr<MutableBlockBase<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize);
 
-    size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt)
-    {
-	size_t out = 0;
-	for(auto& xx: mp){
-	    if(xx.first == bt){
-		++out;
-	    }
-	}
-	return out;
-    }
+    size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt);
 
-    void minimizeAppearanceOfType(std::map<std::shared_ptr<const IndexBase>, std::vector<BTSS> > mp,
-				  BlockType bt)
-    {
-	size_t minNum = getBTNum( *mp.begin(), bt );
-	for(auto& mm: mp){
-	    size_t tmp = getBTNum( mm.second, bt );
-	    if(tmp < minNum){
-		minNum = tmp;
-	    }
-	}
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> > mp,
+				  BlockType bt);
 
-	for(auto mit = mp.begin(); mit != mp.end(); ){
-	    size_t tmp = getBTNum( mit->second, bt );
-	    if(tmp > minNum){
-		mit = mp.erase(mit);
-	    }
-	    else {
-		++mit;
-	    }
-	}
-
-    }
-    
     template <typename T>
-    std::shared_ptr<const IndexBase> seekBlockIndex(std::shared_ptr<const IndexBase>& ownIdx,
-						    const OperationBase<T>& second)
-    {
-	std::vector<std::shared_ptr<const IndexBase> > ivec;
-	seekIndexInst(ownIdx, ivec);
-	std::map<std::shared_ptr<const IndexBase>, std::vector<BTSS> > mp;
-	
-	for(auto& xx: ivec){
-	    mp[xx] = second.block(xx);
-	}
-
-	// seek minimal number of VALUEs => guarantees absence of conflicting blocks
-	minimizeAppearanceOfType(mp, BlockType::VALUE);
-
-	// seek mininmal number of SPLITs => maximal vectorization possible
-	minimizeAppearanceOfType(mp, BlockType::SPLIT);
-	
-	return *mp.begin();
-    }
+    std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
+					      const OperationBase<T>& second);
     
     template <typename T>
     class OperationBase
     {
     public:
-
 	typedef T value_type;
-	
+
 	OperationBase() = default;
 	virtual ~OperationBase() = default;
 
 	 // init block, return resulting type (BLOCK, VALUE, SPLIT)
-	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const = 0;
+	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const = 0;
 	virtual OperationBase& block() const = 0; // update block
 	
 	//virtual size_t argNum() const = 0;
@@ -127,33 +80,33 @@ namespace MultiArrayTools
 	typedef T value_type;
 	
 	MutableOperationBase() = default;
-	virtual BlockBase<T>& get() = 0;
+
+	virtual MutableBlockBase<T>& get() = 0;
+
     };
 
-    template <class OperationClass>
+    template <typename T, class OperationClass>
     class OperationTemplate
     {
     public:
-
-	typedef typename OperationClass::value_type value_type;
 	
 	OperationTemplate(OperationClass* oc);
 	
 	template <class Second>
 	auto operator+(const Second& in) const
-	    -> Operation<value_type,std::plus<value_type>,OperationClass,Second>;
+	    -> Operation<T,std::plus<T>,OperationClass,Second>;
 	
 	template <class Second>
 	auto operator-(const Second& in) const
-	    -> Operation<value_type,std::minus<value_type>,OperationClass,Second>;
+	    -> Operation<T,std::minus<T>,OperationClass,Second>;
 	
 	template <class Second>
 	auto operator*(const Second& in) const
-	    -> Operation<value_type,std::multiplies<value_type>,OperationClass,Second>;
+	    -> Operation<T,std::multiplies<T>,OperationClass,Second>;
 	
 	template <class Second>
 	auto operator/(const Second& in) const
-	    -> Operation<value_type,std::divides<value_type>,OperationClass,Second>;
+	    -> Operation<T,std::divides<T>,OperationClass,Second>;
 	
     private:
 	OperationClass* mOc;
@@ -175,7 +128,7 @@ namespace MultiArrayTools
 	virtual MutableBlockBase<T>& get() override;
 	virtual const BlockBase<T>& get() const override;
 
-	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
 	virtual OperationMaster& block() const override;
 	
     protected:
@@ -184,19 +137,19 @@ namespace MultiArrayTools
 	OperationBase<T> const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-	mutable std::shared_ptr<MutableBlockBase> mBlockPtr;
+	mutable std::shared_ptr<MutableBlockBase<T> > mBlockPtr;
     };
 
     
     template <typename T, class... Ranges>
     class ConstOperationRoot : public OperationBase<T>,
-			       public OperationTemplate<ConstOperationRoot<T,Ranges...> >
+			       public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
     {
     public:
 
 	typedef T value_type;
 	typedef OperationBase<T> OB;
-	typedef OperationTemplate<ConstOperationRoot<T,Ranges...> > OT;
+	typedef OperationTemplate<T,ConstOperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	
@@ -205,25 +158,25 @@ namespace MultiArrayTools
 	
 	virtual const BlockBase<T>& get() const override;
 
-	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
 	virtual ConstOperationRoot& block() const override;
 	
     protected:
 	
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
- 	mutable std::shared_ptr<BlockBase> mBlockPtr;
+ 	mutable std::shared_ptr<BlockBase<T> > mBlockPtr;
     };
 
     template <typename T, class... Ranges>
     class OperationRoot : public MutableOperationBase<T>,
-			  public OperationTemplate<OperationRoot<T,Ranges...> >
+			  public OperationTemplate<T,OperationRoot<T,Ranges...> >
     {
     public:
 
 	typedef T value_type;
 	typedef OperationBase<T> OB;
-	typedef OperationTemplate<OperationRoot<T,Ranges...> > OT;
+	typedef OperationTemplate<T,OperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	
@@ -235,32 +188,32 @@ namespace MultiArrayTools
 	virtual const BlockBase<T>& get() const override;
 	virtual MutableBlockBase<T>& get() override;
 
-	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
 	virtual OperationRoot& block() const override;
 	
     protected:
 	
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-	mutable std::shared_ptr<MutableBlockBase> mBlockPtr;
+	mutable std::shared_ptr<MutableBlockBase<T> > mBlockPtr;
     };
 
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationBase<T>,
-		      public OperationTemplate<Operation<T,OpFunction,Ops...> >
+		      public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
     {
     public:
 
 	typedef T value_type;
 	typedef OperationBase<T> OB;
-	typedef OperationTemplate<Operation<T,OpFunction,Ops...> > OT;
+	typedef OperationTemplate<T,Operation<T,OpFunction,Ops...> > OT;
 	typedef OpFunction F;
 	
 	Operation(const Ops&... ops);
 	
 	virtual const BlockBase<T>& get() const override;
 
-	virtual std::vector<BlockType> block(const std::shared_ptr<IndexBase>& blockIndex) const override;
+	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
 	virtual Operation& block() const override;
 	
     protected:

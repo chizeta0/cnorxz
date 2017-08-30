@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __block_h__
-#define __block_h__
+#ifndef __ma_block_h__
+#define __ma_block_h__
 
 #include <cstdlib>
 #include <vector>
@@ -16,7 +16,7 @@ namespace MultiArrayHelper
 	BLOCK = 1,
 	VALUE = 2,
 	SPLIT = 3,
-	RESULT = 4,
+	RESULT = 4
     };
     
     // manage vectorization in the future !!
@@ -28,6 +28,9 @@ namespace MultiArrayHelper
 	BlockBase() = default;
 	BlockBase(size_t size);
 
+	BlockBase(BlockBase&& res) = default;
+	BlockBase& operator=(BlockBase&& res) = default;
+	
 	virtual BlockType type() const = 0;
 	
 	virtual size_t size() const;
@@ -37,7 +40,7 @@ namespace MultiArrayHelper
 	
 	template <class OpFunction>
 	BlockResult<T> operate(const BlockBase& in);
-
+	
 	BlockResult<T> operator+(const BlockBase& in);
 	BlockResult<T> operator-(const BlockBase& in);
 	BlockResult<T> operator*(const BlockBase& in);
@@ -54,8 +57,13 @@ namespace MultiArrayHelper
 
 	MutableBlockBase() = default;
 	MutableBlockBase(size_t size);
+
+	MutableBlockBase& operator=(const BlockBase<T>& in);
 	
-	virtual T& operator[](size_t pos) override;
+	MutableBlockBase(MutableBlockBase&& res) = default;
+	MutableBlockBase& operator=(MutableBlockBase&& res) = default;
+	
+	virtual T& operator[](size_t pos) = 0;
 	
     };
     
@@ -84,7 +92,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
-	virtual Block& set(const T* nbeg) override;
+	virtual MBlock& set(const T* nbeg) override;
 	
     protected:
 	T* mBegPtr;
@@ -115,7 +123,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
-	virtual BlockValue& set(const T* nbeg) override;
+	virtual MBlockValue& set(const T* nbeg) override;
 	
     protected:
 	T& mVal;
@@ -151,7 +159,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
-	virtual SplitBlock& set(const T* nbeg) override;
+	virtual MSplitBlock& set(const T* nbeg) override;
 	
     protected:
 	size_t mStepSize;
@@ -166,6 +174,9 @@ namespace MultiArrayHelper
 	BlockResult() = default;
 	BlockResult(size_t size);
 
+	BlockResult(BlockResult&& res) = default;
+	BlockResult& operator=(BlockResult&& res) = default;
+	
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t i) override;

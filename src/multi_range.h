@@ -46,8 +46,8 @@ namespace MultiArrayTools
 	virtual MultiIndex& operator--() override;
 	virtual MultiIndex& operator=(size_t pos) override;
 
-	virtual size_t pp(std::shared_ptr<const IndexBase>& idxPtr) override;
-	virtual size_t mm(std::shared_ptr<const IndexBase>& idxPtr) override;
+	virtual size_t pp(std::shared_ptr<IndexBase>& idxPtr) override;
+	virtual size_t mm(std::shared_ptr<IndexBase>& idxPtr) override;
 	
 	template <size_t DIR>
 	MultiIndex& up();
@@ -62,7 +62,7 @@ namespace MultiArrayTools
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 	
 	const IndexBase& get(size_t n) const;
-	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const override;
+	virtual std::shared_ptr<IndexBase> getPtr(size_t n) const override;
 	virtual size_t getStepSize(size_t n) const override;
 	
         virtual MetaType meta() const override;
@@ -75,7 +75,7 @@ namespace MultiArrayTools
 
 	std::shared_ptr<RangeType> range() const;
 
-	//virtual MultiIndex& lock(std::shared_ptr<const IndexBase>& idx) override;
+	//virtual MultiIndex& lock(std::shared_ptr<IndexBase>& idx) override;
 	
 	// raplace instances (in contrast to its analogon in ContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is

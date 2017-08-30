@@ -52,7 +52,7 @@ namespace MultiArrayHelper
 
 	template <class... Indices>
 	static void lock(std::tuple<std::shared_ptr<Indices>...>& ip,
-			 std::shared_ptr<const IndexBase>& toLock)
+			 std::shared_ptr<IndexBase> toLock)
 	{
 	    std::get<N>(ip)->lock(toLock);
 	    PackNum<N-1>::lock(ip, toLock);
@@ -87,7 +87,7 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static inline size_t pp(std::tuple<std::shared_ptr<Indices>...>& ip,
 				std::array<size_t,sizeof...(Indices)>& bs,
-				std::shared_ptr<const IndexBase>& idxPtr)
+				std::shared_ptr<IndexBase> idxPtr)
 	{
 	    auto siPtr = std::get<N>(ip);
 	    if(siPtr.get() == idxPtr.get()){
@@ -109,7 +109,7 @@ namespace MultiArrayHelper
 	{
 	    auto& si = *std::get<N>(ip);
 	    if(si.first()){
-		si = si.max();
+		si = si.max() - 1;
 		PackNum<N-1>::mm(ip);
 	    }
 	    else {
@@ -120,7 +120,7 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static inline size_t mm(std::tuple<std::shared_ptr<Indices>...>& ip,
 				std::array<size_t,sizeof...(Indices)>& bs,
-				std::shared_ptr<const IndexBase>& idx)
+				std::shared_ptr<IndexBase> idxPtr)
 	{
 	    auto siPtr = std::get<N>(ip);
 	    if(siPtr.get() == idxPtr.get()){
@@ -128,10 +128,11 @@ namespace MultiArrayHelper
 	    }
 	    else {
 		if(siPtr->first()){
+		    (*siPtr) = siPtr->max() - 1;
 		    return PackNum<N-1>::mm(ip, bs) - siPtr->max() + 1;
 		}
 		else {
-		    return siPtr->pp(idx);
+		    return siPtr->mm(idxPtr);
 		}
 	    }
 	}
@@ -229,7 +230,7 @@ namespace MultiArrayHelper
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
-				     std::shared_ptr<const IndexBase>& idxPtr)
+				     std::shared_ptr<IndexBase> idxPtr)
 	{
 	    auto& subvec = std::get<N>(ops).block(idxPtr);
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
@@ -261,7 +262,7 @@ namespace MultiArrayHelper
 
 	template <class... Indices>
 	static void lock(std::tuple<std::shared_ptr<Indices>...>& ip,
-			 std::shared_ptr<const IndexBase>& toLock)
+			 std::shared_ptr<IndexBase> toLock)
 	{
 	    std::get<0>(ip)->lock(toLock);
 	}
@@ -282,21 +283,20 @@ namespace MultiArrayHelper
 	
 	template <class... Indices>
 	static inline size_t pp(std::tuple<std::shared_ptr<Indices>...>& ip,
-			      std::array<size_t,sizeof...(Indices)+1>& bs)
+				std::array<size_t,sizeof...(Indices)>& bs,
+				std::shared_ptr<IndexBase> idxPtr)
 	{
-	    auto& si = *std::get<0>(ip);
-	    if(si.locked()){
-		si = si.max()+1;
-		return std::get<0>(bs) - std::get<1>(bs) + 1;
+	    auto siPtr = std::get<0>(ip);
+	    if(siPtr.get() == idxPtr.get()){
+		return std::get<0>(bs);
 	    }
-	    else {		
-		++si;
-		return 1;
+	    else {
+		return siPtr->pp(idxPtr);
 	    }
 	}
 
 	template <class... Indices>
-	static inline size_t mm(std::tuple<std::shared_ptr<Indices>...>& ip)
+	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
 	    auto& si = *std::get<0>(ip);
 	    --si;
@@ -304,17 +304,15 @@ namespace MultiArrayHelper
 	
 	template <class... Indices>
 	static inline size_t mm(std::tuple<std::shared_ptr<Indices>...>& ip,
-			      std::array<size_t,sizeof...(Indices)>& bs)
+				std::array<size_t,sizeof...(Indices)>& bs,
+				std::shared_ptr<IndexBase> idxPtr)
 	{
-	    auto& si = *std::get<0>(ip);
-	    if(si.locked()){
-		si = 0;
-		--si;
-		return std::get<0>(bs) - std::get<1>(bs) + 1;
+	    auto siPtr = std::get<0>(ip);
+	    if(siPtr.get() == idxPtr.get()){
+		return std::get<0>(bs);
 	    }
-	    else {		
-		--si;
-		return 1;
+	    else {
+		return siPtr->mm(idxPtr);
 	    }
 	}
 	
@@ -405,7 +403,7 @@ namespace MultiArrayHelper
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
-				     std::shared_ptr<const IndexBase>& idxPtr)
+				     std::shared_ptr<IndexBase> idxPtr)
 	{
 	    auto& subvec = std::get<0>(ops).block(idxPtr);
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );

@@ -20,7 +20,7 @@ namespace MultiArrayHelper
 
     template <typename T>
     template <class OpFunction>
-    BlockResult<T> BlockBase<T>::operate(const BlockBase& in)
+    BlockResult<T> BlockBase<T>::operate(const BlockBase<T>& in)
     {
 	assert(mSize == in.size());
 	OpFunction f;
@@ -30,27 +30,28 @@ namespace MultiArrayHelper
 	}
 	return res;
     }
-
+    
+    
     template <typename T>
-    BlockResult<T> BlockBase<T>::operator+(const BlockBase& in)
+    BlockResult<T> BlockBase<T>::operator+(const BlockBase<T>& in)
     {
 	return operate<std::plus<T> >(in);
     }
 
     template <typename T>
-    BlockResult<T> BlockBase<T>::operator-(const BlockBase& in)
+    BlockResult<T> BlockBase<T>::operator-(const BlockBase<T>& in)
     {
 	return operate<std::minus<T> >(in);
     }
     
     template <typename T>
-    BlockResult<T> BlockBase<T>::operator*(const BlockBase& in)
+    BlockResult<T> BlockBase<T>::operator*(const BlockBase<T>& in)
     {
 	return operate<std::multiplies<T> >(in);
     }
     
     template <typename T>
-    BlockResult<T> BlockBase<T>::operator/(const BlockBase& in)
+    BlockResult<T> BlockBase<T>::operator/(const BlockBase<T>& in)
     {
 	return operate<std::divides<T> >(in);
     }
@@ -61,6 +62,15 @@ namespace MultiArrayHelper
     
     template <typename T>
     MutableBlockBase<T>::MutableBlockBase(size_t size) : BlockBase<T>(size) {}
+
+    template <typename T>
+    MutableBlockBase<T>& MutableBlockBase<T>::operator=(const BlockBase<T>& in)
+    {
+	for(size_t i = 0; i != BlockBase<T>::mSize; ++i){
+	    (*this)[i] = in[i];
+	}
+	return *this;
+    }
     
     /*************
      *   Block   *
@@ -96,11 +106,11 @@ namespace MultiArrayHelper
      **************/
 
     template <typename T>
-    MBlock<T>::MBlock(const std::vector<T>& data,
-		    size_t begPos, size_t size) :
+    MBlock<T>::MBlock(std::vector<T>& data,
+		      size_t begPos, size_t size) :
 	MutableBlockBase<T>(size),
 	mBegPtr(data.data() + begPos) {}
-
+   
     template <typename T>
     BlockType MBlock<T>::type() const
     {
@@ -159,7 +169,7 @@ namespace MultiArrayHelper
      *******************/
 
     template <typename T>
-    MBlockValue<T>::MBlockValue(const T& val, size_t size) :
+    MBlockValue<T>::MBlockValue(T& val, size_t size) :
 	BlockBase<T>(size),
 	mVal(val) {}
 
@@ -223,8 +233,8 @@ namespace MultiArrayHelper
      *******************/
 
     template <typename T>
-    MSplitBlock<T>::MSplitBlock(const std::vector<T>& data, size_t begPos,
-			      size_t stepSize, size_t size) :
+    MSplitBlock<T>::MSplitBlock(std::vector<T>& data, size_t begPos,
+				size_t stepSize, size_t size) :
 	BlockBase<T>(size),
 	mStepSize(stepSize),
 	mBegPtr(data.data() + begPos) {}

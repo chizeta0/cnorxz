@@ -28,7 +28,8 @@ namespace MultiArrayTools
     protected:
 	bool mExternControl = false;
 	IndexPack mIPack;
-    
+	std::array<size_t,sizeof...(Indices)+1> mBlockSizes; 
+	
     public:
 	ContainerIndex() = delete;
 
@@ -44,8 +45,8 @@ namespace MultiArrayTools
 	virtual ContainerIndex& operator--() override;
 	virtual ContainerIndex& operator=(size_t pos) override;
 
-	virtual size_t pp(std::shared_ptr<const IndexBase>& idxPtr) override;
-	virtual size_t mm(std::shared_ptr<const IndexBase>& idxPtr) override;
+	virtual size_t pp(std::shared_ptr<IndexBase>& idxPtr) override;
+	virtual size_t mm(std::shared_ptr<IndexBase>& idxPtr) override;
 	
 	virtual MetaType meta() const override;
 	virtual ContainerIndex& at(const MetaType& metaPos) override;
@@ -63,7 +64,8 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 
-	virtual std::shared_ptr<const IndexBase> getPtr(size_t n) const override;
+	virtual std::shared_ptr<IndexBase> getPtr(size_t n) const override;
+	virtual size_t getStepSize(size_t n) const override;
 	
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
 
