@@ -189,6 +189,10 @@ namespace MultiArrayTools
 namespace MultiArrayHelper
 {
     // block.h
+    template <typename T, class OpFunc>
+    class BlockBinaryOp;
+    
+    // block.h
     enum class BlockType;
     
     // block.h

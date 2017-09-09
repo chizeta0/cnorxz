@@ -47,7 +47,8 @@ namespace MultiArrayTools
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
-	PackNum<sizeof...(Indices)>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
+	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
+	PackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
     }
 
     template <class... Indices>
@@ -102,7 +103,7 @@ namespace MultiArrayTools
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
 	IB::mPos += PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	PackNum<DIR+1>::pp( mIPack );
+	PackNum<DIR>::pp( mIPack );
 	return *this;
     }
 
@@ -112,7 +113,7 @@ namespace MultiArrayTools
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
 	IB::mPos -= PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	PackNum<DIR+1>::mm( mIPack );
+	PackNum<DIR>::mm( mIPack );
 	return *this;
     }
     

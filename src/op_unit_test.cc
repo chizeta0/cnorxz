@@ -110,7 +110,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at('f') - (0.373+8.215) ) < 0.0001, true );
 	EXPECT_EQ( fabs( res.at('g') - (7.192+5.063) ) < 0.0001, true );
     }
-
+    /*
     TEST_F(OpTest_MDim, ExecOp1)
     {
 	MultiArray<double,SRange,SRange> res(sr2ptr,sr4ptr);
@@ -191,7 +191,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'A')) - (2.911 + 0.373 + 1.470) ) < 0.0001, true );
 	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'B')) - (2.911 + 0.373 + 2.210) ) < 0.0001, true );
     }
-    
+    */
 } // anonymous namspace
 
 int main(int argc, char** argv)

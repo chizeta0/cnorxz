@@ -67,7 +67,7 @@ namespace MultiArrayTools
 
 	 // init block, return resulting type (BLOCK, VALUE, SPLIT)
 	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const = 0;
-	virtual OperationBase& block() const = 0; // update block
+	virtual const OperationBase& block() const = 0; // update block
 	
 	//virtual size_t argNum() const = 0;
 	virtual const BlockBase<T>& get() const = 0;
@@ -129,7 +129,7 @@ namespace MultiArrayTools
 	virtual const BlockBase<T>& get() const override;
 
 	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual OperationMaster& block() const override;
+	virtual const OperationMaster& block() const override;
 	
     protected:
 
@@ -159,7 +159,7 @@ namespace MultiArrayTools
 	virtual const BlockBase<T>& get() const override;
 
 	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual ConstOperationRoot& block() const override;
+	virtual const ConstOperationRoot& block() const override;
 	
     protected:
 	
@@ -189,7 +189,7 @@ namespace MultiArrayTools
 	virtual MutableBlockBase<T>& get() override;
 
 	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual OperationRoot& block() const override;
+	virtual const OperationRoot& block() const override;
 	
     protected:
 	
@@ -214,7 +214,7 @@ namespace MultiArrayTools
 	virtual const BlockBase<T>& get() const override;
 
 	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual Operation& block() const override;
+	virtual const Operation& block() const override;
 	
     protected:
 	std::tuple<Ops...> mOps;

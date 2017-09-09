@@ -81,6 +81,7 @@ namespace MultiArrayTools
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const = 0;
 
 	virtual const T* data() const = 0;
+	virtual const std::vector<T>& datav() const = 0;
 	
 	virtual size_t size() const; 
 	virtual bool isSlice() const = 0;
@@ -171,6 +172,7 @@ namespace MultiArrayTools
 	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
 	
 	virtual T* data() = 0;
+	virtual std::vector<T>& datav() = 0;
 	
 	virtual iterator begin();
 	virtual iterator end();
@@ -216,9 +218,12 @@ namespace MultiArrayTools
 	MultiArray<T,SRanges2...> format(const std::shared_ptr<SRanges2>&... nrs); // reformat array using 'nr' which in
 	//                                                                 total must have the same size as mRange
 	
-	const T* data() const override;
-	T* data() override;
+	virtual const T* data() const override;
+	virtual T* data() override;
 
+	virtual const std::vector<T>& datav() const override;
+	virtual std::vector<T>& datav() override;
+	
 	//	virtual void manipulate(ManipulatorBase<T>& mb,
 	//			const typename CRange::IndexType& manBegin,
 	//				const typename CRange::IndexType& manEnd);

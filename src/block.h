@@ -20,6 +20,14 @@ namespace MultiArrayHelper
     };
     
     // manage vectorization in the future !!
+
+    template <typename T, class OpFunc>
+    class BlockBinaryOp
+    {
+    public:
+	BlockBinaryOp() = default;
+	BlockResult<T> operator()(const BlockBase<T>& arg1, const BlockBase<T>& arg2);
+    };
     
     template <typename T>
     class BlockBase
@@ -36,7 +44,7 @@ namespace MultiArrayHelper
 	virtual size_t size() const;
 	virtual const T& operator[](size_t pos) const = 0;
 
-	virtual BlockBase& set(const T* nbeg) = 0;
+	virtual BlockBase& set(size_t npos) = 0;
 	
 	template <class OpFunction>
 	BlockResult<T> operate(const BlockBase& in);
@@ -62,7 +70,7 @@ namespace MultiArrayHelper
 	
 	MutableBlockBase(MutableBlockBase&& res) = default;
 	MutableBlockBase& operator=(MutableBlockBase&& res) = default;
-	
+
 	virtual T& operator[](size_t pos) = 0;
 	
     };
@@ -76,9 +84,10 @@ namespace MultiArrayHelper
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-	virtual Block& set(const T* nbeg) override;
+	virtual Block& set(size_t npos) override;
 	
     protected:
+	const std::vector<T>* mData;
 	const T* mBegPtr;
     };
 
@@ -92,9 +101,10 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
-	virtual MBlock& set(const T* nbeg) override;
+	virtual MBlock& set(size_t npos) override;
 	
     protected:
+	std::vector<T>* mData;
 	T* mBegPtr;
     };    
     
@@ -103,14 +113,16 @@ namespace MultiArrayHelper
     {
     public:
 	BlockValue() = default;
-	BlockValue(const T& val, size_t size);
+	BlockValue(const std::vector<T>& data,
+		   size_t pos, size_t size);
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-	virtual BlockValue& set(const T* nbeg) override;
+	virtual BlockValue& set(size_t npos) override;
 	
     protected:
-	T mVal;
+	const std::vector<T>* mData;
+	T& mVal;
     };
 
     template <typename T>
@@ -118,14 +130,16 @@ namespace MultiArrayHelper
     {
     public:
 	MBlockValue() = default;
-	MBlockValue(T& val, size_t size);
+	MBlockValue(std::vector<T>& data,
+		    size_t pos, size_t size);
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
-	virtual MBlockValue& set(const T* nbeg) override;
+	virtual MBlockValue& set(size_t npos) override;
 	
     protected:
+	std::vector<T>* mData;
 	T& mVal;
     };
     
@@ -140,9 +154,10 @@ namespace MultiArrayHelper
 
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
-	virtual SplitBlock& set(const T* nbeg) override;
+	virtual SplitBlock& set(size_t npos) override;
 	
     protected:
+	const std::vector<T>* mData;
 	size_t mStepSize;
 	const T* mBegPtr;	
     };
@@ -159,9 +174,10 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
-	virtual MSplitBlock& set(const T* nbeg) override;
+	virtual MSplitBlock& set(size_t npos) override;
 	
     protected:
+	std::vector<T>* mData;
 	size_t mStepSize;
 	T* mBegPtr;	
     };
@@ -180,7 +196,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t i) override;
-	virtual BlockResult& set(const T* nbeg) override;
+	virtual BlockResult& set(size_t npos) override;
 	
     protected:
 	std::vector<T> mRes;

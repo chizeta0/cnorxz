@@ -525,6 +525,19 @@ namespace MultiArrayTools
     {
 	return mCont.data();
     }
+
+    template <typename T, class... SRanges>
+    const std::vector<T>& MultiArray<T,SRanges...>::datav() const
+    {
+	return mCont;
+    }
+
+    template <typename T, class... SRanges>
+    std::vector<T>& MultiArray<T,SRanges...>::datav()
+    {
+	return mCont;
+    }
+
     
     /*
     template <typename T, class... SRanges>
