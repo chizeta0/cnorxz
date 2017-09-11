@@ -132,7 +132,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at(mkt('3','B')) - (0.373 * 4.790) ) < 0.0001, true );
 
     }
-    /*
+
     TEST_F(OpTest_MDim, ExecOp2)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
@@ -143,7 +143,7 @@ namespace {
 	auto i1 = std::dynamic_pointer_cast<MRange::IndexType>( mr1ptr->index() );
 	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
 	
-	res(i1,i2) = ma1(i1) + ma2(i2) - ma3(i2);
+	res(i1,i2) = ( ma1(i1) + ma2(i2) ) - ma3(i2);
 
 	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'A')) - (0.353 + 8.870 - 1.470) ) < 0.0001, true );
 	EXPECT_EQ( fabs( res.at(mkt(mkt('1','a'),'B')) - (0.353 + 4.790 - 2.210) ) < 0.0001, true );
@@ -160,7 +160,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'A')) - (2.911 + 8.870 - 1.470) ) < 0.0001, true );
 	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'B')) - (2.911 + 4.790 - 2.210) ) < 0.0001, true );
     }
-
+    
     TEST_F(OpTest_MDim, ExecOp3)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
@@ -191,7 +191,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'A')) - (2.911 + 0.373 + 1.470) ) < 0.0001, true );
 	EXPECT_EQ( fabs( res.at(mkt(mkt('3','b'),'B')) - (2.911 + 0.373 + 2.210) ) < 0.0001, true );
     }
-    */
+    
 } // anonymous namspace
 
 int main(int argc, char** argv)

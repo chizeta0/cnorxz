@@ -33,11 +33,8 @@ namespace MultiArrayHelper
     class BlockBase
     {
     public:
-	BlockBase() = default;
+	DEFAULT_MEMBERS(BlockBase);
 	BlockBase(size_t size);
-
-	BlockBase(BlockBase&& res) = default;
-	BlockBase& operator=(BlockBase&& res) = default;
 	
 	virtual BlockType type() const = 0;
 	virtual size_t stepSize() const = 0;
@@ -74,13 +71,10 @@ namespace MultiArrayHelper
     {
     public:
 
-	MutableBlockBase() = default;
+	DEFAULT_MEMBERS(MutableBlockBase);
 	MutableBlockBase(size_t size);
 
 	MutableBlockBase& operator=(const BlockBase<T>& in);
-	
-	MutableBlockBase(MutableBlockBase&& res) = default;
-	MutableBlockBase& operator=(MutableBlockBase&& res) = default;
 
 	virtual T& operator[](size_t pos) = 0;
 	
@@ -90,7 +84,7 @@ namespace MultiArrayHelper
     class Block : public BlockBase<T>
     {
     public:
-	Block() = default;
+	DEFAULT_MEMBERS(Block);
 	Block(const std::vector<T>& data, size_t begPos, size_t size);
 
 	virtual BlockType type() const override;
@@ -107,7 +101,7 @@ namespace MultiArrayHelper
     class MBlock : public MutableBlockBase<T>
     {
     public:
-	MBlock() = default;
+	DEFAULT_MEMBERS(MBlock);
 	MBlock(std::vector<T>& data, size_t begPos, size_t size);
 
 	virtual BlockType type() const override;
@@ -125,7 +119,8 @@ namespace MultiArrayHelper
     class BlockValue : public BlockBase<T>
     {
     public:
-	BlockValue() = default;
+	DEFAULT_MEMBERS(BlockValue);
+	
 	BlockValue(const std::vector<T>& data,
 		   size_t pos, size_t size);
 
@@ -143,7 +138,8 @@ namespace MultiArrayHelper
     class MBlockValue : public MutableBlockBase<T>
     {
     public:
-	MBlockValue() = default;
+	DEFAULT_MEMBERS(MBlockValue);
+	
 	MBlockValue(std::vector<T>& data,
 		    size_t pos, size_t size);
 
@@ -163,7 +159,8 @@ namespace MultiArrayHelper
     {
     public:
 
-	SplitBlock() = default;
+	DEFAULT_MEMBERS(SplitBlock);
+	
 	SplitBlock(const std::vector<T>& data, size_t begPos,
 		   size_t stepSize, size_t size);
 
@@ -183,7 +180,8 @@ namespace MultiArrayHelper
     {
     public:
 
-	MSplitBlock() = default;
+	DEFAULT_MEMBERS(MSplitBlock);
+	
 	MSplitBlock(std::vector<T>& data, size_t begPos,
 		    size_t stepSize, size_t size);
 
@@ -204,11 +202,9 @@ namespace MultiArrayHelper
     class BlockResult : public MutableBlockBase<T>
     {
     public:
-	BlockResult() = default;
+	DEFAULT_MEMBERS(BlockResult);
+	
 	BlockResult(size_t size);
-
-	BlockResult(BlockResult&& res) = default;
-	BlockResult& operator=(BlockResult&& res) = default;
 	
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
