@@ -40,6 +40,7 @@ namespace MultiArrayHelper
 	BlockBase& operator=(BlockBase&& res) = default;
 	
 	virtual BlockType type() const = 0;
+	virtual size_t stepSize() const = 0;
 	
 	virtual size_t size() const;
 	virtual const T& operator[](size_t pos) const = 0;
@@ -58,6 +59,16 @@ namespace MultiArrayHelper
 	size_t mSize;
     };
 
+    template <typename T>
+    std::ostream& operator<<(std::ostream& out, const BlockBase<T>& block)
+    {
+	out << block[0];
+	for(size_t i = 1; i != block.size(); ++i){
+	    out << ", " << block[i];
+	}
+	return out;
+    }
+    
     template <typename T>
     class MutableBlockBase : public BlockBase<T>
     {
@@ -85,6 +96,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual Block& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	const std::vector<T>* mData;
@@ -102,6 +114,7 @@ namespace MultiArrayHelper
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
 	virtual MBlock& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	std::vector<T>* mData;
@@ -119,10 +132,11 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual BlockValue& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	const std::vector<T>* mData;
-	T& mVal;
+	const T* mVal;
     };
 
     template <typename T>
@@ -137,10 +151,11 @@ namespace MultiArrayHelper
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
 	virtual MBlockValue& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	std::vector<T>* mData;
-	T& mVal;
+	T* mVal;
     };
     
     template <typename T>
@@ -155,6 +170,7 @@ namespace MultiArrayHelper
 	virtual BlockType type() const override;
 	virtual const T& operator[](size_t pos) const override;
 	virtual SplitBlock& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	const std::vector<T>* mData;
@@ -175,6 +191,7 @@ namespace MultiArrayHelper
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t pos) override;
 	virtual MSplitBlock& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	std::vector<T>* mData;
@@ -197,6 +214,7 @@ namespace MultiArrayHelper
 	virtual const T& operator[](size_t pos) const override;
 	virtual T& operator[](size_t i) override;
 	virtual BlockResult& set(size_t npos) override;
+	virtual size_t stepSize() const override;
 	
     protected:
 	std::vector<T> mRes;

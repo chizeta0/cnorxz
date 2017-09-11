@@ -231,6 +231,12 @@ namespace MultiArrayHelper
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
 	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr);
 	}
+
+	template <typename... T>
+	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
+	    out << std::get<sizeof...(T)-N-1>(tp) << ", ";
+	    PackNum<N-1>::printTuple(out, tp);
+	}
 	
     };
     
@@ -403,7 +409,12 @@ namespace MultiArrayHelper
 	    auto subvec = std::move( std::get<0>(ops).block(idxPtr) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
 	}
-	
+
+	template <typename... T>
+	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
+	    out << std::get<sizeof...(T)-1>(tp);
+	}
+
     };
     
 } // end namespace MultiArrayHelper

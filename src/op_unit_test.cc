@@ -114,8 +114,8 @@ namespace {
     TEST_F(OpTest_MDim, ExecOp1)
     {
 	MultiArray<double,SRange,SRange> res(sr2ptr,sr4ptr);
-	MultiArray<double,SRange> ma1(sr2ptr, v1);
-	MultiArray<double,SRange> ma2(sr4ptr, v2);
+	const MultiArray<double,SRange> ma1(sr2ptr, v1);
+	const MultiArray<double,SRange> ma2(sr4ptr, v2);
 
 	auto i1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
 	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );

@@ -167,7 +167,7 @@ namespace MultiArrayTools
 	std::shared_ptr<IndexType> mIndex;
  	mutable std::shared_ptr<BlockBase<T> > mBlockPtr;
     };
-
+    
     template <typename T, class... Ranges>
     class OperationRoot : public MutableOperationBase<T>,
 			  public OperationTemplate<T,OperationRoot<T,Ranges...> >
@@ -197,7 +197,7 @@ namespace MultiArrayTools
 	std::shared_ptr<IndexType> mIndex;
 	mutable std::shared_ptr<MutableBlockBase<T> > mBlockPtr;
     };
-
+    
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationBase<T>,
 		      public OperationTemplate<T,Operation<T,OpFunction,Ops...> >

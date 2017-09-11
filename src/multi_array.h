@@ -96,7 +96,8 @@ namespace MultiArrayTools
 
 	virtual bool isConst() const;
 
-	ConstOperationRoot<T,SRanges...> operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const;
+	virtual ConstOperationRoot<T,SRanges...>
+	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const;
 	
 	virtual bool isInit() const;
 
@@ -179,7 +180,9 @@ namespace MultiArrayTools
 
 	virtual bool isConst() const override;
 
-	OperationRoot<T,SRanges...> operator()(std::shared_ptr<typename SRanges::IndexType>&... inds);
+	virtual ConstOperationRoot<T,SRanges...>
+	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
+	virtual OperationRoot<T,SRanges...> operator()(std::shared_ptr<typename SRanges::IndexType>&... inds);
     };
     
     template <typename T, class... SRanges>

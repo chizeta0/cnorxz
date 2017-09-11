@@ -120,6 +120,12 @@ namespace MultiArrayHelper
 	return *this;
     }
 
+    template <typename T>
+    size_t Block<T>::stepSize() const
+    {
+	return 1;
+    }
+    
     /**************
      *   MBlock   *
      **************/
@@ -157,6 +163,12 @@ namespace MultiArrayHelper
 	mBegPtr = &(*mData)[npos];
 	return *this;
     }   
+
+    template <typename T>
+    size_t MBlock<T>::stepSize() const
+    {
+	return 1;
+    }
     
     /******************
      *   BlockValue   *
@@ -167,7 +179,7 @@ namespace MultiArrayHelper
 			      size_t pos, size_t size) :
 	BlockBase<T>(size),
 	mData(&data),
-	mVal(data[pos]) {}
+	mVal(&data[pos]) {}
 
     template <typename T>
     BlockType BlockValue<T>::type() const
@@ -179,16 +191,22 @@ namespace MultiArrayHelper
     const T& BlockValue<T>::operator[](size_t i) const
     {
 	
-	return mVal;
+	return *mVal;
     }
 
     template <typename T>
     BlockValue<T>& BlockValue<T>::set(size_t npos)
     {
-	mVal = (*mData)[npos];
+	mVal = &(*mData)[npos];
 	return *this;
     }
 
+    template <typename T>
+    size_t BlockValue<T>::stepSize() const
+    {
+	return 0;
+    }
+    
     /*******************
      *   MBlockValue   *
      *******************/
@@ -198,7 +216,7 @@ namespace MultiArrayHelper
 				size_t pos, size_t size) :
 	MutableBlockBase<T>(size),
 	mData(&data),
-	mVal(data[pos]) {}
+	mVal(&data[pos]) {}
 
     template <typename T>
     BlockType MBlockValue<T>::type() const
@@ -210,23 +228,29 @@ namespace MultiArrayHelper
     const T& MBlockValue<T>::operator[](size_t i) const
     {
 	
-	return mVal;
+	return *mVal;
     }
 
     template <typename T>
     T& MBlockValue<T>::operator[](size_t i)
     {
 	
-	return mVal;
+	return *mVal;
     }
     
     template <typename T>
     MBlockValue<T>& MBlockValue<T>::set(size_t npos)
     {
-	mVal = (*mData)[npos];
+	mVal = &(*mData)[npos];
 	return *this;
     }
 
+    template <typename T>
+    size_t MBlockValue<T>::stepSize() const
+    {
+	return 0;
+    }
+    
     /******************
      *   SplitBlock   *
      ******************/
@@ -235,9 +259,9 @@ namespace MultiArrayHelper
     SplitBlock<T>::SplitBlock(const std::vector<T>& data, size_t begPos,
 			      size_t stepSize, size_t size) :
 	BlockBase<T>(size),
-	mData(data),
+	mData(&data),
 	mStepSize(stepSize),
-	mBegPtr(data.data() + begPos) {}
+	mBegPtr(&data[begPos]) {}
 
     template <typename T>
     BlockType SplitBlock<T>::type() const
@@ -259,6 +283,12 @@ namespace MultiArrayHelper
 	return *this;
     }
 
+    template <typename T>
+    size_t SplitBlock<T>::stepSize() const
+    {
+	return mStepSize;
+    }
+    
     /*******************
      *   MSplitBlock   *
      *******************/
@@ -267,8 +297,9 @@ namespace MultiArrayHelper
     MSplitBlock<T>::MSplitBlock(std::vector<T>& data, size_t begPos,
 				size_t stepSize, size_t size) :
 	MutableBlockBase<T>(size),
+	mData(&data),
 	mStepSize(stepSize),
-	mBegPtr(data.data() + begPos) {}
+	mBegPtr(&data[begPos]) {}
 
     template <typename T>
     BlockType MSplitBlock<T>::type() const
@@ -295,6 +326,12 @@ namespace MultiArrayHelper
     {
 	mBegPtr = &(*mData)[npos];
 	return *this;
+    }
+
+    template <typename T>
+    size_t MSplitBlock<T>::stepSize() const
+    {
+	return mStepSize;
     }
     
     /*******************
@@ -330,6 +367,12 @@ namespace MultiArrayHelper
     BlockResult<T>& BlockResult<T>::set(size_t npos)
     {
 	return *this;
+    }
+
+    template <typename T>
+    size_t BlockResult<T>::stepSize() const
+    {
+	return 1;
     }
     
 } // end namespace MultiArrayHelper

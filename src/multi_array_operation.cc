@@ -28,10 +28,11 @@ namespace MultiArrayTools
 	// stepSize == 1 => BLOCK
 	// stepSize > 1 => SPLIT :)
 	BTSS out(BlockType::VALUE, 0);
-	for(size_t inum = 0; inum != i->rangePtr()->dim(); ++inum){
+	size_t lastNum = i->rangePtr()->dim();
+	for(size_t inum = 0; inum != lastNum; ++inum){
 	    auto ii = i->getPtr(inum);
 	    if(ii == j){
-		if(inum == 0 and first){
+		if(inum == lastNum - 1 and first){
 		    out = BTSS(BlockType::BLOCK, 1);
 		}
 		else {
@@ -42,7 +43,7 @@ namespace MultiArrayTools
 	    
 	    if(ii->type() == IndexType::MULTI or
 	       ii->type() == IndexType::CONT){	
-		BTSS tmp = getBlockType(ii, j, inum == 0);
+		BTSS tmp = getBlockType(ii, j, inum == lastNum - 1);
 		if(tmp.first != BlockType::VALUE){
 		    out = tmp;
 		}
@@ -54,7 +55,6 @@ namespace MultiArrayTools
     template <typename T>
     std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize)
     {
-	VCHECK(stepSize);
 	if(stepSize == 0){
 	    return std::make_shared<BlockValue<T> >(vec, 0, blockSize);
 	}
@@ -69,7 +69,6 @@ namespace MultiArrayTools
     template <typename T>
     std::shared_ptr<MutableBlockBase<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize)
     {
-	VCHECK(stepSize);
 	if(stepSize == 0){
 	    return std::make_shared<MBlockValue<T> >(vec, 0, blockSize);
 	}
@@ -202,6 +201,7 @@ namespace MultiArrayTools
 	auto blockIndex = seekBlockIndex( mIndex, second);
 	block(blockIndex);
 	second.block(blockIndex);
+
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndex) ){
 	    get() = mSecond.get();
 	}
@@ -232,7 +232,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const OperationMaster<T,Ranges...>& OperationMaster<T,Ranges...>::block() const
     {
-	mBlockPtr->set( mIndex->pos() ); // containerRange <-> multiRange !!!
+	mBlockPtr->set( mIndex->pos() );
 	return *this;
     }
     
@@ -247,7 +247,7 @@ namespace MultiArrayTools
 	OperationBase<T>(), OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
-	mIndex(indices...);
+	(*mIndex)(indices...);
     }
 
     template <typename T, class... Ranges>
@@ -268,14 +268,14 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::block() const
     {
-	mBlockPtr->set( mIndex->pos() );
+	mBlockPtr->set( (*mIndex)().pos() );
 	return *this;
     }
     
     /***********************
      *   OperationRoot     *
      ***********************/
-
+    
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
@@ -298,7 +298,7 @@ namespace MultiArrayTools
 	block();
 	return *mBlockPtr;
     }
-
+    
     template <typename T, class... Ranges>
     MutableBlockBase<T>& OperationRoot<T,Ranges...>::get()
     {
@@ -317,13 +317,13 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::block() const
     {
-	mBlockPtr->set( mIndex->pos() );
+	mBlockPtr->set( (*mIndex)().pos() );
 	return *this;
     }
     
-    /***********************
-     *   OperationRoot     *
-     ***********************/
+    /*******************
+     *   Operation     *
+     *******************/
     
     template <typename T, class OpFunction, class... Ops>
     Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :

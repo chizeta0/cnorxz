@@ -408,6 +408,14 @@ namespace MultiArrayTools
 	return OperationRoot<T,SRanges...>(*this, inds...);
     }
 
+    template <typename T, class... SRanges>
+    ConstOperationRoot<T,SRanges...>
+    MutableMultiArrayBase<T,SRanges...>::operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    {
+	return ConstOperationRoot<T,SRanges...>(*this, inds...);
+    }
+
+    
     /*******************
      *  MultiArray     *	     
      *******************/
