@@ -54,6 +54,7 @@ namespace MultiArrayTools
     template <typename T>
     std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize)
     {
+	VCHECK(stepSize);
 	if(stepSize == 0){
 	    return std::make_shared<BlockValue<T> >(vec, 0, blockSize);
 	}
@@ -68,6 +69,7 @@ namespace MultiArrayTools
     template <typename T>
     std::shared_ptr<MutableBlockBase<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize)
     {
+	VCHECK(stepSize);
 	if(stepSize == 0){
 	    return std::make_shared<MBlockValue<T> >(vec, 0, blockSize);
 	}

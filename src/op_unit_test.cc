@@ -110,7 +110,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at('f') - (0.373+8.215) ) < 0.0001, true );
 	EXPECT_EQ( fabs( res.at('g') - (7.192+5.063) ) < 0.0001, true );
     }
-    /*
+
     TEST_F(OpTest_MDim, ExecOp1)
     {
 	MultiArray<double,SRange,SRange> res(sr2ptr,sr4ptr);
@@ -132,7 +132,7 @@ namespace {
 	EXPECT_EQ( fabs( res.at(mkt('3','B')) - (0.373 * 4.790) ) < 0.0001, true );
 
     }
-
+    /*
     TEST_F(OpTest_MDim, ExecOp2)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
