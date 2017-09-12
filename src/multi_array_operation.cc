@@ -13,7 +13,8 @@ namespace MultiArrayTools
     {
 	for(size_t inum = 0; inum != i->rangePtr()->dim(); ++inum){
 	    auto ii = i->getPtr(inum);
-	    if(ii->type() == IndexType::MULTI){
+	    if(ii->type() == IndexType::MULTI or
+	       ii->type() == IndexType::CONT){
 		seekIndexInst(ii, ivec);
 	    }
 	    ivec.push_back(ii);
@@ -21,7 +22,8 @@ namespace MultiArrayTools
     }
 
     BTSS getBlockType(std::shared_ptr<IndexBase> i,
-		      std::shared_ptr<IndexBase> j, bool first)
+		      std::shared_ptr<IndexBase> j,
+		      bool first, size_t higherStepSize)
     {
 	// returning BlockType and step size is redundant (change in the future)
 	// stepSize == 0 => VALUE
@@ -32,18 +34,21 @@ namespace MultiArrayTools
 	for(size_t inum = 0; inum != lastNum; ++inum){
 	    auto ii = i->getPtr(inum);
 	    if(ii == j){
+		
 		if(inum == lastNum - 1 and first){
 		    out = BTSS(BlockType::BLOCK, 1);
 		}
 		else {
-		    out = BTSS(BlockType::SPLIT, i->getStepSize(inum));
+		    first = false;
+		    out = BTSS(BlockType::SPLIT, i->getStepSize(inum) * higherStepSize + out.second);
 		}
 		continue;
 	    }
 	    
 	    if(ii->type() == IndexType::MULTI or
-	       ii->type() == IndexType::CONT){	
-		BTSS tmp = getBlockType(ii, j, inum == lastNum - 1);
+	       ii->type() == IndexType::CONT){
+
+		BTSS tmp = getBlockType(ii, j, inum == lastNum - 1, i->getStepSize(inum) * higherStepSize);
 		if(tmp.first != BlockType::VALUE){
 		    out = tmp;
 		}
@@ -199,6 +204,7 @@ namespace MultiArrayTools
 	(*mIndex) = *index;
 
 	auto blockIndex = seekBlockIndex( mIndex, second);
+
 	block(blockIndex);
 	second.block(blockIndex);
 

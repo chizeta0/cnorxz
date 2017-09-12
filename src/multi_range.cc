@@ -82,17 +82,17 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    size_t MultiIndex<Indices...>::pp(std::shared_ptr<IndexBase>& idxPtr)
+    int MultiIndex<Indices...>::pp(std::shared_ptr<IndexBase>& idxPtr)
     {
-	size_t tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtr);
+	int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtr);
 	IB::mPos += tmp;
 	return tmp;
     }
 
     template <class... Indices>
-    size_t MultiIndex<Indices...>::mm(std::shared_ptr<IndexBase>& idxPtr)
+    int MultiIndex<Indices...>::mm(std::shared_ptr<IndexBase>& idxPtr)
     {
-	size_t tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtr);
+	int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtr);
 	IB::mPos -= tmp;
 	return tmp;
     }

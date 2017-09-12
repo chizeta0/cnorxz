@@ -46,8 +46,8 @@ namespace MultiArrayTools
 	virtual MultiIndex& operator--() override;
 	virtual MultiIndex& operator=(size_t pos) override;
 
-	virtual size_t pp(std::shared_ptr<IndexBase>& idxPtr) override;
-	virtual size_t mm(std::shared_ptr<IndexBase>& idxPtr) override;
+	virtual int pp(std::shared_ptr<IndexBase>& idxPtr) override;
+	virtual int mm(std::shared_ptr<IndexBase>& idxPtr) override;
 	
 	template <size_t DIR>
 	MultiIndex& up();

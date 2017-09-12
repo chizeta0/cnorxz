@@ -44,8 +44,8 @@ namespace MultiArrayTools
 	virtual IndexBase& operator++() = 0;
 	virtual IndexBase& operator--() = 0;
 
-	virtual size_t pp(std::shared_ptr<IndexBase>& idxPtr) = 0;
-	virtual size_t mm(std::shared_ptr<IndexBase>& idxPtr) = 0;
+	virtual int pp(std::shared_ptr<IndexBase>& idxPtr) = 0;
+	virtual int mm(std::shared_ptr<IndexBase>& idxPtr) = 0;
 	
 	bool operator==(const IndexBase& in) const;
 	bool operator!=(const IndexBase& in) const;
@@ -56,7 +56,7 @@ namespace MultiArrayTools
 
 	virtual bool last() const = 0;
 	virtual bool first() const = 0;
-	
+
 	//virtual bool locked() const;
 	//virtual IndexBase& lock(std::shared_ptr<IndexBase>& idx);
 

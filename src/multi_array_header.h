@@ -54,12 +54,6 @@ namespace MultiArrayTools
     // ...
     */
 
-    template <typename... T>
-    std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)
-    {
-	PackNum<sizeof...(T)-1>::printTuple(out, tp);
-	return out;
-    }
 }
 
 #endif

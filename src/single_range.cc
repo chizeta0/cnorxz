@@ -39,14 +39,14 @@ namespace MultiArrayTools
     }
 
     template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::pp(std::shared_ptr<IndexBase>& idxPtr)
+    int SingleIndex<U,TYPE>::pp(std::shared_ptr<IndexBase>& idxPtr)
     {
 	++(*this);
 	return 1;
     }
 
     template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::mm(std::shared_ptr<IndexBase>& idxPtr)
+    int SingleIndex<U,TYPE>::mm(std::shared_ptr<IndexBase>& idxPtr)
     {
 	--(*this);
 	return 1;

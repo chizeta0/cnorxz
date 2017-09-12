@@ -39,7 +39,8 @@ namespace MultiArrayTools
     typedef std::pair<BlockType,size_t> BTSS;
     
     BTSS getBlockType(std::shared_ptr<IndexBase> i,
-		      std::shared_ptr<IndexBase> j, bool first);
+		      std::shared_ptr<IndexBase> j,
+		      bool first, size_t higherStepSize = 1);
 
     template <typename T>
     std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize);

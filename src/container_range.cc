@@ -39,6 +39,8 @@ namespace MultiArrayTools
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
+	PackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack);
     }
 
     template <class... Indices>
@@ -79,17 +81,17 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    size_t ContainerIndex<Indices...>::pp(std::shared_ptr<IndexBase>& idxPtr)
+    int ContainerIndex<Indices...>::pp(std::shared_ptr<IndexBase>& idxPtr)
     {
-	size_t tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtr);
+	int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtr);
 	IB::mPos += tmp;
 	return tmp;
     }
 
     template <class... Indices>
-    size_t ContainerIndex<Indices...>::mm(std::shared_ptr<IndexBase>& idxPtr)
+    int ContainerIndex<Indices...>::mm(std::shared_ptr<IndexBase>& idxPtr)
     {
-	size_t tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtr);
+	int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtr);
 	IB::mPos -= tmp;
 	return tmp;
     }
@@ -121,6 +123,9 @@ namespace MultiArrayTools
     {
 	if(mExternControl){
 	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    //VCHECK(id());
+	    //VCHECK(sizeof...(Indices));
+	    //assert(IB::mPos < IB::max());
 	}
 	return *this;
     }
@@ -172,7 +177,6 @@ namespace MultiArrayTools
     {
 	return IB::pos() == IB::mRangePtr->size() - 1;
     }
-
     
     template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator()(const std::shared_ptr<Indices>&... inds)
