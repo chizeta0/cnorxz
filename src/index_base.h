@@ -9,7 +9,7 @@
 
 #include "base_def.h"
 #include "range_base.h"
-#include "name.h"
+
 
 namespace MultiArrayTools
 {

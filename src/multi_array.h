@@ -13,7 +13,7 @@
 #include "multi_range.h"
 //#include "multi_array_operation.h"
 //#include "manipulator.h"
-//#include "name.h"
+//
 
 namespace MultiArrayTools
 {
