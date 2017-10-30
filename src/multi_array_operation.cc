@@ -96,7 +96,7 @@ namespace MultiArrayTools
 	return out;
     }
 
-    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> > mp,
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> >& mp,
 				  BlockType bt)
     {
 	size_t minNum = getBTNum( mp.begin()->second, bt );
@@ -121,7 +121,7 @@ namespace MultiArrayTools
     
     template <typename T>
     std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
-						    const OperationBase<T>& second)
+					      const OperationBase<T>& second)
     {
 	std::vector<std::shared_ptr<IndexBase> > ivec;
 	seekIndexInst(ownIdx, ivec);
@@ -130,10 +130,8 @@ namespace MultiArrayTools
 	for(auto& xx: ivec){
 	    mp[xx] = second.block(xx);
 	}
-
 	// seek minimal number of VALUEs => guarantees absence of conflicting blocks
 	minimizeAppearanceOfType(mp, BlockType::VALUE);
-
 	// seek mininmal number of SPLITs => maximal vectorization possible
 	minimizeAppearanceOfType(mp, BlockType::SPLIT);
 	
@@ -207,7 +205,7 @@ namespace MultiArrayTools
 
 	block(blockIndex);
 	second.block(blockIndex);
-
+	
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndex) ){
 	    get() = mSecond.get();
 	}

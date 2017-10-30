@@ -88,11 +88,12 @@ namespace MultiArrayHelper
 			     std::shared_ptr<IndexBase> idxPtr)
 	{
 	    auto& siPtr = std::get<N>(ip);
+	    //VCHECK(siPtr.id());
 	    if(siPtr.get() == idxPtr.get()){
-		return std::get<N>(bs) + PackNum<N-1>::pp(ip, bs, idxPtr);
+		return PackNum<N-1>::pp(ip, bs, idxPtr);
 	    }
 	    else {
-		size_t tmp = siPtr->pp(idxPtr);
+		int tmp = siPtr->pp(idxPtr);
 		if(siPtr->pos() == siPtr->max()){
 		    (*siPtr) = 0;
 		    return PackNum<N-1>::pp(ip, bs, idxPtr) - siPtr->max() + 1;
@@ -298,7 +299,8 @@ namespace MultiArrayHelper
 		return std::get<0>(bs);
 	    }
 	    else {
-		return siPtr->pp(idxPtr) * std::get<1>(bs);
+		int tmp = siPtr->pp(idxPtr);
+		return tmp * std::get<1>(bs);
 	    }
 	}
 

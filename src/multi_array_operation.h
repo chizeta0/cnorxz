@@ -50,7 +50,7 @@ namespace MultiArrayTools
 
     size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt);
 
-    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> > mp,
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> >& mp,
 				  BlockType bt);
 
     template <typename T>
