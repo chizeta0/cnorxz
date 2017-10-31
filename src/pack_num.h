@@ -408,7 +408,7 @@ namespace MultiArrayHelper
 	{
 	    static_assert(sizeof...(Args) == std::tuple_size<ArgTuple>::value-1,
 			  "inconsistent number of arguments");
-	    static BlockBinaryOp<T,Func> f;
+	    static BlockBinaryOp<T,Func,decltype(std::get<0>(tp).get()), decltype(args)...> f;
 	    return f(std::get<0>(tp).get(), args...);
 	}
 	

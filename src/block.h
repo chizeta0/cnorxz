@@ -20,14 +20,16 @@ namespace MultiArrayHelper
     };
     
     // manage vectorization in the future !!
-
-    template <typename T, class OpFunc>
+    
+    template <typename T, class OpFunc, class BlockClass1, class BlockClass2>
     class BlockBinaryOp
     {
     public:
 	BlockBinaryOp() = default;
-	BlockResult<T> operator()(const BlockBase<T>& arg1, const BlockBase<T>& arg2);
+	BlockResult<T> operator()(const BlockClass1& arg1, const BlockClass2& arg2);
     };
+
+    // EVERYTHING IN HERE MUST  N O T  BE VITUAL !!
     
     template <typename T>
     class BlockBase
@@ -35,14 +37,8 @@ namespace MultiArrayHelper
     public:
 	DEFAULT_MEMBERS(BlockBase);
 	BlockBase(size_t size);
-	
-	virtual BlockType type() const = 0;
-	virtual size_t stepSize() const = 0;
-	
-	virtual size_t size() const;
-	virtual const T& operator[](size_t pos) const = 0;
 
-	virtual BlockBase& set(size_t npos) = 0;
+	size_t size() const;
 	
 	template <class OpFunction>
 	BlockResult<T> operate(const BlockBase& in);
@@ -74,10 +70,6 @@ namespace MultiArrayHelper
 	DEFAULT_MEMBERS(MutableBlockBase);
 	MutableBlockBase(size_t size);
 
-	MutableBlockBase& operator=(const BlockBase<T>& in);
-
-	virtual T& operator[](size_t pos) = 0;
-	
     };
     
     template <typename T>
@@ -85,16 +77,17 @@ namespace MultiArrayHelper
     {
     public:
 	DEFAULT_MEMBERS(Block);
-	Block(const std::vector<T>& data, size_t begPos, size_t size);
+	Block(const std::vector<T>& data, size_t begPos, size_t size, size_t stepSize);
 
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual Block& set(size_t npos) override;
-	virtual size_t stepSize() const override;
+	BlockType type() const;
+	const T& operator[](size_t pos) const;
+	Block& set(size_t npos);
+	size_t stepSize() const;
 	
     protected:
 	const std::vector<T>* mData;
 	const T* mBegPtr;
+	size_t mStepSize;
     };
 
     template <typename T>
@@ -102,101 +95,22 @@ namespace MultiArrayHelper
     {
     public:
 	DEFAULT_MEMBERS(MBlock);
-	MBlock(std::vector<T>& data, size_t begPos, size_t size);
+	MBlock(std::vector<T>& data, size_t begPos, size_t size, size_t stepSize);
 
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual T& operator[](size_t pos) override;
-	virtual MBlock& set(size_t npos) override;
-	virtual size_t stepSize() const override;
+	template <class BlockClass>
+	MBlock& operator=(const BlockClass& in);
+	
+	BlockType type() const;
+	const T& operator[](size_t pos) const;
+	T& operator[](size_t pos);
+	MBlock& set(size_t npos);
+	size_t stepSize() const;
 	
     protected:
 	std::vector<T>* mData;
 	T* mBegPtr;
+	size_t mStepSize;
     };    
-    
-    template <typename T>
-    class BlockValue : public BlockBase<T>
-    {
-    public:
-	DEFAULT_MEMBERS(BlockValue);
-	
-	BlockValue(const std::vector<T>& data,
-		   size_t pos, size_t size);
-
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual BlockValue& set(size_t npos) override;
-	virtual size_t stepSize() const override;
-	
-    protected:
-	const std::vector<T>* mData;
-	const T* mVal;
-    };
-
-    template <typename T>
-    class MBlockValue : public MutableBlockBase<T>
-    {
-    public:
-	DEFAULT_MEMBERS(MBlockValue);
-	
-	MBlockValue(std::vector<T>& data,
-		    size_t pos, size_t size);
-
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual T& operator[](size_t pos) override;
-	virtual MBlockValue& set(size_t npos) override;
-	virtual size_t stepSize() const override;
-	
-    protected:
-	std::vector<T>* mData;
-	T* mVal;
-    };
-    
-    template <typename T>
-    class SplitBlock : public BlockBase<T>
-    {
-    public:
-
-	DEFAULT_MEMBERS(SplitBlock);
-	
-	SplitBlock(const std::vector<T>& data, size_t begPos,
-		   size_t stepSize, size_t size);
-
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual SplitBlock& set(size_t npos) override;
-	virtual size_t stepSize() const override;
-	
-    protected:
-	const std::vector<T>* mData;
-	size_t mStepSize;
-	const T* mBegPtr;	
-    };
-
-    template <typename T>
-    class MSplitBlock : public MutableBlockBase<T>
-    {
-    public:
-
-	DEFAULT_MEMBERS(MSplitBlock);
-	
-	MSplitBlock(std::vector<T>& data, size_t begPos,
-		    size_t stepSize, size_t size);
-
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual T& operator[](size_t pos) override;
-	virtual MSplitBlock& set(size_t npos) override;
-	virtual size_t stepSize() const override;
-	
-    protected:
-	std::vector<T>* mData;
-	size_t mStepSize;
-	T* mBegPtr;	
-    };
-
     
     template <typename T>
     class BlockResult : public MutableBlockBase<T>
@@ -206,11 +120,14 @@ namespace MultiArrayHelper
 	
 	BlockResult(size_t size);
 	
-	virtual BlockType type() const override;
-	virtual const T& operator[](size_t pos) const override;
-	virtual T& operator[](size_t i) override;
-	virtual BlockResult& set(size_t npos) override;
-	virtual size_t stepSize() const override;
+	template <class BlockClass>
+	BlockResult& operator=(const BlockClass& in);
+	
+	BlockType type() const;
+	const T& operator[](size_t pos) const;
+	T& operator[](size_t i);
+	BlockResult& set(size_t npos);
+	size_t stepSize() const;
 	
     protected:
 	std::vector<T> mRes;

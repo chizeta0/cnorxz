@@ -43,20 +43,20 @@ namespace MultiArrayTools
 		      bool first, size_t higherStepSize = 1);
 
     template <typename T>
-    std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize);
+    std::shared_ptr<Block<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize);
 
     template <typename T>
-    std::shared_ptr<MutableBlockBase<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize);
+    std::shared_ptr<MBlock<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize);
 
     size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt);
 
     void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> >& mp,
 				  BlockType bt);
 
-    template <typename T>
+    template <class OpClass>
     std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
-					      const OperationBase<T>& second);
-    
+					      const OpClass& second);
+    /*
     template <typename T>
     class OperationBase
     {
@@ -71,7 +71,7 @@ namespace MultiArrayTools
 	virtual const OperationBase& block() const = 0; // update block
 	
 	//virtual size_t argNum() const = 0;
-	virtual const BlockBase<T>& get() const = 0;
+	virtual const Block<T>& get() const = 0;
     };
    
     template <typename T>
@@ -82,10 +82,10 @@ namespace MultiArrayTools
 	
 	MutableOperationBase() = default;
 
-	virtual MutableBlockBase<T>& get() = 0;
+	virtual MBlock<T>& get() = 0;
 
     };
-
+    */
     template <typename T, class OperationClass>
     class OperationTemplate
     {
@@ -113,8 +113,8 @@ namespace MultiArrayTools
 	OperationClass* mOc;
     };
     
-    template <typename T, class... Ranges>
-    class OperationMaster : public MutableOperationBase<T>
+    template <typename T, class OpClass, class... Ranges>
+    class OperationMaster/* : public MutableOperationBase<T>*/
     {
     public:
 
@@ -123,27 +123,27 @@ namespace MultiArrayTools
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 
-	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OperationBase<T>& second,
+	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
-		
-	virtual MutableBlockBase<T>& get() override;
-	virtual const BlockBase<T>& get() const override;
+	
+	MBlock<T>& get();
+	const Block<T>& get() const;
 
-	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual const OperationMaster& block() const override;
+	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	const OperationMaster& block() const;
 	
     protected:
 
 	//void performAssignment(const OperationBase<T>& in);
-	OperationBase<T> const& mSecond;
+	OpClass const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-	mutable std::shared_ptr<MutableBlockBase<T> > mBlockPtr;
+	mutable std::shared_ptr<MBlock<T> > mBlockPtr;
     };
 
     
     template <typename T, class... Ranges>
-    class ConstOperationRoot : public OperationBase<T>,
+    class ConstOperationRoot : /*public OperationBase<T>,*/
 			       public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
     {
     public:
@@ -157,20 +157,20 @@ namespace MultiArrayTools
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
-	virtual const BlockBase<T>& get() const override;
+	const Block<T>& get() const;
 
-	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual const ConstOperationRoot& block() const override;
+	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	const ConstOperationRoot& block() const;
 	
     protected:
 	
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
- 	mutable std::shared_ptr<BlockBase<T> > mBlockPtr;
+ 	mutable std::shared_ptr<Block<T> > mBlockPtr;
     };
     
     template <typename T, class... Ranges>
-    class OperationRoot : public MutableOperationBase<T>,
+    class OperationRoot : /*public MutableOperationBase<T>,*/
 			  public OperationTemplate<T,OperationRoot<T,Ranges...> >
     {
     public:
@@ -184,23 +184,24 @@ namespace MultiArrayTools
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
-	OperationMaster<T,Ranges...> operator=(const OperationBase<T>& in);
+	template <class OpClass>
+	OperationMaster<T,OpClass,Ranges...> operator=(const OpClass& in);
 	
-	virtual const BlockBase<T>& get() const override;
-	virtual MutableBlockBase<T>& get() override;
+	const MBlock<T>& get() const;
+	MBlock<T>& get();
 
-	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual const OperationRoot& block() const override;
+	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	const OperationRoot& block() const;
 	
     protected:
 	
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-	mutable std::shared_ptr<MutableBlockBase<T> > mBlockPtr;
+	mutable std::shared_ptr<MBlock<T> > mBlockPtr;
     };
     
     template <typename T, class OpFunction, class... Ops>
-    class Operation : public OperationBase<T>,
+    class Operation : /*public OperationBase<T>,*/
 		      public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
     {
     public:
@@ -212,10 +213,10 @@ namespace MultiArrayTools
 	
 	Operation(const Ops&... ops);
 	
-	virtual const BlockBase<T>& get() const override;
+	const BlockResult<T>& get() const;
 
-	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const override;
-	virtual const Operation& block() const override;
+	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	const Operation& block() const;
 	
     protected:
 	std::tuple<Ops...> mOps;

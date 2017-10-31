@@ -131,7 +131,7 @@ namespace MultiArrayTools
     class OperationTemplate;
     
     // multi_array_operation.h
-    template <typename T, class... Ranges>
+    template <typename T, class OpClass, class... Ranges>
     class OperationMaster;
     
     // multi_array_operation.h
@@ -189,7 +189,7 @@ namespace MultiArrayTools
 namespace MultiArrayHelper
 {
     // block.h
-    template <typename T, class OpFunc>
+    template <typename T, class OpFunc, class BlockClass1, class BlockClass2>
     class BlockBinaryOp;
     
     // block.h

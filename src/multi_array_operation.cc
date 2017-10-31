@@ -58,31 +58,15 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    std::shared_ptr<BlockBase<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize)
+    std::shared_ptr<Block<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize)
     {
-	if(stepSize == 0){
-	    return std::make_shared<BlockValue<T> >(vec, 0, blockSize);
-	}
-	else if(stepSize == 1){
-	    return std::make_shared<Block<T> >(vec, 0, blockSize);
-	}
-	else {
-	    return std::make_shared<SplitBlock<T> >(vec, 0, stepSize, blockSize);
-	}
+	return std::make_shared<Block<T> >(vec, 0, blockSize, stepSize);
     }
 
     template <typename T>
-    std::shared_ptr<MutableBlockBase<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize)
+    std::shared_ptr<MBlock<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize)
     {
-	if(stepSize == 0){
-	    return std::make_shared<MBlockValue<T> >(vec, 0, blockSize);
-	}
-	else if(stepSize == 1){
-	    return std::make_shared<MBlock<T> >(vec, 0, blockSize);
-	}
-	else {
-	    return std::make_shared<MSplitBlock<T> >(vec, 0, stepSize, blockSize);
-	}
+	return std::make_shared<MBlock<T> >(vec, 0, blockSize, stepSize);
     }
 
     size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt)
@@ -119,9 +103,9 @@ namespace MultiArrayTools
 
     }
     
-    template <typename T>
+    template <class OpClass>
     std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
-					      const OperationBase<T>& second)
+					      const OpClass& second)
     {
 	std::vector<std::shared_ptr<IndexBase> > ivec;
 	seekIndexInst(ownIdx, ivec);
@@ -189,9 +173,9 @@ namespace MultiArrayTools
      *   OperationMaster     *
      *************************/
 
-    template <typename T, class... Ranges>
-    OperationMaster<T,Ranges...>::
-    OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OperationBase<T>& second,
+    template <typename T, class OpClass, class... Ranges>
+    OperationMaster<T,OpClass,Ranges...>::
+    OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index) :
 	mSecond(second), mArrayRef(ma), mIndex()
     {
@@ -211,30 +195,30 @@ namespace MultiArrayTools
 	}
     }
     
-    template <typename T, class... Ranges>
-    MutableBlockBase<T>& OperationMaster<T,Ranges...>::get()
+    template <typename T, class OpClass, class... Ranges>
+    MBlock<T>& OperationMaster<T,OpClass,Ranges...>::get()
     {
 	block();
 	return *mBlockPtr;
     }
     
-    template <typename T, class... Ranges>
-    const BlockBase<T>& OperationMaster<T,Ranges...>::get() const
+    template <typename T, class OpClass, class... Ranges>
+    const Block<T>& OperationMaster<T,OpClass,Ranges...>::get() const
     {
 	block();
 	return *mBlockPtr;
     }
 
-    template <typename T, class... Ranges>
-    std::vector<BTSS> OperationMaster<T,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    template <typename T, class OpClass, class... Ranges>
+    std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
 	return btv;
     }
 
-    template <typename T, class... Ranges>
-    const OperationMaster<T,Ranges...>& OperationMaster<T,Ranges...>::block() const
+    template <typename T, class OpClass, class... Ranges>
+    const OperationMaster<T,OpClass,Ranges...>& OperationMaster<T,OpClass,Ranges...>::block() const
     {
 	mBlockPtr->set( mIndex->pos() );
 	return *this;
@@ -248,14 +232,14 @@ namespace MultiArrayTools
     ConstOperationRoot<T,Ranges...>::
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	OperationBase<T>(), OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
+	OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
 	(*mIndex)(indices...);
     }
 
     template <typename T, class... Ranges>
-    const BlockBase<T>& ConstOperationRoot<T,Ranges...>::get() const
+    const Block<T>& ConstOperationRoot<T,Ranges...>::get() const
     {
 	block();
 	return *mBlockPtr;
@@ -284,27 +268,28 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	MutableOperationBase<T>(), OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
+	OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
     {
 	(*mIndex)(indices...);
     }
 
     template <typename T, class... Ranges>
-    OperationMaster<T,Ranges...> OperationRoot<T,Ranges...>::operator=(const OperationBase<T>& in)
+    template <class OpClass>
+    OperationMaster<T,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	return OperationMaster<T,Ranges...>(mArrayRef, in, mIndex);
+	return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex);
     }
-    
+
     template <typename T, class... Ranges>
-    const BlockBase<T>& OperationRoot<T,Ranges...>::get() const
+    const MBlock<T>& OperationRoot<T,Ranges...>::get() const
     {
 	block();
 	return *mBlockPtr;
     }
     
     template <typename T, class... Ranges>
-    MutableBlockBase<T>& OperationRoot<T,Ranges...>::get()
+    MBlock<T>& OperationRoot<T,Ranges...>::get()
     {
 	block();
 	return *mBlockPtr;
@@ -331,11 +316,11 @@ namespace MultiArrayTools
     
     template <typename T, class OpFunction, class... Ops>
     Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :
-	OperationBase<T>(), OperationTemplate<T,Operation<T,OpFunction,Ops...> >(this),
+	OperationTemplate<T,Operation<T,OpFunction,Ops...> >(this),
 	mOps(ops...) {}
 
     template <typename T, class OpFunction, class... Ops>
-    const BlockBase<T>& Operation<T,OpFunction,Ops...>::get() const
+    const BlockResult<T>& Operation<T,OpFunction,Ops...>::get() const
     {
 	mRes = std::move( PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps) );
 	return mRes;
