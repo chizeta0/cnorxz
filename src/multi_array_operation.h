@@ -223,6 +223,28 @@ namespace MultiArrayTools
 	mutable BlockResult<T> mRes;
     };
 
+    template <typename T, class Op>
+    class Contraction : public OperationTemplate<T,Contraction<T,Op> >
+    {
+    public:
+
+	typedef T value_type;
+	typedef OperationTemplate<T,Contraction<T,Op> > OT;
+
+	Contraction(const Op& op);
+	
+	const BlockResult<T>& get() const;
+
+	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	const Contraction& block() const;
+	
+    protected:
+
+	const Op& mOp;
+	mutable BlockResult<T> mRes;
+	
+    };
+    
 }
 
 #include "multi_array_operation.cc"

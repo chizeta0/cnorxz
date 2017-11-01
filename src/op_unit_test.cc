@@ -6,6 +6,8 @@
 
 #include "multi_array_header.h"
 
+#include <ctime>
+
 namespace MAT = MultiArrayTools;
 
 namespace {
@@ -25,6 +27,15 @@ namespace {
 	fptr = nptr;
     }
 
+    template <class Factory, typename T>
+    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::vector<T>& ilist)
+    {
+	std::vector<T> tmp = ilist;
+	auto nptr = std::make_shared<Factory>( tmp );
+	fptr = nptr;
+    }
+
+    
     template <class Factory, class... Rs>
     void swapMFactory(std::shared_ptr<RangeFactoryBase>& fptr, const Rs&... rs)
     {
@@ -101,6 +112,95 @@ namespace {
 	std::vector<double> v4 = { 1.470, 2.210 };
     };
 
+    class OpTest_Performance : public ::testing::Test
+    {
+    protected:
+
+	typedef SingleRangeFactory<size_t,RangeType::ANY> SRF;
+	typedef SRF::oType SRange;
+
+	typedef MultiRangeFactory<SRange,SRange> MRF;
+	typedef MRF::oType MRange;
+
+	OpTest_Performance()
+	{
+	
+	    std::vector<size_t> initvec1(vs1);
+	    cv1.resize(vs1);
+	    for(size_t i = 0; i != vs1; ++i){
+		initvec1[i] = i;
+		cv1[i] = sqrt( static_cast<double>(i)*0.53 );
+	    }
+
+	    std::vector<size_t> initvec2(vs2);
+	    cv2.resize(vs2*vs1);
+	    for(size_t i = 0; i != vs2; ++i){
+		initvec2[i] = i;
+		for(size_t j = 0; j != vs1; ++j){
+		    cv2[i*vs1 + j] = static_cast<double>(i) * sin(static_cast<double>(j)*0.4);
+		}
+	    }
+
+	    swapFactory<SRF>(rfbptr, initvec1);
+	    sr1ptr = std::dynamic_pointer_cast<SRange>(rfbptr->create());
+
+	    swapFactory<SRF>(rfbptr, initvec2);
+	    sr2ptr = std::dynamic_pointer_cast<SRange>(rfbptr->create());
+
+	    swapMFactory<MRF>(rfbptr, sr2ptr, sr1ptr);
+	    mrptr = std::dynamic_pointer_cast<MRange>(rfbptr->create());
+	}
+
+	const size_t vs1 = 10000;
+	const size_t vs2 = 1000;	
+
+	std::shared_ptr<RangeFactoryBase> rfbptr;
+	std::shared_ptr<SRange> sr1ptr;
+	std::shared_ptr<SRange> sr2ptr;
+	std::shared_ptr<MRange> mrptr;
+
+	std::vector<double> cv1;
+	std::vector<double> cv2;
+    };
+
+    TEST_F(OpTest_Performance, PCheck)
+    {
+	MultiArray<double,MRange> ma2(mrptr, cv2);
+	MultiArray<double,SRange> ma1(sr1ptr, cv1);
+	MultiArray<double,MRange> res(mrptr);
+
+	auto si1 = std::dynamic_pointer_cast<SRange::IndexType>( sr1ptr->index() );
+	auto si2 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
+	auto mi = std::dynamic_pointer_cast<MRange::IndexType>( mrptr->index() );
+	(*mi)(si2, si1);
+
+	std::clock_t begin = std::clock();
+	
+	res(mi) = ma2(mi) * ma1(si1);
+
+	std::clock_t end = std::clock();
+	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
+		  << std::endl;
+
+	std::clock_t begin2 = std::clock();
+	
+	std::vector<double> res2(vs1*vs2);
+	for(size_t i = 0; i != vs2; ++i){
+	    for(size_t j = 0; j != vs1; ++j){
+		res2[i*vs1 + j] = cv1[j] * cv2[i*vs1 + j];
+	    }
+	}
+
+	std::clock_t end2 = std::clock();
+	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
+		  << std::endl;
+
+	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
+
+	EXPECT_EQ( xround( res.at(mkt(7,9)) ), xround(res2[7*vs1 + 9]) );
+	
+    }
+    
     TEST_F(OpTest_1Dim, ExecOp)
     {
 	MultiArray<double,SRange> ma1(srptr, v1);

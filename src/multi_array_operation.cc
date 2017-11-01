@@ -122,14 +122,6 @@ namespace MultiArrayTools
 	return mp.begin()->first;
     }
 
-    
-    /*********************************
-     *   MultiArrayOperationBase     *
-     *********************************/
-    
-    // purely virtual at the moment
-
-
     /***************************
      *   OperationTemplate     *
      ***************************/
