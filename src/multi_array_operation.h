@@ -108,6 +108,10 @@ namespace MultiArrayTools
 	template <class Second>
 	auto operator/(const Second& in) const
 	    -> Operation<T,std::divides<T>,OperationClass,Second>;
+
+	template <class IndexType>
+	auto c(std::shared_ptr<IndexType>& ind) const
+	    -> Contraction<T,OperationClass,IndexType>;
 	
     private:
 	OperationClass* mOc;
@@ -223,15 +227,15 @@ namespace MultiArrayTools
 	mutable BlockResult<T> mRes;
     };
 
-    template <typename T, class Op>
+    template <typename T, class Op, class IndexType>
     class Contraction : public OperationTemplate<T,Contraction<T,Op> >
     {
     public:
 
 	typedef T value_type;
-	typedef OperationTemplate<T,Contraction<T,Op> > OT;
-
-	Contraction(const Op& op);
+	typedef OperationTemplate<T,Contraction<T,Op,IndexType> > OT;
+	
+	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
 	
 	const BlockResult<T>& get() const;
 
@@ -241,8 +245,8 @@ namespace MultiArrayTools
     protected:
 
 	const Op& mOp;
+	std::shared_ptr<IndexType> mInd;
 	mutable BlockResult<T> mRes;
-	
     };
     
 }

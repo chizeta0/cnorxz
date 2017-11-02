@@ -161,6 +161,15 @@ namespace MultiArrayTools
     	return Operation<T,std::divides<T>,OperationClass,Second>(*mOc, in);
     }
 
+    template <typename T, class OperationClass>
+    template <class IndexType>
+    auto OperationTemplate<T,OperationClass>::c(std::shared_ptr<IndexType>& ind) const
+	-> Contraction<T,OperationClass,IndexType>
+    {
+	return Contraction<T,OperationClass,IndexType>(*mOc, ind);
+    }
+
+    
     /*************************
      *   OperationMaster     *
      *************************/
