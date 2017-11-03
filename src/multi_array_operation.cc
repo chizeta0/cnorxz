@@ -342,4 +342,36 @@ namespace MultiArrayTools
 	return *this;
     }
 
+    /*********************
+     *   Contraction     *
+     *********************/
+
+    template <typename T, class Op, class IndexType>
+    Contraction(const Op& op, std::shared_ptr<IndexType> ind) :
+	OperationTemplate<T,Contraction<T,Op,IndexType> >(this),
+	mOp(op) {}
+
+    const BlockResult<T>& get() const
+    {
+	// set mRes = 0 !!!
+	for(*mIndex = 0; mIndex->pos() != mIndex->max(); ++(*mIndex)){
+	    mRes += mOp.get();
+	}
+	return mRes;
+    }
+    
+    template <typename T, class Op, class IndexType>
+    std::vector<BTSS> Contraction<T,Op,IndexType>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    {
+	std::vector<BTSS> btv;
+	PackNum<sizeof...(Ops)-1>::makeBlockTypeVec(btv, mOp, blockIndex);
+	return btv;
+    }
+
+    template <typename T, class Op, class IndexType>
+    const Contraction& block() const
+    {
+	return *this;
+    }
+    
 }

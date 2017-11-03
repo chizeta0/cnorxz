@@ -129,6 +129,14 @@ namespace MultiArrayHelper
 	BlockResult& set(size_t npos);
 	size_t stepSize() const;
 	
+	BlockResult<T>& operator+=(const BlockBase& in);
+	BlockResult<T>& operator-=(const BlockBase& in);
+	BlockResult<T>& operator*=(const BlockBase& in);
+	BlockResult<T>& operator/=(const BlockBase& in);
+
+	template <class OpFunction>
+	BlockResult<T>& operateSelf(const BlockBase& in);
+	
     protected:
 	std::vector<T> mRes;
     };

@@ -226,5 +226,43 @@ namespace MultiArrayHelper
     {
 	return 1;
     }
+
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator+=(const BlockBase& in)
+    {
+	return operateSelf<std::plus<T> >(in);
+    }
+
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator-=(const BlockBase& in)
+    {
+	return operateSelf<std::minus<T> >(in);
+    }
+
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator*=(const BlockBase& in)
+    {
+	return operateSelf<std::multiplies<T> >(in);
+    }
+
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator/=(const BlockBase& in)
+    {
+	return operateSelf<std::divides<T> >(in);
+    }
+
+    template <typename T>
+    template <class OpFunction>
+    BlockResult<T>& BlockResult<T>::operateSelf(const BlockBase<T>& in)
+    {
+	assert(mSize == in.size());
+	OpFunction f;
+	//BlockResult<T> res(mSize);
+	for(size_t i = 0; i != mSize; ++i){
+	    (*this)[i] = f((*this)[i], in[i]);
+	}
+	return *this;
+    }
+
     
 } // end namespace MultiArrayHelper
