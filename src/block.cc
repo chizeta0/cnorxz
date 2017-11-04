@@ -22,6 +22,20 @@ namespace MultiArrayHelper
 	}
 	return res;
     }
+
+    template <typename T, class OpFunc, class BlockClass>
+    BlockBinaryOpSelf<T,OpFunc,BlockClass>::BlockBinaryOpSelf(BlockResult<T>& res) : mRes(res) {}
+
+    template <typename T, class OpFunc, class BlockClass>
+    void BlockBinaryOpSelf<T,OpFunc,BlockClass>::operator()(const BlockClass& arg)
+    {
+	static OpFunc f;
+	assert(mRes.size() == arg.size());
+	for(size_t i = 0; i != arg.size(); ++i){
+	    mRes[i] = f(mRes[i], arg[i]);
+	}
+    }
+
     
     /*****************
      *   BlockBase   *
@@ -35,7 +49,7 @@ namespace MultiArrayHelper
     {
 	return mSize;
     }
-
+    /*
     template <typename T>
     template <class OpFunction>
     BlockResult<T> BlockBase<T>::operate(const BlockBase<T>& in)
@@ -43,6 +57,7 @@ namespace MultiArrayHelper
 	assert(mSize == in.size());
 	OpFunction f;
 	BlockResult<T> res(mSize);
+	CHECK;
 	for(size_t i = 0; i != mSize; ++i){
 	    res[i] = f((*this)[i], in[i]);
 	}
@@ -73,7 +88,7 @@ namespace MultiArrayHelper
     {
 	return operate<std::divides<T> >(in);
     }
-
+    */
     /************************
      *   MutableBlockBase   *
      ************************/
@@ -190,6 +205,7 @@ namespace MultiArrayHelper
     template <class BlockClass>
     BlockResult<T>& BlockResult<T>::operator=(const BlockClass& in)
     {
+	//CHECK;
 	for(size_t i = 0; i != BlockBase<T>::mSize; ++i){
 	    (*this)[i] = in[i];
 	}
@@ -228,25 +244,33 @@ namespace MultiArrayHelper
     }
 
     template <typename T>
-    BlockResult<T>& BlockResult<T>::operator+=(const BlockBase& in)
+    BlockResult<T>& BlockResult<T>::assing(const T& val)
+    {
+	mRes.assing(BB::mSize, val);
+	return *this;
+    }
+    
+    /*
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator+=(const BlockBase<T>& in)
     {
 	return operateSelf<std::plus<T> >(in);
     }
 
     template <typename T>
-    BlockResult<T>& BlockResult<T>::operator-=(const BlockBase& in)
+    BlockResult<T>& BlockResult<T>::operator-=(const BlockBase<T>& in)
     {
 	return operateSelf<std::minus<T> >(in);
     }
 
     template <typename T>
-    BlockResult<T>& BlockResult<T>::operator*=(const BlockBase& in)
+    BlockResult<T>& BlockResult<T>::operator*=(const BlockBase<T>& in)
     {
 	return operateSelf<std::multiplies<T> >(in);
     }
 
     template <typename T>
-    BlockResult<T>& BlockResult<T>::operator/=(const BlockBase& in)
+    BlockResult<T>& BlockResult<T>::operator/=(const BlockBase<T>& in)
     {
 	return operateSelf<std::divides<T> >(in);
     }
@@ -255,14 +279,14 @@ namespace MultiArrayHelper
     template <class OpFunction>
     BlockResult<T>& BlockResult<T>::operateSelf(const BlockBase<T>& in)
     {
-	assert(mSize == in.size());
+	assert(BB::mSize == in.size());
 	OpFunction f;
 	//BlockResult<T> res(mSize);
-	for(size_t i = 0; i != mSize; ++i){
+	for(size_t i = 0; i != BB::mSize; ++i){
 	    (*this)[i] = f((*this)[i], in[i]);
 	}
 	return *this;
     }
-
+    */
     
 } // end namespace MultiArrayHelper

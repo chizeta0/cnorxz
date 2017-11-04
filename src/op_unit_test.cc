@@ -198,6 +198,7 @@ namespace {
 	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
 
 	EXPECT_EQ( xround( res.at(mkt(7,9)) ), xround(res2[7*vs1 + 9]) );
+	//EXPECT_EQ( xround( res.at(mkt(700,900)) ), xround(res2[700*vs1 + 900]) );
 	
     }
     

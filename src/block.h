@@ -29,6 +29,17 @@ namespace MultiArrayHelper
 	BlockResult<T> operator()(const BlockClass1& arg1, const BlockClass2& arg2);
     };
 
+    template <typename T, class OpFunc, class BlockClass>
+    class BlockBinaryOpSelf
+    {
+    public:
+	BlockBinaryOpSelf(BlockResult<T>& res);
+	void operator()(const BlockClass& arg);
+    private:
+	BlockResult<T>& mRes;
+    };
+
+    
     // EVERYTHING IN HERE MUST  N O T  BE VITUAL !!
     
     template <typename T>
@@ -39,7 +50,7 @@ namespace MultiArrayHelper
 	BlockBase(size_t size);
 
 	size_t size() const;
-	
+	/*
 	template <class OpFunction>
 	BlockResult<T> operate(const BlockBase& in);
 	
@@ -47,7 +58,7 @@ namespace MultiArrayHelper
 	BlockResult<T> operator-(const BlockBase& in);
 	BlockResult<T> operator*(const BlockBase& in);
 	BlockResult<T> operator/(const BlockBase& in);
-	
+	*/
     protected:
 	size_t mSize;
     };
@@ -116,12 +127,16 @@ namespace MultiArrayHelper
     class BlockResult : public MutableBlockBase<T>
     {
     public:
+	typedef BlockBase<T> BB;
+	
 	DEFAULT_MEMBERS(BlockResult);
 	
 	BlockResult(size_t size);
 	
 	template <class BlockClass>
 	BlockResult& operator=(const BlockClass& in);
+
+	BlockResult& assing(const T& val);
 	
 	BlockType type() const;
 	const T& operator[](size_t pos) const;
@@ -129,13 +144,13 @@ namespace MultiArrayHelper
 	BlockResult& set(size_t npos);
 	size_t stepSize() const;
 	
-	BlockResult<T>& operator+=(const BlockBase& in);
-	BlockResult<T>& operator-=(const BlockBase& in);
-	BlockResult<T>& operator*=(const BlockBase& in);
-	BlockResult<T>& operator/=(const BlockBase& in);
+	//BlockResult<T>& operator+=(const BlockBase<T>& in);
+	//BlockResult<T>& operator-=(const BlockBase<T>& in);
+	//BlockResult<T>& operator*=(const BlockBase<T>& in);
+	//BlockResult<T>& operator/=(const BlockBase<T>& in);
 
-	template <class OpFunction>
-	BlockResult<T>& operateSelf(const BlockBase& in);
+	//template <class OpFunction>
+	//BlockResult<T>& operateSelf(const BlockBase<T>& in);
 	
     protected:
 	std::vector<T> mRes;
