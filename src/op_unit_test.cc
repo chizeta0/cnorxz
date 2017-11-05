@@ -239,6 +239,22 @@ namespace {
 
     }
 
+    TEST_F(OpTest_MDim, ExecContract)
+    {
+	MultiArray<double,SRange> res(sr2ptr);
+	const MultiArray<double,SRange> ma1(sr2ptr, v1);
+	const MultiArray<double,SRange> ma2(sr4ptr, v2);
+
+	auto i1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
+	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
+
+	res(i1) = (ma1(i1) * ma2(i2)).c(i2);
+
+	EXPECT_EQ( xround( res.at('1') ), xround(2.917 * 8.870 + 2.917 * 4.790) );
+	EXPECT_EQ( xround( res.at('2') ), xround(9.436 * 8.870 + 9.436 * 4.790) );
+	EXPECT_EQ( xround( res.at('3') ), xround(0.373 * 8.870 + 0.373 * 4.790) );
+    }
+    
     TEST_F(OpTest_MDim, ExecOp2)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);

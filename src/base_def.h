@@ -146,6 +146,10 @@ namespace MultiArrayTools
     template <typename T, class OpFunction, class... Ops>
     class Operation;
 
+    // multi_array_operation.h
+    template <typename T, class Op, class IndexType>
+    class Contraction;
+
     /*
     // multi_array_operation.h
     template <typename T, class InRange, class TotalInRange, class OutRange, class TotalRange>

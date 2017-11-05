@@ -50,17 +50,9 @@ namespace MultiArrayHelper
 	BlockBase(size_t size);
 
 	size_t size() const;
-	/*
-	template <class OpFunction>
-	BlockResult<T> operate(const BlockBase& in);
-	
-	BlockResult<T> operator+(const BlockBase& in);
-	BlockResult<T> operator-(const BlockBase& in);
-	BlockResult<T> operator*(const BlockBase& in);
-	BlockResult<T> operator/(const BlockBase& in);
-	*/
+
     protected:
-	size_t mSize;
+	size_t mSize = 0;
     };
 
     template <typename T>
@@ -136,21 +128,13 @@ namespace MultiArrayHelper
 	template <class BlockClass>
 	BlockResult& operator=(const BlockClass& in);
 
-	BlockResult& assing(const T& val);
+	BlockResult& assign(size_t size, const T& val);
 	
 	BlockType type() const;
 	const T& operator[](size_t pos) const;
 	T& operator[](size_t i);
 	BlockResult& set(size_t npos);
 	size_t stepSize() const;
-	
-	//BlockResult<T>& operator+=(const BlockBase<T>& in);
-	//BlockResult<T>& operator-=(const BlockBase<T>& in);
-	//BlockResult<T>& operator*=(const BlockBase<T>& in);
-	//BlockResult<T>& operator/=(const BlockBase<T>& in);
-
-	//template <class OpFunction>
-	//BlockResult<T>& operateSelf(const BlockBase<T>& in);
 	
     protected:
 	std::vector<T> mRes;

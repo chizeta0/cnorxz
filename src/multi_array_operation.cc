@@ -160,7 +160,7 @@ namespace MultiArrayTools
     {
     	return Operation<T,std::divides<T>,OperationClass,Second>(*mOc, in);
     }
-    /*
+
     template <typename T, class OperationClass>
     template <class IndexType>
     auto OperationTemplate<T,OperationClass>::c(std::shared_ptr<IndexType>& ind) const
@@ -168,7 +168,7 @@ namespace MultiArrayTools
     {
 	return Contraction<T,OperationClass,IndexType>(*mOc, ind);
     }
-    */
+
     
     /*************************
      *   OperationMaster     *
@@ -324,7 +324,6 @@ namespace MultiArrayTools
     const BlockResult<T>& Operation<T,OpFunction,Ops...>::get() const
     {
 	mRes = std::move( PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps) );
-	//CHECK;
 	return mRes;
     }
 
@@ -350,15 +349,14 @@ namespace MultiArrayTools
     template <typename T, class Op, class IndexType>
     Contraction<T,Op,IndexType>::Contraction(const Op& op, std::shared_ptr<IndexType> ind) :
 	OperationTemplate<T,Contraction<T,Op,IndexType> >(this),
-	mOp(op) {}
+	mOp(op),
+	mInd(ind) {}
 
     template <typename T, class Op, class IndexType>
     const BlockResult<T>& Contraction<T,Op,IndexType>::get() const
     {
 	BlockBinaryOpSelf<T,std::plus<T>,BlockResult<T> > f(mRes);
-	mRes.assign( static_cast<T>(0) );
 	for(*mInd = 0; mInd->pos() != mInd->max(); ++(*mInd)){
-	    //mRes += mOp.get();
 	    f(mOp.get());
 	}
 	return mRes;
@@ -367,9 +365,7 @@ namespace MultiArrayTools
     template <typename T, class Op, class IndexType>
     std::vector<BTSS> Contraction<T,Op,IndexType>::block(const std::shared_ptr<IndexBase> blockIndex) const
     {
-	std::vector<BTSS> btv;
-	PackNum<0>::makeBlockTypeVec(btv, std::make_tuple( mOp ), blockIndex);
-	return btv;
+	return mOp.block(blockIndex);
     }
 
     template <typename T, class Op, class IndexType>
