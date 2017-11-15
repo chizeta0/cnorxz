@@ -357,7 +357,6 @@ namespace MultiArrayTools
     {
 	BlockBinaryOpSelf<T,std::plus<T>,decltype(mOp.get())> f(mRes);
 	for(*mInd = 0; mInd->pos() != mInd->max(); ++(*mInd)){
-	    VCHECK(mInd->pos());
 	    f(mOp.get());
 	}
 	return mRes;

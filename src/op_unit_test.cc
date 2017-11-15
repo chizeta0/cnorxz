@@ -182,9 +182,9 @@ namespace {
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 
+	std::vector<double> res2(vs1*vs2);
 	std::clock_t begin2 = std::clock();
 	
-	std::vector<double> res2(vs1*vs2);
 	for(size_t i = 0; i != vs2; ++i){
 	    for(size_t j = 0; j != vs1; ++j){
 		res2[i*vs1 + j] = cv1[j] * cv2[i*vs1 + j];

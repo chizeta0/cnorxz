@@ -32,7 +32,6 @@ namespace MultiArrayHelper
 	static OpFunc f;
 	if(mRes.size() == 0) { mRes.assign(arg.size(), static_cast<T>(0)); }
 	assert(mRes.size() == arg.size());
-	VCHECK(arg);
 	for(size_t i = 0; i != arg.size(); ++i){
 	    mRes[i] = f(mRes[i], arg[i]);
 	}
