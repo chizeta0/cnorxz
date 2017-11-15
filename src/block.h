@@ -56,7 +56,7 @@ namespace MultiArrayHelper
     };
 
     template <typename T>
-    std::ostream& operator<<(std::ostream& out, const BlockBase<T>& block)
+    std::ostream& operator<<(std::ostream& out, const MBlock<T>& block)
     {
 	out << block[0];
 	for(size_t i = 1; i != block.size(); ++i){
@@ -64,6 +64,17 @@ namespace MultiArrayHelper
 	}
 	return out;
     }
+
+    template <typename T>
+    std::ostream& operator<<(std::ostream& out, const BlockResult<T>& block)
+    {
+	out << block[0];
+	for(size_t i = 1; i != block.size(); ++i){
+	    out << ", " << block[i];
+	}
+	return out;
+    }
+
     
     template <typename T>
     class MutableBlockBase : public BlockBase<T>

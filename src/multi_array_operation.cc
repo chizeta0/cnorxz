@@ -355,8 +355,9 @@ namespace MultiArrayTools
     template <typename T, class Op, class IndexType>
     const BlockResult<T>& Contraction<T,Op,IndexType>::get() const
     {
-	BlockBinaryOpSelf<T,std::plus<T>,BlockResult<T> > f(mRes);
+	BlockBinaryOpSelf<T,std::plus<T>,decltype(mOp.get())> f(mRes);
 	for(*mInd = 0; mInd->pos() != mInd->max(); ++(*mInd)){
+	    VCHECK(mInd->pos());
 	    f(mOp.get());
 	}
 	return mRes;
