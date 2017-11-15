@@ -1,0 +1,13 @@
+image: docker.io/rqcd/centos-7.2.1511-buildtools:latest
+
+stages:
+    - build
+
+build-centos:
+    stage: build
+    script:
+      - mkdir build
+      - cd build
+      - cmake3 ..
+      - make -j2
+      - make test
