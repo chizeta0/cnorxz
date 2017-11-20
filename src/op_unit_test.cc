@@ -169,9 +169,9 @@ namespace {
 	MultiArray<double,SRange> ma1(sr1ptr, cv1);
 	MultiArray<double,MRange> res(mrptr);
 
-	auto si1 = std::dynamic_pointer_cast<SRange::IndexType>( sr1ptr->index() );
-	auto si2 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
-	auto mi = std::dynamic_pointer_cast<MRange::IndexType>( mrptr->index() );
+	auto si1 = MAT::getIndex(sr1ptr);
+	auto si2 = MAT::getIndex(sr2ptr);
+	auto mi = MAT::getIndex(mrptr);
 	(*mi)(si2, si1);
 
 	std::clock_t begin = std::clock();
@@ -208,7 +208,7 @@ namespace {
 	MultiArray<double,SRange> ma2(srptr, v2);
 	MultiArray<double,SRange> res(srptr);
 
-	auto i = std::dynamic_pointer_cast<SRange::IndexType>( srptr->index() );
+	auto i = MAT::getIndex( srptr );
 	res(i) = ma1(i) + ma2(i);
 
 	EXPECT_EQ( fabs( res.at('a') - (2.917+8.870) ) < 0.0001, true);
@@ -223,8 +223,8 @@ namespace {
 	const MultiArray<double,SRange> ma1(sr2ptr, v1);
 	const MultiArray<double,SRange> ma2(sr4ptr, v2);
 
-	auto i1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
-	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
+	auto i1 = MAT::getIndex( sr2ptr );
+	auto i2 = MAT::getIndex( sr4ptr );
 
 	res(i1,i2) = ma1(i1) * ma2(i2);
 
@@ -245,8 +245,8 @@ namespace {
 	const MultiArray<double,SRange> ma1(sr2ptr, v1);
 	const MultiArray<double,SRange> ma2(sr4ptr, v2);
 
-	auto i1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
-	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
+	auto i1 = MAT::getIndex( sr2ptr );
+	auto i2 = MAT::getIndex( sr4ptr );
 
 	res(i1) = (ma1(i1) * ma2(i2)).c(i2);
 
@@ -262,8 +262,8 @@ namespace {
 	MultiArray<double,SRange> ma2(sr4ptr, v2);
 	MultiArray<double,SRange> ma3(sr4ptr, v4);
 	
-	auto i1 = std::dynamic_pointer_cast<MRange::IndexType>( mr1ptr->index() );
-	auto i2 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
+	auto i1 = MAT::getIndex( mr1ptr );
+	auto i2 = MAT::getIndex( sr4ptr );
 	
 	res(i1,i2) = ( ma1(i1) + ma2(i2) ) - ma3(i2);
 
@@ -290,10 +290,10 @@ namespace {
 	MultiArray<double,SRange> ma2(sr2ptr, v1);
 	MultiArray<double,SRange> ma3(sr4ptr, v4);
 
-	auto si1 = std::dynamic_pointer_cast<SRange::IndexType>( sr2ptr->index() );
-	auto si2 = std::dynamic_pointer_cast<SRange::IndexType>( sr3ptr->index() );
-	auto si3 = std::dynamic_pointer_cast<SRange::IndexType>( sr4ptr->index() );
-	auto mi = std::dynamic_pointer_cast<MRange::IndexType>( mr1ptr->index() );
+	auto si1 = MAT::getIndex( sr2ptr );
+	auto si2 = MAT::getIndex( sr3ptr );
+	auto si3 = MAT::getIndex( sr4ptr );
+	auto mi = MAT::getIndex( mr1ptr );
 	mi->operator()(si1,si2);
 	
 	res(mi,si3) = ma1(mi) + ma2(si1) + ma3(si3);

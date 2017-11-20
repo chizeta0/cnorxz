@@ -13,6 +13,7 @@
 #include "block.h"
 #include "multi_array_operation.h"
 #include "multi_array.h"
+#include "helper_tools.h"
 //#include "slice.h"
 //#include "manipulator.h"
 //#include "range_transformer.h"
