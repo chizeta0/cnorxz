@@ -13,9 +13,9 @@ namespace MultiArrayTools
     
 }
 
-// =====================
-// ===    C O D E    ===
-// =====================
+/* ========================= *
+ * ---   TEMPLATE CODE   --- *
+ * ========================= */
 
 namespace MultiArrayTools
 {

@@ -90,133 +90,190 @@ namespace MultiArrayTools
 
 	std::vector<U> mSpace;
     };
-    /*
-    // specializaions
 
-    template <>
-    class SingleRange<int,RangeType::SPACE> : public RangeBase<SingleIndex<int,RangeType::SPACE> >
-    {
-    public:
-	typedef typename RangeBase<SingleIndex<int,RangeType::SPACE> >::IndexType IndexType;
-
-	static SingleRange<int,RangeType::SPACE> oType() { return SingleRange<int,RangeType::SPACE>(); }
-	
-	virtual size_t size() const override;
-	
-	int get(size_t pos) const;
-	size_t getMeta(int metaPos) const;
-
-	virtual MultiRangeType type() const override;
-	
-	SingleIndex<int,RangeType::SPACE> begin() const override;
-	SingleIndex<int,RangeType::SPACE> end() const override;
-	
-    protected:
-	
-	SingleRange(size_t ext);
-
-	size_t mExt;
-    };
-
-    template <>
-    class SingleRange<size_t,RangeType::DISTANCE> : public RangeBase<SingleIndex<size_t,RangeType::DISTANCE> >
-    {
-    public:
-	typedef typename RangeBase<SingleIndex<size_t,RangeType::DISTANCE> >::IndexType IndexType;
-
-	static SingleRange<size_t,RangeType::DISTANCE> oType() { return SingleRange<size_t,RangeType::DISTANCE>(); }
-	
-	virtual size_t size() const override;
-	
-	size_t get(size_t pos) const;
-	size_t getMeta(size_t metaPos) const;
-
-	virtual MultiRangeType type() const override;
-	
-	SingleIndex<size_t,RangeType::DISTANCE> begin() const override;
-	SingleIndex<size_t,RangeType::DISTANCE> end() const override;
-	
-    protected:
-	
-	SingleRange(size_t ext);
-
-	size_t mExt;
-    };
-
-    template <>
-    class SingleRange<size_t,RangeType::ENSEMBLE> : public RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >
-    {
-    public:
-	typedef typename RangeBase<SingleIndex<size_t,RangeType::ENSEMBLE> >::IndexType IndexType;
-
-	static SingleRange<size_t,RangeType::ENSEMBLE> oType() { return SingleRange<size_t,RangeType::ENSEMBLE>(); }
-	
-	virtual size_t size() const override;
-	
-	size_t get(size_t pos) const;
-	size_t getMeta(size_t metaPos) const;
-
-	virtual MultiRangeType type() const override;
-	
-	SingleIndex<size_t,RangeType::ENSEMBLE> begin() const override;
-	SingleIndex<size_t,RangeType::ENSEMBLE> end() const override;
-	
-    protected:
-	
-	SingleRange(size_t num);
-
-	size_t mNum;
-    };
-
-    enum class VET
-    {
-	VALUE = 0,
-	ERROR = 1
-    };
-
-    std::ostream& operator<<(std::ostream& os, VET vet);
-    
-    template <>
-    class SingleRange<VET,RangeType::VALUE_ERROR> : public RangeBase<SingleIndex<VET,RangeType::VALUE_ERROR> >
-    {
-    public:
-	typedef typename RangeBase<SingleIndex<VET,RangeType::VALUE_ERROR> >::IndexType IndexType;
-
-	static SingleRange<VET,RangeType::VALUE_ERROR> oType()
-	{ return SingleRange<VET,RangeType::VALUE_ERROR>(); }
-	
-	virtual size_t size() const override;
-	
-	VET get(size_t pos) const;
-	size_t getMeta(VET metaPos) const;
-
-	virtual MultiRangeType type() const override;
-	
-	SingleIndex<VET,RangeType::VALUE_ERROR> begin() const override;
-	SingleIndex<VET,RangeType::VALUE_ERROR> end() const override;
-    };
-
-    template <>
-    class SingleRange<size_t,RangeType::LORENTZ> : public RangeBase<SingleIndex<size_t,RangeType::LORENTZ> >
-    {
-    public:
-	typedef typename RangeBase<SingleIndex<size_t,RangeType::LORENTZ> >::IndexType IndexType;
-
-	static SingleRange<size_t,RangeType::LORENTZ> oType() { return SingleRange<size_t,RangeType::LORENTZ>(); }
-	
-	virtual size_t size() const override;
-	
-	size_t get(size_t pos) const;
-	size_t getMeta(size_t metaPos) const;
-
-	virtual MultiRangeType type() const override;
-	
-	SingleIndex<size_t,RangeType::LORENTZ> begin() const override;
-	SingleIndex<size_t,RangeType::LORENTZ> end() const override;
-    };
-    */
 }
 
-#include "single_range.cc"
+/* ========================= *
+ * ---   TEMPLATE CODE   --- *
+ * ========================= */
+
+namespace MultiArrayTools
+{
+    /******************
+     *  SingleIndex   *	     
+     ******************/
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>::SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range) :
+	IndexInterface<U>(range, 0) {}
+
+    template <typename U, RangeType TYPE>
+    IndexType SingleIndex<U,TYPE>::type() const
+    {
+	return IndexType::SINGLE;
+    }
+	
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(size_t pos)
+    {
+	IB::mPos = pos;
+	return *this;
+    }
+    
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator++()
+    {
+	++IB::mPos;
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator--()
+    {
+	--IB::mPos;
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    int SingleIndex<U,TYPE>::pp(std::shared_ptr<IndexBase>& idxPtr)
+    {
+	++(*this);
+	return 1;
+    }
+
+    template <typename U, RangeType TYPE>
+    int SingleIndex<U,TYPE>::mm(std::shared_ptr<IndexBase>& idxPtr)
+    {
+	--(*this);
+	return 1;
+    }
+    
+    template <typename U, RangeType TYPE>
+    U SingleIndex<U,TYPE>::meta() const
+    {
+	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->get( IB::pos() );
+    }
+
+    template <typename U, RangeType TYPE>
+    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::at(const U& metaPos)
+    {
+	operator=( std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos ) );
+	return *this;
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleIndex<U,TYPE>::dim() const
+    {
+	return 1;
+    }
+
+    template <typename U, RangeType TYPE>
+    bool SingleIndex<U,TYPE>::last() const
+    {
+	return IB::mPos == IB::mRangePtr->size() - 1;
+    }
+
+    template <typename U, RangeType TYPE>
+    bool SingleIndex<U,TYPE>::first() const
+    {
+	return IB::mPos == 0;
+    }
+
+    template <typename U, RangeType TYPE>
+    std::shared_ptr<IndexBase> SingleIndex<U,TYPE>::getPtr(size_t n) const
+    {
+	return std::shared_ptr<IndexBase>();
+    }
+
+    template <typename U, RangeType TYPE>    
+    size_t SingleIndex<U,TYPE>::getStepSize(size_t n) const
+    {
+	return 1;
+    }
+    
+    /********************
+     *   SingleRange    *
+     ********************/
+
+    template <typename U, RangeType TYPE>
+    SingleRangeFactory<U,TYPE>::SingleRangeFactory(const std::vector<U>& space)
+    {
+	mProd = std::shared_ptr<oType>( new SingleRange<U,TYPE>( space ) );
+    }
+
+    template <typename U, RangeType TYPE>
+    std::shared_ptr<RangeBase> SingleRangeFactory<U,TYPE>::create()
+    {
+	setSelf();
+	return mProd;
+    }
+    
+    /********************
+     *   SingleRange    *
+     ********************/
+    
+    template <typename U, RangeType TYPE>
+    SingleRange<U,TYPE>::SingleRange(const std::vector<U>& space) : RangeInterface<SingleIndex<U,TYPE> >(),
+	mSpace(space) {}
+    
+    template <typename U, RangeType TYPE>
+    const U& SingleRange<U,TYPE>::get(size_t pos) const
+    {
+	return mSpace[pos];
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleRange<U,TYPE>::getMeta(const U& metaPos) const
+    {
+	size_t cnt = 0;
+	for(auto& x: mSpace){
+	    if(x == metaPos){
+		return cnt;
+	    }
+	    ++cnt;
+	}
+	return cnt;
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleRange<U,TYPE>::size() const
+    {
+	return mSpace.size();
+    }
+
+    template <typename U, RangeType TYPE>
+    size_t SingleRange<U,TYPE>::dim() const
+    {
+	return 1;
+    }
+
+    template <typename U, RangeType TYPE>
+    typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::begin() const
+    {
+	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	i = 0;
+	return i;
+    }
+    
+    template <typename U, RangeType TYPE>
+    typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::end() const
+    {
+	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	i = size();
+	return i;
+    }
+
+    // put this in the interface class !!!
+    template <typename U, RangeType TYPE>
+    std::shared_ptr<IndexBase> SingleRange<U,TYPE>::index() const
+    {
+	return std::make_shared<SingleIndex<U,TYPE> >
+	    ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+    }
+
+}
 
 #endif

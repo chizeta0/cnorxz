@@ -18,6 +18,10 @@ namespace MultiArrayTools
 
 }
 
-#include "anonymous_range.cc"
+/* ========================= *
+ * ---   TEMPLATE CODE   --- *
+ * ========================= */
+
+// ...
 
 #endif

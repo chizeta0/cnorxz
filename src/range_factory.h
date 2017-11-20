@@ -21,6 +21,6 @@ namespace MultiArrayTools
     
 } //namespace MultiArrayTools
 
-#include "range_factory.cc"
+// === NO TEMPLATE CODE HERE ===
 
 #endif
