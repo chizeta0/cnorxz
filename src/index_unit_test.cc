@@ -89,8 +89,8 @@ namespace {
     TEST_F(IndexTest, SingleIndex_SimpleCall)
     {
 	auto si = sr1ptr->begin();
-	EXPECT_EQ(si.max(), 3);
-	EXPECT_EQ(si.pos(), 0);
+	EXPECT_EQ(si.max(), 3u);
+	EXPECT_EQ(si.pos(), 0u);
 	EXPECT_EQ(si.first(), true);
 	EXPECT_EQ(si.last(), false);
 	EXPECT_EQ(si.meta(), 'e');
@@ -115,8 +115,8 @@ namespace {
     TEST_F(IndexTest, MultiIndex_SimpleCall)
     {
 	auto mi = m3rptr->begin();
-	EXPECT_EQ(mi.max(), 4);
-	EXPECT_EQ(mi.pos(), 0);
+	EXPECT_EQ(mi.max(), 4u);
+	EXPECT_EQ(mi.pos(), 0u);
 	EXPECT_EQ(mi.first(), true);
 	EXPECT_EQ(mi.last(), false);
 	EXPECT_EQ(mi.meta() == mkt('a','1','0'), true);
@@ -143,13 +143,13 @@ namespace {
 
     TEST_F(IndexTest, MasterRange_Check)
     {
-	EXPECT_EQ(mstrptr->size(), 48);
-	EXPECT_EQ(mstrptr->template get<0>().size(), 3);
-	EXPECT_EQ(mstrptr->template get<1>().size(), 4);
-	EXPECT_EQ(mstrptr->template get<2>().size(), 4);
+	EXPECT_EQ(mstrptr->size(), 48u);
+	EXPECT_EQ(mstrptr->template get<0>().size(), 3u);
+	EXPECT_EQ(mstrptr->template get<1>().size(), 4u);
+	EXPECT_EQ(mstrptr->template get<2>().size(), 4u);
 	EXPECT_EQ(mstrptr->dim(), 3);
-	EXPECT_EQ(mstrptr->template get<0>().dim(), 1);
-	EXPECT_EQ(mstrptr->template get<1>().dim(), 3);
+	EXPECT_EQ(mstrptr->template get<0>().dim(), 1u);
+	EXPECT_EQ(mstrptr->template get<1>().dim(), 3u);
 
 	auto mi = mstrptr->begin();
 	EXPECT_EQ(mi.meta() == mkt( 'e' , mkt('a', '1', '0') , 'x' ), true);
@@ -176,30 +176,30 @@ namespace {
 
     TEST_F(IndexTest, ContainerRange_Check)
     {
-	EXPECT_EQ(cr1ptr->size(), 16);
-	EXPECT_EQ(cr2ptr->size(), 12);
+	EXPECT_EQ(cr1ptr->size(), 16u);
+	EXPECT_EQ(cr2ptr->size(), 12u);
 
 	auto mi = mstrptr->begin();
 	auto ci1 = cr1ptr->begin();
 	auto ci2 = cr2ptr->begin();
 
-	EXPECT_EQ(ci1.max(), 16);
-	EXPECT_EQ(ci2.max(), 12);
+	EXPECT_EQ(ci1.max(), 16u);
+	EXPECT_EQ(ci2.max(), 12u);
 	
 	ci1(mi.template getPtr<1>(), mi.template getPtr<2>());
 	ci2(mi.template getPtr<1>(), mi.template getPtr<0>());
 
-	EXPECT_EQ(ci1.pos(), 0);
-	EXPECT_EQ(ci2.pos(), 0);
+	EXPECT_EQ(ci1.pos(), 0u);
+	EXPECT_EQ(ci2.pos(), 0u);
 	++mi;
-	EXPECT_EQ(ci1().pos(), 1);
-	EXPECT_EQ(ci2().pos(), 0);
+	EXPECT_EQ(ci1().pos(), 1u);
+	EXPECT_EQ(ci2().pos(), 0u);
 	mi.template up<1>();
-	EXPECT_EQ(ci1().pos(), 5);
-	EXPECT_EQ(ci2().pos(), 3);
+	EXPECT_EQ(ci1().pos(), 5u);
+	EXPECT_EQ(ci2().pos(), 3u);
 	mi.template up<0>();
-	EXPECT_EQ(ci1().pos(), 5);
-	EXPECT_EQ(ci2().pos(), 4);
+	EXPECT_EQ(ci1().pos(), 5u);
+	EXPECT_EQ(ci2().pos(), 4u);
 	mi = mi.max()-1;
 	EXPECT_EQ(ci1().pos(), ci1.max()-1);
 	EXPECT_EQ(ci2().pos(), ci2.max()-1);

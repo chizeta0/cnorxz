@@ -99,7 +99,7 @@ namespace {
     TEST_F(MATest_1Dim, SimpleCall)
     {
 	MultiArray<double,MATest_1Dim::SRange> ma(srptr, vv);
-	EXPECT_EQ( ma.size(), 5);
+	EXPECT_EQ( ma.size(), 5u);
 	EXPECT_EQ( ma.isConst(), false);
 	EXPECT_EQ( ma.isSlice(), false);	
 	
@@ -121,16 +121,16 @@ namespace {
 
 	    if(cnt == 0){
 		EXPECT_EQ(el, 0.693);
-	    } else if(cnt == 1){
+	    } else if(cnt == 1u){
 		EXPECT_EQ(el, 2.718);
-	    } else if(cnt == 2){
+	    } else if(cnt == 2u){
 		EXPECT_EQ(el, 3.141);
-	    } else if(cnt == 3){
+	    } else if(cnt == 3u){
 		EXPECT_EQ(el, 1.618);
-	    } else if(cnt == 4){
+	    } else if(cnt == 4u){
 		EXPECT_EQ(el, 9.98);
 	    } else {
-		EXPECT_EQ(cnt, 0);
+		EXPECT_EQ(cnt, 0u);
 	    }
 	    ++cnt;
 	}
@@ -159,8 +159,8 @@ namespace {
     TEST_F(MATest_MDim, SimpleCall)
     {
 	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
-	EXPECT_EQ( ma.size(), 24 );
-	EXPECT_EQ( ma.range()->dim(), 2 );
+	EXPECT_EQ( ma.size(), 24u );
+	EXPECT_EQ( ma.range()->dim(), 2u );
 
 	auto i = ma.beginIndex();
 	EXPECT_EQ( ma[ i.at( mkt( mkt('x', 'a'), '1' ) ) ], 2.917);
