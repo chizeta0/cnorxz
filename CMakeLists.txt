@@ -13,6 +13,13 @@ else()
   message(FATAL_ERROR "GTest not found")
 endif()
 
+find_package(Threads REQUIRED)
+if(Threads_FOUND)
+  include_directories(${Threads_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "Threads not found")
+endif()
+
 include_directories(src)
 
 #add_executable(utest src/unit_test.cc)
