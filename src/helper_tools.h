@@ -1,4 +1,7 @@
 
+#ifndef __helper_tools_h__
+#define __helper_tools_h__
+
 #include "base_def.h"
 
 namespace MultiArrayTools
@@ -23,3 +26,5 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<typename RangeType::IndexType>( range->index() );
     }
 }
+
+#endif
