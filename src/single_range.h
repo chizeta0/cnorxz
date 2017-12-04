@@ -276,4 +276,6 @@ namespace MultiArrayTools
 
 }
 
+#include "range_types/header.h"
+
 #endif
