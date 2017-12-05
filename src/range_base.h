@@ -14,15 +14,11 @@ namespace MultiArrayTools
     
     enum class RangeType
     {
-	NIL = 0,
+	NONE = 0,
 	ANY = 1,
-	SPACE = 2,
-	MOMENTUM = 3,
-	LORENTZ = 4,
-	SPIN = 5,
-	ENSEMBLE = 6,
-	VALUE_ERROR = 7,
-	DISTANCE = 8
+#define include_range_type(x,n) x = n,
+#include "range_types/header.h"
+#undef include_range_type
     };
 
     class RangeFactoryBase

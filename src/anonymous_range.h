@@ -16,7 +16,7 @@ namespace MultiArrayTools
     {
     public:
 	
-	typedef SingleRange<U,TYPE> oType;
+	typedef AnonymousRange oType;
 
 	AnonymousRangeFactory() = delete;
 	AnonymousRangeFactory(const std::shared_ptr<Ranges>... origs);
@@ -33,8 +33,8 @@ namespace MultiArrayTools
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
 	
-	const size_t& get(size_t pos) const;
-	size_t getMeta(const size_t& metaPos) const;
+	size_t get(size_t pos) const;
+	size_t getMeta(size_t metaPos) const;
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
@@ -64,9 +64,9 @@ namespace MultiArrayTools
 namespace MultiArrayTools
 {
 
-    /********************
+    /***********************
      *   AnonymousRange    *
-     ********************/
+     ***********************/
     
     AnonymousRangeFactory::AnonymousRangeFactory(const std::shared_ptr<Ranges>... origs)
     {
@@ -79,25 +79,26 @@ namespace MultiArrayTools
 	return mProd;
     }
     
-    /********************
+    /***********************
      *   AnonymousRange    *
-     ********************/
-        
+     ***********************/
+
+    template <class... Ranges>
     AnonymousRange::AnonymousRange(const std::shared_ptr<Ranges>... origs) :
 	RangeInterface<AnonymousIndex>()
     {
+	mOrig.resize(sizeof...(Ranges));
+	PackNum<sizeof...(Ranges)-1>::RangesToVec();
 	// mOrig !!!!
 	// mSize !!! = (prod origs.size...)
     }
     
-    const size_t& AnonymousRange::get(size_t pos) const
+    size_t AnonymousRange::get(size_t pos) const
     {
-	static size_t x;
-	x = pos;
-	return x;
+	return pos;
     }
         
-    size_t AnonymousRange::getMeta(const size_t& metaPos) const
+    size_t AnonymousRange::getMeta(size_t metaPos) const
     {
 	return metaPos;
     }

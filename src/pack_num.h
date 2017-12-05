@@ -244,7 +244,14 @@ namespace MultiArrayHelper
 	    out << std::get<sizeof...(T)-N-1>(tp) << ", ";
 	    PackNum<N-1>::printTuple(out, tp);
 	}
-	
+
+	template <class RangeType, class... Ranges>
+	static void RangesToVec(const std::shared_ptr<RangeType> r,
+				const std::shared_ptr<Ranges>... rs,
+				std::vector<RangeBase> v)
+	{
+	    
+	}
     };
     
     template<>
