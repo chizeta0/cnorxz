@@ -245,12 +245,12 @@ namespace MultiArrayHelper
 	    PackNum<N-1>::printTuple(out, tp);
 	}
 
-	template <class RangeType, class... Ranges>
-	static void RangesToVec(const std::shared_ptr<RangeType> r,
-				const std::shared_ptr<Ranges>... rs,
+	template <class... Ranges>
+	static void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				std::vector<RangeBase> v)
 	{
-	    
+	    v[N] = std::get<N>(rst);
+	    PackNum<N>::RangesToVec(rst, v);
 	}
     };
     
@@ -431,6 +431,13 @@ namespace MultiArrayHelper
 	template <typename... T>
 	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
 	    out << std::get<sizeof...(T)-1>(tp);
+	}
+
+	template <class... Ranges>
+	static void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
+				std::vector<RangeBase> v)
+	{
+	    v[0] = std::get<0>(rst);
 	}
 
     };

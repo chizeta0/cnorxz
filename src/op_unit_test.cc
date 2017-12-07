@@ -151,8 +151,10 @@ namespace {
 	    mrptr = std::dynamic_pointer_cast<MRange>(rfbptr->create());
 	}
 
-	const size_t vs1 = 10000;
-	const size_t vs2 = 1000;	
+	//const size_t vs1 = 10000;
+	//const size_t vs2 = 1000;
+	const size_t vs1 = 4000;
+	const size_t vs2 = 2500;
 
 	std::shared_ptr<RangeFactoryBase> rfbptr;
 	std::shared_ptr<SRange> sr1ptr;

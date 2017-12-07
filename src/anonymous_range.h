@@ -19,7 +19,13 @@ namespace MultiArrayTools
 	typedef AnonymousRange oType;
 
 	AnonymousRangeFactory() = delete;
-	AnonymousRangeFactory(const std::shared_ptr<Ranges>... origs);
+
+	template <class... Ranges>
+	AnonymousRangeFactory(const std::tuple<std::shared_ptr<Ranges>...>& origs);
+	
+	template <class... Ranges>
+	AnonymousRangeFactory(std::shared_ptr<Ranges>... origs);
+
 	std::shared_ptr<RangeBase> create();
 	
     };
@@ -48,7 +54,10 @@ namespace MultiArrayTools
 	AnonymousRange(const AnonymousRange& in) = delete;
 
 	template <class Ranges...>
-	AnonymousRange(const std::shared_ptr<Ranges>... origs);
+	AnonymousRange(const std::tuple<std::shared_ptr<Ranges>...>& origs)
+	
+	template <class Ranges...>
+	AnonymousRange(std::shared_ptr<Ranges>... origs);
 
 	size_t mSize;
 	
@@ -67,10 +76,17 @@ namespace MultiArrayTools
     /***********************
      *   AnonymousRange    *
      ***********************/
-    
-    AnonymousRangeFactory::AnonymousRangeFactory(const std::shared_ptr<Ranges>... origs)
+
+    template <class... Ranges>
+    AnonymousRangeFactory::AnonymousRangeFactory(const std::tuple<std::shared_ptr<Ranges>...>& origs)
     {
-	mProd = std::shared_ptr<oType>( new AnonymousRange( space ) );
+	mProd = std::shared_ptr<oType>( new AnonymousRange( origs ) );
+    }
+
+    template <class... Ranges>
+    AnonymousRangeFactory::AnonymousRangeFactory(std::shared_ptr<Ranges>... origs)
+    {
+	mProd = std::shared_ptr<oType>( new AnonymousRange( origs... ) );
     }
         
     std::shared_ptr<RangeBase> AnonymousRangeFactory::create()
@@ -84,13 +100,22 @@ namespace MultiArrayTools
      ***********************/
 
     template <class... Ranges>
-    AnonymousRange::AnonymousRange(const std::shared_ptr<Ranges>... origs) :
+    AnonymousRange::AnonymousRange(const std::tuple<std::shared_ptr<Ranges>...>& origs) :
 	RangeInterface<AnonymousIndex>()
     {
 	mOrig.resize(sizeof...(Ranges));
-	PackNum<sizeof...(Ranges)-1>::RangesToVec();
-	// mOrig !!!!
-	// mSize !!! = (prod origs.size...)
+	PackNum<sizeof...(Ranges)-1>::RangesToVec( origs, mOrig );
+	PackNum<sizeof...(Ranges)-1>::getSize( rst );
+    }
+    
+    template <class... Ranges>
+    AnonymousRange::AnonymousRange(std::shared_ptr<Ranges>... origs) :
+	RangeInterface<AnonymousIndex>()
+    {
+	auto rst = std::make_tuple(origs...);
+	mOrig.resize(sizeof...(Ranges));
+	PackNum<sizeof...(Ranges)-1>::RangesToVec( rst, mOrig );
+	PackNum<sizeof...(Ranges)-1>::getSize( rst );
     }
     
     size_t AnonymousRange::get(size_t pos) const

@@ -106,6 +106,12 @@ namespace MultiArrayTools
     template <class... Indices>
     class ContainerIndex;
 
+    // anonymous_range.h
+    class AnonymousRangeFactory;
+
+    // anonymous_range.h
+    class AnonymousRange;
+    
     // multi_array.h
     template <typename T, class... SRanges>
     class MultiArrayBase;
