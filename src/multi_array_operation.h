@@ -32,14 +32,14 @@ namespace MultiArrayTools
      * 
      */
 
-    void seekIndexInst(std::shared_ptr<IndexBase> i, std::vector<std::shared_ptr<IndexBase> >& ivec);
+    void seekIndexInst(std::shared_ptr<VIWB> i, std::vector<std::shared_ptr<VIWB> >& ivec);
 
     
     // <block type, step size within actual instance>
     typedef std::pair<BlockType,size_t> BTSS;
     
-    BTSS getBlockType(std::shared_ptr<IndexBase> i,
-		      std::shared_ptr<IndexBase> j,
+    BTSS getBlockType(std::shared_ptr<VIWB> i,
+		      std::shared_ptr<VIWB> j,
 		      bool first, size_t higherStepSize = 1);
 
     template <typename T>
@@ -50,12 +50,12 @@ namespace MultiArrayTools
 
     size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt);
 
-    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> >& mp,
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<VIWB>, std::vector<BTSS> >& mp,
 				  BlockType bt);
 
     template <class OpClass>
-    std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
-					      const OpClass& second);
+    std::shared_ptr<VIWB> seekBlockIndex(std::shared_ptr<VIWB> ownIdx,
+					 const OpClass& second);
     /*
     template <typename T>
     class OperationBase
@@ -133,7 +133,7 @@ namespace MultiArrayTools
 	MBlock<T>& get();
 	const Block<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex) const;
 	const OperationMaster& block() const;
 	
     protected:
@@ -163,7 +163,7 @@ namespace MultiArrayTools
 	
 	const Block<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex) const;
 	const ConstOperationRoot& block() const;
 	
     protected:
@@ -194,7 +194,7 @@ namespace MultiArrayTools
 	const MBlock<T>& get() const;
 	MBlock<T>& get();
 
-	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex) const;
 	const OperationRoot& block() const;
 	
     protected:
@@ -219,7 +219,7 @@ namespace MultiArrayTools
 	
 	const BlockResult<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex) const;
 	const Operation& block() const;
 	
     protected:
@@ -239,7 +239,7 @@ namespace MultiArrayTools
 	
 	const BlockResult<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const;
+	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex) const;
 	const Contraction& block() const;
 	
     protected:
@@ -262,7 +262,7 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
-    void seekIndexInst(std::shared_ptr<IndexBase> i, std::vector<std::shared_ptr<IndexBase> >& ivec)
+    void seekIndexInst(std::shared_ptr<VIWB> i, std::vector<std::shared_ptr<VIWB> >& ivec)
     {
 	for(size_t inum = 0; inum != i->rangePtr()->dim(); ++inum){
 	    auto ii = i->getPtr(inum);
@@ -274,8 +274,8 @@ namespace MultiArrayTools
 	}
     }
 
-    BTSS getBlockType(std::shared_ptr<IndexBase> i,
-		      std::shared_ptr<IndexBase> j,
+    BTSS getBlockType(std::shared_ptr<VIWB> i,
+		      std::shared_ptr<VIWB> j,
 		      bool first, size_t higherStepSize)
     {
 	// returning BlockType and step size is redundant (change in the future)
@@ -440,11 +440,12 @@ namespace MultiArrayTools
 	(*mIndex) = *index;
 
 	auto blockIndex = seekBlockIndex( mIndex, second);
-
+	intptr_t blockIndexNum = blockIndex->getPtrNum();
+	
 	block(blockIndex);
 	second.block(blockIndex);
 	
-	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndex) ){
+	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
 	    get() = mSecond.get();
 	}
     }

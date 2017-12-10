@@ -10,7 +10,6 @@
 #include "base_def.h"
 #include "range_base.h"
 
-
 namespace MultiArrayTools
 {
     size_t indexId()
@@ -25,69 +24,115 @@ namespace MultiArrayTools
 	MULTI = 1,
 	CONT = 2	
     };    
-    
-    class IndexBase
+
+    class VirtualIndexWrapperBase
     {
     public:
-	//DEFAULT_MEMBERS(IndexBase);
-
-	IndexBase() { mId = indexId(); }
-	IndexBase(IndexBase&& in) = default;
-	IndexBase& operator=(IndexBase&& in) = default;
+	DEFAULT_MEMBERS(VirtualIndexWrapperBase);
 	
-	IndexBase(const std::shared_ptr<RangeBase>& range, size_t pos);
-	virtual ~IndexBase() = default; 
-
 	virtual IndexType type() const = 0;
-	
-	virtual IndexBase& operator=(size_t pos) = 0;
-	virtual IndexBase& operator++() = 0;
-	virtual IndexBase& operator--() = 0;
-
-	virtual int pp(std::shared_ptr<IndexBase>& idxPtr) = 0;
-	virtual int mm(std::shared_ptr<IndexBase>& idxPtr) = 0;
-	
-	bool operator==(const IndexBase& in) const;
-	bool operator!=(const IndexBase& in) const;
-	
 	virtual size_t dim() const = 0;
-	virtual size_t pos() const;
-	virtual size_t max() const;
+	virtual size_t pos() const = 0;
+	virtual size_t max() const = 0;
+	virtual std::shared_ptr<RangeBase> rangePtr() const = 0;
+	virtual VirtualIndexWrapperBase getPtr(size_t n) const = 0;
+	virtual intptr_t getPtrNum() const = 0;
+    };
 
-	virtual bool last() const = 0;
-	virtual bool first() const = 0;
+    typedef VirtualIndexWrapperBase VIWB;
 
-	//virtual bool locked() const;
-	//virtual IndexBase& lock(std::shared_ptr<IndexBase>& idx);
+    template <class I>
+    std::shared_ptr<IndexWrapper<I> > make_viwb(std::shared_ptr<I> idxPtr)
+    {
+	return std::make_shared<IndexWrapper<I> >(idxPtr);
+    }
 
-	virtual std::shared_ptr<RangeBase> rangePtr() const;
-	virtual std::shared_ptr<IndexBase> getPtr(size_t n) const = 0;
-
-	virtual size_t getStepSize(size_t n) const = 0;
+    template <class I>
+    std::shared_ptr<IndexWrapper<I> > make_viwb(const I& idxPtr)
+    {
+	return make_viwb( std::make_shared<I>(idxPtr) );
+    }
+    
+    template <class I>
+    class IndexWrapper
+    {
+    public:
 	
-	virtual operator size_t() const;
+	DEFAULT_MEMBERS(IndexWrapper);
 
-	virtual std::string id() const { return std::to_string( mId ); }
+	IndexWrapper(std::shared_ptr<I>& idxPtr);
+
+	virtual IndexType type() const override { return mIdxPtr->type(); }
+	virtual size_t dim() const override { return mIdxPtr->dim(); }
+	virtual size_t pos() const override { return mIdxPtr->pos(); }
+	virtual size_t max() const override { return mIdxPtr->max(); }
+	virtual std::shared_ptr<RangeBase> rangePtr() const override { return mIdxPtr->rangePtr(); }
+	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override { return mIdxPtr->getv(n); }
+	virtual intptr_t getPtrNum() const override { return static_cast<intptr_t>( mIdxPtr.get() ); };
+	
+    private:
+	std::shared_ptr<I> mIdxPtr;
+    };
+    
+    template <class I, typename MetaType>
+    class IndexInterface
+    {
+    public:
+	//DEFAULT_MEMBERS(IndexInterface);
+
+	I* THIS() { return static_cast<I*>(this); }
+	
+	~IndexInterface() = default; 
+
+	IndexType type() const { return I::S_type(THIS()); }
+	
+	IndexInterface& operator=(size_t pos) { return I::S_ass_op(THIS(), pos); }
+	IndexInterface& operator++() { return I::S_pp_op(THIS()); }
+	IndexInterface& operator--() { return I::S_mm_op(THIS()); }
+
+	int pp(std::shared_ptr<IndexInterface>& idxPtr) { return I::S_pp(THIS()); }
+	int mm(std::shared_ptr<IndexInterface>& idxPtr) { return I::S_mm(THIS()); }
+	
+	bool operator==(const IndexInterface& in) const;
+	bool operator!=(const IndexInterface& in) const;
+	
+	size_t dim() const { return I::S_dim(THIS()); }
+	size_t pos() const;
+	size_t max() const;
+
+	bool last() const { return I::S_last(THIS()); }
+	bool first() const { return I::S_first(THIS()); }
+
+	std::shared_ptr<RangeBase> rangePtr() const;
+	
+	template <size_t N>
+	auto getPtr() const -> decltype(I::S_get<N>(THIS())) { return I::S_get<N>(THIS()); }
+
+	std::shared_ptr<VIWB> getVPtr(size_t n) const { return I::S_getVPtr(THIS(),n); }
+	
+	size_t getStepSize(size_t n) const { return I::S_getStepSize(THIS(),n); }
+	
+	operator size_t() const;
+
+	std::string id() const { return I::S_id(THIS()); }
+
+	MetaType meta() const { return I::S_meta(THIS()); }
+	IndexInterface& at(const MetaType& meta) { return I::S_at(THIS(), meta); }
+	
     protected:
 
+	IndexInterface() { mId = indexId(); }
+	IndexInterface(IndexInterface&& in) = default;
+	IndexInterface& operator=(IndexInterface&& in) = default;
+	
+	IndexInterface(const std::shared_ptr<RangeBase>& range, size_t pos);
+	
 	std::shared_ptr<RangeBase> mRangePtr;
 	size_t mPos;
 	size_t mId;
-	//bool mLocked = false;
-    };
-
-    template <typename MetaType>
-    class IndexInterface : public IndexBase
-    {
-    public:
-
-	DEFAULT_MEMBERS(IndexInterface);
 	
-	IndexInterface(const std::shared_ptr<RangeBase>& rangePtr, size_t pos);
-	virtual MetaType meta() const = 0;
-	virtual IndexInterface& at(const MetaType& meta) = 0;
     };
-    
+   
 }
 
 /* ========================= *
@@ -97,66 +142,52 @@ namespace MultiArrayTools
 namespace MultiArrayTools
 {
     /*****************
-     *   IndexBase   *
+     *   IndexInterface   *
      *****************/
 
-    IndexBase::IndexBase(const std::shared_ptr<RangeBase>& range,
+    template <class I, typename MetaType>
+    IndexInterface<I,MetaType>::IndexInterface(const std::shared_ptr<RangeBase>& range,
 			 size_t pos) : mRangePtr(range),
 				       mPos(pos)
     {
 	mId = indexId();
     }
-    
-    bool IndexBase::operator==(const IndexBase& in) const
+
+    template <class I, typename MetaType>
+    bool IndexInterface<I,MetaType>::operator==(const IndexInterface& in) const
     {
 	return in.mPos == mPos and in.mRangePtr.get() == mRangePtr.get();
     }
-    
-    bool IndexBase::operator!=(const IndexBase& in) const
+
+    template <class I, typename MetaType>
+    bool IndexInterface<I,MetaType>::operator!=(const IndexInterface& in) const
     {
 	return in.mPos != mPos or in.mRangePtr.get() != mRangePtr.get();
     }
-    
-    size_t IndexBase::pos() const
+
+    template <class I, typename MetaType>
+    size_t IndexInterface<I,MetaType>::pos() const
     {
 	return mPos;
     }
 
-    size_t IndexBase::max() const
+    template <class I, typename MetaType>
+    size_t IndexInterface<I,MetaType>::max() const
     {
 	return mRangePtr->size();
     }
-    /*
-    bool IndexBase::locked() const
-    {
-	return mLocked;
-    }
-    
-    IndexBase& IndexBase::lock(std::shared_ptr<IndexBase>& idx)
-    {
-	mLocked = (idx.get() == this);
-	return *this;
-    }
-    */
 
-    std::shared_ptr<RangeBase> IndexBase::rangePtr() const
+    template <class I, typename MetaType>
+    std::shared_ptr<RangeBase> IndexInterface<I,MetaType>::rangePtr() const
     {
 	return mRangePtr;
     }
-    
-    IndexBase::operator size_t() const
+
+    template <class I, typename MetaType>
+    IndexInterface<I,MetaType>::operator size_t() const
     {
 	return pos();
     }
-    
-    /**********************
-     *   IndexInterface   *	     
-     **********************/
-
-    template <typename MetaType>
-    IndexInterface<MetaType>::IndexInterface(const std::shared_ptr<RangeBase>& rangePtr, size_t pos) :
-	IndexBase(rangePtr, pos) {}
-    
 }
 
 #endif
