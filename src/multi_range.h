@@ -15,24 +15,32 @@
 
 namespace MultiArrayTools
 {
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
     
     template <class... Indices>
-    class MultiIndex : public IndexInterface<std::tuple<typename Indices::MetaType...> >
+    class MultiIndex : public IndexInterface<MultiIndex<Indices...>,
+					     std::tuple<typename Indices::MetaType...> >
     {
     public:
 	
-	typedef IndexBase IB;
+	typedef IndexInterface<MultiIndex<Indices...>,
+			       std::tuple<typename Indices::MetaType...> > IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<typename Indices::MetaType...> MetaType;
-	typedef IndexInterface<MetaType> IndexI;	
 	typedef MultiRange<typename Indices::RangeType...> RangeType;
 	
-    protected:
+    private:
+	
 	IndexPack mIPack;
 	std::array<size_t,sizeof...(Indices)+1> mBlockSizes;
-	
+
     public:
+
 	MultiIndex() = delete;
+	
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
 	//MultiIndex(const MultiIndex& in);
@@ -42,50 +50,119 @@ namespace MultiArrayTools
 	template <class MRange>
 	MultiIndex(const std::shared_ptr<MRange>& range);
 
-	virtual IndexType type() const override;
-	
-	virtual MultiIndex& operator++() override;
-	virtual MultiIndex& operator--() override;
-	virtual MultiIndex& operator=(size_t pos) override;
-
-	virtual int pp(std::shared_ptr<IndexBase>& idxPtr) override;
-	virtual int mm(std::shared_ptr<IndexBase>& idxPtr) override;
-	
 	template <size_t DIR>
 	MultiIndex& up();
 
 	template <size_t DIR>
 	MultiIndex& down();
-	
+
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 
-	template <size_t N>
-	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
-	
-	const IndexBase& get(size_t n) const;
-	virtual std::shared_ptr<IndexBase> getPtr(size_t n) const override;
-	virtual size_t getStepSize(size_t n) const override;
-	
-        virtual MetaType meta() const override;
-	virtual MultiIndex& at(const MetaType& metaPos) override;
-
-	virtual bool first() const override;
-	virtual bool last() const override;
-	
-	virtual size_t dim() const override;
-
-	std::shared_ptr<RangeType> range() const;
-
-	//virtual MultiIndex& lock(std::shared_ptr<IndexBase>& idx) override;
-	
 	// raplace instances (in contrast to its analogon in ContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MultiIndex instances
 	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
 	
-	virtual std::string id() const override { return std::string("mul") + std::to_string(IB::mId); }
+    private:
+
+	friend IB;
+	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
+	
+	static IndexType S_type(MultiIndex* i) { return IndexType::MULTI; }
+
+	static MultiIndex& S_ass_op(MultiIndex* i, size_t pos)
+	{
+	    i->mPos = pos;
+	    PackNum<sizeof...(Indices)-1>::setIndexPack(i->mIPack, pos);
+	    return *i;
+	}
+
+	static MultiIndex& S_pp_op(MultiIndex* i)
+	{
+	    PackNum<sizeof...(Indices)-1>::pp( i->mIPack );
+	    ++i->mPos;
+	    return *i;
+	}
+
+	static MultiIndex& S_mm_op(MultiIndex* i)
+	{
+	    PackNum<sizeof...(Indices)-1>::mm( i->mIPack );
+	    --i->mPos;
+	    return *i;
+	}
+
+	static int S_pp(MultiIndex* i, intptr_t idxPtrNum)
+	{
+	    int tmp = PackNum<sizeof...(Indices)-1>::pp(i->mIPack, i->mBlockSizes, idxPtrNum);
+	    i->mPos += tmp;
+	    return tmp;
+	}
+
+	static int S_mm(MultiIndex* i, intptr_t idxPtrNum)
+	{
+	    int tmp = PackNum<sizeof...(Indices)-1>::mm(i->mIPack, i->mBlockSizes, idxPtrNum);
+	    i->mPos -= tmp;
+	    return tmp;
+	}
+
+	static MetaType S_meta(MultiIndex* i)
+	{
+	    MetaType metaTuple;
+	    PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, i->mIPack);
+	    return metaTuple;
+	}
+
+	static MultiIndex& S_at(MultiIndex* i, const MetaType& metaPos)
+	{
+	    PackNum<sizeof...(Indices)-1>::setMeta(i->mIPack, metaPos);
+	    i->mPos = PackNum<sizeof...(Indices)-1>::makePos(i->mIPack);
+	    return *i;
+	}
+	
+	static size_t S_dim(MultiIndex* i)
+	{
+	    return sizeof...(Indices);
+	}
+
+	static bool S_first(MultiIndex* i)
+	{
+	    return i->mPos == 0;
+	}
+
+	static bool S_last(MultiIndex* i)
+	{
+	    return i->mPos == i->mMax - 1;
+	}
+
+	template <size_t N>
+	static auto S_getPtr(MultiIndex* i) -> decltype( std::get<N>( mIPack ) )&
+	{
+	    return std::get<N>(i->mIPack);
+	}
+	
+	//const IndexBase& get(size_t n);
+	static std::shared_ptr<VIWB> S_getVPtr(MultiIndex* i, size_t n)
+	{
+	    if(n >= sizeof...(Indices)){
+		assert(0);
+		// throw !!
+	    }
+	    MultiIndex<Indices...> const* t = i;
+	    return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
+	}
+	
+	static size_t S_getStepSize(MultiIndex* i, size_t n)
+	{
+	    if(n >= sizeof...(Indices)){
+		assert(0);
+		// throw !!
+	    }
+	    return i->mBlockSizes[n+1];
+	}
+
+	static std::string S_id(MultiIndex* i) { return std::string("mul") + std::to_string(IB::mId); }
     };
 
     /*************************
@@ -146,7 +223,7 @@ namespace MultiArrayTools
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
 
-	virtual std::shared_ptr<IndexBase> index() const override;
+	virtual std::shared_ptr<VIWB> index() const override;
 
 	friend MultiRangeFactory<Ranges...>;
 	
@@ -199,58 +276,12 @@ namespace MultiArrayTools
     template <class... Indices>
     template <class MRange>
     MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<std::tuple<typename Indices::MetaType...> >(range, 0)
+	IndexInterface<MultiIndex<Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
     {
 	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
 	PackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
-    }
-
-    template <class... Indices>
-    IndexType MultiIndex<Indices...>::type() const
-    {
-	return IndexType::MULTI;
-    }
-    
-    template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
-    {
-	PackNum<sizeof...(Indices)-1>::pp( mIPack );
-	++IB::mPos;
-	return *this;
-    }
-
-    template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
-    {
-	PackNum<sizeof...(Indices)-1>::mm( mIPack );
-	--IB::mPos;
-	return *this;
-    }
-    
-    template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
-    {
-	IB::mPos = pos;
-	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
-	return *this;
-    }
-
-    template <class... Indices>
-    int MultiIndex<Indices...>::pp(std::shared_ptr<IndexBase>& idxPtr)
-    {
-	int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtr);
-	IB::mPos += tmp;
-	return tmp;
-    }
-
-    template <class... Indices>
-    int MultiIndex<Indices...>::mm(std::shared_ptr<IndexBase>& idxPtr)
-    {
-	int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtr);
-	IB::mPos -= tmp;
-	return tmp;
     }
 
     template <class... Indices>
@@ -274,99 +305,12 @@ namespace MultiArrayTools
     }
     
     template <class... Indices>
-    size_t MultiIndex<Indices...>::dim() const
-    {
-	return sizeof...(Indices);
-    }
-    
-    template <class... Indices>
     template <size_t N>
     auto MultiIndex<Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
     {
 	return *std::get<N>(mIPack);
     }
 
-    template <class... Indices>
-    template <size_t N>
-    auto MultiIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
-    {
-	return std::get<N>(mIPack);
-    }
-    
-    template <class... Indices>
-    const IndexBase& MultiIndex<Indices...>::get(size_t n) const
-    {
-	if(n >= sizeof...(Indices)){
-	    assert(0);
-	    // throw !!
-	}
-	MultiIndex<Indices...> const* t = this;
-	return PackNum<sizeof...(Indices)-1>::getIndex(*t, n);
-    }
-
-    template <class... Indices>
-    std::shared_ptr<IndexBase> MultiIndex<Indices...>::getPtr(size_t n) const
-    {
-	if(n >= sizeof...(Indices)){
-	    assert(0);
-	    // throw !!
-	}
-	MultiIndex<Indices...> const* t = this;
-	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
-    }
-
-    template <class... Indices>
-    size_t MultiIndex<Indices...>::getStepSize(size_t n) const
-    {
-	if(n >= sizeof...(Indices)){
-	    assert(0);
-	    // throw !!
-	}
-	return mBlockSizes[n+1];
-    }
-    
-    template <class... Indices>
-    typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::meta() const
-    {
-        MetaType metaTuple;
-	PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
-	return metaTuple;
-    }
-
-    template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::at(const MultiIndex<Indices...>::MetaType& metaPos)
-    {
-	PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
-	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
-	return *this;
-    }
-
-    template <class... Indices>
-    bool MultiIndex<Indices...>::first() const
-    {
-	return IB::mPos == 0;
-    }
-
-    template <class... Indices>
-    bool MultiIndex<Indices...>::last() const
-    {
-	return IB::mPos == IB::mRangePtr->size() - 1;
-    }
-
-    template <class... Indices>
-    std::shared_ptr<typename MultiIndex<Indices...>::RangeType> MultiIndex<Indices...>::range() const
-    {
-	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
-    }
-    /*
-    template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::lock(std::shared_ptr<IndexBase>& idx)
-    {
-	IB::mLocked = (idx.get() == this);
-	PackNum<sizeof...(Indices)-1>::lock(mIPack, idx);
-	return *this;
-	}*/
-    
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
@@ -467,11 +411,12 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    std::shared_ptr<IndexBase> MultiRange<Ranges...>::index() const
+    std::shared_ptr<VIWB> MultiRange<Ranges...>::index() const
     {
-	return std::make_shared<MultiIndex<typename Ranges::IndexType...> >
-	    ( std::dynamic_pointer_cast<MultiRange<Ranges...> >
-	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	return std::make_shared<VIWB>
+	    ( std::make_shared<MultiIndex<typename Ranges::IndexType...> >
+	      ( std::dynamic_pointer_cast<MultiRange<Ranges...> >
+		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }
 }
 

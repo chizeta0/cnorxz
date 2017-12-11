@@ -35,11 +35,10 @@ namespace MultiArrayTools
 	virtual size_t pos() const = 0;
 	virtual size_t max() const = 0;
 	virtual std::shared_ptr<RangeBase> rangePtr() const = 0;
-	virtual VirtualIndexWrapperBase getPtr(size_t n) const = 0;
+	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const = 0;
 	virtual intptr_t getPtrNum() const = 0;
+	virtual size_t getStepSize(size_t n) const = 0;
     };
-
-    typedef VirtualIndexWrapperBase VIWB;
 
     template <class I>
     std::shared_ptr<IndexWrapper<I> > make_viwb(std::shared_ptr<I> idxPtr)
@@ -68,7 +67,8 @@ namespace MultiArrayTools
 	virtual size_t max() const override { return mIdxPtr->max(); }
 	virtual std::shared_ptr<RangeBase> rangePtr() const override { return mIdxPtr->rangePtr(); }
 	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override { return mIdxPtr->getv(n); }
-	virtual intptr_t getPtrNum() const override { return static_cast<intptr_t>( mIdxPtr.get() ); };
+	virtual intptr_t getPtrNum() const override { return static_cast<intptr_t>( mIdxPtr.get() ); }
+	virtual size_t getStepSize(size_t n) const override { return mIdxPtr->getStepSize(n); }
 	
     private:
 	std::shared_ptr<I> mIdxPtr;
@@ -78,9 +78,12 @@ namespace MultiArrayTools
     class IndexInterface
     {
     public:
+	typedef typename I::RangeType RangeType;
+	
 	//DEFAULT_MEMBERS(IndexInterface);
 
 	I* THIS() { return static_cast<I*>(this); }
+	I const* THIS() const { return static_cast<I const*>(this); }
 	
 	~IndexInterface() = default; 
 
@@ -103,7 +106,8 @@ namespace MultiArrayTools
 	bool last() const { return I::S_last(THIS()); }
 	bool first() const { return I::S_first(THIS()); }
 
-	std::shared_ptr<RangeBase> rangePtr() const;
+	std::shared_ptr<RangeBase> vrange() const { return mRangePtr; }
+	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>(mRangePtr); }
 	
 	template <size_t N>
 	auto getPtr() const -> decltype(I::S_get<N>(THIS())) { return I::S_get<N>(THIS()); }
@@ -118,9 +122,12 @@ namespace MultiArrayTools
 
 	MetaType meta() const { return I::S_meta(THIS()); }
 	IndexInterface& at(const MetaType& meta) { return I::S_at(THIS(), meta); }
-	
-    protected:
 
+	
+    private:
+
+	friend I;
+	
 	IndexInterface() { mId = indexId(); }
 	IndexInterface(IndexInterface&& in) = default;
 	IndexInterface& operator=(IndexInterface&& in) = default;
@@ -130,7 +137,7 @@ namespace MultiArrayTools
 	std::shared_ptr<RangeBase> mRangePtr;
 	size_t mPos;
 	size_t mId;
-	
+	size_t mMax;
     };
    
 }
@@ -141,14 +148,15 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
-    /*****************
+    /**********************
      *   IndexInterface   *
-     *****************/
+     **********************/
 
     template <class I, typename MetaType>
     IndexInterface<I,MetaType>::IndexInterface(const std::shared_ptr<RangeBase>& range,
 			 size_t pos) : mRangePtr(range),
-				       mPos(pos)
+				       mPos(pos),
+				       mMax(mRangePtr->size())
     {
 	mId = indexId();
     }
@@ -174,13 +182,7 @@ namespace MultiArrayTools
     template <class I, typename MetaType>
     size_t IndexInterface<I,MetaType>::max() const
     {
-	return mRangePtr->size();
-    }
-
-    template <class I, typename MetaType>
-    std::shared_ptr<RangeBase> IndexInterface<I,MetaType>::rangePtr() const
-    {
-	return mRangePtr;
+	return mMax;
     }
 
     template <class I, typename MetaType>

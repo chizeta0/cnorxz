@@ -56,36 +56,7 @@ namespace MultiArrayTools
     template <class OpClass>
     std::shared_ptr<VIWB> seekBlockIndex(std::shared_ptr<VIWB> ownIdx,
 					 const OpClass& second);
-    /*
-    template <typename T>
-    class OperationBase
-    {
-    public:
-	typedef T value_type;
 
-	OperationBase() = default;
-	virtual ~OperationBase() = default;
-
-	 // init block, return resulting type (BLOCK, VALUE, SPLIT)
-	virtual std::vector<BTSS> block(const std::shared_ptr<IndexBase> blockIndex) const = 0;
-	virtual const OperationBase& block() const = 0; // update block
-	
-	//virtual size_t argNum() const = 0;
-	virtual const Block<T>& get() const = 0;
-    };
-   
-    template <typename T>
-    class MutableOperationBase : public OperationBase<T>
-    {
-    public:
-	typedef T value_type;
-	
-	MutableOperationBase() = default;
-
-	virtual MBlock<T>& get() = 0;
-
-    };
-    */
     template <typename T, class OperationClass>
     class OperationTemplate
     {
@@ -333,7 +304,7 @@ namespace MultiArrayTools
 	return out;
     }
 
-    void minimizeAppearanceOfType(std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> >& mp,
+    void minimizeAppearanceOfType(std::map<std::shared_ptr<VIWB>, std::vector<BTSS> >& mp,
 				  BlockType bt)
     {
 	size_t minNum = getBTNum( mp.begin()->second, bt );
@@ -357,12 +328,12 @@ namespace MultiArrayTools
     }
     
     template <class OpClass>
-    std::shared_ptr<IndexBase> seekBlockIndex(std::shared_ptr<IndexBase> ownIdx,
-					      const OpClass& second)
+    std::shared_ptr<VIWB> seekBlockIndex(std::shared_ptr<VIWB> ownIdx,
+					 const OpClass& second)
     {
-	std::vector<std::shared_ptr<IndexBase> > ivec;
+	std::vector<std::shared_ptr<VIWB> > ivec;
 	seekIndexInst(ownIdx, ivec);
-	std::map<std::shared_ptr<IndexBase>, std::vector<BTSS> > mp;
+	std::map<std::shared_ptr<VIWB>, std::vector<BTSS> > mp;
 	
 	for(auto& xx: ivec){
 	    mp[xx] = second.block(xx);
@@ -465,7 +436,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpClass, class... Ranges>
-    std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
@@ -501,7 +472,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
@@ -551,7 +522,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType(mIndex, blockIndex, true) );
 	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
@@ -582,7 +553,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpFunction, class... Ops>
-    std::vector<BTSS> Operation<T,OpFunction,Ops...>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    std::vector<BTSS> Operation<T,OpFunction,Ops...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv;
 	PackNum<sizeof...(Ops)-1>::makeBlockTypeVec(btv, mOps, blockIndex);
@@ -617,7 +588,7 @@ namespace MultiArrayTools
     }
     
     template <typename T, class Op, class IndexType>
-    std::vector<BTSS> Contraction<T,Op,IndexType>::block(const std::shared_ptr<IndexBase> blockIndex) const
+    std::vector<BTSS> Contraction<T,Op,IndexType>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	return mOp.block(blockIndex);
     }

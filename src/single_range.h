@@ -19,7 +19,7 @@ namespace MultiArrayTools
     {
     public:
 
-	typedef IndexBase<SingleIndex<U,TYPE>,U> IB;
+	typedef IndexInterface<SingleIndex<U,TYPE>,U> IB;
 	typedef U MetaType;
 	typedef SingleRange<U,TYPE> RangeType;
 	
@@ -27,30 +27,87 @@ namespace MultiArrayTools
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
-	static IndexType S_type(SingleIndex* i) const;
-	
-	static SingleIndex& S_ass_op(SingleIndex* i, size_t pos);
-	static SingleIndex& S_pp_op(SingleIndex* i);
-	static SingleIndex& S_mm_op(SingleIndex* i);
+    private:
 
-	static int S_pp(SingleIndex* i, std::shared_ptr<VIWB>& idxPtr);
-	static int S_mm(SingleIndex* i, std::shared_ptr<VIWB>& idxPtr);
+	friend IB;
+
+	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	static U S_meta(SingleIndex* i) const;
-	static SingleIndex& S_at(SingleIndex* i, const U& metaPos);
+	static IndexType S_type(SingleIndex* i)
+	{
+	    return IndexType::SINGLE;
+	}
 	
-	static size_t S_dim(SingleIndex* i) const; // = 1
-	static bool S_last(SingleIndex* i) const;
-	static bool S_first(SingleIndex* i) const;
+	static SingleIndex& S_ass_op(SingleIndex* i, size_t pos)
+	{
+	    i->mPos = pos;
+	    return *i;
+	}
+
+	static SingleIndex& S_pp_op(SingleIndex* i)
+	{
+	    ++i->mPos;
+	    return *i;
+	}
+
+	static SingleIndex& S_mm_op(SingleIndex* i)
+	{
+	    --i->mPos;
+	    return *i;
+	}
+
+	static int S_pp(SingleIndex* i, intptr_t idxPtrNum)
+	{
+	    ++(*i);
+	    return 1;
+	}
+
+	static int S_mm(SingleIndex* i, intptr_t idxPtrNum)
+	{
+	    --(*i);
+	    return 1;
+	}
+	
+	static U S_meta(SingleIndex* i)
+	{
+	    return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->get( i->pos() );
+	}
+
+	static SingleIndex& S_at(SingleIndex* i, const U& metaPos)
+	{
+	    operator=( std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->getMeta( metaPos ) );
+	    return *i;
+	}
+	
+	static size_t S_dim(SingleIndex* i) // = 1
+	{
+	    return 1;
+	}
+
+	static bool S_last(SingleIndex* i)
+	{
+	    return i->mPos == i->mMax - 1;
+	}
+
+	static bool S_first(SingleIndex* i)
+	{
+	    return i->mPos == 0;
+	}
 
 	template <size_t N>
-	static void S_getPtr(SingleIndex* i) const;
+	static void S_getPtr(SingleIndex* i) {}
 
-	std::shared_ptr<VIWB> getVPtr(size_t n) const;
+	static std::shared_ptr<VIWB> S_getVPtr(SingleIndex* i, size_t n)
+	{
+	    return std::shared_ptr<VIWB>();
+	}
 	
-	static size_t S_getStepSize(SingleIndex* i, size_t n) const;
+	static size_t S_getStepSize(SingleIndex* i, size_t n)
+	{
+	    return 1;
+	}
 	
-	static std::string S_id(SingleIndex* i) const { return std::string("sin") + std::to_string(IB::mId); }
+	static std::string S_id(SingleIndex* i) { return std::string("sin") + std::to_string(IB::mId); }
     };
 
     template <typename U, RangeType TYPE>
@@ -109,98 +166,7 @@ namespace MultiArrayTools
 
     template <typename U, RangeType TYPE>
     SingleIndex<U,TYPE>::SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range) :
-	IndexInterface<U>(range, 0) {}
-
-    template <typename U, RangeType TYPE>
-    IndexType SingleIndex<U,TYPE>::S_type() const
-    {
-	return IndexType::SINGLE;
-    }
-	
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::S_ass_op(size_t pos)
-    {
-	IB::mPos = pos;
-	return *this;
-    }
-    
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::S_pp_op()
-    {
-	++IB::mPos;
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::S_mm_op()
-    {
-	--IB::mPos;
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    int SingleIndex<U,TYPE>::S_pp(std::shared_ptr<VIWB>& idxPtr)
-    {
-	++(*this);
-	return 1;
-    }
-
-    template <typename U, RangeType TYPE>
-    int SingleIndex<U,TYPE>::S_mm(std::shared_ptr<VIWB>& idxPtr)
-    {
-	--(*this);
-	return 1;
-    }
-    
-    template <typename U, RangeType TYPE>
-    U SingleIndex<U,TYPE>::S_meta() const
-    {
-	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->get( IB::pos() );
-    }
-
-    template <typename U, RangeType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::S_at(const U& metaPos)
-    {
-	operator=( std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos ) );
-	return *this;
-    }
-
-    template <typename U, RangeType TYPE>
-    size_t SingleIndex<U,TYPE>::S_dim() const
-    {
-	return 1;
-    }
-
-    template <typename U, RangeType TYPE>
-    bool SingleIndex<U,TYPE>::S_last() const
-    {
-	return IB::mPos == IB::mRangePtr->size() - 1;
-    }
-
-    template <typename U, RangeType TYPE>
-    bool SingleIndex<U,TYPE>::S_first() const
-    {
-	return IB::mPos == 0;
-    }
-
-    template <typename U, RangeType TYPE>
-    template <size_t N>
-    void SingleIndex<U,TYPE>::S_getPtr() const
-    {
-	return;
-    }
-
-    template <typename U, RangeType TYPE>
-    std::shared_ptr<VIWB> SingleIndex<U,TYPE>::getVPtr(size_t n) const
-    {
-	return std::shared_ptr<VIWB>();
-    }
-    
-    template <typename U, RangeType TYPE>    
-    size_t SingleIndex<U,TYPE>::S_getStepSize(size_t n) const
-    {
-	return 1;
-    }
+	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0) {}
     
     /********************
      *   SingleRange    *
@@ -282,8 +248,8 @@ namespace MultiArrayTools
     {
 	return std::make_shared<VIWB>
 	    ( std::make_shared<SingleIndex<U,TYPE> >
-	    ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
-	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
+	      ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }
 
 }

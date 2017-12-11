@@ -90,10 +90,10 @@ namespace MultiArrayHelper
 	    auto& siPtr = std::get<N>(ip);
 	    //VCHECK(siPtr.id());
 	    if(static_cast<intptr_t>(siPtr.get()) == idxPtrNum){
-		return PackNum<N-1>::pp(ip, bs, idxPtrNum;
+		return PackNum<N-1>::pp(ip, bs, idxPtrNum);
 	    }
 	    else {
-		int tmp = siPtr->pp(idxPtr);
+		int tmp = siPtr->pp(idxPtrNum);
 		if(siPtr->pos() == siPtr->max()){
 		    (*siPtr) = 0;
 		    return PackNum<N-1>::pp(ip, bs, idxPtrNum) - siPtr->max() + 1;
@@ -233,7 +233,7 @@ namespace MultiArrayHelper
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
-				     std::shared_ptr<IndexBase> idxPtr)
+				     std::shared_ptr<VIWB> idxPtr)
 	{
 	    auto subvec = std::move( std::get<N>(ops).block(idxPtr) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
@@ -271,7 +271,7 @@ namespace MultiArrayHelper
 	}
 	*/
 	template <class IndexType>
-	static std::shared_ptr<IndexBase> getIndexPtr(const IndexType& in, size_t n)
+	static std::shared_ptr<VIWB> getIndexPtr(const IndexType& in, size_t n)
 	{
 	    return make_viwb( in.template get<0>() );
 	}
@@ -423,7 +423,7 @@ namespace MultiArrayHelper
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
-				     std::shared_ptr<IndexBase> idxPtr)
+				     std::shared_ptr<VIWB> idxPtr)
 	{
 	    auto subvec = std::move( std::get<0>(ops).block(idxPtr) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );

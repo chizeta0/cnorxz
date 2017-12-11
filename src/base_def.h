@@ -64,10 +64,15 @@ namespace MultiArrayTools
     class RangeInterface;
 
     // index_base.h
-    class IndexBase;
-
+    class VirtualIndexWrapperBase;
+    typedef VirtualIndexWrapperBase VIWB;    
+    
     // index_base.h
-    template <typename MetaType>
+    template <class I>
+    class IndexWrapper;
+    
+    // index_base.h
+    template <class I, typename MetaType>
     class IndexInterface;
 
     // single_range.h    

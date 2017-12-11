@@ -44,7 +44,7 @@ namespace MultiArrayTools
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
-	virtual std::shared_ptr<IndexBase> index() const override;
+	virtual std::shared_ptr<VIWB> index() const override;
 	
 	friend AnonymousRangeFactory;
 	
@@ -155,11 +155,12 @@ namespace MultiArrayTools
     }
 
     // put this in the interface class !!!
-    std::shared_ptr<IndexBase> AnonymousRange::index() const
+    std::shared_ptr<VIWB> AnonymousRange::index() const
     {
-	return std::make_shared<SingleIndex >
-	    ( std::dynamic_pointer_cast<AnonymousRange>
-	      ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	return std::make_shared<VIWB>
+	    (std::make_shared<SingleIndex >
+	     ( std::dynamic_pointer_cast<AnonymousRange>
+	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }
 }
 
