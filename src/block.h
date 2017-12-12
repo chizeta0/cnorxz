@@ -56,6 +56,16 @@ namespace MultiArrayHelper
     };
 
     template <typename T>
+    std::ostream& operator<<(std::ostream& out, const Block<T>& block)
+    {
+	out << block[0];
+	for(size_t i = 1; i != block.size(); ++i){
+	    out << ", " << block[i];
+	}
+	return out;
+    }
+    
+    template <typename T>
     std::ostream& operator<<(std::ostream& out, const MBlock<T>& block)
     {
 	out << block[0];

@@ -117,6 +117,16 @@ namespace MultiArrayTools
 	}
 	
 	static std::string S_id(SingleIndex const* i) { return std::string("sin") + std::to_string(i->mId); }
+
+	static void S_print(SingleIndex const* i, size_t offset)
+	{
+	    if(offset == 0){
+		std::cout << " === " << std::endl;
+	    }
+	    for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
+	    std::cout << S_id(i) << "[" << reinterpret_cast<std::intptr_t>(i)
+		      << "](" << i->mRangePtr << "): " << S_meta(i) << std::endl;
+	}
     };
 
     template <typename U, RangeType TYPE>

@@ -45,12 +45,12 @@ namespace MultiArrayTools
     {
 	return std::make_shared<IndexWrapper<I> >(idxPtr);
     }
-
+    /*
     template <class I>
     std::shared_ptr<IndexWrapper<I> > make_viwb(const I& idxPtr)
     {
 	return make_viwb( std::make_shared<I>(idxPtr) );
-    }
+	}*/
     
     template <class I>
     class IndexWrapper : public VirtualIndexWrapperBase
@@ -66,7 +66,8 @@ namespace MultiArrayTools
 	virtual size_t pos() const override { return mIdxPtr->pos(); }
 	virtual size_t max() const override { return mIdxPtr->max(); }
 	virtual std::shared_ptr<RangeBase> rangePtr() const override { return mIdxPtr->vrange(); }
-	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override { return mIdxPtr->getVPtr(n); }
+	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override
+	{ return mIdxPtr->getVPtr(n); }
 	virtual std::intptr_t getPtrNum() const override { return reinterpret_cast<std::intptr_t>( mIdxPtr.get() ); }
 	virtual size_t getStepSize(size_t n) const override { return mIdxPtr->getStepSize(n); }
 
@@ -127,6 +128,7 @@ namespace MultiArrayTools
 	MetaType meta() const { return I::S_meta(THIS()); }
 	I& at(const MetaType& meta) { return I::S_at(THIS(), meta); }
 
+	void print(size_t offset = 0) const { I::S_print(THIS(), offset); }
 	
     private:
 

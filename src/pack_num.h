@@ -251,7 +251,14 @@ namespace MultiArrayHelper
 				std::vector<RangeBase> v)
 	{
 	    v[N] = std::get<N>(rst);
-	    PackNum<N>::RangesToVec(rst, v);
+	    PackNum<N-1>::RangesToVec(rst, v);
+	}
+
+	template <class... Indices>
+	static void printIndex(const std::tuple<std::shared_ptr<Indices>...>& ip, size_t offset)
+	{
+	    std::get<N>(ip)->print(offset);
+	    PackNum<N-1>::printIndex(ip, offset);
 	}
     };
     
@@ -273,7 +280,7 @@ namespace MultiArrayHelper
 	template <class IndexType>
 	static std::shared_ptr<VIWB> getIndexPtr(const IndexType& in, size_t n)
 	{
-	    return make_viwb( in.template get<0>() );
+	    return make_viwb( in.template getPtr<0>() );
 	}
 	/*
 	template <class... Indices>
@@ -439,6 +446,12 @@ namespace MultiArrayHelper
 				std::vector<RangeBase> v)
 	{
 	    v[0] = std::get<0>(rst);
+	}
+
+	template <class... Indices>
+	static void printIndex(const std::tuple<std::shared_ptr<Indices>...>& ip, size_t offset)
+	{
+	    std::get<0>(ip)->print(offset);
 	}
 
     };

@@ -255,9 +255,10 @@ namespace MultiArrayTools
 	// stepSize > 1 => SPLIT :)
 	BTSS out(BlockType::VALUE, 0);
 	size_t lastNum = i->rangePtr()->dim();
+
 	for(size_t inum = 0; inum != lastNum; ++inum){
 	    auto ii = i->getPtr(inum);
-	    if(ii == j){
+	    if(ii->getPtrNum() == j->getPtrNum()){
 		
 		if(inum == lastNum - 1 and first){
 		    out = BTSS(BlockType::BLOCK, 1);
