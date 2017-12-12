@@ -36,7 +36,7 @@ namespace MultiArrayTools
 	virtual size_t max() const = 0;
 	virtual std::shared_ptr<RangeBase> rangePtr() const = 0;
 	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const = 0;
-	virtual intptr_t getPtrNum() const = 0;
+	virtual std::intptr_t getPtrNum() const = 0;
 	virtual size_t getStepSize(size_t n) const = 0;
     };
 
@@ -59,7 +59,7 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(IndexWrapper);
 
-	IndexWrapper(std::shared_ptr<I> idxPtr);
+	IndexWrapper(std::shared_ptr<I> idxPtr) : mIdxPtr(idxPtr) {}
 
 	virtual IndexType type() const override { return mIdxPtr->type(); }
 	virtual size_t dim() const override { return mIdxPtr->dim(); }
@@ -67,8 +67,10 @@ namespace MultiArrayTools
 	virtual size_t max() const override { return mIdxPtr->max(); }
 	virtual std::shared_ptr<RangeBase> rangePtr() const override { return mIdxPtr->vrange(); }
 	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override { return mIdxPtr->getVPtr(n); }
-	virtual intptr_t getPtrNum() const override { return static_cast<intptr_t>( mIdxPtr.get() ); }
+	virtual std::intptr_t getPtrNum() const override { return reinterpret_cast<std::intptr_t>( mIdxPtr.get() ); }
 	virtual size_t getStepSize(size_t n) const override { return mIdxPtr->getStepSize(n); }
+
+	std::shared_ptr<I> get() const { return mIdxPtr; } // unwrap
 	
     private:
 	std::shared_ptr<I> mIdxPtr;
@@ -89,12 +91,12 @@ namespace MultiArrayTools
 
 	IndexType type() const { return I::S_type(THIS()); }
 	
-	IndexInterface& operator=(size_t pos) { return I::S_ass_op(THIS(), pos); }
-	IndexInterface& operator++() { return I::S_pp_op(THIS()); }
-	IndexInterface& operator--() { return I::S_mm_op(THIS()); }
+	I& operator=(size_t pos) { return I::S_ass_op(THIS(), pos); }
+	I& operator++() { return I::S_pp_op(THIS()); }
+	I& operator--() { return I::S_mm_op(THIS()); }
 
-	int pp(std::shared_ptr<IndexInterface>& idxPtr) { return I::S_pp(THIS()); }
-	int mm(std::shared_ptr<IndexInterface>& idxPtr) { return I::S_mm(THIS()); }
+	int pp(std::intptr_t idxPtrNum) { return I::S_pp(THIS(), idxPtrNum); }
+	int mm(std::intptr_t idxPtrNum) { return I::S_mm(THIS(), idxPtrNum); }
 	
 	bool operator==(const IndexInterface& in) const;
 	bool operator!=(const IndexInterface& in) const;
@@ -123,7 +125,7 @@ namespace MultiArrayTools
 	std::string id() const { return I::S_id(THIS()); }
 
 	MetaType meta() const { return I::S_meta(THIS()); }
-	IndexInterface& at(const MetaType& meta) { return I::S_at(THIS(), meta); }
+	I& at(const MetaType& meta) { return I::S_at(THIS(), meta); }
 
 	
     private:
@@ -131,6 +133,8 @@ namespace MultiArrayTools
 	friend I;
 	
 	IndexInterface() { mId = indexId(); }
+	IndexInterface(const IndexInterface& in) = default;
+	IndexInterface& operator=(const IndexInterface& in) = default;
 	IndexInterface(IndexInterface&& in) = default;
 	IndexInterface& operator=(IndexInterface&& in) = default;
 	
@@ -156,9 +160,9 @@ namespace MultiArrayTools
 
     template <class I, typename MetaType>
     IndexInterface<I,MetaType>::IndexInterface(const std::shared_ptr<RangeBase>& range,
-			 size_t pos) : mRangePtr(range),
-				       mPos(pos),
-				       mMax(mRangePtr->size())
+					       size_t pos) : mRangePtr(range),
+							     mPos(pos),
+							     mMax(mRangePtr->size())
     {
 	mId = indexId();
     }

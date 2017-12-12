@@ -69,6 +69,8 @@ namespace MultiArrayTools
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MultiIndex instances
 	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
+
+	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr ); }
 	
     private:
 
@@ -98,14 +100,14 @@ namespace MultiArrayTools
 	    return *i;
 	}
 
-	static int S_pp(MultiIndex* i, intptr_t idxPtrNum)
+	static int S_pp(MultiIndex* i, std::intptr_t idxPtrNum)
 	{
 	    int tmp = PackNum<sizeof...(Indices)-1>::pp(i->mIPack, i->mBlockSizes, idxPtrNum);
 	    i->mPos += tmp;
 	    return tmp;
 	}
 
-	static int S_mm(MultiIndex* i, intptr_t idxPtrNum)
+	static int S_mm(MultiIndex* i, std::intptr_t idxPtrNum)
 	{
 	    int tmp = PackNum<sizeof...(Indices)-1>::mm(i->mIPack, i->mBlockSizes, idxPtrNum);
 	    i->mPos -= tmp;

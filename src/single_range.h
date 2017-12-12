@@ -28,6 +28,8 @@ namespace MultiArrayTools
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
 	SingleIndex& operator=(size_t pos) { IB::operator=(pos); return *this; } 
+
+	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr ); }
 	
     private:
 
@@ -58,13 +60,13 @@ namespace MultiArrayTools
 	    return *i;
 	}
 
-	static int S_pp(SingleIndex* i, intptr_t idxPtrNum)
+	static int S_pp(SingleIndex* i, std::intptr_t idxPtrNum)
 	{
 	    ++(*i);
 	    return 1;
 	}
 
-	static int S_mm(SingleIndex* i, intptr_t idxPtrNum)
+	static int S_mm(SingleIndex* i, std::intptr_t idxPtrNum)
 	{
 	    --(*i);
 	    return 1;

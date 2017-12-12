@@ -164,7 +164,7 @@ namespace {
 	std::vector<double> cv1;
 	std::vector<double> cv2;
     };
-
+    /*
     TEST_F(OpTest_Performance, PCheck)
     {
 	MultiArray<double,MRange> ma2(mrptr, cv2);
@@ -203,7 +203,7 @@ namespace {
 	//EXPECT_EQ( xround( res.at(mkt(700,900)) ), xround(res2[700*vs1 + 900]) );
 	
     }
-    
+    */
     TEST_F(OpTest_1Dim, ExecOp)
     {
 	MultiArray<double,SRange> ma1(srptr, v1);
@@ -211,6 +211,7 @@ namespace {
 	MultiArray<double,SRange> res(srptr);
 
 	auto i = MAT::getIndex( srptr );
+	
 	res(i) = ma1(i) + ma2(i);
 
 	EXPECT_EQ( fabs( res.at('a') - (2.917+8.870) ) < 0.0001, true);

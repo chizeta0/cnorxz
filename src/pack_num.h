@@ -85,11 +85,11 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static inline int pp(std::tuple<std::shared_ptr<Indices>...>& ip,
 			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     intptr_t idxPtrNum)
+			     std::intptr_t idxPtrNum)
 	{
 	    auto& siPtr = std::get<N>(ip);
 	    //VCHECK(siPtr.id());
-	    if(static_cast<intptr_t>(siPtr.get()) == idxPtrNum){
+	    if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
 		return PackNum<N-1>::pp(ip, bs, idxPtrNum);
 	    }
 	    else {
@@ -121,10 +121,10 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static inline int mm(std::tuple<std::shared_ptr<Indices>...>& ip,
 			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     intptr_t idxPtrNum)
+			     std::intptr_t idxPtrNum)
 	{
 	    auto& siPtr = std::get<N>(ip);
-	    if(static_cast<intptr_t>(siPtr.get()) == idxPtrNum){
+	    if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
 		return std::get<N>(bs) + PackNum<N-1>::mm(ip, bs, idxPtrNum);
 	    }
 	    else {
@@ -300,10 +300,10 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static inline int pp(std::tuple<std::shared_ptr<Indices>...>& ip,
 			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     intptr_t idxPtrNum)
+			     std::intptr_t idxPtrNum)
 	{
 	    auto& siPtr = std::get<0>(ip);
-	    if(static_cast<intptr_t>(siPtr.get()) == idxPtrNum){
+	    if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
 		return std::get<0>(bs);
 	    }
 	    else {
@@ -322,10 +322,10 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static inline int mm(std::tuple<std::shared_ptr<Indices>...>& ip,
 			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     intptr_t idxPtrNum)
+			     std::intptr_t idxPtrNum)
 	{
 	    auto& siPtr = std::get<0>(ip);
-	    if(static_cast<intptr_t>(siPtr.get()) == idxPtrNum){
+	    if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
 		return std::get<0>(bs);
 		//return 1;
 	    }

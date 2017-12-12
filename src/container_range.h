@@ -53,6 +53,8 @@ namespace MultiArrayTools
 	ContainerIndex& sync(); // recalculate 'IB::mPos' when externalControl == true
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
 	ContainerIndex& operator()(); // -> sync; just to shorten the code
+
+	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr ); }
 	
     private:
 
@@ -91,14 +93,14 @@ namespace MultiArrayTools
 	    return *i;
 	}
 
-	static int S_pp(ContainerIndex* i, intptr_t idxPtrNum)
+	static int S_pp(ContainerIndex* i, std::intptr_t idxPtrNum)
 	{
 	    int tmp = PackNum<sizeof...(Indices)-1>::pp(i->mIPack, i->mBlockSizes, idxPtrNum);
 	    i->mPos += tmp;
 	    return tmp;
 	}
 
-	static int S_mm(ContainerIndex* i, intptr_t idxPtrNum)
+	static int S_mm(ContainerIndex* i, std::intptr_t idxPtrNum)
 	{
 	    int tmp = PackNum<sizeof...(Indices)-1>::mm(i->mIPack, i->mBlockSizes, idxPtrNum);
 	    i->mPos -= tmp;

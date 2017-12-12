@@ -23,7 +23,8 @@ namespace MultiArrayTools
     auto getIndex(std::shared_ptr<RangeType> range)
 	-> std::shared_ptr<typename RangeType::IndexType>
     {
-	return std::dynamic_pointer_cast<typename RangeType::IndexType>( range->index() );
+	return std::dynamic_pointer_cast<IndexWrapper<typename RangeType::IndexType> >
+	    ( range->index() )->get();
     }
 }
 
