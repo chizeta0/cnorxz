@@ -40,6 +40,8 @@ namespace MultiArrayTools
     public:
 
 	MultiIndex() = delete;
+
+	MultiIndex& operator=(size_t pos) { IB::operator=(pos) ; return *this; }
 	
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
@@ -59,6 +61,9 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 
+	template <size_t N>
+	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
+	
 	// raplace instances (in contrast to its analogon in ContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)
@@ -70,7 +75,7 @@ namespace MultiArrayTools
 	friend IB;
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	static IndexType S_type(MultiIndex* i) { return IndexType::MULTI; }
+	static IndexType S_type(MultiIndex const* i) { return IndexType::MULTI; }
 
 	static MultiIndex& S_ass_op(MultiIndex* i, size_t pos)
 	{
@@ -107,7 +112,7 @@ namespace MultiArrayTools
 	    return tmp;
 	}
 
-	static MetaType S_meta(MultiIndex* i)
+	static MetaType S_meta(MultiIndex const* i)
 	{
 	    MetaType metaTuple;
 	    PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, i->mIPack);
@@ -121,29 +126,34 @@ namespace MultiArrayTools
 	    return *i;
 	}
 	
-	static size_t S_dim(MultiIndex* i)
+	static size_t S_dim(MultiIndex const* i)
 	{
 	    return sizeof...(Indices);
 	}
 
-	static bool S_first(MultiIndex* i)
+	static bool S_first(MultiIndex const* i)
 	{
 	    return i->mPos == 0;
 	}
 
-	static bool S_last(MultiIndex* i)
+	static bool S_last(MultiIndex const* i)
 	{
 	    return i->mPos == i->mMax - 1;
 	}
 
+	static std::shared_ptr<RangeType> S_range(MultiIndex const* i)
+	{
+	    return std::dynamic_pointer_cast<RangeType>( i->mRangePtr );
+	}
+
 	template <size_t N>
-	static auto S_getPtr(MultiIndex* i) -> decltype( std::get<N>( mIPack ) )&
+	static auto S_getPtr(MultiIndex const* i) -> decltype( std::get<N>( mIPack ) )&
 	{
 	    return std::get<N>(i->mIPack);
 	}
 	
 	//const IndexBase& get(size_t n);
-	static std::shared_ptr<VIWB> S_getVPtr(MultiIndex* i, size_t n)
+	static std::shared_ptr<VIWB> S_getVPtr(MultiIndex const* i, size_t n)
 	{
 	    if(n >= sizeof...(Indices)){
 		assert(0);
@@ -153,7 +163,7 @@ namespace MultiArrayTools
 	    return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
 	}
 	
-	static size_t S_getStepSize(MultiIndex* i, size_t n)
+	static size_t S_getStepSize(MultiIndex const* i, size_t n)
 	{
 	    if(n >= sizeof...(Indices)){
 		assert(0);
@@ -162,7 +172,7 @@ namespace MultiArrayTools
 	    return i->mBlockSizes[n+1];
 	}
 
-	static std::string S_id(MultiIndex* i) { return std::string("mul") + std::to_string(IB::mId); }
+	static std::string S_id(MultiIndex const* i) { return std::string("mul") + std::to_string(i->mId); }
     };
 
     /*************************
@@ -193,7 +203,8 @@ namespace MultiArrayTools
     public:
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
-	typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
+	typedef MultiIndex<typename Ranges::IndexType...> IndexType;	
+	//typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:
 	MultiRange() = delete;
@@ -312,6 +323,13 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
+    template <size_t N>
+    auto MultiIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    {
+	return std::get<N>(mIPack);
+    }
+    
+    template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
 	PackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
@@ -413,8 +431,9 @@ namespace MultiArrayTools
     template <class... Ranges>
     std::shared_ptr<VIWB> MultiRange<Ranges...>::index() const
     {
-	return std::make_shared<VIWB>
-	    ( std::make_shared<MultiIndex<typename Ranges::IndexType...> >
+	typedef IndexWrapper<IndexType> IW;
+	return std::make_shared<IW>
+	    ( std::make_shared<IndexType>
 	      ( std::dynamic_pointer_cast<MultiRange<Ranges...> >
 		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }

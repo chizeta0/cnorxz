@@ -42,8 +42,13 @@ namespace MultiArrayTools
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range);
 
+	ContainerIndex& operator=(size_t pos) { IB::operator=(pos) ; return *this; }
+	
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
+
+	template <size_t N>
+	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 
 	ContainerIndex& sync(); // recalculate 'IB::mPos' when externalControl == true
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
@@ -56,7 +61,7 @@ namespace MultiArrayTools
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	static IndexType S_type(ContainerIndex* i) { return IndexType::CONT; }
+	static IndexType S_type(ContainerIndex const* i) { return IndexType::CONT; }
 	
 	static ContainerIndex& S_pp_op(ContainerIndex* i)
 	{
@@ -100,7 +105,7 @@ namespace MultiArrayTools
 	    return tmp;
 	}
 	
-	static MetaType S_meta(ContainerIndex* i)
+	static MetaType S_meta(ContainerIndex const* i)
 	{
 	    MetaType metaTuple;
 	    PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, i->mIPack);
@@ -114,28 +119,33 @@ namespace MultiArrayTools
 	    return *i;
 	}
 
-	static size_t S_dim(ContainerIndex* i)
+	static size_t S_dim(ContainerIndex const* i)
 	{
 	    return sizeof...(Indices);
 	}
 
-	static bool S_first(ContainerIndex* i)
+	static bool S_first(ContainerIndex const* i)
 	{
 	    return i->pos() == 0;
 	}
 
-	static bool S_last(ContainerIndex* i)
+	static bool S_last(ContainerIndex const* i)
 	{
 	    return i->pos() == i->mMax - 1;
 	}
+
+	static std::shared_ptr<RangeType> S_range(ContainerIndex const* i)
+	{
+	    return std::dynamic_pointer_cast<RangeType>( i->mRangePtr );
+	}
 	
 	template <size_t N>
-	static auto S_getPtr(ContainerIndex* i) -> decltype( std::get<N>( mIPack ) )&
+	static auto S_getPtr(ContainerIndex const* i) -> decltype( std::get<N>( mIPack ) )&
 	{
 	    return std::get<N>( i->mIPack );
 	}
 	
-	static std::shared_ptr<VIWB> S_getVPtr(ContainerIndex* i, size_t n)
+	static std::shared_ptr<VIWB> S_getVPtr(ContainerIndex const* i, size_t n)
 	{
 	    if(n >= sizeof...(Indices)){
 		assert(0);
@@ -145,7 +155,7 @@ namespace MultiArrayTools
 	    return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
 	}
 
-	static size_t S_getStepSize(ContainerIndex* i, size_t n)
+	static size_t S_getStepSize(ContainerIndex const* i, size_t n)
 	{
 	    if(n >= sizeof...(Indices)){
 		assert(0);
@@ -154,7 +164,7 @@ namespace MultiArrayTools
 	    return i->mBlockSizes[n+1];
 	}
 	
-	static std::string S_id(ContainerIndex* i) { return std::string("con") + std::to_string(IB::mId); }
+	static std::string S_id(ContainerIndex const* i) { return std::string("con") + std::to_string(i->mId); }
     };
 
     
@@ -182,7 +192,8 @@ namespace MultiArrayTools
 
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
-	typedef typename RangeInterface<ContainerIndex<typename Ranges::IndexType...> >::IndexType IndexType;
+	typedef ContainerIndex<typename Ranges::IndexType...> IndexType;
+	//typedef typename RangeInterface<ContainerIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 	
     protected:
 	ContainerRange() = default;
@@ -262,6 +273,13 @@ namespace MultiArrayTools
     auto ContainerIndex<Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
     {
 	return *std::get<N>( mIPack );
+    }
+
+    template <class... Indices>
+    template <size_t N>
+    auto ContainerIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    {
+	return std::get<N>( mIPack );
     }
 
     template <class... Indices>
@@ -368,8 +386,9 @@ namespace MultiArrayTools
     template <class... Ranges>
     std::shared_ptr<VIWB> ContainerRange<Ranges...>::index() const
     {
-	return std::make_shared<VIWB>
-	    ( std::make_shared<ContainerIndex<typename Ranges::IndexType...> >
+	typedef IndexWrapper<IndexType> IW;
+	return std::make_shared<IW>
+	    ( std::make_shared<IndexType>
 	      ( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
 		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }

@@ -53,20 +53,20 @@ namespace MultiArrayTools
     }
     
     template <class I>
-    class IndexWrapper
+    class IndexWrapper : public VirtualIndexWrapperBase
     {
     public:
 	
 	DEFAULT_MEMBERS(IndexWrapper);
 
-	IndexWrapper(std::shared_ptr<I>& idxPtr);
+	IndexWrapper(std::shared_ptr<I> idxPtr);
 
 	virtual IndexType type() const override { return mIdxPtr->type(); }
 	virtual size_t dim() const override { return mIdxPtr->dim(); }
 	virtual size_t pos() const override { return mIdxPtr->pos(); }
 	virtual size_t max() const override { return mIdxPtr->max(); }
-	virtual std::shared_ptr<RangeBase> rangePtr() const override { return mIdxPtr->rangePtr(); }
-	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override { return mIdxPtr->getv(n); }
+	virtual std::shared_ptr<RangeBase> rangePtr() const override { return mIdxPtr->vrange(); }
+	virtual std::shared_ptr<VirtualIndexWrapperBase> getPtr(size_t n) const override { return mIdxPtr->getVPtr(n); }
 	virtual intptr_t getPtrNum() const override { return static_cast<intptr_t>( mIdxPtr.get() ); }
 	virtual size_t getStepSize(size_t n) const override { return mIdxPtr->getStepSize(n); }
 	
@@ -78,7 +78,7 @@ namespace MultiArrayTools
     class IndexInterface
     {
     public:
-	typedef typename I::RangeType RangeType;
+	//typedef typename I::RangeType RangeType;
 	
 	//DEFAULT_MEMBERS(IndexInterface);
 
@@ -106,12 +106,14 @@ namespace MultiArrayTools
 	bool last() const { return I::S_last(THIS()); }
 	bool first() const { return I::S_first(THIS()); }
 
+	
 	std::shared_ptr<RangeBase> vrange() const { return mRangePtr; }
-	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>(mRangePtr); }
+	/*auto range() const -> decltype( I::S_range(THIS()) ) { return I::S_range(THIS()); }
 	
 	template <size_t N>
-	auto getPtr() const -> decltype(I::S_get<N>(THIS())) { return I::S_get<N>(THIS()); }
-
+	auto getPtr() const -> decltype(I::template S_get<N>(THIS()))
+	{ return I::template S_get<N>(THIS()); }
+	*/
 	std::shared_ptr<VIWB> getVPtr(size_t n) const { return I::S_getVPtr(THIS(),n); }
 	
 	size_t getStepSize(size_t n) const { return I::S_getStepSize(THIS(),n); }

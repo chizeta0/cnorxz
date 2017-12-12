@@ -27,13 +27,15 @@ namespace MultiArrayTools
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
+	SingleIndex& operator=(size_t pos) { IB::operator=(pos); return *this; } 
+	
     private:
 
 	friend IB;
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	static IndexType S_type(SingleIndex* i)
+	static IndexType S_type(SingleIndex const* i)
 	{
 	    return IndexType::SINGLE;
 	}
@@ -68,46 +70,51 @@ namespace MultiArrayTools
 	    return 1;
 	}
 	
-	static U S_meta(SingleIndex* i)
+	static U S_meta(SingleIndex const* i)
 	{
 	    return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->get( i->pos() );
 	}
 
 	static SingleIndex& S_at(SingleIndex* i, const U& metaPos)
 	{
-	    operator=( std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->getMeta( metaPos ) );
+	    (*i) = std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->getMeta( metaPos );
 	    return *i;
 	}
 	
-	static size_t S_dim(SingleIndex* i) // = 1
+	static size_t S_dim(SingleIndex const* i) // = 1
 	{
 	    return 1;
 	}
 
-	static bool S_last(SingleIndex* i)
+	static bool S_last(SingleIndex const* i)
 	{
 	    return i->mPos == i->mMax - 1;
 	}
 
-	static bool S_first(SingleIndex* i)
+	static bool S_first(SingleIndex const* i)
 	{
 	    return i->mPos == 0;
 	}
 
+	static std::shared_ptr<RangeType> S_range(SingleIndex const* i)
+	{
+	    return std::dynamic_pointer_cast<RangeType>( i->mRangePtr );
+	}
+	
 	template <size_t N>
 	static void S_getPtr(SingleIndex* i) {}
 
-	static std::shared_ptr<VIWB> S_getVPtr(SingleIndex* i, size_t n)
+	static std::shared_ptr<VIWB> S_getVPtr(SingleIndex const* i, size_t n)
 	{
 	    return std::shared_ptr<VIWB>();
 	}
 	
-	static size_t S_getStepSize(SingleIndex* i, size_t n)
+	static size_t S_getStepSize(SingleIndex const* i, size_t n)
 	{
 	    return 1;
 	}
 	
-	static std::string S_id(SingleIndex* i) { return std::string("sin") + std::to_string(IB::mId); }
+	static std::string S_id(SingleIndex const* i) { return std::string("sin") + std::to_string(i->mId); }
     };
 
     template <typename U, RangeType TYPE>
@@ -128,7 +135,8 @@ namespace MultiArrayTools
     {
     public:
 	typedef RangeBase RB;
-	typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
+	typedef SingleIndex<U,TYPE> IndexType;
+	//typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
@@ -246,8 +254,9 @@ namespace MultiArrayTools
     template <typename U, RangeType TYPE>
     std::shared_ptr<VIWB> SingleRange<U,TYPE>::index() const
     {
-	return std::make_shared<VIWB>
-	    ( std::make_shared<SingleIndex<U,TYPE> >
+	typedef IndexWrapper<IndexType> IW;
+	return std::make_shared<IW>
+	    ( std::make_shared<IndexType>
 	      ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
 		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }
