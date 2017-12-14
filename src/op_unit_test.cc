@@ -7,6 +7,7 @@
 #include "multi_array_header.h"
 
 #include <ctime>
+#include <cmath>
 
 namespace MAT = MultiArrayTools;
 
@@ -19,6 +20,13 @@ namespace {
     
     using namespace MAT;
 
+    template <class Factory>
+    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr)
+    {
+	auto nptr = std::make_shared<Factory>();
+	fptr = nptr;
+    }
+    
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
@@ -165,6 +173,52 @@ namespace {
 	std::vector<double> cv2;
     };
 
+    class OpTest_Spin : public ::testing::Test
+    {
+    protected:
+
+	typedef SpinRangeFactory SRF;
+	typedef SpinRange SR;
+	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
+	typedef SR8F::oType SR8;
+
+	static const size_t s = 65536;
+	
+	OpTest_Spin() : data(s)
+	{
+	    for(size_t i = 0; i != s; ++i){
+		double arg = static_cast<double>( i - s ) - 0.1; 
+		data[i] = sin(arg)/arg;
+	    }
+
+	    swapFactory<SRF>(rfbptr);
+	    srptr = std::dynamic_pointer_cast<SR>( rfbptr->create() );
+	    /*
+	    swapMFactory<SR8F>(rfbptr, srptr, srptr, srptr, srptr,
+			       srptr, srptr, srptr, srptr);
+	    mrptr = std::dynamic_pointer_cas<SR8>( rfbptr->create() );
+	    */
+	}
+
+	std::shared_ptr<RangeFactoryBase> rfbptr;
+	std::shared_ptr<SR> srptr;
+	//std::shared_ptr<SR8> mrptr;
+	std::vector<double> data;
+    };
+
+    TEST_F(OpTest_Spin, Contract)
+    {
+	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(srptr, srptr, srptr, srptr,
+						      srptr, srptr, srptr, srptr, data);
+
+	auto alpha = MAT::getIndex(srptr);
+	auto beta = MAT::getIndex(srptr);
+	auto gamma = MAT::getIndex(srptr);
+	auto delta = MAT::getIndex(srptr);
+
+	// !!!
+    }    
+    
     TEST_F(OpTest_Performance, PCheck)
     {
 	MultiArray<double,MRange> ma2(mrptr, cv2);
