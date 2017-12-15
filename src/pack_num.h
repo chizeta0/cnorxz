@@ -260,6 +260,13 @@ namespace MultiArrayHelper
 	    std::get<N>(ip)->print(offset);
 	    PackNum<N-1>::printIndex(ip, offset);
 	}
+
+	template <class Range, class... Ranges>
+	static void checkDefaultable()
+	{
+	    static_assert( Range::defaultable, "not defaultable" );
+	    PackNum<N-1>::template checkDefaultable<Ranges...>();
+	}
     };
     
     template<>
@@ -454,6 +461,12 @@ namespace MultiArrayHelper
 	    std::get<0>(ip)->print(offset);
 	}
 
+	template <class Range>
+	static void checkDefaultable()
+	{
+	    static_assert( Range::defaultable, "not defaultable" );
+	}
+	
     };
 
     template <typename... T>

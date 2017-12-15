@@ -57,6 +57,12 @@ namespace {
 	return std::make_tuple(ts...);
     }
 
+    template <typename... Ts>
+    auto mkts(Ts&&... ts) -> decltype(std::make_tuple(ts...))
+    {
+	return std::make_tuple(static_cast<size_t>( ts )...);
+    }
+    
     class OpTest_1Dim : public ::testing::Test
     {
     protected:
@@ -177,46 +183,89 @@ namespace {
     {
     protected:
 
-	typedef SpinRangeFactory SRF;
+	typedef SpinRF SRF;
 	typedef SpinRange SR;
 	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
 	typedef SR8F::oType SR8;
 
 	static const size_t s = 65536;
 	
-	OpTest_Spin() : data(s)
+	OpTest_Spin()
 	{
+	    data.resize(s);
 	    for(size_t i = 0; i != s; ++i){
 		double arg = static_cast<double>( i - s ) - 0.1; 
 		data[i] = sin(arg)/arg;
 	    }
-
-	    swapFactory<SRF>(rfbptr);
-	    srptr = std::dynamic_pointer_cast<SR>( rfbptr->create() );
-	    /*
-	    swapMFactory<SR8F>(rfbptr, srptr, srptr, srptr, srptr,
-			       srptr, srptr, srptr, srptr);
-	    mrptr = std::dynamic_pointer_cas<SR8>( rfbptr->create() );
-	    */
+	    SRF f;
+	    sr = std::dynamic_pointer_cast<SR>(f.create());
 	}
 
-	std::shared_ptr<RangeFactoryBase> rfbptr;
-	std::shared_ptr<SR> srptr;
-	//std::shared_ptr<SR8> mrptr;
 	std::vector<double> data;
+	std::shared_ptr<SR> sr;
     };
 
     TEST_F(OpTest_Spin, Contract)
     {
-	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(srptr, srptr, srptr, srptr,
-						      srptr, srptr, srptr, srptr, data);
+	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(sr, sr, sr, sr, sr, sr, sr, sr, data);
+	MultiArray<double,SR,SR> res1( sr, sr );
+	
+	auto alpha = MAT::getIndex<SR>();
+	auto beta = MAT::getIndex<SR>();
+	auto gamma = MAT::getIndex<SR>();
+	auto delta = MAT::getIndex<SR>();
+	auto deltap = MAT::getIndex<SR>();
+	
+	auto mix = MAT::mkMIndex( alpha, beta, gamma );
 
-	auto alpha = MAT::getIndex(srptr);
-	auto beta = MAT::getIndex(srptr);
-	auto gamma = MAT::getIndex(srptr);
-	auto delta = MAT::getIndex(srptr);
+	std::clock_t begin = std::clock();
+	res1(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	std::clock_t end = std::clock();
+	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
+		  << std::endl;
+	
+	std::vector<double> vres(4*4);
 
-	// !!!
+	std::clock_t begin2 = std::clock();
+	for(size_t d = 0; d != 4; ++d){
+	    for(size_t p = 0; p != 4; ++p){
+		const size_t tidx = d*4 + p;
+		vres[tidx] = 0.;
+		for(size_t a = 0; a != 4; ++a){
+		    for(size_t b = 0; b != 4; ++b){
+			for(size_t c = 0; c != 4; ++c){
+			    const size_t sidx = d*4*4*4*4*4*4*4 + a*5*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
+			    vres[tidx] += data[sidx];
+			}
+		    }
+		}
+	    }
+	}
+	std::clock_t end2 = std::clock();
+
+	EXPECT_EQ( xround(res1.at(mkts(0,0))), xround(vres[0]) );
+	EXPECT_EQ( xround(res1.at(mkts(0,1))), xround(vres[1]) );
+	EXPECT_EQ( xround(res1.at(mkts(0,2))), xround(vres[2]) );
+	EXPECT_EQ( xround(res1.at(mkts(0,3))), xround(vres[3]) );
+	
+	EXPECT_EQ( xround(res1.at(mkts(1,0))), xround(vres[4]) );
+	EXPECT_EQ( xround(res1.at(mkts(1,1))), xround(vres[5]) );
+	EXPECT_EQ( xround(res1.at(mkts(1,2))), xround(vres[6]) );
+	EXPECT_EQ( xround(res1.at(mkts(1,3))), xround(vres[7]) );
+
+	EXPECT_EQ( xround(res1.at(mkts(2,0))), xround(vres[8]) );
+	EXPECT_EQ( xround(res1.at(mkts(2,1))), xround(vres[9]) );
+	EXPECT_EQ( xround(res1.at(mkts(2,2))), xround(vres[10]) );
+	EXPECT_EQ( xround(res1.at(mkts(2,3))), xround(vres[11]) );
+
+	EXPECT_EQ( xround(res1.at(mkts(3,0))), xround(vres[12]) );
+	EXPECT_EQ( xround(res1.at(mkts(3,1))), xround(vres[13]) );
+	EXPECT_EQ( xround(res1.at(mkts(3,2))), xround(vres[14]) );
+	EXPECT_EQ( xround(res1.at(mkts(3,3))), xround(vres[15]) );
+
+	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
+		  << std::endl;
+	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
     }    
     
     TEST_F(OpTest_Performance, PCheck)

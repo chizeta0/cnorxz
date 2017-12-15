@@ -202,6 +202,10 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
 
+	// Only if ALL ranges have default extensions:
+	//MultiArray(const std::vector<T>& vec);
+	//MultiArray(std::vector<T>&& vec);
+	
 	// template <class Range2, class Range3>
 	// MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
 
@@ -716,6 +720,7 @@ namespace MultiArrayTools
 	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
 	}
     }
+
     /*
     template <typename T, class... SRanges>
     template <class Range2, class Range3>

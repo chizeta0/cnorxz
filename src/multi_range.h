@@ -228,7 +228,7 @@ namespace MultiArrayTools
 	MultiRange(const SpaceType& space);
 	
 	SpaceType mSpace;
-	
+
     public:
 	
 	static const size_t sdim = sizeof...(Ranges);
@@ -250,7 +250,8 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<VIWB> index() const override;
 
 	friend MultiRangeFactory<Ranges...>;
-	
+
+	static const bool defaultable = false;
     };
     
 }

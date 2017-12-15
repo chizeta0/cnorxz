@@ -161,6 +161,8 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<VIWB> index() const override;
 	
 	friend SingleRangeFactory<U,TYPE>;
+
+	static const bool defaultable = false;
 	
     protected:
 

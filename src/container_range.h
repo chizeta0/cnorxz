@@ -188,7 +188,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<Ranges...> oType;
 	
-	ContainerRangeFactory() = delete;
+	ContainerRangeFactory();
 	ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space);
 	
@@ -238,7 +238,8 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<VIWB> index() const override;
 
 	friend ContainerRangeFactory<Ranges...>;
-	
+
+	static const bool defaultable = false;
     };
    
 } // end namespace MultiArrayTools
@@ -318,7 +319,7 @@ namespace MultiArrayTools
     {
 	mProd = std::shared_ptr<ContainerRange<Ranges...> >( new ContainerRange<Ranges...>( rs... ) );
     }
-    
+   
     template <class... Ranges>
     ContainerRangeFactory<Ranges...>::
     ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space)

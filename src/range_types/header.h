@@ -10,12 +10,14 @@
 
 #ifdef __incl_this__
 
-#ifndef __ranges_header__
 #define __ranges_header__
+//#ifndef __ranges_header__
+//#define __ranges_header__
 
 #include "spin_range.h"
 
-#endif
+#undef __ranges_header__
+//#endif
 #endif
 
 #undef __incl_this__
