@@ -43,10 +43,10 @@ namespace MultiArrayTools
 		      bool first, size_t higherStepSize = 1);
 
     template <typename T>
-    std::shared_ptr<Block<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize);
+    Block<T> makeBlock(const T* vec, size_t stepSize, size_t blockSize);
 
     template <typename T>
-    std::shared_ptr<MBlock<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize);
+    MBlock<T> makeBlock(T* vec, size_t stepSize, size_t blockSize);
 
     size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt);
 
@@ -113,7 +113,7 @@ namespace MultiArrayTools
 	OpClass const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-	mutable std::shared_ptr<MBlock<T> > mBlockPtr;
+	mutable MBlock<T> mBlock;
     };
 
     
@@ -141,7 +141,7 @@ namespace MultiArrayTools
 	
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
- 	mutable std::shared_ptr<Block<T> > mBlockPtr;
+ 	mutable Block<T> mBlock;
     };
     
     template <typename T, class... Ranges>
@@ -172,7 +172,7 @@ namespace MultiArrayTools
 	
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
-	mutable std::shared_ptr<MBlock<T> > mBlockPtr;
+	mutable MBlock<T> mBlock;
     };
     
     template <typename T, class OpFunction, class... Ops>
@@ -283,15 +283,15 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    std::shared_ptr<Block<T> > makeBlock(const std::vector<T>& vec, size_t stepSize, size_t blockSize)
+    Block<T> makeBlock(const T* vec, size_t stepSize, size_t blockSize)
     {
-	return std::make_shared<Block<T> >(vec, 0, blockSize, stepSize);
+	return Block<T>(vec, 0, blockSize, stepSize);
     }
 
     template <typename T>
-    std::shared_ptr<MBlock<T> > makeBlock(std::vector<T>& vec, size_t stepSize, size_t blockSize)
+    MBlock<T> makeBlock(T* vec, size_t stepSize, size_t blockSize)
     {
-	return std::make_shared<MBlock<T> >(vec, 0, blockSize, stepSize);
+	return MBlock<T>(vec, 0, blockSize, stepSize);
     }
 
     size_t getBTNum(const std::vector<BTSS>& mp, BlockType bt)
@@ -426,28 +426,28 @@ namespace MultiArrayTools
     MBlock<T>& OperationMaster<T,OpClass,Ranges...>::get()
     {
 	block();
-	return *mBlockPtr;
+	return mBlock;
     }
     
     template <typename T, class OpClass, class... Ranges>
     const Block<T>& OperationMaster<T,OpClass,Ranges...>::get() const
     {
 	block();
-	return *mBlockPtr;
+	return mBlock;
     }
 
     template <typename T, class OpClass, class... Ranges>
     std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType( make_viwb( mIndex ), blockIndex, true) );
-	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
+	mBlock = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
 	return btv;
     }
 
     template <typename T, class OpClass, class... Ranges>
     const OperationMaster<T,OpClass,Ranges...>& OperationMaster<T,OpClass,Ranges...>::block() const
     {
-	mBlockPtr->set( mIndex->pos() );
+	mBlock.set( mIndex->pos() );
 	return *this;
     }
     
@@ -469,21 +469,21 @@ namespace MultiArrayTools
     const Block<T>& ConstOperationRoot<T,Ranges...>::get() const
     {
 	block();
-	return *mBlockPtr;
+	return mBlock;
     }
 
     template <typename T, class... Ranges>
     std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType( make_viwb( mIndex ), blockIndex, true) );
-	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
+	mBlock = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
 	return btv;
     }
 
     template <typename T, class... Ranges>
     const ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::block() const
     {
-	mBlockPtr->set( (*mIndex)().pos() );
+	mBlock.set( (*mIndex)().pos() );
 	return *this;
     }
     
@@ -512,28 +512,28 @@ namespace MultiArrayTools
     const MBlock<T>& OperationRoot<T,Ranges...>::get() const
     {
 	block();
-	return *mBlockPtr;
+	return mBlock;
     }
     
     template <typename T, class... Ranges>
     MBlock<T>& OperationRoot<T,Ranges...>::get()
     {
 	block();
-	return *mBlockPtr;
+	return mBlock;
     }
 
     template <typename T, class... Ranges>
     std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex) const
     {
 	std::vector<BTSS> btv(1, getBlockType( make_viwb( mIndex ), blockIndex, true) );
-	mBlockPtr = makeBlock(mArrayRef.datav(), btv[0].second, blockIndex->max());
+	mBlock = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
 	return btv;
     }
 
     template <typename T, class... Ranges>
     const OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::block() const
     {
-	mBlockPtr->set( (*mIndex)().pos() );
+	mBlock.set( (*mIndex)().pos() );
 	return *this;
     }
     
@@ -564,7 +564,7 @@ namespace MultiArrayTools
     template <typename T, class OpFunction, class... Ops>
     const Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::block() const
     {
-	//mBlockPtr->set( mIndex->pos() );
+	//mBlock.set( mIndex->pos() );
 	return *this;
     }
 

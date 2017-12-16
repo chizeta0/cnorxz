@@ -101,7 +101,7 @@ namespace MultiArrayHelper
     {
     public:
 	DEFAULT_MEMBERS(Block);
-	Block(const std::vector<T>& data, size_t begPos, size_t size, size_t stepSize);
+	Block(const T* data, size_t begPos, size_t size, size_t stepSize);
 
 	BlockType type() const;
 	const T& operator[](size_t pos) const;
@@ -109,7 +109,7 @@ namespace MultiArrayHelper
 	size_t stepSize() const;
 	
     protected:
-	const std::vector<T>* mData;
+	const T* mData;
 	const T* mBegPtr;
 	size_t mStepSize;
     };
@@ -119,7 +119,7 @@ namespace MultiArrayHelper
     {
     public:
 	DEFAULT_MEMBERS(MBlock);
-	MBlock(std::vector<T>& data, size_t begPos, size_t size, size_t stepSize);
+	MBlock(T* data, size_t begPos, size_t size, size_t stepSize);
 
 	template <class BlockClass>
 	MBlock& operator=(const BlockClass& in);
@@ -131,7 +131,7 @@ namespace MultiArrayHelper
 	size_t stepSize() const;
 	
     protected:
-	std::vector<T>* mData;
+	T* mData;
 	T* mBegPtr;
 	size_t mStepSize;
     };    
@@ -229,11 +229,11 @@ namespace MultiArrayHelper
      *************/
 
     template <typename T>
-    Block<T>::Block(const std::vector<T>& data,
+    Block<T>::Block(const T* data,
 		    size_t begPos, size_t size, size_t stepSize) :
 	BlockBase<T>(size),
-	mData(&data),
-	mBegPtr(data.data() + begPos),
+	mData(data),
+	mBegPtr(data + begPos),
 	mStepSize(stepSize) {}
 
     template <typename T>
@@ -253,7 +253,7 @@ namespace MultiArrayHelper
     template <typename T>
     Block<T>& Block<T>::set(size_t npos)
     {
-	mBegPtr = &(*mData)[npos];
+	mBegPtr = mData + npos;
 	return *this;
     }
 
@@ -268,11 +268,11 @@ namespace MultiArrayHelper
      **************/
 
     template <typename T>
-    MBlock<T>::MBlock(std::vector<T>& data,
+    MBlock<T>::MBlock(T* data,
 		      size_t begPos, size_t size, size_t stepSize) :
 	MutableBlockBase<T>(size),
-	mData(&data),
-	mBegPtr(data.data() + begPos),
+	mData(data),
+	mBegPtr(data + begPos),
 	mStepSize(stepSize) {}
 
     template <typename T>
@@ -309,7 +309,7 @@ namespace MultiArrayHelper
     template <typename T>
     MBlock<T>& MBlock<T>::set(size_t npos)
     {
-	mBegPtr = &(*mData)[npos];
+	mBegPtr = mData + npos;
 	return *this;
     }   
 
