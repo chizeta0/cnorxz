@@ -11,6 +11,13 @@
 
 namespace MultiArrayTools
 {
+    class RangeBase;
+}
+
+#include "vindex_base.h"
+
+namespace MultiArrayTools
+{
     
     enum class SpaceType
     {
@@ -75,38 +82,6 @@ namespace MultiArrayTools
 	RangeInterface() = default;
     };
     
-}
-
-/* ========================= *
- * ---   TEMPLATE CODE   --- *
- * ========================= */
-
-namespace MultiArrayTools
-{
-
-    /*************************
-     *   RangeFactoryBase    *
-     *************************/
-    
-    void RangeFactoryBase::setSelf()
-    {
-	mProd->mThis = mProd;
-    }
-    
-    /******************
-     *   RangeBase    *
-     ******************/
-
-    bool RangeBase::operator==(const RangeBase& in) const
-    {
-	return this == &in;
-    }
-    
-    bool RangeBase::operator!=(const RangeBase& in) const
-    {
-	return this != &in;
-    }
-
 }
 
 #endif

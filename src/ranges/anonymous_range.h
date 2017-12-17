@@ -4,14 +4,15 @@
 #define __anonymous_range_h__
 
 #include <cstdlib>
-#include "base_def.h"
+//#include "base_def.h"
+#include "ranges/range_base.h"
+#include "ranges/single_range.h"
 
 namespace MultiArrayTools
 {
 
-    typedef SingleIndex<size_t,RangeType::NONE> AnonymousIndex;
+    typedef SingleIndex<size_t,SpaceType::NONE> AnonymousIndex;
 
-    template <typename U, RangeType TYPE>
     class AnonymousRangeFactory : public RangeFactoryBase
     {
     public:
@@ -20,16 +21,15 @@ namespace MultiArrayTools
 
 	AnonymousRangeFactory() = delete;
 
-	template <class... Ranges>
-	AnonymousRangeFactory(const std::tuple<std::shared_ptr<Ranges>...>& origs);
+	template <class... RangeTypes>
+	AnonymousRangeFactory(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
 	
-	template <class... Ranges>
-	AnonymousRangeFactory(std::shared_ptr<Ranges>... origs);
+	template <class... RangeTypes>
+	AnonymousRangeFactory(std::shared_ptr<RangeTypes>... origs);
 
 	std::shared_ptr<RangeBase> create();
 	
     };
-
     
     class AnonymousRange : public RangeInterface<AnonymousIndex>
     {
@@ -53,11 +53,11 @@ namespace MultiArrayTools
 	AnonymousRange() = delete;
 	AnonymousRange(const AnonymousRange& in) = delete;
 
-	template <class Ranges...>
-	AnonymousRange(const std::tuple<std::shared_ptr<Ranges>...>& origs)
+	template <class... RangeTypes>
+	AnonymousRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
 	
-	template <class Ranges...>
-	AnonymousRange(std::shared_ptr<Ranges>... origs);
+	template <class... RangeTypes>
+	AnonymousRange(std::shared_ptr<RangeTypes>... origs);
 
 	size_t mSize;
 	
@@ -77,14 +77,14 @@ namespace MultiArrayTools
      *   AnonymousRange    *
      ***********************/
 
-    template <class... Ranges>
-    AnonymousRangeFactory::AnonymousRangeFactory(const std::tuple<std::shared_ptr<Ranges>...>& origs)
+    template <class... RangeTypes>
+    AnonymousRangeFactory::AnonymousRangeFactory(const std::tuple<std::shared_ptr<RangeTypes>...>& origs)
     {
 	mProd = std::shared_ptr<oType>( new AnonymousRange( origs ) );
     }
 
-    template <class... Ranges>
-    AnonymousRangeFactory::AnonymousRangeFactory(std::shared_ptr<Ranges>... origs)
+    template <class... RangeTypes>
+    AnonymousRangeFactory::AnonymousRangeFactory(std::shared_ptr<RangeTypes>... origs)
     {
 	mProd = std::shared_ptr<oType>( new AnonymousRange( origs... ) );
     }
@@ -99,23 +99,23 @@ namespace MultiArrayTools
      *   AnonymousRange    *
      ***********************/
 
-    template <class... Ranges>
-    AnonymousRange::AnonymousRange(const std::tuple<std::shared_ptr<Ranges>...>& origs) :
+    template <class... RangeTypes>
+    AnonymousRange::AnonymousRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<AnonymousIndex>()
     {
-	mOrig.resize(sizeof...(Ranges));
-	PackNum<sizeof...(Ranges)-1>::RangesToVec( origs, mOrig );
-	PackNum<sizeof...(Ranges)-1>::getSize( rst );
+	mOrig.resize(sizeof...(RangeTypes));
+	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
+	RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
     }
     
-    template <class... Ranges>
-    AnonymousRange::AnonymousRange(std::shared_ptr<Ranges>... origs) :
+    template <class... RangeTypes>
+    AnonymousRange::AnonymousRange(std::shared_ptr<RangeTypes>... origs) :
 	RangeInterface<AnonymousIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	mOrig.resize(sizeof...(Ranges));
-	PackNum<sizeof...(Ranges)-1>::RangesToVec( rst, mOrig );
-	PackNum<sizeof...(Ranges)-1>::getSize( rst );
+	mOrig.resize(sizeof...(RangeTypes));
+	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
+	RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
     }
     
     size_t AnonymousRange::get(size_t pos) const
@@ -140,16 +140,16 @@ namespace MultiArrayTools
         
     typename AnonymousRange::IndexType AnonymousRange::begin() const
     {
-	SingleIndex i( std::dynamic_pointer_cast<AnonymousRange>
-		       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	AnonymousIndex i( std::dynamic_pointer_cast<AnonymousRange>
+			  ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
     
     typename AnonymousRange::IndexType AnonymousRange::end() const
     {
-	SingleIndex i( std::dynamic_pointer_cast<AnonymousRange>
-		       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	AnonymousIndex i( std::dynamic_pointer_cast<AnonymousRange>
+			  ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
 	return i;
     }
@@ -157,8 +157,9 @@ namespace MultiArrayTools
     // put this in the interface class !!!
     std::shared_ptr<VIWB> AnonymousRange::index() const
     {
-	return std::make_shared<VIWB>
-	    (std::make_shared<SingleIndex >
+	typedef IndexWrapper<IndexType> IW;
+	return std::make_shared<IW>
+	    (std::make_shared<IndexType>
 	     ( std::dynamic_pointer_cast<AnonymousRange>
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }

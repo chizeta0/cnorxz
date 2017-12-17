@@ -22,21 +22,17 @@ endif()
 
 include_directories(src)
 
-#add_executable(utest src/unit_test.cc)
-#target_link_libraries(utest ${GTEST_BOTH_LIBRARIES})
-#add_test(NAME utest COMMAND utest)
-
-add_executable(iutest src/index_unit_test.cc)
+add_executable(iutest src/ranges/tests/index_unit_test.cc src/ranges/range_base.cc)
 target_link_libraries(iutest ${GTEST_BOTH_LIBRARIES})
 add_test(NAME iutest COMMAND iutest)
 
-add_executable(mautest src/ma_unit_test.cc)
-target_link_libraries(mautest ${GTEST_BOTH_LIBRARIES})
-add_test(NAME mautest COMMAND mautest)
+#add_executable(mautest src/ma_unit_test.cc)
+#target_link_libraries(mautest ${GTEST_BOTH_LIBRARIES})
+#add_test(NAME mautest COMMAND mautest)
 
-add_executable(oputest src/op_unit_test.cc)
-target_link_libraries(oputest ${GTEST_BOTH_LIBRARIES})
-add_test(NAME oputest COMMAND oputest)
+#add_executable(oputest src/op_unit_test.cc)
+#target_link_libraries(oputest ${GTEST_BOTH_LIBRARIES})
+#add_test(NAME oputest COMMAND oputest)
 
 #install(TARGETS testm DESTINATION install)
 

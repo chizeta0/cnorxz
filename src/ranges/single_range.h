@@ -7,9 +7,9 @@
 #include <vector>
 #include <memory>
 
-#include "base_def.h"
-#include "index_base.h"
-#include "range_base.h"
+//#include "base_def.h"
+#include "ranges/index_base.h"
+#include "ranges/range_base.h"
 
 namespace MultiArrayTools
 {

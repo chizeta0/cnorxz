@@ -7,11 +7,11 @@
 #include <tuple>
 #include <memory>
 
-#include "base_def.h"
-#include "range_base.h"
-#include "index_base.h"
+//#include "base_def.h"
+#include "ranges/range_base.h"
+#include "ranges/index_base.h"
 
-#include "pack_num.h"
+#include "rpack_num.h"
 
 namespace MultiArrayTools
 {
@@ -187,24 +187,24 @@ namespace MultiArrayTools
     MultiIndex<Indices...>::MultiIndex(const MultiIndex<Indices...>& in) :
 	IndexInterface<std::tuple<typename Indices::MetaType...> >(in)
     {
-	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	RPackNum<sizeof...(Indices)-1>::copy(mIPack, in);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
     }
 	
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(const MultiIndex<Indices...>& in)
     {
 	IndexI::operator=(in);
-	PackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	RPackNum<sizeof...(Indices)-1>::copy(mIPack, in);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
     */
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<Indices...>& ci)
     {	
-	PackNum<sizeof...(Indices)-1>::copyInst(mIPack, ci);
-	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	RPackNum<sizeof...(Indices)-1>::copyInst(mIPack, ci);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
     
@@ -213,10 +213,10 @@ namespace MultiArrayTools
     MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
 	IndexInterface<MultiIndex<Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
     {
-	PackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
-	PackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
+	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
     }
 
     template <class... Indices>
@@ -224,8 +224,8 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	IB::mPos += PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	PackNum<DIR>::pp( mIPack );
+	IB::mPos += RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
+	RPackNum<DIR>::pp( mIPack );
 	return *this;
     }
 
@@ -234,8 +234,8 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	IB::mPos -= PackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	PackNum<DIR>::mm( mIPack );
+	IB::mPos -= RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
+	RPackNum<DIR>::mm( mIPack );
 	return *this;
     }
     
@@ -256,8 +256,8 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
-	PackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
-	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
+	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return *this;
     }
 
@@ -271,14 +271,14 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IB::mPos = pos;
-	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	PackNum<sizeof...(Indices)-1>::pp( mIPack );
+	RPackNum<sizeof...(Indices)-1>::pp( mIPack );
 	++IB::mPos;
 	return *this;
     }
@@ -286,7 +286,7 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	PackNum<sizeof...(Indices)-1>::mm( mIPack );
+	RPackNum<sizeof...(Indices)-1>::mm( mIPack );
 	--IB::mPos;
 	return *this;
     }
@@ -294,7 +294,7 @@ namespace MultiArrayTools
     template <class... Indices>
     int MultiIndex<Indices...>::pp(std::intptr_t idxPtrNum)
     {
-	int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
+	int tmp = RPackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos += tmp;
 	return tmp;
     }
@@ -302,7 +302,7 @@ namespace MultiArrayTools
     template <class... Indices>
     int MultiIndex<Indices...>::mm(std::intptr_t idxPtrNum)
     {
-	int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
+	int tmp = RPackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos -= tmp;
 	return tmp;
     }
@@ -311,15 +311,15 @@ namespace MultiArrayTools
     typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::meta()
     {
 	MetaType metaTuple;
-	PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
+	RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
 	return metaTuple;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::at(const MetaType& metaPos)
     {
-	PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
-	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
 
@@ -363,7 +363,7 @@ namespace MultiArrayTools
 	    // throw !!
 	}
 	MultiIndex<Indices...> const* t = this;
-	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
+	return RPackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
     }
     
     template <class... Indices>	
@@ -391,7 +391,7 @@ namespace MultiArrayTools
 	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
 	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
 		  << "]" << "(" << IB::mRangePtr << "): " << meta() << std::endl;
-	PackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
+	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
     }
 
     
@@ -457,7 +457,7 @@ namespace MultiArrayTools
     template <class... Ranges>
     size_t MultiRange<Ranges...>::size() const
     {
-	return PackNum<sizeof...(Ranges)-1>::getSize(mSpace);
+	return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
     template <class... Ranges>
