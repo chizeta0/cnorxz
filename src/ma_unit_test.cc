@@ -38,7 +38,7 @@ namespace {
     {
     protected:
 
-	typedef SingleRangeFactory<char,RangeType::ANY> SRF;
+	typedef SingleRangeFactory<char,SpaceType::ANY> SRF;
 	typedef SRF::oType SRange;
 
 	MATest_1Dim()
@@ -58,7 +58,7 @@ namespace {
     {
     protected:
 
-	typedef SingleRangeFactory<char,RangeType::ANY> SRF;
+	typedef SingleRangeFactory<char,SpaceType::ANY> SRF;
 	typedef SRF::oType SRange;
 
 	typedef MultiRangeFactory<SRange,SRange> MRF;

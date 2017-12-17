@@ -51,7 +51,7 @@ namespace MultiArrayTools
      ***********************/
     
     // range_base.h
-    enum class RangeType;
+    enum class SpaceType;
 
     // range_base.h
     class RangeFactoryBase;
@@ -76,15 +76,15 @@ namespace MultiArrayTools
     class IndexInterface;
 
     // single_range.h    
-    template <typename U, RangeType TYPE>
+    template <typename U, SpaceType TYPE>
     class SingleRange;
 
     // single_range.h    
-    template <typename U, RangeType TYPE>
+    template <typename U, SpaceType TYPE>
     class SingleRangeFactory;
 
     // single_range.h
-    template <typename U, RangeType TYPE>
+    template <typename U, SpaceType TYPE>
     class SingleIndex;
     
     // multi_range.h

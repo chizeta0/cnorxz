@@ -12,7 +12,7 @@
 namespace MultiArrayTools
 {
     
-    enum class RangeType
+    enum class SpaceType
     {
 	NONE = 0,
 	ANY = 1,

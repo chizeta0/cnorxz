@@ -68,119 +68,34 @@ namespace MultiArrayTools
 	// Do NOT share index instances between two or more MultiIndex instances
 	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
 
-	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr ); }
-
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	IndexType type() { return IndexType::MULTI; }
+	IndexType type();
 
-	MultiIndex& operator=(size_t pos)
-	{
-	    IB::mPos = pos;
-	    PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
-	    return *this;
-	}
+	MultiIndex& operator=(size_t pos);
 
-	MultiIndex& operator++()
-	{
-	    PackNum<sizeof...(Indices)-1>::pp( mIPack );
-	    ++IB::mPos;
-	    return *this;
-	}
+	MultiIndex& operator++();
+	MultiIndex& operator--();
 
-	MultiIndex& operator--()
-	{
-	    PackNum<sizeof...(Indices)-1>::mm( mIPack );
-	    --IB::mPos;
-	    return *this;
-	}
+	int pp(std::intptr_t idxPtrNum);
+	int mm(std::intptr_t idxPtrNum);
 
-	int pp(std::intptr_t idxPtrNum)
-	{
-	    int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
-	    IB::mPos += tmp;
-	    return tmp;
-	}
-
-	int mm(std::intptr_t idxPtrNum)
-	{
-	    int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
-	    IB::mPos -= tmp;
-	    return tmp;
-	}
-
-	MetaType meta()
-	{
-	    MetaType metaTuple;
-	    PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
-	    return metaTuple;
-	}
-
-	MultiIndex& at(const MetaType& metaPos)
-	{
-	    PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
-	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
-	    return *this;
-	}
+	MetaType meta();
+	MultiIndex& at(const MetaType& metaPos);
 	
-	size_t dim()
-	{
-	    return sizeof...(Indices);
-	}
-
-	bool first()
-	{
-	    return IB::mPos == 0;
-	}
-
-	bool last()
-	{
-	    return IB::mPos == IB::mMax - 1;
-	}
-
-	std::shared_ptr<RangeType> range()
-	{
-	    return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
-	}
+	size_t dim();
+	bool first();
+	bool last();
+	std::shared_ptr<RangeType> range();
 
 	template <size_t N>
-	auto getPtr() -> decltype( std::get<N>( mIPack ) )&
-	{
-	    return std::get<N>(mIPack);
-	}
+	auto getPtr() -> decltype( std::get<N>( mIPack ) )&;
 	
-	//const IndexBase& get(size_t n);
-	std::shared_ptr<VIWB> getVPtr(size_t n)
-	{
-	    if(n >= sizeof...(Indices)){
-		assert(0);
-		// throw !!
-	    }
-	    MultiIndex<Indices...> const* t = this;
-	    return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
-	}
-	
-	size_t getStepSize(size_t n)
-	{
-	    if(n >= sizeof...(Indices)){
-		assert(0);
-		// throw !!
-	    }
-	    return mBlockSizes[n+1];
-	}
+	std::shared_ptr<VIWB> getVPtr(size_t n);
+	size_t getStepSize(size_t n);
 
-	std::string id() { return std::string("mul") + std::to_string(IB::mId); }
-
-	void print(size_t offset)
-	{
-	    if(offset == 0){
-		std::cout << " === " << std::endl;
-	    }
-	    for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	    std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		      << "]" << "(" << IB::mRangePtr << "): " << meta() << std::endl;
-	    PackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
-	}
+	std::string id();
+	void print(size_t offset);
     };
 
     /*************************
@@ -345,6 +260,140 @@ namespace MultiArrayTools
 	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return *this;
     }
+
+    template <class... Indices>
+    IndexType MultiIndex<Indices...>::type()
+    {
+	return IndexType::MULTI;
+    }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
+    {
+	IB::mPos = pos;
+	PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	return *this;
+    }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
+    {
+	PackNum<sizeof...(Indices)-1>::pp( mIPack );
+	++IB::mPos;
+	return *this;
+    }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
+    {
+	PackNum<sizeof...(Indices)-1>::mm( mIPack );
+	--IB::mPos;
+	return *this;
+    }
+
+    template <class... Indices>
+    int MultiIndex<Indices...>::pp(std::intptr_t idxPtrNum)
+    {
+	int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
+	IB::mPos += tmp;
+	return tmp;
+    }
+
+    template <class... Indices>
+    int MultiIndex<Indices...>::mm(std::intptr_t idxPtrNum)
+    {
+	int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
+	IB::mPos -= tmp;
+	return tmp;
+    }
+
+    template <class... Indices>
+    typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::meta()
+    {
+	MetaType metaTuple;
+	PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
+	return metaTuple;
+    }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::at(const MetaType& metaPos)
+    {
+	PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	return *this;
+    }
+
+    template <class... Indices>
+    size_t MultiIndex<Indices...>::dim()
+    {
+	return sizeof...(Indices);
+    }
+
+    template <class... Indices>
+    bool MultiIndex<Indices...>::first()
+    {
+	return IB::mPos == 0;
+    }
+
+    template <class... Indices>
+    bool MultiIndex<Indices...>::last()
+    {
+	return IB::mPos == IB::mMax - 1;
+    }
+
+    template <class... Indices>
+    std::shared_ptr<typename MultiIndex<Indices...>::RangeType>
+    MultiIndex<Indices...>::range()
+    {
+	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
+    }
+
+    template <class... Indices>
+    template <size_t N>
+    auto MultiIndex<Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
+    {
+	return std::get<N>(mIPack);
+    }
+	
+    template <class... Indices>
+    std::shared_ptr<VIWB> MultiIndex<Indices...>::getVPtr(size_t n)
+    {
+	if(n >= sizeof...(Indices)){
+	    assert(0);
+	    // throw !!
+	}
+	MultiIndex<Indices...> const* t = this;
+	return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
+    }
+    
+    template <class... Indices>	
+    size_t MultiIndex<Indices...>::getStepSize(size_t n)
+    {
+	if(n >= sizeof...(Indices)){
+	    assert(0);
+	    // throw !!
+	}
+	return mBlockSizes[n+1];
+    }
+
+    template <class... Indices>
+    std::string MultiIndex<Indices...>::id()
+    {
+	return std::string("mul") + std::to_string(IB::mId);
+    }
+
+    template <class... Indices>
+    void MultiIndex<Indices...>::print(size_t offset)
+    {
+	if(offset == 0){
+	    std::cout << " === " << std::endl;
+	}
+	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
+	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
+		  << "]" << "(" << IB::mRangePtr << "): " << meta() << std::endl;
+	PackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
+    }
+
     
     /*************************
      *   MultiRangeFactory   *
