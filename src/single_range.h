@@ -27,105 +27,99 @@ namespace MultiArrayTools
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
-	SingleIndex& operator=(size_t pos) { IB::operator=(pos); return *this; } 
-
 	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr ); }
-	
-    private:
-
-	friend IB;
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	static IndexType S_type(SingleIndex const* i)
+	IndexType type()
 	{
 	    return IndexType::SINGLE;
 	}
 	
-	static SingleIndex& S_ass_op(SingleIndex* i, size_t pos)
+	SingleIndex& operator=(size_t pos)
 	{
-	    i->mPos = pos;
-	    return *i;
+	    IB::mPos = pos;
+	    return *this;
 	}
 
-	static SingleIndex& S_pp_op(SingleIndex* i)
+	SingleIndex& operator++()
 	{
-	    ++i->mPos;
-	    return *i;
+	    ++IB::mPos;
+	    return *this;
 	}
 
-	static SingleIndex& S_mm_op(SingleIndex* i)
+	SingleIndex& operator--()
 	{
-	    --i->mPos;
-	    return *i;
+	    --IB::mPos;
+	    return *this;
 	}
 
-	static int S_pp(SingleIndex* i, std::intptr_t idxPtrNum)
+	int pp(std::intptr_t idxPtrNum)
 	{
-	    ++(*i);
+	    ++(*this);
 	    return 1;
 	}
 
-	static int S_mm(SingleIndex* i, std::intptr_t idxPtrNum)
+	int mm(std::intptr_t idxPtrNum)
 	{
-	    --(*i);
+	    --(*this);
 	    return 1;
 	}
 	
-	static U S_meta(SingleIndex const* i)
+	U meta()
 	{
-	    return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->get( i->pos() );
+	    return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->get( IB::pos() );
 	}
 
-	static SingleIndex& S_at(SingleIndex* i, const U& metaPos)
+	SingleIndex& at(const U& metaPos)
 	{
-	    (*i) = std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( i->mRangePtr )->getMeta( metaPos );
-	    return *i;
+	    (*this) = std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos );
+	    return *this;
 	}
 	
-	static size_t S_dim(SingleIndex const* i) // = 1
+	size_t dim() // = 1
 	{
 	    return 1;
 	}
 
-	static bool S_last(SingleIndex const* i)
+	bool last()
 	{
-	    return i->mPos == i->mMax - 1;
+	    return IB::mPos == IB::mMax - 1;
 	}
 
-	static bool S_first(SingleIndex const* i)
+	bool first()
 	{
-	    return i->mPos == 0;
+	    return IB::mPos == 0;
 	}
 
-	static std::shared_ptr<RangeType> S_range(SingleIndex const* i)
+	std::shared_ptr<RangeType> range()
 	{
-	    return std::dynamic_pointer_cast<RangeType>( i->mRangePtr );
+	    return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
 	}
 	
 	template <size_t N>
-	static void S_getPtr(SingleIndex* i) {}
+	void getPtr() {}
 
-	static std::shared_ptr<VIWB> S_getVPtr(SingleIndex const* i, size_t n)
+	std::shared_ptr<VIWB> getVPtr(size_t n)
 	{
 	    return std::shared_ptr<VIWB>();
 	}
 	
-	static size_t S_getStepSize(SingleIndex const* i, size_t n)
+	size_t getStepSize(size_t n)
 	{
 	    return 1;
 	}
 	
-	static std::string S_id(SingleIndex const* i) { return std::string("sin") + std::to_string(i->mId); }
+	std::string id() { return std::string("sin") + std::to_string(IB::mId); }
 
-	static void S_print(SingleIndex const* i, size_t offset)
+	void print(size_t offset)
 	{
 	    if(offset == 0){
 		std::cout << " === " << std::endl;
 	    }
 	    for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	    std::cout << S_id(i) << "[" << reinterpret_cast<std::intptr_t>(i)
-		      << "](" << i->mRangePtr << "): " << S_meta(i) << std::endl;
+	    std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
+		      << "](" << IB::mRangePtr << "): " << meta() << std::endl;
 	}
     };
 

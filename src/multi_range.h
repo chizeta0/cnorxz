@@ -40,8 +40,6 @@ namespace MultiArrayTools
     public:
 
 	MultiIndex() = delete;
-
-	MultiIndex& operator=(size_t pos) { IB::operator=(pos) ; return *this; }
 	
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
@@ -71,120 +69,117 @@ namespace MultiArrayTools
 	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
 
 	std::shared_ptr<RangeType> range() const { return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr ); }
-	
-    private:
 
-	friend IB;
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	static IndexType S_type(MultiIndex const* i) { return IndexType::MULTI; }
+	IndexType type() { return IndexType::MULTI; }
 
-	static MultiIndex& S_ass_op(MultiIndex* i, size_t pos)
+	MultiIndex& operator=(size_t pos)
 	{
-	    i->mPos = pos;
-	    PackNum<sizeof...(Indices)-1>::setIndexPack(i->mIPack, pos);
-	    return *i;
+	    IB::mPos = pos;
+	    PackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	    return *this;
 	}
 
-	static MultiIndex& S_pp_op(MultiIndex* i)
+	MultiIndex& operator++()
 	{
-	    PackNum<sizeof...(Indices)-1>::pp( i->mIPack );
-	    ++i->mPos;
-	    return *i;
+	    PackNum<sizeof...(Indices)-1>::pp( mIPack );
+	    ++IB::mPos;
+	    return *this;
 	}
 
-	static MultiIndex& S_mm_op(MultiIndex* i)
+	MultiIndex& operator--()
 	{
-	    PackNum<sizeof...(Indices)-1>::mm( i->mIPack );
-	    --i->mPos;
-	    return *i;
+	    PackNum<sizeof...(Indices)-1>::mm( mIPack );
+	    --IB::mPos;
+	    return *this;
 	}
 
-	static int S_pp(MultiIndex* i, std::intptr_t idxPtrNum)
+	int pp(std::intptr_t idxPtrNum)
 	{
-	    int tmp = PackNum<sizeof...(Indices)-1>::pp(i->mIPack, i->mBlockSizes, idxPtrNum);
-	    i->mPos += tmp;
+	    int tmp = PackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
+	    IB::mPos += tmp;
 	    return tmp;
 	}
 
-	static int S_mm(MultiIndex* i, std::intptr_t idxPtrNum)
+	int mm(std::intptr_t idxPtrNum)
 	{
-	    int tmp = PackNum<sizeof...(Indices)-1>::mm(i->mIPack, i->mBlockSizes, idxPtrNum);
-	    i->mPos -= tmp;
+	    int tmp = PackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
+	    IB::mPos -= tmp;
 	    return tmp;
 	}
 
-	static MetaType S_meta(MultiIndex const* i)
+	MetaType meta()
 	{
 	    MetaType metaTuple;
-	    PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, i->mIPack);
+	    PackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
 	    return metaTuple;
 	}
 
-	static MultiIndex& S_at(MultiIndex* i, const MetaType& metaPos)
+	MultiIndex& at(const MetaType& metaPos)
 	{
-	    PackNum<sizeof...(Indices)-1>::setMeta(i->mIPack, metaPos);
-	    i->mPos = PackNum<sizeof...(Indices)-1>::makePos(i->mIPack);
-	    return *i;
+	    PackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	    IB::mPos = PackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    return *this;
 	}
 	
-	static size_t S_dim(MultiIndex const* i)
+	size_t dim()
 	{
 	    return sizeof...(Indices);
 	}
 
-	static bool S_first(MultiIndex const* i)
+	bool first()
 	{
-	    return i->mPos == 0;
+	    return IB::mPos == 0;
 	}
 
-	static bool S_last(MultiIndex const* i)
+	bool last()
 	{
-	    return i->mPos == i->mMax - 1;
+	    return IB::mPos == IB::mMax - 1;
 	}
 
-	static std::shared_ptr<RangeType> S_range(MultiIndex const* i)
+	std::shared_ptr<RangeType> range()
 	{
-	    return std::dynamic_pointer_cast<RangeType>( i->mRangePtr );
+	    return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
 	}
 
 	template <size_t N>
-	static auto S_getPtr(MultiIndex const* i) -> decltype( std::get<N>( mIPack ) )&
+	auto getPtr() -> decltype( std::get<N>( mIPack ) )&
 	{
-	    return std::get<N>(i->mIPack);
+	    return std::get<N>(mIPack);
 	}
 	
 	//const IndexBase& get(size_t n);
-	static std::shared_ptr<VIWB> S_getVPtr(MultiIndex const* i, size_t n)
+	std::shared_ptr<VIWB> getVPtr(size_t n)
 	{
 	    if(n >= sizeof...(Indices)){
 		assert(0);
 		// throw !!
 	    }
-	    MultiIndex<Indices...> const* t = i;
+	    MultiIndex<Indices...> const* t = this;
 	    return PackNum<sizeof...(Indices)-1>::getIndexPtr(*t, n);
 	}
 	
-	static size_t S_getStepSize(MultiIndex const* i, size_t n)
+	size_t getStepSize(size_t n)
 	{
 	    if(n >= sizeof...(Indices)){
 		assert(0);
 		// throw !!
 	    }
-	    return i->mBlockSizes[n+1];
+	    return mBlockSizes[n+1];
 	}
 
-	static std::string S_id(MultiIndex const* i) { return std::string("mul") + std::to_string(i->mId); }
+	std::string id() { return std::string("mul") + std::to_string(IB::mId); }
 
-	static void S_print(MultiIndex const* i, size_t offset)
+	void print(size_t offset)
 	{
 	    if(offset == 0){
 		std::cout << " === " << std::endl;
 	    }
 	    for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	    std::cout << S_id(i) << "[" << reinterpret_cast<std::intptr_t>(i)
-		      << "]" << "(" << i->mRangePtr << "): " << S_meta(i) << std::endl;
-	    PackNum<sizeof...(Indices)-1>::printIndex(i->mIPack, offset+1);
+	    std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
+		      << "]" << "(" << IB::mRangePtr << "): " << meta() << std::endl;
+	    PackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
 	}
     };
 
