@@ -163,6 +163,12 @@ namespace MultiArrayTools
 	    size_t mPos;
 	};
 
+	using MultiArrayBase<T,SRanges...>::operator[];
+	using MultiArrayBase<T,SRanges...>::at;
+	using MultiArrayBase<T,SRanges...>::data;
+	using MultiArrayBase<T,SRanges...>::datav;
+	using MultiArrayBase<T,SRanges...>::begin;
+	using MultiArrayBase<T,SRanges...>::end;
 	
 	DEFAULT_MEMBERS(MutableMultiArrayBase);
 	MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
