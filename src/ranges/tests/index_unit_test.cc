@@ -149,7 +149,7 @@ namespace {
 	EXPECT_EQ(mstrptr->template get<0>().size(), 3u);
 	EXPECT_EQ(mstrptr->template get<1>().size(), 4u);
 	EXPECT_EQ(mstrptr->template get<2>().size(), 4u);
-	EXPECT_EQ(mstrptr->dim(), 3);
+	EXPECT_EQ(mstrptr->dim(), 3u);
 	EXPECT_EQ(mstrptr->template get<0>().dim(), 1u);
 	EXPECT_EQ(mstrptr->template get<1>().dim(), 3u);
 
