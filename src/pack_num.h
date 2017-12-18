@@ -4,23 +4,19 @@
 #define __pack_num_h__
 
 #include <cstdlib>
-#include <type_traits>
+//#include <type_traits>
 #include <tuple>
-#include <memory>
+#include <ostream>
 
 #include "base_def.h"
 
 namespace MultiArrayHelper
 {
-    using namespace MultiArrayTools;
-
-    template <typename... T>
-    std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp);
 
     template <size_t N>
     struct PackNum
     {
-
+	
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
@@ -28,13 +24,13 @@ namespace MultiArrayHelper
 	{
 	    auto subvec = std::move( std::get<N>(ops).block(idxPtr) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
-	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr);
+	    BPackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr);
 	}
 
 	template <typename T, class Func, class ArgTuple, class... Args>
 	static BlockResult<T> unpackArgs(const ArgTuple& tp, const Args&... args)
 	{
-	    return PackNum<N-1>::template unpackArgs<T,Func>(tp, std::get<N>(tp).get(), args...);
+	    return BPackNum<N-1>::template unpackArgs<T,Func>(tp, std::get<N>(tp).get(), args...);
 	}
 
 	template <typename... T>
@@ -66,7 +62,7 @@ namespace MultiArrayHelper
 	    auto subvec = std::move( std::get<0>(ops).block(idxPtr) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
 	}
-
+	
 	template <typename... T>
 	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
 	    out << std::get<sizeof...(T)-1>(tp);
@@ -74,12 +70,6 @@ namespace MultiArrayHelper
 	
     };
 
-    template <typename... T>
-    std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)
-    {
-	PackNum<sizeof...(T)-1>::printTuple(out, tp);
-	return out;
-    }
 
     
 } // end namespace MultiArrayHelper

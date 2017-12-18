@@ -10,10 +10,9 @@
 #include <algorithm>
 
 #include "base_def.h"
-#include "multi_range.h"
-//#include "multi_array_operation.h"
-//#include "manipulator.h"
-//
+#include "mbase_def.h"
+
+#include "ranges/rheader.h"
 
 namespace MultiArrayTools
 {
@@ -36,7 +35,6 @@ namespace MultiArrayTools
 	    
 	    const_iterator(const MultiArrayBase& ma);
 	    const_iterator(const MultiArrayBase& ma, const typename CRange::IndexType& index);
-	    virtual ~const_iterator() = default;
 	    
 	    // Requirements:
 	    bool operator==(const const_iterator& it) const;
@@ -127,7 +125,6 @@ namespace MultiArrayTools
 	    
 	    iterator(MutableMultiArrayBase& ma);
 	    iterator(MutableMultiArrayBase& ma, const IndexType& index);
-	    virtual ~iterator() = default;
 	    
 	    // Requirements:
 	    bool operator==(const iterator& it) const;

@@ -18,6 +18,8 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
+
+    size_t indexId();
     
     enum class SpaceType
     {

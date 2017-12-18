@@ -14,12 +14,6 @@
 
 namespace MultiArrayTools
 {
-    size_t indexId()
-    {
-	static size_t id = 0;
-	++id;
-	return id;
-    }
     
     template <class I, typename MetaType>
     class IndexInterface
