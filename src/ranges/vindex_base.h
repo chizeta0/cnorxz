@@ -7,6 +7,10 @@
 
 namespace MultiArrayTools
 {
+
+#ifndef __range_base_h__
+    class RangeBase;
+#endif
     
     class VirtualIndexWrapperBase
     {

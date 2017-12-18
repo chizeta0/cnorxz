@@ -12,7 +12,12 @@
 
 namespace MultiArrayTools
 {
-       
+
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
+    
     // <block type, step size within actual instance>
     typedef std::pair<BlockType,size_t> BTSS;
 

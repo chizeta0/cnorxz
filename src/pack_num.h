@@ -24,13 +24,13 @@ namespace MultiArrayHelper
 	{
 	    auto subvec = std::move( std::get<N>(ops).block(idxPtr) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
-	    BPackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr);
+	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr);
 	}
 
 	template <typename T, class Func, class ArgTuple, class... Args>
 	static BlockResult<T> unpackArgs(const ArgTuple& tp, const Args&... args)
 	{
-	    return BPackNum<N-1>::template unpackArgs<T,Func>(tp, std::get<N>(tp).get(), args...);
+	    return PackNum<N-1>::template unpackArgs<T,Func>(tp, std::get<N>(tp).get(), args...);
 	}
 
 	template <typename... T>

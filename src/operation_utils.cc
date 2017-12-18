@@ -1,9 +1,15 @@
 
 #include "operation_utils.h"
+#include "ranges/range_base.h"
 
 namespace MultiArrayTools
 {
 
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
+    
     void seekIndexInst(std::shared_ptr<VIWB> i, std::vector<std::shared_ptr<VIWB> >& ivec)
     {
 	for(size_t inum = 0; inum != i->rangePtr()->dim(); ++inum){

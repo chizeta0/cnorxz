@@ -14,6 +14,8 @@
 
 #include "block/block.h"
 #include "operation_utils.h"
+#include "ranges/rheader.h"
+#include "pack_num.h"
 
 namespace MultiArrayTools
 {

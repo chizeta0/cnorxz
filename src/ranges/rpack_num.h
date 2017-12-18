@@ -1,6 +1,6 @@
 
-#ifndef __pack_num_h__
-#define __pack_num_h__
+#ifndef __rpack_num_h__
+#define __rpack_num_h__
 
 #include <memory>
 #include "vindex_wrapper.h"

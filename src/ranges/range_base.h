@@ -13,7 +13,6 @@ namespace MultiArrayTools
 {
     class RangeBase;
 }
-
 #include "vindex_base.h"
 
 namespace MultiArrayTools
