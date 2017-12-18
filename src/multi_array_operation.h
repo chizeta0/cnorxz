@@ -325,10 +325,17 @@ namespace MultiArrayTools
 	
 	block(blockIndex);
 	second.block(blockIndex);
-	
+	//size_t cnt = 0;
+	//std::clock_t cs = clock();
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
+	    //std::clock_t c1 = clock();
 	    get() = mSecond.get();
+	    //std::clock_t c2 = clock();
+	    //cnt += c2 - c1;
 	}
+	//std::clock_t ce = clock();
+	//std::cout << "total time = " << ce - cs << std::endl;
+	//std::cout << "calc time  = " << cnt << std::endl;
     }
     
     template <typename T, class OpClass, class... Ranges>

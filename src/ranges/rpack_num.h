@@ -167,9 +167,8 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
 	{
-	    auto ID = std::get<N>(iPtrTup)->id();
-	    return std::get<N>(iPtrTup)->pos() +
-		RPackNum<N-1>::makePos(iPtrTup) * std::get<N>(iPtrTup)->max();
+	    const auto& idx = *std::get<N>(iPtrTup);
+	    return idx.pos() + RPackNum<N-1>::makePos(iPtrTup) * idx.max();
 	}
 
 	template <class Pack, class IndexType, class... Indices>
@@ -328,7 +327,6 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
 	{
-	    auto ID = std::get<0>(iPtrTup)->id();
 	    return std::get<0>(iPtrTup)->pos();
 	}
 	
