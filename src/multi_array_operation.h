@@ -329,6 +329,7 @@ namespace MultiArrayTools
 	//std::clock_t cs = clock();
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
 	    //std::clock_t c1 = clock();
+	    block();
 	    get() = mSecond.get();
 	    //std::clock_t c2 = clock();
 	    //cnt += c2 - c1;
@@ -341,14 +342,14 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     MBlock<T>& OperationMaster<T,OpClass,Ranges...>::get()
     {
-	block();
+	//block();
 	return mBlock;
     }
     
     template <typename T, class OpClass, class... Ranges>
     const Block<T>& OperationMaster<T,OpClass,Ranges...>::get() const
     {
-	block();
+	//block();
 	return mBlock;
     }
 
