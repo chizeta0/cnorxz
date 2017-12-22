@@ -20,11 +20,11 @@ namespace MultiArrayHelper
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
-				     std::shared_ptr<VIWB> idxPtr)
+				     std::shared_ptr<VIWB> idxPtr, bool init)
 	{
-	    auto subvec = std::move( std::get<N>(ops).block(idxPtr) );
+	    auto subvec = std::move( std::get<N>(ops).block(idxPtr, init) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
-	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr);
+	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr, init);
 	}
 
 	template <typename T, class Func, class ArgTuple, class... Args>
@@ -57,9 +57,9 @@ namespace MultiArrayHelper
 	template <class... Ops>
 	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
 				     const std::tuple<Ops...>& ops,
-				     std::shared_ptr<VIWB> idxPtr)
+				     std::shared_ptr<VIWB> idxPtr, bool init)
 	{
-	    auto subvec = std::move( std::get<0>(ops).block(idxPtr) );
+	    auto subvec = std::move( std::get<0>(ops).block(idxPtr, init) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
 	}
 	

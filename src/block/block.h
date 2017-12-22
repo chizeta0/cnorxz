@@ -39,13 +39,16 @@ namespace MultiArrayHelper
     class BlockBase
     {
     public:
+
 	DEFAULT_MEMBERS(BlockBase);
 	BlockBase(size_t size);
 
 	size_t size() const;
-
+	bool init() const;
+	
     protected:
 	size_t mSize = 0;
+	bool mInit = false;
     };
 
     template <typename T>
@@ -133,16 +136,24 @@ namespace MultiArrayHelper
     class BlockResult : public MutableBlockBase<T>
     {
     public:
+	
 	typedef BlockBase<T> BB;
+	using BB::init;
 	
-	DEFAULT_MEMBERS(BlockResult);
-	
+	BlockResult();
+	BlockResult(const BlockResult& in);
+	BlockResult(BlockResult&& in);
+	BlockResult& operator=(const BlockResult& in);
+	BlockResult& operator=(BlockResult&& in);
+
 	BlockResult(size_t size);
+
+	~BlockResult();
 	
 	template <class BlockClass>
 	BlockResult& operator=(const BlockClass& in);
 
-	BlockResult& assign(size_t size, const T& val);
+	BlockResult& init(size_t size);
 	
 	BlockType type() const;
 	const T& operator[](size_t pos) const;
@@ -151,7 +162,7 @@ namespace MultiArrayHelper
 	size_t stepSize() const;
 	
     protected:
-	std::vector<T> mRes;
+	T* mResPtr = nullptr;
     };
     
 } // end namespace MultiArrayHelper
@@ -174,6 +185,7 @@ namespace MultiArrayHelper
     {
 	static OpFunc f;
 	BlockResult<T> res(arg1.size());
+	assert(res.init() and arg1.init() and arg2.init());
 	assert(arg1.size() == arg2.size());
 	for(size_t i = 0; i != arg1.size(); ++i){
 	    res[i] = f(arg1[i], arg2[i]);
@@ -188,7 +200,7 @@ namespace MultiArrayHelper
     void BlockBinaryOpSelf<T,OpFunc,BlockClass>::operator()(const BlockClass& arg)
     {
 	static OpFunc f;
-	if(mRes.size() == 0) { mRes.assign(arg.size(), static_cast<T>(0)); }
+	assert(mRes.init() and arg.init());
 	assert(mRes.size() == arg.size());
 	for(size_t i = 0; i != arg.size(); ++i){
 	    mRes[i] = f(mRes[i], arg[i]);
@@ -201,7 +213,7 @@ namespace MultiArrayHelper
      *****************/
     
     template <typename T>
-    BlockBase<T>::BlockBase(size_t size) : mSize(size) {}
+    BlockBase<T>::BlockBase(size_t size) : mSize(size), mInit(size != 0) {}
 
     template <typename T>
     size_t BlockBase<T>::size() const
@@ -209,6 +221,12 @@ namespace MultiArrayHelper
 	return mSize;
     }
 
+    template <typename T>
+    bool BlockBase<T>::init() const
+    {
+	return mInit;
+    }
+    
     /************************
      *   MutableBlockBase   *
      ************************/
@@ -317,16 +335,86 @@ namespace MultiArrayHelper
      *******************/
 
     template <typename T>
-    BlockResult<T>::BlockResult(size_t size) :
-	MutableBlockBase<T>(size),
-	mRes(size) {}
+    BlockResult<T>::BlockResult() : MutableBlockBase<T>() {}
 
+    template <typename T>
+    BlockResult<T>::BlockResult(const BlockResult<T>& in) : MutableBlockBase<T>(in.size())
+    {
+	if(BB::mInit){
+	    mResPtr = new T[BB::mSize];
+	}
+	for(size_t i = 0; i != BB::mSize; ++i){
+	    mResPtr[i] = in.mResPtr[i];
+	}
+    }
+
+    template <typename T>
+    BlockResult<T>::BlockResult(BlockResult<T>&& in) : MutableBlockBase<T>(in.size())
+    {
+	if(BB::mInit){
+	    mResPtr = in.mResPtr;
+	}
+	in.mSize = 0;
+	in.mInit = false;
+	in.mResPtr = nullptr;
+    }
+
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator=(const BlockResult<T>& in)
+    {
+	BB::mSize = in.size();
+	BB::mInit = BB::mInit and BB::mSize != 0;
+	if(BB::mInit){
+	    mResPtr = new T[BB::mSize];
+	}
+	for(size_t i = 0; i != BB::mSize; ++i){
+	    mResPtr[i] = in.mResPtr[i];
+	}
+	return *this;
+    }
+
+    template <typename T>
+    BlockResult<T>& BlockResult<T>::operator=(BlockResult<T>&& in)
+    {
+	BB::mSize = in.size();
+	BB::mInit = BB::mInit and BB::mSize != 0;
+	if(BB::mInit){
+	    mResPtr = in.mResPtr;
+	}
+	in.mSize = 0;
+	in.mInit = false;
+	in.mResPtr = nullptr;
+	return *this;
+    }
+
+    template <typename T>
+    BlockResult<T>::BlockResult(size_t size) :
+	MutableBlockBase<T>(size)
+    {
+	if(BB::mInit){
+	    mResPtr = new T[BB::mSize];
+	}
+	for(size_t i = 0; i != BB::mSize; ++i){
+	    mResPtr[i] = static_cast<T>( 0 );
+	}
+    }
+
+    template <typename T>
+    BlockResult<T>::~BlockResult()
+    {
+	delete[] mResPtr;
+	mResPtr = nullptr;
+	BB::mInit = false;
+	BB::mSize = 0;
+    }
+    
     template <typename T>
     template <class BlockClass>
     BlockResult<T>& BlockResult<T>::operator=(const BlockClass& in)
     {
-	//CHECK;
-	for(size_t i = 0; i != BlockBase<T>::mSize; ++i){
+	assert(BB::mInit);
+	assert(BB::mSize == in.size());
+	for(size_t i = 0; i != BB::mSize; ++i){
 	    (*this)[i] = in[i];
 	}
 	return *this;
@@ -341,14 +429,13 @@ namespace MultiArrayHelper
     template <typename T>
     const T& BlockResult<T>::operator[](size_t i) const
     {
-	return mRes[i];
+	return mResPtr[i];
     }
 
     template <typename T>
     T& BlockResult<T>::operator[](size_t i)
     {
-	
-	return mRes[i];
+	return mResPtr[i];
     }
 
     template <typename T>
@@ -364,10 +451,20 @@ namespace MultiArrayHelper
     }
 
     template <typename T>
-    BlockResult<T>& BlockResult<T>::assign(size_t size, const T& val)
+    BlockResult<T>& BlockResult<T>::init(size_t size)
     {
 	BB::mSize = size;
-	mRes.assign(BB::mSize, val);
+	delete[] mResPtr;
+	if(BB::mSize != 0){
+	    BB::mInit = true;
+	    mResPtr = new T[BB::mSize];
+	}
+	else {
+	    BB::mInit = false;
+	}
+	for(size_t i = 0; i != BB::mSize; ++i){
+	    mResPtr[i] = static_cast<T>( 0 );
+	}
 	return *this;
     }
     
