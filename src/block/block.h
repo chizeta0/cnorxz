@@ -18,8 +18,10 @@ namespace MultiArrayHelper
     class BlockBinaryOp
     {
     public:
-	BlockBinaryOp() = default;
-	BlockResult<T> operator()(const BlockClass1& arg1, const BlockClass2& arg2);
+	BlockBinaryOp(BlockResult<T>& mRes);
+	void operator()(const BlockClass1& arg1, const BlockClass2& arg2);
+    private:
+	BlockResult<T>& mRes;
     };
 
     template <typename T, class OpFunc, class BlockClass>
@@ -179,18 +181,18 @@ namespace MultiArrayHelper
      *********************/
 
     template <typename T, class OpFunc, class BlockClass1, class BlockClass2>
-    BlockResult<T>
-    BlockBinaryOp<T,OpFunc,BlockClass1,BlockClass2>::operator()(const BlockClass1& arg1,
-								const BlockClass2& arg2)
+    BlockBinaryOp<T,OpFunc,BlockClass1,BlockClass2>::BlockBinaryOp(BlockResult<T>& res) : mRes(res) {}
+    
+    template <typename T, class OpFunc, class BlockClass1, class BlockClass2>
+    void BlockBinaryOp<T,OpFunc,BlockClass1,BlockClass2>::operator()(const BlockClass1& arg1,
+								     const BlockClass2& arg2)
     {
 	static OpFunc f;
-	BlockResult<T> res(arg1.size());
-	assert(res.init() and arg1.init() and arg2.init());
+	assert(mRes.init() and arg1.init() and arg2.init());
 	assert(arg1.size() == arg2.size());
 	for(size_t i = 0; i != arg1.size(); ++i){
-	    res[i] = f(arg1[i], arg2[i]);
+	    mRes[i] = f(arg1[i], arg2[i]);
 	}
-	return res;
     }
 
     template <typename T, class OpFunc, class BlockClass>

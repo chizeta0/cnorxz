@@ -472,7 +472,7 @@ namespace MultiArrayTools
     template <typename T, class OpFunction, class... Ops>
     const BlockResult<T>& Operation<T,OpFunction,Ops...>::get() const
     {
-	mRes = std::move( PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mOps) );
+	PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mRes, mOps);
 	return mRes;
     }
 

@@ -28,9 +28,9 @@ namespace MultiArrayHelper
 	}
 
 	template <typename T, class Func, class ArgTuple, class... Args>
-	static BlockResult<T> unpackArgs(const ArgTuple& tp, const Args&... args)
+	static void unpackArgs(BlockResult<T>& res, const ArgTuple& tp, const Args&... args)
 	{
-	    return PackNum<N-1>::template unpackArgs<T,Func>(tp, std::get<N>(tp).get(), args...);
+	    PackNum<N-1>::template unpackArgs<T,Func>(res, tp, std::get<N>(tp).get(), args...);
 	}
 
 	template <typename... T>
@@ -46,12 +46,12 @@ namespace MultiArrayHelper
     {
 
 	template <typename T, class Func, class ArgTuple, class... Args>
-	static BlockResult<T> unpackArgs(const ArgTuple& tp, const Args&... args)
+	static void unpackArgs(BlockResult<T>& res, const ArgTuple& tp, const Args&... args)
 	{
 	    static_assert(sizeof...(Args) == std::tuple_size<ArgTuple>::value-1,
 			  "inconsistent number of arguments");
-	    static BlockBinaryOp<T,Func,decltype(std::get<0>(tp).get()), decltype(args)...> f;
-	    return f(std::get<0>(tp).get(), args...);
+	    BlockBinaryOp<T,Func,decltype(std::get<0>(tp).get()), decltype(args)...> f(res);
+	    f(std::get<0>(tp).get(), args...);
 	}
 	
 	template <class... Ops>
