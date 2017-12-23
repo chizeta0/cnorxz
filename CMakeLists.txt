@@ -37,6 +37,9 @@ add_executable(oputest src/tests/op_unit_test.cc ${MA_CC_FILES})
 target_link_libraries(oputest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_test(NAME oputest COMMAND oputest)
 
+add_executable(opptest src/tests/op_perf_test.cc ${MA_CC_FILES})
+#target_link_libraries(oputest)
+
 #install(TARGETS testm DESTINATION install)
 
 set(CMAKE_INSTALL_PREFIX ..)
