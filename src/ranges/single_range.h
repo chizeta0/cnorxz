@@ -52,6 +52,8 @@ namespace MultiArrayTools
 
 	std::shared_ptr<VIWB> getVPtr(size_t n);
 	size_t getStepSize(size_t n);
+
+	std::vector<IndexInfo> infoVec() const;
 	
 	std::string id();
 	void print(size_t offset);
@@ -206,6 +208,12 @@ namespace MultiArrayTools
 	return std::shared_ptr<VIWB>();
     }
 
+    template <typename U, SpaceType TYPE>
+    std::vector<IndexInfo> SingleIndex<U,TYPE>::infoVec() const
+    {
+	return std::move( std::vector<IndexInfo>() );
+    }
+    
     template <typename U, SpaceType TYPE>
     size_t SingleIndex<U,TYPE>::getStepSize(size_t n)
     {

@@ -11,6 +11,7 @@
 #include "range_base.h"
 #include "index_type.h"
 #include "vindex_wrapper.h"
+#include "index_info.h"
 
 namespace MultiArrayTools
 {
@@ -56,6 +57,8 @@ namespace MultiArrayTools
 	{ return I::template S_get<N>(THIS()); }
 	*/
 	std::shared_ptr<VIWB> getVPtr(size_t n) const { return THIS().getVPtr(n); }
+
+	std::vector<IndexInfo> infoVec() const { return THIS().infoVec(); }
 	
 	size_t getStepSize(size_t n) const { return THIS().getStepSize(n); }
 	

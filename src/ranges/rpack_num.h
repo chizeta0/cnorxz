@@ -4,6 +4,7 @@
 
 #include <memory>
 #include "vindex_wrapper.h"
+#include "index_info.h"
 
 namespace MultiArrayHelper
 {
@@ -207,6 +208,15 @@ namespace MultiArrayHelper
 	    static_assert( Range::defaultable, "not defaultable" );
 	    RPackNum<N-1>::template checkDefaultable<Ranges...>();
 	}
+
+	template <class... Indices>
+	static void buildInfoVec(std::vector<IndexInfo>& out,
+				 std::tuple<std::shared_ptr<Indices>...>& ip)
+	{
+	    out.emplace_back(*std::get<sizeof...(Indices)-N-1>(ip));
+	    RPackNum<N-1>::buildInfoVec(out, ip);
+	}
+
     };
 
     
@@ -359,6 +369,13 @@ namespace MultiArrayHelper
 	static void checkDefaultable()
 	{
 	    static_assert( Range::defaultable, "not defaultable" );
+	}
+
+	template <class... Indices>
+	static void buildInfoVec(std::vector<IndexInfo>& out,
+				 std::tuple<std::shared_ptr<Indices>...>& ip)
+	{
+	    out.emplace_back(*std::get<sizeof...(Indices)-1>(ip));
 	}
 
     };

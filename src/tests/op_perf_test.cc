@@ -9,6 +9,8 @@
 #include <ctime>
 #include <cmath>
 
+#define ONLY_SPIN
+
 namespace MAT = MultiArrayTools;
 
 namespace {
@@ -62,7 +64,7 @@ namespace {
     {
 	return std::make_tuple(static_cast<size_t>( ts )...);
     }
-    
+#ifndef ONLY_SPIN    
     class OpTest_Performance
     {
     public:
@@ -119,7 +121,7 @@ namespace {
 	std::vector<double> cv1;
 	std::vector<double> cv2;
     };
-
+#endif
     class OpTest_Spin
     {
     public:
@@ -160,11 +162,12 @@ namespace {
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
 	auto deltap = MAT::getIndex<SR>();
+	auto vdeltap = MAT::make_viwb(deltap);
 	
 	auto mix = MAT::mkMIndex( alpha, beta, gamma );
 
 	std::clock_t begin = std::clock();
-	res1(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	res1(delta, deltap).set(vdeltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
@@ -212,7 +215,7 @@ namespace {
 		  << std::endl;
 	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
     }    
-    
+#ifndef ONLY_SPIN    
     void OpTest_Performance::PCheck()
     {
 	MultiArray<double,MRange> ma2(mrptr, cv2);
@@ -251,16 +254,18 @@ namespace {
 	//assert( xround( res.at(mkt(700,900)) ) == xround(res2[700*vs1 + 900]) );
 	
     }
-    
+#endif    
 } // anonymous namspace
 
 int main(int argc, char** argv)
 {
+#ifndef ONLY_SPIN
     OpTest_Performance pt;
-    OpTest_Spin st;
-
-    st.contract();
     pt.PCheck();
+#endif
+    OpTest_Spin st;
+    st.contract();
+
     
     return 0;
 }

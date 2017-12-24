@@ -41,7 +41,7 @@ namespace MultiArrayTools
 
     template <typename T>
     Block<T> makeBlock(const T* vec, size_t stepSize, size_t blockSize);
-
+    
     template <typename T>
     MBlock<T> makeBlock(T* vec, size_t stepSize, size_t blockSize);
 
@@ -92,7 +92,11 @@ namespace MultiArrayTools
 
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
-	
+
+	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
+			std::shared_ptr<typename CRange::IndexType>& index,
+			std::shared_ptr<VIWB> blockIndex);
+
 	MBlock<T>& get();
 	const Block<T>& get() const;
 
@@ -100,8 +104,8 @@ namespace MultiArrayTools
 	const OperationMaster& block() const;
 	
     protected:
-
-	//void performAssignment(const OperationBase<T>& in);
+	
+	void performAssignment(std::intptr_t blockIndexNum);
 	OpClass const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
@@ -156,7 +160,9 @@ namespace MultiArrayTools
 	
 	const MBlock<T>& get() const;
 	MBlock<T>& get();
-
+	
+	OperationRoot& set(std::shared_ptr<VIWB> blockIndex);
+	
 	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex, bool init = false) const;
 	const OperationRoot& block() const;
 	
@@ -165,6 +171,7 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
 	mutable MBlock<T> mBlock;
+	std::shared_ptr<VIWB> mBlockIndex; // predefine to save time
     };
     
     template <typename T, class OpFunction, class... Ops>
@@ -325,6 +332,33 @@ namespace MultiArrayTools
 	
 	block(blockIndex, true);
 	second.block(blockIndex, true);
+
+	performAssignment(blockIndexNum);
+    }
+
+    template <typename T, class OpClass, class... Ranges>
+    OperationMaster<T,OpClass,Ranges...>::
+    OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
+		    std::shared_ptr<typename CRange::IndexType>& index,
+		    std::shared_ptr<VIWB> blockIndex) :
+	mSecond(second), mArrayRef(ma), mIndex()
+    {
+	MultiRangeFactory<Ranges...> mrf( index->range() );
+	std::shared_ptr<MultiRange<Ranges...> > mr =
+	    std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
+	mIndex = std::make_shared<IndexType>( mr->begin() );
+	(*mIndex) = *index;
+
+	std::intptr_t blockIndexNum = blockIndex->getPtrNum();
+	second.block(blockIndex, true);
+
+	performAssignment(blockIndexNum);
+    }
+
+    
+    template <typename T, class OpClass, class... Ranges>    
+    void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
+    {
 	//size_t cnt = 0;
 	//std::clock_t cs = clock();
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
@@ -417,7 +451,8 @@ namespace MultiArrayTools
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) )
+	mArrayRef(ma), mIndex( std::make_shared<IndexType>( mArrayRef.range() ) ),
+	mBlockIndex(nullptr)
     {
 	(*mIndex)(indices...);
     }
@@ -426,7 +461,12 @@ namespace MultiArrayTools
     template <class OpClass>
     OperationMaster<T,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex);
+	if(mBlockIndex){
+	    return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex, mBlockIndex);
+	}
+	else {
+	    return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex);
+	}
     }
 
     template <typename T, class... Ranges>
@@ -443,6 +483,14 @@ namespace MultiArrayTools
 	return mBlock;
     }
 
+    template <typename T, class... Ranges>
+    OperationRoot<T,Ranges...>&
+    OperationRoot<T,Ranges...>::set(std::shared_ptr<VIWB> blockIndex)
+    {
+	mBlockIndex = blockIndex;
+	return *this;
+    }
+    
     template <typename T, class... Ranges>
     std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex, bool init) const
     {

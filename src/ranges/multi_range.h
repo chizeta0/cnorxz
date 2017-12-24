@@ -94,6 +94,8 @@ namespace MultiArrayTools
 	std::shared_ptr<VIWB> getVPtr(size_t n);
 	size_t getStepSize(size_t n);
 
+	std::vector<IndexInfo> infoVec() const;
+	
 	std::string id();
 	void print(size_t offset);
     };
@@ -376,6 +378,14 @@ namespace MultiArrayTools
 	return mBlockSizes[n+1];
     }
 
+    template <class... Indices>
+    std::vector<IndexInfo> MultiIndex<Indices...>::infoVec() const
+    {
+	std::vector<IndexInfo> out(sizeof...(Indices));
+	RPackNum<sizeof...(Indices)-1>::buildInfoVec(out, mIPack);
+	return std::move( out );
+    }
+    
     template <class... Indices>
     std::string MultiIndex<Indices...>::id()
     {
