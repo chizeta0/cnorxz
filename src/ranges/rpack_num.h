@@ -211,10 +211,12 @@ namespace MultiArrayHelper
 
 	template <class... Indices>
 	static void buildInfoVec(std::vector<IndexInfo>& out,
-				 std::tuple<std::shared_ptr<Indices>...>& ip)
+				 const std::tuple<std::shared_ptr<Indices>...>& ip,
+				 const std::array<size_t,sizeof...(Indices)+1>& bs)
 	{
-	    out.emplace_back(*std::get<sizeof...(Indices)-N-1>(ip));
-	    RPackNum<N-1>::buildInfoVec(out, ip);
+	    static const size_t POS = sizeof...(Indices)-N-1;
+	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
+	    RPackNum<N-1>::buildInfoVec(out, ip, bs);
 	}
 
     };
@@ -373,9 +375,11 @@ namespace MultiArrayHelper
 
 	template <class... Indices>
 	static void buildInfoVec(std::vector<IndexInfo>& out,
-				 std::tuple<std::shared_ptr<Indices>...>& ip)
+				 const std::tuple<std::shared_ptr<Indices>...>& ip,
+				 const std::array<size_t,sizeof...(Indices)+1>& bs)
 	{
-	    out.emplace_back(*std::get<sizeof...(Indices)-1>(ip));
+	    static const size_t POS = sizeof...(Indices)-1;
+	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
 	}
 
     };

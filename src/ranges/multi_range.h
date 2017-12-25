@@ -381,8 +381,9 @@ namespace MultiArrayTools
     template <class... Indices>
     std::vector<IndexInfo> MultiIndex<Indices...>::infoVec() const
     {
-	std::vector<IndexInfo> out(sizeof...(Indices));
-	RPackNum<sizeof...(Indices)-1>::buildInfoVec(out, mIPack);
+	std::vector<IndexInfo> out;
+	out.reserve(sizeof...(Indices));
+	RPackNum<sizeof...(Indices)-1>::buildInfoVec(out, mIPack, mBlockSizes);
 	return std::move( out );
     }
     

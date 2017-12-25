@@ -20,13 +20,15 @@ namespace MultiArrayTools
 
 	IndexInfo(IndexInfo&& in) = default;
 	IndexInfo& operator=(IndexInfo&& in) = default;
-	IndexInfo(const IndexInfo& in) = default;
-	IndexInfo& operator=(const IndexInfo& in) = default;
-
+	//IndexInfo(const IndexInfo& in) = default;
+	//IndexInfo& operator=(const IndexInfo& in) = default;
 	
 	template <class IndexClass>
 	IndexInfo(const IndexClass& ind, size_t stepSize = 1);
 
+	template <class IndexClass>
+	IndexInfo& reassign(const IndexClass& ind, size_t stepSize = 1);
+	
 	bool operator==(const IndexInfo& in) const;
 	bool operator!=(const IndexInfo& in) const;
 
@@ -64,6 +66,15 @@ namespace MultiArrayTools
 	mMax(ind.max()),
 	mStepSize(stepSize)
     {}
+
+    template <class IndexClass>
+    IndexInfo& IndexInfo::reassign(const IndexClass& ind, size_t stepSize)
+    {
+	IndexInfo ii(ind, stepSize);
+	(*this) = std::move(ii);
+	return *this;
+    }
+
     
 } // end namespace MultiArrayTools
 

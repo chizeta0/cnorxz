@@ -23,6 +23,8 @@ namespace MultiArrayTools
 
     
     void seekIndexInst(std::shared_ptr<VIWB> i, std::vector<std::shared_ptr<VIWB> >& ivec);
+
+    //void seekIndexInst(const IndexInfo& i, std::vector<IndexInfo>& ivec);
     
     BTSS getBlockType(std::shared_ptr<VIWB> i,
 		      std::shared_ptr<VIWB> j,
