@@ -22,7 +22,7 @@ endif()
 
 include_directories(src)
 
-set(INDEX_CC_FILES "${INDEX_CC_FILES}" "src/ranges/range_base.cc")
+set(INDEX_CC_FILES "${INDEX_CC_FILES}" "src/ranges/range_base.cc" "src/ranges/index_info.cc")
 set(MA_CC_FILES "${MA_CC_FILES}" "${INDEX_CC_FILES}" "src/operation_utils.cc")
 
 add_executable(iutest src/ranges/tests/index_unit_test.cc ${INDEX_CC_FILES})

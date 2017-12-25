@@ -4,7 +4,11 @@
 #define __index_info_h__
 
 #include <cstdlib>
+#include <cstdint>
 #include <vector>
+#include <memory>
+#include "vindex_base.h"
+#include "index_type.h"
 
 namespace MultiArrayTools
 {
@@ -13,29 +17,51 @@ namespace MultiArrayTools
     class IndexInfo
     {
     public:
-	IndexInfo() = delete;
 
+	IndexInfo(IndexInfo&& in) = default;
+	IndexInfo& operator=(IndexInfo&& in) = default;
+	IndexInfo(const IndexInfo& in) = default;
+	IndexInfo& operator=(const IndexInfo& in) = default;
+
+	
 	template <class IndexClass>
 	IndexInfo(const IndexClass& ind, size_t stepSize = 1);
+
+	bool operator==(const IndexInfo& in) const;
+	bool operator!=(const IndexInfo& in) const;
+
+	bool operator<=(const IndexInfo& in) const;
+	bool operator<(const IndexInfo& in) const;
+	bool operator>(const IndexInfo& in) const;
+	bool operator>=(const IndexInfo& in) const;
+
 	
 	const IndexInfo* getPtr(size_t inum) const;
 	std::intptr_t getPtrNum() const;
 	size_t dim() const;
+	size_t max() const;
 	size_t getStepSize(size_t inum) const;
 	size_t getStepSize() const;
-
+	IndexType type() const;
+	
     private:
+
+	IndexInfo() = default;
+	
 	std::vector<IndexInfo> mNext;
 	std::intptr_t mPtrNum;
 	size_t mDim;
+	size_t mMax;
 	size_t mStepSize;
+	IndexType mType;
     };
 
     template <class IndexClass>
     IndexInfo::IndexInfo(const IndexClass& ind, size_t stepSize) :
 	mNext(ind.infoVec()),
 	mPtrNum( reinterpret_cast<std::intptr_t>( &ind ) ),
-	mDim(ind.rangePtr()->dim()),
+	mDim(ind.vrange()->dim()),
+	mMax(ind.max()),
 	mStepSize(stepSize)
     {}
     
