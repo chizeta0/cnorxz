@@ -29,7 +29,7 @@ namespace MultiArrayTools
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	IndexType type();
+	IndexType type() const;
 	
 	SingleIndex& operator=(size_t pos);
 	SingleIndex& operator++();
@@ -121,7 +121,7 @@ namespace MultiArrayTools
 	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0) {}
 
     template <typename U, SpaceType TYPE>
-    IndexType SingleIndex<U,TYPE>::type()
+    IndexType SingleIndex<U,TYPE>::type() const
     {
 	return IndexType::SINGLE;
     }

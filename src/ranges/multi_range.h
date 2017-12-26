@@ -70,7 +70,7 @@ namespace MultiArrayTools
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	IndexType type();
+	IndexType type() const;
 
 	MultiIndex& operator=(size_t pos);
 
@@ -264,7 +264,7 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    IndexType MultiIndex<Indices...>::type()
+    IndexType MultiIndex<Indices...>::type() const
     {
 	return IndexType::MULTI;
     }

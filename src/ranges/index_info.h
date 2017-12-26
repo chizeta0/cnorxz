@@ -64,7 +64,8 @@ namespace MultiArrayTools
 	mPtrNum( reinterpret_cast<std::intptr_t>( &ind ) ),
 	mDim(ind.vrange()->dim()),
 	mMax(ind.max()),
-	mStepSize(stepSize)
+	mStepSize(stepSize),
+	mType(ind.type())
     {}
 
     template <class IndexClass>

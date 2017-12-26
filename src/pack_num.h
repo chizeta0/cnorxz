@@ -27,6 +27,16 @@ namespace MultiArrayHelper
 	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr, init);
 	}
 
+	template <class... Ops>
+	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
+				     const std::tuple<Ops...>& ops,
+				     const IndexInfo* idxPtr, bool init)
+	{
+	    auto subvec = std::move( std::get<N>(ops).block(idxPtr, init) );
+	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
+	    PackNum<N-1>::makeBlockTypeVec(btv, ops, idxPtr, init);
+	}
+	
 	template <typename T, class Func, class ArgTuple, class... Args>
 	static void unpackArgs(BlockResult<T>& res, const ArgTuple& tp, const Args&... args)
 	{
@@ -62,7 +72,16 @@ namespace MultiArrayHelper
 	    auto subvec = std::move( std::get<0>(ops).block(idxPtr, init) );
 	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
 	}
-	
+
+	template <class... Ops>
+	static void makeBlockTypeVec(std::vector<std::pair<BlockType,size_t> >& btv,
+				     const std::tuple<Ops...>& ops,
+				     const IndexInfo* idxPtr, bool init)
+	{
+	    auto subvec = std::move( std::get<0>(ops).block(idxPtr, init) );
+	    btv.insert(btv.end(), subvec.begin(), subvec.end() );
+	}
+
 	template <typename... T>
 	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
 	    out << std::get<sizeof...(T)-1>(tp);

@@ -53,7 +53,7 @@ namespace MultiArrayTools
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
-	IndexType type();
+	IndexType type() const;
 	
 	ContainerIndex& operator++();
 	ContainerIndex& operator--();
@@ -216,7 +216,7 @@ namespace MultiArrayTools
     }
 
     template <class... Indices>
-    IndexType ContainerIndex<Indices...>::type() { return IndexType::CONT; }
+    IndexType ContainerIndex<Indices...>::type() const { return IndexType::CONT; }
 
     template <class... Indices>
     ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator++()
