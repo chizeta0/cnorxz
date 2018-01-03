@@ -110,7 +110,6 @@ namespace MultiArrayTools
 	MBlock<T>& get();
 	const Block<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex, bool init = false) const;
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationMaster& block() const;
 	
@@ -143,7 +142,6 @@ namespace MultiArrayTools
 	
 	const Block<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex, bool init = false) const;
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const ConstOperationRoot& block() const;
 	
@@ -183,7 +181,6 @@ namespace MultiArrayTools
 	OperationRoot& set(const IndexInfo* blockIndex);
 	OperationRoot& set(std::shared_ptr<VIWB> blockIndex);
 	
-	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex, bool init = false) const;
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationRoot& block() const;
 	
@@ -216,7 +213,6 @@ namespace MultiArrayTools
 	
 	const BlockResult<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex, bool init = false) const;
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const Operation& block() const;
 	
@@ -237,7 +233,6 @@ namespace MultiArrayTools
 	
 	const BlockResult<T>& get() const;
 
-	std::vector<BTSS> block(const std::shared_ptr<VIWB> blockIndex, bool init = false) const;
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const Contraction& block() const;
 	
@@ -430,16 +425,6 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpClass, class... Ranges>
-    std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex, bool init) const
-    {
-	std::vector<BTSS> btv(1, getBlockType( make_viwb( mIndex ), blockIndex, true) );
-	if(init){
-	    mBlock = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
-	}
-	return btv;
-    }
-
-    template <typename T, class OpClass, class... Ranges>
     std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
 	std::vector<BTSS> btv(1, getBlockType( &mIInfo, blockIndex, true) );
@@ -485,17 +470,6 @@ namespace MultiArrayTools
     {
 	block();
 	return mBlock;
-    }
-
-    template <typename T, class... Ranges>
-    std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex, bool init) const
-    {
-	assert(0);
-	std::vector<BTSS> btv(1, getBlockType( make_viwb( mIndex ), blockIndex, true) );
-	if(init){
-	    mBlock = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
-	}
-	return btv;
     }
 
     template <typename T, class... Ranges>
@@ -581,18 +555,6 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    
-    template <typename T, class... Ranges>
-    std::vector<BTSS> OperationRoot<T,Ranges...>::block(const std::shared_ptr<VIWB> blockIndex, bool init) const
-    {
-	assert(0);
-	std::vector<BTSS> btv(1, getBlockType( make_viwb( mIndex ), blockIndex, true) );
-	if(init){
-	    mBlock = makeBlock(mArrayRef.data(), btv[0].second, blockIndex->max());
-	}
-	return btv;
-    }
-
     template <typename T, class... Ranges>
     std::vector<BTSS> OperationRoot<T,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -624,18 +586,6 @@ namespace MultiArrayTools
     {
 	PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mRes, mOps);
 	return mRes;
-    }
-
-    template <typename T, class OpFunction, class... Ops>
-    std::vector<BTSS> Operation<T,OpFunction,Ops...>::block(const std::shared_ptr<VIWB> blockIndex, bool init) const
-    {
-	assert(0);
-	std::vector<BTSS> btv;
-	PackNum<sizeof...(Ops)-1>::makeBlockTypeVec(btv, mOps, blockIndex, init);
-	if(init){
-	    mRes.init(blockIndex->max());
-	}
-	return btv;
     }
 
     template <typename T, class OpFunction, class... Ops>
@@ -675,15 +625,6 @@ namespace MultiArrayTools
 	    f(mOp.get());
 	}
 	return mRes;
-    }
-    
-    template <typename T, class Op, class IndexType>
-    std::vector<BTSS> Contraction<T,Op,IndexType>::block(const std::shared_ptr<VIWB> blockIndex, bool init) const
-    {
-	if(init){
-	    mRes.init(blockIndex->max());
-	}
-	return mOp.block(blockIndex, init);
     }
 
     template <typename T, class Op, class IndexType>

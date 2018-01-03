@@ -51,7 +51,8 @@ namespace MultiArrayHelper
 	BLOCK = 1,
 	VALUE = 2,
 	SPLIT = 3,
-	RESULT = 4
+	RESULT = 4,
+	ARRAY = 5
     };
 
 
