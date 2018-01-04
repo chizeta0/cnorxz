@@ -10,11 +10,11 @@ namespace MultiArrayHelper
     class BlockBinaryOp;
     
     
-    template <typename T>
+    template <typename T, class BlockClass>
     class BlockBase;
 
     
-    template <typename T>
+    template <typename T, class BlockClass>
     class MutableBlockBase;
 
     
@@ -24,22 +24,6 @@ namespace MultiArrayHelper
     
     template <typename T>
     class MBlock;
-
-    
-    template <typename T>
-    class BlockValue;
-
-    
-    template <typename T>
-    class MBlockValue;
-
-    
-    template <typename T>
-    class SplitBlock;
-
-    
-    template <typename T>
-    class MSplitBlock;
 
     
     template <typename T>

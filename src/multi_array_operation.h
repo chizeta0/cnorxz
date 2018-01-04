@@ -99,7 +99,8 @@ namespace MultiArrayTools
 	typedef OperationBase<T> OB;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
-
+	typedef MBlock<T> bType;	
+	
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
 
@@ -121,7 +122,7 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
-	mutable MBlock<T> mBlock;
+	mutable bType mBlock;
     };
 
     
@@ -136,6 +137,7 @@ namespace MultiArrayTools
 	typedef OperationTemplate<T,ConstOperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
+	typedef Block<T> bType;
 	
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -154,7 +156,7 @@ namespace MultiArrayTools
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
- 	mutable Block<T> mBlock;
+ 	mutable bType mBlock;
     };
     
     template <typename T, class... Ranges>
@@ -168,7 +170,8 @@ namespace MultiArrayTools
 	typedef OperationTemplate<T,OperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
-	
+	typedef MBlock<T> bType;
+
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
@@ -179,8 +182,6 @@ namespace MultiArrayTools
 	MBlock<T>& get();
 
 	OperationRoot& set(const IndexInfo* blockIndex);
-	OperationRoot& set(std::shared_ptr<VIWB> blockIndex);
-	
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationRoot& block() const;
 	
@@ -193,8 +194,7 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
-	mutable MBlock<T> mBlock;
-	std::shared_ptr<VIWB> mBlockIndex; // predefine to save time
+	mutable bType mBlock;
 	const IndexInfo* mBlockII; // predefine to save time
     };
     
@@ -208,6 +208,7 @@ namespace MultiArrayTools
 	typedef OperationBase<T> OB;
 	typedef OperationTemplate<T,Operation<T,OpFunction,Ops...> > OT;
 	typedef OpFunction F;
+	typedef BlockResult<T> bType;
 	
 	Operation(const Ops&... ops);
 	
@@ -218,7 +219,7 @@ namespace MultiArrayTools
 	
     protected:
 	std::tuple<Ops const&...> mOps;
-	mutable BlockResult<T> mRes;
+	mutable bType mRes;
     };
     
     template <typename T, class Op, class IndexType>
@@ -228,6 +229,7 @@ namespace MultiArrayTools
 
 	typedef T value_type;
 	typedef OperationTemplate<T,Contraction<T,Op,IndexType> > OT;
+	typedef BlockResult<T> bType;
 	
 	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
 	
@@ -240,7 +242,8 @@ namespace MultiArrayTools
 
 	const Op& mOp;
 	std::shared_ptr<IndexType> mInd;
-	mutable BlockResult<T> mRes;
+	//mutable BlockArray<Op::bType> mInBlock;
+	mutable bType mRes;
     };
     
 }
@@ -499,7 +502,7 @@ namespace MultiArrayTools
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
 	mArrayRef(ma), mIndex( mkIndex( ma, indices... ) ), mIInfo(*mIndex),
-	mBlockIndex(nullptr), mBlockII(nullptr)
+	mBlockII(nullptr)
     {}
 
     template <typename T, class... Ranges>
@@ -537,14 +540,6 @@ namespace MultiArrayTools
     {
 	block();
 	return mBlock;
-    }
-
-    template <typename T, class... Ranges>
-    OperationRoot<T,Ranges...>&
-    OperationRoot<T,Ranges...>::set(std::shared_ptr<VIWB> blockIndex)
-    {
-	mBlockIndex = blockIndex;
-	return *this;
     }
 
     template <typename T, class... Ranges>
