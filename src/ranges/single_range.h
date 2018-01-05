@@ -27,6 +27,8 @@ namespace MultiArrayTools
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
+	static IndexType sType() { return IndexType::SINGLE; }
+	
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
 	IndexType type() const;

@@ -28,6 +28,9 @@ namespace MultiArrayTools
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef ContainerRange<typename Indices::RangeType...> RangeType;
 
+	static IndexType sType() { return IndexType::CONT; }
+	static size_t sDim() { return sizeof...(Indices); }
+	
     private:
 
 	bool mExternControl = false;
@@ -47,6 +50,8 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 
+	const IndexPack& pack() const { return mIPack; }
+	
 	ContainerIndex& sync(); // recalculate 'IB::mPos' when externalControl == true
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
 	ContainerIndex& operator()(); // -> sync; just to shorten the code

@@ -31,6 +31,9 @@ namespace MultiArrayTools
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<typename Indices::MetaType...> MetaType;
 	typedef MultiRange<typename Indices::RangeType...> RangeType;
+
+	static IndexType sType() { return IndexType::MULTI; }
+	static size_t sDim() { return sizeof...(Indices); }
 	
     private:
 	
@@ -39,6 +42,8 @@ namespace MultiArrayTools
 
     public:
 
+	const IndexPack& pack() const { return mIPack; }
+	
 	MultiIndex() = delete;
 	
 	// NO DEFAULT HERE !!!

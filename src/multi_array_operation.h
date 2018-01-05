@@ -27,20 +27,6 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
     
-    /*
-     * OperationBase
-     * MutableOperationBase
-     * 
-     * OperationMaster : MutableOperationBase
-     * 
-     * OperationTemplate<...>
-     * ConstOperationRoot : OperationBase, OperationTemplate<...>
-     * OperationRoot : MutableOperationBase, 
-     *                 OperationTemplate<...>
-     * 
-     */
-
-
     template <typename T>
     Block<T> makeBlock(const T* vec, size_t stepSize, size_t blockSize);
     
@@ -91,7 +77,7 @@ namespace MultiArrayTools
     };
     
     template <typename T, class OpClass, class... Ranges>
-    class OperationMaster/* : public MutableOperationBase<T>*/
+    class OperationMaster
     {
     public:
 
@@ -160,8 +146,7 @@ namespace MultiArrayTools
     };
     
     template <typename T, class... Ranges>
-    class OperationRoot : /*public MutableOperationBase<T>,*/
-			  public OperationTemplate<T,OperationRoot<T,Ranges...> >
+    class OperationRoot : public OperationTemplate<T,OperationRoot<T,Ranges...> >
     {
     public:
 
@@ -199,8 +184,7 @@ namespace MultiArrayTools
     };
     
     template <typename T, class OpFunction, class... Ops>
-    class Operation : /*public OperationBase<T>,*/
-		      public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
+    class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
     {
     public:
 
@@ -242,7 +226,6 @@ namespace MultiArrayTools
 
 	const Op& mOp;
 	std::shared_ptr<IndexType> mInd;
-	//mutable BlockArray<Op::bType> mInBlock;
 	mutable bType mRes;
     };
     
@@ -399,31 +382,24 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
-	//size_t cnt = 0;
-	//std::clock_t cs = clock();
+	static auto loop = mkLoop(mIndex, *this, mSecond);
+	loop();
+	
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
-	    //std::clock_t c1 = clock();
 	    block();
 	    get() = mSecond.get();
-	    //std::clock_t c2 = clock();
-	    //cnt += c2 - c1;
 	}
-	//std::clock_t ce = clock();
-	//std::cout << "total time = " << ce - cs << std::endl;
-	//std::cout << "calc time  = " << cnt << std::endl;
     }
     
     template <typename T, class OpClass, class... Ranges>
     MBlock<T>& OperationMaster<T,OpClass,Ranges...>::get()
     {
-	//block();
 	return mBlock;
     }
     
     template <typename T, class OpClass, class... Ranges>
     const Block<T>& OperationMaster<T,OpClass,Ranges...>::get() const
     {
-	//block();
 	return mBlock;
     }
 

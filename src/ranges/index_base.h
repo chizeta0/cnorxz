@@ -13,6 +13,8 @@
 #include "vindex_wrapper.h"
 #include "index_info.h"
 
+#include "xfor/xfor.h"
+
 namespace MultiArrayTools
 {
     
@@ -70,6 +72,11 @@ namespace MultiArrayTools
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 
 	void print(size_t offset = 0) const { THIS().print(offset); }
+
+	// CHECK / IMPLEMENT !!!!!!
+	template <class Expr, typename... Args>
+	auto ifor(const Args&... args) const -> decltype(THIS().template ifor<Expr>(args...))
+	{ return THIS().template ifor<Expr>(args...) }
 	
     private:
 
