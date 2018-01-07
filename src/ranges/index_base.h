@@ -76,7 +76,7 @@ namespace MultiArrayTools
 	// CHECK / IMPLEMENT !!!!!!
 	template <class Expr, typename... Args>
 	auto ifor(const Args&... args) const -> decltype(THIS().template ifor<Expr>(args...))
-	{ return THIS().template ifor<Expr>(args...) }
+	{ return THIS().template ifor<Expr>(args...); }
 	
     private:
 

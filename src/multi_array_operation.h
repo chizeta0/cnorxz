@@ -382,8 +382,8 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
-	static auto loop = mkLoop(mIndex, *this, mSecond);
-	loop();
+	//static auto loop = mkLoop(mIndex, *this, mSecond);
+	//loop();
 	
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
 	    block();

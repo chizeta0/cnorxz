@@ -26,7 +26,7 @@ namespace MultiArrayHelper
 	
 	std::shared_ptr<IndexClass> mIndPtr;
 	Expr mExpr;
-    }
+    };
 
 } // namespace MultiArrayHelper
 
