@@ -81,6 +81,23 @@ namespace MultiArrayTools
     {
     public:
 
+	class AssignmentExpr
+	{
+	public:
+	    AssignmentExpr(OperationMaster* mPtr, OpClass* secPtr);
+
+	    AssignmentExpr(AssignmentExpr&& in) = default;
+	    AssignmentExpr& operator=(AssignmentExpr&& in) = default;
+	    
+	    inline void operator()(size_t start = 0);
+
+	private:
+	    AssignmentExpr() = default;
+	    
+	    OperationMaster* mMPtr;
+	    OpClass* mSecPtr;
+	};
+	
 	typedef T value_type;
 	typedef OperationBase<T> OB;
 	typedef ContainerRange<Ranges...> CRange;
