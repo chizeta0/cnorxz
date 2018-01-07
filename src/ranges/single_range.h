@@ -11,6 +11,10 @@
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
 
+#include "xfor/xfor.h"
+
+using MultiArrayHelper::For;
+
 namespace MultiArrayTools
 {
 
@@ -59,6 +63,9 @@ namespace MultiArrayTools
 	
 	std::string id();
 	void print(size_t offset);
+
+	template <class Expr>
+	auto ifor(Expr&& ex) const -> For<SingleIndex<U,TYPE>,Expr>;
     };
 
     template <typename U, SpaceType TYPE>
@@ -237,6 +244,15 @@ namespace MultiArrayTools
 	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
 	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
 		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
+    }
+
+    template <typename U, SpaceType TYPE>
+    template <class Expr>
+    auto SingleIndex<U,TYPE>::ifor(Expr&& ex) const
+	-> For<SingleIndex<U,TYPE>,Expr>
+    {
+	return For<SingleIndex<U,TYPE>,Expr>
+	    ( std::make_shared<SingleIndex<U,TYPE> >(*this), ex );
     }
 
     

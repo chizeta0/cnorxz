@@ -19,6 +19,8 @@ namespace MultiArrayHelper
 	template <typename... Args>
 	For(const std::shared_ptr<IndexClass>& indPtr, const Args&... args);
 
+	For(const std::shared_ptr<IndexClass>& indPtr, Expr&& expr);
+	
 	inline void operator()(size_t start = 0);
 	
     private:
@@ -42,6 +44,10 @@ namespace MultiArrayHelper
     For<IndexClass,Expr>::For(const std::shared_ptr<IndexClass>& indPtr,
 			      const Args&... args) : mIndPtr(indPtr), mExpr(args...) {}
 
+    template <class IndexClass, class Expr>
+    For<IndexClass,Expr>::For(const std::shared_ptr<IndexClass>& indPtr,
+			      Expr&& expr) : mIndPtr(indPtr), mExpr(expr) {}
+    
     template <class IndexClass, class Expr>
     inline void For<IndexClass,Expr>::operator()(size_t start)
     {

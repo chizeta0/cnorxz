@@ -219,6 +219,16 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::buildInfoVec(out, ip, bs);
 	}
 
+	template <class IndexPack, class... Exprs>
+	static auto mkFor(const IndexPack& ipack, Exprs&&... exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N>(ipack)
+			->ifor(RPackNum<N-1>::template mkFor<IndexPack,Exprs...>
+			       (ipack, exs...) ) )
+	{
+	    return std::get<std::tuple_size<IndexPack>::value-N>(ipack)
+		->ifor( RPackNum<N-1>::template mkFor<IndexPack,Exprs...>(ipack, exs...) );
+	}
+	
     };
 
     
@@ -382,6 +392,13 @@ namespace MultiArrayHelper
 	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
 	}
 
+	template <class IndexPack, class... Exprs>
+	static auto mkFor(const IndexPack& ipack, Exprs&&... exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
+			->ifor(exs...) )
+	{
+	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(exs...);
+	}
     };
 	
 

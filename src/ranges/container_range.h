@@ -88,6 +88,10 @@ namespace MultiArrayTools
 	std::string id();
 	void print(size_t offset);
 
+	template <class... Exprs>
+	auto ifor(Exprs&&... exs) const
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs...));
+	
     };
 
     
@@ -364,6 +368,14 @@ namespace MultiArrayTools
 	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this) << "]"
 		  << "(" << IB::mRangePtr << "): " << meta() << std::endl;
 	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
+    }
+
+    template <class... Indices>
+    template <class... Exprs>
+    auto ContainerIndex<Indices...>::ifor(Exprs&&... exs) const
+	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs...))
+    {
+	return RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs...);
     }
 
     
