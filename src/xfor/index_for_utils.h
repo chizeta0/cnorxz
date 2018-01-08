@@ -4,10 +4,16 @@
 
 #include "ranges/rheader.h"
 #include "xfor.h"
+#include <array>
+#include <tuple>
 
 namespace MultiArrayHelper
 {
-
+    namespace {
+        template <class Op>
+        using to_size_t<Op> = size_t;
+    }
+    
     template <size_t N>
     struct XFPackNum
     {
@@ -24,7 +30,6 @@ namespace MultiArrayHelper
 	{
 	    return XFPackNum<N-1>::mkForTp(iTuple, std::get<N>(iTuple), args...)
 	}
-
     };
 
     template <>
@@ -43,7 +48,6 @@ namespace MultiArrayHelper
 	{
 	    return XFPackNum<std::tuple_size<IndexTuple>::value-1>::mkFor( std::get<0>(iTuple), args... );
 	}
-
     };
     
 } // end namespace MultiArrayHelper
