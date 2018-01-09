@@ -64,8 +64,8 @@ namespace MultiArrayTools
 	std::string id();
 	void print(size_t offset);
 
-	template <class Expr, class... Ops>
-	auto ifor(std::tuple<to_size_t<Ops>...>&& ee, Expr&& ex) const
+	template <class Expr, size_t DIM, class... Ops>
+	auto ifor(const std::array<std::tuple<to_size_t<Ops>...>,DIM>& ee, Expr&& ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr,Ops...>;
     };
 
@@ -248,12 +248,12 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE>
-    template <class Expr, class... Ops>
-    auto SingleIndex<U,TYPE>::ifor(std::tuple<to_size_t<Ops>...>&& ee, Expr&& ex) const
+    template <class Expr, size_t DIM, class... Ops>
+    auto SingleIndex<U,TYPE>::ifor(const std::array<std::tuple<to_size_t<Ops>...>,DIM>& ee, Expr&& ex) const
 	-> For<SingleIndex<U,TYPE>,Expr,Ops...>
     {
-	return For<SingleIndex<U,TYPE>,Expr>
-	    ( std::make_shared<SingleIndex<U,TYPE> >(*this), ex, ee );
+	static const size_t layer = typename Expr::layer(); 
+	return For<SingleIndex<U,TYPE>,Expr,Ops...>( this, ex, std::get<layer>( ee ) );
     }
 
     

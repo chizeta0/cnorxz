@@ -44,11 +44,24 @@ namespace MultiArrayHelper
 	}
 
 	template <typename... T>
-	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
+	static void printTuple(std::ostream& out, const std::tuple<T...>& tp)
+	{
 	    out << std::get<sizeof...(T)-N-1>(tp) << ", ";
 	    PackNum<N-1>::printTuple(out, tp);
 	}
 
+	template <class... Ops>
+	static auto mkStepTuple(const IndexInfo* ii, std::tuple<Ops const&...> otp)
+	    -> decltype(std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) ))
+	{
+	    return std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) );
+	}
+	/*
+	template <class IndexClass, class OpClass>
+	static auto mkExt(const std::shared_ptr<IndexClass>& idxPtr, const OpClass& second)
+	{
+	// !!!!!
+	}*/
     };
     
     template<>
@@ -83,10 +96,18 @@ namespace MultiArrayHelper
 	}
 
 	template <typename... T>
-	static void printTuple(std::ostream& out, const std::tuple<T...>& tp){
+	static void printTuple(std::ostream& out, const std::tuple<T...>& tp)
+	{	    
 	    out << std::get<sizeof...(T)-1>(tp);
 	}
-	
+
+	template <class... Ops>
+	static auto mkStepTuple(const IndexInfo* ii, std::tuple<Ops const&...> otp)
+	    -> decltype(std::get<0>(otp).rootSteps(ii))
+	{
+	    return std::get<0>(otp).rootSteps(ii);
+	}
+
     };
 
 

@@ -219,14 +219,13 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::buildInfoVec(out, ip, bs);
 	}
 
-	template <class IndexPack, class... Exprs>
-	static auto mkFor(const IndexPack& ipack, Exprs&&... exs)
+	template <class IndexPack, class Ext, class Exprs>
+	static auto mkFor(const IndexPack& ipack, const Ext& ext, Exprs&& exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N>(ipack)
-			->ifor(RPackNum<N-1>::template mkFor<IndexPack,Exprs...>
-			       (ipack, exs...) ) )
+			->ifor(ext, RPackNum<N-1>::mkFor(ipack, ext, exs) ) )
 	{
 	    return std::get<std::tuple_size<IndexPack>::value-N>(ipack)
-		->ifor( RPackNum<N-1>::template mkFor<IndexPack,Exprs...>(ipack, exs...) );
+		->ifor( ext, RPackNum<N-1>::mkFor(ipack, ext, exs) );
 	}
 	
     };
@@ -392,12 +391,12 @@ namespace MultiArrayHelper
 	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
 	}
 
-	template <class IndexPack, class... Exprs>
-	static auto mkFor(const IndexPack& ipack, Exprs&&... exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-			->ifor(exs...) )
+	template <class IndexPack, class Ext, class Exprs>
+	static auto mkFor(const IndexPack& ipack, const Ext& ext, Exprs&& exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack, ext)
+			->ifor(ext, exs) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(exs...);
+	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(ext, exs);
 	}
     };
 	

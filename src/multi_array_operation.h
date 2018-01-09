@@ -50,7 +50,7 @@ namespace MultiArrayTools
 	
 	OperationClass& THIS() { return static_cast<OperationClass&>(*this); }
 	const OperationClass& THIS() const { return static_cast<OperationClass const&>(*this); }
-	
+
 	template <class Second>
 	auto operator+(const Second& in) const
 	    -> Operation<T,std::plus<T>,OperationClass,Second>;
@@ -84,7 +84,9 @@ namespace MultiArrayTools
 	class AssignmentExpr
 	{
 	public:
-	    AssignmentExpr(OperationMaster* mPtr, OpClass* secPtr);
+	    static size_t layer() { return 0; }
+	    
+	    AssignmentExpr(OperationMaster* mPtr, const OpClass* secPtr);
 
 	    AssignmentExpr(AssignmentExpr&& in) = default;
 	    AssignmentExpr& operator=(AssignmentExpr&& in) = default;
@@ -95,7 +97,7 @@ namespace MultiArrayTools
 	    AssignmentExpr() = default;
 	    
 	    OperationMaster* mMPtr;
-	    OpClass* mSecPtr;
+	    const OpClass* mSecPtr;
 	};
 	
 	typedef T value_type;
@@ -103,6 +105,8 @@ namespace MultiArrayTools
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 	typedef MBlock<T> bType;	
+
+	static size_t rootNum() { return 1; }
 	
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
@@ -117,7 +121,7 @@ namespace MultiArrayTools
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationMaster& block() const;
 	
-    protected:
+    private:
 
 	std::shared_ptr<IndexType> mkIndex(std::shared_ptr<typename CRange::IndexType>& index);
 	void performAssignment(std::intptr_t blockIndexNum);
@@ -141,6 +145,8 @@ namespace MultiArrayTools
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 	typedef Block<T> bType;
+
+	static size_t rootNum() { return 1; }
 	
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -149,8 +155,10 @@ namespace MultiArrayTools
 
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const ConstOperationRoot& block() const;
+
+	std::tuple<size_t> rootSteps(const IndexInfo* ii = nullptr) const; // nullptr for simple usage with decltype
 	
-    protected:
+    private:
 
 	std::shared_ptr<IndexType>
 	mkIndex(const MultiArrayBase<T,Ranges...>& ma,
@@ -174,6 +182,8 @@ namespace MultiArrayTools
 	typedef typename CRange::IndexType IndexType;
 	typedef MBlock<T> bType;
 
+	static size_t rootNum() { return 1; }
+	
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
@@ -186,8 +196,10 @@ namespace MultiArrayTools
 	OperationRoot& set(const IndexInfo* blockIndex);
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationRoot& block() const;
+
+	std::tuple<size_t> rootSteps(const IndexInfo* ii = nullptr) const; // nullptr for simple usage with decltype
 	
-    protected:
+    private:
 
 	std::shared_ptr<IndexType>
 	mkIndex(const MultiArrayBase<T,Ranges...>& ma,
@@ -199,6 +211,18 @@ namespace MultiArrayTools
 	mutable bType mBlock;
 	const IndexInfo* mBlockII; // predefine to save time
     };
+
+    template <class Op>
+    size_t sumRootNum()
+    {
+	return typename Op::rootNum();
+    }
+    
+    template <class Op1, class Op2, class... Ops>
+    size_t sumRootNum()
+    {
+	return typename Op1::rootNum() + sumRootNum<Op2,Ops...>();
+    }
     
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
@@ -210,17 +234,24 @@ namespace MultiArrayTools
 	typedef OperationTemplate<T,Operation<T,OpFunction,Ops...> > OT;
 	typedef OpFunction F;
 	typedef BlockResult<T> bType;
-	
+
+	static size_t rootNum() { return sumRootNum<Ops...>(); }
+
+    private:
+	std::tuple<Ops const&...> mOps;
+	mutable bType mRes;
+
+    public:
 	Operation(const Ops&... ops);
 	
 	const BlockResult<T>& get() const;
 
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const Operation& block() const;
+
+	auto rootSteps(const IndexInfo* ii = nullptr) const // nullptr for simple usage with decltype
+	    -> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(ii, mOps));
 	
-    protected:
-	std::tuple<Ops const&...> mOps;
-	mutable bType mRes;
     };
     
     template <typename T, class Op, class IndexType>
@@ -231,19 +262,26 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationTemplate<T,Contraction<T,Op,IndexType> > OT;
 	typedef BlockResult<T> bType;
-	
+
+	static size_t rootNum() { return typename Op::rootNum(); }
+
+    private:
+
+	const Op& mOp;
+	std::shared_ptr<IndexType> mInd;
+	mutable bType mRes;
+
+    public:
 	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
 	
 	const BlockResult<T>& get() const;
 
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const Contraction& block() const;
-	
-    protected:
 
-	const Op& mOp;
-	std::shared_ptr<IndexType> mInd;
-	mutable bType mRes;
+	auto rootSteps(const IndexInfo* ii = nullptr) const  // nullptr for simple usage with decltype
+	    -> decltype(mOp.rootSteps(ii));
+	
     };
     
 }
@@ -399,13 +437,21 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
-	//static auto loop = mkLoop(mIndex, *this, mSecond);
-	//loop();
-	
+#ifdef XX_USE_NEW_LOOP_ROUTINE_XX
+	// === N E W ===
+	AssignmentExpr ae(this, &mSecond);
+	typedef decltype(mSecond.rootSteps()) RootStepType;
+	std::array<RootStepType,/*sizeof single indices!!*/>
+	    ee(PackNum</*sizeof single indices!!*/-1>::mkExt(mIndex, mSecond));
+	static auto loop = mIndex->ifor(ee, ae);
+	loop();
+#else
+	// === O L D ===
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
 	    block();
 	    get() = mSecond.get();
 	}
+#endif
     }
     
     template <typename T, class OpClass, class... Ranges>
@@ -437,7 +483,7 @@ namespace MultiArrayTools
 	mBlock.set( mIndex->pos() );
 	return *this;
     }
-    
+
     /****************************
      *   ConstOperationRoot     *
      ****************************/
@@ -483,6 +529,12 @@ namespace MultiArrayTools
     {
 	mBlock.set( (*mIndex)().pos() );
 	return *this;
+    }
+
+    template <typename T, class... Ranges>
+    std::tuple<size_t> ConstOperationRoot<T,Ranges...>::rootSteps(const IndexInfo* ii) const
+    {
+	return std::tuple<size_t>(0ul); // !!!!!!
     }
     
     /***********************
@@ -559,6 +611,12 @@ namespace MultiArrayTools
 	mBlock.set( (*mIndex)().pos() );
 	return *this;
     }
+
+    template <typename T, class... Ranges>
+    std::tuple<size_t> OperationRoot<T,Ranges...>::rootSteps(const IndexInfo* ii) const
+    {
+	return std::tuple<size_t>(0ul); // !!!!!!
+    }
     
     /*******************
      *   Operation     *
@@ -595,6 +653,14 @@ namespace MultiArrayTools
 	return *this;
     }
 
+    template <typename T, class OpFunction, class... Ops>
+    auto Operation<T,OpFunction,Ops...>::rootSteps(const IndexInfo* ii) const
+	-> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(ii, mOps))
+    {
+	return PackNum<sizeof...(Ops)-1>::mkStepTuple(ii, mOps);
+    }
+
+    
     /*********************
      *   Contraction     *
      *********************/
@@ -629,7 +695,14 @@ namespace MultiArrayTools
     {
 	return *this;
     }
-    
+
+    template <typename T, class Op, class IndexType>
+    auto Contraction<T,Op,IndexType>::rootSteps(const IndexInfo* ii) const
+	-> decltype(mOp.rootSteps(ii))
+    {
+	return mOp.rootSteps(ii);
+    }
+
 }
 
 #endif
