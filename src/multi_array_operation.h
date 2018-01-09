@@ -439,11 +439,16 @@ namespace MultiArrayTools
     {
 #ifdef XX_USE_NEW_LOOP_ROUTINE_XX
 	// === N E W ===
-	AssignmentExpr ae(this, &mSecond);
+	static const size_t TDIM = IndexType::totalDim()
+	typedef std::array<std::intptr_t,TDIM> IAT;
 	typedef decltype(mSecond.rootSteps()) RootStepType;
-	std::array<RootStepType,/*sizeof single indices!!*/>
-	    ee(PackNum</*sizeof single indices!!*/-1>::mkExt(mIndex, mSecond));
-	static auto loop = mIndex->ifor(ee, ae);
+	
+	AssignmentExpr ae(this, &mSecond);
+
+	IAT siar = mIndex->getSIndexTuple();
+	std::array<RootStepType,TDIM> ee;
+	PackNum<TDIM-1>::mkExt(ee, siar, mSecond);
+	auto loop = mIndex->ifor(ee, ae);
 	loop();
 #else
 	// === O L D ===

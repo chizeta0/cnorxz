@@ -10,6 +10,20 @@ namespace MultiArrayHelper
 {
     using namespace MultiArrayTools;
 
+    
+    template <class Index1>
+    size_t mkTotalDim()
+    {
+	return typename Index1::totalDim();
+    }
+    
+    template <class Index1, class Index2, class... Indices>
+    size_t mkTotalDim()
+    {
+	return typename Index1::totalDim() * mkTotalDim<Index2,Indices...>();
+    }
+
+    
     template <size_t N>
     struct RPackNum
     {
@@ -227,7 +241,7 @@ namespace MultiArrayHelper
 	    return std::get<std::tuple_size<IndexPack>::value-N>(ipack)
 		->ifor( ext, RPackNum<N-1>::mkFor(ipack, ext, exs) );
 	}
-	
+
     };
 
     

@@ -32,6 +32,7 @@ namespace MultiArrayTools
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
 	static IndexType sType() { return IndexType::SINGLE; }
+	static size_t totalDim() { return 1; }
 	
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	

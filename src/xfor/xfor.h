@@ -80,7 +80,7 @@ namespace MultiArrayHelper
 				     std::tuple<to_size_t<Ops>...>&& ext,
 				     const Args&... args) :
 	mIndPtr(indPtr), mExpr(args...), mExt(ext) {}
-
+    
     template <class IndexClass, class Expr, class... Ops>
     For<IndexClass,Expr,Ops...>::For(IndexClass* indPtr,
 				     Expr&& expr, std::tuple<to_size_t<Ops>...>&& ext) :

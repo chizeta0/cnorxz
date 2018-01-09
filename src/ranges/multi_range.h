@@ -34,6 +34,7 @@ namespace MultiArrayTools
 
 	static IndexType sType() { return IndexType::MULTI; }
 	static size_t sDim() { return sizeof...(Indices); }
+	static size_t totalDim() { return mkTotalDim<Indices...>(); }
 	
     private:
 	

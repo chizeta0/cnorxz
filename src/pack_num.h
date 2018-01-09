@@ -56,12 +56,15 @@ namespace MultiArrayHelper
 	{
 	    return std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) );
 	}
-	/*
-	template <class IndexClass, class OpClass>
-	static auto mkExt(const std::shared_ptr<IndexClass>& idxPtr, const OpClass& second)
+	
+	template <class RootStepTuple, class IndexClass, class OpClass>
+	static void mkExt(std::array<RootStepTuple,IndexClass::totalDim()>& out,
+			  const std::array<std::intptr_t,IndexClass::totalDim()>& siar,
+			  const OpClass& second)
 	{
-	// !!!!!
-	}*/
+	    std::get<N>(out) = second.rootSteps( std::get<N>(siar) );
+	    PackNum<N-1>::mkExt(out, siar, second);
+	}
     };
     
     template<>
@@ -106,6 +109,14 @@ namespace MultiArrayHelper
 	    -> decltype(std::get<0>(otp).rootSteps(ii))
 	{
 	    return std::get<0>(otp).rootSteps(ii);
+	}
+
+	template <class RootStepTuple, class IndexClass, class OpClass>
+	static void mkExt(std::array<RootStepTuple,IndexClass::totalDim()>& out,
+			  const std::array<std::intptr_t,IndexClass::totalDim()>& siar,
+			  const OpClass& second)
+	{
+	    std::get<0>(out) = second.rootSteps( std::get<0>(siar) );
 	}
 
     };
