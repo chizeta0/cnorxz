@@ -5,13 +5,10 @@
 #include <cstdlib>
 #include <memory>
 #include <tuple>
+#include "xfor/for_utils.h"
 
 namespace MultiArrayHelper
 {
-    namespace {
-	template <class Op>
-	using to_size_t = size_t;
-    }
     
     template <class IndexClass, class Expr, class... Ops>
     class For
@@ -70,7 +67,7 @@ namespace MultiArrayHelper
 	const size_t max = ind.max();
 	for(ind = 0; ind.pos() != max; ++ind){
 	    const size_t mnpos = mlast * max + ind.pos();
-	    const std::tuple<to_size_t<Ops>...> npos( /* !!! fancy code !!! */ ); 
+	    const std::tuple<to_size_t<Ops>...> npos = std::move( XFPackNum<opNum-1>::mkPos(ind, mExt, last) );
 	    mExpr(mnpos, npos);
 	}
     }

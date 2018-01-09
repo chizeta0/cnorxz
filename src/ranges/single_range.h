@@ -64,8 +64,9 @@ namespace MultiArrayTools
 	std::string id();
 	void print(size_t offset);
 
-	template <class Expr>
-	auto ifor(Expr&& ex) const -> For<SingleIndex<U,TYPE>,Expr>;
+	template <class Expr, class... Ops>
+	auto ifor(std::tuple<to_size_t<Ops>...>&& ee, Expr&& ex) const
+	    -> For<SingleIndex<U,TYPE>,Expr,Ops...>;
     };
 
     template <typename U, SpaceType TYPE>
@@ -247,12 +248,12 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE>
-    template <class Expr>
-    auto SingleIndex<U,TYPE>::ifor(Expr&& ex) const
-	-> For<SingleIndex<U,TYPE>,Expr>
+    template <class Expr, class... Ops>
+    auto SingleIndex<U,TYPE>::ifor(std::tuple<to_size_t<Ops>...>&& ee, Expr&& ex) const
+	-> For<SingleIndex<U,TYPE>,Expr,Ops...>
     {
 	return For<SingleIndex<U,TYPE>,Expr>
-	    ( std::make_shared<SingleIndex<U,TYPE> >(*this), ex );
+	    ( std::make_shared<SingleIndex<U,TYPE> >(*this), ex, ee );
     }
 
     
