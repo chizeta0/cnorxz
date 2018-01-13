@@ -16,22 +16,20 @@ namespace MultiArrayHelper
     template <size_t N>
     struct XFPackNum
     {
-	template <class IndexClass, class ExtTuple, class LastTuple, typename... Args>
-	static auto mkPos(const IndexClass& ind, const ExtTuple& et, const LastTuple& lt, const Args&... args)
-	    -> decltype(XFPackNum<N-1>::mkPos(et, lt, 0ul, args...))
+	template <class ETuple, typename... Args>
+	static ETuple mkPos(size_t pos, const ETuple& et, const ETuple& lt, const Args&... args)
 	{
-	    return XFPackNum<N-1>::mkPos(et, lt, std::get<N>(lt) + ind.pos() * std::get<N>(et), args...);
+	    return std::move( XFPackNum<N-1>::mkPos(pos, et, lt, std::get<N>(lt) + pos * std::get<N>(et), args...) );
 	}
     };
 
     template <>
     struct XFPackNum<0>
     {
-	template <class IndexClass, class ExtTuple, class LastTuple, typename... Args>
-	static auto mkPos(const IndexClass& ind, const ExtTuple& et, const LastTuple& lt, const Args&... args)
-	    -> std::tuple<size_t,to_size_t<Args>...>
+	template <class ETuple, typename... Args>
+	static ETuple mkPos(size_t pos, const ETuple& et, const ETuple& lt, const Args&... args)
 	{
-	    return std::tuple<size_t,to_size_t<Args>...>(std::get<0>(lt) + ind.pos() * std::get<0>(et), args...);
+	    return ETuple(std::get<0>(lt) + pos * std::get<0>(et), args...);
 	}
 
     };

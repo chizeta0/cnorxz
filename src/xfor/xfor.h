@@ -10,40 +10,41 @@
 namespace MultiArrayHelper
 {
     
-    template <class IndexClass, class Expr, class... Ops>
+    template <class IndexClass, class Expr>
     class For
     {
+    private:
+	For() = default;
+	//For(const For& in) = default;
+	//For& operator=(const For& in) = default;
+		
+	const IndexClass* mIndPtr;
+	Expr mExpr;
+	decltype(mExpr.rootSteps()) mExt;
+
     public:
 
-	static size_t layer() { return typename Expr::layer() + 1; }
+	static size_t layer() { return Expr::layer() + 1; }
+	static const size_t LAYER = Expr::LAYER + 1;
+	static const size_t SIZE = std::remove_reference<Expr>::type::SIZE;
+
+	typedef decltype(mExpr.rootSteps()) ETuple;
 	
 	For(For&& in) = default;
 	For& operator=(For&& in) = default;
 	
-	template <typename... Args>
 	For(const std::shared_ptr<IndexClass>& indPtr,
-	    std::tuple<to_size_t<Ops>...>&& ext, const Args&... args);
+	    Expr&& expr);
 
-	For(const std::shared_ptr<IndexClass>& indPtr,
-	    Expr&& expr, std::tuple<to_size_t<Ops>...>&& ext);
-
-	template <typename... Args>
-	For(IndexClass* indPtr,
-	    std::tuple<to_size_t<Ops>...>&& ext, const Args&... args);
-
-	For(IndexClass* indPtr,
-	    Expr&& expr, std::tuple<to_size_t<Ops>...>&& ext);
+	For(const IndexClass* indPtr,
+	    Expr&& expr);
 
 	
-	inline void operator()(size_t mlast, const std::tuple<to_size_t<Ops>...>& last) const;
+	inline void operator()(size_t mlast, const ETuple& last) const;
 	inline void operator()(size_t mlast = 0) const;
-	
-    private:
-	For() = default;
-	
-	IndexClass* mIndPtr;
-	const Expr mExpr;
-	const std::tuple<to_size_t<Ops>...> mExt;
+
+	ETuple rootSteps(std::intptr_t iPtrNum = 0) const;
+	    
     };
 
     template <size_t N>
@@ -62,57 +63,48 @@ namespace MultiArrayHelper
 namespace MultiArrayHelper
 {
 
-    template <class IndexClass, class Expr, class... Ops>
-    template <typename... Args>
-    For<IndexClass,Expr,Ops...>::For(const std::shared_ptr<IndexClass>& indPtr,
-				     std::tuple<to_size_t<Ops>...>&& ext,
-				     const Args&... args) :
-	mIndPtr(indPtr.get()), mExpr(args...), mExt(ext) {}
+    template <class IndexClass, class Expr>
+    For<IndexClass,Expr>::For(const std::shared_ptr<IndexClass>& indPtr,
+			      Expr&& expr) :
+	mIndPtr(indPtr.get()), mExpr(expr), mExt(expr.rootSteps( static_cast<std::intptr_t>( mIndPtr.get() ))) {}
 
-    template <class IndexClass, class Expr, class... Ops>
-    For<IndexClass,Expr,Ops...>::For(const std::shared_ptr<IndexClass>& indPtr,
-				     Expr&& expr, std::tuple<to_size_t<Ops>...>&& ext) :
-	mIndPtr(indPtr.get()), mExpr(expr), mExt(ext) {}
-
-    template <class IndexClass, class Expr, class... Ops>
-    template <typename... Args>
-    For<IndexClass,Expr,Ops...>::For(IndexClass* indPtr,
-				     std::tuple<to_size_t<Ops>...>&& ext,
-				     const Args&... args) :
-	mIndPtr(indPtr), mExpr(args...), mExt(ext) {}
+    template <class IndexClass, class Expr>
+    For<IndexClass,Expr>::For(const IndexClass* indPtr,
+			      Expr&& expr) :
+	mIndPtr(indPtr), mExpr(expr), mExt(expr.rootSteps( static_cast<std::intptr_t>( mIndPtr ) )) {}
     
-    template <class IndexClass, class Expr, class... Ops>
-    For<IndexClass,Expr,Ops...>::For(IndexClass* indPtr,
-				     Expr&& expr, std::tuple<to_size_t<Ops>...>&& ext) :
-	mIndPtr(indPtr), mExpr(expr), mExt(ext) {}
-    
-    template <class IndexClass, class Expr, class... Ops>
-    inline void For<IndexClass,Expr,Ops...>::operator()(size_t mlast,
-							const std::tuple<to_size_t<Ops>...>& last) const
+    template <class IndexClass, class Expr>
+    inline void For<IndexClass,Expr>::operator()(size_t mlast,
+						 const ETuple& last) const
     {
-	static const size_t opNum = sizeof...(Ops);
 	auto& ind = *mIndPtr;
-	const size_t max = exceptMax<For<IndexClass,Expr,Ops...>::layer()>( ind.max() ); // blocking
-	for(ind = 0; ind.pos() != max; ++ind){
-	    const size_t mnpos = mlast * max + ind.pos();
-	    const std::tuple<to_size_t<Ops>...> npos = std::move( XFPackNum<opNum-1>::mkPos(ind, mExt, last) );
+	const size_t max = ind.max(); // blocking
+	for(size_t pos = ind.pos(); pos != max; ++pos){
+	    const size_t mnpos = mlast * max + pos;
+	    const ETuple npos = std::move( XFPackNum<SIZE-1>::mkPos(pos, mExt, last) );
 	    mExpr(mnpos, npos);
 	}
     }
 
-    template <class IndexClass, class Expr, class... Ops>
-    inline void For<IndexClass,Expr,Ops...>::operator()(size_t mlast) const
+    template <class IndexClass, class Expr>
+    inline void For<IndexClass,Expr>::operator()(size_t mlast) const
     {
-	static const size_t opNum = sizeof...(Ops);
-	std::tuple<to_size_t<Ops>...> last(to_size_t<Ops>(0)...);
+	const ETuple last;
 	auto& ind = *mIndPtr;
-	const size_t max = exceptMax<For<IndexClass,Expr,Ops...>::layer()>( ind.max() ); // blocking
-	for(ind = 0; ind.pos() != max; ++ind){
-	    const size_t mnpos = mlast * max + ind.pos();
-	    const std::tuple<to_size_t<Ops>...> npos = std::move( XFPackNum<opNum-1>::mkPos(ind, mExt, last) );
+	const size_t max = ind.max(); // blocking
+	for(size_t pos = ind.pos(); pos != max; ++pos){
+	    const size_t mnpos = mlast * max + pos;
+	    const ETuple npos = std::move( XFPackNum<SIZE-1>::mkPos(pos, mExt, last) );
 	    mExpr(mnpos, npos);
 	}
     }
+    
+    template <class IndexClass, class Expr>
+    typename For<IndexClass,Expr>::ETuple For<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
+    {
+	return mExpr.rootSteps(iPtrNum);
+    }
+
     
 } // namespace MultiArrayHelper
 

@@ -74,9 +74,9 @@ namespace MultiArrayTools
 	void print(size_t offset = 0) const { THIS().print(offset); }
 
 	// CHECK / IMPLEMENT !!!!!!
-	template <class Expr, typename... Args>
-	auto ifor(const Args&... args) const -> decltype(THIS().template ifor<Expr>(args...))
-	{ return THIS().template ifor<Expr>(args...); }
+	template <class Expr>
+	auto ifor(const Expr&& ex) const -> decltype(THIS().template ifor<Expr>(ex))
+	{ return THIS().template ifor<Expr>(ex); }
 	
     private:
 

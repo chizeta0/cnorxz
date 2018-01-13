@@ -14,13 +14,13 @@ namespace MultiArrayHelper
     template <class Index1>
     size_t mkTotalDim()
     {
-	return typename Index1::totalDim();
+	return Index1::totalDim();
     }
     
     template <class Index1, class Index2, class... Indices>
     size_t mkTotalDim()
     {
-	return typename Index1::totalDim() * mkTotalDim<Index2,Indices...>();
+	return Index1::totalDim() * mkTotalDim<Index2,Indices...>();
     }
 
     
@@ -233,13 +233,13 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::buildInfoVec(out, ip, bs);
 	}
 
-	template <class IndexPack, class Ext, class Exprs>
-	static auto mkFor(const IndexPack& ipack, const Ext& ext, Exprs&& exs)
+	template <class IndexPack, class Exprs>
+	static auto mkFor(const IndexPack& ipack, Exprs&& exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N>(ipack)
-			->ifor(ext, RPackNum<N-1>::mkFor(ipack, ext, exs) ) )
+			->ifor( RPackNum<N-1>::mkFor(ipack, exs) ) )
 	{
 	    return std::get<std::tuple_size<IndexPack>::value-N>(ipack)
-		->ifor( ext, RPackNum<N-1>::mkFor(ipack, ext, exs) );
+		->ifor( RPackNum<N-1>::mkFor(ipack, exs) );
 	}
 
     };
@@ -405,12 +405,12 @@ namespace MultiArrayHelper
 	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
 	}
 
-	template <class IndexPack, class Ext, class Exprs>
-	static auto mkFor(const IndexPack& ipack, const Ext& ext, Exprs&& exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack, ext)
-			->ifor(ext, exs) )
+	template <class IndexPack, class Exprs>
+	static auto mkFor(const IndexPack& ipack, Exprs&& exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
+			->ifor(exs) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(ext, exs);
+	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(exs);
 	}
     };
 	

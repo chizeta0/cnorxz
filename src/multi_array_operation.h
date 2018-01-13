@@ -83,21 +83,31 @@ namespace MultiArrayTools
 
 	class AssignmentExpr
 	{
+	private:
+	    AssignmentExpr() = default;
+	    //AssignmentExpr(const AssignmentExpr& in) = default;
+	    //AssignmentExpr& operator=(const AssignmentExpr& in) = default;
+	    	    
+	    OperationMaster* mMPtr;
+	    const OpClass* mSecPtr;
+
 	public:
 	    static size_t layer() { return 0; }
+
+	    static const size_t LAYER = 0;
+	    static const size_t SIZE = OpClass::SIZE;
+	    typedef decltype(mSecPtr->rootSteps()) ETuple;
 	    
 	    AssignmentExpr(OperationMaster* mPtr, const OpClass* secPtr);
 
 	    AssignmentExpr(AssignmentExpr&& in) = default;
-	    AssignmentExpr& operator=(AssignmentExpr&& in) = default;
+	    //AssignmentExpr& operator=(const AssignmentExpr&& in) = default;
 	    
 	    inline void operator()(size_t start = 0);
+	    inline void operator()(size_t start, const ETuple& last);
 
-	private:
-	    AssignmentExpr() = default;
+	    ETuple rootSteps(std::intptr_t iPtrNum = 0);
 	    
-	    OperationMaster* mMPtr;
-	    const OpClass* mSecPtr;
 	};
 	
 	typedef T value_type;
@@ -147,6 +157,7 @@ namespace MultiArrayTools
 	typedef Block<T> bType;
 
 	static size_t rootNum() { return 1; }
+	static const size_t SIZE = 1;
 	
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -183,6 +194,7 @@ namespace MultiArrayTools
 	typedef MBlock<T> bType;
 
 	static size_t rootNum() { return 1; }
+	static const size_t SIZE = 1;
 	
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -223,6 +235,34 @@ namespace MultiArrayTools
     {
 	return typename Op1::rootNum() + sumRootNum<Op2,Ops...>();
     }
+
+    template <size_t N>
+    struct RootSumN
+    {
+	template <class Op1, class... Ops>
+	struct rs
+	{
+	    static const size_t SIZE = Op1::SIZE + RootSumN<N-1>::template rs<Ops...>::SIZE;
+	};
+    };
+
+    template <>
+    struct RootSumN<0>
+    {
+	template <class Op1>
+	struct rs
+	{
+	    static const size_t SIZE = Op1::SIZE;
+	};
+    };
+
+    
+    template <class... Ops>
+    struct RootSum
+    {
+	static const size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
+    };
+
     
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
@@ -236,6 +276,7 @@ namespace MultiArrayTools
 	typedef BlockResult<T> bType;
 
 	static size_t rootNum() { return sumRootNum<Ops...>(); }
+	static const size_t SIZE = RootSum<Ops...>::SIZE;
 
     private:
 	std::tuple<Ops const&...> mOps;
@@ -264,7 +305,8 @@ namespace MultiArrayTools
 	typedef BlockResult<T> bType;
 
 	static size_t rootNum() { return typename Op::rootNum(); }
-
+	static const size_t SIZE = Op::SIZE;
+	
     private:
 
 	const Op& mOp;
@@ -437,18 +479,11 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
+#define XX_USE_NEW_LOOP_ROUTINE_XX
 #ifdef XX_USE_NEW_LOOP_ROUTINE_XX
 	// === N E W ===
-	static const size_t TDIM = IndexType::totalDim()
-	typedef std::array<std::intptr_t,TDIM> IAT;
-	typedef decltype(mSecond.rootSteps()) RootStepType;
-	
 	AssignmentExpr ae(this, &mSecond);
-
-	IAT siar = mIndex->getSIndexTuple();
-	std::array<RootStepType,TDIM> ee;
-	PackNum<TDIM-1>::mkExt(ee, siar, mSecond);
-	auto loop = mIndex->ifor(ee, ae);
+	const auto loop = mIndex->ifor(ae);
 	loop();
 #else
 	// === O L D ===
