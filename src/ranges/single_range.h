@@ -62,7 +62,7 @@ namespace MultiArrayTools
 
 	std::vector<IndexInfo> infoVec() const;
 	
-	std::string id();
+	std::string id() const;
 	void print(size_t offset);
 
 	template <class Expr>
@@ -232,7 +232,7 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE>
-    std::string SingleIndex<U,TYPE>::id()
+    std::string SingleIndex<U,TYPE>::id() const
     {
 	return std::string("sin") + std::to_string(IB::mId);
     }

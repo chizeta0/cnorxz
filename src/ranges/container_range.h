@@ -86,7 +86,7 @@ namespace MultiArrayTools
 
 	std::vector<IndexInfo> infoVec() const;
 	
-	std::string id();
+	std::string id() const;
 	void print(size_t offset);
 	
 	template <class Exprs>
@@ -354,7 +354,7 @@ namespace MultiArrayTools
     }
     
     template <class... Indices>
-    std::string ContainerIndex<Indices...>::id()
+    std::string ContainerIndex<Indices...>::id() const
     {
 	return std::string("con") + std::to_string(IB::mId);
     }

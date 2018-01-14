@@ -9,6 +9,9 @@
 
 namespace MultiArrayHelper
 {
+
+    // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
+    // (NO COUNTING OF MASTER POSITION !!!!!)
     
     template <class IndexClass, class Expr>
     class For
@@ -60,6 +63,8 @@ namespace MultiArrayHelper
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
+#include <iostream>
+
 namespace MultiArrayHelper
 {
 
@@ -67,19 +72,20 @@ namespace MultiArrayHelper
     For<IndexClass,Expr>::For(const std::shared_ptr<IndexClass>& indPtr,
 			      Expr&& expr) :
 	mIndPtr(indPtr.get()), mExpr(expr),
-	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() ))) {}
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() ))) { assert(mIndPtr != nullptr); }
 
     template <class IndexClass, class Expr>
     For<IndexClass,Expr>::For(const IndexClass* indPtr,
 			      Expr&& expr) :
 	mIndPtr(indPtr), mExpr(std::forward<Expr>( expr )),
-	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) )) {}
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) )) { assert(mIndPtr != nullptr); }
     
     template <class IndexClass, class Expr>
     inline void For<IndexClass,Expr>::operator()(size_t mlast,
 						 const ETuple& last) const
     {
 	auto& ind = *mIndPtr;
+	std::cout << mIndPtr << std::endl;
 	const size_t max = ind.max(); // blocking
 	for(size_t pos = ind.pos(); pos != max; ++pos){
 	    const size_t mnpos = mlast * max + pos;
@@ -93,6 +99,7 @@ namespace MultiArrayHelper
     {
 	const ETuple last;
 	auto& ind = *mIndPtr;
+	std::cout << mIndPtr << std::endl;
 	const size_t max = ind.max(); // blocking
 	for(size_t pos = ind.pos(); pos != max; ++pos){
 	    const size_t mnpos = mlast * max + pos;

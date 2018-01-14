@@ -68,12 +68,13 @@ namespace MultiArrayHelper
 
 	// call with -2 (instead of -1)
 	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
-	static T&& mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	static T mkOpExpr(const ETuple& pos, const OpTuple& ops)
 	{
-	    static const size_t NEXT = START - std::tuple_element<N+1,OpTuple>::type::SIZE;
-	    return std::forward<T>
-		( OpFunction::apply( std::get<N+1>(ops).template get<START>(pos),
-				     PackNum<N-1>::template mkOpExpr<ETuple,OpTuple,OpFunction,NEXT>(pos, ops) ) );
+	    typedef typename std::tuple_element<N,OpTuple>::type SubOpTypeRef;
+	    typedef typename std::remove_reference<SubOpTypeRef>::type SubOpType;
+	    static const size_t NEXT = START - SubOpType::SIZE;
+	    return  OpFunction::apply( std::get<N+1>(ops).template get<ETuple,START>(pos),
+				       PackNum<N-1>::template mkOpExpr<ETuple,OpTuple,OpFunction,NEXT>(pos, ops) );
 	}
 
 	template <class OpTuple, class Expr>
@@ -137,12 +138,13 @@ namespace MultiArrayHelper
 	}
 
 	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
-	static T&& mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	static T mkOpExpr(const ETuple& pos, const OpTuple& ops)
 	{
-	    static const size_t NEXT = START - std::tuple_element<1,OpTuple>::type::SIZE;
-	    return std::forward<T>
-		( OpFunction::apply( std::get<1>(ops).template get<START>(pos),
-				     std::get<0>(ops).template get<NEXT>(pos) ) );
+	    typedef typename std::tuple_element<1,OpTuple>::type SubOpTypeRef;
+	    typedef typename std::remove_reference<SubOpTypeRef>::type SubOpType;
+	    static const size_t NEXT = START - SubOpType::SIZE;
+	    return OpFunction::apply( std::get<1>(ops).template get<ETuple,START>(pos),
+				      std::get<0>(ops).template get<ETuple,NEXT>(pos) );
 	}
 
 	template <class OpTuple, class Expr>
