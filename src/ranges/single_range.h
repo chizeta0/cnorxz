@@ -254,7 +254,7 @@ namespace MultiArrayTools
 	-> For<SingleIndex<U,TYPE>,Expr>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr>(this, ex);
+	return For<SingleIndex<U,TYPE>,Expr>(this, std::forward<Expr>( ex ));
     }
 
     

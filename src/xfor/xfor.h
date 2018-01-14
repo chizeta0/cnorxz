@@ -66,12 +66,14 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     For<IndexClass,Expr>::For(const std::shared_ptr<IndexClass>& indPtr,
 			      Expr&& expr) :
-	mIndPtr(indPtr.get()), mExpr(expr), mExt(expr.rootSteps( static_cast<std::intptr_t>( mIndPtr.get() ))) {}
+	mIndPtr(indPtr.get()), mExpr(expr),
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() ))) {}
 
     template <class IndexClass, class Expr>
     For<IndexClass,Expr>::For(const IndexClass* indPtr,
 			      Expr&& expr) :
-	mIndPtr(indPtr), mExpr(expr), mExt(expr.rootSteps( static_cast<std::intptr_t>( mIndPtr ) )) {}
+	mIndPtr(indPtr), mExpr(std::forward<Expr>( expr )),
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) )) {}
     
     template <class IndexClass, class Expr>
     inline void For<IndexClass,Expr>::operator()(size_t mlast,

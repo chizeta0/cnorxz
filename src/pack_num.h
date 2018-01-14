@@ -51,7 +51,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ops>
-	static auto mkStepTuple(const IndexInfo* ii, std::tuple<Ops const&...> otp)
+	static auto mkStepTuple(std::intptr_t ii, std::tuple<Ops const&...> otp)
 	    -> decltype(std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) ))
 	{
 	    return std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) );
@@ -64,6 +64,23 @@ namespace MultiArrayHelper
 	{
 	    std::get<N>(out) = second.rootSteps( std::get<N>(siar) );
 	    PackNum<N-1>::mkExt(out, siar, second);
+	}
+
+	// call with -2 (instead of -1)
+	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
+	static T&& mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	{
+	    static const size_t NEXT = START - std::tuple_element<N+1,OpTuple>::type::SIZE;
+	    return std::forward<T>
+		( OpFunction::apply( std::get<N+1>(ops).template get<START>(pos),
+				     PackNum<N-1>::template mkOpExpr<ETuple,OpTuple,OpFunction,NEXT>(pos, ops) ) );
+	}
+
+	template <class OpTuple, class Expr>
+	static auto mkLoop( const OpTuple& ot, Expr&& exp )
+	    -> decltype(std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) ))&&
+	{
+	    return std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) );
 	}
     };
     
@@ -105,7 +122,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ops>
-	static auto mkStepTuple(const IndexInfo* ii, std::tuple<Ops const&...> otp)
+	static auto mkStepTuple(std::intptr_t ii, std::tuple<Ops const&...> otp)
 	    -> decltype(std::get<0>(otp).rootSteps(ii))
 	{
 	    return std::get<0>(otp).rootSteps(ii);
@@ -119,6 +136,23 @@ namespace MultiArrayHelper
 	    std::get<0>(out) = second.rootSteps( std::get<0>(siar) );
 	}
 
+	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
+	static T&& mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	{
+	    static const size_t NEXT = START - std::tuple_element<1,OpTuple>::type::SIZE;
+	    return std::forward<T>
+		( OpFunction::apply( std::get<1>(ops).template get<START>(pos),
+				     std::get<0>(ops).template get<NEXT>(pos) ) );
+	}
+
+	template <class OpTuple, class Expr>
+	static auto mkLoop( const OpTuple& ot, Expr&& exp )
+	    -> decltype(std::get<0>(ot).loop( exp ))&&
+	{
+	    return std::get<0>(ot).loop( exp );
+	}
+
+	
     };
 
 

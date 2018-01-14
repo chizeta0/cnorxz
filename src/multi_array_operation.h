@@ -26,6 +26,44 @@ namespace MultiArrayTools
     {
 	using namespace MultiArrayHelper;
     }
+
+    // OPERATIONS (STATIC)
+    template <typename T>
+    struct plus
+    {
+	static T&& apply(T&& a1, T&& a2)
+	{
+	    return a1 + a2;
+	}
+    };
+
+    template <typename T>
+    struct minus
+    {
+	static T&& apply(T&& a1, T&& a2)
+	{
+	    return a1 - a2;
+	}
+    };
+
+    template <typename T>
+    struct multiplies
+    {
+	static T&& apply(T&& a1, T&& a2)
+	{
+	    return a1 * a2;
+	}
+    };
+
+    template <typename T>
+    struct divides
+    {
+	static T&& apply(T&& a1, T&& a2)
+	{
+	    return a1 / a2;
+	}
+    };
+
     
     template <typename T>
     Block<T> makeBlock(const T* vec, size_t stepSize, size_t blockSize);
@@ -53,19 +91,19 @@ namespace MultiArrayTools
 
 	template <class Second>
 	auto operator+(const Second& in) const
-	    -> Operation<T,std::plus<T>,OperationClass,Second>;
+	    -> Operation<T,plus<T>,OperationClass,Second>;
 	
 	template <class Second>
 	auto operator-(const Second& in) const
-	    -> Operation<T,std::minus<T>,OperationClass,Second>;
+	    -> Operation<T,minus<T>,OperationClass,Second>;
 	
 	template <class Second>
 	auto operator*(const Second& in) const
-	    -> Operation<T,std::multiplies<T>,OperationClass,Second>;
+	    -> Operation<T,multiplies<T>,OperationClass,Second>;
 	
 	template <class Second>
 	auto operator/(const Second& in) const
-	    -> Operation<T,std::divides<T>,OperationClass,Second>;
+	    -> Operation<T,divides<T>,OperationClass,Second>;
 
 	template <class IndexType>
 	auto c(std::shared_ptr<IndexType>& ind) const
@@ -88,22 +126,22 @@ namespace MultiArrayTools
 	    //AssignmentExpr(const AssignmentExpr& in) = default;
 	    //AssignmentExpr& operator=(const AssignmentExpr& in) = default;
 	    	    
-	    OperationMaster* mMPtr;
-	    const OpClass* mSecPtr;
+	    OperationMaster& mM;
+	    const OpClass& mSec;
 
 	public:
 	    static size_t layer() { return 0; }
 
 	    static const size_t LAYER = 0;
 	    static const size_t SIZE = OpClass::SIZE;
-	    typedef decltype(mSecPtr->rootSteps()) ETuple;
+	    typedef decltype(mSec.rootSteps()) ETuple;
 	    
-	    AssignmentExpr(OperationMaster* mPtr, const OpClass* secPtr);
+	    AssignmentExpr(OperationMaster& m, const OpClass& sec);
 
 	    AssignmentExpr(AssignmentExpr&& in) = default;
 	    //AssignmentExpr& operator=(const AssignmentExpr&& in) = default;
 	    
-	    inline void operator()(size_t start = 0);
+	    //inline void operator()(size_t start = 0);
 	    inline void operator()(size_t start, const ETuple& last);
 
 	    ETuple rootSteps(std::intptr_t iPtrNum = 0);
@@ -128,15 +166,19 @@ namespace MultiArrayTools
 	MBlock<T>& get();
 	const Block<T>& get() const;
 
+	T& get(size_t pos);
+	const T& get(size_t pos) const;
+	
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationMaster& block() const;
-	
+
     private:
 
 	std::shared_ptr<IndexType> mkIndex(std::shared_ptr<typename CRange::IndexType>& index);
 	void performAssignment(std::intptr_t blockIndexNum);
 	OpClass const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
+	T* mData;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
 	mutable bType mBlock;
@@ -163,12 +205,18 @@ namespace MultiArrayTools
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
 	const Block<T>& get() const;
+	
+	template <class ET, size_t SITE>
+	inline const T& get(const ET& pos) const;
 
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const ConstOperationRoot& block() const;
 
-	std::tuple<size_t> rootSteps(const IndexInfo* ii = nullptr) const; // nullptr for simple usage with decltype
-	
+	std::tuple<size_t> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+
+	template <class Expr>
+	Expr&& loop(Expr&& exp) const;
+		
     private:
 
 	std::shared_ptr<IndexType>
@@ -176,6 +224,7 @@ namespace MultiArrayTools
 		const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
+	const T* mData;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
  	mutable bType mBlock;
@@ -205,11 +254,20 @@ namespace MultiArrayTools
 	const MBlock<T>& get() const;
 	MBlock<T>& get();
 
+	template <class ET, size_t SITE>
+	inline const T& get(const ET& pos) const;
+
+	template <class ET, size_t SITE>
+	inline T& get(const ET& pos);
+	
 	OperationRoot& set(const IndexInfo* blockIndex);
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationRoot& block() const;
 
-	std::tuple<size_t> rootSteps(const IndexInfo* ii = nullptr) const; // nullptr for simple usage with decltype
+	std::tuple<size_t> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+
+	template <class Expr>
+	Expr&& loop(Expr&& exp) const;
 	
     private:
 
@@ -218,6 +276,7 @@ namespace MultiArrayTools
 		const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
+	T* mData;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
 	mutable bType mBlock;
@@ -283,15 +342,25 @@ namespace MultiArrayTools
 	mutable bType mRes;
 
     public:
+	typedef decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(0, mOps)) ETuple;
+	//typedef decltype(PackNum<sizeof...(Ops)-1>::template mkLoopType<Ops...>) LType;
+	
 	Operation(const Ops&... ops);
 	
 	const BlockResult<T>& get() const;
+	
+	template <class ET, size_t SITE>
+	inline T&& get(const ET& pos) const;
 
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const Operation& block() const;
 
-	auto rootSteps(const IndexInfo* ii = nullptr) const // nullptr for simple usage with decltype
-	    -> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(ii, mOps));
+	auto rootSteps(std::intptr_t iPtrNum = 0) const // nullptr for simple usage with decltype
+	    -> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps));
+
+	template <class Expr>
+	auto loop(Expr&& exp) const
+	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ))&&;
 	
     };
     
@@ -314,16 +383,23 @@ namespace MultiArrayTools
 	mutable bType mRes;
 
     public:
+	typedef decltype(mOp.rootSteps(0)) ETuple;
+	
 	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
 	
 	const BlockResult<T>& get() const;
 
+	template <class ET, size_t SITE>
+	inline T&& get(const ET& pos) const;
+
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const Contraction& block() const;
 
-	auto rootSteps(const IndexInfo* ii = nullptr) const  // nullptr for simple usage with decltype
-	    -> decltype(mOp.rootSteps(ii));
-	
+	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
+	    -> decltype(mOp.rootSteps(iPtrNum));
+
+	template <class Expr>
+	auto loop(Expr&& exp) const -> decltype(mInd->ifor(exp))&&;
     };
     
 }
@@ -393,33 +469,33 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class Second>
     auto OperationTemplate<T,OperationClass>::operator+(const Second& in) const
-	-> Operation<T,std::plus<T>,OperationClass,Second>
+	-> Operation<T,plus<T>,OperationClass,Second>
     {
-    	return Operation<T,std::plus<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,plus<T>,OperationClass,Second>(THIS(), in);
     }
 
     template <typename T, class OperationClass>
     template <class Second>
     auto OperationTemplate<T,OperationClass>::operator-(const Second& in) const
-	-> Operation<T,std::minus<T>,OperationClass,Second>
+	-> Operation<T,minus<T>,OperationClass,Second>
     {
-    	return Operation<T,std::minus<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,minus<T>,OperationClass,Second>(THIS(), in);
     }
     
     template <typename T, class OperationClass>
     template <class Second>
     auto OperationTemplate<T,OperationClass>::operator*(const Second& in) const
-	-> Operation<T,std::multiplies<T>,OperationClass,Second>
+	-> Operation<T,multiplies<T>,OperationClass,Second>
     {
-    	return Operation<T,std::multiplies<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,multiplies<T>,OperationClass,Second>(THIS(), in);
     }
 
     template <typename T, class OperationClass>
     template <class Second>
     auto OperationTemplate<T,OperationClass>::operator/(const Second& in) const
-	-> Operation<T,std::divides<T>,OperationClass,Second>
+	-> Operation<T,divides<T>,OperationClass,Second>
     {
-    	return Operation<T,std::divides<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,divides<T>,OperationClass,Second>(THIS(), in);
     }
 
     template <typename T, class OperationClass>
@@ -430,6 +506,38 @@ namespace MultiArrayTools
 	return Contraction<T,OperationClass,IndexType>(THIS(), ind);
     }
 
+    /*****************************************
+     *   OperationMaster::AssignmentExpr     *
+     *****************************************/
+
+    template <typename T, class OpClass, class... Ranges>
+    OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    AssignmentExpr(OperationMaster& m, const OpClass& sec) :
+	mM(m), mSec(sec) {}
+
+    /*
+    template <typename T, class OpClass, class... Ranges>
+    inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    operator()(size_t start)
+    {
+	
+    }*/
+
+    template <typename T, class OpClass, class... Ranges>
+    inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    operator()(size_t start, const ETuple& last)
+    {
+	mM.get(start) = mSec.template get<ETuple,OpClass::SIZE>(last);
+    }
+    
+    template <typename T, class OpClass, class... Ranges>
+    typename OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::ETuple
+    OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    rootSteps(std::intptr_t iPtrNum)
+    {
+	return mSec.rootSteps(iPtrNum);
+    }
+    
     
     /*************************
      *   OperationMaster     *
@@ -439,7 +547,8 @@ namespace MultiArrayTools
     OperationMaster<T,OpClass,Ranges...>::
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index) :
-	mSecond(second), mArrayRef(ma), mIndex(mkIndex(index)), mIInfo(*mIndex)
+	mSecond(second), mArrayRef(ma), mData(mArrayRef.data()),
+	mIndex(mkIndex(index)), mIInfo(*mIndex)
     {
 	auto blockIndex = seekBlockIndex( &mIInfo, second);
 	std::intptr_t blockIndexNum = blockIndex->getPtrNum();
@@ -455,7 +564,8 @@ namespace MultiArrayTools
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index,
 		    const IndexInfo* blockIndex) :
-	mSecond(second), mArrayRef(ma), mIndex(mkIndex(index)), mIInfo(*mIndex)
+	mSecond(second), mArrayRef(ma), mData(mArrayRef.data()),
+	mIndex(mkIndex(index)), mIInfo(*mIndex)
     {
 	std::intptr_t blockIndexNum = blockIndex->getPtrNum();
 	second.block(blockIndex, true);
@@ -482,9 +592,12 @@ namespace MultiArrayTools
 #define XX_USE_NEW_LOOP_ROUTINE_XX
 #ifdef XX_USE_NEW_LOOP_ROUTINE_XX
 	// === N E W ===
-	AssignmentExpr ae(this, &mSecond);
-	const auto loop = mIndex->ifor(ae);
-	loop();
+	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
+	//const auto hiddenLoop = mSecond.loop(AssignmentExpr(*this, mSecond)); // hidden loop within 'mSecond' e.g. contractions
+	const auto loop = mIndex->ifor
+	    ( mSecond.template loop<AssignmentExpr>
+	      ( std::move(ae) ) ); // init overall loop(s) 
+	loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
 #else
 	// === O L D ===
 	for(*mIndex = 0; mIndex->pos() != mIndex->max(); mIndex->pp(blockIndexNum) ){
@@ -507,6 +620,18 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpClass, class... Ranges>
+    T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos)
+    {
+	return mData[pos];
+    }
+
+    template <typename T, class OpClass, class... Ranges>
+    const T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
+    {
+	return mData[pos];
+    }
+    
+    template <typename T, class OpClass, class... Ranges>
     std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
 	std::vector<BTSS> btv(1, getBlockType( &mIInfo, blockIndex, true) );
@@ -524,6 +649,7 @@ namespace MultiArrayTools
 	return *this;
     }
 
+    
     /****************************
      *   ConstOperationRoot     *
      ****************************/
@@ -533,7 +659,8 @@ namespace MultiArrayTools
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mIndex( mkIndex(ma,indices...) ), mIInfo(*mIndex)
+	mArrayRef(ma), mData(mArrayRef.data()),
+	mIndex( mkIndex(ma,indices...) ), mIInfo(*mIndex)
     {}
 
     template <typename T, class... Ranges>
@@ -553,7 +680,14 @@ namespace MultiArrayTools
 	block();
 	return mBlock;
     }
-
+    
+    template <typename T, class... Ranges>
+    template <class ET, size_t SITE>
+    inline const T& ConstOperationRoot<T,Ranges...>::get(const ET& pos) const
+    {
+	return mData[std::get<SITE>(pos)];
+    }
+    
     template <typename T, class... Ranges>
     std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -572,9 +706,17 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    std::tuple<size_t> ConstOperationRoot<T,Ranges...>::rootSteps(const IndexInfo* ii) const
+    std::tuple<size_t> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return std::tuple<size_t>(0ul); // !!!!!!
+    }
+
+
+    template <typename T, class... Ranges>
+    template <class Expr>
+    Expr&& ConstOperationRoot<T,Ranges...>::loop(Expr&& exp) const
+    {
+	return std::forward<Expr>(exp);
     }
     
     /***********************
@@ -586,7 +728,8 @@ namespace MultiArrayTools
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mIndex( mkIndex( ma, indices... ) ), mIInfo(*mIndex),
+	mArrayRef(ma), mData(mArrayRef.data()),
+	mIndex( mkIndex( ma, indices... ) ), mIInfo(*mIndex),
 	mBlockII(nullptr)
     {}
 
@@ -628,6 +771,20 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
+    template <class ET, size_t SITE>
+    inline const T& OperationRoot<T,Ranges...>::get(const ET& pos) const
+    {
+	return mData[std::get<SITE>( pos )];
+    }
+
+    template <typename T, class... Ranges>
+    template <class ET, size_t SITE>
+    inline T& OperationRoot<T,Ranges...>::get(const ET& pos)
+    {
+	return mData[std::get<SITE>( pos )];
+    }
+    
+    template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>&
     OperationRoot<T,Ranges...>::set(const IndexInfo* blockIndex)
     {
@@ -653,9 +810,16 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    std::tuple<size_t> OperationRoot<T,Ranges...>::rootSteps(const IndexInfo* ii) const
+    std::tuple<size_t> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return std::tuple<size_t>(0ul); // !!!!!!
+    }
+
+    template <typename T, class... Ranges>
+    template <class Expr>
+    Expr&& OperationRoot<T,Ranges...>::loop(Expr&& exp) const
+    {
+	return std::forward<Expr>(exp);
     }
     
     /*******************
@@ -674,6 +838,15 @@ namespace MultiArrayTools
 	return mRes;
     }
 
+    template <typename T, class OpFunction, class... Ops>
+    template <class ET, size_t SITE>
+    inline T&& Operation<T,OpFunction,Ops...>::get(const ET& pos) const
+    {
+	typedef std::tuple<Ops const&...> OpTuple;
+	return std::forward<T>( PackNum<sizeof...(Ops)-2>::
+				template mkOpExpr<T,ET,OpTuple,OpFunction,SITE>(pos, mOps) );
+    }
+    
     template <typename T, class OpFunction, class... Ops>
     std::vector<BTSS> Operation<T,OpFunction,Ops...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -694,10 +867,21 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpFunction, class... Ops>
-    auto Operation<T,OpFunction,Ops...>::rootSteps(const IndexInfo* ii) const
-	-> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(ii, mOps))
+    auto Operation<T,OpFunction,Ops...>::rootSteps(std::intptr_t iPtrNum) const
+	-> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps))
     {
-	return PackNum<sizeof...(Ops)-1>::mkStepTuple(ii, mOps);
+	return PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps);
+    }
+
+    template <typename T, class OpFunction, class... Ops>
+    template <class Expr>
+    auto Operation<T,OpFunction,Ops...>::loop(Expr&& exp) const
+	-> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ))&&
+    {
+	typedef decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ) )
+	    LType;
+	return std::forward<LType>
+	    ( PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ) );
     }
 
     
@@ -721,6 +905,14 @@ namespace MultiArrayTools
 	return mRes;
     }
 
+    // forward loop !!!!
+    template <typename T, class Op, class IndexType>
+    template <class ET, size_t SITE>
+    inline T&& Contraction<T,Op,IndexType>::get(const ET& pos) const
+    {
+	return std::forward<T>( mOp.template get<SITE>(pos) );
+    }
+
     template <typename T, class Op, class IndexType>
     std::vector<BTSS> Contraction<T,Op,IndexType>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -737,10 +929,19 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Op, class IndexType>
-    auto Contraction<T,Op,IndexType>::rootSteps(const IndexInfo* ii) const
-	-> decltype(mOp.rootSteps(ii))
+    auto Contraction<T,Op,IndexType>::rootSteps(std::intptr_t iPtrNum) const
+	-> decltype(mOp.rootSteps(iPtrNum))
     {
-	return mOp.rootSteps(ii);
+	return mOp.rootSteps(iPtrNum);
+    }
+
+    template <typename T, class Op, class IndexType>
+    template <class Expr>
+    auto Contraction<T,Op,IndexType>::loop(Expr&& exp) const -> decltype(mInd->ifor(exp))&&
+    {
+	typedef decltype(mInd->ifor(exp)) LType;
+	LType&& loop = mInd->ifor(exp);
+	return std::forward<LType>( loop );
     }
 
 }
