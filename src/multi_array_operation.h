@@ -18,6 +18,7 @@
 #include "pack_num.h"
 
 #include "ranges/index_info.h"
+#include "arith.h"
 
 namespace MultiArrayTools
 {
@@ -26,44 +27,6 @@ namespace MultiArrayTools
     {
 	using namespace MultiArrayHelper;
     }
-
-    // OPERATIONS (STATIC)
-    template <typename T>
-    struct plus
-    {
-	static T apply(const T& a1, const T& a2)
-	{
-	    return a1 + a2;
-	}
-    };
-
-    template <typename T>
-    struct minus
-    {
-	static T apply(const T& a1, const T& a2)
-	{
-	    return a1 - a2;
-	}
-    };
-
-    template <typename T>
-    struct multiplies
-    {
-	static T apply(const T& a1, const T& a2)
-	{
-	    return a1 * a2;
-	}
-    };
-
-    template <typename T>
-    struct divides
-    {
-	static T apply(const T& a1, const T& a2)
-	{
-	    return a1 / a2;
-	}
-    };
-
     
     template <typename T>
     Block<T> makeBlock(const T* vec, size_t stepSize, size_t blockSize);
