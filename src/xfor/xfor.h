@@ -6,14 +6,33 @@
 #include <memory>
 #include <tuple>
 #include "xfor/for_utils.h"
+#include "xfor/for_type.h"
 
 namespace MultiArrayHelper
 {
 
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
+
+    template <ForType FT = ForType::DEFAULT>
+    struct PosForward
+    {
+	static inline size_t value(size_t last, size_t max, size_t pos)
+	{
+	    return last * max + pos;
+	}
+    };
+
+    template <>
+    struct PosForward<ForType::HIDDEN>
+    {
+	static inline size_t value(size_t last, size_t max, size_t pos)
+	{
+	    return last;
+	}
+    };
     
-    template <class IndexClass, class Expr>
+    template <class IndexClass, class Expr, ForType FT = ForType::DEFAULT>
     class For
     {
     private:
@@ -56,7 +75,7 @@ namespace MultiArrayHelper
     template <>
     size_t exceptMax<1>(size_t max) { return 1; }
 
-    
+   
 } // namespace MultiArrayHelper
 
 /* ========================= *
@@ -68,48 +87,60 @@ namespace MultiArrayHelper
 namespace MultiArrayHelper
 {
 
-    template <class IndexClass, class Expr>
-    For<IndexClass,Expr>::For(const std::shared_ptr<IndexClass>& indPtr,
+    template <class IndexClass, class Expr, ForType FT>
+    For<IndexClass,Expr,FT>::For(const std::shared_ptr<IndexClass>& indPtr,
 			      Expr&& expr) :
 	mIndPtr(indPtr.get()), mExpr(expr),
-	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() ))) { assert(mIndPtr != nullptr); }
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() )))
+    {
+	assert(mIndPtr != nullptr);
+	//VCHECK(mIndPtr->id());
+	//VCHECK(mIndPtr->max());
+    }
 
-    template <class IndexClass, class Expr>
-    For<IndexClass,Expr>::For(const IndexClass* indPtr,
+    template <class IndexClass, class Expr, ForType FT>
+    For<IndexClass,Expr,FT>::For(const IndexClass* indPtr,
 			      Expr&& expr) :
 	mIndPtr(indPtr), mExpr(std::forward<Expr>( expr )),
-	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) )) { assert(mIndPtr != nullptr); }
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) ))
+    {
+	assert(mIndPtr != nullptr);
+	//VCHECK(mIndPtr->id());
+	//VCHECK(mIndPtr->max());
+    }
     
-    template <class IndexClass, class Expr>
-    inline void For<IndexClass,Expr>::operator()(size_t mlast,
-						 const ETuple& last) const
+    template <class IndexClass, class Expr, ForType FT>
+    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast,
+						    const ETuple& last) const
     {
 	auto& ind = *mIndPtr;
-	std::cout << mIndPtr << std::endl;
+	//std::cout << mIndPtr << std::endl;
 	const size_t max = ind.max(); // blocking
 	for(size_t pos = ind.pos(); pos != max; ++pos){
-	    const size_t mnpos = mlast * max + pos;
+	    //const size_t mnpos = mlast * max + pos;
+	    const size_t mnpos = PosForward<FT>::value(mlast, max, pos);
 	    const ETuple npos = std::move( XFPackNum<SIZE-1>::mkPos(pos, mExt, last) );
 	    mExpr(mnpos, npos);
 	}
     }
 
-    template <class IndexClass, class Expr>
-    inline void For<IndexClass,Expr>::operator()(size_t mlast) const
+    template <class IndexClass, class Expr, ForType FT>
+    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast) const
     {
 	const ETuple last;
 	auto& ind = *mIndPtr;
-	std::cout << mIndPtr << std::endl;
+	//std::cout << mIndPtr << std::endl;
 	const size_t max = ind.max(); // blocking
 	for(size_t pos = ind.pos(); pos != max; ++pos){
-	    const size_t mnpos = mlast * max + pos;
+	    //const size_t mnpos = mlast * max + pos;
+	    const size_t mnpos = PosForward<FT>::value(mlast, max, pos);
 	    const ETuple npos = std::move( XFPackNum<SIZE-1>::mkPos(pos, mExt, last) );
 	    mExpr(mnpos, npos);
 	}
     }
     
-    template <class IndexClass, class Expr>
-    typename For<IndexClass,Expr>::ETuple For<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
+    template <class IndexClass, class Expr, ForType FT>
+    typename For<IndexClass,Expr,FT>::ETuple For<IndexClass,Expr,FT>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mExpr.rootSteps(iPtrNum);
     }

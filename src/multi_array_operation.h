@@ -166,8 +166,8 @@ namespace MultiArrayTools
 	MBlock<T>& get();
 	const Block<T>& get() const;
 
-	T& get(size_t pos);
-	const T& get(size_t pos) const;
+	inline T& get(size_t pos);
+	inline const T& get(size_t pos) const;
 	
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	const OperationMaster& block() const;
@@ -178,7 +178,7 @@ namespace MultiArrayTools
 	void performAssignment(std::intptr_t blockIndexNum);
 	OpClass const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
-	T* mData;
+	std::vector<T>& mData;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
 	mutable bType mBlock;
@@ -224,7 +224,7 @@ namespace MultiArrayTools
 		const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
-	const T* mData;
+	const std::vector<T>& mData;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
  	mutable bType mBlock;
@@ -276,7 +276,7 @@ namespace MultiArrayTools
 		const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
-	T* mData;
+	std::vector<T>& mData;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
 	mutable bType mBlock;
@@ -399,7 +399,7 @@ namespace MultiArrayTools
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
 	template <class Expr>
-	auto loop(Expr&& exp) const -> decltype(mInd->ifor(exp))&&;
+	auto loop(Expr&& exp) const -> decltype(mInd->iforh(exp))&&;
     };
     
 }
@@ -547,7 +547,7 @@ namespace MultiArrayTools
     OperationMaster<T,OpClass,Ranges...>::
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index) :
-	mSecond(second), mArrayRef(ma), mData(mArrayRef.data()),
+	mSecond(second), mArrayRef(ma), mData(mArrayRef.datav()),
 	mIndex(mkIndex(index)), mIInfo(*mIndex)
     {
 	auto blockIndex = seekBlockIndex( &mIInfo, second);
@@ -564,7 +564,7 @@ namespace MultiArrayTools
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index,
 		    const IndexInfo* blockIndex) :
-	mSecond(second), mArrayRef(ma), mData(mArrayRef.data()),
+	mSecond(second), mArrayRef(ma), mData(mArrayRef.datav()),
 	mIndex(mkIndex(index)), mIInfo(*mIndex)
     {
 	std::intptr_t blockIndexNum = blockIndex->getPtrNum();
@@ -620,16 +620,18 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpClass, class... Ranges>
-    T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos)
+    inline T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos)
     {
-	VCHECK(pos);
+	//assert(pos < mIndex->max());
+	//if(pos >= mIndex->max()) { VCHECK(pos); VCHECK(mIndex->max()); assert(0); }
+	//VCHECK(pos);
 	return mData[pos];
     }
 
     template <typename T, class OpClass, class... Ranges>
-    const T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
+    inline const T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
     {
-	VCHECK(pos);
+	//VCHECK(pos);
 	return mData[pos];
     }
     
@@ -661,7 +663,7 @@ namespace MultiArrayTools
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mData(mArrayRef.data()),
+	mArrayRef(ma), mData(mArrayRef.datav()),
 	mIndex( mkIndex(ma,indices...) ), mIInfo(*mIndex)
     {}
 
@@ -730,7 +732,7 @@ namespace MultiArrayTools
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mData(mArrayRef.data()),
+	mArrayRef(ma), mData(mArrayRef.datav()),
 	mIndex( mkIndex( ma, indices... ) ), mIInfo(*mIndex),
 	mBlockII(nullptr)
     {}
@@ -939,10 +941,10 @@ namespace MultiArrayTools
 
     template <typename T, class Op, class IndexType>
     template <class Expr>
-    auto Contraction<T,Op,IndexType>::loop(Expr&& exp) const -> decltype(mInd->ifor(exp))&&
+    auto Contraction<T,Op,IndexType>::loop(Expr&& exp) const -> decltype(mInd->iforh(exp))&&
     {
-	typedef decltype(mInd->ifor(exp)) LType;
-	LType&& loop = mInd->ifor(exp);
+	typedef decltype(mInd->iforh(exp)) LType;
+	LType&& loop = mInd->iforh(exp);
 	return std::forward<LType>( loop );
     }
 

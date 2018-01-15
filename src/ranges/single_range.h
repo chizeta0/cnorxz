@@ -68,6 +68,11 @@ namespace MultiArrayTools
 	template <class Expr>
 	auto ifor(Expr&& ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr>;
+
+	template <class Expr>
+	auto iforh(Expr&& ex) const
+	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
+
     };
 
     template <typename U, SpaceType TYPE>
@@ -255,6 +260,15 @@ namespace MultiArrayTools
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
 	return For<SingleIndex<U,TYPE>,Expr>(this, std::forward<Expr>( ex ));
+    }
+
+    template <typename U, SpaceType TYPE>
+    template <class Expr>
+    auto SingleIndex<U,TYPE>::iforh(Expr&& ex) const
+	-> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>
+    {
+	//static const size_t LAYER = typename Expr::LAYER; 
+	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, std::forward<Expr>( ex ));
     }
 
     

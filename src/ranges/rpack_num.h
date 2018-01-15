@@ -235,11 +235,20 @@ namespace MultiArrayHelper
 
 	template <class IndexPack, class Exprs>
 	static auto mkFor(const IndexPack& ipack, Exprs&& exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N>(ipack)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
 			->ifor( RPackNum<N-1>::mkFor(ipack, exs) ) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-N>(ipack)
+	    return std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
 		->ifor( RPackNum<N-1>::mkFor(ipack, exs) );
+	}
+
+	template <class IndexPack, class Exprs>
+	static auto mkForh(const IndexPack& ipack, Exprs&& exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
+			->iforh( RPackNum<N-1>::mkForh(ipack, exs) ) )
+	{
+	    return std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
+		->iforh( RPackNum<N-1>::mkForh(ipack, exs) );
 	}
 
     };
@@ -412,6 +421,15 @@ namespace MultiArrayHelper
 	{
 	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(exs);
 	}
+
+	template <class IndexPack, class Exprs>
+	static auto mkForh(const IndexPack& ipack, Exprs&& exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
+			->iforh(exs) )
+	{
+	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->iforh(exs);
+	}
+
     };
 	
 

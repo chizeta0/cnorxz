@@ -77,7 +77,11 @@ namespace MultiArrayTools
 	template <class Expr>
 	auto ifor(const Expr&& ex) const -> decltype(THIS().template ifor<Expr>(ex))
 	{ return THIS().template ifor<Expr>(ex); }
-	
+
+	template <class Expr>
+	auto iforh(const Expr&& ex) const -> decltype(THIS().template iforh<Expr>(ex))
+	{ return THIS().template iforh<Expr>(ex); }
+
     private:
 
 	friend I;
