@@ -17,7 +17,7 @@ namespace MultiArrayHelper
     struct XFPackNum
     {
 	template <class ETuple, typename... Args>
-	static ETuple mkPos(size_t pos, const ETuple& et, const ETuple& lt, const Args&... args)
+	static inline ETuple mkPos(size_t pos, const ETuple& et, const ETuple& lt, const Args&... args)
 	{
 	    return std::move( XFPackNum<N-1>::mkPos(pos, et, lt, std::get<N>(lt) + pos * std::get<N>(et), args...) );
 	}
@@ -27,7 +27,7 @@ namespace MultiArrayHelper
     struct XFPackNum<0>
     {
 	template <class ETuple, typename... Args>
-	static ETuple mkPos(size_t pos, const ETuple& et, const ETuple& lt, const Args&... args)
+	static inline ETuple mkPos(size_t pos, const ETuple& et, const ETuple& lt, const Args&... args)
 	{
 	    return ETuple(std::get<0>(lt) + pos * std::get<0>(et), args...);
 	}
