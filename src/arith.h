@@ -8,113 +8,36 @@ namespace MultiArrayHelper
     template <typename T>
     struct plus
     {
-	static inline T&& apply(const T& a1, const T& a2)
+	static inline T& acc(T& target, const T& arg)
 	{
-	    T&& res = a1 + a2;
-	    return std::forward<T>( res );
+	    return target += arg;
 	}
-	
-	static inline T&& apply(T&& a1, const T& a2)
-	{
-	    T&& res = a1 + a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(const T& a1, T&& a2)
-	{
-	    T&& res = a1 + a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(T&& a1, T&& a2)
-	{
-	    T&& res = a1 + a2;
-	    return std::forward<T>( res );
-	}
-
     };
 
     template <typename T>
     struct minus
     {
-	static inline T&& apply(const T& a1, const T& a2)
+	static inline T& acc(T& target, const T& arg)
 	{
-	    T&& res = a1 - a2;
-	    return std::forward<T>( res );
-	}
-	
-	static inline T&& apply(T&& a1, const T& a2)
-	{
-	    T&& res = a1 - a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(const T& a1, T&& a2)
-	{
-	    T&& res = a1 - a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(T&& a1, T&& a2)
-	{
-	    T&& res = a1 - a2;
-	    return std::forward<T>( res );
+	    return target -= arg;
 	}
     };
 
     template <typename T>
     struct multiplies
     {
-	static inline T&& apply(const T& a1, const T& a2)
+	static inline T& acc(T& target, const T& arg)
 	{
-	    T&& res = a1 * a2;
-	    return std::forward<T>( res );
-	}
-	
-	static inline T&& apply(T&& a1, const T& a2)
-	{
-	    T&& res = a1 * a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(const T& a1, T&& a2)
-	{
-	    T&& res = a1 * a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(T&& a1, T&& a2)
-	{
-	    T&& res = a1 * a2;
-	    return std::forward<T>( res );
+	    return target *= arg;
 	}
     };
 
     template <typename T>
     struct divides
     {
-	static inline T&& apply(const T& a1, const T& a2)
+	static inline T& acc(T& target, const T& arg)
 	{
-	    T&& res = a1 / a2;
-	    return std::forward<T>( res );
-	}
-	
-	static inline T&& apply(T&& a1, const T& a2)
-	{
-	    T&& res = a1 / a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(const T& a1, T&& a2)
-	{
-	    T&& res = a1 / a2;
-	    return std::forward<T>( res );
-	}
-
-	static inline T&& apply(T&& a1, T&& a2)
-	{
-	    T&& res = a1 / a2;
-	    return std::forward<T>( res );
+	    return target /= arg;
 	}
     };
 
