@@ -95,19 +95,20 @@ namespace MultiArrayTools
 	public:
 	    static size_t layer() { return 0; }
 
-	    static const size_t LAYER = 0;
-	    static const size_t SIZE = OpClass::SIZE;
-	    typedef decltype(mSec.rootSteps()) ETuple;
+	    static constexpr size_t LAYER = 0;
+	    static constexpr size_t SIZE = OpClass::SIZE;
+	    typedef decltype(mSec.rootSteps()) ExtType;
 	    
 	    AssignmentExpr(OperationMaster& m, const OpClass& sec);
 
+	    AssignmentExpr(const AssignmentExpr& in) = default;
 	    AssignmentExpr(AssignmentExpr&& in) = default;
 	    //AssignmentExpr& operator=(const AssignmentExpr&& in) = default;
 	    
-	    //inline void operator()(size_t start = 0);
-	    inline void operator()(size_t start, const ETuple& last);
+	    inline void operator()(size_t start = 0);
+	    inline void operator()(size_t start, ExtType last);
 
-	    ETuple rootSteps(std::intptr_t iPtrNum = 0);
+	    auto rootSteps(std::intptr_t iPtrNum = 0) -> ExtType;
 	    
 	};
 	
@@ -178,7 +179,7 @@ namespace MultiArrayTools
 	std::tuple<size_t> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
-	Expr&& loop(Expr&& exp) const;
+	Expr loop(Expr exp) const;
 		
     private:
 
@@ -230,7 +231,7 @@ namespace MultiArrayTools
 	std::tuple<size_t> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
-	Expr&& loop(Expr&& exp) const;
+	Expr loop(Expr exp) const;
 	
     private:
 
@@ -322,8 +323,8 @@ namespace MultiArrayTools
 	    -> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps));
 
 	template <class Expr>
-	auto loop(Expr&& exp) const
-	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ))&&;
+	auto loop(Expr exp) const
+	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp));
 	
     };
     
@@ -488,13 +489,13 @@ namespace MultiArrayTools
 
     template <typename T, class OpClass, class... Ranges>
     inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
-    operator()(size_t start, const ETuple& last)
+    operator()(size_t start, ExtType last)
     {
-	mM.get(start) = mSec.template get<ETuple,OpClass::SIZE-1>(last);
+	mM.get(start) = mSec.template get<ExtType,OpClass::SIZE-1>(last);
     }
     
     template <typename T, class OpClass, class... Ranges>
-    typename OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::ETuple
+    typename OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::ExtType
     OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
     rootSteps(std::intptr_t iPtrNum)
     {
@@ -681,9 +682,9 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     template <class Expr>
-    Expr&& ConstOperationRoot<T,Ranges...>::loop(Expr&& exp) const
+    Expr ConstOperationRoot<T,Ranges...>::loop(Expr exp) const
     {
-	return std::forward<Expr>(exp);
+	return exp;
     }
     
     /***********************
@@ -784,9 +785,9 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     template <class Expr>
-    Expr&& OperationRoot<T,Ranges...>::loop(Expr&& exp) const
+    Expr OperationRoot<T,Ranges...>::loop(Expr exp) const
     {
-	return std::forward<Expr>(exp);
+	return exp;
     }
     
     /*******************
@@ -842,13 +843,10 @@ namespace MultiArrayTools
 
     template <typename T, class OpFunction, class... Ops>
     template <class Expr>
-    auto Operation<T,OpFunction,Ops...>::loop(Expr&& exp) const
-	-> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ))&&
+    auto Operation<T,OpFunction,Ops...>::loop(Expr exp) const
+	-> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp ))
     {
-	typedef decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ) )
-	    LType;
-	return std::forward<LType>
-	    ( PackNum<sizeof...(Ops)-1>::mkLoop( mOps, std::forward<Expr>( exp ) ) );
+	return PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp );
     }
 
     
@@ -904,11 +902,9 @@ namespace MultiArrayTools
 
     template <typename T, class Op, class IndexType>
     template <class Expr>
-    auto Contraction<T,Op,IndexType>::loop(Expr&& exp) const -> decltype(mInd->iforh(exp))&&
+    auto Contraction<T,Op,IndexType>::loop(Expr exp) const -> decltype(mInd->iforh(exp))
     {
-	typedef decltype(mInd->iforh(exp)) LType;
-	LType&& loop = mInd->iforh(exp);
-	return std::forward<LType>( loop );
+	return mInd->iforh(exp);
     }
 
 }

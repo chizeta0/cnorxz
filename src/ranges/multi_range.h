@@ -106,11 +106,11 @@ namespace MultiArrayTools
 	void print(size_t offset);
 
 	template <class Exprs>
-	auto ifor(Exprs&& exs) const
+	auto ifor(Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs));
 
 	template <class Exprs>
-	auto iforh(Exprs&& exs) const
+	auto iforh(Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs));
 
     };
@@ -422,7 +422,7 @@ namespace MultiArrayTools
 
     template <class... Indices>
     template <class Exprs>
-    auto MultiIndex<Indices...>::ifor(Exprs&& exs) const
+    auto MultiIndex<Indices...>::ifor(Exprs exs) const
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs))
     {
 	return RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs);
@@ -430,7 +430,7 @@ namespace MultiArrayTools
 
     template <class... Indices>
     template <class Exprs>
-    auto MultiIndex<Indices...>::iforh(Exprs&& exs) const
+    auto MultiIndex<Indices...>::iforh(Exprs exs) const
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs))
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs);
