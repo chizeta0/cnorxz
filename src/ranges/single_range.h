@@ -66,11 +66,11 @@ namespace MultiArrayTools
 	void print(size_t offset);
 
 	template <class Expr>
-	auto ifor(Expr&& ex) const
+	auto ifor(Expr ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr>;
 
 	template <class Expr>
-	auto iforh(Expr&& ex) const
+	auto iforh(Expr ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
 
     };
@@ -108,7 +108,7 @@ namespace MultiArrayTools
 	
 	friend SingleRangeFactory<U,TYPE>;
 
-	static const bool defaultable = false;
+	static constexpr bool defaultable = false;
 	
     protected:
 
@@ -255,20 +255,20 @@ namespace MultiArrayTools
 
     template <typename U, SpaceType TYPE>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::ifor(Expr&& ex) const
+    auto SingleIndex<U,TYPE>::ifor(Expr ex) const
 	-> For<SingleIndex<U,TYPE>,Expr>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr>(this, std::forward<Expr>( ex ));
+	return For<SingleIndex<U,TYPE>,Expr>(this, ex);
     }
 
     template <typename U, SpaceType TYPE>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::iforh(Expr&& ex) const
+    auto SingleIndex<U,TYPE>::iforh(Expr ex) const
 	-> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, std::forward<Expr>( ex ));
+	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, ex);
     }
 
     
