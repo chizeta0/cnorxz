@@ -4,7 +4,7 @@
 
 #include <array>
 
-namespace XFOR
+namespace MultiArrayHelper
 {
 
     template <class X>
@@ -102,13 +102,13 @@ namespace XFOR
 	}	
     };
 
-} // end namespace XFOR
+} // end namespace MultiArrayHelper
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace XFOR
+namespace MultiArrayHelper
 {
 
     template <class X>
@@ -172,7 +172,7 @@ namespace XFOR
     }
 
 
-} // end namespace XFOR
+} // end namespace MultiArrayHelper
 
 
 #endif

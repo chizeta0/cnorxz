@@ -9,6 +9,7 @@
 #include <ostream>
 
 #include "base_def.h"
+#include "xfor/exttype.h"
 
 namespace MultiArrayHelper
 {
@@ -67,14 +68,12 @@ namespace MultiArrayHelper
 	}
 
 	// call with -2 (instead of -1)
-	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
-	static T mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	template <typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
-	    typedef typename std::tuple_element<N,OpTuple>::type SubOpTypeRef;
-	    typedef typename std::remove_reference<SubOpTypeRef>::type SubOpType;
-	    static const size_t NEXT = START - SubOpType::SIZE;
-	    return  OpFunction::apply( std::get<N+1>(ops).template get<ETuple,START>(pos),
-				       PackNum<N-1>::template mkOpExpr<ETuple,OpTuple,OpFunction,NEXT>(pos, ops) );
+	    
+	    return PackNum<N-1>::template mkOpExpr<ETuple,OpTuple,OpFunction,decltype(std::get<N>(ops)),Args...>
+		( pos, ops, std::get<N>(ops).get(Getter<>::template get<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
@@ -138,11 +137,9 @@ namespace MultiArrayHelper
 	}
 
 	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
-	static T mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops)
 	{
-	    typedef typename std::tuple_element<1,OpTuple>::type SubOpTypeRef;
-	    typedef typename std::remove_reference<SubOpTypeRef>::type SubOpType;
-	    static const size_t NEXT = START - SubOpType::SIZE;
+	    static constexpr size_t NEXT = START - SubOpType::SIZE;
 	    return OpFunction::apply( std::get<1>(ops).template get<ETuple,START>(pos),
 				      std::get<0>(ops).template get<ETuple,NEXT>(pos) );
 	}

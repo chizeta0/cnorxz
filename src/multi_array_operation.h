@@ -108,7 +108,7 @@ namespace MultiArrayTools
 	    inline void operator()(size_t start = 0);
 	    inline void operator()(size_t start, ExtType last);
 
-	    auto rootSteps(std::intptr_t iPtrNum = 0) -> ExtType;
+	    auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 	    
 	};
 	
@@ -170,7 +170,7 @@ namespace MultiArrayTools
 	
 	const Block<T>& get() const;
 	
-	template <class ET, size_t SITE>
+	template <class ET>
 	inline const T& get(const ET& pos) const;
 
 	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
@@ -218,10 +218,10 @@ namespace MultiArrayTools
 	const MBlock<T>& get() const;
 	MBlock<T>& get();
 
-	template <class ET, size_t SITE>
+	template <class ET>
 	inline const T& get(const ET& pos) const;
 
-	template <class ET, size_t SITE>
+	template <class ET>
 	inline T& get(const ET& pos);
 	
 	OperationRoot& set(const IndexInfo* blockIndex);
@@ -363,7 +363,7 @@ namespace MultiArrayTools
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
 	template <class Expr>
-	auto loop(Expr&& exp) const -> decltype(mInd->iforh(exp))&&;
+	auto loop(Expr exp) const -> decltype(mInd->iforh(exp));
     };
     
 }
@@ -497,7 +497,7 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     typename OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::ExtType
     OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
-    rootSteps(std::intptr_t iPtrNum)
+    rootSteps(std::intptr_t iPtrNum) const
     {
 	return mSec.rootSteps(iPtrNum);
     }
@@ -650,10 +650,10 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... Ranges>
-    template <class ET, size_t SITE>
+    template <class ET>
     inline const T& ConstOperationRoot<T,Ranges...>::get(const ET& pos) const
     {
-	return mData[std::get<SITE>(pos)];
+	return mData[pos.val()];
     }
     
     template <typename T, class... Ranges>
@@ -739,17 +739,17 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    template <class ET, size_t SITE>
+    template <class ET>
     inline const T& OperationRoot<T,Ranges...>::get(const ET& pos) const
     {
-	return mData[std::get<SITE>( pos )];
+	return mData[pos.val()];
     }
 
     template <typename T, class... Ranges>
-    template <class ET, size_t SITE>
+    template <class ET>
     inline T& OperationRoot<T,Ranges...>::get(const ET& pos)
     {
-	return mData[std::get<SITE>( pos )];
+	return mData[pos.val()];
     }
     
     template <typename T, class... Ranges>
