@@ -14,6 +14,13 @@
 namespace MultiArrayHelper
 {
 
+    template <template <typename> class X, class Y>
+    auto together(const X<void>& x, const Y& y)
+	-> X<Y>
+    {
+	return X<Y>(x, y);
+    }
+    
     template <size_t N>
     struct PackNum
     {
@@ -52,10 +59,10 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ops>
-	static auto mkStepTuple(std::intptr_t ii, std::tuple<Ops const&...> otp)
-	    -> decltype(std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) ))
+	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops const&...>& otp)
+	    -> decltype(together(PackNum<N-1>::mkSteps(ii, otp), std::get<N>(otp).rootSteps(ii)))
 	{
-	    return std::tuple_cat( PackNum<N-1>::mkStepTuple(ii, otp), std::get<N>(otp).rootSteps(ii) );
+	    return together(PackNum<N-1>::mkSteps(ii, otp), std::get<N>(otp).rootSteps(ii) );
 	}
 	
 	template <class RootStepTuple, class IndexClass, class OpClass>
@@ -67,13 +74,14 @@ namespace MultiArrayHelper
 	    PackNum<N-1>::mkExt(out, siar, second);
 	}
 
-	// call with -2 (instead of -1)
-	template <typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
 	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
-	    
-	    return PackNum<N-1>::template mkOpExpr<ETuple,OpTuple,OpFunction,decltype(std::get<N>(ops)),Args...>
-		( pos, ops, std::get<N>(ops).get(Getter<>::template get<ETuple>( pos )), args...);
+	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
+	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
+	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    return PackNum<N-1>::template mkOpExpr<NEXT,ETuple,OpTuple,OpFunction,decltype(std::get<N>(ops)),Args...>
+		( pos, ops, std::get<N>(ops).get(Getter<NEXT>::template get<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
@@ -122,7 +130,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ops>
-	static auto mkStepTuple(std::intptr_t ii, std::tuple<Ops const&...> otp)
+	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops const&...>& otp)
 	    -> decltype(std::get<0>(otp).rootSteps(ii))
 	{
 	    return std::get<0>(otp).rootSteps(ii);
@@ -136,12 +144,11 @@ namespace MultiArrayHelper
 	    std::get<0>(out) = second.rootSteps( std::get<0>(siar) );
 	}
 
-	template <typename T, class ETuple, class OpTuple, class OpFunction, size_t START>
-	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops)
+	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
-	    static constexpr size_t NEXT = START - SubOpType::SIZE;
-	    return OpFunction::apply( std::get<1>(ops).template get<ETuple,START>(pos),
-				      std::get<0>(ops).template get<ETuple,NEXT>(pos) );
+	    static_assert(LAST == 0, "inconsistent array positions");
+	    return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template get<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>

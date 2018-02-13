@@ -12,7 +12,7 @@
 #include "base_def.h"
 #include "mbase_def.h"
 
-#include "block/block.h"
+//#include "block/block.h"
 #include "operation_utils.h"
 #include "ranges/rheader.h"
 #include "pack_num.h"
@@ -105,8 +105,8 @@ namespace MultiArrayTools
 	    AssignmentExpr(AssignmentExpr&& in) = default;
 	    //AssignmentExpr& operator=(const AssignmentExpr&& in) = default;
 	    
-	    inline void operator()(size_t start = 0);
-	    inline void operator()(size_t start, ExtType last);
+	    inline void operator()(size_t start = 0) const; 
+	    inline void operator()(size_t start, ExtType last) const;
 
 	    auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 	    
@@ -127,14 +127,15 @@ namespace MultiArrayTools
 			std::shared_ptr<typename CRange::IndexType>& index,
 			const IndexInfo* blockIndex);
 	
-	MBlock<T>& get();
-	const Block<T>& get() const;
+	//MBlock<T>& get();
+	//const Block<T>& get() const;
 
-	inline T& get(size_t pos);
+	inline void set(size_t pos, T val) { mDataPtr[pos] = val };
+	inline T get(size_t pos);
 	inline const T& get(size_t pos) const;
 	
-	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
-	const OperationMaster& block() const;
+	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
+	//const OperationMaster& block() const;
 
     private:
 
@@ -142,7 +143,7 @@ namespace MultiArrayTools
 	void performAssignment(std::intptr_t blockIndexNum);
 	OpClass const& mSecond;
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
-	std::vector<T>& mData;
+	T* mDataPtr;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
 	mutable bType mBlock;
@@ -168,15 +169,15 @@ namespace MultiArrayTools
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 	
-	const Block<T>& get() const;
+	//const Block<T>& get() const;
 	
 	template <class ET>
 	inline const T& get(const ET& pos) const;
+	
+	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
+	//const ConstOperationRoot& block() const;
 
-	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
-	const ConstOperationRoot& block() const;
-
-	std::tuple<size_t> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
@@ -188,10 +189,10 @@ namespace MultiArrayTools
 		const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
-	const std::vector<T>& mData;
+	const T* mDataPtr;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
- 	mutable bType mBlock;
+ 	//mutable bType mBlock;
     };
     
     template <typename T, class... Ranges>
@@ -215,8 +216,8 @@ namespace MultiArrayTools
 	template <class OpClass>
 	OperationMaster<T,OpClass,Ranges...> operator=(const OpClass& in);
 	
-	const MBlock<T>& get() const;
-	MBlock<T>& get();
+	//const MBlock<T>& get() const;
+	//MBlock<T>& get();
 
 	template <class ET>
 	inline const T& get(const ET& pos) const;
@@ -224,11 +225,11 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T& get(const ET& pos);
 	
-	OperationRoot& set(const IndexInfo* blockIndex);
-	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
-	const OperationRoot& block() const;
+	//OperationRoot& set(const IndexInfo* blockIndex);
+	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
+	//const OperationRoot& block() const;
 
-	std::tuple<size_t> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
@@ -240,11 +241,11 @@ namespace MultiArrayTools
 		const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
-	std::vector<T>& mData;
+	T* mDataPtr;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
-	mutable bType mBlock;
-	const IndexInfo* mBlockII; // predefine to save time
+	//mutable bType mBlock;
+	//const IndexInfo* mBlockII; // predefine to save time
     };
 
     template <class Op>
@@ -265,7 +266,7 @@ namespace MultiArrayTools
 	template <class Op1, class... Ops>
 	struct rs
 	{
-	    static const size_t SIZE = Op1::SIZE + RootSumN<N-1>::template rs<Ops...>::SIZE;
+	    static constexpr size_t SIZE = Op1::SIZE + RootSumN<N-1>::template rs<Ops...>::SIZE;
 	};
     };
 
@@ -275,7 +276,7 @@ namespace MultiArrayTools
 	template <class Op1>
 	struct rs
 	{
-	    static const size_t SIZE = Op1::SIZE;
+	    static constexpr size_t SIZE = Op1::SIZE;
 	};
     };
 
@@ -283,7 +284,7 @@ namespace MultiArrayTools
     template <class... Ops>
     struct RootSum
     {
-	static const size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
+	static constexpr size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
     };
 
     
@@ -299,28 +300,28 @@ namespace MultiArrayTools
 	typedef BlockResult<T> bType;
 
 	static size_t rootNum() { return sumRootNum<Ops...>(); }
-	static const size_t SIZE = RootSum<Ops...>::SIZE;
+	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
 
     private:
-	std::tuple<Ops const&...> mOps;
+	std::tuple<Ops...> mOps;
 	mutable bType mRes;
 
     public:
-	typedef decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(0, mOps)) ETuple;
+	typedef decltype(PackNum<sizeof...(Ops)-1>::mkSteps(0, mOps)) ETuple;
 	//typedef decltype(PackNum<sizeof...(Ops)-1>::template mkLoopType<Ops...>) LType;
 	
 	Operation(const Ops&... ops);
 	
-	const BlockResult<T>& get() const;
+	//const BlockResult<T>& get() const;
 	
-	template <class ET, size_t SITE>
+	template <class ET>
 	inline T get(const ET& pos) const;
 
-	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
-	const Operation& block() const;
+	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
+	//const Operation& block() const;
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const // nullptr for simple usage with decltype
-	    -> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps));
+	    -> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps));
 
 	template <class Expr>
 	auto loop(Expr exp) const
@@ -351,13 +352,13 @@ namespace MultiArrayTools
 	
 	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
 	
-	const BlockResult<T>& get() const;
+	//const BlockResult<T>& get() const;
 
-	template <class ET, size_t SITE>
+	template <class ET>
 	inline T get(const ET& pos) const;
 
-	std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
-	const Contraction& block() const;
+	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
+	//const Contraction& block() const;
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));
@@ -489,9 +490,9 @@ namespace MultiArrayTools
 
     template <typename T, class OpClass, class... Ranges>
     inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
-    operator()(size_t start, ExtType last)
+    operator()(size_t start, ExtType last) const
     {
-	mM.get(start) = mSec.template get<ExtType,OpClass::SIZE-1>(last);
+	mM.get(start) += mSec.template get<ExtType>(last);
     }
     
     template <typename T, class OpClass, class... Ranges>
@@ -511,16 +512,16 @@ namespace MultiArrayTools
     OperationMaster<T,OpClass,Ranges...>::
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index) :
-	mSecond(second), mArrayRef(ma), mData(mArrayRef.datav()),
+	mSecond(second), mArrayRef(ma), mDataPtr(mArrayRef.data()),
 	mIndex(mkIndex(index)), mIInfo(*mIndex)
     {
-	auto blockIndex = seekBlockIndex( &mIInfo, second);
-	std::intptr_t blockIndexNum = blockIndex->getPtrNum();
+	//auto blockIndex = seekBlockIndex( &mIInfo, second);
+	//std::intptr_t blockIndexNum = blockIndex->getPtrNum();
 	
-	block(blockIndex, true);
-	second.block(blockIndex, true);
+	//block(blockIndex, true);
+	//second.block(blockIndex, true);
 
-	performAssignment(blockIndexNum);
+	performAssignment(0);
     }
 
     template <typename T, class OpClass, class... Ranges>
@@ -528,13 +529,13 @@ namespace MultiArrayTools
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    std::shared_ptr<typename CRange::IndexType>& index,
 		    const IndexInfo* blockIndex) :
-	mSecond(second), mArrayRef(ma), mData(mArrayRef.datav()),
+	mSecond(second), mArrayRef(ma), mDataPtr(mArrayRef.data()),
 	mIndex(mkIndex(index)), mIInfo(*mIndex)
     {
-	std::intptr_t blockIndexNum = blockIndex->getPtrNum();
-	second.block(blockIndex, true);
+	//std::intptr_t blockIndexNum = blockIndex->getPtrNum();
+	//second.block(blockIndex, true);
 
-	performAssignment(blockIndexNum);
+	performAssignment(0);
     }
 
     template <typename T, class OpClass, class... Ranges>
@@ -558,7 +559,7 @@ namespace MultiArrayTools
 	// === N E W ===
 	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
 	//const auto hiddenLoop = mSecond.loop(AssignmentExpr(*this, mSecond)); // hidden loop within 'mSecond' e.g. contractions
-	const auto loop = mIndex->ifor
+	auto loop = mIndex->ifor
 	    ( mSecond.template loop<AssignmentExpr>
 	      ( std::move(ae) ) ); // init overall loop(s) 
 	loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
@@ -570,7 +571,7 @@ namespace MultiArrayTools
 	}
 #endif
     }
-    
+    /*
     template <typename T, class OpClass, class... Ranges>
     MBlock<T>& OperationMaster<T,OpClass,Ranges...>::get()
     {
@@ -582,23 +583,23 @@ namespace MultiArrayTools
     {
 	return mBlock;
     }
-
+    */
     template <typename T, class OpClass, class... Ranges>
     inline T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos)
     {
 	//assert(pos < mIndex->max());
 	//if(pos >= mIndex->max()) { VCHECK(pos); VCHECK(mIndex->max()); assert(0); }
 	//VCHECK(pos);
-	return mData[pos];
+	return mDataPtr[pos];
     }
 
     template <typename T, class OpClass, class... Ranges>
     inline const T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
     {
 	//VCHECK(pos);
-	return mData[pos];
+	return mDataPtr[pos];
     }
-    
+    /*
     template <typename T, class OpClass, class... Ranges>
     std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -616,7 +617,7 @@ namespace MultiArrayTools
 	mBlock.set( mIndex->pos() );
 	return *this;
     }
-
+    */
     
     /****************************
      *   ConstOperationRoot     *
@@ -627,7 +628,7 @@ namespace MultiArrayTools
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,ConstOperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mData(mArrayRef.datav()),
+	mArrayRef(ma), mDataPtr(mArrayRef.data()),
 	mIndex( mkIndex(ma,indices...) ), mIInfo(*mIndex)
     {}
 
@@ -641,21 +642,21 @@ namespace MultiArrayTools
 	(*mIndex)(indices...);
 	return i;
     }
-    
+    /*
     template <typename T, class... Ranges>
     const Block<T>& ConstOperationRoot<T,Ranges...>::get() const
     {
 	block();
 	return mBlock;
     }
-    
+    */
     template <typename T, class... Ranges>
     template <class ET>
     inline const T& ConstOperationRoot<T,Ranges...>::get(const ET& pos) const
     {
-	return mData[pos.val()];
+	return mDataPtr[pos.val()];
     }
-    
+    /*
     template <typename T, class... Ranges>
     std::vector<BTSS> ConstOperationRoot<T,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -672,11 +673,11 @@ namespace MultiArrayTools
 	mBlock.set( (*mIndex)().pos() );
 	return *this;
     }
-
+    */
     template <typename T, class... Ranges>
-    std::tuple<size_t> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    MExt<void> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return std::tuple<size_t>(0ul); // !!!!!!
+	return MExt<void>(0u); // !!!!!!
     }
 
 
@@ -696,9 +697,9 @@ namespace MultiArrayTools
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	//OperationTemplate<T,OperationRoot<T,Ranges...> >(this),
-	mArrayRef(ma), mData(mArrayRef.datav()),
-	mIndex( mkIndex( ma, indices... ) ), mIInfo(*mIndex),
-	mBlockII(nullptr)
+	mArrayRef(ma), mDataPtr(mArrayRef.data()),
+	mIndex( mkIndex( ma, indices... ) ), mIInfo(*mIndex)
+	//mBlockII(nullptr)
     {}
 
     template <typename T, class... Ranges>
@@ -716,14 +717,14 @@ namespace MultiArrayTools
     template <class OpClass>
     OperationMaster<T,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	if(mBlockII != nullptr){
-	    return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex, mBlockII);
-	}
-	else {
+	//if(mBlockII != nullptr){
+	//    return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex, mBlockII);
+	//}
+	//else {
 	    return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex);
-	}
+	    //}
     }
-
+    /*
     template <typename T, class... Ranges>
     const MBlock<T>& OperationRoot<T,Ranges...>::get() const
     {
@@ -737,21 +738,21 @@ namespace MultiArrayTools
 	block();
 	return mBlock;
     }
-
+    */
     template <typename T, class... Ranges>
     template <class ET>
     inline const T& OperationRoot<T,Ranges...>::get(const ET& pos) const
     {
-	return mData[pos.val()];
+	return mDataPtr[pos.val()];
     }
 
     template <typename T, class... Ranges>
     template <class ET>
     inline T& OperationRoot<T,Ranges...>::get(const ET& pos)
     {
-	return mData[pos.val()];
+	return mDataPtr[pos.val()];
     }
-    
+    /*
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>&
     OperationRoot<T,Ranges...>::set(const IndexInfo* blockIndex)
@@ -759,7 +760,7 @@ namespace MultiArrayTools
 	mBlockII = blockIndex;
 	return *this;
     }
-
+    
     template <typename T, class... Ranges>
     std::vector<BTSS> OperationRoot<T,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -776,11 +777,11 @@ namespace MultiArrayTools
 	mBlock.set( (*mIndex)().pos() );
 	return *this;
     }
-
+    */
     template <typename T, class... Ranges>
-    std::tuple<size_t> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    MExt<void> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return std::tuple<size_t>(0ul); // !!!!!!
+	return MExt<void>(0u); // !!!!!!
     }
 
     template <typename T, class... Ranges>
@@ -798,23 +799,23 @@ namespace MultiArrayTools
     Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :
 	//OperationTemplate<T,Operation<T,OpFunction,Ops...> >(this),
 	mOps(ops...) {}
-
+    /*
     template <typename T, class OpFunction, class... Ops>
     const BlockResult<T>& Operation<T,OpFunction,Ops...>::get() const
     {
 	PackNum<sizeof...(Ops)-1>::template unpackArgs<T,OpFunction>(mRes, mOps);
 	return mRes;
     }
-
+    */
     template <typename T, class OpFunction, class... Ops>
-    template <class ET, size_t SITE>
+    template <class ET>
     inline T Operation<T,OpFunction,Ops...>::get(const ET& pos) const
     {
 	typedef std::tuple<Ops const&...> OpTuple;
-	return PackNum<sizeof...(Ops)-2>::
-	    template mkOpExpr<T,ET,OpTuple,OpFunction,SITE>(pos, mOps);
+	return PackNum<sizeof...(Ops)-1>::
+	    template mkOpExpr<SIZE,T,ET,OpTuple,OpFunction>(pos, mOps);
     }
-    
+    /*
     template <typename T, class OpFunction, class... Ops>
     std::vector<BTSS> Operation<T,OpFunction,Ops...>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -833,12 +834,12 @@ namespace MultiArrayTools
 	//mBlock.set( mIndex->pos() );
 	return *this;
     }
-
+    */
     template <typename T, class OpFunction, class... Ops>
     auto Operation<T,OpFunction,Ops...>::rootSteps(std::intptr_t iPtrNum) const
-	-> decltype(PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps))
+	-> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps))
     {
-	return PackNum<sizeof...(Ops)-1>::mkStepTuple(iPtrNum, mOps);
+	return PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps);
     }
 
     template <typename T, class OpFunction, class... Ops>
@@ -859,7 +860,7 @@ namespace MultiArrayTools
 	//OperationTemplate<T,Contraction<T,Op,IndexType> >(this),
 	mOp(op),
 	mInd(ind) {}
-
+    /*
     template <typename T, class Op, class IndexType>
     const BlockResult<T>& Contraction<T,Op,IndexType>::get() const
     {
@@ -869,15 +870,15 @@ namespace MultiArrayTools
 	}
 	return mRes;
     }
-
+    */
     // forward loop !!!!
     template <typename T, class Op, class IndexType>
-    template <class ET, size_t SITE>
+    template <class ET>
     inline T Contraction<T,Op,IndexType>::get(const ET& pos) const
     {
-	return mOp.template get<ET,SITE>(pos);
+	return mOp.template get<ET>(pos);
     }
-
+    /*
     template <typename T, class Op, class IndexType>
     std::vector<BTSS> Contraction<T,Op,IndexType>::block(const IndexInfo* blockIndex, bool init) const
     {
@@ -892,7 +893,7 @@ namespace MultiArrayTools
     {
 	return *this;
     }
-
+    */
     template <typename T, class Op, class IndexType>
     auto Contraction<T,Op,IndexType>::rootSteps(std::intptr_t iPtrNum) const
 	-> decltype(mOp.rootSteps(iPtrNum))

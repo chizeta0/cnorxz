@@ -26,7 +26,13 @@ namespace MultiArrayHelper
 	MExt& operator=(MExt&& in) = default;
 	
 	inline MExt(size_t ext, X next);
+
+	template <class Z>
+	inline MExt(size_t y, const Z& z);
 	
+	template <class Y, class Z>
+	inline MExt(const Y& y, const Z& z);
+
 	template <size_t N>
 	inline MExt(const std::array<size_t,N>& arr);
 
@@ -61,6 +67,7 @@ namespace MultiArrayHelper
 	inline MExt(const std::array<size_t,N>& arr);
 
 	inline size_t val() const;
+	inline size_t next() const { return 0; }
 	
 	inline MExt operator+(const MExt& in) const;
 	inline MExt operator*(size_t in) const;
@@ -119,6 +126,16 @@ namespace MultiArrayHelper
     inline MExt<X>::MExt(const std::array<size_t,N>& arr) :
 	mExt(std::get<NUM>(arr)), mNext(arr) {}
 
+    template <class X>
+    template <class Z>
+    inline MExt<X>::MExt(size_t y, const Z& z) :
+	mExt(z.val()), mNext(z.val(), z.next()) {}
+    
+    template <class X>
+    template <class Y, class Z>
+    inline MExt<X>::MExt(const Y& y, const Z& z) :
+	mExt(y.val()), mNext(y.next(), z) {}
+    
     template <class X>
     inline size_t MExt<X>::val() const
     {

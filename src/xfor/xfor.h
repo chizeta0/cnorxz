@@ -116,7 +116,7 @@ namespace MultiArrayHelper
     
     template <class IndexClass, class Expr, ForType FT>
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast,
-						    const ExtType last) const
+						    ExtType last) const
     {
 	for(size_t pos = mSPos; pos != mMax; ++pos){
 	    const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
