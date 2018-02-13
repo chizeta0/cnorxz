@@ -41,6 +41,10 @@ namespace MultiArrayHelper
 	
 	inline MExt operator+(const MExt& in) const;
 	inline MExt operator*(size_t in) const;
+
+	template <class Y>
+	auto extend(const Y& y) const -> MExt<decltype(mNext.extend(y))>
+	{ return MExt<decltype(mNext.extend(y))>(mExt, mNext.extend(y)); }
 	
     };    
 
@@ -62,7 +66,13 @@ namespace MultiArrayHelper
 	MExt& operator=(MExt&& in) = default;
 	
 	inline MExt(size_t ext);
+
+	template <class Z>
+	inline MExt(size_t y, const Z& z);
 	
+	template <class Y, class Z>
+	inline MExt(const Y& y, const Z& z);
+
 	template <size_t N>
 	inline MExt(const std::array<size_t,N>& arr);
 
@@ -71,6 +81,10 @@ namespace MultiArrayHelper
 	
 	inline MExt operator+(const MExt& in) const;
 	inline MExt operator*(size_t in) const;
+
+	template <class Y>
+	auto extend(const Y& y) const -> MExt<Y>
+	{ return MExt<Y>(mExt,y); }
 
     };    
 
@@ -86,7 +100,7 @@ namespace MultiArrayHelper
 
 	template <class ExtType>
 	static inline auto getX(const ExtType& et)
-	    -> decltype(Getter<I-1>::get(et.next()))
+	    -> decltype(Getter<I-1>::getX(et.next()))
 	{
 	    return Getter<I-1>::getX(et.next());
 	}	
@@ -103,9 +117,9 @@ namespace MultiArrayHelper
 
 	template <class ExtType>
 	static inline auto getX(const ExtType& et)
-	    -> decltype(et.next())
+	    -> ExtType
 	{
-	    return et.next();
+	    return et;
 	}	
     };
 
@@ -163,7 +177,18 @@ namespace MultiArrayHelper
     
     //template <>
     inline MExt<void>::MExt(size_t ext) : mExt(ext) {}
+
+
+    //template <>
+    template <class Z>
+    inline MExt<void>::MExt(size_t y, const Z& z) :
+	mExt(z.val()) {}
     
+    //template <>
+    template <class Y, class Z>
+    inline MExt<void>::MExt(const Y& y, const Z& z) :
+	mExt(y.val()) {}
+
 
     //template <>
     template <size_t N>

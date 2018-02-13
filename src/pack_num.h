@@ -13,14 +13,7 @@
 
 namespace MultiArrayHelper
 {
-
-    template <template <typename> class X, class Y>
-    auto together(const X<void>& x, const Y& y)
-	-> X<Y>
-    {
-	return X<Y>(x, y);
-    }
-    
+	
     template <size_t N>
     struct PackNum
     {
@@ -60,9 +53,9 @@ namespace MultiArrayHelper
 
 	template <class... Ops>
 	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops...>& otp)
-	    -> decltype(together(PackNum<N-1>::mkSteps(ii, otp), std::get<N>(otp).rootSteps(ii)))
+	    -> decltype(PackNum<N-1>::mkSteps(ii, otp).extend( std::get<N>(otp).rootSteps(ii)) )
 	{
-	    return together(PackNum<N-1>::mkSteps(ii, otp), std::get<N>(otp).rootSteps(ii) );
+	    return PackNum<N-1>::mkSteps(ii, otp).extend( std::get<N>(otp).rootSteps(ii));
 	}
 	
 	template <class RootStepTuple, class IndexClass, class OpClass>
@@ -80,13 +73,13 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
-	    return PackNum<N-1>::template mkOpExpr<NEXT,ETuple,OpTuple,OpFunction,decltype(std::get<N>(ops)),Args...>
-		( pos, ops, std::get<N>(ops).get(Getter<NEXT>::template get<ETuple>( pos )), args...);
+	    return PackNum<N-1>::template mkOpExpr<NEXT,T,ETuple,OpTuple,OpFunction,T,Args...>
+		( pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
 	static auto mkLoop( const OpTuple& ot, Expr&& exp )
-	    -> decltype(std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) ))&&
+	    -> decltype(std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) ))
 	{
 	    return std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) );
 	}
@@ -147,13 +140,15 @@ namespace MultiArrayHelper
 	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
 	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
-	    static_assert(LAST == 0, "inconsistent array positions");
-	    return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template get<ETuple>( pos )), args...);
+	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
+	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    static_assert(NEXT == 0, "inconsistent array positions");
+	    return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
 	static auto mkLoop( const OpTuple& ot, Expr&& exp )
-	    -> decltype(std::get<0>(ot).loop( exp ))&&
+	    -> decltype(std::get<0>(ot).loop( exp ))
 	{
 	    return std::get<0>(ot).loop( exp );
 	}

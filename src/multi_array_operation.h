@@ -469,7 +469,8 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<void> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<void>(getStepSize( mIndex->info(), iPtrNum ));
+	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
 
@@ -520,7 +521,8 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<void> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<void>(getStepSize( mIndex->info(), iPtrNum ));
+	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
     template <typename T, class... Ranges>
@@ -542,7 +544,7 @@ namespace MultiArrayTools
     template <class ET>
     inline T Operation<T,OpFunction,Ops...>::get(ET pos) const
     {
-	typedef std::tuple<Ops const&...> OpTuple;
+	typedef std::tuple<Ops...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
 	    template mkOpExpr<SIZE,T,ET,OpTuple,OpFunction>(pos, mOps);
     }

@@ -89,34 +89,22 @@ namespace MultiArrayTools
 	return out;
     }
 
-    size_t getStepSize(const std::vector<IndexInfo>& iv, const IndexInfo& j)
-    {
-	size_t ss = 1;
-	auto ii = iv.end() - 1;
-	auto end = iv.begin();
-	while(*ii != j){
-	    ss *= ii->max();
-	    --ii;
-	    if(ii == end){
-		break;
-	    }
-	}
-	return ss;
-    }
-
+    //inline size_t getStepSize(const IndexInfo& ii, std::intptr_t j)
+    
     size_t getStepSize(const std::vector<IndexInfo>& iv, std::intptr_t j)
     {
 	size_t ss = 1;
-	auto ii = iv.end() - 1;
-	auto end = iv.begin();
-	while(ii->getPtrNum() != j){
-	    ss *= ii->max();
-	    --ii;
-	    if(ii == end){
-		break;
+	for(auto ii = iv.end() - 1; ii != iv.begin(); --ii){
+	    if(ii->getPtrNum() == j){
+		return ss;
 	    }
+	    ss *= ii->max();
 	}
-	return ss;
+	if(iv.begin()->getPtrNum() == j){
+	    return ss;
+	} else {
+	    return 0;
+	}
     }
     
 } // end namespace MultiArrayTools
