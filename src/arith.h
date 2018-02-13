@@ -8,39 +8,38 @@ namespace MultiArrayHelper
     template <typename T>
     struct plus
     {
-	static inline T& acc(T& target, const T& arg)
+	static inline T apply(T a1, T a2)
 	{
-	    return target += arg;
+	    return a1 + a2;
 	}
     };
 
     template <typename T>
     struct minus
     {
-	static inline T& acc(T& target, const T& arg)
+	static inline T apply(T a1, T a2)
 	{
-	    return target -= arg;
+	    return a1 - a2;
 	}
     };
 
     template <typename T>
     struct multiplies
     {
-	static inline T& acc(T& target, const T& arg)
+	static inline T apply(T a1, T a2)
 	{
-	    return target *= arg;
+	    return a1 * a2;
 	}
     };
 
     template <typename T>
     struct divides
     {
-	static inline T& acc(T& target, const T& arg)
+	static inline T apply(T a1, T a2)
 	{
-	    return target /= arg;
+	    return a1 / a2;
 	}
     };
-
 
 } // end namespace MultiArrayHelper
     
