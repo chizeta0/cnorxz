@@ -59,7 +59,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ops>
-	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops const&...>& otp)
+	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops...>& otp)
 	    -> decltype(together(PackNum<N-1>::mkSteps(ii, otp), std::get<N>(otp).rootSteps(ii)))
 	{
 	    return together(PackNum<N-1>::mkSteps(ii, otp), std::get<N>(otp).rootSteps(ii) );
@@ -130,7 +130,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ops>
-	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops const&...>& otp)
+	static auto mkSteps(std::intptr_t ii, const std::tuple<Ops...>& otp)
 	    -> decltype(std::get<0>(otp).rootSteps(ii))
 	{
 	    return std::get<0>(otp).rootSteps(ii);

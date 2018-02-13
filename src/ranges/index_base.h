@@ -73,13 +73,15 @@ namespace MultiArrayTools
 
 	void print(size_t offset = 0) const { THIS().print(offset); }
 
+	IndexInfo info() const { return IndexInfo(THIS()); }
+	
 	// CHECK / IMPLEMENT !!!!!!
 	template <class Expr>
-	auto ifor(const Expr&& ex) const -> decltype(THIS().template ifor<Expr>(ex))
+	auto ifor(const Expr ex) const -> decltype(THIS().template ifor<Expr>(ex))
 	{ return THIS().template ifor<Expr>(ex); }
 
 	template <class Expr>
-	auto iforh(const Expr&& ex) const -> decltype(THIS().template iforh<Expr>(ex))
+	auto iforh(const Expr ex) const -> decltype(THIS().template iforh<Expr>(ex))
 	{ return THIS().template iforh<Expr>(ex); }
 
     private:

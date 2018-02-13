@@ -70,5 +70,53 @@ namespace MultiArrayTools
     {
 	return mType;
     }
+
+
+    std::vector<IndexInfo> getRootIndices(const IndexInfo& info)
+    {
+	std::vector<IndexInfo> out;
+	out.reserve(info.dim());
+
+	if(info.type() == IndexType::SINGLE){
+	    out.push_back(info);
+	}
+	else {
+	    for(size_t i = 0; i != info.dim(); ++i){
+		auto vv = getRootIndices(*info.getPtr(i));
+		out.insert(out.end(), vv.begin(), vv.end());
+	    }
+	}
+	return out;
+    }
+
+    size_t getStepSize(const std::vector<IndexInfo>& iv, const IndexInfo& j)
+    {
+	size_t ss = 1;
+	auto ii = iv.end() - 1;
+	auto end = iv.begin();
+	while(*ii != j){
+	    ss *= ii->max();
+	    --ii;
+	    if(ii == end){
+		break;
+	    }
+	}
+	return ss;
+    }
+
+    size_t getStepSize(const std::vector<IndexInfo>& iv, std::intptr_t j)
+    {
+	size_t ss = 1;
+	auto ii = iv.end() - 1;
+	auto end = iv.begin();
+	while(ii->getPtrNum() != j){
+	    ss *= ii->max();
+	    --ii;
+	    if(ii == end){
+		break;
+	    }
+	}
+	return ss;
+    }
     
 } // end namespace MultiArrayTools

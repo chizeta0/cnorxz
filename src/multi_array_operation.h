@@ -254,7 +254,7 @@ namespace MultiArrayTools
 	std::tuple<Ops...> mOps;
 
     public:
-	typedef decltype(PackNum<sizeof...(Ops)-1>::mkSteps(0, mOps)) ETuple;
+	typedef decltype(PackNum<sizeof...(Ops)-1>::template mkSteps<Ops...>(0, mOps)) ETuple;
 		
 	Operation(const Ops&... ops);
 	
@@ -469,7 +469,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<void> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(0u); // !!!!!!
+	return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
 
@@ -520,7 +520,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<void> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(0u); // !!!!!!
+	return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
     template <typename T, class... Ranges>

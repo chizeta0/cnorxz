@@ -20,8 +20,8 @@ namespace MultiArrayTools
 
 	IndexInfo(IndexInfo&& in) = default;
 	IndexInfo& operator=(IndexInfo&& in) = default;
-	//IndexInfo(const IndexInfo& in) = default;
-	//IndexInfo& operator=(const IndexInfo& in) = default;
+	IndexInfo(const IndexInfo& in) = default;
+	IndexInfo& operator=(const IndexInfo& in) = default;
 	
 	template <class IndexClass>
 	IndexInfo(const IndexClass& ind, size_t stepSize = 1);
@@ -76,7 +76,11 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    
+    std::vector<IndexInfo> getRootIndices(const IndexInfo& info);
+
+    size_t getStepSize(const std::vector<IndexInfo>& iv, const IndexInfo& j);
+
+    size_t getStepSize(const std::vector<IndexInfo>& iv, std::intptr_t j);
 } // end namespace MultiArrayTools
 
 #endif
