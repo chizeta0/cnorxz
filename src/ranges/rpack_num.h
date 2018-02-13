@@ -23,6 +23,20 @@ namespace MultiArrayHelper
 	return Index1::totalDim() * mkTotalDim<Index2,Indices...>();
     }
 
+
+    template <class RangeType, class... Ranges>
+    struct SubProp
+    {
+	static constexpr size_t ISSTATIC = RangeType::ISSTATIC & SubProp<Ranges...>::ISSTATIC;
+	static constexpr size_t SIZE = RangeType::SIZE * SubProp<Ranges...>::SIZE;
+    };
+
+    template <>
+    struct SubProp<void>
+    {
+	static constexpr size_t ISSTATIC = 1;
+	static constexpr size_t SIZE = 1;
+    };
     
     template <size_t N>
     struct RPackNum

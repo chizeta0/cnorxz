@@ -32,6 +32,26 @@ namespace MultiArrayHelper
 	    return last;
 	}
     };
+
+    template <size_t ISSTATIC>
+    struct ForBound
+    {
+	template <size_t BOUND>
+	static inline size_t bound(size_t bound)
+	{
+	    return bound;
+	}
+    };
+
+    template <>
+    struct ForBound<1>
+    {
+	template <size_t BOUND>
+	static constexpr size_t bound(size_t bound)
+	{
+	    return BOUND;
+	}
+    };
     
     template <class IndexClass, class Expr, ForType FT = ForType::DEFAULT>
     class For
@@ -79,7 +99,6 @@ namespace MultiArrayHelper
     template <>
     size_t exceptMax<1>(size_t max) { return 1; }
 
-   
 } // namespace MultiArrayHelper
 
 /* ========================= *
@@ -118,7 +137,9 @@ namespace MultiArrayHelper
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast,
 						    ExtType last) const
     {
-	for(size_t pos = mSPos; pos != mMax; ++pos){
+	typedef typename IndexClass::RangeType RangeType;
+	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
+	//for(size_t pos = mSPos; pos != mMax; ++pos){
 	    const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
@@ -128,8 +149,10 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr, ForType FT>
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast) const
     {
+	typedef typename IndexClass::RangeType RangeType;
 	const ExtType last;
-	for(size_t pos = mSPos; pos != mMax; ++pos){
+	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
+	//for(size_t pos = mSPos; pos != mMax; ++pos){
 	    const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);

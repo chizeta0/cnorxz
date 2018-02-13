@@ -26,14 +26,14 @@ namespace MultiArrayTools
 	typedef IndexInterface<SingleIndex<U,TYPE>,U> IB;
 	typedef U MetaType;
 	typedef SingleRange<U,TYPE> RangeType;
-	
+
 	//DEFAULT_MEMBERS_X(SingleIndex);
 	
 	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
 
 	static IndexType sType() { return IndexType::SINGLE; }
 	static size_t totalDim() { return 1; }
-	
+
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
 	IndexType type() const;
@@ -109,6 +109,9 @@ namespace MultiArrayTools
 	friend SingleRangeFactory<U,TYPE>;
 
 	static constexpr bool defaultable = false;
+	static constexpr size_t ISSTATIC = 0;
+	static constexpr size_t SIZE = -1;
+
 	
     protected:
 

@@ -178,7 +178,9 @@ namespace MultiArrayTools
 
 	friend MultiRangeFactory<Ranges...>;
 
-	static const bool defaultable = false;
+	static constexpr bool defaultable = false;
+	static constexpr size_t ISSTATIC = SubProp<Ranges...>::ISSTATIC;
+	static constexpr size_t SIZE = SubProp<Ranges...>::SIZE;
     };
     
 }

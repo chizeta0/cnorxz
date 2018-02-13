@@ -45,8 +45,11 @@ namespace MultiArrayTools
 	
 	friend SingleRangeFactory<size_t,SpaceType::SPIN>;
 
-	static const bool defaultable = true;
-	static const size_t mSpinNum = 4;
+	static constexpr bool defaultable = true;
+	static constexpr size_t mSpinNum = 4;
+
+	static constexpr size_t ISSTATIC = 1;
+	static constexpr size_t SIZE = mSpinNum;
 	
 	static SingleRangeFactory<size_t, SpaceType::SPIN> factory()
 	{ return SingleRangeFactory<size_t, SpaceType::SPIN>(); }

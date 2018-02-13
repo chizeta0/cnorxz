@@ -130,9 +130,10 @@ namespace MultiArrayTools
 	//MBlock<T>& get();
 	//const Block<T>& get() const;
 
-	inline void set(size_t pos, T val) { mDataPtr[pos] = val };
-	inline T get(size_t pos);
-	inline const T& get(size_t pos) const;
+	inline void set(size_t pos, T val) { mDataPtr[pos] = val; }
+	inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
+	inline T get(size_t pos) const;
+	//inline const T& get(size_t pos) const;
 	
 	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	//const OperationMaster& block() const;
@@ -172,7 +173,7 @@ namespace MultiArrayTools
 	//const Block<T>& get() const;
 	
 	template <class ET>
-	inline const T& get(const ET& pos) const;
+	inline T get(ET pos) const;
 	
 	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	//const ConstOperationRoot& block() const;
@@ -219,11 +220,11 @@ namespace MultiArrayTools
 	//const MBlock<T>& get() const;
 	//MBlock<T>& get();
 
-	template <class ET>
-	inline const T& get(const ET& pos) const;
+	//template <class ET>
+	//inline const T& get(const ET& pos) const;
 
 	template <class ET>
-	inline T& get(const ET& pos);
+	inline T get(ET pos) const;
 	
 	//OperationRoot& set(const IndexInfo* blockIndex);
 	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
@@ -315,7 +316,7 @@ namespace MultiArrayTools
 	//const BlockResult<T>& get() const;
 	
 	template <class ET>
-	inline T get(const ET& pos) const;
+	inline T get(ET pos) const;
 
 	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	//const Operation& block() const;
@@ -355,7 +356,7 @@ namespace MultiArrayTools
 	//const BlockResult<T>& get() const;
 
 	template <class ET>
-	inline T get(const ET& pos) const;
+	inline T get(ET pos) const;
 
 	//std::vector<BTSS> block(const IndexInfo* blockIndex, bool init = false) const;
 	//const Contraction& block() const;
@@ -492,7 +493,7 @@ namespace MultiArrayTools
     inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
     operator()(size_t start, ExtType last) const
     {
-	mM.get(start) += mSec.template get<ExtType>(last);
+	mM.add(start, mSec.template get<ExtType>(last) );
     }
     
     template <typename T, class OpClass, class... Ranges>
@@ -585,7 +586,7 @@ namespace MultiArrayTools
     }
     */
     template <typename T, class OpClass, class... Ranges>
-    inline T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos)
+    inline T OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
     {
 	//assert(pos < mIndex->max());
 	//if(pos >= mIndex->max()) { VCHECK(pos); VCHECK(mIndex->max()); assert(0); }
@@ -593,12 +594,13 @@ namespace MultiArrayTools
 	return mDataPtr[pos];
     }
 
+    /*
     template <typename T, class OpClass, class... Ranges>
     inline const T& OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
     {
 	//VCHECK(pos);
 	return mDataPtr[pos];
-    }
+	}*/
     /*
     template <typename T, class OpClass, class... Ranges>
     std::vector<BTSS> OperationMaster<T,OpClass,Ranges...>::block(const IndexInfo* blockIndex, bool init) const
@@ -652,7 +654,7 @@ namespace MultiArrayTools
     */
     template <typename T, class... Ranges>
     template <class ET>
-    inline const T& ConstOperationRoot<T,Ranges...>::get(const ET& pos) const
+    inline T ConstOperationRoot<T,Ranges...>::get(ET pos) const
     {
 	return mDataPtr[pos.val()];
     }
@@ -738,17 +740,17 @@ namespace MultiArrayTools
 	block();
 	return mBlock;
     }
-    */
+    
     template <typename T, class... Ranges>
     template <class ET>
     inline const T& OperationRoot<T,Ranges...>::get(const ET& pos) const
     {
 	return mDataPtr[pos.val()];
     }
-
+    */
     template <typename T, class... Ranges>
     template <class ET>
-    inline T& OperationRoot<T,Ranges...>::get(const ET& pos)
+    inline T OperationRoot<T,Ranges...>::get(ET pos) const
     {
 	return mDataPtr[pos.val()];
     }
@@ -809,7 +811,7 @@ namespace MultiArrayTools
     */
     template <typename T, class OpFunction, class... Ops>
     template <class ET>
-    inline T Operation<T,OpFunction,Ops...>::get(const ET& pos) const
+    inline T Operation<T,OpFunction,Ops...>::get(ET pos) const
     {
 	typedef std::tuple<Ops const&...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
@@ -874,7 +876,7 @@ namespace MultiArrayTools
     // forward loop !!!!
     template <typename T, class Op, class IndexType>
     template <class ET>
-    inline T Contraction<T,Op,IndexType>::get(const ET& pos) const
+    inline T Contraction<T,Op,IndexType>::get(ET pos) const
     {
 	return mOp.template get<ET>(pos);
     }
