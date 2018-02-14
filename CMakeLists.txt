@@ -22,11 +22,4 @@ else()
   message(FATAL_ERROR "Threads not found")
 endif()
 
-#include_directories(src)
-
-#set(INDEX_CC_FILES "${INDEX_CC_FILES}" "src/ranges/range_base.cc" "src/ranges/index_info.cc")
-#set(MA_CC_FILES "${MA_CC_FILES}" "${INDEX_CC_FILES}" "src/operation_utils.cc")
-
-set(CMAKE_INSTALL_PREFIX ..)
-
 add_subdirectory(src)
