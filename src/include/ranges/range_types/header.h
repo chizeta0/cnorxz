@@ -15,6 +15,7 @@
 //#define __ranges_header__
 
 #include "spin_range.h"
+#include "classic_range.h"
 
 #undef __ranges_header__
 //#endif

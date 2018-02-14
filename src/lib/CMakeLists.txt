@@ -2,6 +2,7 @@
 set(libmultiarray_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/range_base.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/index_info.cc
+  ${CMAKE_SOURCE_DIR}/src/lib/ranges/anonymous_range.cc
   )
 
 file(GLOB cc_files "${CMAKE_SOURCE_DIR}/src/lib/ranges/range_types/*.cc")
