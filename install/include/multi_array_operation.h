@@ -13,7 +13,7 @@
 #include "mbase_def.h"
 
 //#include "block/block.h"
-#include "operation_utils.h"
+//#include "operation_utils.h"
 #include "ranges/rheader.h"
 #include "pack_num.h"
 
@@ -96,8 +96,7 @@ namespace MultiArrayTools
 	typedef OperationBase<T> OB;
 	typedef ContainerRange<Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
-	typedef MBlock<T> bType;	
-
+	
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			std::shared_ptr<typename CRange::IndexType>& index);
 
@@ -118,7 +117,6 @@ namespace MultiArrayTools
 	T* mDataPtr;
 	std::shared_ptr<IndexType> mIndex;
 	IndexInfo mIInfo;
-	mutable bType mBlock;
     };
 
     

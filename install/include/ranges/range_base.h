@@ -60,6 +60,11 @@ namespace MultiArrayTools
 
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
+
+	//virtual bool regular() const = 0; // integer distance (e.g. 2,3,4,...)
+	//virtual bool linear() const = 0; // 1dim valuable (e.g. 2.45, 3.12, 3.56,...)
+	//virtual bool multi() const = 0; // mdim
+	//virtual bool maplike() const = 0; // meta type is ~ MultiArray<T,...>
 	
 	friend RangeFactoryBase;
 	

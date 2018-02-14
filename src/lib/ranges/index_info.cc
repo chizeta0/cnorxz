@@ -1,6 +1,6 @@
 
-#include "index_info.h"
-#include "range_base.h"
+#include "ranges/index_info.h"
+#include "ranges/range_base.h"
 
 namespace MultiArrayTools
 {
