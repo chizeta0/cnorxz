@@ -94,10 +94,10 @@ namespace MultiArrayHelper
     };
 
     template <size_t N>
-    size_t exceptMax(size_t max) { return max; }
+    inline size_t exceptMax(size_t max) { return max; }
 
     template <>
-    size_t exceptMax<1>(size_t max) { return 1; }
+    inline size_t exceptMax<1>(size_t max) { return 1; }
 
 } // namespace MultiArrayHelper
 

@@ -2,8 +2,13 @@
 set(libmultiarray_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/range_base.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/index_info.cc
-  #${CMAKE_SOURCE_DIR}/src/lib/operation_utils.cc
   )
+
+file(GLOB cc_files "${CMAKE_SOURCE_DIR}/src/lib/ranges/range_types/*.cc")
+foreach(ccfile ${cc_files})
+  set(libmultiarray_a_SOURCES ${libmultiarray_a_SOURCES}
+    ${ccfile})
+endforeach(ccfile)
 
 add_library(multiarray STATIC ${libmultiarray_a_SOURCES})
 install(TARGETS multiarray
