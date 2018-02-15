@@ -94,7 +94,7 @@ namespace MultiArrayTools
 	
 	typedef T value_type;
 	typedef OperationBase<T> OB;
-	typedef ContainerRange<Ranges...> CRange;
+	typedef ContainerRange<T,Ranges...> CRange;
 	typedef typename MultiRange<Ranges...>::IndexType IndexType;
 	
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
@@ -129,7 +129,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationBase<T> OB;
 	typedef OperationTemplate<T,ConstOperationRoot<T,Ranges...> > OT;
-	typedef ContainerRange<Ranges...> CRange;
+	typedef ContainerRange<T,Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 
 	static constexpr size_t SIZE = 1;
@@ -165,7 +165,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationBase<T> OB;
 	typedef OperationTemplate<T,OperationRoot<T,Ranges...> > OT;
-	typedef ContainerRange<Ranges...> CRange;
+	typedef ContainerRange<T,Ranges...> CRange;
 	typedef typename CRange::IndexType IndexType;
 
 	static constexpr size_t SIZE = 1;

@@ -51,7 +51,8 @@ namespace MultiArrayTools
 	// ( have to assign sub-indices (ptr!) correctly )
 	//MultiIndex(const MultiIndex& in);
 	//MultiIndex& operator=(const MultiIndex& in);
-	MultiIndex& operator=(ContainerIndex<Indices...>& ci);
+	template <typename T>
+	MultiIndex& operator=(ContainerIndex<T,Indices...>& ci);
 
 	template <class MRange>
 	MultiIndex(const std::shared_ptr<MRange>& range);
@@ -127,7 +128,9 @@ namespace MultiArrayTools
 	MultiRangeFactory() = delete;
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& space);
-	MultiRangeFactory(const std::shared_ptr<ContainerRange<Ranges...> >& cr);
+
+	template <typename T>
+	MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr);
 	
 	virtual std::shared_ptr<RangeBase> create() override;
     };
@@ -217,7 +220,8 @@ namespace MultiArrayTools
     }
     */
     template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<Indices...>& ci)
+    template <typename T>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<T,Indices...>& ci)
     {	
 	RPackNum<sizeof...(Indices)-1>::copyInst(mIPack, ci);
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -441,7 +445,8 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<ContainerRange<Ranges...> >& cr)
+    template <typename T>
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr)
     {
 	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( cr->space() ) );
     }

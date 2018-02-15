@@ -16,17 +16,18 @@
 namespace MultiArrayTools
 {
     
-    template <class... Indices>
-    class ContainerIndex : public IndexInterface<ContainerIndex<Indices...>,
-						 std::tuple<typename Indices::MetaType...> >
+    template <typename T, class... Indices>
+    class ContainerIndex : public IndexInterface<ContainerIndex<T,Indices...>,
+						 std::tuple<typename Indices::MetaType...> >,
+			   public std::iterator<std::random_access_iterator_tag,T>
     {
     public:
 
-	typedef IndexInterface<ContainerIndex<Indices...>,
+	typedef IndexInterface<ContainerIndex<T,Indices...>,
 			       std::tuple<typename Indices::MetaType...> > IB;
 	typedef std::tuple<typename Indices::MetaType...>  MetaType;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
-	typedef ContainerRange<typename Indices::RangeType...> RangeType;
+	typedef ContainerRange<T,typename Indices::RangeType...> RangeType;
 
 	static IndexType sType() { return IndexType::CONT; }
 	static size_t sDim() { return sizeof...(Indices); }
@@ -37,6 +38,7 @@ namespace MultiArrayTools
 	bool mExternControl = false;
 	IndexPack mIPack;
 	std::array<size_t,sizeof...(Indices)+1> mBlockSizes; 
+	const T* mData;
 	
     public:
 
@@ -96,19 +98,41 @@ namespace MultiArrayTools
 	auto iforh(Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs));
 
+	// Iterator Stuff
+	
+	ContainerIndex& setData(const T* data);
+	
+	const T& operator*() const;
+	const T* operator->() const;
+
+	ContainerIndex operator++(int);
+	ContainerIndex operator--(int);
+	ContainerIndex& operator+=(int diff);
+	ContainerIndex& operator-=(int diff);
+	ContainerIndex operator+(int num) const;
+	ContainerIndex operator-(int num) const;
+
+	int operator-(const ContainerIndex& it) const;
+	const T& operator[](int num) const;
+
+	bool operator<(const ContainerIndex& it) const;
+	bool operator>(const ContainerIndex& it) const;
+	bool operator<=(const ContainerIndex& it) const;
+	bool operator>=(const ContainerIndex& it) const;
+	
     };
 
     
-    template <class... Ranges>
+    template <typename T, class... Ranges>
     class ContainerRangeFactory : public RangeFactoryBase
     {
     public:
 
-	typedef ContainerRange<Ranges...> oType;
+	typedef ContainerRange<T,Ranges...> oType;
 	
 	ContainerRangeFactory();
 	ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs);
-	ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space);
+	ContainerRangeFactory(const typename ContainerRange<T,Ranges...>::SpaceType& space);
 	
 	virtual std::shared_ptr<RangeBase> create() override; 
 	
@@ -116,14 +140,14 @@ namespace MultiArrayTools
 	
     };
     
-    template <class... Ranges>
-    class ContainerRange : public RangeInterface<ContainerIndex<typename Ranges::IndexType...> >
+    template <typename T, class... Ranges>
+    class ContainerRange : public RangeInterface<ContainerIndex<T,typename Ranges::IndexType...> >
     {
     public:
 
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
-	typedef ContainerIndex<typename Ranges::IndexType...> IndexType;
+	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
 	//typedef typename RangeInterface<ContainerIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 	
     protected:
@@ -153,7 +177,7 @@ namespace MultiArrayTools
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
 
-	friend ContainerRangeFactory<Ranges...>;
+	friend ContainerRangeFactory<T,Ranges...>;
 
 	static constexpr bool defaultable = false;
 	static constexpr size_t ISSTATIC = SubProp<Ranges...>::ISSTATIC;
@@ -177,10 +201,10 @@ namespace MultiArrayTools
      *   ContainerIndex   *
      **********************/
 
-    template <class... Indices>
+    template <typename T, class... Indices>
     template <class MRange>
-    ContainerIndex<Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<ContainerIndex<Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
+    ContainerIndex<T,Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range) :
+	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
     {
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -188,8 +212,8 @@ namespace MultiArrayTools
 	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack);
     }
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::sync()
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::sync()
     {
 	if(mExternControl){
 	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -200,39 +224,39 @@ namespace MultiArrayTools
 	return *this;
     }
     
-    template <class... Indices>
+    template <typename T, class... Indices>
     template <size_t N>
-    auto ContainerIndex<Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
+    auto ContainerIndex<T,Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
     {
 	return *std::get<N>( mIPack );
     }
 
-    template <class... Indices>
+    template <typename T, class... Indices>
     template <size_t N>
-    auto ContainerIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    auto ContainerIndex<T,Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>( mIPack );
     }
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator()(const std::shared_ptr<Indices>&... inds)
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator()(const std::shared_ptr<Indices>&... inds)
     {
 	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds...);
 	mExternControl = true;
 	return sync();
     }    
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator()()
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator()()
     {
 	return sync();
     }
 
-    template <class... Indices>
-    IndexType ContainerIndex<Indices...>::type() const { return IndexType::CONT; }
+    template <typename T, class... Indices>
+    IndexType ContainerIndex<T,Indices...>::type() const { return IndexType::CONT; }
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator++()
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator++()
     {
 	if(mExternControl){
 	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -242,8 +266,8 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator--()
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator--()
     {
 	if(mExternControl){
 	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -254,80 +278,80 @@ namespace MultiArrayTools
 
     }
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::operator=(size_t pos)
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator=(size_t pos)
     {
 	IB::mPos = pos;
 	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
 	return *this;
     }
 
-    template <class... Indices>
-    int ContainerIndex<Indices...>::pp(std::intptr_t idxPtrNum)
+    template <typename T, class... Indices>
+    int ContainerIndex<T,Indices...>::pp(std::intptr_t idxPtrNum)
     {
 	int tmp = RPackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos += tmp;
 	return tmp;
     }
 
-    template <class... Indices>
-    int ContainerIndex<Indices...>::mm(std::intptr_t idxPtrNum)
+    template <typename T, class... Indices>
+    int ContainerIndex<T,Indices...>::mm(std::intptr_t idxPtrNum)
     {
 	int tmp = RPackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos -= tmp;
 	return tmp;
     }
 
-    template <class... Indices>
-    typename ContainerIndex<Indices...>::MetaType ContainerIndex<Indices...>::meta()
+    template <typename T, class... Indices>
+    typename ContainerIndex<T,Indices...>::MetaType ContainerIndex<T,Indices...>::meta()
     {
 	MetaType metaTuple;
 	RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
 	return metaTuple;
     }
 
-    template <class... Indices>
-    ContainerIndex<Indices...>& ContainerIndex<Indices...>::at(const MetaType& metaPos)
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::at(const MetaType& metaPos)
     {
 	RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
 
-    template <class... Indices>
-    size_t ContainerIndex<Indices...>::dim()
+    template <typename T, class... Indices>
+    size_t ContainerIndex<T,Indices...>::dim()
     {
 	return sizeof...(Indices);
     }
 
-    template <class... Indices>
-    bool ContainerIndex<Indices...>::first()
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::first()
     {
 	return IB::pos() == 0;
     }
 
-    template <class... Indices>
-    bool ContainerIndex<Indices...>::last()
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::last()
     {
 	return IB::pos() == IB::mMax - 1;
     }
 
-    template <class... Indices>
-    std::shared_ptr<typename ContainerIndex<Indices...>::RangeType>
-    ContainerIndex<Indices...>::range()
+    template <typename T, class... Indices>
+    std::shared_ptr<typename ContainerIndex<T,Indices...>::RangeType>
+    ContainerIndex<T,Indices...>::range()
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
 
-    template <class... Indices>
+    template <typename T, class... Indices>
     template <size_t N>
-    auto ContainerIndex<Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
+    auto ContainerIndex<T,Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>( mIPack );
     }
 
-    template <class... Indices>
-    size_t ContainerIndex<Indices...>::getStepSize(size_t n)
+    template <typename T, class... Indices>
+    size_t ContainerIndex<T,Indices...>::getStepSize(size_t n)
     {
 	if(n >= sizeof...(Indices)){
 	    assert(0);
@@ -336,8 +360,8 @@ namespace MultiArrayTools
 	return mBlockSizes[n+1];
     }
 
-    template <class... Indices>
-    std::vector<IndexInfo> ContainerIndex<Indices...>::infoVec() const
+    template <typename T, class... Indices>
+    std::vector<IndexInfo> ContainerIndex<T,Indices...>::infoVec() const
     {
 	std::vector<IndexInfo> out;
 	out.reserve(sizeof...(Indices));
@@ -345,14 +369,14 @@ namespace MultiArrayTools
 	return std::move( out );
     }
     
-    template <class... Indices>
-    std::string ContainerIndex<Indices...>::id() const
+    template <typename T, class... Indices>
+    std::string ContainerIndex<T,Indices...>::id() const
     {
 	return std::string("con") + std::to_string(IB::mId);
     }
 
-    template <class... Indices>
-    void ContainerIndex<Indices...>::print(size_t offset)
+    template <typename T, class... Indices>
+    void ContainerIndex<T,Indices...>::print(size_t offset)
     {
 	if(offset == 0){
 	    std::cout << " === " << std::endl;
@@ -363,42 +387,156 @@ namespace MultiArrayTools
 	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
     }
 
-    template <class... Indices>
+    template <typename T, class... Indices>
     template <class Exprs>
-    auto ContainerIndex<Indices...>::ifor(Exprs exs) const
+    auto ContainerIndex<T,Indices...>::ifor(Exprs exs) const
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs))
     {
 	return RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs);
     }
 
-    template <class... Indices>
+    template <typename T, class... Indices>
     template <class Exprs>
-    auto ContainerIndex<Indices...>::iforh(Exprs exs) const
+    auto ContainerIndex<T,Indices...>::iforh(Exprs exs) const
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs))
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs);
     }
-
     
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::setData(const T* data)
+    {
+	mData = data;
+	return *this;
+    }
+
+    template <typename T, class... Indices>
+    const T& ContainerIndex<T,Indices...>::operator*() const
+    {
+	return mData[IB::mPos];
+    }
+
+    template <typename T, class... Indices>
+    const T* ContainerIndex<T,Indices...>::operator->() const
+    {
+	return &mData[IB::mPos];
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...> ContainerIndex<T,Indices...>::operator++(int)
+    {
+	auto tmp = *this;
+	++(*this);
+	return tmp;
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...> ContainerIndex<T,Indices...>::operator--(int)
+    {
+	auto tmp = *this;
+	--(*this);
+	return tmp;
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator+=(int diff)
+    {
+	if(diff < 0){
+	    for(int i = 0; i != diff; ++i){
+		(*this)--;
+	    }
+	}
+	else {
+	    for(int i = 0; i != diff; ++i){
+		(*this)++;
+	    }
+	}
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator-=(int diff)
+    {
+	if(diff < 0){
+	    for(int i = 0; i != diff; ++i){
+		(*this)++;
+	    }
+	}
+	else {
+	    for(int i = 0; i != diff; ++i){
+		(*this)--;
+	    }
+	}
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...> ContainerIndex<T,Indices...>::operator+(int num) const
+    {
+	auto tmp = *this;
+	return tmp += num;
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...> ContainerIndex<T,Indices...>::operator-(int num) const
+    {
+	auto tmp = *this;
+	return tmp -= num;
+    }
+
+    template <typename T, class... Indices>
+    int ContainerIndex<T,Indices...>::operator-(const ContainerIndex<T,Indices...>& it) const
+    {
+	return static_cast<int>( IB::mPos ) - static_cast<int>( it.pos() );
+    }
+
+    template <typename T, class... Indices>
+    const T& ContainerIndex<T,Indices...>::operator[](int num) const
+    {
+	return mData[IB::mPos + num];
+    }
+
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::operator<(const ContainerIndex<T,Indices...>& it) const
+    {
+	return IB::mPos < it.pos();
+    }
+
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::operator>(const ContainerIndex<T,Indices...>& it) const
+    {
+	return IB::mPos > it.pos();
+    }
+
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::operator<=(const ContainerIndex<T,Indices...>& it) const
+    {
+	return IB::mPos <= it.pos();
+    }
+
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::operator>=(const ContainerIndex<T,Indices...>& it) const
+    {
+	return IB::mPos >= it.pos();
+    }
+
     /*****************************
      *   ContainerRangeFactory   *
      *****************************/
 
-    template <class... Ranges>
-    ContainerRangeFactory<Ranges...>::ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs)
+    template <typename T, class... Ranges>
+    ContainerRangeFactory<T,Ranges...>::ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs)
     {
-	mProd = std::shared_ptr<ContainerRange<Ranges...> >( new ContainerRange<Ranges...>( rs... ) );
+	mProd = std::shared_ptr<ContainerRange<T,Ranges...> >( new ContainerRange<T,Ranges...>( rs... ) );
     }
    
-    template <class... Ranges>
-    ContainerRangeFactory<Ranges...>::
-    ContainerRangeFactory(const typename ContainerRange<Ranges...>::SpaceType& space)
+    template <typename T, class... Ranges>
+    ContainerRangeFactory<T,Ranges...>::
+    ContainerRangeFactory(const typename ContainerRange<T,Ranges...>::SpaceType& space)
     {
-	mProd = std::shared_ptr<ContainerRange<Ranges...> >( new ContainerRange<Ranges...>( space ) );
+	mProd = std::shared_ptr<ContainerRange<T,Ranges...> >( new ContainerRange<T,Ranges...>( space ) );
     }
 
-    template <class... Ranges>
-    std::shared_ptr<RangeBase> ContainerRangeFactory<Ranges...>::create()
+    template <typename T, class... Ranges>
+    std::shared_ptr<RangeBase> ContainerRangeFactory<T,Ranges...>::create()
     {
 	setSelf();
 	return mProd;
@@ -408,64 +546,65 @@ namespace MultiArrayTools
      *   ContainerRange   *
      **********************/
 
-    template <class... Ranges>
-    ContainerRange<Ranges...>::ContainerRange(const std::shared_ptr<Ranges>&... rs) :
+    template <typename T, class... Ranges>
+    ContainerRange<T,Ranges...>::ContainerRange(const std::shared_ptr<Ranges>&... rs) :
 	mSpace( std::make_tuple( rs... ) ) {}
 
-    template <class... Ranges>
-    ContainerRange<Ranges...>::ContainerRange(const SpaceType& space) : mSpace( space ) {}
+    template <typename T, class... Ranges>
+    ContainerRange<T,Ranges...>::ContainerRange(const SpaceType& space) : mSpace( space ) {}
 
-    template <class... Ranges>
-    size_t ContainerRange<Ranges...>::dim() const
+    template <typename T, class... Ranges>
+    size_t ContainerRange<T,Ranges...>::dim() const
     {
 	return sizeof...(Ranges);
     }
 
-    template <class... Ranges>
-    size_t ContainerRange<Ranges...>::size() const
+    template <typename T, class... Ranges>
+    size_t ContainerRange<T,Ranges...>::size() const
     {
 	return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
-    template <class... Ranges>
+    template <typename T, class... Ranges>
     template <size_t N>
-    auto ContainerRange<Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
+    auto ContainerRange<T,Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
     {
 	return *std::get<N>( mSpace );
     }
 
-    template <class... Ranges>
+    template <typename T, class... Ranges>
     template <size_t N>
-    auto ContainerRange<Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
+    auto ContainerRange<T,Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
     {
 	return std::get<N>( mSpace );
     }
 
-    template <class... Ranges>
-    const typename ContainerRange<Ranges...>::SpaceType& ContainerRange<Ranges...>::space() const
+    template <typename T, class... Ranges>
+    const typename ContainerRange<T,Ranges...>::SpaceType& ContainerRange<T,Ranges...>::space() const
     {
 	return mSpace;
     }
         
-    template <class... Ranges>
-    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::begin() const
+    template <typename T, class... Ranges>
+    typename ContainerRange<T,Ranges...>::IndexType ContainerRange<T,Ranges...>::begin() const
     {
-	ContainerIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
+	ContainerIndex<T,typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<ContainerRange<T,Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
 
-    template <class... Ranges>
-    typename ContainerRange<Ranges...>::IndexType ContainerRange<Ranges...>::end() const
+    template <typename T, class... Ranges>
+    typename ContainerRange<T,Ranges...>::IndexType ContainerRange<T,Ranges...>::end() const
     {
-	ContainerIndex<typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<ContainerRange<Ranges...> >
+	ContainerIndex<T,typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<ContainerRange<T,Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
 	return i;
     }
+
 } // end namespace MultiArrayTools
 
 

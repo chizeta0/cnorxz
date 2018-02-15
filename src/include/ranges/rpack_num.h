@@ -162,9 +162,9 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::construct(ip, range);
 	}
 
-	template <template<class...> class IndexType, class... Indices>
+	template <class IndexType, class... Indices>
 	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     const IndexType<Indices...>& ind)
+			     const IndexType& ind)
 	{
 	    std::get<N>(ip) = ind.template getPtr<N>() ;
 	    RPackNum<N-1>::copyInst(ip, ind);
@@ -341,9 +341,9 @@ namespace MultiArrayHelper
 	    std::get<0>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<0>() ) );
 	}
 
-	template <template<class...> class IndexType, class... Indices>
+	template <class IndexType, class... Indices>
 	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     const IndexType<Indices...>& ind)
+			     const IndexType& ind)
 	{
 	    std::get<0>(ip) = ind.template getPtr<0>();
 	}

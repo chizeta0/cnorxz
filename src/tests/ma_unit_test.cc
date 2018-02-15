@@ -111,7 +111,7 @@ namespace {
 	EXPECT_EQ( ma[ i.at('g') ], 0.577);
 
     }
-
+    
     TEST_F(MATest_1Dim, ForLoop)
     {
 	std::vector<double> v2 = { 0.693 , 2.718, 3.141, 1.618, 9.98 };
@@ -136,7 +136,7 @@ namespace {
 	}
 	EXPECT_EQ(cnt, ma.size());
     }
-
+    
     TEST_F(MATest_1Dim, ReFormat)
     {
 	swapFactory<SRF>( rfbptr, { 'a', 'c', 'e', 'g', 'i' } );
