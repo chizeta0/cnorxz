@@ -3,7 +3,6 @@
 #define __rpack_num_h__
 
 #include <memory>
-#include "vindex_wrapper.h"
 #include "index_info.h"
 
 namespace MultiArrayHelper
@@ -41,28 +40,6 @@ namespace MultiArrayHelper
     template <size_t N>
     struct RPackNum
     {
-	template <class IndexType>
-	static std::shared_ptr<VIWB> getIndex(const IndexType& in, size_t n)
-	{
-	    if(n == N){
-		return make_viwb( in.template get<N>() );
-	    }
-	    else {
-		return RPackNum<N-1>::getIndex(in, n);
-	    }
-	}
-
-	template <class IndexType>
-	static std::shared_ptr<VIWB> getIndexPtr(const IndexType& in, size_t n)
-	{
-	    if(n == N){
-		return make_viwb( in.template getPtr<N>() );
-	    }
-	    else {
-		return RPackNum<N-1>::getIndexPtr(in, n);
-	    }
-	}
-
 	template <class... Indices>
 	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
 				   std::tuple<std::shared_ptr<Indices>...>& ip)
@@ -271,17 +248,6 @@ namespace MultiArrayHelper
     template<>
     struct RPackNum<0>
     {
-	template <class IndexType>
-	static std::shared_ptr<VIWB> getIndex(const IndexType& in, size_t n)
-	{
-	    return make_viwb( in.template get<0>() );
-	}
-
-	template <class IndexType>
-	static std::shared_ptr<VIWB> getIndexPtr(const IndexType& in, size_t n)
-	{
-	    return make_viwb( in.template getPtr<0>() );
-	}
 
 	template <class... Indices>
 	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,

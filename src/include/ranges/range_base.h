@@ -13,7 +13,6 @@ namespace MultiArrayTools
 {
     class RangeBase;
 }
-#include "vindex_base.h"
 
 namespace MultiArrayTools
 {
@@ -55,8 +54,6 @@ namespace MultiArrayTools
 	    
 	virtual size_t size() const = 0;
 	virtual size_t dim() const = 0;
-	
-	virtual std::shared_ptr<VIWB> index() const = 0;
 
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;

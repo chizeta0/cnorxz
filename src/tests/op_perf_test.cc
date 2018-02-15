@@ -162,12 +162,10 @@ namespace {
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
 	auto deltap = MAT::getIndex<SR>();
-	auto vdeltap = MAT::make_viwb(deltap);
 	
 	auto mix = MAT::mkMIndex( alpha, beta, gamma );
 
 	std::clock_t begin = std::clock();
-	//res1(delta, deltap).set(vdeltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	for(size_t i = 0; i != 1000; ++i){
 	    res1(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	}

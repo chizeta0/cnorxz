@@ -64,6 +64,7 @@ namespace MultiArrayTools
     }
 
     // put this in the interface class !!!
+    /*
     std::shared_ptr<VIWB> SingleRange<size_t,SpaceType::NONE>::index() const
     {
 	typedef IndexWrapper<IndexType> IW;
@@ -72,6 +73,6 @@ namespace MultiArrayTools
 	      ( std::dynamic_pointer_cast<SingleRange<size_t,SpaceType::NONE> >
 		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }
-
+    */
 }
 

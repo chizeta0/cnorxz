@@ -215,12 +215,10 @@ namespace {
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
 	auto deltap = MAT::getIndex<SR>();
-	auto vdeltap = MAT::make_viwb(deltap);
 	
 	auto mix = MAT::mkMIndex( alpha, beta, gamma );
 
 	std::clock_t begin = std::clock();
-	//res1(delta, deltap).set(vdeltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	res1(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC

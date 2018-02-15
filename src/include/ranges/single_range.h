@@ -57,7 +57,6 @@ namespace MultiArrayTools
 	template <size_t N>
 	void getPtr();
 
-	std::shared_ptr<VIWB> getVPtr(size_t n);
 	size_t getStepSize(size_t n);
 
 	std::vector<IndexInfo> infoVec() const;
@@ -104,8 +103,7 @@ namespace MultiArrayTools
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
-	virtual std::shared_ptr<VIWB> index() const override;
-	
+		
 	friend SingleRangeFactory<U,TYPE>;
 
 	static constexpr bool defaultable = false;
@@ -220,12 +218,6 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE>
     template <size_t N>
     void SingleIndex<U,TYPE>::getPtr() {}
-
-    template <typename U, SpaceType TYPE>
-    std::shared_ptr<VIWB> SingleIndex<U,TYPE>::getVPtr(size_t n)
-    {
-	return std::shared_ptr<VIWB>();
-    }
 
     template <typename U, SpaceType TYPE>
     std::vector<IndexInfo> SingleIndex<U,TYPE>::infoVec() const
@@ -348,18 +340,6 @@ namespace MultiArrayTools
 	i = size();
 	return i;
     }
-
-    // put this in the interface class !!!
-    template <typename U, SpaceType TYPE>
-    std::shared_ptr<VIWB> SingleRange<U,TYPE>::index() const
-    {
-	typedef IndexWrapper<IndexType> IW;
-	return std::make_shared<IW>
-	    ( std::make_shared<IndexType>
-	      ( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
-		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
-    }
-
 }
 
 #include "range_types/header.h"

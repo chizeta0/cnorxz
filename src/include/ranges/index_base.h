@@ -10,7 +10,6 @@
 #include "rbase_def.h"
 #include "range_base.h"
 #include "index_type.h"
-#include "vindex_wrapper.h"
 #include "index_info.h"
 
 #include "xfor/xfor.h"
@@ -52,13 +51,6 @@ namespace MultiArrayTools
 
 	
 	std::shared_ptr<RangeBase> vrange() const { return mRangePtr; }
-	/*auto range() const -> decltype( I::S_range(THIS()) ) { return I::S_range(THIS()); }
-	
-	template <size_t N>
-	auto getPtr() const -> decltype(I::template S_get<N>(THIS()))
-	{ return I::template S_get<N>(THIS()); }
-	*/
-	std::shared_ptr<VIWB> getVPtr(size_t n) const { return THIS().getVPtr(n); }
 
 	std::vector<IndexInfo> infoVec() const { return THIS().infoVec(); }
 	

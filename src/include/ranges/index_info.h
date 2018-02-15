@@ -7,7 +7,6 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
-#include "vindex_base.h"
 #include "index_type.h"
 
 namespace MultiArrayTools

@@ -37,7 +37,7 @@ namespace MultiArrayTools
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
-	virtual std::shared_ptr<VIWB> index() const override;
+	//virtual std::shared_ptr<VIWB> index() const override;
 	
 	friend SingleRangeFactory<size_t,SpaceType::NONE>;
 

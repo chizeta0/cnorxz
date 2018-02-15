@@ -36,19 +36,18 @@ namespace MultiArrayTools
     auto getIndex(std::shared_ptr<RangeType> range)
 	-> std::shared_ptr<typename RangeType::IndexType>
     {
-	return std::dynamic_pointer_cast<IndexWrapper<typename RangeType::IndexType> >
-	    ( range->index() )->get();
+	return std::make_shared<typename RangeType::IndexType>(range);
     }
 
     template <class RangeType>
-    auto getIndex() -> std::shared_ptr<typename RangeType::IndexType>
+    auto getIndex()
+	-> std::shared_ptr<typename RangeType::IndexType>
     {
 	static_assert( RangeType::defaultable,
 		       /*typeid(typename RangeType).name() + */" is not defaultable" );
 	static auto f = RangeType::factory();
 	static auto r = std::dynamic_pointer_cast<RangeType>( f.create() );
-	return std::dynamic_pointer_cast<IndexWrapper<typename RangeType::IndexType> >
-	    ( r->index() )->get();
+	return std::make_shared<typename RangeType::IndexType>(r);
     }
     
     template <class... RangeTypes>
