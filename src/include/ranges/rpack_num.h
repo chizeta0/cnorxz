@@ -177,6 +177,13 @@ namespace MultiArrayHelper
 	    return std::get<N>(iPtrTup)->pos() + RPackNum<N-1>::makePos(iPtrTup) * std::get<N>(iPtrTup)->max();
 	}
 
+	template <class... Indices>
+	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
+				     const std::array<size_t,sizeof...(Indices)+1>& blockSize)
+	{
+	    return RPackNum<N-1>::makePos(iPtrTup, blockSize) + std::get<N>(iPtrTup)->pos() * std::get<N>(blockSize);
+	}
+
 	template <class Pack, class IndexType, class... Indices>
 	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind,
 				const std::shared_ptr<Indices>&... ninds)
@@ -353,7 +360,14 @@ namespace MultiArrayHelper
 	{
 	    return std::get<0>(iPtrTup)->pos();
 	}
-	
+
+	template <class... Indices>
+	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
+				     const std::array<size_t,sizeof...(Indices)+1>& blockSize)
+	{
+	    return std::get<0>(iPtrTup)->pos() * std::get<0>(blockSize);
+	}
+
 	template <class Pack, class IndexType>
 	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind)
 	{

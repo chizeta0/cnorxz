@@ -7,7 +7,6 @@
 #include <tuple>
 #include <memory>
 
-//#include "base_def.h"
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
@@ -32,9 +31,10 @@ namespace MultiArrayTools
 	static IndexType sType() { return IndexType::CONT; }
 	static size_t sDim() { return sizeof...(Indices); }
 	static size_t totalDim() { return mkTotalDim<Indices...>(); }
-	
+
     private:
 
+	bool mNonTrivialBlocks = false;
 	bool mExternControl = false;
 	IndexPack mIPack;
 	std::array<size_t,sizeof...(Indices)+1> mBlockSizes; 
@@ -46,6 +46,10 @@ namespace MultiArrayTools
 	
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range);
+
+	template <class MRange>
+	ContainerIndex(const std::shared_ptr<MRange>& range,
+		       const std::array<size_t,sizeof...(Indices)+1>& blockSizes);
 	
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
@@ -71,13 +75,14 @@ namespace MultiArrayTools
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
 	
-	MetaType meta();
+	MetaType meta() const;
 	ContainerIndex& at(const MetaType& metaPos);
 
-	size_t dim();
-	bool first();
-	bool last();
-
+	size_t dim() const;
+	bool first() const;
+	bool last() const;
+	bool sliceMode() const;
+	
 	std::shared_ptr<RangeType> range();
 	
 	template <size_t N>
@@ -148,7 +153,6 @@ namespace MultiArrayTools
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
 	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
-	//typedef typename RangeInterface<ContainerIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 	
     protected:
 	ContainerRange() = default;
@@ -207,11 +211,24 @@ namespace MultiArrayTools
 	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
     {
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
 	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
     }
 
+    template <typename T, class... Indices>
+    template <class MRange>
+    ContainerIndex<T,Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range,
+						 const std::array<size_t,sizeof...(Indices)+1>& blockSizes) :
+	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
+    {
+	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
+	mBlockSizes = blockSizes;
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	mNonTrivialBlocks = true;
+    }
+    
+    
     template <typename T, class... Indices>
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::sync()
     {
@@ -303,7 +320,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Indices>
-    typename ContainerIndex<T,Indices...>::MetaType ContainerIndex<T,Indices...>::meta()
+    typename ContainerIndex<T,Indices...>::MetaType ContainerIndex<T,Indices...>::meta() const
     {
 	MetaType metaTuple;
 	RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
@@ -319,21 +336,27 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Indices>
-    size_t ContainerIndex<T,Indices...>::dim()
+    size_t ContainerIndex<T,Indices...>::dim() const
     {
 	return sizeof...(Indices);
     }
 
     template <typename T, class... Indices>
-    bool ContainerIndex<T,Indices...>::first()
+    bool ContainerIndex<T,Indices...>::first() const
     {
 	return IB::pos() == 0;
     }
 
     template <typename T, class... Indices>
-    bool ContainerIndex<T,Indices...>::last()
+    bool ContainerIndex<T,Indices...>::last() const
     {
 	return IB::pos() == IB::mMax - 1;
+    }
+
+    template <typename T, class... Indices>
+    bool ContainerIndex<T,Indices...>::sliceMode() const
+    {
+	return mNonTrivialBlocks;
     }
 
     template <typename T, class... Indices>

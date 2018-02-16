@@ -50,6 +50,8 @@ namespace MultiArrayTools
     {
     public:
 
+	static constexpr bool ISINDEX = false;
+	
 	virtual ~RangeBase() = default;
 	    
 	virtual size_t size() const = 0;

@@ -27,6 +27,8 @@ namespace MultiArrayTools
 
 	I& THIS() { return static_cast<I&>(*this); }
 	I const& THIS() const { return static_cast<I const&>(*this); }
+
+	static constexpr bool ISINDEX = true;
 	
 	~IndexInterface() = default; 
 
