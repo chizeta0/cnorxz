@@ -51,13 +51,17 @@ namespace MultiArrayTools
     class MultiIndex;
 
     // container_range.h
+    //template <typename T, class... Ranges>
+    //class ContainerRangeFactory;
     template <typename T, class... Ranges>
-    class ContainerRangeFactory;
+    using ContainerRangeFactory = MultiRangeFactory<Ranges...>;
 
     // container_range.h
+    //template <typename T, class... Ranges>
+    //class ContainerRange;
     template <typename T, class... Ranges>
-    class ContainerRange;
-
+    using ContainerRange = MultiRange<Ranges...>;
+    
     // container_range.h
     template <typename T, class... Indices>
     class ContainerIndex;

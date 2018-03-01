@@ -16,7 +16,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef typename CRange::IndexType IndexType;
+	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	
 	DEFAULT_MEMBERS(MultiArray);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges);
@@ -37,8 +37,8 @@ namespace MultiArrayTools
 	
 	virtual T& operator[](const IndexType& i) override;
 	virtual const T& operator[](const IndexType& i) const override;
-	virtual T& at(const typename CRange::IndexType::MetaType& meta) override;
-	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
+	virtual T& at(const typename IndexType::MetaType& meta) override;
+	virtual const T& at(const typename IndexType::MetaType& meta) const override;
 	
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
@@ -131,25 +131,25 @@ namespace MultiArrayTools
 	} */   
 
     template <typename T, class... SRanges>
-    T& MultiArray<T,SRanges...>::operator[](const typename CRange::IndexType& i)
+    T& MultiArray<T,SRanges...>::operator[](const IndexType& i)
     {
 	return mCont[ i.pos() ];
     }
 
     template <typename T, class... SRanges>
-    const T& MultiArray<T,SRanges...>::operator[](const typename CRange::IndexType& i) const
+    const T& MultiArray<T,SRanges...>::operator[](const IndexType& i) const
     {
 	return mCont[ i.pos() ];
     }
 
     template <typename T, class... SRanges>
-    T& MultiArray<T,SRanges...>::at(const typename CRange::IndexType::MetaType& meta)
+    T& MultiArray<T,SRanges...>::at(const typename IndexType::MetaType& meta)
     {
 	return mCont[ MAB::beginIndex().at(meta).pos() ];
     }
 
     template <typename T, class... SRanges>
-    const T& MultiArray<T,SRanges...>::at(const typename CRange::IndexType::MetaType& meta) const
+    const T& MultiArray<T,SRanges...>::at(const typename IndexType::MetaType& meta) const
     {
 	return mCont[ MAB::beginIndex().at(meta).pos() ];
     }

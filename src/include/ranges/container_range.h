@@ -127,7 +127,7 @@ namespace MultiArrayTools
 	
     };
 
-    
+    /*
     template <typename T, class... Ranges>
     class ContainerRangeFactory : public RangeFactoryBase
     {
@@ -143,8 +143,8 @@ namespace MultiArrayTools
 	
     protected:
 	
-    };
-    
+    };*/
+    /*
     template <typename T, class... Ranges>
     class ContainerRange : public RangeInterface<ContainerIndex<T,typename Ranges::IndexType...> >
     {
@@ -187,7 +187,11 @@ namespace MultiArrayTools
 	static constexpr size_t ISSTATIC = SubProp<Ranges...>::ISSTATIC;
 	static constexpr size_t SIZE = SubProp<Ranges...>::SIZE;
     };
-   
+    */
+
+    //template <typename T, class... Ranges>
+    //using ContainerRange = MultiRange<Ranges...>;
+    
 } // end namespace MultiArrayTools
 
 /* ========================= *
@@ -544,7 +548,7 @@ namespace MultiArrayTools
     /*****************************
      *   ContainerRangeFactory   *
      *****************************/
-
+    /*
     template <typename T, class... Ranges>
     ContainerRangeFactory<T,Ranges...>::ContainerRangeFactory(const std::shared_ptr<Ranges>&... rs)
     {
@@ -564,11 +568,11 @@ namespace MultiArrayTools
 	setSelf();
 	return mProd;
     }
-    
+    */
     /**********************
      *   ContainerRange   *
      **********************/
-
+    /*
     template <typename T, class... Ranges>
     ContainerRange<T,Ranges...>::ContainerRange(const std::shared_ptr<Ranges>&... rs) :
 	mSpace( std::make_tuple( rs... ) ) {}
@@ -627,7 +631,7 @@ namespace MultiArrayTools
 	i = size();
 	return i;
     }
-
+    */
 } // end namespace MultiArrayTools
 
 

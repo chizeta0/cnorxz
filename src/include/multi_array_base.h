@@ -24,7 +24,7 @@ namespace MultiArrayTools
 
 	typedef T value_type;
 	typedef ContainerRange<T,SRanges...> CRange;
-	typedef typename CRange::IndexType IndexType;
+	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 
 	DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
@@ -70,7 +70,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef typename CRange::IndexType IndexType;
+	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	
 	using MultiArrayBase<T,SRanges...>::operator[];
 	using MultiArrayBase<T,SRanges...>::at;
@@ -134,14 +134,14 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::begin() const
     {
-	auto i = mRange->begin();
+	IndexType i = mRange->begin();
 	return i.setData(data());
     }
     
     template <typename T, class... SRanges>
     typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::end() const
     {
-	auto i = mRange->end();
+	IndexType i = mRange->end();
 	return i.setData(data());
     }
     
@@ -149,7 +149,7 @@ namespace MultiArrayTools
     typename MultiArrayBase<T,SRanges...>::IndexType
     MultiArrayBase<T,SRanges...>::beginIndex() const
     {
-	auto i = mRange->begin();
+	IndexType i = mRange->begin();
 	return i.setData(data());
     }
 
@@ -157,7 +157,7 @@ namespace MultiArrayTools
     typename MultiArrayBase<T,SRanges...>::IndexType
     MultiArrayBase<T,SRanges...>::endIndex() const
     {
-	auto i = mRange->end();
+	IndexType i = mRange->end();
 	return i.setData(data());
     }
 
