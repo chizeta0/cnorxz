@@ -50,6 +50,7 @@ namespace {
 
 	typedef ContainerRangeFactory<double,M3Range,SRange> CRF;
 	typedef CRF::oType CRange;
+	typedef ContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
 
 	IndexTest()
 	{
@@ -182,9 +183,13 @@ namespace {
 	EXPECT_EQ(cr2ptr->size(), 12u);
 
 	auto mi = mstrptr->begin();
-	auto ci1 = cr1ptr->begin();
-	auto ci2 = cr2ptr->begin();
-
+	//auto ci1 = cr1ptr->begin();
+	CIndex ci1(cr1ptr);
+	ci1 = 0;
+	//auto ci2 = cr2ptr->begin();
+	CIndex ci2(cr2ptr);
+	ci2 = 0;
+	
 	EXPECT_EQ(ci1.max(), 16u);
 	EXPECT_EQ(ci2.max(), 12u);
 	

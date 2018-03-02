@@ -60,7 +60,7 @@ namespace MultiArrayTools
     protected:
 	bool mInit = false;
 	std::shared_ptr<CRange> mRange;
-
+	std::shared_ptr<IndexType> mProtoI;
     };
 
     template <typename T, class... SRanges>
@@ -116,6 +116,7 @@ namespace MultiArrayTools
     {
 	ContainerRangeFactory<T,SRanges...> crf(ranges...);
 	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
+	mProtoI = std::make_shared<IndexType>( mRange );
     }
 
     template <typename T, class... SRanges>
@@ -123,6 +124,7 @@ namespace MultiArrayTools
     {
 	ContainerRangeFactory<T,SRanges...> crf(space);
 	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
+	mProtoI = std::make_shared<IndexType>( mRange );
     }
     
     template <typename T, class... SRanges>
@@ -134,14 +136,17 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::begin() const
     {
-	IndexType i = mRange->begin();
+	IndexType i(*mProtoI);
+	i = 0;
 	return i.setData(data());
     }
     
     template <typename T, class... SRanges>
     typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::end() const
     {
-	IndexType i = mRange->end();
+	IndexType i(*mProtoI);
+	i = i.max();
+	//i = mRange->size();
 	return i.setData(data());
     }
     
@@ -149,7 +154,8 @@ namespace MultiArrayTools
     typename MultiArrayBase<T,SRanges...>::IndexType
     MultiArrayBase<T,SRanges...>::beginIndex() const
     {
-	IndexType i = mRange->begin();
+	IndexType i(*mProtoI);
+	i = 0;
 	return i.setData(data());
     }
 
@@ -157,7 +163,9 @@ namespace MultiArrayTools
     typename MultiArrayBase<T,SRanges...>::IndexType
     MultiArrayBase<T,SRanges...>::endIndex() const
     {
-	IndexType i = mRange->end();
+	IndexType i(*mProtoI);
+	i = i.max();
+	//i = mRange->size();
 	return i.setData(data());
     }
 

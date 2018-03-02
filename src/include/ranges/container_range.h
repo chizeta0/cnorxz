@@ -33,7 +33,9 @@ namespace MultiArrayTools
 	static size_t totalDim() { return mkTotalDim<Indices...>(); }
 
     private:
-
+	
+	ContainerIndex() = default;
+	
 	bool mNonTrivialBlocks = false;
 	bool mExternControl = false;
 	IndexPack mIPack;
@@ -42,7 +44,8 @@ namespace MultiArrayTools
 	
     public:
 
-	ContainerIndex() = delete;
+	ContainerIndex(const ContainerIndex& in) = default;
+	ContainerIndex& operator=(const ContainerIndex& in) = default;
 	
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range);
@@ -50,7 +53,7 @@ namespace MultiArrayTools
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range,
 		       const std::array<size_t,sizeof...(Indices)+1>& blockSizes);
-	
+
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 
