@@ -100,8 +100,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 
-	std::vector<IndexInfo> infoVec() const;
-	
 	std::string id() const;
 	void print(size_t offset);
 
@@ -383,15 +381,6 @@ namespace MultiArrayTools
 	    // throw !!
 	}
 	return mBlockSizes[n+1];
-    }
-
-    template <class... Indices>
-    std::vector<IndexInfo> MultiIndex<Indices...>::infoVec() const
-    {
-	std::vector<IndexInfo> out;
-	out.reserve(sizeof...(Indices));
-	RPackNum<sizeof...(Indices)-1>::buildInfoVec(out, mIPack, mBlockSizes);
-	return std::move( out );
     }
     
     template <class... Indices>

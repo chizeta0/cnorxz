@@ -3,7 +3,6 @@
 #define __rpack_num_h__
 
 #include <memory>
-#include "index_info.h"
 
 namespace MultiArrayHelper
 {
@@ -224,16 +223,6 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::template checkDefaultable<Ranges...>();
 	}
 
-	template <class... Indices>
-	static void buildInfoVec(std::vector<IndexInfo>& out,
-				 const std::tuple<std::shared_ptr<Indices>...>& ip,
-				 const std::array<size_t,sizeof...(Indices)+1>& bs)
-	{
-	    static const size_t POS = sizeof...(Indices)-N-1;
-	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
-	    RPackNum<N-1>::buildInfoVec(out, ip, bs);
-	}
-
 	template <class IndexPack, class Exprs>
 	static auto mkFor(const IndexPack& ipack, Exprs exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
@@ -413,15 +402,6 @@ namespace MultiArrayHelper
 	static void checkDefaultable()
 	{
 	    static_assert( Range::defaultable, "not defaultable" );
-	}
-
-	template <class... Indices>
-	static void buildInfoVec(std::vector<IndexInfo>& out,
-				 const std::tuple<std::shared_ptr<Indices>...>& ip,
-				 const std::array<size_t,sizeof...(Indices)+1>& bs)
-	{
-	    static const size_t POS = sizeof...(Indices)-1;
-	    out.emplace_back(*std::get<POS>(ip), std::get<POS>(bs));
 	}
 
 	template <class IndexPack, class Exprs>

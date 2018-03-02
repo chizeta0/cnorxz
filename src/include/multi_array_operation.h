@@ -12,12 +12,9 @@
 #include "base_def.h"
 #include "mbase_def.h"
 
-//#include "block/block.h"
-//#include "operation_utils.h"
 #include "ranges/rheader.h"
 #include "pack_num.h"
 
-#include "ranges/index_info.h"
 #include "arith.h"
 
 namespace MultiArrayTools
@@ -101,11 +98,6 @@ namespace MultiArrayTools
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			IndexType& index);
 
-	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
-			//std::shared_ptr<IndexType>& index,
-			IndexType& index,
-			const IndexInfo* blockIndex);
-
 	inline void set(size_t pos, T val) { mDataPtr[pos] = val; }
 	inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
 	inline T get(size_t pos) const;
@@ -117,7 +109,6 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
-	//IndexInfo mIInfo;
     };
 
     
@@ -150,9 +141,7 @@ namespace MultiArrayTools
 
 	MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
-	//std::shared_ptr<IndexType> mIndex;
 	IndexType mIndex;
-	//IndexInfo mIInfo;
     };
     
     template <typename T, class... Ranges>
@@ -187,7 +176,6 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
-	//IndexInfo mIInfo;
     };
 
     template <class Op>
@@ -387,17 +375,6 @@ namespace MultiArrayTools
     {
 	performAssignment(0);
     }
-
-    template <typename T, class OpClass, class... Ranges>
-    OperationMaster<T,OpClass,Ranges...>::
-    OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
-		    IndexType& index,
-		    const IndexInfo* blockIndex) :
-	mSecond(second), mArrayRef(ma), mDataPtr(mArrayRef.data()),
-	mIndex(index)
-    {
-	performAssignment(0);
-    }
     
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
@@ -424,7 +401,6 @@ namespace MultiArrayTools
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mArrayRef(ma), mDataPtr(mArrayRef.data()),
-	//mIndex( mkIndex(ma,indices...) ), mIInfo(mIndex)
 	mIndex( ma.begin() )
     {
 	mIndex(indices...);

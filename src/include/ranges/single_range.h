@@ -59,8 +59,6 @@ namespace MultiArrayTools
 	void getPtr();
 
 	size_t getStepSize(size_t n);
-
-	std::vector<IndexInfo> infoVec() const;
 	
 	std::string id() const;
 	void print(size_t offset);
@@ -219,12 +217,6 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE>
     template <size_t N>
     void SingleIndex<U,TYPE>::getPtr() {}
-
-    template <typename U, SpaceType TYPE>
-    std::vector<IndexInfo> SingleIndex<U,TYPE>::infoVec() const
-    {
-	return std::move( std::vector<IndexInfo>() );
-    }
     
     template <typename U, SpaceType TYPE>
     size_t SingleIndex<U,TYPE>::getStepSize(size_t n)
