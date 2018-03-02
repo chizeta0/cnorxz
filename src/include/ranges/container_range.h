@@ -28,9 +28,9 @@ namespace MultiArrayTools
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef ContainerRange<T,typename Indices::RangeType...> RangeType;
 
-	static IndexType sType() { return IndexType::CONT; }
-	static size_t sDim() { return sizeof...(Indices); }
-	static size_t totalDim() { return mkTotalDim<Indices...>(); }
+	static constexpr IndexType sType() { return IndexType::CONT; }
+	static constexpr size_t sDim() { return sizeof...(Indices); }
+	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
 
     private:
 	

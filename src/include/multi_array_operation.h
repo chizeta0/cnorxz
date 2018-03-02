@@ -117,7 +117,7 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
-	IndexInfo mIInfo;
+	//IndexInfo mIInfo;
     };
 
     
@@ -152,7 +152,7 @@ namespace MultiArrayTools
 	const T* mDataPtr;
 	//std::shared_ptr<IndexType> mIndex;
 	IndexType mIndex;
-	IndexInfo mIInfo;
+	//IndexInfo mIInfo;
     };
     
     template <typename T, class... Ranges>
@@ -187,7 +187,7 @@ namespace MultiArrayTools
 	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
-	IndexInfo mIInfo;
+	//IndexInfo mIInfo;
     };
 
     template <class Op>
@@ -383,7 +383,7 @@ namespace MultiArrayTools
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    IndexType& index) :
 	mSecond(second), mArrayRef(ma), mDataPtr(mArrayRef.data()),
-	mIndex(index), mIInfo(mIndex)
+	mIndex(index)
     {
 	performAssignment(0);
     }
@@ -394,7 +394,7 @@ namespace MultiArrayTools
 		    IndexType& index,
 		    const IndexInfo* blockIndex) :
 	mSecond(second), mArrayRef(ma), mDataPtr(mArrayRef.data()),
-	mIndex(index), mIInfo(mIndex)
+	mIndex(index)
     {
 	performAssignment(0);
     }
@@ -424,8 +424,8 @@ namespace MultiArrayTools
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mArrayRef(ma), mDataPtr(mArrayRef.data()),
-	//mIndex( mkIndex(ma,indices...) ), mIInfo(*mIndex)
-	mIndex( ma.begin() ), mIInfo(mIndex)
+	//mIndex( mkIndex(ma,indices...) ), mIInfo(mIndex)
+	mIndex( ma.begin() )
     {
 	mIndex(indices...);
     }
@@ -440,7 +440,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<void> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( mIndex.info(), iPtrNum ));
+	return MExt<void>(getStepSize( mIndex, iPtrNum ));
 	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
@@ -461,7 +461,7 @@ namespace MultiArrayTools
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mArrayRef(ma), mDataPtr(mArrayRef.data()),
-	mIndex( ma.begin() ), mIInfo(mIndex)
+	mIndex( ma.begin() )
     {
 	mIndex(indices...);
     }
@@ -483,8 +483,8 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<void> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( mIndex.info(), iPtrNum ));
-	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<void>(getStepSize( mIndex, iPtrNum ));
+	//return MExt<void>(getStepSize( mIndex.info(), iPtrNum ));
     }
 
     template <typename T, class... Ranges>

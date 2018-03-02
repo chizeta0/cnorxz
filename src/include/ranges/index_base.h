@@ -32,7 +32,7 @@ namespace MultiArrayTools
 	
 	~IndexInterface() = default; 
 
-	IndexType type() const { return THIS().type(); }
+	constexpr IndexType type() const { return THIS().type(); }
 	
 	I& operator=(size_t pos) { return THIS() = pos; }
 	I& operator++() { return THIS()++; }
@@ -78,11 +78,13 @@ namespace MultiArrayTools
 	auto iforh(const Expr ex) const -> decltype(THIS().template iforh<Expr>(ex))
 	{ return THIS().template iforh<Expr>(ex); }
 
+	std::intptr_t ptrNum() const;
+	
     private:
 
 	friend I;
 	
-	IndexInterface() { mId = indexId(); }
+	IndexInterface();
 	IndexInterface(const IndexInterface& in) = default;
 	IndexInterface& operator=(const IndexInterface& in) = default;
 	IndexInterface(IndexInterface&& in) = default;
@@ -91,11 +93,13 @@ namespace MultiArrayTools
 	IndexInterface(const std::shared_ptr<RangeBase>& range, size_t pos);
 	
 	std::shared_ptr<RangeBase> mRangePtr;
-	size_t mPos;
+	size_t mPos = 0;
 	size_t mId;
-	size_t mMax;
+	size_t mMax = 0;
+
+	std::intptr_t mPtrNum;
     };
-   
+
 }
 
 /* ========================= *
@@ -109,12 +113,19 @@ namespace MultiArrayTools
      **********************/
 
     template <class I, typename MetaType>
+    IndexInterface<I,MetaType>::IndexInterface() : mId(indexId())
+    {
+	mPtrNum = reinterpret_cast<std::intptr_t>(this);
+    }
+    
+    template <class I, typename MetaType>
     IndexInterface<I,MetaType>::IndexInterface(const std::shared_ptr<RangeBase>& range,
 					       size_t pos) : mRangePtr(range),
 							     mPos(pos),
 							     mMax(mRangePtr->size())
     {
 	mId = indexId();
+	mPtrNum = reinterpret_cast<std::intptr_t>(this);
     }
 
     template <class I, typename MetaType>
@@ -145,6 +156,12 @@ namespace MultiArrayTools
     IndexInterface<I,MetaType>::operator size_t() const
     {
 	return pos();
+    }
+
+    template <class I, typename MetaType>
+    std::intptr_t IndexInterface<I,MetaType>::ptrNum() const
+    {
+	return mPtrNum;
     }
 }
 

@@ -77,6 +77,7 @@ namespace MultiArrayTools
 
     std::vector<IndexInfo> getRootIndices(const IndexInfo& info);
 
+    /*
     inline size_t getStepSize(const IndexInfo& ii, std::intptr_t j)
     {
 	if(ii.type() == IndexType::SINGLE){
@@ -91,12 +92,13 @@ namespace MultiArrayTools
 		const size_t tmp = getStepSize(itmp, j);
 		ss += tmp * sx;
 		sx *= max;
+		VCHECK(ss);
 	    }
 	    return ss;
 	}
     }
-
-    size_t getStepSize(const std::vector<IndexInfo>& iv, std::intptr_t j);
+    */
+    //size_t getStepSize(const std::vector<IndexInfo>& iv, std::intptr_t j);
 } // end namespace MultiArrayTools
 
 #endif

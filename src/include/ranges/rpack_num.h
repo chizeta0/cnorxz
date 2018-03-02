@@ -36,6 +36,9 @@ namespace MultiArrayHelper
 	static constexpr size_t ISSTATIC = 1;
 	static constexpr size_t SIZE = 1;
     };
+
+    template <class Index>
+    inline size_t getStepSize(const Index& ii, std::intptr_t j);
     
     template <size_t N>
     struct RPackNum
@@ -249,6 +252,19 @@ namespace MultiArrayHelper
 		->iforh( RPackNum<N-1>::mkForh(ipack, exs) );
 	}
 
+	template <class Index>
+	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx)
+	{
+	    //constexpr size_t DIM = Index::sDim();
+	    const auto& ni = ii.template get<N>();
+	    const size_t max = ni.max();
+	    const size_t tmp = getStepSize(ni, j);
+	    //VCHECK(tmp);
+	    ss += tmp * sx;
+	    //VCHECK(ss);
+	    sx *= max;
+	    RPackNum<N-1>::getStepSizeX(ii, j, ss, sx);
+	}
     };
 
     
@@ -424,8 +440,53 @@ namespace MultiArrayHelper
 	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->iforh(exs);
 	}
 
+	template <class Index>
+	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx)
+	{
+	    //constexpr size_t DIM = Index::sDim();
+	    const auto& ni = ii.template get<0>();
+	    const size_t max = ni.max();
+	    const size_t tmp = getStepSize(ni, j);
+	    //VCHECK(tmp);
+	    ss += tmp * sx;
+	    //VCHECK(ss);
+	    sx *= max;
+	}
+
     };
-	
+    
+    template <IndexType IT>
+    struct SSG
+    {
+	template <class Index>
+	static inline size_t getStepSize(const Index& ii, std::intptr_t j)
+	{
+	    size_t ss = 0;
+	    size_t sx = 1;
+	    constexpr size_t DIM = Index::sDim();
+	    RPackNum<DIM-1>::getStepSizeX(ii, j, ss, sx);
+	    return ss;
+	}
+    };
+
+    template <>
+    struct SSG<IndexType::SINGLE>
+    {
+	template <class Index>
+	static inline size_t getStepSize(const Index& ii, std::intptr_t j)
+	{
+	    //VCHECK(ii.ptrNum());
+	    //VCHECK(j);
+	    return ii.ptrNum() == j ? 1 : 0;
+	}
+    };
+    
+    template <class Index>
+    inline size_t getStepSize(const Index& ii, std::intptr_t j)
+    {
+	constexpr IndexType IT = Index::sType();
+	return SSG<IT>::getStepSize(ii, j);
+    }
 
 } //  end namespace MultiArrayHelper
 
