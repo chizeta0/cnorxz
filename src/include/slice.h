@@ -14,30 +14,30 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef typename CRange::IndexType IndexType;
+	typedef typename CRange::IndexType IType;
 	
 	DEFAULT_MEMBERS(Slice);
 
-	template <class... RITypes> // Range / Index <-> open / const 
-	Slice(T* data, const RITypes&... ris);
+	// RITypes = Range XOR Index depending on whether const XOR opern
+	template <class... RITypes>
+	Slice(MutableMultiArrayBase<T,typename RITypes::RangeType...>& ma,
+	      const std::shared_ptr<RITypes>&... ris);
 	
-	virtual const T& operator[](const IndexType& i) const override;
-	virtual T& operator[](const IndexType& i) override;
-	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
-	virtual T& at(const typename CRange::IndexType::MetaType& meta) override;
+	virtual const T& operator[](const IType& i) const override;
+	virtual T& operator[](const IType& i) override;
+	virtual const T& at(const typename IType::MetaType& meta) const override;
+	virtual T& at(const typename IType::MetaType& meta) override;
 
 	virtual const T* data() const override;
 	virtual T* data() override;
 
 	virtual bool isSlice() const override;
 
-	virtual IndexType begin() const override;
-	virtual IndexType end() const override;
+	virtual auto begin() const -> IType override;
+	virtual auto end() const -> IType override;
 	
     private:
 	T* mData;
-	size_t mStartPos;
-	std::array<size_t,sizeof...(SRange)+1> mBlockSizes;
     };
     
 } // end namespace MultiArrayTools
@@ -52,6 +52,17 @@ namespace MultiArrayTools
     namespace
     {
 
+	//size_t sum(size_t arg)
+	//{
+	//    return arg;
+	//}
+	
+	template <typename... SizeTypes>
+	size_t sum(size_t arg, SizeTypes... args)
+	{
+	    return arg + sum(args...);
+	}
+	
 	template <bool ISINDEX>
 	struct XX
 	{
@@ -60,6 +71,12 @@ namespace MultiArrayTools
 		-> std::tuple<RI>
 	    {
 		return std::make_tuple(ri);
+	    }
+
+	    template <class RI>
+	    static size_t ri_to_start_pos(const std::shared_ptr<RI>& ri)
+	    {
+		return 0;
 	    }
 	};
 
@@ -72,52 +89,69 @@ namespace MultiArrayTools
 	    {
 		return std::make_tuple();
 	    }
+
+	    template <class RI>
+	    static size_t ri_to_start_pos(const std::shared_ptr<RI>& ri)
+	    {
+		return ri->pos();
+	    }
+
 	};
 	
 	template <class... RITypes>
 	auto mkSliceRange(const std::shared_ptr<RITypes>&... ris)
+	    -> decltype(std::tuple_cat(XX<RITypes::ISINDEX>::ri_to_tuple(ris)...))
 	{
 	    return std::tuple_cat(XX<RITypes::ISINDEX>::ri_to_tuple(ris)...);
 	}
 
+	template <class... RITypes>
+	size_t mkStartPos(const std::shared_ptr<RITypes>&... ris)
+	{
+	    return sum(ri_to_start_pos(ris)...);
+	}
+	
     }
     
     /*************
      *  Slice    *	     
      *************/
-    /*
+    
     template <typename T, class... SRanges>
-    Slice<T,SRanges...>::Slice(T* data, const RITypes&... ris) :
+    template <class... RITypes>
+    Slice<T,SRanges...>::Slice(MutableMultiArrayBase<T,typename RITypes::RangeType...>& ma,
+			       const std::shared_ptr<RITypes>&... ris) :
 	MutableMultiArrayBase<T,SRanges...>( mkSliceRange(ris...) ),
-	mData(data),
-	mStartPos(mkSliceStart(ris...)),
-	mBlockSizes(mkSliceBlocks(ris...)) {}
-    */ //!!!!!
+	mData(ma.data() + mkStartPos(ris...))
+    {
+	MAB::mProtoI.format( mBlockSizes(mkSliceBlocks(ris...)) );
+    }
+    
     template <typename T, class... SRanges>
-    const T& Slice<T,SRanges...>::operator[](const IndexType& i) const
+    const T& Slice<T,SRanges...>::operator[](const IType& i) const
     {
 	assert(i.sliceMode()); // -> compare objects !!!!!
+	assert(i.container() == reinterpret_cast<std::intptr_t>(this));
 	return mData[ i.pos() ];
     }
 
     template <typename T, class... SRanges>
-    T& Slice<T,SRanges...>::operator[](const IndexType& i)
+    T& Slice<T,SRanges...>::operator[](const IType& i)
     {
 	assert(i.sliceMode());
+	assert(i.container() == reinterpret_cast<std::intptr_t>(this));
 	return mData[ i.pos() ];
     }
 
     template <typename T, class... SRanges>
-    const T& Slice<T,SRanges...>::at(const typename CRange::IndexType::MetaType& meta) const
+    const T& Slice<T,SRanges...>::at(const typename IType::MetaType& meta) const
     {
-	assert(i.sliceMode());
 	return mData[ begin().at(meta).pos() ];
     }
 
     template <typename T, class... SRanges>
-    T& Slice<T,SRanges...>::at(const typename CRange::IndexType::MetaType& meta)
+    T& Slice<T,SRanges...>::at(const typename IType::MetaType& meta)
     {
-	assert(i.sliceMode());
 	return mData[ begin().at(meta).pos() ];
     }
 
@@ -140,18 +174,20 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    IndexType Slice<T,SRanges...>::begin() const
+    auto Slice<T,SRanges...>::begin() const -> Slice<T,SRanges...>::IType 
     {
-	IndexType i(mRange, mBlockSizes);
-	i = mStartPos;
+	IType i = MAB::mProtoI;
+	i = 0;
+	//i = mStartPos;
 	return i.setData(data());
     }
 
     template <typename T, class... SRanges>
-    IndexType Slice<T,SRanges...>::end() const
+    auto Slice<T,SRanges...>::end() const -> Slice<T,SRanges...>::IType 
     {
-	IndexType i(mRange, mBlockSizes);
-	i = std::get<sizeof...(SRanges)>(mBlockSizes);
+	IType i = MAB::mProtoI;
+	i = i.max(); // CHECK !!!
+	//i = std::get<sizeof...(SRanges)>(mBlockSizes);
 	return i.setData(data());
     }
 

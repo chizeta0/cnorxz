@@ -31,6 +31,7 @@ namespace MultiArrayTools
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<typename Indices::MetaType...> MetaType;
 	typedef MultiRange<typename Indices::RangeType...> RangeType;
+	typedef MultiIndex IType;
 
 	static constexpr IndexType sType() { return IndexType::MULTI; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
@@ -143,7 +144,8 @@ namespace MultiArrayTools
     public:
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
-	typedef MultiIndex<typename Ranges::IndexType...> IndexType;	
+	typedef MultiIndex<typename Ranges::IndexType...> IndexType;
+	typedef MultiRange RangeType;
 	//typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:

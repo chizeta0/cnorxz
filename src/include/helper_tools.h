@@ -3,6 +3,7 @@
 #define __helper_tools_h__
 
 #include "base_def.h"
+#include "slice.h"
 
 namespace MultiArrayTools
 {
@@ -23,7 +24,9 @@ namespace MultiArrayTools
     auto mkMIndex(std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkMulti( indices.range()... ) ) );
 
-    
+    template <class... RangeTypes>
+    auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
+	-> MultiRange<RangeTypes...>;
 }
 
 /* ========================= *
@@ -66,6 +69,15 @@ namespace MultiArrayTools
 	(*mi)( indices... );
 	return mi;
     }
+
+    template <class... RangeTypes>
+    auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
+	-> MultiRange<RangeTypes...>
+    {
+	MultiRangeFactory<RangeTypes...> mrf( rangesTuple );
+	return std::dynamic_pointer_cast<MultiRange<RangeTypes...> >( mrf.create() );
+    }
+
 }
 
 #endif

@@ -54,8 +54,6 @@ namespace MultiArrayTools
 	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const;
 	
 	virtual bool isInit() const;
-
-	// slice function !!!!!
 	
     protected:
 	bool mInit = false;
@@ -116,7 +114,7 @@ namespace MultiArrayTools
     {
 	ContainerRangeFactory<T,SRanges...> crf(ranges...);
 	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
-	mProtoI = std::make_shared<IndexType>( mRange );
+	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
 
     template <typename T, class... SRanges>
@@ -124,7 +122,7 @@ namespace MultiArrayTools
     {
 	ContainerRangeFactory<T,SRanges...> crf(space);
 	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
-	mProtoI = std::make_shared<IndexType>( mRange );
+	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
     
     template <typename T, class... SRanges>

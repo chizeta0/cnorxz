@@ -184,10 +184,10 @@ namespace {
 
 	auto mi = mstrptr->begin();
 	//auto ci1 = cr1ptr->begin();
-	CIndex ci1(cr1ptr);
+	CIndex ci1(cr1ptr, 0);
 	ci1 = 0;
 	//auto ci2 = cr2ptr->begin();
-	CIndex ci2(cr2ptr);
+	CIndex ci2(cr2ptr, 0);
 	ci2 = 0;
 	
 	EXPECT_EQ(ci1.max(), 16u);

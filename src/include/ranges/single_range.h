@@ -26,6 +26,7 @@ namespace MultiArrayTools
 	typedef IndexInterface<SingleIndex<U,TYPE>,U> IB;
 	typedef U MetaType;
 	typedef SingleRange<U,TYPE> RangeType;
+	typedef SingleIndex IType;
 
 	//DEFAULT_MEMBERS_X(SingleIndex);
 	
@@ -92,6 +93,7 @@ namespace MultiArrayTools
     public:
 	typedef RangeBase RB;
 	typedef SingleIndex<U,TYPE> IndexType;
+	typedef SingleRange RangeType;
 	//typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
 	
 	virtual size_t size() const override;

@@ -32,6 +32,7 @@ namespace MultiArrayTools
     public:
 	typedef RangeBase RB;
 	typedef typename RangeInterface<SingleIndex<size_t,SpaceType::SPIN> >::IndexType IndexType;
+	typedef SingleRange<size_t,SpaceType::SPIN> RangeType;
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;

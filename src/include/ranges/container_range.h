@@ -41,6 +41,7 @@ namespace MultiArrayTools
 	IndexPack mIPack;
 	std::array<size_t,sizeof...(Indices)+1> mBlockSizes; 
 	const T* mData;
+	std::intptr_t mObjPtrNum;
 	
     public:
 
@@ -48,10 +49,12 @@ namespace MultiArrayTools
 	ContainerIndex& operator=(const ContainerIndex& in) = default;
 	
 	template <class MRange>
-	ContainerIndex(const std::shared_ptr<MRange>& range);
+	ContainerIndex(const std::shared_ptr<MRange>& range,
+		       std::intptr_t objPtrNum);
 
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range,
+		       std::intptr_t objPtrNum,
 		       const std::array<size_t,sizeof...(Indices)+1>& blockSizes);
 
 	template <size_t N>
@@ -104,6 +107,9 @@ namespace MultiArrayTools
 	auto iforh(Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs));
 
+	std::intptr_t container() const;
+	ContainerIndex& format(const std::array<size_t,sizeof...(Indices)+1>& blocks);
+	
 	// Iterator Stuff
 	
 	ContainerIndex& setData(const T* data);
@@ -212,8 +218,10 @@ namespace MultiArrayTools
 
     template <typename T, class... Indices>
     template <class MRange>
-    ContainerIndex<T,Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
+    ContainerIndex<T,Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range,
+						 std::intptr_t objPtrNum) :
+	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0),
+	mObjPtrNum(objPtrNum)
     {
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
@@ -224,8 +232,10 @@ namespace MultiArrayTools
     template <typename T, class... Indices>
     template <class MRange>
     ContainerIndex<T,Indices...>::ContainerIndex(const std::shared_ptr<MRange>& range,
+						 std::intptr_t objPtrNum,
 						 const std::array<size_t,sizeof...(Indices)+1>& blockSizes) :
-	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
+	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0),
+	mObjPtrNum(objPtrNum)
     {
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	mBlockSizes = blockSizes;
@@ -420,6 +430,20 @@ namespace MultiArrayTools
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs))
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs);
+    }
+
+    template <typename T, class... Indices>
+    std::intptr_t ContainerIndex<T,Indices...>::container() const
+    {
+	return mObjPtrNum;
+    }
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::
+    format(const std::array<size_t,sizeof...(Indices)+1>& blocks)
+    {
+	mBlockSizes = blocks;
+	return *this;
     }
     
     template <typename T, class... Indices>
