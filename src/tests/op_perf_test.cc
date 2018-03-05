@@ -174,23 +174,27 @@ namespace {
 		  << std::endl;
 	
 	std::vector<double> vres(4*4);
-
-	std::clock_t begin2 = std::clock();
-	for(size_t i = 0; i != 1000; ++i){
 	for(size_t d = 0; d != 4; ++d){
 	    for(size_t p = 0; p != 4; ++p){
 		const size_t tidx = d*4 + p;
 		vres[tidx] = 0.;
-		for(size_t a = 0; a != 4; ++a){
-		    for(size_t b = 0; b != 4; ++b){
-			for(size_t c = 0; c != 4; ++c){
-			    const size_t sidx = d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + + c*5*4  + p;
-			    vres[tidx] += data[sidx];
+	    }
+	}
+	std::clock_t begin2 = std::clock();
+	for(size_t i = 0; i != 1000; ++i){
+	    for(size_t a = 0; a != 4; ++a){
+		for(size_t b = 0; b != 4; ++b){
+		    for(size_t c = 0; c != 4; ++c){
+			for(size_t d = 0; d != 4; ++d){
+			    for(size_t p = 0; p != 4; ++p){
+				const size_t tidx = d*4 + p;
+				const size_t sidx = d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + + c*5*4  + p;
+				vres[tidx] += data[sidx];
+			    }
 			}
 		    }
 		}
 	    }
-	}
 	}
 	std::clock_t end2 = std::clock();
 

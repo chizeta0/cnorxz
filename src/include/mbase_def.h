@@ -51,6 +51,14 @@ namespace MultiArrayTools
     // multi_array_operation.h
     template <typename T, class Op, class IndexType>
     class Contraction;
+
+    // slice.h
+    template <typename T, class... SRanges>
+    class Slice;
+
+    // slice.h
+    template <typename T, class... SRanges>
+    class SliceDef;
 }
 
 #endif

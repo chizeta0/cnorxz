@@ -51,7 +51,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class OpTuple, class Expr>
-	static auto mkLoop( const OpTuple& ot, Expr&& exp )
+	static auto mkLoop( const OpTuple& ot, Expr exp )
 	    -> decltype(std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) ))
 	{
 	    return std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) );
@@ -92,7 +92,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class OpTuple, class Expr>
-	static auto mkLoop( const OpTuple& ot, Expr&& exp )
+	static auto mkLoop( const OpTuple& ot, Expr exp )
 	    -> decltype(std::get<0>(ot).loop( exp ))
 	{
 	    return std::get<0>(ot).loop( exp );

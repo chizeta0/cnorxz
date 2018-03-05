@@ -35,10 +35,25 @@ namespace MultiArrayTools
 
 	template <class... MARanges>
 	auto define(const std::shared_ptr<typename SRanges::IType>&... inds)
-	    -> SliceDef<T,OperationRoot<T,MARanges...> >;
+	    -> SliceDef<T,MARanges...>;
 	
     private:
 	T* mData;
+    };
+
+
+    template <typename T, class... SRanges>
+    class SliceDef
+    {
+    private:
+	SliceDef() = default;
+	
+    public:
+	SliceDef(Slice<T,SRanges...>& sl,
+		 const std::shared_ptr<typename SRanges::IndexType>&... inds);
+
+	template <class... ORanges>
+	SliceDef& operator=(OperationRoot<T,ORanges...>& op);
     };
     
 } // end namespace MultiArrayTools
@@ -122,8 +137,14 @@ namespace MultiArrayTools
 	//i = std::get<sizeof...(SRanges)>(mBlockSizes);
 	return i.setData(data());
     }
-
+    /*
+    SliceDef<T,SRanges...>::
+    SliceDef(Slice<T,SRanges...>& sl,
+	     const std::shared_ptr<typename SRanges::IndexType>&... inds);
     
+    template <class... ORanges>
+    SliceDef<T,SRanges...>& SliceDef<T,SRanges...>::operator=(OperationRoot<T,ORanges...>& op);
+    */
 
 } // end namespace MultiArrayTools
 
