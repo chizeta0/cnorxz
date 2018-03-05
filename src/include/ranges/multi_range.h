@@ -168,13 +168,13 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
-	virtual size_t dim() const override;
-	virtual size_t size() const override;
+	virtual size_t dim() const final;
+	virtual size_t size() const final;
 	
 	const SpaceType& space() const;
 	
-	virtual IndexType begin() const override;
-	virtual IndexType end() const override;
+	virtual IndexType begin() const final;
+	virtual IndexType end() const final;
 
 	friend MultiRangeFactory<Ranges...>;
 
