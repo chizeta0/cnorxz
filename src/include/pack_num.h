@@ -67,7 +67,7 @@ namespace MultiArrayHelper
 			     ( index.template getPtr<N>().get() ) )
 		.val();
 	    std::get<N+1>(blocks) = tmp;
-	    PackNum<N-1>::mkSliceBlocks(blocks, index, op, total * tmp);
+	    PackNum<N-1>::template mkSliceBlocks<T,Op,SRanges...>(blocks, index, op, total * tmp);
 	}
     };
     
