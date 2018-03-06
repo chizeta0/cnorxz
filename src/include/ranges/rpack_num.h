@@ -46,7 +46,7 @@ namespace MultiArrayHelper
 	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
 				   std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
-	    std::get<N>(bs) = RPackNum<sizeof...(Indices)-N-1>::blockSize(ip);
+	    std::get<N>(bs) = RPackNum<sizeof...(Indices)-N>::blockSize(ip);
 	    RPackNum<N-1>::initBlockSizes(bs, ip);
 	}
 	
@@ -183,7 +183,7 @@ namespace MultiArrayHelper
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize)
 	{
-	    return RPackNum<N-1>::makePos(iPtrTup, blockSize) + std::get<N>(iPtrTup)->pos() * std::get<N>(blockSize);
+	    return RPackNum<N-1>::makePos(iPtrTup, blockSize) + std::get<N>(iPtrTup)->pos() * std::get<N+1>(blockSize);
 	}
 
 	template <class Pack, class IndexType, class... Indices>
@@ -197,7 +197,7 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
 	{
-	    return std::get<sizeof...(Indices)-N-1>(pack)->max() * RPackNum<N-1>::blockSize(pack);
+	    return std::get<sizeof...(Indices)-N>(pack)->max() * RPackNum<N-1>::blockSize(pack);
 	}
 
 
@@ -265,7 +265,7 @@ namespace MultiArrayHelper
 	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
 				   std::tuple<std::shared_ptr<Indices>...>& ip)
 	{
-	    std::get<0>(bs) = RPackNum<sizeof...(Indices)-1>::blockSize(ip);
+	    std::get<0>(bs) = RPackNum<sizeof...(Indices)>::blockSize(ip);
 	}
 
 	template <class... Indices>
@@ -370,7 +370,7 @@ namespace MultiArrayHelper
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize)
 	{
-	    return std::get<0>(iPtrTup)->pos() * std::get<0>(blockSize);
+	    return std::get<0>(iPtrTup)->pos() * std::get<1>(blockSize);
 	}
 
 	template <class Pack, class IndexType>
@@ -382,7 +382,7 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
 	{
-	    return std::get<sizeof...(Indices)-1>(pack)->max();
+	    return 1;
 	}
 
 	template <class... Ranges>

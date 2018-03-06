@@ -95,7 +95,7 @@ namespace {
 				   8.870, 4.790, 8.215, 5.063, 1.530, 3.084, 1.609, 4.847,
 				   8.175, 0.112, 6.712, 6.408, 1.959, 0.331, 4.209, 2.951 };
     };
-    
+
     TEST_F(MATest_1Dim, SimpleCall)
     {
 	MultiArray<double,MATest_1Dim::SRange> ma(srptr, vv);
@@ -185,7 +185,34 @@ namespace {
 	EXPECT_EQ( ma2[ i.at('M') ], 1.530 );
 	EXPECT_EQ( ma2.at('W') , 4.209 );
     }
-    
+
+    TEST_F(MATest_MDim, SliceTest1)
+    {
+	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
+	Slice<double,MATest_MDim::SRange> sl(sr3ptr);
+
+	auto i = MAT::getIndex(sr3ptr);
+	auto mi = MAT::getIndex(mrptr);
+	mi->at( mkt('y', 'f') );
+	sl.define(i) = ma(mi, i);
+
+	EXPECT_EQ( sl.at('1'), 6.712 );
+	EXPECT_EQ( sl.at('2'), 6.408 );
+	EXPECT_EQ( sl.at('3'), 1.959 );
+	
+	Slice<double,SRange> sl2(sr2ptr);
+	auto j = MAT::getIndex(sr3ptr);
+	auto mj = MAT::getIndex(mrptr);
+	mj->at( mkt('y','a') );
+	j->at('2');
+	auto jj = mj->template getPtr<1>();
+	sl2.define(jj) = ma(mj, j);
+
+	EXPECT_EQ( sl2.at('a'), 3.084 );
+	EXPECT_EQ( sl2.at('l'), 8.175 );
+	EXPECT_EQ( sl2.at('f'), 6.408 );
+	EXPECT_EQ( sl2.at('g'), 4.209 );
+    }
     
 } // end namespace 
 

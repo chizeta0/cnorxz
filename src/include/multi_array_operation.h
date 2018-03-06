@@ -170,6 +170,8 @@ namespace MultiArrayTools
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
+
+	T* data() const;
 	
     private:
 
@@ -468,6 +470,12 @@ namespace MultiArrayTools
     Expr OperationRoot<T,Ranges...>::loop(Expr exp) const
     {
 	return exp;
+    }
+
+    template <typename T, class... Ranges>
+    T* OperationRoot<T,Ranges...>::data() const
+    {
+	return mDataPtr + mIndex.pos();
     }
     
     /*******************

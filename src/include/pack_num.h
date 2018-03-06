@@ -56,6 +56,19 @@ namespace MultiArrayHelper
 	{
 	    return std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) );
 	}
+
+	template <typename T, class Op, class... SRanges>
+	static void mkSliceBlocks(std::array<size_t, sizeof...(SRanges)+1>& blocks,
+				  const ContainerIndex<T,typename SRanges::IndexType...>& index,
+				  const Op& op, size_t total = 1)
+	{
+	    const size_t tmp = 
+		op.rootSteps(reinterpret_cast<std::intptr_t>
+			     ( index.template getPtr<N>().get() ) )
+		.val();
+	    std::get<N+1>(blocks) = tmp;
+	    PackNum<N-1>::mkSliceBlocks(blocks, index, op, total * tmp);
+	}
     };
     
     template<>
@@ -98,7 +111,19 @@ namespace MultiArrayHelper
 	    return std::get<0>(ot).loop( exp );
 	}
 
-	
+	template <typename T, class Op, class... SRanges>
+	static void mkSliceBlocks(std::array<size_t, sizeof...(SRanges)+1>& blocks,
+				  const ContainerIndex<T,typename SRanges::IndexType...>& index,
+				  const Op& op, size_t total = 1)
+	{
+	    const size_t tmp = 
+		op.rootSteps(reinterpret_cast<std::intptr_t>
+			     ( index.template getPtr<0>().get() ) )
+		.val();
+	    std::get<1>(blocks) = tmp;
+	    std::get<0>(blocks) = total * tmp; // this is not correct, but not used so far ... !!!
+	}
+
     };
 
 

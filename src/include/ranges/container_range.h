@@ -346,7 +346,7 @@ namespace MultiArrayTools
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::at(const MetaType& metaPos)
     {
 	RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	return *this;
     }
 
