@@ -25,6 +25,11 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
+	// EVALUTAION CLASS ??!!!!
+	
+	//virtual ConstOperationRoot<T,SRanges...>
+	//operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
+	
     private:
 	mutable T mVal;
 	Function mFunc;
@@ -57,7 +62,7 @@ namespace MultiArrayTools
     template <typename T, class Function, class... SRanges>
     const T& FunctionalMultiArray<T,Function,SRanges...>::operator[](const typename CRange::IndexType& i) const
     {
-	mVal = mFunc(i);
+	mVal = mFunc(i.meta());
 	return mVal;
     }
 
@@ -72,7 +77,6 @@ namespace MultiArrayTools
     {
 	return false;
     }
-
 
 } // namespace MultiArrayTools
 

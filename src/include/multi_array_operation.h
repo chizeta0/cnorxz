@@ -98,6 +98,9 @@ namespace MultiArrayTools
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 			IndexType& index);
 
+	OperationMaster(T* data, const OpClass& second,
+			IndexType& index);
+
 	inline void set(size_t pos, T val) { mDataPtr[pos] = val; }
 	inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
 	inline T get(size_t pos) const;
@@ -106,7 +109,7 @@ namespace MultiArrayTools
 
 	void performAssignment(std::intptr_t blockIndexNum);
 	OpClass const& mSecond;
-	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
+	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
     };
@@ -128,7 +131,9 @@ namespace MultiArrayTools
 	
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
-	
+
+	ConstOperationRoot(const T* data, const IndexType& ind);
+
 	template <class ET>
 	inline T get(ET pos) const;
 
@@ -139,7 +144,7 @@ namespace MultiArrayTools
 		
     private:
 
-	MultiArrayBase<T,Ranges...> const& mArrayRef;
+	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
 	IndexType mIndex;
     };
@@ -160,6 +165,8 @@ namespace MultiArrayTools
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
+	OperationRoot(T* data, const IndexType& ind);
+
 	template <class OpClass>
 	OperationMaster<T,OpClass,Ranges...> operator=(const OpClass& in);
 
@@ -175,7 +182,7 @@ namespace MultiArrayTools
 	
     private:
 
-	MutableMultiArrayBase<T,Ranges...>& mArrayRef;
+	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
     };
@@ -372,12 +379,22 @@ namespace MultiArrayTools
     OperationMaster<T,OpClass,Ranges...>::
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    IndexType& index) :
-	mSecond(second), mArrayRef(ma), mDataPtr(mArrayRef.data()),
+	mSecond(second), mDataPtr(ma.data()),
 	mIndex(index)
     {
 	performAssignment(0);
     }
-    
+
+    template <typename T, class OpClass, class... Ranges>
+    OperationMaster<T,OpClass,Ranges...>::
+    OperationMaster(T* data, const OpClass& second,
+		    IndexType& index) :
+	mSecond(second), mDataPtr(data),
+	mIndex(index)
+    {
+	performAssignment(0);
+    }
+
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
@@ -402,11 +419,17 @@ namespace MultiArrayTools
     ConstOperationRoot<T,Ranges...>::
     ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mArrayRef(ma), mDataPtr(mArrayRef.data()),
+	mDataPtr(ma.data()),
 	mIndex( ma.begin() )
     {
 	mIndex(indices...);
     }
+
+    template <typename T, class... Ranges>
+    ConstOperationRoot<T,Ranges...>::
+    ConstOperationRoot(const T* data, const IndexType& ind) :
+	mDataPtr(data),
+	mIndex( ind ) { }
 
     template <typename T, class... Ranges>
     template <class ET>
@@ -438,17 +461,23 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mArrayRef(ma), mDataPtr(mArrayRef.data()),
+	mDataPtr(ma.data()),
 	mIndex( ma.begin() )
     {
 	mIndex(indices...);
     }
 
     template <typename T, class... Ranges>
+    OperationRoot<T,Ranges...>::
+    OperationRoot(T* data, const IndexType& ind) :
+	mDataPtr(data),
+	mIndex( ind ) { }
+
+    template <typename T, class... Ranges>
     template <class OpClass>
     OperationMaster<T,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	return OperationMaster<T,OpClass,Ranges...>(mArrayRef, in, mIndex);
+	return OperationMaster<T,OpClass,Ranges...>(mDataPtr, in, mIndex);
     }
 
     template <typename T, class... Ranges>
