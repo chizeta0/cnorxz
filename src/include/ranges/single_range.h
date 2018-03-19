@@ -48,6 +48,7 @@ namespace MultiArrayTools
 	int mm(std::intptr_t idxPtrNum);
 	
 	U meta();
+	U* metaPtr();
 	SingleIndex& at(const U& metaPos);
 	
 	size_t dim(); // = 1
@@ -72,6 +73,8 @@ namespace MultiArrayTools
 	auto iforh(Expr ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
 
+    private:
+	U* mMetaPtr;
     };
 
     template <typename U, SpaceType TYPE>
@@ -110,7 +113,7 @@ namespace MultiArrayTools
 	static constexpr bool defaultable = false;
 	static constexpr size_t ISSTATIC = 0;
 	static constexpr size_t SIZE = -1;
-
+	static constexpr bool HASMETACONT = true;
 	
     protected:
 
@@ -136,7 +139,8 @@ namespace MultiArrayTools
 
     template <typename U, SpaceType TYPE>
     SingleIndex<U,TYPE>::SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range) :
-	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0) {}
+	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0),
+	mMetaPtr(&IB::mRangePtr->get(0)) {}
 
     template <typename U, SpaceType TYPE>
     IndexType SingleIndex<U,TYPE>::type() const
@@ -182,9 +186,15 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE>
     U SingleIndex<U,TYPE>::meta()
     {
-	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->get( IB::pos() );
+	return mMetaPtr[IB::mPos];
     }
 
+    template <typename U, SpaceType TYPE>
+    U* SingleIndex<U,TYPE>::metaPtr()
+    {
+	return mMetaPtr;
+    }
+    
     template <typename U, SpaceType TYPE>
     SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::at(const U& metaPos)
     {

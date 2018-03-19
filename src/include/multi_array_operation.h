@@ -258,6 +258,7 @@ namespace MultiArrayTools
 	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp));
 	
     };
+
     
     template <typename T, class Op, class IndexType>
     class Contraction : public OperationTemplate<T,Contraction<T,Op,IndexType> >

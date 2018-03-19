@@ -41,6 +41,16 @@ namespace MultiArrayHelper
 	}
     };
 
+    template <typename T, class Func>
+    struct dynamic_function
+    {
+	template <typename... Us>
+	static inline T apply(const Func& f, Us... args)
+	{
+	    return f(args...);
+	}
+    }
+    
 } // end namespace MultiArrayHelper
     
 #endif
