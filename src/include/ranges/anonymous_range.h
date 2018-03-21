@@ -33,6 +33,13 @@ namespace MultiArrayTools
     
     class AnonymousRange : public RangeInterface<AnonymousIndex>
     {
+    public:
+
+	static constexpr bool defaultable = false;
+        static constexpr size_t ISSTATIC = 0;
+        static constexpr size_t SIZE = -1;
+        static constexpr bool HASMETACONT = false;
+	
 	typedef RangeBase RB;
 	typedef typename RangeInterface<AnonymousIndex>::IndexType IndexType;
 	

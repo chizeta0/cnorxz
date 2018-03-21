@@ -78,6 +78,7 @@ namespace MultiArrayTools
     {
     public:
 
+	//typedef typename Index::MetaType MetaType;
 	typedef Index IndexType;
 
 	virtual Index begin() const = 0;

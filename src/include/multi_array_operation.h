@@ -238,10 +238,12 @@ namespace MultiArrayTools
 	typedef OpFunction F;
 	
 	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
+	static constexpr bool FISSTATIC = OpFunction::FISSTATIC;
 
     private:
 	std::tuple<Ops...> mOps;
-
+	std::shared_ptr<OpFunction> mF; // only if non-static
+	
     public:
 	typedef decltype(PackNum<sizeof...(Ops)-1>::template mkSteps<Ops...>(0, mOps)) ETuple;
 		
@@ -261,9 +263,9 @@ namespace MultiArrayTools
 
     template <class OpFunction, class... Ops>
     auto mkOperation(const OpFunction& f, const Ops&... ops)
-	-> Operation<OpFunction::value_type,OpFunction,Ops...>
+	-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
     {
-	return Operation<OpFunction::value_type,OpFunction,Ops...>(ops...);
+	return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
     }
     
     template <typename T, class Op, class IndexType>

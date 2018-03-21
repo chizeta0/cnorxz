@@ -62,6 +62,31 @@ namespace {
     {
 	return std::make_tuple(static_cast<size_t>( ts )...);
     }
+
+    template <typename T>
+    struct Pow
+    {
+	static constexpr bool FISSTATIC = true;
+	typedef T value_type;
+	
+	static inline T apply(T b, T e)
+	{
+	    return pow(b, e);
+	}
+
+	template <class... Ops>
+	static auto mk(const Ops&... ops)
+	    -> Operation<T,Pow<T>,Ops...>
+	{
+	    return Operation<T,Pow<T>,Ops...>(ops...);
+	}
+
+	static inline T apply(const std::tuple<double, double>& arg)
+	{
+	    return pow(std::get<0>(arg), std::get<1>(arg));
+	}
+    };
+
     
     class OpTest_1Dim : public ::testing::Test
     {
@@ -208,6 +233,50 @@ namespace {
 	std::shared_ptr<SR> sr;
     };
 
+    class MetaOp_Test : public ::testing::Test
+    {
+    protected:
+
+	typedef SingleRangeFactory<double,SpaceType::ANY> SRF;
+	typedef SRF::oType SR;
+
+	const size_t s1 = 10;
+	const size_t s2 = 17;
+	
+	MetaOp_Test()
+	{
+	    mv1 = { 2.476, 9.665, 1.289, 2.89, 77.04, -11.09, 100.4, 2.0, -26.5, -0.001 };
+	    mv2 = { 44.56, 23.097, -117.3, -0.0765, 3.445, 0.02389, -4.0112, 10.567, 8.99, -177.2, 475.3,
+		    11.111, 13.108, -35.6, 64.32, 2.44, -12.};
+
+	    assert(mv1.size() == s1); // just to prevent typos...
+	    assert(mv1.size() == s2);
+	    
+	    swapFactory<SRF>(rfbptr, mv1);
+	    sr1ptr = std::dynamic_pointer_cast<SR>(rfbptr->create());
+
+	    swapFactory<SRF>(rfbptr, mv2);
+	    sr2ptr = std::dynamic_pointer_cast<SR>(rfbptr->create());
+	}
+
+	std::shared_ptr<RangeFactoryBase> rfbptr;
+	std::shared_ptr<SR> sr1ptr;
+	std::shared_ptr<SR> sr2ptr;
+
+	std::vector<double> mv1;
+	std::vector<double> mv2;
+    };
+
+    
+    TEST_F(MetaOp_Test, SimpleCall)
+    {
+	FunctionalMultiArray<double,Pow<double>,SR,SR> fma(sr1ptr, sr2ptr);
+
+	auto i = fma.begin();
+	
+	EXPECT_EQ( xround( i.at( mkt(9.665, -0.0765) ) ), xround( pow(9.665, -0.0765) ) );
+    }
+    
     TEST_F(OpTest_Spin, Contract)
     {
 	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(sr, sr, sr, sr, sr, sr, sr, sr, data);
@@ -392,6 +461,52 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 + 4.790 - 2.210)  );
     }
 
+    template <typename T>
+    struct Monopole
+    {
+	static constexpr bool FISSTATIC = true;
+
+	static inline T apply(T f0, T x, T n)
+	{
+	    return f0 / ( 1 + x / n );
+	}
+
+	template <class... Ops>
+	static auto mk(const Ops&... ops)
+	    -> Operation<T,Monopole<T>,Ops...>
+	{
+	    return Operation<T,Monopole<T>,Ops...>(ops...);
+	}
+    };
+    
+    TEST_F(OpTest_MDim, ExecFOp)
+    {
+	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
+	MultiArray<double,MRange> ma1(mr1ptr, v3);
+	MultiArray<double,SRange> ma2(sr4ptr, v2);
+	MultiArray<double,SRange> ma3(sr4ptr, v4);
+	
+	auto i1 = MAT::getIndex( mr1ptr );
+	auto i2 = MAT::getIndex( sr4ptr );
+	
+	res(i1,i2) = Monopole<double>::mk( ma1(i1) , ma2(i2) , ma3(i2) );
+
+	EXPECT_EQ( xround( res.at(mkt(mkt('1','a'),'A')) ), xround(0.353 / ( 1 + 8.870 / 1.470) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('1','a'),'B')) ), xround(0.353 / ( 1 + 4.790 / 2.210) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('1','b'),'A')) ), xround(4.005 / ( 1 + 8.870 / 1.470) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('1','b'),'B')) ), xround(4.005 / ( 1 + 4.790 / 2.210) ) );
+
+	EXPECT_EQ( xround( res.at(mkt(mkt('2','a'),'A')) ), xround(1.070 / ( 1 + 8.870 / 1.470) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('2','a'),'B')) ), xround(1.070 / ( 1 + 4.790 / 2.210) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('2','b'),'A')) ), xround(2.310 / ( 1 + 8.870 / 1.470) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('2','b'),'B')) ), xround(2.310 / ( 1 + 4.790 / 2.210) ) );
+
+	EXPECT_EQ( xround( res.at(mkt(mkt('3','a'),'A')) ), xround(9.243 / ( 1 + 8.870 / 1.470) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('3','a'),'B')) ), xround(9.243 / ( 1 + 4.790 / 2.210) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'A')) ), xround(2.911 / ( 1 + 8.870 / 1.470) ) );
+	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 / ( 1 + 4.790 / 2.210) ) );
+    }
+
     TEST_F(OpTest_MDim, ExecOp3)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
@@ -422,7 +537,7 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'A')) ), xround(2.911 + 0.373 + 1.470) );
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 + 0.373 + 2.210) );
     }
-
+    /*
     TEST_F(OpTest_MDim, ExecAnonOp1)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
@@ -453,7 +568,7 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'A')) ), xround(2.911 + 0.373 + 1.470) );
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 + 0.373 + 2.210) );
     }
-
+    */
     
 } // anonymous namspace
 

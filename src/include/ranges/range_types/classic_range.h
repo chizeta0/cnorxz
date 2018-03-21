@@ -29,6 +29,7 @@ namespace MultiArrayTools
 	typedef RangeBase RB;
 	typedef typename RangeInterface<SingleIndex<size_t,SpaceType::NONE> >::IndexType IndexType;
 	typedef SingleRange<size_t,SpaceType::NONE> RangeType;
+	typedef size_t MetaType;
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
