@@ -35,14 +35,16 @@ namespace MultiArrayTools
 	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges);
 	
 	virtual const T& operator[](const IndexType& i) const override;
+	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
+	virtual const T* data() const override;
 	
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
 	// EVALUTAION CLASS ??!!!!
 
-	virtual auto operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	    -> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds) ... ) ) override;
+	auto exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+	    -> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds) ... ) );
 	
     };
 
@@ -76,20 +78,20 @@ namespace MultiArrayTools
     template <bool FISSTATIC>
     struct Application
     {
-	template <typename T, class Function, class Index>
-	static inline T apply(const Function& f, const Index& i)
+	template <typename T, class Function, typename Meta>
+	static inline T apply(const Function& f, const Meta& m)
 	{
-	    return f(i.meta());
+	    return f(m);
 	}
     };
 
     template <>
     struct Application<true>
     {
-	template <typename T, class Function, class Index>
-	static inline T apply(const Function& f, const Index& i)
+	template <typename T, class Function, typename Meta>
+	static inline T apply(const Function& f, const Meta& m)
 	{
-	    return Function::apply(i.meta());
+	    return Function::apply(m);
 	}
     };
 	
@@ -105,10 +107,23 @@ namespace MultiArrayTools
     template <typename T, class Function, class... SRanges>
     const T& FunctionalMultiArray<T,Function,SRanges...>::operator[](const IndexType& i) const
     {
-	mVal = Application<Function::FISSTATIC>::template apply<T,Function,IndexType>(mFunc, i.meta());
+	mVal = Application<Function::FISSTATIC>::template apply<T,Function,typename IndexType::MetaType>(mFunc, i.meta());
 	return mVal;
     }
 
+    template <typename T, class Function, class... SRanges>
+    const T& FunctionalMultiArray<T,Function,SRanges...>::at(const typename CRange::IndexType::MetaType& meta) const
+    {
+	mVal = Application<Function::FISSTATIC>::template apply<T,Function,typename IndexType::MetaType>(mFunc,meta);
+	return mVal;
+    }
+
+    template <typename T, class Function, class... SRanges>
+    const T* FunctionalMultiArray<T,Function,SRanges...>::data() const
+    {
+	return &mVal;
+    }
+    
     template <typename T, class Function, class... SRanges>
     bool FunctionalMultiArray<T,Function,SRanges...>::isConst() const
     {
@@ -123,7 +138,7 @@ namespace MultiArrayTools
 
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
-    operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
 	-> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds) ... ) )
     {
  	return mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds ) ... );

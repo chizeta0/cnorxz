@@ -250,7 +250,7 @@ namespace {
 		    11.111, 13.108, -35.6, 64.32, 2.44, -12.};
 
 	    assert(mv1.size() == s1); // just to prevent typos...
-	    assert(mv1.size() == s2);
+	    assert(mv2.size() == s2);
 	    
 	    swapFactory<SRF>(rfbptr, mv1);
 	    sr1ptr = std::dynamic_pointer_cast<SR>(rfbptr->create());
