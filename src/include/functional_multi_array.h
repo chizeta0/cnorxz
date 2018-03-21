@@ -3,6 +3,7 @@
 #define __functional_multi_array__
 
 #include "multi_array_base.h"
+#include "slice.h"
 
 namespace MultiArrayTools
 {
@@ -16,6 +17,13 @@ namespace MultiArrayTools
 	typedef MultiArrayBase<T,CRange> MAB;
 	typedef typename MultiArrayBase<T,CRange>::const_iterator const_iterator;
 	typedef typename CRange::IndexType IndexType;
+
+
+    private:
+	mutable T mVal;
+	Function mFunc;
+
+    public:
 	
 	DEFAULT_MEMBERS(FunctionalMultiArray);
 	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges, const Function& func);
@@ -26,13 +34,10 @@ namespace MultiArrayTools
 	virtual bool isSlice() const override;
 
 	// EVALUTAION CLASS ??!!!!
+
+	auto operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+	    -> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges...>(inds.metaPtr(), inds), ... ) )
 	
-	//virtual ConstOperationRoot<T,SRanges...>
-	//operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
-	
-    private:
-	mutable T mVal;
-	Function mFunc;
     };
 
     
@@ -78,6 +83,15 @@ namespace MultiArrayTools
 	return false;
     }
 
+    template <typename T, class Function, class... SRanges>
+    auto FunctionalMultiArray<T,Function,SRanges...>::
+    operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+	-> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges...>(inds.metaPtr(), inds), ... ) )
+    {
+ 	return mkOperation( mFunc, ConstOperationRoot<T,SRanges...>(inds.metaPtr(), inds), ... );
+    }
+
+    
 } // namespace MultiArrayTools
 
 #endif

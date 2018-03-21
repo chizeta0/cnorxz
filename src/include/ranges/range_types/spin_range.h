@@ -51,6 +51,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t ISSTATIC = 1;
 	static constexpr size_t SIZE = mSpinNum;
+	static constexpr bool HASMETACONT = false;
 	
 	static SingleRangeFactory<size_t, SpaceType::SPIN> factory()
 	{ return SingleRangeFactory<size_t, SpaceType::SPIN>(); }

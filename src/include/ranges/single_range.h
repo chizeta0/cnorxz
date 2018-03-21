@@ -137,10 +137,30 @@ namespace MultiArrayTools
      *  SingleIndex   *	     
      ******************/
 
+    template <bool HASMETACONT>
+    struct MetaPtrSetter
+    {
+	template <typename U, class Range>
+	U* set(Range* r)
+	{
+	    return &r->get(0);
+	}
+    };
+
+    template <>
+    struct MetaPtrSetter<false>
+    {
+	template <typename U, class Range>
+	U* set(Range* r)
+	{
+	    return nullptr;
+	}
+    };
+
     template <typename U, SpaceType TYPE>
     SingleIndex<U,TYPE>::SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range) :
 	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0),
-	mMetaPtr(&IB::mRangePtr->get(0)) {}
+	mMetaPtr(MetaPtrSetter<SingleIndex<U,TYPE>::HASMETACONT>::set(IB::mRangePtr)) {}
 
     template <typename U, SpaceType TYPE>
     IndexType SingleIndex<U,TYPE>::type() const

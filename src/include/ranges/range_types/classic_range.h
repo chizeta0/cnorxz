@@ -45,6 +45,7 @@ namespace MultiArrayTools
 	static constexpr bool defaultable = true;
 	static constexpr size_t ISSTATIC = 0;
 	static constexpr size_t SIZE = -1;
+	static constexpr bool HASMETACONT = false;
 	
 	static SingleRangeFactory<size_t, SpaceType::NONE> factory(size_t size = 0)
 	{ return SingleRangeFactory<size_t, SpaceType::NONE>(size); }

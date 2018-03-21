@@ -259,6 +259,12 @@ namespace MultiArrayTools
 	
     };
 
+    template <class OpFunction, class... Ops>
+    auto mkOperation(const OpFunction& f, const Ops&... ops)
+	-> Operation<OpFunction::value_type,OpFunction,Ops...>
+    {
+	return Operation<OpFunction::value_type,OpFunction,Ops...>(ops...);
+    }
     
     template <typename T, class Op, class IndexType>
     class Contraction : public OperationTemplate<T,Contraction<T,Op,IndexType> >
