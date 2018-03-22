@@ -10,7 +10,7 @@ namespace MultiArrayTools
 
     template <class Index>
     auto indexToSlice(const std::shared_ptr<Index>& i)
-	-> Slice<typename Index::MetaType,typename Index::RangeType>;
+	-> ConstSlice<typename Index::MetaType,typename Index::RangeType>;
 
     
     template <typename T, class Function, class... SRanges>
@@ -19,14 +19,17 @@ namespace MultiArrayTools
     public:
 
 	typedef ContainerRange<T,SRanges...> CRange;
-	typedef MultiArrayBase<T,CRange> MAB;
+	typedef MultiArrayBase<T,SRanges...> MAB;
 	//typedef typename MultiArrayBase<T,CRange>::const_iterator const_iterator;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	//typedef typename CRange::IndexType IndexType;
-
+	typedef MultiArray<T,SRanges...> MAType;
+	
     private:
 	mutable T mVal;
 	Function mFunc;
+
+	mutable std::shared_ptr<MAType> mMaPtr;
 
     public:
 	
@@ -45,6 +48,9 @@ namespace MultiArrayTools
 
 	auto exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
 	    -> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds) ... ) );
+
+	virtual ConstOperationRoot<T,SRanges...>
+	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
 	
     };
 
@@ -60,9 +66,9 @@ namespace MultiArrayTools
     
     template <class Index>
     auto indexToSlice(const std::shared_ptr<Index>& i)
-	-> Slice<typename Index::MetaType, typename Index::RangeType>
+	-> ConstSlice<typename Index::MetaType, typename Index::RangeType>
     {
-	return Slice<typename Index::MetaType, typename Index::RangeType>( i->range(), i->metaPtr() );
+	return ConstSlice<typename Index::MetaType, typename Index::RangeType>( i->range(), i->metaPtr() );
     }
 
 
@@ -136,6 +142,18 @@ namespace MultiArrayTools
 	return false;
     }
 
+    template <typename T, class Function, class... SRanges>
+    ConstOperationRoot<T,SRanges...> FunctionalMultiArray<T,Function,SRanges...>::
+    operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    {
+	if(not mMaPtr){
+	    mMaPtr = std::make_shared<MAType>( MAB::mRange->space() );
+	    (*mMaPtr)(inds...) = exec(inds...);
+	}
+	return ConstOperationRoot<T,SRanges...>( *mMaPtr, inds... );
+    }
+
+    
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
     exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const

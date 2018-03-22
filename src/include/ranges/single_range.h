@@ -48,7 +48,7 @@ namespace MultiArrayTools
 	int mm(std::intptr_t idxPtrNum);
 	
 	U meta();
-	U* metaPtr();
+	const U* metaPtr() const;
 	SingleIndex& at(const U& metaPos);
 	
 	size_t dim(); // = 1
@@ -213,7 +213,7 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE>
-    U* SingleIndex<U,TYPE>::metaPtr()
+    const U* SingleIndex<U,TYPE>::metaPtr() const
     {
 	return mMetaPtr;
     }

@@ -22,7 +22,8 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
-
+	MultiArray(const typename CRange::SpaceType& space);
+	
 	// Only if ALL ranges have default extensions:
 	//MultiArray(const std::vector<T>& vec);
 	//MultiArray(std::vector<T>&& vec);
@@ -70,6 +71,14 @@ namespace MultiArrayTools
      *  MultiArray     *	     
      *******************/
 
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>::MultiArray(const typename CRange::SpaceType& space) :
+	MutableMultiArrayBase<T,SRanges...>(space),
+	mCont(MAB::mRange->size())
+    {
+	MAB::mInit = true;
+    }
+	
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
