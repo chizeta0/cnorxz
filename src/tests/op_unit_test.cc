@@ -274,7 +274,7 @@ namespace {
 
 	auto i = fma.begin();
 	
-	EXPECT_EQ( xround( i.at( mkt(9.665, -0.0765) ) ), xround( pow(9.665, -0.0765) ) );
+	EXPECT_EQ( xround( fma[ i.at( mkt(9.665, -0.0765) ) ] ), xround( pow(9.665, -0.0765) ) );
     }
     
     TEST_F(OpTest_Spin, Contract)
