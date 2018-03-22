@@ -15,6 +15,7 @@ namespace {
 
     double xround(double arg)
     {
+	if(std::isnan(arg)) { return 0.; }
 	return roundf(arg * 100000.) / 100000.;
     }
     
@@ -265,6 +266,15 @@ namespace {
 
 	std::vector<double> mv1;
 	std::vector<double> mv2;
+
+	double vcontract(size_t i)
+	{
+	    double res = 0.;
+	    for(auto& x: mv2){
+		res += pow(mv1[i],x);
+	    }
+	    return res;
+	}
     };
 
     
@@ -276,6 +286,32 @@ namespace {
 	
 	EXPECT_EQ( xround( fma[ i.at( mkt(9.665, -0.0765) ) ] ), xround( pow(9.665, -0.0765) ) );
     }
+
+    TEST_F(MetaOp_Test, Operation)
+    {
+	FunctionalMultiArray<double,Pow<double>,SR,SR> fma(sr1ptr, sr2ptr);
+	MultiArray<double,SR> res( sr1ptr );
+
+	auto i1 = MAT::getIndex(sr1ptr);
+	auto i2 = MAT::getIndex(sr2ptr);
+	
+	res(i1) = fma(i1,i2).c(i2);
+
+	auto i = res.begin();
+	
+	EXPECT_EQ( xround( res[ i.at( 2.476 ) ] ), xround( vcontract(0) ) );
+	EXPECT_EQ( xround( res[ i.at( 9.665 ) ] ), xround( vcontract(1) ) );
+	EXPECT_EQ( xround( res[ i.at( 1.289 ) ] ), xround( vcontract(2) ) );
+	EXPECT_EQ( xround( res[ i.at( 2.89 ) ] ), xround( vcontract(3) ) );
+	EXPECT_EQ( xround( res[ i.at( 77.04 ) ] ), xround( vcontract(4) ) );
+	
+	EXPECT_EQ( xround( res[ i.at( -11.09 ) ] ), xround( vcontract(5) ) );
+	EXPECT_EQ( xround( res[ i.at( 100.4 ) ] ), xround( vcontract(6) ) );
+	EXPECT_EQ( xround( res[ i.at( 2.0 ) ] ), xround( vcontract(7) ) );
+	EXPECT_EQ( xround( res[ i.at( -26.5 ) ] ), xround( vcontract(8) ) );
+	EXPECT_EQ( xround( res[ i.at( -0.001 ) ] ), xround( vcontract(9) ) );
+    }
+
     
     TEST_F(OpTest_Spin, Contract)
     {
