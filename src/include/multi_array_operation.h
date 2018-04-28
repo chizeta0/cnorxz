@@ -248,6 +248,7 @@ namespace MultiArrayTools
 	typedef decltype(PackNum<sizeof...(Ops)-1>::template mkSteps<Ops...>(0, mOps)) ETuple;
 		
 	Operation(const Ops&... ops);
+	Operation(std::shared_ptr<OpFunction> ff, const Ops&... ops);
 	
 	template <class ET>
 	inline T get(ET pos) const;
@@ -522,7 +523,19 @@ namespace MultiArrayTools
     
     template <typename T, class OpFunction, class... Ops>
     Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :
-	mOps(ops...) {}
+	mOps(ops...)
+    {
+	static_assert( FISSTATIC, "need function instance for non-static function" );
+    }
+
+    template <typename T, class OpFunction, class... Ops>
+    Operation<T,OpFunction,Ops...>::Operation(std::shared_ptr<OpFunction> ff,
+					      const Ops&... ops) :
+	mOps(ops...),
+	mF(ff)
+    {
+	static_assert( not FISSTATIC, "using instance of function supposed to be static" );
+    }
 
     template <typename T, class OpFunction, class... Ops>
     template <class ET>
@@ -530,7 +543,7 @@ namespace MultiArrayTools
     {
 	typedef std::tuple<Ops...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
-	    template mkOpExpr<SIZE,T,ET,OpTuple,OpFunction>(pos, mOps);
+	    template mkOpExpr<SIZE,T,ET,OpTuple,OpFunction>(mF, pos, mOps);
     }
 
     template <typename T, class OpFunction, class... Ops>

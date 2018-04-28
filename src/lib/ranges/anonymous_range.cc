@@ -54,6 +54,11 @@ namespace MultiArrayTools
 	i = size();
 	return i;
     }
+
+    std::shared_ptr<RangeBase> AnonymousRange::sub(size_t num) const
+    {
+	return mOrig.at(num);
+    }
     
     /*****************
      *   Functions   *

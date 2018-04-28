@@ -13,6 +13,26 @@
 
 namespace MultiArrayHelper
 {
+    template <bool ISSTATIC>
+    struct Application
+    {
+	template <class OpFunction, typename T, typename... Ts>
+	static inline T apply(std::shared_ptr<OpFunction> f, T a, Ts... as)
+	{
+	    return (*f)(a, as...);
+	}
+    };
+
+    template <>
+    struct Application<true>
+    {
+	template <class OpFunction, typename T, typename... Ts>
+	static inline T apply(std::shared_ptr<OpFunction> f, T a, Ts... as)
+	{
+	    return OpFunction::apply(a, as...);
+	}
+    };
+    
     
     template <size_t N>
     struct PackNum
@@ -41,13 +61,13 @@ namespace MultiArrayHelper
 	}
 
 	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
-	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops, const Args&... args)
+	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    return PackNum<N-1>::template mkOpExpr<NEXT,T,ETuple,OpTuple,OpFunction,T,Args...>
-		( pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
+		( f, pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
@@ -94,14 +114,15 @@ namespace MultiArrayHelper
 	{
 	    std::get<0>(out) = second.rootSteps( std::get<0>(siar) );
 	}
-
+	
 	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
-	static inline T mkOpExpr(const ETuple& pos, const OpTuple& ops, const Args&... args)
+	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
+	    return Application<OpFunction::FISSTATIC>::apply(f, std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
+	    //return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
