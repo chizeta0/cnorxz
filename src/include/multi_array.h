@@ -50,6 +50,8 @@ namespace MultiArrayTools
 	
 	virtual const T* data() const override;
 	virtual T* data() override;
+
+	operator T() const;	
 	
 	template <typename U, class... SRanges2>
 	friend class MultiArray;
@@ -57,6 +59,9 @@ namespace MultiArrayTools
     private:
 	std::vector<T> mCont;
     };
+
+    template <typename T>
+    using Scalar = MultiArray<T>;
     
 }
 
@@ -192,6 +197,13 @@ namespace MultiArrayTools
     T* MultiArray<T,SRanges...>::data()
     {
 	return mCont.data();
+    }
+
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>::operator T() const
+    {
+	static_assert( sizeof...(SRanges) == 0, "try to cast non-scalar type into scalar" );
+	return mCont[0];
     }
 }
 
