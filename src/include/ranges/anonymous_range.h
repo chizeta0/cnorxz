@@ -51,7 +51,12 @@ namespace MultiArrayTools
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
-		
+
+	std::shared_ptr<RangeBase> sub(size_t num) const;
+
+	template <class Range>
+	std::shared_ptr<Range> fullsub(size_t num) const;
+	
 	friend AnonymousRangeFactory;
 	
     protected:
@@ -118,6 +123,12 @@ namespace MultiArrayTools
 	//RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
     }
 
+    template <class Range>
+    std::shared_ptr<Range> AnonymousRange::fullsub(size_t num) const
+    {
+	return std::dynamic_pointer_cast<Range>( mOrig.at(num) );
+    }
+    
     /*****************
      *   Functions   *
      *****************/
