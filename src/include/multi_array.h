@@ -50,6 +50,8 @@ namespace MultiArrayTools
 	
 	virtual const T* data() const override;
 	virtual T* data() override;
+
+	virtual std::vector<T>& vdata() { return mCont; }
 	
 	template <typename U, class... SRanges2>
 	friend class MultiArray;
