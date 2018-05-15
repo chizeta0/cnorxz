@@ -24,9 +24,12 @@ namespace MultiArrayTools
     {
 	using namespace MultiArrayHelper;
     }
-    
+
     template <typename T, class OperationClass>
-    class OperationTemplate
+    class TypeSpecificOperationSet { /* empty per default; specialize if needed */ };
+
+    template <typename T, class OperationClass>
+    class OperationTemplate : public TypeSpecificOperationSet<T,OperationClass>
     {
     public:
 	
@@ -52,7 +55,7 @@ namespace MultiArrayTools
 	template <class IndexType>
 	auto c(std::shared_ptr<IndexType>& ind) const
 	    -> Contraction<T,OperationClass,IndexType>;
-
+		
     private:
 	friend OperationClass;
 	OperationTemplate() = default;
@@ -298,7 +301,30 @@ namespace MultiArrayTools
 	template <class Expr>
 	auto loop(Expr exp) const -> decltype(mInd->iforh(exp));
     };
-    
+
+    template <typename T, class... Ranges>
+    struct operate
+    {
+	static inline OperationRoot<T,Ranges...>
+	apply(const MultiArrayBase<T,Ranges...>& ma,
+	      const std::shared_ptr<typename Ranges::IndexType>&... indices)
+	{
+	    return OperationRoot<T,Ranges...>(ma, indices...);
+	}
+    };
+
+    // interchange inheritance
+    // try to implement the 'promote' version
+    template <class OperationClass, typename T, class... Ranges>
+    class TypeSpecificOperationSet<MultiArray<T,Ranges...>,OperationClass>
+    {
+	auto operator()() const
+	    -> Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>
+	{
+	    return Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>
+		(/*THIS*/);
+	}
+    };
 }
 
 /* ========================= *
