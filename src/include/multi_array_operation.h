@@ -26,10 +26,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OperationClass>
-    class TypeSpecificOperationSet { /* empty per default; specialize if needed */ };
-
-    template <typename T, class OperationClass>
-    class OperationTemplate : public TypeSpecificOperationSet<T,OperationClass>
+    class OperationBase
     {
     public:
 	
@@ -60,6 +57,12 @@ namespace MultiArrayTools
 	friend OperationClass;
 	OperationTemplate() = default;
     };
+
+    template <typename T, class OperationClass>
+    class OperationTemplate : public OperationBase<T,OperationClass>
+    { /* empty per default; specialize if needed */ };
+
+#include "type_operations.h"
     
     template <typename T, class OpClass, class... Ranges>
     class OperationMaster
@@ -119,14 +122,12 @@ namespace MultiArrayTools
 
     
     template <typename T, class... Ranges>
-    class ConstOperationRoot : /*public OperationBase<T>,*/
-			       public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
+    class ConstOperationRoot : public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
     {
     public:
 
 	typedef T value_type;
-	typedef OperationBase<T> OB;
-	typedef OperationTemplate<T,ConstOperationRoot<T,Ranges...> > OT;
+	typedef OperationBase<T,ConstOperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<T,Ranges...> CRange;
 	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
@@ -158,8 +159,7 @@ namespace MultiArrayTools
     public:
 
 	typedef T value_type;
-	typedef OperationBase<T> OB;
-	typedef OperationTemplate<T,OperationRoot<T,Ranges...> > OT;
+	typedef OperationBase<T,OperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<T,Ranges...> CRange;
 	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
@@ -236,8 +236,7 @@ namespace MultiArrayTools
     public:
 
 	typedef T value_type;
-	typedef OperationBase<T> OB;
-	typedef OperationTemplate<T,Operation<T,OpFunction,Ops...> > OT;
+	typedef OperationBase<T,Operation<T,OpFunction,Ops...> > OT;
 	typedef OpFunction F;
 	
 	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
@@ -278,7 +277,7 @@ namespace MultiArrayTools
     public:
 
 	typedef T value_type;
-	typedef OperationTemplate<T,Contraction<T,Op,IndexType> > OT;
+	typedef OperationBase<T,Contraction<T,Op,IndexType> > OT;
 
 	static constexpr size_t SIZE = Op::SIZE;
 	
