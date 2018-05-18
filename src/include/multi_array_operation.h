@@ -55,14 +55,20 @@ namespace MultiArrayTools
 		
     private:
 	friend OperationClass;
-	OperationTemplate() = default;
+	friend OperationTemplate<T,OperationClass>;
+	OperationBase() = default;
     };
 
     template <typename T, class OperationClass>
     class OperationTemplate : public OperationBase<T,OperationClass>
-    { /* empty per default; specialize if needed */ };
+    {
+	/* empty per default; specialize if needed */
+    private:
+	OperationTemplate() = default;
+	friend OperationClass;
+    };
 
-#include "type_operations.h"
+
     
     template <typename T, class OpClass, class... Ranges>
     class OperationMaster
@@ -96,7 +102,7 @@ namespace MultiArrayTools
 	};
 	
 	typedef T value_type;
-	typedef OperationBase<T> OB;
+	//typedef OperationBase<T> OB;
 	typedef ContainerRange<T,Ranges...> CRange;
 	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
 	//typedef typename MultiRange<Ranges...>::IndexType IndexType;
@@ -301,29 +307,6 @@ namespace MultiArrayTools
 	auto loop(Expr exp) const -> decltype(mInd->iforh(exp));
     };
 
-    template <typename T, class... Ranges>
-    struct operate
-    {
-	static inline OperationRoot<T,Ranges...>
-	apply(const MultiArrayBase<T,Ranges...>& ma,
-	      const std::shared_ptr<typename Ranges::IndexType>&... indices)
-	{
-	    return OperationRoot<T,Ranges...>(ma, indices...);
-	}
-    };
-
-    // interchange inheritance
-    // try to implement the 'promote' version
-    template <class OperationClass, typename T, class... Ranges>
-    class TypeSpecificOperationSet<MultiArray<T,Ranges...>,OperationClass>
-    {
-	auto operator()() const
-	    -> Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>
-	{
-	    return Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>
-		(/*THIS*/);
-	}
-    };
 }
 
 /* ========================= *
@@ -343,7 +326,7 @@ namespace MultiArrayTools
     
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<T,OperationClass>::operator+(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator+(const Second& in) const
 	-> Operation<T,plus<T>,OperationClass,Second>
     {
     	return Operation<T,plus<T>,OperationClass,Second>(THIS(), in);
@@ -351,7 +334,7 @@ namespace MultiArrayTools
 
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<T,OperationClass>::operator-(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator-(const Second& in) const
 	-> Operation<T,minus<T>,OperationClass,Second>
     {
     	return Operation<T,minus<T>,OperationClass,Second>(THIS(), in);
@@ -359,7 +342,7 @@ namespace MultiArrayTools
     
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<T,OperationClass>::operator*(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator*(const Second& in) const
 	-> Operation<T,multiplies<T>,OperationClass,Second>
     {
     	return Operation<T,multiplies<T>,OperationClass,Second>(THIS(), in);
@@ -367,7 +350,7 @@ namespace MultiArrayTools
 
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationTemplate<T,OperationClass>::operator/(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator/(const Second& in) const
 	-> Operation<T,divides<T>,OperationClass,Second>
     {
     	return Operation<T,divides<T>,OperationClass,Second>(THIS(), in);
@@ -375,7 +358,7 @@ namespace MultiArrayTools
 
     template <typename T, class OperationClass>
     template <class IndexType>
-    auto OperationTemplate<T,OperationClass>::c(std::shared_ptr<IndexType>& ind) const
+    auto OperationBase<T,OperationClass>::c(std::shared_ptr<IndexType>& ind) const
 	-> Contraction<T,OperationClass,IndexType>
     {
 	return Contraction<T,OperationClass,IndexType>(THIS(), ind);
@@ -619,5 +602,7 @@ namespace MultiArrayTools
     }
 
 }
+
+#include "type_operations.h"
 
 #endif

@@ -21,12 +21,12 @@ namespace MultiArrayTools
     class MultiArray;
    
     // multi_array_operation.h
-    template <typename T>
+    template <typename T, class OperationClass>
     class OperationBase;
 
     // multi_array_operation.h
-    template <typename T>
-    class MutableOperationBase;
+    //template <typename T>
+    //class MutableOperationBase;
 
     // multi_array_operation.h
     template <typename T, class OperationClass>

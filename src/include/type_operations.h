@@ -34,19 +34,23 @@ namespace MultiArrayTools
 
 	// this is, why non-static
 	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> ituple;
-    }
+    };
 
     template <class OperationClass, typename T, class... Ranges>
-    class OperationTemplate : public OperationBase<MultiArray<T,Ranges...>,OperationClass>
+    class OperationTemplate<MultiArray<T,Ranges...>,OperationClass> : public OperationBase<MultiArray<T,Ranges...>,OperationClass>
     {
 	typedef OperationBase<MultiArray<T,Ranges...>,OperationClass> OB;
 	
 	auto operator()(const std::shared_ptr<typename Ranges::IndexType>&... indices)
-	    -> Operation<OperationRoot<T,Ranges...>,operate,OperationClass>
+	    -> Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>
 	{
-	    std::shared_ptr<operate> ff(indices...);
-	    return Operation(ff, OB::THIS());
+	    std::shared_ptr<operate<T,Ranges...> > ff(indices...);
+	    return Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>(ff, OB::THIS());
 	}
+
+    private:
+	OperationTemplate() = default;
+	friend OperationClass;
 
     };
     
