@@ -27,7 +27,7 @@ namespace MultiArrayTools
 	inline auto apply(const MultiArray<T,Ranges...>& ma)
 	    -> OperationRoot<T,Ranges...>
 	{
-	    return mkElemOperation(ma, ituple); // -> pack_num
+	    return PackNum<sizeof...(Ranges)-1>::mkElemOperation(ma, ituple);
 	}
 
     private:

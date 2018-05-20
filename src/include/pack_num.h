@@ -37,6 +37,14 @@ namespace MultiArrayHelper
     template <size_t N>
     struct PackNum
     {
+	template <class MA, class ITuple, class... IPtrs>
+	static auto mkElemOperation(const MA& ma, const ITuple& ituple, IPtrs... iptrs)
+	    -> decltype(PackNum<N-1>::mkElemOperation(ma, ituple, std::get<N>(ituple), iptrs...))
+	{
+	    return PackNum<N-1>::mkElemOperation(ma, ituple, std::get<N>(ituple), iptrs...);
+	}
+
+	
 	template <typename... T>
 	static void printTuple(std::ostream& out, const std::tuple<T...>& tp)
 	{
@@ -94,6 +102,13 @@ namespace MultiArrayHelper
     template<>
     struct PackNum<0>
     {
+	template <class MA, class ITuple, class... IPtrs>
+	static auto mkElemOperation(const MA& ma, const ITuple& ituple, IPtrs... iptrs)
+	    -> decltype(ma(iptrs...))
+	{
+	    return ma(iptrs...);
+	}
+	
 	template <typename... T>
 	static void printTuple(std::ostream& out, const std::tuple<T...>& tp)
 	{	    
