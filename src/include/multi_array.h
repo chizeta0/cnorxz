@@ -7,6 +7,20 @@
 
 namespace MultiArrayTools
 {
+    template <typename T>
+    struct ArrayCatter;
+
+    
+    template <typename T>
+    struct ArrayCatter
+    {
+	template <class... Ranges>
+	static auto cat(const MultiArray<T,Ranges...>& ma)
+	    -> MultiArray<T,Ranges...>
+	{
+	    return ma;
+	}
+    };
 
     
     template <typename T, class... SRanges>
@@ -23,6 +37,7 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
 	MultiArray(const typename CRange::SpaceType& space);
+	MultiArray(const typename CRange::SpaceType& space, std::vector<T>&& vec);
 	
 	// Only if ALL ranges have default extensions:
 	//MultiArray(const std::vector<T>& vec);
@@ -51,18 +66,46 @@ namespace MultiArrayTools
 	virtual const T* data() const override;
 	virtual T* data() override;
 	virtual std::vector<T>& vdata() { return mCont; }
+	virtual const std::vector<T>& vdata() const { return mCont; }
 
+	auto cat() const
+	    -> decltype(ArrayCatter<T>::cat(*this));
+	
 	operator T() const;	
 	
 	template <typename U, class... SRanges2>
 	friend class MultiArray;
 	
     private:
+	
 	std::vector<T> mCont;
     };
 
     template <typename T>
     using Scalar = MultiArray<T>;
+
+    template <typename T, class... ERanges>
+    struct ArrayCatter<MultiArray<T,ERanges...> >
+    {
+	template <class... Ranges>
+	static auto cat(const MultiArray<MultiArray<T,ERanges...>,Ranges...>& ma)
+	    -> MultiArray<T,Ranges...,ERanges...>
+	{
+	    auto sma = *ma.begin();
+	    const size_t smas = sma.size();
+	    const size_t mas = ma.size();
+	    auto cr = ma.range()->cat(sma.range());
+	    std::vector<T> ov;
+	    ov.reserve(mas * smas);
+
+	    for(auto& x: ma){
+		assert(x.size() == smas);
+		ov.insert(ov.end(), x.vdata().begin(), x.vdata().end());
+	    }
+	    return MultiArray<T,Ranges...,ERanges...>(cr->space(), std::move(ov));
+	}
+    };
+
     
 }
 
@@ -84,7 +127,20 @@ namespace MultiArrayTools
     {
 	MAB::mInit = true;
     }
-	
+
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>::MultiArray(const typename CRange::SpaceType& space,
+					 std::vector<T>&& vec) :
+	MutableMultiArrayBase<T,SRanges...>(space),
+	mCont(vec)
+    {
+	MAB::mInit = true;
+	if(mCont.size() > MAB::mRange->size()){
+	    mCont.erase(mCont.begin() + MAB::mRange->size(), mCont.end());
+	}
+    }
+
+    
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
@@ -205,6 +261,13 @@ namespace MultiArrayTools
     {
 	static_assert( sizeof...(SRanges) == 0, "try to cast non-scalar type into scalar" );
 	return mCont[0];
+    }
+
+    template <typename T, class... SRanges>
+    auto MultiArray<T,SRanges...>::cat() const
+	-> decltype(ArrayCatter<T>::cat(*this))
+    {
+	return ArrayCatter<T>::cat(*this);
     }
 }
 

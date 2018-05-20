@@ -176,6 +176,10 @@ namespace MultiArrayTools
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 
+	template <class... ERanges>
+	auto cat(const std::shared_ptr<MultiRange<ERanges...> >& erange)
+	    -> std::shared_ptr<MultiRange<Ranges...,ERanges...> >;
+	
 	friend MultiRangeFactory<Ranges...>;
 
 	static constexpr bool defaultable = false;
@@ -510,6 +514,17 @@ namespace MultiArrayTools
 	i = size();
 	return i;
     }
+
+    template <class... Ranges>
+    template <class... ERanges>
+    auto MultiRange<Ranges...>::cat(const std::shared_ptr<MultiRange<ERanges...> >& erange)
+	-> std::shared_ptr<MultiRange<Ranges...,ERanges...> >
+    {
+	auto crange = std::tuple_cat(mSpace, erange->space());
+	MultiRangeFactory<Ranges...,ERanges...> rf(crange);
+	return std::dynamic_pointer_cast<MultiRange<Ranges...,ERanges...> >(rf.create());
+    }
+
 }
 
 #endif
