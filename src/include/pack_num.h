@@ -16,20 +16,22 @@ namespace MultiArrayHelper
     template <bool ISSTATIC>
     struct Application
     {
-	template <class OpFunction, typename T, typename... Ts>
-	static inline T apply(std::shared_ptr<OpFunction> f, T a, Ts... as)
+	template <class OpFunction, typename... Ts>
+	static inline auto apply(std::shared_ptr<OpFunction> f, Ts... as)
+	    -> decltype((*f)(as...))
 	{
-	    return (*f)(a, as...);
+	    return (*f)(as...);
 	}
     };
 
     template <>
     struct Application<true>
     {
-	template <class OpFunction, typename T, typename... Ts>
-	static inline T apply(std::shared_ptr<OpFunction> f, T a, Ts... as)
+	template <class OpFunction, typename... Ts>
+	static inline auto apply(std::shared_ptr<OpFunction> f, Ts... as)
+	    -> decltype(OpFunction::apply(as...))
 	{
-	    return OpFunction::apply(a, as...);
+	    return OpFunction::apply(as...);
 	}
     };
     
@@ -74,7 +76,8 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
-	    return PackNum<N-1>::template mkOpExpr<NEXT,T,ETuple,OpTuple,OpFunction,T,Args...>
+	    typedef decltype(std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
+	    return PackNum<N-1>::template mkOpExpr<NEXT,T,ETuple,OpTuple,OpFunction,ArgT,Args...>
 		( f, pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
 	}
 
@@ -136,7 +139,8 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    return Application<OpFunction::FISSTATIC>::apply(f, std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
+	    typedef decltype(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos ))) ArgT;
+	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
 	    //return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
 	}
 

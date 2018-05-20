@@ -47,7 +47,7 @@ namespace MultiArrayTools
 	// EVALUTAION CLASS ??!!!!
 
 	auto exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	    -> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds) ... ) );
+	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( indexToSlice( inds ), inds) ... ) );
 
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
@@ -157,9 +157,9 @@ namespace MultiArrayTools
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
     exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	-> decltype( mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds) ... ) )
+	-> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( indexToSlice( inds ), inds) ... ) )
     {
- 	return mkOperation( mFunc, ConstOperationRoot<T,SRanges>( indexToSlice( inds ), inds ) ... );
+ 	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( indexToSlice( inds ), inds ) ... );
     }
 
     
