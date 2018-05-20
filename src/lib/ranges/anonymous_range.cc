@@ -6,10 +6,10 @@ namespace MultiArrayTools
     /******************************
      *   AnonymousRangeFactory    *
      ******************************/
-        
+    
     std::shared_ptr<RangeBase> AnonymousRangeFactory::create()
     {
-	setSelf();
+	//setSelf();
 	return mProd;
     }
 
@@ -55,6 +55,7 @@ namespace MultiArrayTools
 	return i;
     }
 
+    
     std::shared_ptr<RangeBase> AnonymousRange::sub(size_t num) const
     {
 	return mOrig.at(num);

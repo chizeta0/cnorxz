@@ -26,6 +26,13 @@ namespace MultiArrayTools
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 
+    protected:
+	bool mInit = false;
+	std::shared_ptr<CRange> mRange;
+	std::shared_ptr<IndexType> mProtoI;
+
+    public:
+
 	DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
 	MultiArrayBase(const typename CRange::SpaceType& space);
@@ -54,11 +61,11 @@ namespace MultiArrayTools
 	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const;
 	
 	virtual bool isInit() const;
+
+	template <size_t N>
+	auto getRangePtr() const
+	    -> decltype(mRange->template getPtr<N>());
 	
-    protected:
-	bool mInit = false;
-	std::shared_ptr<CRange> mRange;
-	std::shared_ptr<IndexType> mProtoI;
     };
 
     template <typename T, class... SRanges>
@@ -193,6 +200,14 @@ namespace MultiArrayTools
 	return mInit;
     }
     
+    template <typename T, class... SRanges>
+    template <size_t N>
+    auto MultiArrayBase<T,SRanges...>::getRangePtr() const
+	-> decltype(mRange->template getPtr<N>())
+    {
+	return mRange->template getPtr<N>();
+    }
+
     
     /******************************
      *  MutableMultiArrayBase     *	     

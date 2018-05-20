@@ -494,6 +494,7 @@ namespace MultiArrayTools
 		(*this)++;
 	    }
 	}
+	return *this;
     }
 
     template <typename T, class... Indices>
@@ -509,6 +510,7 @@ namespace MultiArrayTools
 		(*this)--;
 	    }
 	}
+	return *this;
     }
 
     template <typename T, class... Indices>

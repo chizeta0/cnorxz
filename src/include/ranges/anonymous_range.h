@@ -27,6 +27,9 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	AnonymousRangeFactory(std::shared_ptr<RangeTypes>... origs);
 
+	template <class Range>
+	void append(std::shared_ptr<Range> r);
+	
 	std::shared_ptr<RangeBase> create();
 	
     };
@@ -56,6 +59,9 @@ namespace MultiArrayTools
 
 	template <class Range>
 	std::shared_ptr<Range> fullsub(size_t num) const;
+
+	template <class... Ranges>
+	MultiRange<Ranges...> scast() const; // save cast
 	
 	friend AnonymousRangeFactory;
 	
@@ -99,6 +105,12 @@ namespace MultiArrayTools
     {
 	mProd = std::shared_ptr<oType>( new AnonymousRange( origs... ) );
     }
+
+    template <class Range>
+    void AnonymousRangeFactory::append(std::shared_ptr<Range> r)
+    {
+	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
+    }    
     
     /***********************
      *   AnonymousRange    *
@@ -127,6 +139,12 @@ namespace MultiArrayTools
     std::shared_ptr<Range> AnonymousRange::fullsub(size_t num) const
     {
 	return std::dynamic_pointer_cast<Range>( mOrig.at(num) );
+    }
+
+    template <class... Ranges>
+    MultiRange<Ranges...> AnonymousRange::scast() const
+    {
+	// !!!!!!
     }
     
     /*****************
