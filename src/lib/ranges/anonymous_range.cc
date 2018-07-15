@@ -6,10 +6,42 @@ namespace MultiArrayTools
     /******************************
      *   AnonymousRangeFactory    *
      ******************************/
+
+    std::shared_ptr<RangeBase> checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
+    {
+	std::shared_ptr<RangeBase> out;
+	bool check = false;
+	for(auto& x: mAleadyCreated){
+	    if(x.second.size() == pvec.size()){
+		check = true;
+		for(size_t i = 0; i != x.size(); ++i){
+		    if(x.second[i] != static_cast<std::intptr_t>( pvec[i].get() ) ){
+			check = false;
+			break;
+		    }
+		}
+		if(check == true){
+		    out = x.first;
+		    break;
+		}
+	    }
+	}
+	if(not check){
+	    std::vector<std::intptr_t> app(pvec.size());
+	    for(size_t i = 0; i != app.size(); ++i){
+		app[i] = static_cast<std::intptr_t>( pvec[i].get() );
+	    }
+	    mAleadyCreated[mProd] = app;
+	    out = mProd;
+	}
+	return out;
+    }
+
     
     std::shared_ptr<RangeBase> AnonymousRangeFactory::create()
     {
-	//setSelf();
+	mProd = checkIfCreated(); 
+	setSelf();
 	return mProd;
     }
 

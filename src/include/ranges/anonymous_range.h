@@ -4,6 +4,7 @@
 #define __anonymous_range_h__
 
 #include <cstdlib>
+#include <map>
 //#include "base_def.h"
 #include "ranges/range_base.h"
 #include "ranges/rpheader.h"
@@ -13,6 +14,10 @@ namespace MultiArrayTools
 
     typedef SingleIndex<size_t,SpaceType::NONE> AnonymousIndex;
 
+    template <class R>
+    using SIZET = size_t;
+
+    // NOT THREAD SAVE!!
     class AnonymousRangeFactory : public RangeFactoryBase
     {
     public:
@@ -31,7 +36,11 @@ namespace MultiArrayTools
 	void append(std::shared_ptr<Range> r);
 	
 	std::shared_ptr<RangeBase> create();
+
+    private:
+	std::shared_ptr<RangeBase> checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec);
 	
+	static std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > mAleadyCreated;
     };
     
     class AnonymousRange : public RangeInterface<AnonymousIndex>
@@ -61,7 +70,7 @@ namespace MultiArrayTools
 	std::shared_ptr<Range> fullsub(size_t num) const;
 
 	template <class... Ranges>
-	MultiRange<Ranges...> scast() const; // save cast
+	MultiRange<Ranges...> scast(SIZET<Ranges>... sizes) const; // save cast
 	
 	friend AnonymousRangeFactory;
 	
@@ -110,7 +119,7 @@ namespace MultiArrayTools
     void AnonymousRangeFactory::append(std::shared_ptr<Range> r)
     {
 	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
-    }    
+    }
     
     /***********************
      *   AnonymousRange    *
@@ -131,8 +140,8 @@ namespace MultiArrayTools
     {
 	auto rst = std::make_tuple(origs...);
 	mOrig.resize(sizeof...(RangeTypes));
-	//RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
-	//RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
+	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
+	RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
     }
 
     template <class Range>
@@ -142,9 +151,12 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    MultiRange<Ranges...> AnonymousRange::scast() const
+    MultiRange<Ranges...> AnonymousRange::scast(SIZET<Ranges>... sizes) const
     {
-	// !!!!!!
+	std::tuple<Ranges...> rtp;
+	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, mOrig.size()-1, sizes...);
+	MultiRangeFactory<Ranges> mrf(rtp);
+	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf->create() );
     }
     
     /*****************
