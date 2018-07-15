@@ -3,6 +3,11 @@
 #define __rpack_num_h__
 
 #include <memory>
+#include <vector>
+#include <cassert>
+#include "ranges/rbase_def.h"
+#include "ranges/index_base.h"
+
 
 namespace MultiArrayHelper
 {
@@ -39,24 +44,13 @@ namespace MultiArrayHelper
     template <class Index>
     inline size_t getStepSize(const Index& ii, std::intptr_t j);
 
+    
     template <class Range>
     void resolveSetRange(std::shared_ptr<Range> rp, std::vector<std::shared_ptr<RangeBase> > orig,
 			 size_t origpos, size_t size)
     {
 	assert(size == 1);
 	rp = std::dynamic_pointer_cast<Range>( orig[origpos] ); // catch bad cast here!!
-    }
-
-    template <>
-    void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange> rp,
-					 std::vector<std::shared_ptr<RangeBase> > orig,
-					 size_t origpos, size_t size)
-    {
-	AnonymousRangeFactory arf;
-	for(size_t op = origpos - size + 1; op != origpos + 1; ++op){
-	    arf.append(orig[op]);
-	}
-	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
     }
     
     template <size_t N>
@@ -276,11 +270,10 @@ namespace MultiArrayHelper
 	}
 
 	template <class RangeTuple, typename... SIZET>
-	static void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> > orig,
-				     const RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
+	static inline void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> > orig,
+					    const RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
-	    typedef decltype(std::get<tps-N-1>(rtp)) RangeType;
 	    resolveSetRange(std::get<tps-N-1>(rtp), orig, off, size);
 	    RPackNum<N-1>::resolveRangeType(orig, rtp, off-size, sizes...);
 	}
@@ -464,11 +457,10 @@ namespace MultiArrayHelper
 	}
 
 	template <class RangeTuple, typename... SIZET>
-	static void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> > orig,
-				     const RangeTuple& rtp, size_t off, size_t size)
+	static inline void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> > orig,
+					    const RangeTuple& rtp, size_t off, size_t size)
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
-	    typedef decltype(std::get<tps-1>(rtp)) RangeType;
 	    resolveSetRange(std::get<tps-1>(rtp), orig, off, size);
 	}
 

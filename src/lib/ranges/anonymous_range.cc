@@ -7,15 +7,15 @@ namespace MultiArrayTools
      *   AnonymousRangeFactory    *
      ******************************/
 
-    std::shared_ptr<RangeBase> checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
+    std::shared_ptr<RangeBase> AnonymousRangeFactory::checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
     {
 	std::shared_ptr<RangeBase> out;
 	bool check = false;
 	for(auto& x: mAleadyCreated){
 	    if(x.second.size() == pvec.size()){
 		check = true;
-		for(size_t i = 0; i != x.size(); ++i){
-		    if(x.second[i] != static_cast<std::intptr_t>( pvec[i].get() ) ){
+		for(size_t i = 0; i != x.second.size(); ++i){
+		    if(x.second[i] != reinterpret_cast<std::intptr_t>( pvec[i].get() ) ){
 			check = false;
 			break;
 		    }
@@ -29,7 +29,7 @@ namespace MultiArrayTools
 	if(not check){
 	    std::vector<std::intptr_t> app(pvec.size());
 	    for(size_t i = 0; i != app.size(); ++i){
-		app[i] = static_cast<std::intptr_t>( pvec[i].get() );
+		app[i] = reinterpret_cast<std::intptr_t>( pvec[i].get() );
 	    }
 	    mAleadyCreated[mProd] = app;
 	    out = mProd;
@@ -40,7 +40,7 @@ namespace MultiArrayTools
     
     std::shared_ptr<RangeBase> AnonymousRangeFactory::create()
     {
-	mProd = checkIfCreated(); 
+	mProd = checkIfCreated(std::dynamic_pointer_cast<AnonymousRange>(mProd)->mOrig); 
 	setSelf();
 	return mProd;
     }
@@ -104,5 +104,7 @@ namespace MultiArrayTools
 	      (ClassicRange::factory(size).create() ) );
 	return std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
     }
-	
+
+
+    
 } // end namespace MultiArrayTools

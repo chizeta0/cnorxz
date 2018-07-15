@@ -71,6 +71,7 @@ namespace MultiArrayTools
 
     // anonymous_range.h
     class AnonymousRange;
+
 }
 
 #endif

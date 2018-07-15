@@ -5,7 +5,7 @@
 
 #include <cstdlib>
 #include <map>
-//#include "base_def.h"
+#include "rbase_def.h"
 #include "ranges/range_base.h"
 #include "ranges/rpheader.h"
 
@@ -24,7 +24,7 @@ namespace MultiArrayTools
 	
 	typedef AnonymousRange oType;
 
-	AnonymousRangeFactory() = delete;
+	AnonymousRangeFactory() = default;
 
 	template <class... RangeTypes>
 	AnonymousRangeFactory(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
@@ -120,7 +120,32 @@ namespace MultiArrayTools
     {
 	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
     }
-    
+
+    /*****************
+     *   Functions   *
+     *****************/
+
+    std::shared_ptr<AnonymousRange> defaultRange(size_t size = 0);
+}
+
+namespace MultiArrayHelper
+{
+    using namespace MultiArrayTools;
+    template <>
+    inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange> rp,
+						std::vector<std::shared_ptr<RangeBase> > orig,
+						size_t origpos, size_t size)
+    {
+    	AnonymousRangeFactory arf;
+	for(size_t op = origpos - size + 1; op != origpos + 1; ++op){
+	    arf.append(orig[op]);
+	}
+    	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
+    }
+}
+
+namespace MultiArrayTools
+{
     /***********************
      *   AnonymousRange    *
      ***********************/
@@ -155,15 +180,12 @@ namespace MultiArrayTools
     {
 	std::tuple<Ranges...> rtp;
 	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, mOrig.size()-1, sizes...);
-	MultiRangeFactory<Ranges> mrf(rtp);
+	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf->create() );
     }
     
-    /*****************
-     *   Functions   *
-     *****************/
 
-    std::shared_ptr<AnonymousRange> defaultRange(size_t size = 0);
+    
 }
 
 #endif
