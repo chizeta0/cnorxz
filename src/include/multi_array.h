@@ -4,6 +4,7 @@
 #define __multi_array_h__
 
 #include "multi_array_base.h"
+#include "ranges/anonymous_range.h"
 
 namespace MultiArrayTools
 {
@@ -68,6 +69,9 @@ namespace MultiArrayTools
 	virtual std::vector<T>& vdata() { return mCont; }
 	virtual const std::vector<T>& vdata() const { return mCont; }
 
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
+	
 	auto cat() const
 	    -> decltype(ArrayCatter<T>::cat(*this));
 	
@@ -255,6 +259,25 @@ namespace MultiArrayTools
     {
 	return mCont.data();
     }
+
+    template <typename T, class... SRanges>
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymous() const
+    {
+	AnonymousRangeFactory arf(MAB::mRange->space());
+	return std::make_shared<MultiArray<T,AnonymousRange> >
+	    ( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
+	      mCont );
+    }	
+
+    template <typename T, class... SRanges>
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymousMove()
+    {
+	AnonymousRangeFactory arf(MAB::mRange->space());
+	MAB::mInit = false;
+	return std::make_shared<MultiArray<T,AnonymousRange> >
+	    ( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
+	      std::move(mCont) );
+    }	
 
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::operator T() const

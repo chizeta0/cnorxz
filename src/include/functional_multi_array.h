@@ -44,6 +44,8 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	
 	// EVALUTAION CLASS ??!!!!
 
 	auto exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
@@ -142,6 +144,13 @@ namespace MultiArrayTools
 	return false;
     }
 
+    template <typename T, class Function, class... SRanges>
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > FunctionalMultiArray<T,Function,SRanges...>::anonymous() const
+    {
+	assert(0); // think about it carefully
+	return nullptr;
+    }
+	
     template <typename T, class Function, class... SRanges>
     ConstOperationRoot<T,SRanges...> FunctionalMultiArray<T,Function,SRanges...>::
     operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const

@@ -30,6 +30,8 @@ namespace MultiArrayTools
 	virtual auto begin() const -> IType override;
 	virtual auto end() const -> IType override;
 
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	    -> SliceDef<T,SRanges...>;
 	
@@ -67,6 +69,9 @@ namespace MultiArrayTools
 
 	virtual auto begin() const -> IType override;
 	virtual auto end() const -> IType override;
+
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
 
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	    -> SliceDef<T,SRanges...>;
@@ -174,6 +179,13 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous() const
+    {
+	assert(0); // think about carefully!!!!
+	return nullptr;
+    }
+    
+    template <typename T, class... SRanges>
     auto ConstSlice<T,SRanges...>::define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	-> SliceDef<T,SRanges...>
     {
@@ -264,6 +276,20 @@ namespace MultiArrayTools
 	return i.setData(data());
     }
 
+    template <typename T, class... SRanges>
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymous() const
+    {
+	assert(0); // think about carefully!!!!
+	return nullptr;
+    }
+    
+    template <typename T, class... SRanges>
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymousMove()
+    {
+	assert(0); // think about carefully!!!!
+	return nullptr;
+    }
+    
     template <typename T, class... SRanges>
     auto Slice<T,SRanges...>::define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	-> SliceDef<T,SRanges...>
