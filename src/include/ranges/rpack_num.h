@@ -224,7 +224,7 @@ namespace MultiArrayHelper
 
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-				std::vector<std::shared_ptr<RangeBase> >& v)
+				       std::vector<std::shared_ptr<RangeBase> >& v)
 	{
 	    setRangeToVec(v, std::get<N>(rst));
 	    //v[N] = std::get<N>(rst);
@@ -420,7 +420,7 @@ namespace MultiArrayHelper
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				std::vector<std::shared_ptr<RangeBase> >& v)
 	{
-	    v[0] = std::get<0>(rst);
+	    setRangeToVec(v, std::get<0>(rst));
 	}
 
 	template <class... Indices>

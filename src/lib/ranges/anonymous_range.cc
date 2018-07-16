@@ -7,6 +7,8 @@ namespace MultiArrayTools
      *   AnonymousRangeFactory    *
      ******************************/
 
+    std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > AnonymousRangeFactory::mAleadyCreated;
+    
     std::shared_ptr<RangeBase> AnonymousRangeFactory::checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
     {
 	std::shared_ptr<RangeBase> out;
@@ -42,6 +44,7 @@ namespace MultiArrayTools
     {
 	mProd = checkIfCreated(std::dynamic_pointer_cast<AnonymousRange>(mProd)->mOrig); 
 	setSelf();
+	mProductCreated = true;
 	return mProd;
     }
 

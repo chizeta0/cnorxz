@@ -38,11 +38,14 @@ namespace MultiArrayTools
 	std::shared_ptr<RangeBase> create();
 
     private:
+	
 	std::shared_ptr<RangeBase> checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec);
 	
 	static std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > mAleadyCreated;
+
+	bool mProductCreated = false;
     };
-    
+
     class AnonymousRange : public RangeInterface<AnonymousIndex>
     {
     public:
@@ -77,7 +80,7 @@ namespace MultiArrayTools
     protected:
 
 	AnonymousRange() = delete;
-	AnonymousRange(const AnonymousRange& in) = delete;
+	AnonymousRange(const AnonymousRange& in) = default;
 
 	template <class... RangeTypes>
 	AnonymousRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
@@ -85,7 +88,7 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	AnonymousRange(std::shared_ptr<RangeTypes>... origs);
 
-	size_t mSize;
+	size_t mSize = 0;
 	
 	std::vector<std::shared_ptr<RangeBase> > mOrig;
     };
@@ -118,7 +121,12 @@ namespace MultiArrayTools
     template <class Range>
     void AnonymousRangeFactory::append(std::shared_ptr<Range> r)
     {
+	if(mProductCreated){
+	    mProd = std::shared_ptr<oType>( new AnonymousRange( *std::dynamic_pointer_cast<oType>(mProd) ) );
+	    mProductCreated = false;
+	}
 	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
+	std::dynamic_pointer_cast<oType>(mProd)->mSize *= r->size();
     }
 
     /*****************
@@ -175,7 +183,7 @@ namespace MultiArrayTools
 	RangeInterface<AnonymousIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	mOrig.resize(sizeof...(RangeTypes));
+	//mOrig.resize(sizeof...(RangeTypes));
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
     }

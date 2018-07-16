@@ -5,6 +5,11 @@ add_dependencies(iutest multiarray)
 target_link_libraries(iutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} multiarray)
 add_test(NAME iutest COMMAND iutest)
 
+add_executable(autest ranges/anonymous_unit_test.cc)
+add_dependencies(autest multiarray)
+target_link_libraries(autest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} multiarray)
+add_test(NAME autest COMMAND autest)
+
 #add_executable(mautest src/tests/ma_unit_test.cc ${MA_CC_FILES})
 add_executable(mautest ma_unit_test.cc)
 add_dependencies(mautest multiarray)
