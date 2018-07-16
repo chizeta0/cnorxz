@@ -70,7 +70,7 @@ namespace MultiArrayTools
     class AnonymousRangeFactory;
 
     // anonymous_range.h
-    class AnonymousRange;
+    //class AnonymousRange;
 
 }
 

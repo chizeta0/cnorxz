@@ -26,6 +26,7 @@ namespace MultiArrayTools
 #define include_range_type(x,n) x = n,
 #include "range_types/header.h"
 #undef include_range_type
+	ANON = -1
     };
 
     class RangeFactoryBase

@@ -12,11 +12,13 @@
 namespace MultiArrayTools
 {
 
-    typedef SingleIndex<size_t,SpaceType::NONE> AnonymousIndex;
+    typedef SingleIndex<size_t,SpaceType::ANON> AnonymousIndex;
 
     template <class R>
     using SIZET = size_t;
 
+    typedef SingleRange<size_t,SpaceType::ANON> AnonymousRange;
+    
     // NOT THREAD SAVE!!
     class AnonymousRangeFactory : public RangeFactoryBase
     {
@@ -24,7 +26,7 @@ namespace MultiArrayTools
 	
 	typedef AnonymousRange oType;
 
-	AnonymousRangeFactory() = default;
+	AnonymousRangeFactory();
 
 	template <class... RangeTypes>
 	AnonymousRangeFactory(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
@@ -46,17 +48,20 @@ namespace MultiArrayTools
 	bool mProductCreated = false;
     };
 
-    class AnonymousRange : public RangeInterface<AnonymousIndex>
+    template <>
+    class SingleRange<size_t,SpaceType::ANON> : public RangeInterface<AnonymousIndex>
     {
     public:
 
-	static constexpr bool defaultable = false;
-        static constexpr size_t ISSTATIC = 0;
-        static constexpr size_t SIZE = -1;
-        static constexpr bool HASMETACONT = false;
+	static constexpr bool defaultable = true;
+	static constexpr size_t ISSTATIC = 0;
+	static constexpr size_t SIZE = -1;
+	static constexpr bool HASMETACONT = false;
 	
 	typedef RangeBase RB;
 	typedef typename RangeInterface<AnonymousIndex>::IndexType IndexType;
+	typedef SingleRange<size_t,SpaceType::ANON> RangeType;
+	typedef size_t MetaType;
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
@@ -73,22 +78,25 @@ namespace MultiArrayTools
 	std::shared_ptr<Range> fullsub(size_t num) const;
 
 	template <class... Ranges>
-	MultiRange<Ranges...> scast(SIZET<Ranges>... sizes) const; // save cast
+	std::shared_ptr<MultiRange<Ranges...> > scast(SIZET<Ranges>... sizes) const; // save cast
 	
 	friend AnonymousRangeFactory;
 	
+	static AnonymousRangeFactory factory()
+	{ return AnonymousRangeFactory(); }
+	
     protected:
 
-	AnonymousRange() = delete;
-	AnonymousRange(const AnonymousRange& in) = default;
+	SingleRange() = default;
+	SingleRange(const AnonymousRange& in) = default;
 
 	template <class... RangeTypes>
-	AnonymousRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
+	SingleRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
 	
 	template <class... RangeTypes>
-	AnonymousRange(std::shared_ptr<RangeTypes>... origs);
+	SingleRange(std::shared_ptr<RangeTypes>... origs);
 
-	size_t mSize = 0;
+	size_t mSize = 1;
 	
 	std::vector<std::shared_ptr<RangeBase> > mOrig;
     };
@@ -105,7 +113,7 @@ namespace MultiArrayTools
     /***********************
      *   AnonymousRange    *
      ***********************/
-
+    
     template <class... RangeTypes>
     AnonymousRangeFactory::AnonymousRangeFactory(const std::tuple<std::shared_ptr<RangeTypes>...>& origs)
     {
@@ -141,12 +149,12 @@ namespace MultiArrayHelper
     using namespace MultiArrayTools;
 
     template <>
-    inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange> rp,
-						std::vector<std::shared_ptr<RangeBase> > orig,
+    inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange>& rp,
+						const std::vector<std::shared_ptr<RangeBase> >& orig,
 						size_t origpos, size_t size)
     {
     	AnonymousRangeFactory arf;
-	for(size_t op = origpos - size + 1; op != origpos + 1; ++op){
+	for(size_t op = origpos; op != origpos + size; ++op){
 	    arf.append(orig[op]);
 	}
     	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
@@ -170,7 +178,7 @@ namespace MultiArrayTools
      ***********************/
 
     template <class... RangeTypes>
-    AnonymousRange::AnonymousRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
+    SingleRange<size_t,SpaceType::ANON>::SingleRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<AnonymousIndex>()
     {
 	mOrig.resize(sizeof...(RangeTypes));
@@ -179,7 +187,7 @@ namespace MultiArrayTools
     }
     
     template <class... RangeTypes>
-    AnonymousRange::AnonymousRange(std::shared_ptr<RangeTypes>... origs) :
+    SingleRange<size_t,SpaceType::ANON>::SingleRange(std::shared_ptr<RangeTypes>... origs) :
 	RangeInterface<AnonymousIndex>()
     {
 	auto rst = std::make_tuple(origs...);
@@ -189,18 +197,18 @@ namespace MultiArrayTools
     }
 
     template <class Range>
-    std::shared_ptr<Range> AnonymousRange::fullsub(size_t num) const
+    std::shared_ptr<Range> SingleRange<size_t,SpaceType::ANON>::fullsub(size_t num) const
     {
 	return std::dynamic_pointer_cast<Range>( mOrig.at(num) );
     }
 
     template <class... Ranges>
-    MultiRange<Ranges...> AnonymousRange::scast(SIZET<Ranges>... sizes) const
+    std::shared_ptr<MultiRange<Ranges...> > SingleRange<size_t,SpaceType::ANON>::scast(SIZET<Ranges>... sizes) const
     {
-	std::tuple<Ranges...> rtp;
-	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, mOrig.size()-1, sizes...);
+	std::tuple<std::shared_ptr<Ranges>...> rtp;
+	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
-	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf->create() );
+	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }
     
 

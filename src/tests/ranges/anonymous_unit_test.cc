@@ -112,6 +112,16 @@ namespace {
 	EXPECT_EQ(ar2->sub(1)->size(), m3rptr->size());
 	EXPECT_EQ(ar2->sub(2)->size(), sr2ptr->size());
     }
+
+    TEST_F(AnonymousIndexTest, Cast2)
+    {
+	AnonymousRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
+	auto ar = std::dynamic_pointer_cast<AnonymousRange>( arf2.create() );
+	auto mr = ar->template scast<SRange,AnonymousRange>(1,2);
+
+	EXPECT_EQ(mr->template getPtr<0>()->size(), sr1ptr->size());
+	EXPECT_EQ(mr->template getPtr<1>()->size(), m3rptr->size() * sr2ptr->size());
+    }
     
 } // end namespace 
 

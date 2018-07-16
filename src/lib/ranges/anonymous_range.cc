@@ -7,6 +7,11 @@ namespace MultiArrayTools
      *   AnonymousRangeFactory    *
      ******************************/
 
+    AnonymousRangeFactory::AnonymousRangeFactory()
+    {
+	mProd = std::shared_ptr<oType>( new AnonymousRange() );
+    }
+    
     std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > AnonymousRangeFactory::mAleadyCreated;
     
     std::shared_ptr<RangeBase> AnonymousRangeFactory::checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
@@ -75,8 +80,8 @@ namespace MultiArrayTools
     typename AnonymousRange::IndexType AnonymousRange::begin() const
     {
 	AnonymousIndex i
-	    (std::dynamic_pointer_cast<ClassicRange>
-	     ( ClassicRange::factory(size()).create() ) ); // !!!
+	    (std::dynamic_pointer_cast<AnonymousRange>
+	     ( std::shared_ptr<RangeBase>(RB::mThis) ) );
 	i = 0;
 	return i;
     }
@@ -84,8 +89,8 @@ namespace MultiArrayTools
     typename AnonymousRange::IndexType AnonymousRange::end() const
     {
 	AnonymousIndex i
-	    ( std::dynamic_pointer_cast<ClassicRange>
-	      ( ClassicRange::factory(size()).create() ));// !!!
+	    (std::dynamic_pointer_cast<AnonymousRange>
+	     ( std::shared_ptr<RangeBase>(RB::mThis) ) );
 	i = size();
 	return i;
     }
@@ -103,8 +108,8 @@ namespace MultiArrayTools
     std::shared_ptr<AnonymousRange> defaultRange(size_t size )
     {
 	AnonymousRangeFactory arf
-	    ( std::dynamic_pointer_cast<ClassicRange>
-	      (ClassicRange::factory(size).create() ) );
+	    ( std::dynamic_pointer_cast<AnonymousRange>
+	      (AnonymousRange::factory().create() ) );
 	return std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
     }
 

@@ -46,7 +46,7 @@ namespace MultiArrayHelper
 
     
     template <class Range>
-    inline void resolveSetRange(std::shared_ptr<Range> rp, std::vector<std::shared_ptr<RangeBase> > orig,
+    inline void resolveSetRange(std::shared_ptr<Range>& rp, const std::vector<std::shared_ptr<RangeBase> >& orig,
 				size_t origpos, size_t size)
     {
 	assert(size == 1);
@@ -278,12 +278,12 @@ namespace MultiArrayHelper
 	}
 
 	template <class RangeTuple, typename... SIZET>
-	static inline void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> > orig,
-					    const RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
+	static inline void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> >& orig,
+					    RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
 	    resolveSetRange(std::get<tps-N-1>(rtp), orig, off, size);
-	    RPackNum<N-1>::resolveRangeType(orig, rtp, off-size, sizes...);
+	    RPackNum<N-1>::resolveRangeType(orig, rtp, off+size, sizes...);
 	}
     };
 
@@ -418,7 +418,7 @@ namespace MultiArrayHelper
 
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-				std::vector<std::shared_ptr<RangeBase> >& v)
+				       std::vector<std::shared_ptr<RangeBase> >& v)
 	{
 	    setRangeToVec(v, std::get<0>(rst));
 	}
@@ -465,8 +465,8 @@ namespace MultiArrayHelper
 	}
 
 	template <class RangeTuple, typename... SIZET>
-	static inline void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> > orig,
-					    const RangeTuple& rtp, size_t off, size_t size)
+	static inline void resolveRangeType(const std::vector<std::shared_ptr<RangeBase> >& orig,
+					    RangeTuple& rtp, size_t off, size_t size)
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
 	    resolveSetRange(std::get<tps-1>(rtp), orig, off, size);
