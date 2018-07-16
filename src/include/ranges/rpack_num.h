@@ -46,11 +46,18 @@ namespace MultiArrayHelper
 
     
     template <class Range>
-    void resolveSetRange(std::shared_ptr<Range> rp, std::vector<std::shared_ptr<RangeBase> > orig,
-			 size_t origpos, size_t size)
+    inline void resolveSetRange(std::shared_ptr<Range> rp, std::vector<std::shared_ptr<RangeBase> > orig,
+				size_t origpos, size_t size)
     {
 	assert(size == 1);
 	rp = std::dynamic_pointer_cast<Range>( orig[origpos] ); // catch bad cast here!!
+    }
+
+    template <class Range>
+    inline void setRangeToVec(std::vector<std::shared_ptr<RangeBase> >& v,
+			      std::shared_ptr<Range> r)
+    {
+	v.insert(v.begin(), r);
     }
     
     template <size_t N>
@@ -216,10 +223,11 @@ namespace MultiArrayHelper
 
 
 	template <class... Ranges>
-	static void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
+	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				std::vector<std::shared_ptr<RangeBase> >& v)
 	{
-	    v[N] = std::get<N>(rst);
+	    setRangeToVec(v, std::get<N>(rst));
+	    //v[N] = std::get<N>(rst);
 	    RPackNum<N-1>::RangesToVec(rst, v);
 	}
 
@@ -409,7 +417,7 @@ namespace MultiArrayHelper
 	}
 
 	template <class... Ranges>
-	static void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
+	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				std::vector<std::shared_ptr<RangeBase> >& v)
 	{
 	    v[0] = std::get<0>(rst);

@@ -131,6 +131,7 @@ namespace MultiArrayTools
 namespace MultiArrayHelper
 {
     using namespace MultiArrayTools;
+
     template <>
     inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange> rp,
 						std::vector<std::shared_ptr<RangeBase> > orig,
@@ -142,6 +143,16 @@ namespace MultiArrayHelper
 	}
     	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
     }
+
+    template <>
+    inline void setRangeToVec<AnonymousRange>(std::vector<std::shared_ptr<RangeBase> >& v,
+					      std::shared_ptr<AnonymousRange> r)
+    {
+	for(size_t i = 0; i != r->dim(); ++i){
+	    v.insert(v.begin(), r->sub(i));
+	}
+    }
+
 }
 
 namespace MultiArrayTools
@@ -156,7 +167,7 @@ namespace MultiArrayTools
     {
 	mOrig.resize(sizeof...(RangeTypes));
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
-	RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
+	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
     }
     
     template <class... RangeTypes>
@@ -166,7 +177,7 @@ namespace MultiArrayTools
 	auto rst = std::make_tuple(origs...);
 	mOrig.resize(sizeof...(RangeTypes));
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
-	RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
+	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
     }
 
     template <class Range>
