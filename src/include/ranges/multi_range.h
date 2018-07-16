@@ -6,12 +6,14 @@
 #include <cstdlib>
 #include <tuple>
 #include <memory>
+#include <map>
 
 //#include "base_def.h"
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
-#include "rpack_num.h"
+#include "ranges/rpack_num.h"
+#include "ranges/multi_range_factory_product_map.h"
 
 namespace MultiArrayTools
 {
@@ -118,6 +120,7 @@ namespace MultiArrayTools
      *   MultiRangeFactory   *
      *************************/
 
+    // NOT THREAD SAVE
     template <class... Ranges>
     class MultiRangeFactory : public RangeFactoryBase
     {
@@ -132,6 +135,11 @@ namespace MultiArrayTools
 	MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr);
 	
 	virtual std::shared_ptr<RangeBase> create() override;
+
+    private:
+	
+	std::shared_ptr<RangeBase> checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& ptp);
+	
     };
     
     /******************
@@ -449,8 +457,32 @@ namespace MultiArrayTools
     template <class... Ranges>
     std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::create()
     {
+	mProd = checkIfCreated( std::dynamic_pointer_cast<oType>( mProd )->mSpace );
 	setSelf();
 	return mProd;
+    }
+
+    template <class... Ranges>
+    std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& ptp)
+    {
+	std::shared_ptr<RangeBase> out;
+	bool check = false;
+	for(auto& x: MultiRangeFactoryProductMap::mAleadyCreated){
+	    if(x.second.size() == sizeof...(Ranges)){
+		check = RPackNum<sizeof...(Ranges)-1>::checkIfCreated(ptp, x.second);
+		if(check){
+		    out = x.first;
+		    break;
+		}
+	    }
+	}
+	if(not check){
+	    std::vector<std::intptr_t> pv(sizeof...(Ranges));
+	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
+	    MultiRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
+	    out = mProd;
+	}
+	return out;
     }
     
     /******************

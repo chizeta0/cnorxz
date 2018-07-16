@@ -227,7 +227,14 @@ namespace MultiArrayHelper
 				       std::vector<std::shared_ptr<RangeBase> >& v)
 	{
 	    setRangeToVec(v, std::get<N>(rst));
-	    //v[N] = std::get<N>(rst);
+	    RPackNum<N-1>::RangesToVec(rst, v);
+	}
+
+	template <class... Ranges>
+	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
+				       std::vector<std::intptr_t>& v)
+	{
+	    v[N] = reinterpret_cast<std::intptr_t>( std::get<N>(rst).get() );
 	    RPackNum<N-1>::RangesToVec(rst, v);
 	}
 
@@ -284,6 +291,14 @@ namespace MultiArrayHelper
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
 	    resolveSetRange(std::get<tps-N-1>(rtp), orig, off, size);
 	    RPackNum<N-1>::resolveRangeType(orig, rtp, off+size, sizes...);
+	}
+
+	template <class... Ranges>
+	static inline bool checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& p,
+					  const std::vector<std::intptr_t>& a)
+	{
+	    return reinterpret_cast<std::intptr_t>( std::get<N>(p).get() ) == a[N] and
+		RPackNum<N-1>::checkIfCreated(p,a);
 	}
     };
 
@@ -418,6 +433,13 @@ namespace MultiArrayHelper
 
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
+				       std::vector<std::intptr_t>& v)
+	{
+	    v[0] = reinterpret_cast<std::intptr_t>( std::get<0>(rst).get() );;
+	}
+	
+	template <class... Ranges>
+	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       std::vector<std::shared_ptr<RangeBase> >& v)
 	{
 	    setRangeToVec(v, std::get<0>(rst));
@@ -470,6 +492,13 @@ namespace MultiArrayHelper
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
 	    resolveSetRange(std::get<tps-1>(rtp), orig, off, size);
+	}
+
+	template <class... Ranges>
+	static inline bool checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& p,
+					  const std::vector<std::intptr_t>& a)
+	{
+	    return reinterpret_cast<std::intptr_t>( std::get<0>(p).get() ) == a[0];
 	}
 
     };
