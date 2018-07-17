@@ -73,7 +73,6 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-
     
     template <typename T, class OpClass, class... Ranges>
     class OperationMaster
