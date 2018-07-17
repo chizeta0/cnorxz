@@ -33,8 +33,8 @@ namespace MultiArrayTools
 	OperationClass& THIS() { return static_cast<OperationClass&>(*this); }
 	const OperationClass& THIS() const { return static_cast<OperationClass const&>(*this); }
 
-	//inline auto operator+(const T& in) const
-	//    -> Operation<T,plus<T>,OperationClass,OperationValue<T> >;
+	inline auto operator+(const T& in) const
+	    -> Operation<T,plus<T>,OperationClass,OperationValue<T> >;
 
 	// !!!
 	
@@ -204,6 +204,7 @@ namespace MultiArrayTools
     template <typename T>
     class OperationValue : public OperationTemplate<T,OperationValue<T> >
     {
+    public:
 	typedef T value_type;
 	typedef OperationBase<T,OperationValue<T> > OT;
 	typedef ContainerRange<T,NullRange> CRange;
@@ -353,14 +354,14 @@ namespace MultiArrayTools
      *   OperationTemplate     *
      ***************************/
 
-    /*
+
     template <typename T, class OperationClass>
     auto OperationBase<T,OperationClass>::operator+(const T& in) const
 	-> Operation<T,plus<T>,OperationClass,OperationValue<T> >
     {
 	return Operation<T,plus<T>,OperationClass,OperationValue<T> >(THIS(), in);
     }
-    */
+
     
     template <typename T, class OperationClass>
     template <class Second>

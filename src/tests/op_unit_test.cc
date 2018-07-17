@@ -434,6 +434,7 @@ namespace {
     TEST_F(OpTest_MDim, ExecOp1)
     {
 	MultiArray<double,SRange,SRange> res(sr2ptr,sr4ptr);
+	MultiArray<double,SRange,SRange> res2(sr2ptr,sr4ptr);
 	const MultiArray<double,SRange> ma1(sr2ptr, v1);
 	const MultiArray<double,SRange> ma2(sr4ptr, v2);
 
@@ -451,6 +452,16 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt('3','A')) ), xround(0.373 * 8.870) );
 	EXPECT_EQ( xround( res.at(mkt('3','B')) ), xround(0.373 * 4.790) );
 
+	res2(i1,i2) = (ma1(i1) + 3.14 ) * ma2(i2);
+
+	EXPECT_EQ( xround( res2.at(mkt('1','A')) ), xround( (2.917 + 3.14) * 8.870) );
+	EXPECT_EQ( xround( res2.at(mkt('1','B')) ), xround( (2.917 + 3.14) * 4.790) );
+
+	EXPECT_EQ( xround( res2.at(mkt('2','A')) ), xround( (9.436 + 3.14) * 8.870) );
+	EXPECT_EQ( xround( res2.at(mkt('2','B')) ), xround( (9.436 + 3.14) * 4.790) );
+	
+	EXPECT_EQ( xround( res2.at(mkt('3','A')) ), xround( (0.373 + 3.14) * 8.870) );
+	EXPECT_EQ( xround( res2.at(mkt('3','B')) ), xround( (0.373 + 3.14) * 4.790) );
     }
 
     TEST_F(OpTest_MDim, ExecContract)
