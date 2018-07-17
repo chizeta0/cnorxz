@@ -4,9 +4,14 @@
 
 #include "base_def.h"
 #include "slice.h"
+#include <ostream>
+#include "pack_num.h"
 
 namespace MultiArrayTools
 {
+    
+    template <typename... T>
+    std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp);
 
     template <class RangeType>
     auto getIndex(std::shared_ptr<RangeType> range)
@@ -27,6 +32,15 @@ namespace MultiArrayTools
     template <class... RangeTypes>
     auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
 	-> MultiRange<RangeTypes...>;
+
+    template <class RangeFactory>
+    auto createExplicit(RangeFactory& rf)
+	-> std::shared_ptr<typename RangeFactory::oType>;
+
+    template <class RangeFactory>
+    auto createExplicit(std::shared_ptr<RangeFactory> rfp)
+	-> std::shared_ptr<typename RangeFactory::oType>;
+
 }
 
 /* ========================= *
@@ -35,6 +49,13 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
+    template <typename... T>
+    std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)
+    {
+	PackNum<sizeof...(T)-1>::printTuple(out, tp);
+	return out;
+    }
+    
     template <class RangeType>
     auto getIndex(std::shared_ptr<RangeType> range)
 	-> std::shared_ptr<typename RangeType::IndexType>
@@ -78,6 +99,20 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<MultiRange<RangeTypes...> >( mrf.create() );
     }
 
+    template <class RangeFactory>
+    auto createExplicit(RangeFactory& rf)
+	-> std::shared_ptr<typename RangeFactory::oType>
+    {
+	return std::dynamic_pointer_cast<typename RangeFactory::oType>( rf.create() );
+    }
+
+    template <class RangeFactory>
+    auto createExplicit(std::shared_ptr<RangeFactory> rfp)
+	-> std::shared_ptr<typename RangeFactory::oType>
+    {
+	return std::dynamic_pointer_cast<typename RangeFactory::oType>( rfp->create() );
+    }
+    
 }
 
 #endif
