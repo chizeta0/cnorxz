@@ -14,6 +14,7 @@
 //#ifndef __ranges_header__
 //#define __ranges_header__
 
+#include "null_range.h"
 #include "spin_range.h"
 #include "space_range.h"
 #include "classic_range.h"

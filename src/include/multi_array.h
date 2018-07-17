@@ -39,6 +39,7 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
 	MultiArray(const typename CRange::SpaceType& space);
 	MultiArray(const typename CRange::SpaceType& space, std::vector<T>&& vec);
+	MultiArray(MultiArray<T,AnonymousRange>& ama, SIZET<SRanges>... sizes);
 	
 	// Only if ALL ranges have default extensions:
 	//MultiArray(const std::vector<T>& vec);
@@ -86,7 +87,10 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    using Scalar = MultiArray<T>;
+    using Scalar = MultiArray<T,NullRange>;
+
+    template <typename T>
+    Scalar<T> scalar(const T& in);
 
     template <typename T, class... ERanges>
     struct ArrayCatter<MultiArray<T,ERanges...> >
@@ -119,6 +123,12 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
+    template <typename T>
+    Scalar<T> scalar(const T& in)
+    {
+	NullRF nrf;
+	return Scalar<T>( std::dynamic_pointer_cast<NullRange>( nrf.create() ), std::vector<T>( { in } ) );
+    }
     
     /*******************
      *  MultiArray     *	     
@@ -175,6 +185,14 @@ namespace MultiArrayTools
 	}
     }
 
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>::MultiArray(MultiArray<T,AnonymousRange>& ama, SIZET<SRanges>... sizes) :
+	MutableMultiArrayBase<T,SRanges...>( ama.range()->template scast<SRanges...>(sizes...)->space() ),
+	mCont( std::move( ama.mCont ) )
+    {
+	MAB::mInit = true;
+    }
+    
     /*
     template <typename T, class... SRanges>
     template <class Range2, class Range3>

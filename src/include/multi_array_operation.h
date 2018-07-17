@@ -33,6 +33,11 @@ namespace MultiArrayTools
 	OperationClass& THIS() { return static_cast<OperationClass&>(*this); }
 	const OperationClass& THIS() const { return static_cast<OperationClass const&>(*this); }
 
+	//inline auto operator+(const T& in) const
+	//    -> Operation<T,plus<T>,OperationClass,OperationValue<T> >;
+
+	// !!!
+	
 	template <class Second>
 	auto operator+(const Second& in) const
 	    -> Operation<T,plus<T>,OperationClass,Second>;
@@ -196,6 +201,30 @@ namespace MultiArrayTools
 	IndexType mIndex;
     };
 
+    template <typename T>
+    class OperationValue : public OperationTemplate<T,OperationValue<T> >
+    {
+	typedef T value_type;
+	typedef OperationBase<T,OperationValue<T> > OT;
+	typedef ContainerRange<T,NullRange> CRange;
+	typedef ContainerIndex<T,NullIndex> IndexType;
+
+	static constexpr size_t SIZE = 1;
+
+	OperationValue(const T& val);
+
+	template <class ET>
+	inline T get(ET pos) const;
+
+	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+
+	template <class Expr>
+	Expr loop(Expr exp) const;
+	
+    private:
+	T mVal;
+    };
+    
     template <class Op>
     size_t sumRootNum()
     {
@@ -323,6 +352,15 @@ namespace MultiArrayTools
     /***************************
      *   OperationTemplate     *
      ***************************/
+
+    /*
+    template <typename T, class OperationClass>
+    auto OperationBase<T,OperationClass>::operator+(const T& in) const
+	-> Operation<T,plus<T>,OperationClass,OperationValue<T> >
+    {
+	return Operation<T,plus<T>,OperationClass,OperationValue<T> >(THIS(), in);
+    }
+    */
     
     template <typename T, class OperationClass>
     template <class Second>
@@ -524,6 +562,31 @@ namespace MultiArrayTools
     {
 	return mDataPtr + mIndex.pos();
     }
+
+
+    template <typename T>
+    OperationValue<T>::OperationValue(const T& val) : mVal(val) {}
+
+    template <typename T>
+    template <class ET>
+    inline T OperationValue<T>::get(ET pos) const
+    {
+	return mVal;
+    }
+
+    template <typename T>
+    MExt<void> OperationValue<T>::rootSteps(std::intptr_t iPtrNum) const
+    {
+	return MExt<void>(0);
+    }
+
+    template <typename T>
+    template <class Expr>
+    Expr OperationValue<T>::loop(Expr exp) const
+    {
+	return exp;
+    }
+
     
     /*******************
      *   Operation     *

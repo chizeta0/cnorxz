@@ -41,6 +41,10 @@ namespace MultiArrayTools
     class OperationRoot;
 
     // multi_array_operation.h
+    template <typename T>
+    class OperationValue;
+
+    // multi_array_operation.h
     template <typename T, class... Ranges>
     class ConstOperationRoot;
 
