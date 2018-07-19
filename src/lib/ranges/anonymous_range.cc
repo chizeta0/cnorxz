@@ -76,7 +76,12 @@ namespace MultiArrayTools
     {
 	return 1;
     }
-        
+
+    size_t AnonymousRange::anonymousDim() const
+    {
+	return mOrig.size();
+    }
+    
     typename AnonymousRange::IndexType AnonymousRange::begin() const
     {
 	AnonymousIndex i

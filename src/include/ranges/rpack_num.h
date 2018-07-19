@@ -90,7 +90,6 @@ namespace MultiArrayHelper
 			     std::intptr_t idxPtrNum)
 	{
 	    auto& siPtr = std::get<N>(ip);
-	    //VCHECK(siPtr.id());
 	    if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
 		return RPackNum<N-1>::pp(ip, bs, idxPtrNum);
 	    }
@@ -277,9 +276,7 @@ namespace MultiArrayHelper
 	    const auto& ni = ii.template get<N>();
 	    const size_t max = ni.max();
 	    const size_t tmp = getStepSize(ni, j);
-	    //VCHECK(tmp);
 	    ss += tmp * sx;
-	    //VCHECK(ss);
 	    sx *= max;
 	    RPackNum<N-1>::getStepSizeX(ii, j, ss, sx);
 	}
@@ -480,9 +477,7 @@ namespace MultiArrayHelper
 	    const auto& ni = ii.template get<0>();
 	    const size_t max = ni.max();
 	    const size_t tmp = getStepSize(ni, j);
-	    //VCHECK(tmp);
 	    ss += tmp * sx;
-	    //VCHECK(ss);
 	    sx *= max;
 	}
 

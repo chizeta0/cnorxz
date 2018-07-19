@@ -65,7 +65,8 @@ namespace MultiArrayTools
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
-	
+
+	size_t anonymousDim() const;
 	size_t get(size_t pos) const;
 	size_t getMeta(size_t metaPos) const;
 	
@@ -129,6 +130,7 @@ namespace MultiArrayTools
     void AnonymousRangeFactory::append(std::shared_ptr<Range> r)
     {
 	if(mProductCreated){
+	    
 	    mProd = std::shared_ptr<oType>( new AnonymousRange( *std::dynamic_pointer_cast<oType>(mProd) ) );
 	    mProductCreated = false;
 	}
@@ -153,7 +155,9 @@ namespace MultiArrayHelper
 						size_t origpos, size_t size)
     {
     	AnonymousRangeFactory arf;
+	//VCHECK(size);
 	for(size_t op = origpos; op != origpos + size; ++op){
+	    //VCHECK(op);
 	    arf.append(orig[op]);
 	}
     	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
@@ -180,7 +184,6 @@ namespace MultiArrayTools
     SingleRange<size_t,SpaceType::ANON>::SingleRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<AnonymousIndex>()
     {
-	mOrig.resize(sizeof...(RangeTypes));
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
     }
@@ -190,7 +193,6 @@ namespace MultiArrayTools
 	RangeInterface<AnonymousIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	//mOrig.resize(sizeof...(RangeTypes));
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
     }
