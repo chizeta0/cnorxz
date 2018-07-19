@@ -33,32 +33,27 @@ namespace MultiArrayTools
 	OperationClass& THIS() { return static_cast<OperationClass&>(*this); }
 	const OperationClass& THIS() const { return static_cast<OperationClass const&>(*this); }
 
-	inline auto operator+(const T& in) const
-	    -> Operation<T,plus<T>,OperationClass,OperationValue<T> >;
-
-	// !!!
-	
 	template <class Second>
-	auto operator+(const Second& in) const
+	auto operator+(const OperationBase<T,Second>& in) const
 	    -> Operation<T,plus<T>,OperationClass,Second>;
 	
 	template <class Second>
-	auto operator-(const Second& in) const
+	auto operator-(const OperationBase<T,Second>& in) const
 	    -> Operation<T,minus<T>,OperationClass,Second>;
 	
 	template <class Second>
-	auto operator*(const Second& in) const
+	auto operator*(const OperationBase<T,Second>& in) const
 	    -> Operation<T,multiplies<T>,OperationClass,Second>;
 	
 	template <class Second>
-	auto operator/(const Second& in) const
+	auto operator/(const OperationBase<T,Second>& in) const
 	    -> Operation<T,divides<T>,OperationClass,Second>;
 
 	template <class IndexType>
 	auto c(std::shared_ptr<IndexType>& ind) const
 	    -> Contraction<T,OperationClass,IndexType>;
-		
-    private:
+
+    private:		
 	friend OperationClass;
 	friend OperationTemplate<T,OperationClass>;
 	OperationBase() = default;
@@ -306,69 +301,6 @@ namespace MultiArrayTools
 	return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
     }
 
-    template <typename T, class OperationClass>
-    auto operator+(const T& a, const OperationBase<T,OperationClass>& b)
-	-> Operation<T,plus<T>,OperationValue<T>,OperationClass>
-    {
-	OperationValue<T> v(a);
-	return Operation<T,plus<T>,OperationValue<T>,OperationClass>(v, b.THIS());
-    }
-
-    template <typename T, class OperationClass>
-    auto operator-(const T& a, const OperationBase<T,OperationClass>& b)
-	-> Operation<T,minus<T>,OperationValue<T>,OperationClass>
-    {
-	OperationValue<T> v(a);
-	return Operation<T,minus<T>,OperationValue<T>,OperationClass>(v, b.THIS());
-    }
-
-    template <typename T, class OperationClass>
-    auto operator*(const T& a, const OperationBase<T,OperationClass>& b)
-	-> Operation<T,multiplies<T>,OperationValue<T>,OperationClass>
-    {
-	OperationValue<T> v(a);
-	return Operation<T,multiplies<T>,OperationValue<T>,OperationClass>(v, b.THIS());
-    }
-
-    template <typename T, class OperationClass>
-    auto operator/(const T& a, const OperationBase<T,OperationClass>& b)
-	-> Operation<T,divides<T>,OperationValue<T>,OperationClass>
-    {
-	OperationValue<T> v(a);
-	return Operation<T,divides<T>,OperationValue<T>,OperationClass>(v, b.THIS());
-    }
-
-    template <typename T, class OperationClass>
-    auto operator+(const OperationBase<T,OperationClass>& a, const T& b)
-	-> Operation<T,plus<T>,OperationClass,OperationValue<T> >
-    {
-	OperationValue<T> v(b);
-	return Operation<T,plus<T>,OperationClass,OperationValue<T> >(a.THIS(), v);
-    }
-
-    template <typename T, class OperationClass>
-    auto operator-(const OperationBase<T,OperationClass>& a, const T& b)
-	-> Operation<T,minus<T>,OperationClass,OperationValue<T> >
-    {
-	OperationValue<T> v(b);
-	return Operation<T,minus<T>,OperationClass,OperationValue<T> >(a.THIS(), v);
-    }
-
-    template <typename T, class OperationClass>
-    auto operator*(const OperationBase<T,OperationClass>& a, const T& b)
-	-> Operation<T,multiplies<T>,OperationClass,OperationValue<T> >
-    {
-	OperationValue<T> v(b);
-	return Operation<T,multiplies<T>,OperationClass,OperationValue<T> >(a.THIS(), v);
-    }
-
-    template <typename T, class OperationClass>
-    auto operator/(const OperationBase<T,OperationClass>& a, const T& b)
-	-> Operation<T,divides<T>,OperationClass,OperationValue<T> >
-    {
-	OperationValue<T> v(b);
-	return Operation<T,divides<T>,OperationClass,OperationValue<T> >(a.THIS(), v);
-    }
 
     
     template <typename T, class Op, class IndexType>
@@ -418,45 +350,37 @@ namespace MultiArrayTools
      *   OperationTemplate     *
      ***************************/
 
-
-    template <typename T, class OperationClass>
-    auto OperationBase<T,OperationClass>::operator+(const T& in) const
-	-> Operation<T,plus<T>,OperationClass,OperationValue<T> >
-    {
-	return Operation<T,plus<T>,OperationClass,OperationValue<T> >(THIS(), in);
-    }
-
     
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationBase<T,OperationClass>::operator+(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator+(const OperationBase<T,Second>& in) const
 	-> Operation<T,plus<T>,OperationClass,Second>
     {
-    	return Operation<T,plus<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,plus<T>,OperationClass,Second>(THIS(), in.THIS());
     }
 
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationBase<T,OperationClass>::operator-(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator-(const OperationBase<T,Second>& in) const
 	-> Operation<T,minus<T>,OperationClass,Second>
     {
-    	return Operation<T,minus<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,minus<T>,OperationClass,Second>(THIS(), in.THIS());
     }
     
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationBase<T,OperationClass>::operator*(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator*(const OperationBase<T,Second>& in) const
 	-> Operation<T,multiplies<T>,OperationClass,Second>
     {
-    	return Operation<T,multiplies<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,multiplies<T>,OperationClass,Second>(THIS(), in.THIS());
     }
 
     template <typename T, class OperationClass>
     template <class Second>
-    auto OperationBase<T,OperationClass>::operator/(const Second& in) const
+    auto OperationBase<T,OperationClass>::operator/(const OperationBase<T,Second>& in) const
 	-> Operation<T,divides<T>,OperationClass,Second>
     {
-    	return Operation<T,divides<T>,OperationClass,Second>(THIS(), in);
+    	return Operation<T,divides<T>,OperationClass,Second>(THIS(), in.THIS());
     }
 
     template <typename T, class OperationClass>

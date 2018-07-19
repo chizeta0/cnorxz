@@ -3,6 +3,8 @@
 #ifndef __multi_array_h__
 #define __multi_array_h__
 
+#include <algorithm>
+
 #include "multi_array_base.h"
 #include "ranges/anonymous_range.h"
 
@@ -77,6 +79,11 @@ namespace MultiArrayTools
 	    -> decltype(ArrayCatter<T>::cat(*this));
 	
 	operator T() const;	
+
+	MultiArray& operator+=(const MultiArray& in);
+	MultiArray& operator-=(const MultiArray& in);
+	MultiArray& operator*=(const T& in);
+	MultiArray& operator/=(const T& in);
 	
 	template <typename U, class... SRanges2>
 	friend class MultiArray;
@@ -187,7 +194,8 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(MultiArray<T,AnonymousRange>& ama, SIZET<SRanges>... sizes) :
-	MutableMultiArrayBase<T,SRanges...>( ama.range()->template scast<SRanges...>(sizes...)->space() ),
+	MutableMultiArrayBase<T,SRanges...>
+	( ama.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mCont( std::move( ama.mCont ) )
     {
 	MAB::mInit = true;
@@ -297,6 +305,50 @@ namespace MultiArrayTools
 	      std::move(mCont) );
     }	
 
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator+=(const MultiArray& in)
+    {
+	if(not MAB::mInit){ // not initialized by default constructor !!
+	    (*this) = in;
+	}
+	else {
+	    assert( PackNum<sizeof...(SRanges)-1>::checkIfSameInstance( MAB::mRange->space(), in.mRange->space() ) );
+	    std::transform(mCont.begin(), mCont.end(), in.mCont.begin(), mCont.begin(), std::plus<T>());
+	}
+	return *this;
+    }
+
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator-=(const MultiArray& in)
+    {
+	if(not MAB::mInit){ // not initialized by default constructor !!
+	    (*this) = in;
+	}
+	else {
+	    assert( PackNum<sizeof...(SRanges)-1>::checkIfSameInstance( MAB::mRange->space(), in.mRange->space() ) );
+	    std::transform(mCont.begin(), mCont.end(), in.mCont.begin(), mCont.begin(), std::minus<T>());
+	}
+	return *this;
+    }
+    
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator*=(const T& in)
+    {
+	for(auto& x: mCont){
+	    x *= in;
+	}
+	return *this;
+    }
+
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator/=(const T& in)
+    {
+	for(auto& x: mCont){
+	    x /= in;
+	}
+	return *this;
+    }
+    
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::operator T() const
     {

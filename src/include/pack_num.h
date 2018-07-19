@@ -100,6 +100,13 @@ namespace MultiArrayHelper
 	    std::get<N+1>(blocks) = tmp;
 	    PackNum<N-1>::template mkSliceBlocks<T,Op,SRanges...>(blocks, index, op, total * tmp);
 	}
+
+	template <class... SRanges>
+	static bool checkIfSameInstance(const std::tuple<std::shared_ptr<SRanges>...>& rtp1,
+					const std::tuple<std::shared_ptr<SRanges>...>& rtp2)
+	{
+	    return std::get<N>(rtp1).get() == std::get<N>(rtp2).get() and PackNum<N-1>::checkIfSameInstance(rtp1,rtp2);
+	}
     };
     
     template<>
@@ -162,6 +169,13 @@ namespace MultiArrayHelper
 		.val();
 	    std::get<1>(blocks) = tmp;
 	    std::get<0>(blocks) = total * tmp; // this is not correct, but not used so far ... !!!
+	}
+
+	template <class... SRanges>
+	static bool checkIfSameInstance(const std::tuple<std::shared_ptr<SRanges>...>& rtp1,
+					const std::tuple<std::shared_ptr<SRanges>...>& rtp2)
+	{
+	    return std::get<0>(rtp1).get() == std::get<0>(rtp2).get();
 	}
 
     };

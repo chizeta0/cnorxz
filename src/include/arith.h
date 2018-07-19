@@ -60,7 +60,7 @@ namespace MultiArrayTools
     };
     
     template <typename T>
-    struct plus
+    struct plus : public StaticFunctionBase<T, plus<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
 	
@@ -71,7 +71,7 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    struct minus
+    struct minus : public StaticFunctionBase<T, minus<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
 	
@@ -82,7 +82,7 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    struct multiplies
+    struct multiplies : public StaticFunctionBase<T, multiplies<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
 	
@@ -93,7 +93,7 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    struct divides
+    struct divides : public StaticFunctionBase<T, divides<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
 	
@@ -102,6 +102,41 @@ namespace MultiArrayTools
 	    return a1 / a2;
 	}
     };
+
+#include <cmath>
+#define regFunc1(fff) template <typename T>\
+    struct x_##fff : public StaticFunctionBase<T, x_##fff<T>, T> {\
+    static constexpr bool FISSTATIC = true;\
+    static inline T apply(T a){\
+	return fff(a); } };
+
+#include "extensions/math.h"
+#undef regFunc1
+    
+    template <size_t N>
+    struct x_ipow
+    {
+	static constexpr bool FISSTATIC = true;
+
+	template <typename T>
+	static inline T apply(T a)
+	{
+	    return a * x_ipow<N-1>::apply(a);
+	}
+    };
+
+    template <>
+    struct x_ipow<0>
+    {
+	static constexpr bool FISSTATIC = true;
+
+	template <typename T>
+	static inline T apply(T a)
+	{
+	    return a;
+	}
+    };
+	
     /*
     template <typename T, class Func>
     struct dynamic_function

@@ -100,7 +100,6 @@ namespace MultiArrayTools
 	
 	std::vector<std::shared_ptr<RangeBase> > mOrig;
     };
-
 }
 
 /* ========================= *
