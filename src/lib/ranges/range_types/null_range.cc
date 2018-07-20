@@ -6,13 +6,30 @@ namespace MultiArrayTools
     /********************
      *   SingleRange    *
      ********************/
+
+    std::shared_ptr<NullRange> nullr()
+    {
+	return SingleRangeFactory<size_t,SpaceType::NUL>::mRInstance;
+    }
+
+    std::shared_ptr<NullIndex> nulli()
+    {
+	return std::make_shared<NullIndex>(nullr());
+    }
     
+    std::shared_ptr<SingleRange<size_t,SpaceType::NUL>>
+    SingleRangeFactory<size_t,SpaceType::NUL>::mRInstance = nullptr;
+
     SingleRangeFactory<size_t,SpaceType::NUL>::SingleRangeFactory()
     {
-	// Quasi Singleton
-	if(not mProd){
-	    mProd = std::shared_ptr<oType>( new SingleRange<size_t,SpaceType::NUL>() );
-	    setSelf();
+	// Singleton
+	if( not mRInstance){
+	    if(not mProd){
+		mProd = std::shared_ptr<oType>( new SingleRange<size_t,SpaceType::NUL>() );
+		setSelf();
+	    }
+	} else {
+	    mProd = mRInstance;
 	}
     }
 

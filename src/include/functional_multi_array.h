@@ -8,9 +8,38 @@
 namespace MultiArrayTools
 {
 
+    template <bool HASMETACONT>
+    struct ToMAObject
+    {
+	template <class Index>
+	static auto mk(const std::shared_ptr<Index>& i)
+	    -> MultiArray<typename Index::MetaType, typename Index::RangeType>
+	{
+	    std::vector<typename Index::MetaType> vv(i->range()->size());
+	    for(Index j = (*i); j.pos() != j.max(); ++j){
+		vv[j.pos()] = j.meta();
+	    }
+	    return MultiArray<typename Index::MetaType, typename Index::RangeType>( i->range(), std::move( vv ) );
+	}
+    };
+
+    template <>
+    struct ToMAObject<true>
+    {
+	template <class Index>
+	static auto mk(const std::shared_ptr<Index>& i)
+	    -> ConstSlice<typename Index::MetaType, typename Index::RangeType>
+	{
+	    return ConstSlice<typename Index::MetaType, typename Index::RangeType>( i->range(), i->metaPtr() );
+	}
+    };
+    
     template <class Index>
-    auto indexToSlice(const std::shared_ptr<Index>& i)
-	-> ConstSlice<typename Index::MetaType,typename Index::RangeType>;
+    auto mkMAObject(const std::shared_ptr<Index>& i)
+	-> decltype(ToMAObject<Index::RangeType::HASMETACONT>::mk(i))
+    {
+	return ToMAObject<Index::RangeType::HASMETACONT>::mk(i);
+    }
 
     
     template <typename T, class Function, class... SRanges>
@@ -49,7 +78,7 @@ namespace MultiArrayTools
 	// EVALUTAION CLASS ??!!!!
 
 	auto exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( indexToSlice( inds ), inds) ... ) );
+	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) );
 
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
@@ -65,13 +94,6 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
-    
-    template <class Index>
-    auto indexToSlice(const std::shared_ptr<Index>& i)
-	-> ConstSlice<typename Index::MetaType, typename Index::RangeType>
-    {
-	return ConstSlice<typename Index::MetaType, typename Index::RangeType>( i->range(), i->metaPtr() );
-    }
 
 
     /****************************
@@ -166,9 +188,9 @@ namespace MultiArrayTools
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
     exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	-> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( indexToSlice( inds ), inds) ... ) )
+	-> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) )
     {
- 	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( indexToSlice( inds ), inds ) ... );
+ 	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds ) ... );
     }
 
     

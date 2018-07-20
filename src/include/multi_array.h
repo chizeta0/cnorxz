@@ -37,6 +37,7 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(MultiArray);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges);
+	MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
 	MultiArray(const typename CRange::SpaceType& space);
@@ -169,7 +170,15 @@ namespace MultiArrayTools
     {
 	MAB::mInit = true;
     }
-
+    
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val) : 
+	MutableMultiArrayBase<T,SRanges...>(ranges...),
+	mCont(MAB::mRange->size(), val)
+    {
+	MAB::mInit = true;
+    }
+    
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
@@ -352,7 +361,8 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::operator T() const
     {
-	static_assert( sizeof...(SRanges) == 0, "try to cast non-scalar type into scalar" );
+	static_assert( sizeof...(SRanges) == 1, "try to cast non-scalar type into scalar" );
+	// TODO: check that SIZE is statically = 1 !!!
 	return mCont[0];
     }
 

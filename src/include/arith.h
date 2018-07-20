@@ -10,9 +10,9 @@ namespace MultiArrayTools
     {
 	template <class F, class Tuple, typename... As>
 	static inline auto mk(const Tuple& tp, As... as)
-	    -> decltype(ArgPack<N-1>::mk(tp, std::get<N>(tp), as...))
+	    -> decltype(ArgPack<N-1>::template mk<F,Tuple,decltype(std::get<N>(tp)),As...>(tp, std::get<N>(tp), as...))
 	{
-	    return ArgPack<N-1>::mk(tp, std::get<N>(tp), as...);
+	    return ArgPack<N-1>::template mk<F,Tuple,decltype(std::get<N>(tp)),As...>(tp, std::get<N>(tp), as...);
 	}
     };
 

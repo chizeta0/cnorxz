@@ -14,6 +14,9 @@ namespace MultiArrayTools
 {   
     typedef SingleIndex<size_t,SpaceType::NUL> NullIndex;
 
+    std::shared_ptr<SingleRange<size_t,SpaceType::NUL> > nullr();
+    std::shared_ptr<NullIndex> nulli();
+    
     template <>
     class SingleRangeFactory<size_t,SpaceType::NUL> : public RangeFactoryBase
     {
@@ -23,7 +26,11 @@ namespace MultiArrayTools
 
 	SingleRangeFactory();
 	std::shared_ptr<RangeBase> create();
+
+	friend std::shared_ptr<oType> nullr();
 	
+    private:
+	static std::shared_ptr<oType> mRInstance;
     };
 
     template <>
