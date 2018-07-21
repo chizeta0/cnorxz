@@ -40,8 +40,8 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
-	MultiArray(const typename CRange::SpaceType& space);
-	MultiArray(const typename CRange::SpaceType& space, std::vector<T>&& vec);
+	MultiArray(const typename CRange::Space& space);
+	MultiArray(const typename CRange::Space& space, std::vector<T>&& vec);
 	MultiArray(MultiArray<T,AnonymousRange>& ama, SIZET<SRanges>... sizes);
 	
 	// Only if ALL ranges have default extensions:
@@ -143,7 +143,7 @@ namespace MultiArrayTools
      *******************/
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const typename CRange::SpaceType& space) :
+    MultiArray<T,SRanges...>::MultiArray(const typename CRange::Space& space) :
 	MutableMultiArrayBase<T,SRanges...>(space),
 	mCont(MAB::mRange->size())
     {
@@ -151,7 +151,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const typename CRange::SpaceType& space,
+    MultiArray<T,SRanges...>::MultiArray(const typename CRange::Space& space,
 					 std::vector<T>&& vec) :
 	MutableMultiArrayBase<T,SRanges...>(space),
 	mCont(vec)

@@ -20,15 +20,27 @@ namespace MultiArrayTools
     size_t indexId();
     
     enum class SpaceType
-    {
-	NONE = 0,
-	ANY = 1,
+	{
+	 NONE = 0, // meta data is that of a classic range, i.e. 0,1,2,...,N-1
+	 ANY = 1, // meta data is arbitrary, i.e. explicitly stored
 #define include_range_type(x,n) x = n,
 #include "range_types/header.h"
 #undef include_range_type
-	ANON = -1
-    };
+	 ANON = -1 // anonymous content
+	};
 
+    struct DataHeader
+    {
+    public:
+	static constexpr size_t VERSION = 1; // fixed by version of this repository !
+    private:
+	size_t version = VERSION;
+    public:
+	int spaceType = static_cast<int>( SpaceType::NONE );
+	size_t metaSize = 0; // size of meta data
+	int multiple = 0; // = 1 if multi range
+    };
+    
     class RangeFactoryBase
     {
     public:
@@ -50,17 +62,20 @@ namespace MultiArrayTools
     class RangeBase
     {
     public:
-
+	
 	static constexpr bool ISINDEX = false;
 	
 	virtual ~RangeBase() = default;
 	    
 	virtual size_t size() const = 0;
 	virtual size_t dim() const = 0;
-
+	
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
 
+	virtual std::string stringMeta(size_t pos) const = 0;
+	virtual std::vector<char> data() const = 0; // usefull when writing to files, etc...
+	
 	//virtual bool regular() const = 0; // integer distance (e.g. 2,3,4,...)
 	//virtual bool linear() const = 0; // 1dim valuable (e.g. 2.45, 3.12, 3.56,...)
 	//virtual bool multi() const = 0; // mdim
@@ -69,11 +84,11 @@ namespace MultiArrayTools
 	friend RangeFactoryBase;
 	
     protected:
-
+	
 	RangeBase() = default;
 	std::weak_ptr<RangeBase> mThis;
     };
-
+    
     template <class Index>
     class RangeInterface : public RangeBase
     {

@@ -1,5 +1,6 @@
 
 #include "ranges/rheader.h"
+#include "ranges/x_to_string.h"
 
 namespace MultiArrayTools
 {
@@ -46,6 +47,27 @@ namespace MultiArrayTools
     {
 	return 1;
     }
+
+    std::string SingleRange<size_t,SpaceType::NONE>::stringMeta(size_t pos) const
+    {
+	return std::to_string(get(pos));
+    }
+
+    std::vector<char> SingleRange<size_t,SpaceType::NONE>::data() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::NONE );
+	h.metaSize = sizeof(size_t);
+	h.multiple = 0;
+	std::vector<char> out;
+	out.reserve(h.metaSize + sizeof(DataHeader));
+	char* hcp = reinterpret_cast<char*>(&h);
+	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
+	const char* scp = reinterpret_cast<const char*>(&mSize);
+	out.insert(out.end(), scp, scp + h.metaSize);
+	return out;
+    }
+
     
     typename SingleRange<size_t,SpaceType::NONE>::IndexType SingleRange<size_t,SpaceType::NONE>::begin() const
     {

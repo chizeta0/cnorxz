@@ -33,13 +33,15 @@ namespace MultiArrayTools
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
-	
+
+	virtual std::string stringMeta(size_t pos) const override;
+	virtual std::vector<char> data() const override;
+
 	int get(size_t pos) const;
 	size_t getMeta(int metaPos) const;
 	
 	virtual IndexType begin() const override;
 	virtual IndexType end() const override;
-	//virtual std::shared_ptr<VIWB> index() const override;
 	
 	friend SingleRangeFactory<int,SpaceType::PSPACE>;
 

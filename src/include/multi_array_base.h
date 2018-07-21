@@ -35,7 +35,7 @@ namespace MultiArrayTools
 
 	DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
-	MultiArrayBase(const typename CRange::SpaceType& space);
+	MultiArrayBase(const typename CRange::Space& space);
 
 	virtual ~MultiArrayBase() = default;
 
@@ -60,7 +60,7 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const = 0;
 	
 	virtual ConstOperationRoot<T,SRanges...>
-	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const;
+	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const;
 	
 	virtual bool isInit() const;
 
@@ -87,7 +87,7 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(MutableMultiArrayBase);
 	MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
-	MutableMultiArrayBase(const typename CRange::SpaceType& space);
+	MutableMultiArrayBase(const typename CRange::Space& space);
 	
 	virtual T& operator[](const IndexType& i) = 0;
 	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
@@ -102,8 +102,8 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() = 0;
 	
 	virtual ConstOperationRoot<T,SRanges...>
-	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
-	virtual OperationRoot<T,SRanges...> operator()(std::shared_ptr<typename SRanges::IndexType>&... inds);
+	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
+	virtual OperationRoot<T,SRanges...> operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds);
     };
 
     
@@ -129,7 +129,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>::MultiArrayBase(const typename CRange::SpaceType& space)
+    MultiArrayBase<T,SRanges...>::MultiArrayBase(const typename CRange::Space& space)
     {
 	ContainerRangeFactory<T,SRanges...> crf(space);
 	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
@@ -193,7 +193,7 @@ namespace MultiArrayTools
     
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MultiArrayBase<T,SRanges...>::operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    MultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
     }
@@ -222,7 +222,7 @@ namespace MultiArrayTools
 	MultiArrayBase<T,SRanges...>(ranges...) {}
 
     template <typename T, class... SRanges>
-    MutableMultiArrayBase<T,SRanges...>::MutableMultiArrayBase(const typename CRange::SpaceType& space) :
+    MutableMultiArrayBase<T,SRanges...>::MutableMultiArrayBase(const typename CRange::Space& space) :
 	MultiArrayBase<T,SRanges...>(space) {}
     /*
     template <typename T, class... SRanges>
@@ -247,14 +247,14 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     OperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::operator()(std::shared_ptr<typename SRanges::IndexType>&... inds)
+    MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds)
     {
 	return OperationRoot<T,SRanges...>(*this, inds...);
     }
     
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
     }

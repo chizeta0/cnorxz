@@ -14,6 +14,7 @@
 
 #include "ranges/rpack_num.h"
 #include "ranges/multi_range_factory_product_map.h"
+#include "ranges/x_to_string.h"
 
 namespace MultiArrayTools
 {
@@ -129,7 +130,7 @@ namespace MultiArrayTools
 	
 	MultiRangeFactory() = delete;
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
-	MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& space);
+	MultiRangeFactory(const typename MultiRange<Ranges...>::Space& space);
 
 	template <typename T>
 	MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr);
@@ -145,13 +146,13 @@ namespace MultiArrayTools
     /******************
      *   MultiRange   *
      ******************/
-      
+    
     template <class... Ranges>
     class MultiRange : public RangeInterface<MultiIndex<typename Ranges::IndexType...> >
     {
     public:
 	typedef RangeBase RB;
-	typedef std::tuple<std::shared_ptr<Ranges>...> SpaceType;
+	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
 	typedef MultiIndex<typename Ranges::IndexType...> IndexType;
 	typedef MultiRange RangeType;
 	//typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
@@ -162,9 +163,9 @@ namespace MultiArrayTools
 	MultiRange& operator=(const MultiRange& in) = delete;
 	
 	MultiRange(const std::shared_ptr<Ranges>&... rs);
-	MultiRange(const SpaceType& space);
+	MultiRange(const Space& space);
 	
-	SpaceType mSpace;
+	Space mSpace;
 
     public:
 	
@@ -178,8 +179,11 @@ namespace MultiArrayTools
 
 	virtual size_t dim() const final;
 	virtual size_t size() const final;
+
+	virtual std::string stringMeta(size_t pos) const final;
+	virtual std::vector<char> data() const final;
 	
-	const SpaceType& space() const;
+	const Space& space() const;
 	
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
@@ -442,7 +446,7 @@ namespace MultiArrayTools
     }
     
     template <class... Ranges>
-    MultiRangeFactory<Ranges...>::MultiRangeFactory(const typename MultiRange<Ranges...>::SpaceType& st)
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const typename MultiRange<Ranges...>::Space& st)
     {
 	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( st ) );
     }
@@ -493,7 +497,7 @@ namespace MultiArrayTools
     MultiRange<Ranges...>::MultiRange(const std::shared_ptr<Ranges>&... rs) : mSpace(std::make_tuple(rs...)) {}
 
     template <class... Ranges>
-    MultiRange<Ranges...>::MultiRange(const SpaceType& space) : mSpace( space ) {}
+    MultiRange<Ranges...>::MultiRange(const Space& space) : mSpace( space ) {}
 
     template <class... Ranges>
     template <size_t N>
@@ -522,9 +526,32 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    const typename MultiRange<Ranges...>::SpaceType& MultiRange<Ranges...>::space() const
+    const typename MultiRange<Ranges...>::Space& MultiRange<Ranges...>::space() const
     {
 	return mSpace;
+    }
+
+    template <class... Ranges>
+    std::string MultiRange<Ranges...>::stringMeta(size_t pos) const
+    {
+	auto i = begin();
+	i = pos;
+	return "[ " + RPackNum<sizeof...(Ranges)-1>::metaTupleToString(i.meta()) + " ]";
+    }
+
+    template <class... Ranges>
+    std::vector<char> MultiRange<Ranges...>::data() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::ANY );
+	h.metaSize = sizeof...(Ranges);
+	h.multiple = 1;
+	std::vector<char> out;
+	//out.reserve(h.metaSize + sizeof(DataHeader));
+	char* hcp = reinterpret_cast<char*>(&h);
+	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
+	RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
+	return out;
     }
     
     template <class... Ranges>

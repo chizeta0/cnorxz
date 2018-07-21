@@ -77,11 +77,11 @@ namespace MultiArrayTools
 	
 	// EVALUTAION CLASS ??!!!!
 
-	auto exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+	auto exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
 	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) );
 
 	virtual ConstOperationRoot<T,SRanges...>
-	operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
+	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
 	
     };
 
@@ -175,7 +175,7 @@ namespace MultiArrayTools
 	
     template <typename T, class Function, class... SRanges>
     ConstOperationRoot<T,SRanges...> FunctionalMultiArray<T,Function,SRanges...>::
-    operator()(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	if(not mMaPtr){
 	    mMaPtr = std::make_shared<MAType>( MAB::mRange->space() );
@@ -187,7 +187,7 @@ namespace MultiArrayTools
     
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
-    exec(std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
 	-> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) )
     {
  	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds ) ... );

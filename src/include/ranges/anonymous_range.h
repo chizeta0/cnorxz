@@ -8,6 +8,7 @@
 #include "rbase_def.h"
 #include "ranges/range_base.h"
 #include "ranges/rpheader.h"
+#include "ranges/x_to_string.h"
 
 namespace MultiArrayTools
 {
@@ -63,16 +64,19 @@ namespace MultiArrayTools
 	typedef SingleRange<size_t,SpaceType::ANON> RangeType;
 	typedef size_t MetaType;
 	
-	virtual size_t size() const override;
-	virtual size_t dim() const override;
+	virtual size_t size() const final;
+	virtual size_t dim() const final;
 
 	size_t anonymousDim() const;
 	size_t get(size_t pos) const;
 	size_t getMeta(size_t metaPos) const;
 	
-	virtual IndexType begin() const override;
-	virtual IndexType end() const override;
+	virtual IndexType begin() const final;
+	virtual IndexType end() const final;
 
+	virtual std::string stringMeta(size_t pos) const final;
+	virtual std::vector<char> data() const final;
+	
 	std::shared_ptr<RangeBase> sub(size_t num) const;
 
 	template <class Range>

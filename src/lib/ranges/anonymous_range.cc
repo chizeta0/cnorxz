@@ -77,6 +77,36 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    std::string AnonymousRange::stringMeta(size_t pos) const
+    {
+	std::string out = "[ ";
+	size_t xpos = pos;
+	for(size_t i = mOrig.size(); i != 0; --i) {
+	    auto& x = mOrig[i-1];
+	    const size_t redpos = pos % x->size();
+	    out = ( (i == mOrig.size()) ? out : out + " , " ) + x->stringMeta(redpos);
+	    xpos -= redpos;
+	}
+	out += " ]";
+	return out;
+    }
+
+    std::vector<char> AnonymousRange::data() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::ANON );
+	h.metaSize = mOrig.size();
+	h.multiple = 1;
+	std::vector<char> out;
+	char* hcp = reinterpret_cast<char*>(&h);
+	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
+	for(auto& x: mOrig){
+	    auto part = x->data();
+	    out.insert(out.end(), part.begin(), part.end());
+	}
+	return out;
+    }
+    
     size_t AnonymousRange::anonymousDim() const
     {
 	return mOrig.size();

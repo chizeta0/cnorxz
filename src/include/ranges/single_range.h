@@ -11,6 +11,7 @@
 //#include "ranges/rpack_num.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
+#include "ranges/x_to_string.h"
 
 #include "xfor/xfor.h"
 
@@ -103,6 +104,9 @@ namespace MultiArrayTools
 	
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
+
+	virtual std::string stringMeta(size_t pos) const override;
+	virtual std::vector<char> data() const override;
 	
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
@@ -365,6 +369,28 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    template <typename U, SpaceType TYPE>
+    std::string SingleRange<U,TYPE>::stringMeta(size_t pos) const
+    {
+	return xToString(get(pos));
+    }
+
+    template <typename U, SpaceType TYPE>
+    std::vector<char> SingleRange<U,TYPE>::data() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( TYPE );
+	h.metaSize = size() * sizeof(U);
+	h.multiple = 0;
+	std::vector<char> out;
+	out.reserve(h.metaSize + sizeof(DataHeader));
+	char* hcp = reinterpret_cast<char*>(&h);
+	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
+	const char* scp = reinterpret_cast<const char*>(mSpace.data());
+	out.insert(out.end(), scp, scp + h.metaSize);
+	return out;
+    }
+    
     template <typename U, SpaceType TYPE>
     typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::begin() const
     {

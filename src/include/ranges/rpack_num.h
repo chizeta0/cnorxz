@@ -7,7 +7,7 @@
 #include <cassert>
 #include "ranges/rbase_def.h"
 #include "ranges/index_base.h"
-
+#include "ranges/x_to_string.h"
 
 namespace MultiArrayHelper
 {
@@ -59,6 +59,8 @@ namespace MultiArrayHelper
     {
 	v.insert(v.begin(), r);
     }
+
+    
     
     template <size_t N>
     struct RPackNum
@@ -297,6 +299,21 @@ namespace MultiArrayHelper
 	    return reinterpret_cast<std::intptr_t>( std::get<N>(p).get() ) == a[N] and
 		RPackNum<N-1>::checkIfCreated(p,a);
 	}
+
+	template <class MetaTuple>
+	static inline std::string metaTupleToString(const MetaTuple& mtp)
+	{
+	    return RPackNum<N-1>::metaTupleToString(mtp) + " , " + xToString(std::get<N>(mtp));
+	}
+
+	template <class... Ranges>
+	static inline void fillRangeDataVec(std::vector<char>& out,
+					    const std::tuple<std::shared_ptr<Ranges>...>& tp)
+	{
+	    std::vector<char> part = std::get<sizeof...(Ranges)-N-1>(tp)->data();
+	    out.insert(out.end(), part.begin(), part.end());
+	    RPackNum<N-1>::fillRangeDataVec(out, tp);
+	}
     };
 
     
@@ -494,6 +511,20 @@ namespace MultiArrayHelper
 					  const std::vector<std::intptr_t>& a)
 	{
 	    return reinterpret_cast<std::intptr_t>( std::get<0>(p).get() ) == a[0];
+	}
+
+	template <class MetaTuple>
+	static inline std::string metaTupleToString(const MetaTuple& mtp)
+	{
+	    return xToString(std::get<0>(mtp));
+	}
+
+	template <class... Ranges>
+	static inline void fillRangeDataVec(std::vector<char>& out,
+					    const std::tuple<std::shared_ptr<Ranges>...>& tp)
+	{
+	    std::vector<char> part = std::get<sizeof...(Ranges)-1>(tp)->data();
+	    out.insert(out.end(), part.begin(), part.end());
 	}
 
     };
