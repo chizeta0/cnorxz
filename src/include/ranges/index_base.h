@@ -59,6 +59,7 @@ namespace MultiArrayTools
 
 	std::string id() const { return THIS().id(); }
 
+	std::string stringMeta() const { return THIS().stringMeta(); }
 	MetaType meta() const { return THIS().meta(); }
 	MetaType metaPtr() const { return THIS().metaPtr(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }

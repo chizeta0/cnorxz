@@ -80,7 +80,8 @@ namespace MultiArrayTools
 
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
-	
+
+	std::string stringMeta() const;
 	MetaType meta() const;
 	ContainerIndex& at(const MetaType& metaPos);
 
@@ -334,6 +335,12 @@ namespace MultiArrayTools
 	return tmp;
     }
 
+    template <typename T, class... Indices>
+    std::string ContainerIndex<T,Indices...>::stringMeta() const
+    {
+	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr )->stringMeta(IB::mPos);
+    }
+    
     template <typename T, class... Indices>
     typename ContainerIndex<T,Indices...>::MetaType ContainerIndex<T,Indices...>::meta() const
     {

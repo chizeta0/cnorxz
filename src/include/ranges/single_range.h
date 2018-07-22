@@ -48,8 +48,9 @@ namespace MultiArrayTools
 
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
-	
-	U meta();
+
+	std::string stringMeta() const;
+	U meta() const;
 	const U* metaPtr() const;
 	SingleIndex& at(const U& metaPos);
 	
@@ -223,7 +224,13 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE>
-    U SingleIndex<U,TYPE>::meta()
+    std::string SingleIndex<U,TYPE>::stringMeta() const
+    {
+	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->stringMeta(IB::mPos);
+    }
+    
+    template <typename U, SpaceType TYPE>
+    U SingleIndex<U,TYPE>::meta() const
     {
 	return MetaPtrHandle<SingleIndex<U,TYPE>::RangeType::HASMETACONT>::getMeta
 	    ( mMetaPtr, IB::mPos,
