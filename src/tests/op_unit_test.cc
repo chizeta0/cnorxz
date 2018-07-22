@@ -317,6 +317,7 @@ namespace {
     {
 	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(sr, sr, sr, sr, sr, sr, sr, sr, data);
 	MultiArray<double,SR,SR> res1( sr, sr );
+	MultiArray<double,SR,SR> res2( sr, sr );
 	
 	auto alpha = MAT::getIndex<SR>();
 	auto beta = MAT::getIndex<SR>();
@@ -331,6 +332,8 @@ namespace {
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
+
+	res2(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);
 	
 	std::vector<double> vres(4*4);
 
@@ -370,6 +373,26 @@ namespace {
 	EXPECT_EQ( xround(res1.at(mkts(3,1))), xround(vres[13]) );
 	EXPECT_EQ( xround(res1.at(mkts(3,2))), xround(vres[14]) );
 	EXPECT_EQ( xround(res1.at(mkts(3,3))), xround(vres[15]) );
+
+	EXPECT_EQ( xround(res2.at(mkts(0,0))), xround(vres[0]) );
+	EXPECT_EQ( xround(res2.at(mkts(0,1))), xround(vres[1]) );
+	EXPECT_EQ( xround(res2.at(mkts(0,2))), xround(vres[2]) );
+	EXPECT_EQ( xround(res2.at(mkts(0,3))), xround(vres[3]) );
+	
+	EXPECT_EQ( xround(res2.at(mkts(1,0))), xround(vres[4]) );
+	EXPECT_EQ( xround(res2.at(mkts(1,1))), xround(vres[5]) );
+	EXPECT_EQ( xround(res2.at(mkts(1,2))), xround(vres[6]) );
+	EXPECT_EQ( xround(res2.at(mkts(1,3))), xround(vres[7]) );
+
+	EXPECT_EQ( xround(res2.at(mkts(2,0))), xround(vres[8]) );
+	EXPECT_EQ( xround(res2.at(mkts(2,1))), xround(vres[9]) );
+	EXPECT_EQ( xround(res2.at(mkts(2,2))), xround(vres[10]) );
+	EXPECT_EQ( xround(res2.at(mkts(2,3))), xround(vres[11]) );
+
+	EXPECT_EQ( xround(res2.at(mkts(3,0))), xround(vres[12]) );
+	EXPECT_EQ( xround(res2.at(mkts(3,1))), xround(vres[13]) );
+	EXPECT_EQ( xround(res2.at(mkts(3,2))), xround(vres[14]) );
+	EXPECT_EQ( xround(res2.at(mkts(3,3))), xround(vres[15]) );
 
 	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
 		  << std::endl;
