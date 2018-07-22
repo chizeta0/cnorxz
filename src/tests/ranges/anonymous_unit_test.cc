@@ -35,7 +35,7 @@ namespace {
 	return std::make_tuple(ts...);
     }
     
-    class AnonymousIndexTest : public ::testing::Test
+    class AnonymousTest : public ::testing::Test
     {
     protected:
 
@@ -52,7 +52,7 @@ namespace {
 	typedef CRF::oType CRange;
 	typedef ContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
 
-	AnonymousIndexTest()
+	AnonymousTest()
 	{
 	    swapFactory<SRF>(rfbptr, { 'e', 'b', 'n' } );
 	    sr1ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
@@ -89,7 +89,7 @@ namespace {
 	std::shared_ptr<CRange> cr2ptr;
     };
 
-    TEST_F(AnonymousIndexTest, Cast1)
+    TEST_F(AnonymousTest, Cast1)
     {
 	AnonymousRangeFactory arf1(sr1ptr,m3rptr);
 	auto ar1a = std::dynamic_pointer_cast<AnonymousRange>( arf1.create() );
@@ -113,7 +113,7 @@ namespace {
 	EXPECT_EQ(ar2->sub(2)->size(), sr2ptr->size());
     }
 
-    TEST_F(AnonymousIndexTest, Cast2)
+    TEST_F(AnonymousTest, Cast2)
     {
 	AnonymousRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
 	auto ar = std::dynamic_pointer_cast<AnonymousRange>( arf2.create() );
@@ -122,6 +122,81 @@ namespace {
 	EXPECT_EQ(mr->template getPtr<0>()->size(), sr1ptr->size());
 	EXPECT_EQ(mr->template getPtr<1>()->size(), m3rptr->size() * sr2ptr->size());
     }
+
+    TEST_F(AnonymousTest, ToString1)
+    {
+	std::vector<char> vv = sr1ptr->data();
+	char* dp = vv.data();
+	VCHECK(vv.size());
+	auto ff = createRangeFactory(&dp);
+	auto ss = std::dynamic_pointer_cast<SRange>( ff->create() );
+
+	EXPECT_EQ(sr1ptr->size(), ss->size());
+	EXPECT_EQ(sr1ptr->get(0), ss->get(0));
+	EXPECT_EQ(sr1ptr->get(1), ss->get(1));
+	EXPECT_EQ(sr1ptr->get(2), ss->get(2));
+    }
+
+    TEST_F(AnonymousTest, ToString2)
+    {
+	typedef SingleRangeFactory<std::string,SpaceType::ANY> NameRF;
+	typedef SingleRange<std::string,SpaceType::ANY> NameRange;
+	ClassicRF crf(5);
+	SpinRF srf;
+	NameRF nrf({"ab", "cdef", "gh", "ijklmno"});
+
+	VCHECK(sizeof(DataHeader));
+	VCHECK(sizeof(char));
+	VCHECK(sizeof(size_t));
+	
+	auto cr = std::dynamic_pointer_cast<ClassicRange>( crf.create() );
+	auto sr = std::dynamic_pointer_cast<SpinRange>( srf.create() );
+	auto nr = std::dynamic_pointer_cast<NameRange>( nrf.create() );
+	
+	std::vector<char> cv = cr->data();
+	std::vector<char> sv = sr->data();
+	std::vector<char> nv = nr->data(); 
+	char* cp = cv.data();
+	char* sp = sv.data();
+	char* np = nv.data();
+
+	VCHECK(cv.size());
+	VCHECK(sv.size());
+	VCHECK(nv.size());
+	
+	auto crf2 = createRangeFactory(&cp);
+	auto cr2 = std::dynamic_pointer_cast<ClassicRange>( crf2->create() );
+
+	auto srf2 = createRangeFactory(&sp);
+	auto sr2 = std::dynamic_pointer_cast<SpinRange>( srf2->create() );
+
+	auto nrf2 = createRangeFactory(&np);
+	auto nr2 = std::dynamic_pointer_cast<NameRange>( nrf2->create() );
+
+	EXPECT_EQ(cr2->size(), cr->size());
+	EXPECT_EQ(sr2->size(), sr->size());
+
+	EXPECT_EQ(nr2->size(), nr->size());
+	EXPECT_EQ(nr2->get(0), nr->get(0));
+	EXPECT_EQ(nr2->get(1), nr->get(1));
+	EXPECT_EQ(nr2->get(2), nr->get(2));
+	EXPECT_EQ(nr2->get(3), nr->get(3));
+    }
+    
+    /*
+    TEST_F(AnonymousTest, ToString3)
+    {
+	AnonymousRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
+	auto ar = std::dynamic_pointer_cast<AnonymousRange>( arf2.create() );
+
+	std::vector<char> vv = ar->data();
+
+	auto ff2 = std::dynamic_pointer_cast<AnonymousRangeFactory>( createRangeFactory(vv) );
+	auto ar2 = createExplicit( ff2 );
+
+	EXPECT_EQ(ar2->size(), ar->size());
+	EXPECT_EQ(ar2->anonymousDim(), ar->anonymousDim());
+	}*/
     
 } // end namespace 
 

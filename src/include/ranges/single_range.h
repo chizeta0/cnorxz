@@ -12,6 +12,7 @@
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
 #include "ranges/x_to_string.h"
+#include "ranges/type_map.h"
 
 #include "xfor/xfor.h"
 
@@ -387,7 +388,8 @@ namespace MultiArrayTools
     {
 	DataHeader h;
 	h.spaceType = static_cast<int>( TYPE );
-	h.metaSize = size() * sizeof(U);
+	h.metaSize = metaSize(mSpace);
+	h.metaType = NumTypeMap<U>::num;
 	h.multiple = 0;
 	std::vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));

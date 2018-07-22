@@ -5,6 +5,9 @@ include_range_type(PSPACE,3) // Periodic 1dim space
 
 #ifdef __ranges_header__
 
+#ifndef __range_type_space_def__
+#define __range_type_space_def__
+
 namespace MultiArrayTools
 {
      // Periodic 1dim space
@@ -116,6 +119,7 @@ namespace MultiArrayTools
     using MSpaceRF = decltype(CreateNDimSpaceRange<N>::template mkf<SpaceRange>());
 }
 
+#endif // #ifndef __range_type_space_def__
 
 #endif // #ifdef __ranges_header__
 

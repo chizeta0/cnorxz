@@ -15,6 +15,7 @@
 #include "ranges/rpack_num.h"
 #include "ranges/multi_range_factory_product_map.h"
 #include "ranges/x_to_string.h"
+#include "ranges/type_map.h"
 
 namespace MultiArrayTools
 {

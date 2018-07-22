@@ -7,8 +7,8 @@ include_range_type(NUL,-2)
 #ifdef __ranges_header__
 // assert, that this is only used within range_types/header.h
 
-//#ifndef __spin_range_h__
-//#define __spin_range_h__
+#ifndef __range_type_null_def__
+#define __range_type_null_def__
 
 namespace MultiArrayTools
 {   
@@ -82,7 +82,7 @@ namespace MultiArrayTools
 }
 
 
-//#endif // #ifndef __spin_range_h__
+#endif // #ifndef __range_type_null_def__
 
 #endif // #ifdef __ranges_header__
 

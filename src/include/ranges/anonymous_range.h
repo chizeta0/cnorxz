@@ -9,6 +9,7 @@
 #include "ranges/range_base.h"
 #include "ranges/rpheader.h"
 #include "ranges/x_to_string.h"
+#include "ranges/type_map.h"
 
 namespace MultiArrayTools
 {

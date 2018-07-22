@@ -1,10 +1,14 @@
 
-#ifdef include_range_type
+//#ifdef include_range_type
 //include_range_type(NONE,0)
-#else
+//#else
 
+#ifndef include_range_type
 #ifdef __ranges_header__
 // assert, that this is only used within range_types/header.h
+
+#ifndef __range_type_classic_def__
+#define __range_type_classic_def__
 
 namespace MultiArrayTools
 {
@@ -69,7 +73,7 @@ namespace MultiArrayTools
 }
 
 
-//#endif // #ifndef __spin_range_h__
+#endif // #ifndef __range_type_classic_def__
 
 #endif // #ifdef __ranges_header__
 

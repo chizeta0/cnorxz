@@ -1,19 +1,34 @@
 
-#include "ranges/range_base.h"
-#include "ranges/rheader.h"
+//
+//#include "ranges/single_range.h"
 #include "ranges/type_map.h"
+#include "ranges/rheader.h"
 #include "ranges/range_types/header.h"
+
+#include "ranges/range_base.h"
 
 namespace MultiArrayTools
 {
 
-    using namespace MultiArrayHelpers;
+    //using namespace MultiArrayHelpers;
 
     size_t indexId()
     {
 	static size_t id = 0;
 	++id;
 	return id;
+    }
+
+    // !!!!!
+    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp)
+    {
+	return nullptr;
+    }
+
+    // !!!!!
+    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char** dp)
+    {
+	return nullptr;
     }
 
     std::shared_ptr<RangeFactoryBase> createRangeFactory(char** dp)
@@ -26,23 +41,26 @@ namespace MultiArrayTools
 	if(h.multiple != 0){
 	    if(h.spaceType == static_cast<int>( SpaceType::ANY )) {
 		// multi range
-		out = mkMULTI(&dp);
+		out = mkMULTI(dp);
 	    }
 	    else if(h.spaceType == static_cast<int>(  SpaceType::ANON ) ) {
 		// anonymous range
-		out = mkANONYMOUS(&dp);
+		out = mkANONYMOUS(dp);
 	    }
 	    else {
 		assert(0);
 	    }
 	}
 	else {
+	    VCHECK(h.spaceType);
 	    if(h.spaceType == static_cast<int>( SpaceType::ANY ) ) {
+		VCHECK(h.metaType)
 		// generic single range
 		if(h.metaType == -1){
 		    assert(0);
 		}
 #define register_type(x) else if(x == h.metaType) {\
+		    VCHECK(x);\
 		    std::vector<TypeMap<x>::type> vd;\
 		    metaCat(vd, *dp, h.metaSize); \
 		    out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \
@@ -59,7 +77,8 @@ namespace MultiArrayTools
 		size_t size = *reinterpret_cast<const size_t*>(*dp);
 		out = std::make_shared<SingleRangeFactory<size_t,SpaceType::NONE> >(size);
 	    }
-#define inlcude_range_type(x,n) out = mk##x(*dp, h.metaSize);
+#define include_range_type(x,n) else if(h.spaceType == static_cast<int>( SpaceType::x ) ) { \
+		out = mk##x(*dp, h.metaSize); }
 #include "ranges/range_types/header.h"
 #undef inlcude_range_type
 	    else {

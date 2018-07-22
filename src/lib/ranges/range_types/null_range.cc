@@ -6,7 +6,7 @@ namespace MultiArrayTools
 {
     std::shared_ptr<NullRF> mkNUL(char* dp, size_t size)
     {
-	return make_shared<NullRF>();
+	return std::make_shared<NullRF>();
     }
 	
     /********************
