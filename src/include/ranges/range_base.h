@@ -39,6 +39,8 @@ namespace MultiArrayTools
 	int spaceType = static_cast<int>( SpaceType::NONE );
 	size_t metaSize = 0; // size of meta data
 	int multiple = 0; // = 1 if multi range
+	int metaType = 0; // type of meta data
+	inline size_t v() const { return version; } 
     };
     
     class RangeFactoryBase
@@ -58,6 +60,8 @@ namespace MultiArrayTools
 	// call this function before returning product !!
 	void setSelf();
     };
+
+    std::shared_ptr<RangeFactoryBase> createRangeFactory(const std::vector<char>& data);
     
     class RangeBase
     {

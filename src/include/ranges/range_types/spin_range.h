@@ -70,6 +70,8 @@ namespace MultiArrayTools
 
     typedef SingleRange<size_t,SpaceType::SPIN> SpinRange;
     typedef SingleRangeFactory<size_t,SpaceType::SPIN> SpinRF;
+
+    std::shared_ptr<SpinRF> mkSPIN(char* dp, size_t size);
 }
 
 

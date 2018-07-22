@@ -10,6 +10,9 @@
 
 #ifdef __incl_this__
 
+#ifndef __ranges_header_included__
+#define __ranges_header_included__
+
 #define __ranges_header__
 //#ifndef __ranges_header__
 //#define __ranges_header__
@@ -20,7 +23,8 @@
 #include "classic_range.h"
 
 #undef __ranges_header__
-//#endif
+
+#endif
 #endif
 
 #undef __incl_this__

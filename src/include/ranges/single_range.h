@@ -393,8 +393,9 @@ namespace MultiArrayTools
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
-	const char* scp = reinterpret_cast<const char*>(mSpace.data());
-	out.insert(out.end(), scp, scp + h.metaSize);
+	stringCat(out, mSpace);
+	//const char* scp = reinterpret_cast<const char*>(mSpace.data());
+	//out.insert(out.end(), scp, scp + h.metaSize);
 	return out;
     }
     

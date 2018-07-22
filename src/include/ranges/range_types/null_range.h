@@ -16,7 +16,7 @@ namespace MultiArrayTools
 
     std::shared_ptr<SingleRange<size_t,SpaceType::NUL> > nullr();
     std::shared_ptr<NullIndex> nulli();
-    
+
     template <>
     class SingleRangeFactory<size_t,SpaceType::NUL> : public RangeFactoryBase
     {
@@ -76,6 +76,9 @@ namespace MultiArrayTools
 
     typedef SingleRange<size_t,SpaceType::NUL> NullRange;
     typedef SingleRangeFactory<size_t,SpaceType::NUL> NullRF;
+    
+    std::shared_ptr<NullRF> mkNUL(char* dp, size_t size);
+	
 }
 
 

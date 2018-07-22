@@ -66,6 +66,8 @@ namespace MultiArrayTools
     typedef SingleRange<int,SpaceType::PSPACE> PSpaceRange;
     typedef SingleRangeFactory<int,SpaceType::PSPACE> PSpaceRF;
 
+    std::shared_ptr<PSpaceRF> mkPSPACE(char* dp, size_t size);
+    
     template <class SpaceRange>
     struct PromoteMSpaceRange
     {

@@ -4,6 +4,12 @@
 
 namespace MultiArrayTools
 {
+    std::shared_ptr<PSpaceRF> mkPSPACE(char* dp, size_t size)
+    {
+	size_t max = *reinterpret_cast<size_t*>(dp);
+	return std::make_shared<PSpaceRF>(max);
+    }
+    
     /********************
      *   SingleRange    *
      ********************/

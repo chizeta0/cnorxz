@@ -53,7 +53,7 @@ namespace MultiArrayHelper
     {
 	std::string out = "[ ";
 	for(auto& y: x){
-	    out += y + " , ";
+	    out += xToString(y) + " , ";
 	}
 	out.pop_back();
 	out.back() = ']';
@@ -65,7 +65,7 @@ namespace MultiArrayHelper
     {
 	std::string out = "[ ";
 	for(auto& y: x){
-	    out += y + " , ";
+	    out += xToString(y) + " , ";
 	}
 	out.pop_back();
 	out.back() = ']';
