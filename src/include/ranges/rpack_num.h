@@ -314,6 +314,21 @@ namespace MultiArrayHelper
 	    out.insert(out.end(), part.begin(), part.end());
 	    RPackNum<N-1>::fillRangeDataVec(out, tp);
 	}
+
+	template <size_t SIZE, class Range, class... Ranges>
+	static inline bool compareSpaceTypes(const std::vector<std::shared_ptr<RangeBase> >& rbvec)
+	{
+	    return rbvec[SIZE-N-1]->spaceType() == Range::STYPE and RPackNum<N-1>::template compareSpaceTypes<SIZE,Ranges...>(rbvec);
+	}
+
+	template <class... Ranges>
+	static inline void setSpace(const std::vector<std::shared_ptr<RangeBase> >& rbvec,
+				    std::tuple<std::shared_ptr<Ranges>...>& stp)
+	{
+	    typedef typename std::remove_reference<decltype(*std::get<N>( stp ))>::type RType;
+	    std::get<N>( stp ) = std::dynamic_pointer_cast<RType>( rbvec[N] );
+	    RPackNum<N-1>::setSpace(rbvec, stp);
+	}
     };
 
     
@@ -525,6 +540,20 @@ namespace MultiArrayHelper
 	{
 	    std::vector<char> part = std::get<sizeof...(Ranges)-1>(tp)->data();
 	    out.insert(out.end(), part.begin(), part.end());
+	}
+
+	template <size_t SIZE, class Range>
+	static inline bool compareSpaceTypes(const std::vector<std::shared_ptr<RangeBase> >& rbvec)
+	{
+	    return rbvec[SIZE-1]->spaceType() == Range::STYPE;
+	}
+
+	template <class... Ranges>
+	static inline void setSpace(const std::vector<std::shared_ptr<RangeBase> >& rbvec,
+				    std::tuple<std::shared_ptr<Ranges>...>& stp)
+	{
+	    typedef typename std::remove_reference<decltype(*std::get<0>( stp ))>::type RType;
+	    std::get<0>( stp ) = std::dynamic_pointer_cast<RType>( rbvec[0] );
 	}
 
     };

@@ -32,6 +32,8 @@ namespace MultiArrayTools
 	static constexpr size_t sDim() { return sizeof...(Indices); }
 	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
 
+	static constexpr SpaceType STYPE = SpaceType::ANY;
+	
     private:
 	
 	ContainerIndex() = default;

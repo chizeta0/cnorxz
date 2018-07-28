@@ -12,6 +12,32 @@ namespace MultiArrayTools
 
     //using namespace MultiArrayHelpers;
 
+    template <class... Ranges>
+    using STP = std::tuple<std::shared_ptr<Ranges>...>;
+
+    typedef std::vector<std::shared_ptr<RangeBase> > RVEC;
+
+    template <class... Ranges>
+    inline bool compareSpaceTypes(const RVEC& rvec)
+    {
+	return RPackNum<sizeof...(Ranges)-1>::
+	    template compareSpaceTypes<sizeof...(Ranges),Ranges...>(rvec);
+    }
+
+    template <class... Ranges>
+    inline bool setFactory(const RVEC& rvec, std::shared_ptr<RangeFactoryBase>& fptr)
+    {
+	if(compareSpaceTypes<Ranges...>(rvec)) {
+	    STP<Ranges...> stp;
+	    RPackNum<sizeof...(Ranges)-1>::setSpace(rvec, stp);
+	    fptr = std::make_shared<MultiRangeFactory<Ranges...> >(stp);
+	    return true;
+	}
+	else {
+	    return false;
+	}
+    }
+    
     size_t indexId()
     {
 	static size_t id = 0;
@@ -19,16 +45,59 @@ namespace MultiArrayTools
 	return id;
     }
 
-    // !!!!!
-    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp)
+    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp, size_t metaSize)
     {
-	return nullptr;
+	std::shared_ptr<RangeFactoryBase> out = nullptr;
+	RVEC rvec(metaSize);
+	for(size_t i = 0; i != metaSize; ++i){
+	    auto ff = createRangeFactory(dp);
+	    rvec[i] = ff->create();
+	}
+
+	if(metaSize == 0){
+	    assert(0);
+	}	
+	else if(metaSize == 1) {
+#define register_multi1(TT0) if(setFactory<TT0>(rvec, out)) {} else
+#include "ranges/multi_range_register.h"
+#undef register_multi1
+	    assert(0);
+	}
+	else if(metaSize == 2) {
+#define register_multi2(TT0,TT1) if(setFactory<TT0,TT1>(rvec, out)) {} else
+#include "ranges/multi_range_register.h"
+#undef register_multi2
+	    assert(0);
+	}
+	else if(metaSize == 3) {
+#define register_multi3(TT0,TT1,TT2) if(setFactory<TT0,TT1,TT2>(rvec, out)) {} else
+#include "ranges/multi_range_register.h"
+#undef register_multi3
+	    assert(0);
+	}
+	else if(metaSize == 4) {
+#define register_multi4(TT0,TT1,TT2,TT3) if(setFactory<TT0,TT1,TT2,TT3>(rvec, out)) {} else
+#include "ranges/multi_range_register.h"
+#undef register_multi4
+	    assert(0);
+	}
+	else {
+	    assert(0);
+	}
+	
+	return out;
     }
 
-    // !!!!!
-    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char** dp)
+    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char** dp, size_t metaSize)
     {
-	return nullptr;
+	std::shared_ptr<RangeFactoryBase> out = nullptr;
+	auto arf = std::make_shared<AnonymousRangeFactory>();
+	for(size_t i = 0; i != metaSize; ++i){
+	    auto ff = createRangeFactory(dp);
+	    arf->append( ff->create() );
+	}
+	out = arf;
+	return out;
     }
 
     std::shared_ptr<RangeFactoryBase> createRangeFactory(char** dp)
@@ -41,26 +110,23 @@ namespace MultiArrayTools
 	if(h.multiple != 0){
 	    if(h.spaceType == static_cast<int>( SpaceType::ANY )) {
 		// multi range
-		out = mkMULTI(dp);
+		out = mkMULTI(dp, h.metaSize);
 	    }
 	    else if(h.spaceType == static_cast<int>(  SpaceType::ANON ) ) {
 		// anonymous range
-		out = mkANONYMOUS(dp);
+		out = mkANONYMOUS(dp, h.metaSize);
 	    }
 	    else {
 		assert(0);
 	    }
 	}
 	else {
-	    VCHECK(h.spaceType);
 	    if(h.spaceType == static_cast<int>( SpaceType::ANY ) ) {
-		VCHECK(h.metaType)
 		// generic single range
 		if(h.metaType == -1){
 		    assert(0);
 		}
 #define register_type(x) else if(x == h.metaType) {\
-		    VCHECK(x);\
 		    std::vector<TypeMap<x>::type> vd;\
 		    metaCat(vd, *dp, h.metaSize); \
 		    out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \

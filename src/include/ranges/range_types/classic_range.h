@@ -38,6 +38,8 @@ namespace MultiArrayTools
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
 
+	virtual SpaceType spaceType() const override;
+	
 	virtual std::string stringMeta(size_t pos) const override;
 	virtual std::vector<char> data() const override;
 	

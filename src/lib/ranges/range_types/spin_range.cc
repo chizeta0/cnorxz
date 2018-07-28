@@ -51,6 +51,11 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    SpaceType SingleRange<size_t,SpaceType::SPIN>::spaceType() const
+    {
+	return SpaceType::SPIN;
+    }
+    
     std::string SingleRange<size_t,SpaceType::SPIN>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));

@@ -127,7 +127,6 @@ namespace {
     {
 	std::vector<char> vv = sr1ptr->data();
 	char* dp = vv.data();
-	VCHECK(vv.size());
 	auto ff = createRangeFactory(&dp);
 	auto ss = std::dynamic_pointer_cast<SRange>( ff->create() );
 
@@ -144,10 +143,6 @@ namespace {
 	ClassicRF crf(5);
 	SpinRF srf;
 	NameRF nrf({"ab", "cdef", "gh", "ijklmno"});
-
-	VCHECK(sizeof(DataHeader));
-	VCHECK(sizeof(char));
-	VCHECK(sizeof(size_t));
 	
 	auto cr = std::dynamic_pointer_cast<ClassicRange>( crf.create() );
 	auto sr = std::dynamic_pointer_cast<SpinRange>( srf.create() );
@@ -160,10 +155,6 @@ namespace {
 	char* sp = sv.data();
 	char* np = nv.data();
 
-	VCHECK(cv.size());
-	VCHECK(sv.size());
-	VCHECK(nv.size());
-	
 	auto crf2 = createRangeFactory(&cp);
 	auto cr2 = std::dynamic_pointer_cast<ClassicRange>( crf2->create() );
 
@@ -183,21 +174,42 @@ namespace {
 	EXPECT_EQ(nr2->get(3), nr->get(3));
     }
     
-    /*
-    TEST_F(AnonymousTest, ToString3)
+
+    TEST_F(AnonymousTest, ToStringMulti)
+    {
+	std::vector<char> vv = m3rptr->data();
+	char* dp = vv.data();
+	
+	auto ff2 = std::dynamic_pointer_cast<M3RF>( createRangeFactory(&dp) );
+	auto mr2 = std::dynamic_pointer_cast<M3Range>( ff2->create() );
+
+	EXPECT_EQ(mr2->size(), m3rptr->size());
+	EXPECT_EQ(mr2->template getPtr<0>()->size(),
+		  m3rptr->template getPtr<0>()->size());
+	EXPECT_EQ(mr2->template getPtr<1>()->size(),
+		  m3rptr->template getPtr<1>()->size());
+	EXPECT_EQ(mr2->template getPtr<2>()->size(),
+		  m3rptr->template getPtr<2>()->size());
+	auto jj = m3rptr->begin();
+	for(auto ii = mr2->begin(); ii.pos() != ii.max(); ++ii, jj = ii.pos()){
+	    EXPECT_EQ(ii.meta(), jj.meta());
+	}
+    }
+
+    TEST_F(AnonymousTest, ToStringAnonymous)
     {
 	AnonymousRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
 	auto ar = std::dynamic_pointer_cast<AnonymousRange>( arf2.create() );
-
 	std::vector<char> vv = ar->data();
-
-	auto ff2 = std::dynamic_pointer_cast<AnonymousRangeFactory>( createRangeFactory(vv) );
-	auto ar2 = createExplicit( ff2 );
+	char* dp = vv.data();
+	
+	auto ff2 = std::dynamic_pointer_cast<AnonymousRangeFactory>( createRangeFactory(&dp) );
+	auto ar2 = std::dynamic_pointer_cast<AnonymousRange>( ff2->create() );
 
 	EXPECT_EQ(ar2->size(), ar->size());
 	EXPECT_EQ(ar2->anonymousDim(), ar->anonymousDim());
-	}*/
-    
+    }
+
 } // end namespace 
 
 int main(int argc, char** argv)
