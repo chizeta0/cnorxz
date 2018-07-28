@@ -45,7 +45,7 @@ namespace MultiArrayTools
 	return id;
     }
 
-    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp, size_t metaSize)
+    std::shared_ptr<RangeFactoryBase> mkMULTI(char const** dp, size_t metaSize)
     {
 	std::shared_ptr<RangeFactoryBase> out = nullptr;
 	RVEC rvec(metaSize);
@@ -88,7 +88,7 @@ namespace MultiArrayTools
 	return out;
     }
 
-    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char** dp, size_t metaSize)
+    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char const** dp, size_t metaSize)
     {
 	std::shared_ptr<RangeFactoryBase> out = nullptr;
 	auto arf = std::make_shared<AnonymousRangeFactory>();
@@ -100,7 +100,7 @@ namespace MultiArrayTools
 	return out;
     }
 
-    std::shared_ptr<RangeFactoryBase> createRangeFactory(char** dp)
+    std::shared_ptr<RangeFactoryBase> createRangeFactory(char const** dp)
     {
 	DataHeader h = *reinterpret_cast<const DataHeader*>(*dp);
 	*dp += sizeof(DataHeader);
@@ -126,7 +126,7 @@ namespace MultiArrayTools
 		if(h.metaType == -1){
 		    assert(0);
 		}
-#define register_type(x) else if(x == h.metaType) {\
+#define register_type(x) else if(x == h.metaType) {	\
 		    std::vector<TypeMap<x>::type> vd;\
 		    metaCat(vd, *dp, h.metaSize); \
 		    out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \

@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+//#include <iostream>
 
 namespace MultiArrayTools
 {
@@ -34,9 +35,9 @@ namespace MultiArrayTools
     }
 	
     template <typename T>
-    inline void metaCat(std::vector<T>& vec, char* begin, size_t size)
+    inline void metaCat(std::vector<T>& vec, const char* begin, size_t size)
     {
-	T* tp = reinterpret_cast<T*>( begin );
+	const T* tp = reinterpret_cast<const T*>( begin );
 	vec.insert(vec.end(), tp, tp + size / sizeof(T));
     }
 
@@ -62,10 +63,11 @@ namespace MultiArrayTools
     }
     
     template <>
-    inline void metaCat<std::string>(std::vector<std::string>& vec, char* begin, size_t size)
+    inline void metaCat<std::string>(std::vector<std::string>& vec, const char* begin, size_t size)
     {
 
 	std::string tmp(begin, size);
+	//std::cout << tmp << std::endl;
 	size_t pos = 0;
 	while(pos != tmp.size()){
 	    std::string es = "\n";

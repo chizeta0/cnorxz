@@ -4,9 +4,9 @@
 
 namespace MultiArrayTools
 {
-    std::shared_ptr<PSpaceRF> mkPSPACE(char* dp, size_t size)
+    std::shared_ptr<PSpaceRF> mkPSPACE(const char* dp, size_t size)
     {
-	size_t max = *reinterpret_cast<size_t*>(dp);
+	size_t max = *reinterpret_cast<const size_t*>(dp);
 	return std::make_shared<PSpaceRF>(max);
     }
     

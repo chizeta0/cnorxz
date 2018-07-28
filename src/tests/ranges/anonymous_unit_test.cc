@@ -126,7 +126,7 @@ namespace {
     TEST_F(AnonymousTest, ToString1)
     {
 	std::vector<char> vv = sr1ptr->data();
-	char* dp = vv.data();
+	const char* dp = vv.data();
 	auto ff = createRangeFactory(&dp);
 	auto ss = std::dynamic_pointer_cast<SRange>( ff->create() );
 
@@ -151,9 +151,9 @@ namespace {
 	std::vector<char> cv = cr->data();
 	std::vector<char> sv = sr->data();
 	std::vector<char> nv = nr->data(); 
-	char* cp = cv.data();
-	char* sp = sv.data();
-	char* np = nv.data();
+	const char* cp = cv.data();
+	const char* sp = sv.data();
+	const char* np = nv.data();
 
 	auto crf2 = createRangeFactory(&cp);
 	auto cr2 = std::dynamic_pointer_cast<ClassicRange>( crf2->create() );
@@ -178,7 +178,7 @@ namespace {
     TEST_F(AnonymousTest, ToStringMulti)
     {
 	std::vector<char> vv = m3rptr->data();
-	char* dp = vv.data();
+	const char* dp = vv.data();
 	
 	auto ff2 = std::dynamic_pointer_cast<M3RF>( createRangeFactory(&dp) );
 	auto mr2 = std::dynamic_pointer_cast<M3Range>( ff2->create() );
@@ -201,7 +201,7 @@ namespace {
 	AnonymousRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
 	auto ar = std::dynamic_pointer_cast<AnonymousRange>( arf2.create() );
 	std::vector<char> vv = ar->data();
-	char* dp = vv.data();
+	const char* dp = vv.data();
 	
 	auto ff2 = std::dynamic_pointer_cast<AnonymousRangeFactory>( createRangeFactory(&dp) );
 	auto ar2 = std::dynamic_pointer_cast<AnonymousRange>( ff2->create() );

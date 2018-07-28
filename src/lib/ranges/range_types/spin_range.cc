@@ -4,7 +4,7 @@
 
 namespace MultiArrayTools
 {
-    std::shared_ptr<SpinRF> mkSPIN(char* dp, size_t size)
+    std::shared_ptr<SpinRF> mkSPIN(const char* dp, size_t size)
     {
 	return std::make_shared<SpinRF>();
     }

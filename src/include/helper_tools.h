@@ -41,6 +41,9 @@ namespace MultiArrayTools
     auto createExplicit(std::shared_ptr<RangeFactory> rfp)
 	-> std::shared_ptr<typename RangeFactory::oType>;
 
+    template <class Range>
+    auto createRange(const std::vector<char>& cvec)
+	-> std::shared_ptr<Range>;
 }
 
 /* ========================= *
@@ -112,7 +115,19 @@ namespace MultiArrayTools
     {
 	return std::dynamic_pointer_cast<typename RangeFactory::oType>( rfp->create() );
     }
-    
+
+    template <class Range>
+    auto createRange(const std::vector<char>& cvec)
+	-> std::shared_ptr<Range>
+    {
+	const char* dp = cvec.data();
+	auto ff = createRangeFactory(&dp);
+	auto rbptr = ff->create();
+	assert(rbptr->spaceType() == Range::STYPE);
+	// CATCH CAST ERROR HERE !!!
+	return std::dynamic_pointer_cast<Range>( rbptr );
+    }
+
 }
 
 #endif

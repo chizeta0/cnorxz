@@ -79,7 +79,7 @@ namespace MultiArrayTools
     typedef SingleRange<size_t,SpaceType::NUL> NullRange;
     typedef SingleRangeFactory<size_t,SpaceType::NUL> NullRF;
     
-    std::shared_ptr<NullRF> mkNUL(char* dp, size_t size);
+    std::shared_ptr<NullRF> mkNUL(const char* dp, size_t size);
 	
 }
 

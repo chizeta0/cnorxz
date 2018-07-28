@@ -61,7 +61,7 @@ namespace MultiArrayTools
 	void setSelf();
     };
 
-    std::shared_ptr<RangeFactoryBase> createRangeFactory(char** dp);
+    std::shared_ptr<RangeFactoryBase> createRangeFactory(const char** dp);
     
     class RangeBase
     {

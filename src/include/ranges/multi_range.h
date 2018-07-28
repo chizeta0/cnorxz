@@ -220,7 +220,7 @@ namespace MultiArrayTools
     }
 
     // -> define in range_base.cc
-    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp);
+    std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
     
     /******************
      *   MultiIndex   *
