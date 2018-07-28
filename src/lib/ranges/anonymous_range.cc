@@ -77,6 +77,11 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    SpaceType AnonymousRange::spaceType() const
+    {
+	return SpaceType::ANON;
+    }
+    
     std::string AnonymousRange::stringMeta(size_t pos) const
     {
 	std::string out = "[ ";

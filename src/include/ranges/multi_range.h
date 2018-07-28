@@ -182,6 +182,8 @@ namespace MultiArrayTools
 	virtual size_t dim() const final;
 	virtual size_t size() const final;
 
+	virtual SpaceType spaceType() const final;
+	
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual std::vector<char> data() const final;
 	
@@ -215,6 +217,9 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
+    // -> define in range_base.cc
+    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp);
+    
     /******************
      *   MultiIndex   *
      ******************/
@@ -533,6 +538,12 @@ namespace MultiArrayTools
 	return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
+    template <class... Ranges>
+    SpaceType MultiRange<Ranges...>::spaceType() const
+    {
+	return SpaceType::ANY;
+    }
+    
     template <class... Ranges>
     const typename MultiRange<Ranges...>::Space& MultiRange<Ranges...>::space() const
     {

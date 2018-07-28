@@ -54,6 +54,11 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    SpaceType SingleRange<int,SpaceType::PSPACE>::spaceType() const
+    {
+	return SpaceType::PSPACE;
+    }
+    
     std::string SingleRange<int,SpaceType::PSPACE>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));

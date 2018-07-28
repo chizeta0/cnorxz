@@ -40,6 +40,8 @@ namespace MultiArrayTools
 	virtual std::string stringMeta(size_t pos) const override;
 	virtual std::vector<char> data() const override;
 
+	virtual SpaceType spaceType() const override;
+	
 	int get(size_t pos) const;
 	size_t getMeta(int metaPos) const;
 	
@@ -75,10 +77,12 @@ namespace MultiArrayTools
     struct PromoteMSpaceRange
     {
 	template <class... SpaceRanges>
-	static auto mk(MultiRange<SpaceRanges...>) -> MultiRange<SpaceRange,SpaceRanges...>;
+	static auto mk(const MultiRange<SpaceRanges...>&)
+	    -> MultiRange<SpaceRange,SpaceRanges...>;
 
 	template <class... SpaceRanges>
-	static auto mkf(MultiRangeFactory<SpaceRanges...>) -> MultiRangeFactory<SpaceRange,SpaceRanges...>;
+	static auto mkf(const MultiRangeFactory<SpaceRanges...>&)
+	    -> MultiRangeFactory<SpaceRange,SpaceRanges...>;
 
     };
 

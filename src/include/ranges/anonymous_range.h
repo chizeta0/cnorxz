@@ -75,6 +75,8 @@ namespace MultiArrayTools
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 
+	virtual SpaceType spaceType() const final;
+	
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual std::vector<char> data() const final;
 	

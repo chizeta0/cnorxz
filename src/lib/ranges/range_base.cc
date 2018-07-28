@@ -19,16 +19,42 @@ namespace MultiArrayTools
 	return id;
     }
 
-    // !!!!!
-    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp)
+    std::shared_ptr<RangeFactoryBase> mkMULTI(char** dp, size_t metaSize)
     {
-	return nullptr;
+	std::shared_ptr<RangeFactoryBase> out = nullptr;
+	std::vector<std::shared_ptr<RangeBase> > rvec(metaSize);
+	for(size_t i = 0; i != metaSize; ++i){
+	    auto ff = createRangeFactory(dp);
+	    rvec[i] = ff->create();
+	}
+
+	if(metaSize == 3){
+	    if(rvec[0]->spaceType() == SpaceType::PSPACE and
+	       rvec[1]->spaceType() == SpaceType::PSPACE and
+	       rvec[2]->spaceType() == SpaceType::PSPACE) {
+		std::shared_ptr<PSpaceRange> r0 = std::dynamic_pointer_cast<PSpaceRange>( rvec[0] );
+		std::shared_ptr<PSpaceRange> r1 = std::dynamic_pointer_cast<PSpaceRange>( rvec[1] );
+		std::shared_ptr<PSpaceRange> r2 = std::dynamic_pointer_cast<PSpaceRange>( rvec[2] );
+		out = std::make_shared<MSpaceRF<PSpaceRange,3> >(r0,r1,r2);
+	    }
+	}
+	else {
+	    assert(0);
+	}
+	
+	return out;
     }
 
-    // !!!!!
-    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char** dp)
+    std::shared_ptr<RangeFactoryBase> mkANONYMOUS(char** dp, size_t metaSize)
     {
-	return nullptr;
+	std::shared_ptr<RangeFactoryBase> out = nullptr;
+	auto arf = std::make_shared<AnonymousRangeFactory>();
+	for(size_t i = 0; i != metaSize; ++i){
+	    auto ff = createRangeFactory(dp);
+	    arf->append( ff->create() );
+	}
+	out = arf;
+	return out;
     }
 
     std::shared_ptr<RangeFactoryBase> createRangeFactory(char** dp)
@@ -41,11 +67,11 @@ namespace MultiArrayTools
 	if(h.multiple != 0){
 	    if(h.spaceType == static_cast<int>( SpaceType::ANY )) {
 		// multi range
-		out = mkMULTI(dp);
+		out = mkMULTI(dp, h.metaSize);
 	    }
 	    else if(h.spaceType == static_cast<int>(  SpaceType::ANON ) ) {
 		// anonymous range
-		out = mkANONYMOUS(dp);
+		out = mkANONYMOUS(dp, h.metaSize);
 	    }
 	    else {
 		assert(0);

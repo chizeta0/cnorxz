@@ -68,6 +68,11 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    SpaceType SingleRange<size_t,SpaceType::NUL>::spaceType() const
+    {
+	return SpaceType::NUL;
+    }
+    
     std::string SingleRange<size_t,SpaceType::NUL>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));

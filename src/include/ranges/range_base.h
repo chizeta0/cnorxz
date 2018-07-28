@@ -22,7 +22,7 @@ namespace MultiArrayTools
     enum class SpaceType
 	{
 	 NONE = 0, // meta data is that of a classic range, i.e. 0,1,2,...,N-1
-	 ANY = 1, // meta data is arbitrary, i.e. explicitly stored
+	 ANY = 1, // meta data is arbitrary, i.e. explicitly stored; range could be multiple
 #define include_range_type(x,n) x = n,
 #include "range_types/header.h"
 #undef include_range_type
@@ -79,6 +79,8 @@ namespace MultiArrayTools
 
 	virtual std::string stringMeta(size_t pos) const = 0;
 	virtual std::vector<char> data() const = 0; // usefull when writing to files, etc...
+
+	virtual SpaceType spaceType() const = 0;
 	
 	//virtual bool regular() const = 0; // integer distance (e.g. 2,3,4,...)
 	//virtual bool linear() const = 0; // 1dim valuable (e.g. 2.45, 3.12, 3.56,...)

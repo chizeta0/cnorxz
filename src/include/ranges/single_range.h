@@ -107,6 +107,8 @@ namespace MultiArrayTools
 	virtual size_t size() const override;
 	virtual size_t dim() const override;
 
+	virtual SpaceType spaceType() const override;
+	
 	virtual std::string stringMeta(size_t pos) const override;
 	virtual std::vector<char> data() const override;
 	
@@ -377,6 +379,12 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    template <typename U, SpaceType TYPE>
+    SpaceType SingleRange<U,TYPE>::spaceType() const
+    {
+	return TYPE;
+    }
+    
     template <typename U, SpaceType TYPE>
     std::string SingleRange<U,TYPE>::stringMeta(size_t pos) const
     {
