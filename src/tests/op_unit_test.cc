@@ -531,6 +531,23 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 + 4.790 - 2.210)  );
     }
 
+    TEST_F(OpTest_MDim, ExecOpAnon)
+    {
+	MultiArray<double,MRange> ma1(mr1ptr, v3);
+	MultiArray<double,AnonymousRange> maa
+	    = *std::dynamic_pointer_cast<MultiArray<double,AnonymousRange>>( ma1.anonymous() );
+	MultiArray<double,AnonymousRange> maa2( maa.template getRangePtr<0>() );
+
+	auto ar = maa.template getRangePtr<0>();
+	auto i1 = MAT::getIndex( ar );
+	
+	maa2(i1) = maa(i1) * maa(i1);
+	EXPECT_EQ( xround( maa2.at(0) ), xround(  v3[0]*v3[0] ) );
+	for((*i1) = 0; i1->pos() != i1->max(); ++(*i1) ){
+	    EXPECT_EQ( xround( maa2.at(i1->meta()) ), xround( maa.at(i1->meta()) * maa.at(i1->meta()) ) );
+	}
+    }
+
     template <typename T>
     struct Monopole
     {

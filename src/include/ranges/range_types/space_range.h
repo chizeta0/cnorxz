@@ -34,19 +34,19 @@ namespace MultiArrayTools
 	typedef SingleRange<int,SpaceType::PSPACE> RangeType;
 	typedef int MetaType;
 	
-	virtual size_t size() const override;
-	virtual size_t dim() const override;
+	virtual size_t size() const final;
+	virtual size_t dim() const final;
 
-	virtual std::string stringMeta(size_t pos) const override;
-	virtual std::vector<char> data() const override;
+	virtual std::string stringMeta(size_t pos) const final;
+	virtual std::vector<char> data() const final;
 
-	virtual SpaceType spaceType() const override;
+	virtual SpaceType spaceType() const final;
 	
 	int get(size_t pos) const;
 	size_t getMeta(int metaPos) const;
 	
-	virtual IndexType begin() const override;
-	virtual IndexType end() const override;
+	virtual IndexType begin() const final;
+	virtual IndexType end() const final;
 	
 	friend SingleRangeFactory<int,SpaceType::PSPACE>;
 

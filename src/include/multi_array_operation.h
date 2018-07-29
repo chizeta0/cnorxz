@@ -141,6 +141,9 @@ namespace MultiArrayTools
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
+	ConstOperationRoot(std::shared_ptr<MultiArrayBase<T,Ranges...> > maptr,
+			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
+
 	ConstOperationRoot(const T* data, const IndexType& ind);
 
 	template <class ET>
@@ -156,8 +159,40 @@ namespace MultiArrayTools
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
 	IndexType mIndex;
+	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
     };
-    
+
+    template <class... Ranges>
+    class MetaOperationRoot : public OperationTemplate<std::tuple<typename Ranges::IndexType...>,
+						       MetaOperationRoot<Ranges...> >
+    {
+    public:
+
+	typedef ContainerIndex<std::tuple<typename Ranges::IndexType::MetaType...>,
+			       typename Ranges::IndexType...> IndexType;
+	typedef typename IndexType::MetaType value_type;
+	typedef OperationBase<value_type,MetaOperationRoot<Ranges...> > OT;
+	typedef ContainerRange<value_type,Ranges...> CRange;
+	
+	static constexpr size_t SIZE = 1;
+	
+	MetaOperationRoot(const IndexType& ind);
+
+	template <class ET>
+	inline value_type get(ET pos) const;
+
+	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+
+	template <class Expr>
+	Expr loop(Expr exp) const;
+		
+    private:
+
+	//MultiArrayBase<T,Ranges...> const& mArrayRef;
+	//const T* mDataPtr;
+	IndexType mIndex;
+    };
+
     template <typename T, class... Ranges>
     class OperationRoot : public OperationTemplate<T,OperationRoot<T,Ranges...> >
     {
@@ -467,6 +502,18 @@ namespace MultiArrayTools
 	mDataPtr(ma.data()),
 	mIndex( ma.begin() )
     {
+	//VCHECK(ma.data());
+	mIndex(indices...);
+    }
+
+    template <typename T, class... Ranges>
+    ConstOperationRoot<T,Ranges...>::
+    ConstOperationRoot(std::shared_ptr<MultiArrayBase<T,Ranges...> > maptr,
+		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
+	mDataPtr(maptr->data()),
+	mIndex(maptr->begin()),
+	mMaPtr(maptr)
+    {
 	mIndex(indices...);
     }
 
@@ -480,6 +527,9 @@ namespace MultiArrayTools
     template <class ET>
     inline T ConstOperationRoot<T,Ranges...>::get(ET pos) const
     {
+	//VCHECK(pos.val());
+	//VCHECK(mDataPtr);
+	//VCHECK(mDataPtr[pos.val()])
 	return mDataPtr[pos.val()];
     }
 
@@ -497,7 +547,42 @@ namespace MultiArrayTools
     {
 	return exp;
     }
-    
+
+    /****************************
+     *   MetaOperationRoot     *
+     ****************************/
+
+    template <class... Ranges>
+    MetaOperationRoot<Ranges...>::
+    MetaOperationRoot(const IndexType& ind) :
+	mIndex( ind ) { }
+
+    template <class... Ranges>
+    template <class ET>
+    inline typename MetaOperationRoot<Ranges...>::value_type
+    MetaOperationRoot<Ranges...>::get(ET pos) const
+    {
+	//VCHECK(pos.val());
+	//VCHECK(mDataPtr);
+	//VCHECK(mDataPtr[pos.val()])
+	return mIndex.meta(pos.val());
+    }
+
+    template <class... Ranges>
+    MExt<void> MetaOperationRoot<Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    {
+	return MExt<void>(getStepSize( mIndex, iPtrNum ));
+	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+    }
+
+
+    template <class... Ranges>
+    template <class Expr>
+    Expr MetaOperationRoot<Ranges...>::loop(Expr exp) const
+    {
+	return exp;
+    }
+
     /***********************
      *   OperationRoot     *
      ***********************/

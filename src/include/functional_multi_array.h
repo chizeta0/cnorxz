@@ -18,8 +18,9 @@ namespace MultiArrayTools
 	    std::vector<typename Index::MetaType> vv(i->range()->size());
 	    for(Index j = (*i); j.pos() != j.max(); ++j){
 		vv[j.pos()] = j.meta();
-	    }
-	    return MultiArray<typename Index::MetaType, typename Index::RangeType>( i->range(), std::move( vv ) );
+		VCHECK(j.meta());
+	    }	    
+	    return MultiArray<typename Index::MetaType, typename Index::RangeType>( i->range(), vv );
 	}
     };
 
@@ -33,14 +34,65 @@ namespace MultiArrayTools
 	    return ConstSlice<typename Index::MetaType, typename Index::RangeType>( i->range(), i->metaPtr() );
 	}
     };
-    
+
     template <class Index>
     auto mkMAObject(const std::shared_ptr<Index>& i)
-	-> decltype(ToMAObject<Index::RangeType::HASMETACONT>::mk(i))
+	-> std::shared_ptr<decltype(ToMAObject<Index::RangeType::HASMETACONT>::mk(i))>
     {
-	return ToMAObject<Index::RangeType::HASMETACONT>::mk(i);
+	return std::make_shared<decltype(ToMAObject<Index::RangeType::HASMETACONT>::mk(i))>
+	    (ToMAObject<Index::RangeType::HASMETACONT>::mk(i));
     }
+    /*
+    template <bool HASMETACONT>
+    struct ToOpObject
+    {
+	template <class Index>
+	static auto mk(const std::shared_ptr<Index>& ind)
+	    -> MetaOperationRoot<typename Index::RangeType>
+	{
+	    typedef typename Index::RangeType RangeType;
+	    MultiRangeFactory<RangeType> mrf(ind->range());
+	    auto mr = std::dynamic_pointer_cast<RangeType>( mrf.create() );
+	    typedef typename MultiRange<RangeType>::IndexType::MetaType value_type;
+	    ContainerIndex<value_type,Index> ci(mr,0);
+	    return MetaOperationRoot<typename Index::RangeType>(ci);
+	}
+    };
+    
+    template <>
+    struct ToOpObject<true>
+    {
+	template <class Index>
+	static auto mk(const std::shared_ptr<Index>& ind)
+	    -> ConstOperationRoot<typename Index::MetaType,
+				  typename Index::RangeType>
+	{
+	    return ConstOperationRoot<typename Index::MetaType,
+				      typename Index::RangeType>( mkMAObject(ind), ind);
+	}
+    };
+    */
 
+    template <bool HASMETACONT>
+    struct ToOpObject
+    {
+	template <class Index>
+	static auto mk(const std::shared_ptr<Index>& ind)
+	    -> ConstOperationRoot<typename Index::MetaType,
+				  typename Index::RangeType>
+	{
+	    return ConstOperationRoot<typename Index::MetaType,
+				      typename Index::RangeType>( mkMAObject(ind), ind);
+	}
+    };
+
+    
+    template <class Index>
+    auto mkOpObject(const std::shared_ptr<Index>& i)
+	-> decltype(ToOpObject<Index::RangeType::HASMETACONT>::mk(i))
+    {
+	return ToOpObject<Index::RangeType::HASMETACONT>::mk(i);
+    }
     
     template <typename T, class Function, class... SRanges>
     class FunctionalMultiArray : public MultiArrayBase<T,SRanges...>
@@ -78,8 +130,9 @@ namespace MultiArrayTools
 	// EVALUTAION CLASS ??!!!!
 
 	auto exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) );
-
+	//	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) );
+	    -> decltype( mkOperation( mFunc, mkOpObject(inds) ... ) );
+	    
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
 	
@@ -184,7 +237,7 @@ namespace MultiArrayTools
 	return ConstOperationRoot<T,SRanges...>( *mMaPtr, inds... );
     }
 
-    
+    /*
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
     exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
@@ -192,8 +245,16 @@ namespace MultiArrayTools
     {
  	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds ) ... );
     }
+    */
 
-    
+    template <typename T, class Function, class... SRanges>
+    auto FunctionalMultiArray<T,Function,SRanges...>::
+    exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
+	-> decltype( mkOperation( mFunc, mkOpObject(inds) ... ) )
+    {
+ 	return mkOperation( mFunc, mkOpObject(inds) ... );
+    }
+
 } // namespace MultiArrayTools
 
 #endif

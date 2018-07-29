@@ -80,6 +80,7 @@ namespace MultiArrayTools
 	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
 
     private:
+	std::shared_ptr<RangeType> mExplicitRangePtr;
 	const U* mMetaPtr;
     };
 
@@ -106,19 +107,19 @@ namespace MultiArrayTools
 	typedef U MetaType;
 	//typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
 	
-	virtual size_t size() const override;
-	virtual size_t dim() const override;
+	virtual size_t size() const final;
+	virtual size_t dim() const final;
 
-	virtual SpaceType spaceType() const override;
+	virtual SpaceType spaceType() const final;
 	
-	virtual std::string stringMeta(size_t pos) const override;
-	virtual std::vector<char> data() const override;
+	virtual std::string stringMeta(size_t pos) const final;
+	virtual std::vector<char> data() const final;
 	
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
 	
-	virtual IndexType begin() const override;
-	virtual IndexType end() const override;
+	virtual IndexType begin() const final;
+	virtual IndexType end() const final;
 		
 	friend SingleRangeFactory<U,TYPE>;
 
@@ -184,6 +185,7 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE>
     SingleIndex<U,TYPE>::SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range) :
 	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0),
+	mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
 	mMetaPtr(MetaPtrHandle<SingleIndex<U,TYPE>::RangeType::HASMETACONT>::set
 		 ( dynamic_cast<RangeType*>(IB::mRangePtr.get() ) ) ) {}
 
@@ -238,8 +240,7 @@ namespace MultiArrayTools
     U SingleIndex<U,TYPE>::meta() const
     {
 	return MetaPtrHandle<SingleIndex<U,TYPE>::RangeType::HASMETACONT>::getMeta
-	    ( mMetaPtr, IB::mPos,
-	      std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr ) );
+	    ( mMetaPtr, IB::mPos, mExplicitRangePtr );
     }
 
     template <typename U, SpaceType TYPE>
