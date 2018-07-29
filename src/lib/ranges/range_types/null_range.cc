@@ -13,27 +13,31 @@ namespace MultiArrayTools
      *   SingleRange    *
      ********************/
 
+    std::shared_ptr<SingleRange<size_t,SpaceType::NUL>>
+    SingleRangeFactory<size_t,SpaceType::NUL>::mRInstance = nullptr;
+    
     std::shared_ptr<NullRange> nullr()
     {
-	return SingleRangeFactory<size_t,SpaceType::NUL>::mRInstance;
+	static NullRF nrf; // just that mRInstance is initialized
+	static auto nr = std::dynamic_pointer_cast<NullRange>( nrf.create() );
+	VCHECK(NullRF::mRInstance);
+	return NullRF::mRInstance;
     }
 
     std::shared_ptr<NullIndex> nulli()
     {
 	return std::make_shared<NullIndex>(nullr());
     }
-    
-    std::shared_ptr<SingleRange<size_t,SpaceType::NUL>>
-    SingleRangeFactory<size_t,SpaceType::NUL>::mRInstance = nullptr;
 
     SingleRangeFactory<size_t,SpaceType::NUL>::SingleRangeFactory()
     {
 	// Singleton
-	if( not mRInstance){
+	if(not mRInstance){
 	    if(not mProd){
 		mProd = std::shared_ptr<oType>( new SingleRange<size_t,SpaceType::NUL>() );
 		setSelf();
 	    }
+	    mRInstance = std::dynamic_pointer_cast<NullRange>( mProd );
 	} else {
 	    mProd = mRInstance;
 	}
