@@ -4,7 +4,7 @@
 
 #include <string>
 #include <vector>
-//#include <iostream>
+#include <iostream>
 
 namespace MultiArrayTools
 {
@@ -24,6 +24,7 @@ namespace MultiArrayTools
     template <typename T>
     inline void stringCat(std::vector<char>& out, const std::vector<T>& in)
     {
+	//for(auto& x: in) { std::cout << x << std::endl; }
 	const char* scp = reinterpret_cast<const char*>(in.data());
 	out.insert(out.end(), scp, scp + in.size() * sizeof(T));
     }
@@ -44,6 +45,7 @@ namespace MultiArrayTools
     template <>
     inline void stringCat<std::string>(std::vector<char>& out, const std::vector<std::string>& in)
     {
+	//for(auto& x: in) { std::cout << x << std::endl; }
 	std::string tmp = "";
 	for(auto& x: in){
 	    tmp += x + '\n';

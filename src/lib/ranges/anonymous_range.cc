@@ -85,12 +85,13 @@ namespace MultiArrayTools
     std::string AnonymousRange::stringMeta(size_t pos) const
     {
 	std::string out = "[ ";
-	size_t xpos = pos;
+	//size_t xpos = pos;
 	for(size_t i = mOrig.size(); i != 0; --i) {
 	    auto& x = mOrig[i-1];
 	    const size_t redpos = pos % x->size();
 	    out = ( (i == mOrig.size()) ? out : out + " , " ) + x->stringMeta(redpos);
-	    xpos -= redpos;
+	    pos -= redpos;
+	    pos /= x->size();
 	}
 	out += " ]";
 	return out;

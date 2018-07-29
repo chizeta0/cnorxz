@@ -20,7 +20,6 @@ namespace MultiArrayTools
     {
 	static NullRF nrf; // just that mRInstance is initialized
 	static auto nr = std::dynamic_pointer_cast<NullRange>( nrf.create() );
-	VCHECK(NullRF::mRInstance);
 	return NullRF::mRInstance;
     }
 

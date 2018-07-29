@@ -18,7 +18,6 @@ namespace MultiArrayTools
 	    std::vector<typename Index::MetaType> vv(i->range()->size());
 	    for(Index j = (*i); j.pos() != j.max(); ++j){
 		vv[j.pos()] = j.meta();
-		VCHECK(j.meta());
 	    }	    
 	    return MultiArray<typename Index::MetaType, typename Index::RangeType>( i->range(), vv );
 	}

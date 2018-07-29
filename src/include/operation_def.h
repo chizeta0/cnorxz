@@ -83,9 +83,9 @@ namespace MultiArrayTools
 
     template <size_t N, typename T, class OperationClass>
     auto ipow(const OperationBase<T,OperationClass>& a)
-	-> Operation<T,x_ipow<N>,OperationClass>
+	-> Operation<T,x_ipow<N-1>,OperationClass>
     {
-	return Operation<T,x_ipow<N>,OperationClass>(a.THIS());
+	return Operation<T,x_ipow<N-1>,OperationClass>(a.THIS());
     }
     
 
