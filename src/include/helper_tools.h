@@ -44,6 +44,10 @@ namespace MultiArrayTools
     template <class Range>
     auto createRange(const std::vector<char>& cvec)
 	-> std::shared_ptr<Range>;
+
+    template <size_t N, class MArray>
+    auto prtr(const MArray& ma)
+	-> decltype(ma.template getRangePtr<N>());
 }
 
 /* ========================= *
@@ -126,6 +130,13 @@ namespace MultiArrayTools
 	assert(rbptr->spaceType() == Range::STYPE);
 	// CATCH CAST ERROR HERE !!!
 	return std::dynamic_pointer_cast<Range>( rbptr );
+    }
+
+    template <size_t N, class MArray>
+    auto rptr(const MArray& ma)
+	-> decltype(ma.template getRangePtr<N>())
+    {
+	return ma.template getRangePtr<N>();
     }
 
 }
