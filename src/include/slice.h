@@ -19,7 +19,7 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(ConstSlice);
 
 	ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data = nullptr);
-	ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>...);
+	ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
 	
 	virtual const T& operator[](const IType& i) const override;
 	virtual const T& at(const typename IType::MetaType& meta) const override;
@@ -137,7 +137,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    ConstSlice<T,SRanges...>::ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>...) :
+    ConstSlice<T,SRanges...>::ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>... sizes) :
 	MutableMultiArrayBase<T,SRanges...>
 	( ma.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mData( ma.data() )
