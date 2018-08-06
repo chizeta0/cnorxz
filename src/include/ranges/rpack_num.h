@@ -59,8 +59,6 @@ namespace MultiArrayHelper
     {
 	v.insert(v.begin(), r);
     }
-
-    
     
     template <size_t N>
     struct RPackNum

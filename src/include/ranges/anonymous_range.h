@@ -87,6 +87,8 @@ namespace MultiArrayTools
 
 	template <class... Ranges>
 	std::shared_ptr<MultiRange<Ranges...> > scast(SIZET<Ranges>... sizes) const; // save cast
+
+	bool isEmpty() const;
 	
 	friend AnonymousRangeFactory;
 	
@@ -105,6 +107,7 @@ namespace MultiArrayTools
 	SingleRange(std::shared_ptr<RangeTypes>... origs);
 
 	size_t mSize = 1;
+	bool mEmpty = true;
 	
 	std::vector<std::shared_ptr<RangeBase> > mOrig;
     };
@@ -143,6 +146,7 @@ namespace MultiArrayTools
 	}
 	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
 	std::dynamic_pointer_cast<oType>(mProd)->mSize *= r->size();
+	std::dynamic_pointer_cast<oType>(mProd)->mEmpty = false;
     }
 
     /*****************
@@ -162,7 +166,6 @@ namespace MultiArrayHelper
 						size_t origpos, size_t size)
     {
     	AnonymousRangeFactory arf;
-	//VCHECK(size);
 	for(size_t op = origpos; op != origpos + size; ++op){
 	    //VCHECK(op);
 	    arf.append(orig[op]);
@@ -174,8 +177,10 @@ namespace MultiArrayHelper
     inline void setRangeToVec<AnonymousRange>(std::vector<std::shared_ptr<RangeBase> >& v,
 					      std::shared_ptr<AnonymousRange> r)
     {
-	for(size_t i = 0; i != r->dim(); ++i){
-	    v.insert(v.begin(), r->sub(i));
+	if(not r->isEmpty()){
+	    for(size_t i = r->anonymousDim(); i != 0; --i){
+		v.insert(v.begin(), r->sub(i-1));
+	    }
 	}
     }
 
@@ -193,6 +198,9 @@ namespace MultiArrayTools
     {
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
+	if(sizeof...(RangeTypes)){
+	    mEmpty = false;
+	}
     }
     
     template <class... RangeTypes>
@@ -202,6 +210,9 @@ namespace MultiArrayTools
 	auto rst = std::make_tuple(origs...);
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
+	if(sizeof...(RangeTypes)){
+	    mEmpty = false;
+	}
     }
 
     template <class Range>
