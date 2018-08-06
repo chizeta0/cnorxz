@@ -138,7 +138,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     ConstSlice<T,SRanges...>::ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>... sizes) :
-	MutableMultiArrayBase<T,SRanges...>
+	MultiArrayBase<T,SRanges...>
 	( ma.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mData( ma.data() )
     {

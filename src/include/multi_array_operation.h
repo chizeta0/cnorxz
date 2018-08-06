@@ -162,6 +162,40 @@ namespace MultiArrayTools
 	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
     };
 
+    template <typename T, class Op>
+    class StaticCast : public OperationTemplate<T,StaticCast<T,Op> >
+    {
+    private:
+	const Op& mOp;
+
+    public:
+	
+	typedef T value_type;
+	typedef OperationBase<T,StaticCast<T,Op> > OT;
+	typedef typename Op::CRange CRange;
+	typedef typename Op::IndexType IndexType;
+
+	static constexpr size_t SIZE = Op::SIZE;
+	
+	StaticCast(const Op& op);
+
+	template <class ET>
+	inline T get(ET pos) const;
+
+	auto rootSteps(std::intptr_t iPtrNum = 0) const
+	    -> decltype(mOp.rootSteps(iPtrNum));
+
+	template <class Expr>
+	Expr loop(Expr exp) const;
+
+    };
+
+    template <typename T, class Op>
+    StaticCast<T,Op> staticcast(const Op& op)
+    {
+	return StaticCast<T,Op>(op);
+    }
+    
     template <class... Ranges>
     class MetaOperationRoot : public OperationTemplate<std::tuple<typename Ranges::IndexType...>,
 						       MetaOperationRoot<Ranges...> >
@@ -548,6 +582,35 @@ namespace MultiArrayTools
 	return exp;
     }
 
+    /********************
+     *   StaticCast     *
+     ********************/
+
+    template <typename T, class Op>
+    StaticCast<T,Op>::StaticCast(const Op& op) : mOp(op) {}
+
+    template <typename T, class Op>
+    template <class ET>
+    inline T StaticCast<T,Op>::get(ET pos) const
+    {
+	return static_cast<T>( mOp.get(pos) );
+    }
+
+    template <typename T, class Op>
+    auto StaticCast<T,Op>::rootSteps(std::intptr_t iPtrNum) const
+	-> decltype(mOp.rootSteps(iPtrNum))
+    {
+	return mOp.rootSteps(iPtrNum);
+    }
+
+    template <typename T, class Op>
+    template <class Expr>
+    Expr StaticCast<T,Op>::loop(Expr exp) const
+    {
+	return mOp.loop(exp);
+    }
+    
+    
     /****************************
      *   MetaOperationRoot     *
      ****************************/
