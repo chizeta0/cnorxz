@@ -42,7 +42,7 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
 	MultiArray(const typename CRange::Space& space);
 	MultiArray(const typename CRange::Space& space, std::vector<T>&& vec);
-	MultiArray(MultiArray<T,AnonymousRange>& ama, SIZET<SRanges>... sizes);
+	MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes);
 	
 	// Only if ALL ranges have default extensions:
 	//MultiArray(const std::vector<T>& vec);
@@ -73,7 +73,7 @@ namespace MultiArrayTools
 	virtual std::vector<T>& vdata() { return mCont; }
 	virtual const std::vector<T>& vdata() const { return mCont; }
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
 	
 	auto cat() const
@@ -202,7 +202,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(MultiArray<T,AnonymousRange>& ama, SIZET<SRanges>... sizes) :
+    MultiArray<T,SRanges...>::MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes) :
 	MutableMultiArrayBase<T,SRanges...>
 	( ama.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mCont( std::move( ama.mCont ) )
@@ -296,12 +296,19 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymous() const
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymous(bool slice) const
     {
 	AnonymousRangeFactory arf(MAB::mRange->space());
-	return std::make_shared<MultiArray<T,AnonymousRange> >
-	    ( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
-	      mCont );
+	if(slice){
+	    return std::make_shared<ConstSlice<T,AnonymousRange> >
+		( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
+		  data() );
+	}
+	else {
+	    return std::make_shared<MultiArray<T,AnonymousRange> >
+		( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
+		  mCont );
+	}
     }	
 
     template <typename T, class... SRanges>

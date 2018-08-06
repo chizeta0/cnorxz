@@ -57,7 +57,7 @@ namespace MultiArrayTools
 
 	virtual bool isConst() const;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const = 0;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const = 0;
 	
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const;

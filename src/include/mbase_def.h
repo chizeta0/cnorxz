@@ -60,6 +60,9 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     class Slice;
 
+    template <typename T, class... SRanges>
+    class ConstSlice;
+
     // slice.h
     template <typename T, class... SRanges>
     class SliceDef;

@@ -19,7 +19,7 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(ConstSlice);
 
 	ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data = nullptr);
-	ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
+	ConstSlice(const MultiArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
 	
 	virtual const T& operator[](const IType& i) const override;
 	virtual const T& at(const typename IType::MetaType& meta) const override;
@@ -31,7 +31,7 @@ namespace MultiArrayTools
 	virtual auto begin() const -> IType override;
 	virtual auto end() const -> IType override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	    -> SliceDef<T,SRanges...>;
@@ -71,7 +71,7 @@ namespace MultiArrayTools
 	virtual auto begin() const -> IType override;
 	virtual auto end() const -> IType override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
 
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
@@ -137,7 +137,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    ConstSlice<T,SRanges...>::ConstSlice(const MultiArray<T,AnonymousRange>& ma, SIZET<SRanges>... sizes) :
+    ConstSlice<T,SRanges...>::ConstSlice(const MultiArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes) :
 	MultiArrayBase<T,SRanges...>
 	( ma.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mData( ma.data() )
@@ -192,7 +192,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous() const
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous(bool slice) const
     {
 	assert(0); // think about carefully!!!!
 	return nullptr;
@@ -290,7 +290,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymous() const
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymous(bool slice) const
     {
 	assert(0); // think about carefully!!!!
 	return nullptr;

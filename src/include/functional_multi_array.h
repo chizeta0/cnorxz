@@ -124,7 +124,7 @@ namespace MultiArrayTools
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous() const override;
+	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	
 	// EVALUTAION CLASS ??!!!!
 
@@ -219,7 +219,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Function, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > FunctionalMultiArray<T,Function,SRanges...>::anonymous() const
+    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > FunctionalMultiArray<T,Function,SRanges...>::anonymous(bool slice) const
     {
 	assert(0); // think about it carefully
 	return nullptr;
