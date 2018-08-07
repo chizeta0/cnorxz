@@ -61,7 +61,11 @@ namespace MultiArrayTools
 	
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const;
-	
+
+	template <class... MappedRanges>
+	ConstOperationRoot<T,SRanges...>
+	operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const;
+
 	virtual bool isInit() const;
 
 	template <size_t N>
@@ -103,7 +107,13 @@ namespace MultiArrayTools
 	
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
+	
 	virtual OperationRoot<T,SRanges...> operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds);
+
+	template <class... MappedRanges>
+	ConstOperationRoot<T,SRanges...>
+	operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds);
+
     };
 
     
@@ -197,6 +207,15 @@ namespace MultiArrayTools
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
     }
+
+    template <class... MappedRanges>
+    ConstOperationRoot<T,SRanges...>
+    MultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
+    {
+	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
+		      "number of mapped ranges must be equal to number of original ranges");
+	return (*this)(MapResult(inds)...);
+    }
     
     template <typename T, class... SRanges>
     bool MultiArrayBase<T,SRanges...>::isInit() const
@@ -257,6 +276,15 @@ namespace MultiArrayTools
     MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
+    }
+
+    template <class... MappedRanges>
+    ConstOperationRoot<T,SRanges...>
+    MultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds)
+    {
+	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
+		      "number of mapped ranges must be equal to number of original ranges");
+	return (*this)(MapResult(inds)...);
     }
 
 } // end namespace MultiArrayTools

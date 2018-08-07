@@ -97,6 +97,12 @@ namespace MultiArrayTools
 	std::intptr_t mPtrNum;
     };
 
+    template <class Index>
+    std::shared_ptr<Index> mapResult(const std::shared_ptr<Index>& iptr)
+    {
+	return iptr;
+    }
+
 }
 
 /* ========================= *
