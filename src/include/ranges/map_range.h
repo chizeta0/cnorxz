@@ -17,6 +17,8 @@
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
+#include "xfor/xfor.h"
+
 namespace MultiArrayTools
 {
     namespace
@@ -115,7 +117,7 @@ namespace MultiArrayTools
 
 	template <class Exprs>
 	auto ifor(Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFors(mIPack, mOutIndex, exs));
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, SinleExpression( mOutIndex, exs ) ));
 
 	/*
 	template <class Exprs>
@@ -236,7 +238,7 @@ namespace MultiArrayTools
     }
 
     // -> define in range_base.cc
-    std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
+    //std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
     
     /******************
      *   MapIndex   *

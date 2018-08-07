@@ -52,6 +52,44 @@ namespace MultiArrayHelper
 	    return BOUND;
 	}
     };
+
+    template <class IndexClass, class Expr>
+    class SingleExpression
+    {
+    private:
+	SingleExpression() = default;
+
+	const IndexClass* mIndPtr;
+	size_t mSPos;
+	size_t mMax;
+	Expr mExpr;
+
+	typedef decltype(mExpr.rootSteps()) ExtType;
+	ExtType mExt;
+
+    public:
+
+	static constexpr size_t LAYER = Expr::LAYER + 1;
+	static constexpr size_t SIZE = Expr::SIZE;
+
+	SingleExpression(const SingleExpression& in) = default;
+	SingleExpression& operator=(const SingleExpression& in) = default;
+	SingleExpression(SingleExpression&& in) = default;
+	SingleExpression& operator=(SingleExpression&& in) = default;
+	
+	SingleExpression(const std::shared_ptr<IndexClass>& indPtr,
+	    Expr expr);
+
+	SingleExpression(const IndexClass* indPtr,
+	    Expr expr);
+
+	
+	inline void operator()(size_t mlast, ExtType last) const;
+	inline void operator()(size_t mlast = 0) const;
+
+	auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+
+    };
     
     template <class IndexClass, class Expr, ForType FT = ForType::DEFAULT>
     class For
@@ -161,6 +199,61 @@ namespace MultiArrayHelper
     
     template <class IndexClass, class Expr, ForType FT>
     auto For<IndexClass,Expr,FT>::rootSteps(std::intptr_t iPtrNum) const
+	-> ExtType
+    {
+	return mExpr.rootSteps(iPtrNum);
+    }
+
+
+
+    
+    template <class IndexClass, class Expr>
+    SingleExpression<IndexClass,Expr>::SingleExpression(const std::shared_ptr<IndexClass>& indPtr,
+				 Expr expr) :
+	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mExpr(expr),
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() )))
+    {
+	assert(mIndPtr != nullptr);
+	//VCHECK(mIndPtr->id());
+	//VCHECK(mIndPtr->max());
+    }
+
+    template <class IndexClass, class Expr>
+    SingleExpression<IndexClass,Expr>::SingleExpression(const IndexClass* indPtr,
+				 Expr expr) :
+	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
+	mExpr(std::forward<Expr>( expr )),
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) ))
+    {
+	assert(mIndPtr != nullptr);
+	//VCHECK(mIndPtr->id());
+	//VCHECK(mIndPtr->max());
+    }
+    
+    template <class IndexClass, class Expr>
+    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast,
+							      ExtType last) const
+    {
+	//typedef typename IndexClass::RangeType RangeType;
+	const size_t pos = mIndPtr->pos();
+	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
+	const ExtType npos = last + mExt*pos;
+	mExpr(mnpos, npos);
+    }
+
+    template <class IndexClass, class Expr>
+    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast) const
+    {
+	//typedef typename IndexClass::RangeType RangeType;
+	const ExtType last;
+	const size_t pos = mIndPtr->pos();
+	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
+	const ExtType npos = last + mExt*pos;
+	mExpr(mlast, last);
+    }
+    
+    template <class IndexClass, class Expr>
+    auto SingleExpression<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
 	return mExpr.rootSteps(iPtrNum);
