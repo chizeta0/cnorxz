@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <vector>
 #include <memory>
+#include <map>
 
 //#include "base_def.h"
 //#include "ranges/rpack_num.h"
@@ -136,6 +137,7 @@ namespace MultiArrayTools
 	SingleRange(const std::vector<U>& space);
 
 	std::vector<U> mSpace;
+	std::map<U,size_t> mMSpace;
     };
 
 }
@@ -349,7 +351,12 @@ namespace MultiArrayTools
     
     template <typename U, SpaceType TYPE>
     SingleRange<U,TYPE>::SingleRange(const std::vector<U>& space) : RangeInterface<SingleIndex<U,TYPE> >(),
-	mSpace(space) {}
+	mSpace(space)
+    {
+	for(size_t i = 0; i != mSpace.size(); ++i){
+	    mMSpace[mSpace[i]] = i; 
+	}
+    }
     
     template <typename U, SpaceType TYPE>
     const U& SingleRange<U,TYPE>::get(size_t pos) const
@@ -360,14 +367,7 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE>
     size_t SingleRange<U,TYPE>::getMeta(const U& metaPos) const
     {
-	size_t cnt = 0;
-	for(auto& x: mSpace){
-	    if(x == metaPos){
-		return cnt;
-	    }
-	    ++cnt;
-	}
-	return cnt;
+	return mMSpace.at(metaPos);
     }
 
     template <typename U, SpaceType TYPE>

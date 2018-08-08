@@ -107,6 +107,13 @@ namespace MultiArrayHelper
 	{
 	    return std::get<N>(rtp1).get() == std::get<N>(rtp2).get() and PackNum<N-1>::checkIfSameInstance(rtp1,rtp2);
 	}
+
+	template <class MA, class ITuple, class... Indices>
+	static inline auto mkMapOp(const MA& ma, const ITuple& itp, const std::shared_ptr<Indices>&... inds)
+	    -> decltype(PackNum<N-1>::mkMapOp(ma, itp, std::get<N>(itp), inds...))
+	{
+	    return PackNum<N-1>::mkMapOp(ma, itp, std::get<N>(itp), inds...);
+	}
     };
     
     template<>
@@ -176,6 +183,13 @@ namespace MultiArrayHelper
 					const std::tuple<std::shared_ptr<SRanges>...>& rtp2)
 	{
 	    return std::get<0>(rtp1).get() == std::get<0>(rtp2).get();
+	}
+
+	template <class MA, class ITuple, class... Indices>
+	static inline auto mkMapOp(const MA& ma, const ITuple& itp, const std::shared_ptr<Indices>&... inds)
+	    -> decltype(ma.exec(std::get<0>(itp), inds...))
+	{
+	    return ma.exec(std::get<0>(itp), inds...);
 	}
 
     };

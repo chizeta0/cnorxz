@@ -25,6 +25,52 @@ namespace MultiArrayTools
     {
 	using namespace MultiArrayHelper;
     }
+
+    template <class MA, class... Indices>
+    auto mkMapOp(const MA& ma,
+		 const std::tuple<std::shared_ptr<Indices>...>& itp)
+	-> ConstOperation<T,typename Indices::RangeType...>
+    {
+	return PackNum<sizeof...(Indices)-1>::mkMapOp(ma, itp);
+    }
+    
+    template <class MapF, class Expr>
+    class OpExpr
+    {
+    public:
+	typedef SingleIndex<MapF::value_type,SpaceType::ANY> OIType;
+	typedef MapF::IndexPack IndexPack;
+	static constexpr size_t LAYER = Expr::LAYER + 1;
+	static constexpr size_t SIZE = Expr::SIZE;
+	
+    private:
+	OpExpr() = default;
+	
+	const IndexClass* mIndPtr;
+	size_t mSPos;
+	size_t mMax;
+	Expr mExpr;
+
+	typedef decltype(mOp.rootSteps(iPtrNum).extend( mExpr.rootSteps(iPtrNum) )) ExtType;
+	ExtType mExt;
+
+	typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
+	Op mOp;
+	
+    public:
+	OpExpr(const OpExpr& in) = default;
+	OpExpr(OpExpr&& in) = default;
+	OpExpr& operator=(const OpExpr& in) = default;
+	OpExpr& operator=(OpExpr&& in) = default;
+	
+	OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType> oind, Expr ex);
+
+	inline void operator()(size_t mlast, ExtType last) const;
+	inline void operator()(size_t mlast = 0) const;
+
+	auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+
+    };
     
     template <class MapF, class... Indices>
     class MapIndex : public IndexInterface<MapIndex<MapF,Indices...>,
@@ -117,7 +163,7 @@ namespace MultiArrayTools
 
 	template <class Exprs>
 	auto ifor(Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, SinleExpression( mOutIndex, exs ) ));
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, OpExpr( range()->map() , mOutIndex, exs ) ));
 
 	/*
 	template <class Exprs>
@@ -145,12 +191,9 @@ namespace MultiArrayTools
 	typedef MapRange<MapF,Ranges...> oType;
 	
 	MapRangeFactory() = delete;
-	MapRangeFactory(const std::shared_ptr<Ranges>&... rs);
-	MapRangeFactory(const typename MapRange<MapF,Ranges...>::Space& space);
+	MapRangeFactory(const MapF& mapf, const std::shared_ptr<Ranges>&... rs);
+	MapRangeFactory(const MapF& mapf, const typename MapRange<MapF,Ranges...>::Space& space);
 
-	template <typename T>
-	MapRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr);
-	
 	virtual std::shared_ptr<RangeBase> create() override;
 
     private:
@@ -184,6 +227,7 @@ namespace MultiArrayTools
 	MapRange(const MapF& mapf, const Space& space);
 	
 	Space mSpace;
+	const MapF& mMapf;
 	shred_ptr<ORType> mOutRange;
 
     public:
@@ -197,6 +241,7 @@ namespace MultiArrayTools
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
 	shred_ptr<ORType> outRange() const;
+	const MapF& map() const;
 	
 	virtual size_t dim() const final;
 	virtual size_t size() const final;
@@ -237,6 +282,52 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
+    /**************
+     *   OpExpr   *
+     **************/
+
+    template <class MapF, class Expr>
+    OpExpr<MapF,Expr>::OpExpr(const MapF& mapf, const IndexPack& ipack,
+			      const std::shared_ptr<OIType> oind, Expr ex) :
+	mIndPtr(oind.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mExpr(expr),
+	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() ))),
+	mOp(mapf, ipack)
+    {
+	assert(mIndPtr != nullptr);
+	//VCHECK(mIndPtr->id());
+	//VCHECK(mIndPtr->max());
+    }
+    
+    template <class MapF, class Expr>
+    inline void OpExpr<MapF,Expr>::operator()(size_t mlast,
+					      ExtType last) const
+    {
+	const ExtType npos = last + mExt*pos;
+	constexpr size_t NEXT = Op::SIZE;
+	const size_t pos = mIndPtr->getMeta( mOp.get( npos ) );
+	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
+	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
+    }
+
+    template <class MapF, class Expr>
+    inline void OpExpr<MapF,Expr>::operator()(size_t mlast) const
+    {
+	const ExtType last;
+	const ExtType npos = last + mExt*pos;
+	constexpr size_t NEXT = Op::SIZE;
+	const size_t pos = mIndPtr->at( mOp.get( npos ) ).pos();
+	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
+	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
+    }
+    
+    template <class MapF, class Expr>
+    auto OpExpr<MapF,Expr>::rootSteps(std::intptr_t iPtrNum) const
+	-> ExtType
+    {
+	return mOp.rootSteps(iPtrNum).extend( mExpr.rootSteps(iPtrNum) );
+    }
+
+    
     // -> define in range_base.cc
     //std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
     
@@ -454,11 +545,12 @@ namespace MultiArrayTools
     template <class MapF, class... Indices>
     template <class Exprs>
     auto MapIndex<MapF,Indices...>::ifor(Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs))
+	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor
+		    (mIPack, OpExpr( range()->map(), mIPack, mOutIndex, exs ) ) )
     {
-	return RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs);
+	return RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, OpExpr( range()->map(), mIPack, mOutIndex, exs ) );
     }
-
+    /*
     template <class MapF, class... Indices>
     template <class Exprs>
     auto MapIndex<MapF,Indices...>::iforh(Exprs exs) const
@@ -466,28 +558,21 @@ namespace MultiArrayTools
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs);
     }
-
+    */
     /*************************
      *   MapRangeFactory   *
      *************************/
 
     template <class MapF, class... Ranges>
-    MapRangeFactory<MapF,Ranges...>::MapRangeFactory(const std::shared_ptr<Ranges>&... rs)
+    MapRangeFactory<MapF,Ranges...>::MapRangeFactory(const MapF& mapf, const std::shared_ptr<Ranges>&... rs)
     {
-	mProd = std::shared_ptr< MapRange<MapF,Ranges...> >( new MapRange<MapF,Ranges...>( rs... ) );
+	mProd = std::shared_ptr< MapRange<MapF,Ranges...> >( new MapRange<MapF,Ranges...>( mapf, rs... ) );
     }
     
     template <class MapF, class... Ranges>
-    MapRangeFactory<MapF,Ranges...>::MapRangeFactory(const typename MapRange<MapF,Ranges...>::Space& st)
+    MapRangeFactory<MapF,Ranges...>::MapRangeFactory(const MapF& mapf, const typename MapRange<MapF,Ranges...>::Space& st)
     {
-	mProd = std::shared_ptr< MapRange<MapF,Ranges...> >( new MapRange<MapF,Ranges...>( st ) );
-    }
-
-    template <class MapF, class... Ranges>
-    template <typename T>
-    MapRangeFactory<MapF,Ranges...>::MapRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr)
-    {
-	mProd = std::shared_ptr< MapRange<MapF,Ranges...> >( new MapRange<MapF,Ranges...>( cr->space() ) );
+	mProd = std::shared_ptr< MapRange<MapF,Ranges...> >( new MapRange<MapF,Ranges...>( mapf, st ) );
     }
     
     template <class MapF, class... Ranges>
@@ -526,7 +611,9 @@ namespace MultiArrayTools
      ******************/
 
     template <class MapF, class... Ranges>
-    MapRange<MapF,Ranges...>::MapRange(const std::shared_ptr<Ranges>&... rs) : mSpace(std::make_tuple(rs...))
+    MapRange<MapF,Ranges...>::MapRange(const MapF& mapf, const std::shared_ptr<Ranges>&... rs) :
+	mSpace(std::make_tuple(rs...)),
+	mMapf(mapf)
     {
 	std::vector<MapF::value_type> outmeta;
 	// set !!!!
@@ -535,7 +622,9 @@ namespace MultiArrayTools
     }
 
     template <class MapF, class... Ranges>
-    MapRange<MapF,Ranges...>::MapRange(const Space& space) : mSpace( space )
+    MapRange<MapF,Ranges...>::MapRange(const MapF& mapf, const Space& space) :
+	mSpace( space ),
+	mMapf(mapf)
     {
 	std::vector<MapF::value_type> outmeta;
 	// set !!!!
@@ -561,6 +650,12 @@ namespace MultiArrayTools
     shred_ptr<ORType> MapRange<MapF,Ranges...>::outRange() const
     {
 	return mOutRange;
+    }
+
+    template <class MapF, class... Ranges>
+    const MapF& map() const
+    {
+	return mMapf;
     }
     
     template <class MapF, class... Ranges>
