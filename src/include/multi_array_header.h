@@ -17,6 +17,7 @@
 #include "functional_multi_array.h"
 #include "helper_tools.h"
 #include "operation_def.h"
+#include "map_range.h"
 //#include "slice.h"
 //#include "manipulator.h"
 //#include "range_transformer.h"
