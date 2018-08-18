@@ -215,7 +215,7 @@ namespace MultiArrayTools
     {
 	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
 		      "number of mapped ranges must be equal to number of original ranges");
-	return (*this)(MapResult(inds)...);
+	return (*this)(MapResult(inds)...); // NO !!!!!
     }
     
     template <typename T, class... SRanges>
