@@ -155,6 +155,43 @@ namespace {
 	std::vector<double> v4 = { 1.470, 2.210 };
     };
 
+    class MapTest : public ::testing::Test
+    {
+    protected:
+
+	typedef SingleRangeFactory<size_t,SpaceType::ANY> SRF;
+	typedef SRF::oType SRange;
+
+	typedef FunctionalMultiArray<size_t,plus<size_t>,SRange,SRange> MapF;
+	
+	typedef MapRangeFactory<MapF,SRange,SRange> MpRF;
+	typedef MpRF::oType MpRange;
+
+	typedef MpRange::ORType TRange;
+	
+	MapTest()
+	{
+	    SRF srf1( { 1,  3,  7,  10 } );
+	    SRF srf2( { 2,  6,  8 } );
+
+	    sr1ptr = std::dynamic_pointer_cast<SRange>( srf1.create() );
+	    sr2ptr = std::dynamic_pointer_cast<SRange>( srf2.create() );
+
+	    MapF map(sr1ptr,sr2ptr);
+	    MpRF mprf1( map, sr1ptr, sr2ptr );
+
+	    mpr1ptr = std::dynamic_pointer_cast<MpRange>( mprf1.create() );
+	}
+
+	std::shared_ptr<SRange> sr1ptr;
+	std::shared_ptr<SRange> sr2ptr;
+	std::shared_ptr<MpRange> mpr1ptr;
+	std::vector<double> v1 = { -31.71, -77.16, -18.81,
+				   -67.06, 72.31, -54.48,
+				   -50.91, -11.62, -59.57,
+				   -42.53, 80.41, 6.35 };
+    };
+    
     class OpTest_Performance : public ::testing::Test
     {
     protected:
@@ -277,6 +314,37 @@ namespace {
 	}
     };
 
+
+    TEST_F(MapTest, Exec1)
+    {
+	MultiArray<double,SRange,SRange> ma1(sr1ptr,sr2ptr,v1);
+	MultiArray<double,MpRange> res(mpr1ptr);
+
+	auto ii1 = getIndex( rptr<0>( ma1 ) );
+	auto ii2 = getIndex( rptr<1>( ma1 ) );
+
+	auto jj = getIndex( mpr1ptr );
+	(*jj)(ii1,ii2);
+	
+	res(jj) = ma1(ii1,ii2);
+
+	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());
+
+	EXPECT_EQ( jj->range()->outRange()->size(), 10 );
+ 	EXPECT_EQ( jj->range()->mapMultiplicity().at(9), 3 );
+	EXPECT_EQ( jj->range()->mapMultiplicity().at(3), 1 );
+
+	EXPECT_EQ( form.at(3), -31.71 );
+	EXPECT_EQ( form.at(7), -77.16 );
+	EXPECT_EQ( form.at(9), -18.81 + 72.31 -50.91 );
+	EXPECT_EQ( form.at(5), -67.06 );
+	EXPECT_EQ( form.at(11), -54.48 );
+	EXPECT_EQ( form.at(13), -11.62 );
+	EXPECT_EQ( form.at(15), -59.57 );
+	EXPECT_EQ( form.at(12), -42.53 );
+	EXPECT_EQ( form.at(16), 80.41 );
+	EXPECT_EQ( form.at(18), 6.35 );
+    }
     
     TEST_F(MetaOp_Test, SimpleCall)
     {

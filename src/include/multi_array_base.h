@@ -63,8 +63,8 @@ namespace MultiArrayTools
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const;
 
 	template <class... MappedRanges>
-	ConstOperationRoot<T,SRanges...>
-	operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const;
+	ConstOperationRoot<T,MappedRanges...>
+	m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const;
 
 	virtual bool isInit() const;
 
@@ -111,8 +111,12 @@ namespace MultiArrayTools
 	virtual OperationRoot<T,SRanges...> operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds);
 
 	template <class... MappedRanges>
-	ConstOperationRoot<T,SRanges...>
-	operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds);
+	OperationRoot<T,MappedRanges...>
+	m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds);
+
+	template <class... MappedRanges>
+	ConstOperationRoot<T,MappedRanges...>
+	m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const;
 
     };
 
@@ -210,12 +214,12 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     template <class... MappedRanges>
-    ConstOperationRoot<T,SRanges...>
-    MultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
+    ConstOperationRoot<T,MappedRanges...>
+    MultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
     {
 	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
 		      "number of mapped ranges must be equal to number of original ranges");
-	return (*this)(MapResult(inds)...); // NO !!!!!
+	return ConstOperationRoot<T,MappedRanges...>(*this, inds...);
     }
     
     template <typename T, class... SRanges>
@@ -281,12 +285,22 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     template <class... MappedRanges>
-    ConstOperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename MappedRanges::IndexType>&... inds)
+    OperationRoot<T,MappedRanges...>
+    MutableMultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds)
     {
 	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
 		      "number of mapped ranges must be equal to number of original ranges");
-	return (*this)(MapResult(inds)...);
+	return OperationRoot<T,MappedRanges...>(*this, inds...);
+    }
+
+    template <typename T, class... SRanges>
+    template <class... MappedRanges>
+    ConstOperationRoot<T,MappedRanges...>
+    MutableMultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
+    {
+	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
+		      "number of mapped ranges must be equal to number of original ranges");
+	return ConstOperationRoot<T,MappedRanges...>(*this, inds...);
     }
 
 } // end namespace MultiArrayTools

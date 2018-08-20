@@ -104,6 +104,7 @@ namespace MultiArrayTools
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	//typedef typename CRange::IndexType IndexType;
 	typedef MultiArray<T,SRanges...> MAType;
+	typedef T value_type;
 	
     private:
 	mutable T mVal;
@@ -116,6 +117,8 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(FunctionalMultiArray);
 	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges, const Function& func);
 	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges);
+	FunctionalMultiArray(const typename CRange::Space& space);
+	FunctionalMultiArray(const typename CRange::Space& space, const Function& func);
 	
 	virtual const T& operator[](const IndexType& i) const override;
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
@@ -186,6 +189,16 @@ namespace MultiArrayTools
     FunctionalMultiArray<T,Function,SRanges...>::FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges) :
 	MultiArrayBase<T,SRanges...>(ranges...) {}
 
+    template <typename T, class Function, class... SRanges>
+    FunctionalMultiArray<T,Function,SRanges...>::FunctionalMultiArray(const typename CRange::Space& space) :
+	MultiArrayBase<T,SRanges...>(space) {}
+
+    template <typename T, class Function, class... SRanges>
+    FunctionalMultiArray<T,Function,SRanges...>::FunctionalMultiArray(const typename CRange::Space& space,
+								      const Function& func) :
+	MultiArrayBase<T,SRanges...>(space), mFunc(func) {}
+
+    
     template <typename T, class Function, class... SRanges>
     const T& FunctionalMultiArray<T,Function,SRanges...>::operator[](const IndexType& i) const
     {

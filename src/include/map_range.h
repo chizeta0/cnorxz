@@ -29,17 +29,17 @@ namespace MultiArrayTools
     template <class MA, class... Indices>
     auto mkMapOp(const MA& ma,
 		 const std::tuple<std::shared_ptr<Indices>...>& itp)
-	-> ConstOperationRoot<typename MA::value_type,typename Indices::RangeType...>
+	-> decltype(PackNum<sizeof...(Indices)-1>::mkMapOp(ma, itp))
     {
 	return PackNum<sizeof...(Indices)-1>::mkMapOp(ma, itp);
     }
     
-    template <class MapF, class Expr>
+    template <class MapF, class IndexPack, class Expr>
     class OpExpr
     {
     public:
 	typedef SingleIndex<typename MapF::value_type,SpaceType::ANY> OIType;
-	typedef typename MapF::IndexPack IndexPack;
+	//typedef typename MapF::IndexPack IndexPack;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
 	
@@ -82,13 +82,13 @@ namespace MultiArrayTools
 			       std::tuple<typename Indices::MetaType...> > IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<typename Indices::MetaType...> MetaType;
-	typedef MapRange<typename Indices::RangeType...> RangeType;
+	typedef MapRange<MapF,typename Indices::RangeType...> RangeType;
 	typedef MapIndex IType;
 	typedef SingleIndex<typename MapF::value_type,SpaceType::ANY> OIType;
 	
 	static constexpr IndexType sType() { return IndexType::MULTI; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
-	static constexpr size_t totalDim() { return mkTotalDim<MapF,Indices...>(); }
+	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
 	
@@ -148,23 +148,23 @@ namespace MultiArrayTools
 	MetaType meta() const;
 	MapIndex& at(const MetaType& metaPos);
 	
-	size_t dim();
-	bool first();
-	bool last();
-	std::shared_ptr<RangeType> range();
+	size_t dim() const;
+	bool first() const;
+	bool last() const;
+	std::shared_ptr<RangeType> range() const;
 
 	template <size_t N>
 	auto getPtr() -> decltype( std::get<N>( mIPack ) )&;
 
-	size_t getStepSize(size_t n);
+	size_t getStepSize(size_t n) const;
 
 	std::string id() const;
-	void print(size_t offset);
+	void print(size_t offset) const;
 
 	template <class Exprs>
 	auto ifor(Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor
-			(mIPack, OpExpr<MapF,Exprs>( range()->map(), mIPack, mOutIndex, exs ) ) );
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
+			(mIPack, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, exs ) ) );
 	    
 	/*
 	template <class Exprs>
@@ -208,12 +208,12 @@ namespace MultiArrayTools
      ******************/
     
     template <class MapF, class... Ranges>
-    class MapRange : public RangeInterface<MapIndex<typename Ranges::IndexType...> >
+    class MapRange : public RangeInterface<MapIndex<MapF,typename Ranges::IndexType...> >
     {
     public:
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
-	typedef MapIndex<typename Ranges::IndexType...> IndexType;
+	typedef MapIndex<MapF,typename Ranges::IndexType...> IndexType;
 	typedef MapRange RangeType;
 	typedef SingleRange<typename MapF::value_type,SpaceType::ANY> ORType;
 	typedef SingleRangeFactory<typename MapF::value_type,SpaceType::ANY> ORFType;
@@ -230,10 +230,14 @@ namespace MultiArrayTools
 	Space mSpace;
 	const MapF& mMapf;
 	std::shared_ptr<ORType> mOutRange;
+	MultiArray<size_t,ORType> mMapMult;
 
+    private:
+	void mkOutRange();
+	
     public:
 	
-	static const size_t sdim = sizeof...(Ranges);
+	static constexpr size_t sdim = sizeof...(Ranges);
 
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mSpace ) )&;
@@ -257,6 +261,8 @@ namespace MultiArrayTools
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 
+	const MultiArray<size_t,ORType>& mapMultiplicity() const;
+	
 	template <class... ERanges>
 	auto cat(const std::shared_ptr<MapRange<ERanges...> >& erange)
 	    -> std::shared_ptr<MapRange<Ranges...,ERanges...> >;
@@ -287,42 +293,44 @@ namespace MultiArrayTools
      *   OpExpr   *
      **************/
 
-    template <class MapF, class Expr>
-    OpExpr<MapF,Expr>::OpExpr(const MapF& mapf, const IndexPack& ipack,
-			      const std::shared_ptr<OIType> oind, Expr ex) :
+    template <class MapF, class IndexPack, class Expr>
+    OpExpr<MapF,IndexPack,Expr>::OpExpr(const MapF& mapf, const IndexPack& ipack,
+					 const std::shared_ptr<OIType> oind, Expr ex) :
 	mIndPtr(oind.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mExpr(ex),
-	mExt(ex.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() ))),
-	mOp(mapf, ipack)
+	mOp(mkMapOp(mapf, ipack)),
+	//mExt(ex.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
+	mExt( mOp.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr) ).extend
+	      ( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr) ) ) )
     {
 	assert(mIndPtr != nullptr);
 	//VCHECK(mIndPtr->id());
 	//VCHECK(mIndPtr->max());
     }
     
-    template <class MapF, class Expr>
-    inline void OpExpr<MapF,Expr>::operator()(size_t mlast,
-					      ExtType last) const
+    template <class MapF, class IndexPack, class Expr>
+    inline void OpExpr<MapF,IndexPack,Expr>::operator()(size_t mlast,
+							 ExtType last) const
     {
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType npos = last;
-	const size_t pos = mIndPtr->getMeta( mOp.get( npos ) );
+	const size_t pos = mIndPtr->posAt( mOp.get( npos ) );
 	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
     }
 
-    template <class MapF, class Expr>
-    inline void OpExpr<MapF,Expr>::operator()(size_t mlast) const
+    template <class MapF, class IndexPack, class Expr>
+    inline void OpExpr<MapF,IndexPack,Expr>::operator()(size_t mlast) const
     {
 	const ExtType last;
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType npos = last;
-	const size_t pos = mIndPtr->at( mOp.get( npos ) ).pos();
+	const size_t pos = mIndPtr->posAt( mOp.get( npos ) );
 	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
     }
     
-    template <class MapF, class Expr>
-    auto OpExpr<MapF,Expr>::rootSteps(std::intptr_t iPtrNum) const
+    template <class MapF, class IndexPack, class Expr>
+    auto OpExpr<MapF,IndexPack,Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
 	return mOp.rootSteps(iPtrNum).extend( mExpr.rootSteps(iPtrNum) );
@@ -364,7 +372,8 @@ namespace MultiArrayTools
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
 	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
-	mOutIndex = std::dynamic_pointer_cast<OIType>( IB::mRangePtr )->outRange()->begin();
+	mOutIndex = std::make_shared<OIType>
+	    ( std::dynamic_pointer_cast<RangeType>( IB::mRangePtr )->outRange()->begin() );
     }
 
     template <class MapF, class... Indices>
@@ -484,26 +493,26 @@ namespace MultiArrayTools
     }
 
     template <class MapF, class... Indices>
-    size_t MapIndex<MapF,Indices...>::dim()
+    size_t MapIndex<MapF,Indices...>::dim() const
     {
 	return sizeof...(Indices);
     }
 
     template <class MapF, class... Indices>
-    bool MapIndex<MapF,Indices...>::first()
+    bool MapIndex<MapF,Indices...>::first() const
     {
 	return IB::mPos == 0;
     }
 
     template <class MapF, class... Indices>
-    bool MapIndex<MapF,Indices...>::last()
+    bool MapIndex<MapF,Indices...>::last() const
     {
 	return IB::mPos == IB::mMax - 1;
     }
 
     template <class MapF, class... Indices>
     std::shared_ptr<typename MapIndex<MapF,Indices...>::RangeType>
-    MapIndex<MapF,Indices...>::range()
+    MapIndex<MapF,Indices...>::range() const
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
@@ -516,7 +525,7 @@ namespace MultiArrayTools
     }
 
     template <class MapF, class... Indices>	
-    size_t MapIndex<MapF,Indices...>::getStepSize(size_t n)
+    size_t MapIndex<MapF,Indices...>::getStepSize(size_t n) const
     {
 	if(n >= sizeof...(Indices)){
 	    assert(0);
@@ -532,7 +541,7 @@ namespace MultiArrayTools
     }
 
     template <class MapF, class... Indices>
-    void MapIndex<MapF,Indices...>::print(size_t offset)
+    void MapIndex<MapF,Indices...>::print(size_t offset) const
     {
 	if(offset == 0){
 	    std::cout << " === " << std::endl;
@@ -546,11 +555,11 @@ namespace MultiArrayTools
     template <class MapF, class... Indices>
     template <class Exprs>
     auto MapIndex<MapF,Indices...>::ifor(Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor
-		    (mIPack, OpExpr<MapF,Exprs>( range()->map(), mIPack, mOutIndex, exs ) ) )
+	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
+		    (mIPack, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, exs ) ) )
     {
-	return RPackNum<sizeof...(Indices)-1>::mkFor
-	    (mIPack, OpExpr<MapF,Exprs>( range()->map(), mIPack, mOutIndex, exs ) );
+	return RPackNum<sizeof...(Indices)-1>::mkForh
+	    (mIPack, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, exs ) );
     }
     /*
     template <class MapF, class... Indices>
@@ -603,7 +612,7 @@ namespace MultiArrayTools
 	    std::vector<std::intptr_t> pv(sizeof...(Ranges));
 	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
 	    pv.push_back( reinterpret_cast<std::intptr_t>
-			  ( &std::dynamic_pointer_cast<oType>( mProd ).mMapf ) );
+			  ( &std::dynamic_pointer_cast<oType>( mProd )->mMapf ) );
 	    MapRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
 	    out = mProd;
 	}
@@ -615,14 +624,35 @@ namespace MultiArrayTools
      ******************/
 
     template <class MapF, class... Ranges>
+    void MapRange<MapF,Ranges...>::mkOutRange()
+    {
+	//FunctionalMultiArray<typename MapF::value_type,MapF,Ranges...> fma(mSpace, mMapf);
+	std::map<typename MapF::value_type,size_t> mult;
+	for(auto ii = mMapf.begin(); ii.max() != ii.pos(); ++ii) {
+	    mult[mMapf[ii]]++;
+	}
+	
+	std::vector<typename MapF::value_type> outmeta(mult.size());
+	std::vector<size_t> outmult(mult.size());
+
+	size_t cnt = 0;
+	for(auto& x: mult){
+	    outmeta[cnt] = x.first;
+	    outmult[cnt] = x.second;
+	    ++cnt;
+	}
+
+	ORFType orf(outmeta);
+	mOutRange = std::dynamic_pointer_cast<ORType>( orf.create() );
+	mMapMult = MultiArray<size_t,ORType>( mOutRange, outmult );
+    }
+    
+    template <class MapF, class... Ranges>
     MapRange<MapF,Ranges...>::MapRange(const MapF& mapf, const std::shared_ptr<Ranges>&... rs) :
 	mSpace(std::make_tuple(rs...)),
 	mMapf(mapf)
     {
-	std::vector<typename MapF::value_type> outmeta;
-	// set !!!!
-	ORFType orf(outmeta);
-	mOutRange = std::dynamic_pointer_cast<ORType>( orf.create() );
+	mkOutRange();
     }
 
     template <class MapF, class... Ranges>
@@ -630,10 +660,7 @@ namespace MultiArrayTools
 	mSpace( space ),
 	mMapf(mapf)
     {
-	std::vector<typename MapF::value_type> outmeta;
-	// set !!!!
-	ORFType orf(outmeta);
-	mOutRange = std::dynamic_pointer_cast<ORType>( orf.create() );
+	mkOutRange();
     }
 
     template <class MapF, class... Ranges>
@@ -712,7 +739,7 @@ namespace MultiArrayTools
     template <class MapF, class... Ranges>
     typename MapRange<MapF,Ranges...>::IndexType MapRange<MapF,Ranges...>::begin() const
     {
-	MapIndex<typename Ranges::IndexType...>
+	MapIndex<MapF,typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<MapRange<MapF,Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
@@ -722,13 +749,20 @@ namespace MultiArrayTools
     template <class MapF, class... Ranges>
     typename MapRange<MapF,Ranges...>::IndexType MapRange<MapF,Ranges...>::end() const
     {
-	MapIndex<typename Ranges::IndexType...>
+	MapIndex<MapF,typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<MapRange<MapF,Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis )) );
 	i = size();
 	return i;
     }
 
+    template <class MapF, class... Ranges>
+    auto MapRange<MapF,Ranges...>::mapMultiplicity() const
+	-> const MultiArray<size_t,ORType>&
+    {
+	return mMapMult;
+    }
+    
     template <class MapF, class... Ranges>
     template <class... ERanges>
     auto MapRange<MapF,Ranges...>::cat(const std::shared_ptr<MapRange<ERanges...> >& erange)

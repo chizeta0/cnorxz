@@ -42,7 +42,8 @@ namespace MultiArrayTools
 	bool mExternControl = false;
 	IndexPack mIPack;
 	std::array<size_t,sizeof...(Indices)+1> mBlockSizes; 
-	const T* mData;
+	const T* mData = nullptr;
+	//const MultiArrayBase<T,typename Indices::RangeType...>* mMa = nullptr;
 	std::intptr_t mObjPtrNum;
 	
     public:
@@ -465,12 +466,14 @@ namespace MultiArrayTools
     template <typename T, class... Indices>
     const T& ContainerIndex<T,Indices...>::operator*() const
     {
+	//return mMa[*this];
 	return mData[IB::mPos];
     }
 
     template <typename T, class... Indices>
     const T* ContainerIndex<T,Indices...>::operator->() const
     {
+	//return &mMa[*this];
 	return &mData[IB::mPos];
     }
 

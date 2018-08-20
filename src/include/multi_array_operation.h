@@ -159,7 +159,7 @@ namespace MultiArrayTools
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
 	IndexType mIndex;
-	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
+	//std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
     };
 
     template <typename T, class Op>
@@ -545,8 +545,8 @@ namespace MultiArrayTools
     ConstOperationRoot(std::shared_ptr<MultiArrayBase<T,Ranges...> > maptr,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mDataPtr(maptr->data()),
-	mIndex(maptr->begin()),
-	mMaPtr(maptr)
+	mIndex(maptr->begin())
+	//mMaPtr(maptr)
     {
 	mIndex(indices...);
     }

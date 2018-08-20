@@ -63,6 +63,7 @@ namespace MultiArrayTools
     struct plus : public StaticFunctionBase<T, plus<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<T, plus<T>, T, T>::apply;
 	
 	static inline T apply(T a1, T a2)
 	{
@@ -74,6 +75,7 @@ namespace MultiArrayTools
     struct minus : public StaticFunctionBase<T, minus<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<T, minus<T>, T, T>::apply;
 	
 	static inline T apply(T a1, T a2)
 	{
@@ -85,6 +87,7 @@ namespace MultiArrayTools
     struct multiplies : public StaticFunctionBase<T, multiplies<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<T, multiplies<T>, T, T>::apply;
 	
 	static inline T apply(T a1, T a2)
 	{
@@ -96,6 +99,7 @@ namespace MultiArrayTools
     struct divides : public StaticFunctionBase<T, divides<T>, T, T>
     {
 	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<T, divides<T>, T, T>::apply;
 	
 	static inline T apply(T a1, T a2)
 	{

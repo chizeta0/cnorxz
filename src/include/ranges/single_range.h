@@ -8,7 +8,7 @@
 #include <memory>
 #include <map>
 
-//#include "base_def.h"
+#include "base_def.h"
 //#include "ranges/rpack_num.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
@@ -57,6 +57,7 @@ namespace MultiArrayTools
 	U meta() const;
 	const U* metaPtr() const;
 	SingleIndex& at(const U& metaPos);
+	size_t posAt(const U& metaPos) const;
 	
 	size_t dim(); // = 1
 	bool last();
@@ -259,6 +260,12 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE>
+    size_t SingleIndex<U,TYPE>::posAt(const U& metaPos) const
+    {
+	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos );
+    }
+    
+    template <typename U, SpaceType TYPE>
     size_t SingleIndex<U,TYPE>::dim() // = 1
     {
 	return 1;
@@ -354,7 +361,7 @@ namespace MultiArrayTools
 	mSpace(space)
     {
 	for(size_t i = 0; i != mSpace.size(); ++i){
-	    mMSpace[mSpace[i]] = i; 
+	    mMSpace[mSpace[i]] = i;
 	}
     }
     
