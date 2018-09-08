@@ -58,6 +58,9 @@ namespace MultiArrayTools
 	virtual bool isConst() const;
 
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const = 0;
+
+	virtual ConstOperationRoot<T,SRanges...>
+	op(const std::shared_ptr<IndexType>& ind) const;
 	
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const;
@@ -106,8 +109,14 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() = 0;
 	
 	virtual ConstOperationRoot<T,SRanges...>
+	op(const std::shared_ptr<IndexType>& ind) const override;
+
+	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
-	
+
+	virtual OperationRoot<T,SRanges...>
+	op(const std::shared_ptr<IndexType>& ind);
+
 	virtual OperationRoot<T,SRanges...> operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds);
 
 	template <class... MappedRanges>
@@ -213,6 +222,13 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
+    ConstOperationRoot<T,SRanges...>
+    MultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind) const
+    {
+	return ConstOperationRoot<T,SRanges...>(data(), *ind);
+    }
+
+    template <typename T, class... SRanges>
     template <class... MappedRanges>
     ConstOperationRoot<T,MappedRanges...>
     MultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
@@ -275,12 +291,26 @@ namespace MultiArrayTools
     {
 	return OperationRoot<T,SRanges...>(*this, inds...);
     }
+
+    template <typename T, class... SRanges>
+    OperationRoot<T,SRanges...>
+    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind)
+    {
+	return OperationRoot<T,SRanges...>(data(), *ind);
+    }
     
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
     MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
+    }
+
+    template <typename T, class... SRanges>
+    ConstOperationRoot<T,SRanges...>
+    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind) const
+    {
+	return ConstOperationRoot<T,SRanges...>(data(), *ind);
     }
 
     template <typename T, class... SRanges>

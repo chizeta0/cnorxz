@@ -91,6 +91,19 @@ namespace MultiArrayTools
     {
     public:
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+
+	template <class Op>
+	static ConstSlice<T,SRanges...> mkSlice( const typename ConstSlice<T,SRanges...>::IndexType& ind,
+						 const Op& op )
+	{
+	    ConstSlice<T,SRanges...> out(ind->range()->space(), &*ind);
+	    std::array<size_t,sizeof...(SRanges)+1> ff;
+	    for(size_t i = 0; i != sizeof...(SRanges)+1; ++i){
+		PackNum<sizeof...(SRanges)-1>::mkSliceBlocks(ff, ind, op);
+	    }
+	    out.format(ff);
+	    return out;
+	}
 	
     private:
 	IType mIndex;
@@ -108,6 +121,13 @@ namespace MultiArrayTools
 	template <class... ORanges>
 	SliceDef& operator=(const OperationRoot<T,ORanges...>& op);
     };
+
+    template <typename T, class Op, class... Ranges>
+    ConstSlice<T,Ranges...> mkSlice( const typename ConstSlice<T,Ranges...>::IndexType& ind,
+				     const Op& op )
+    {
+	return SliceDef<T,Ranges...>::mkSlice(ind, op);
+    }
     
 } // end namespace MultiArrayTools
 

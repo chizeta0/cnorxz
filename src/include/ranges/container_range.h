@@ -120,6 +120,8 @@ namespace MultiArrayTools
 	
 	const T& operator*() const;
 	const T* operator->() const;
+	//T& operator*();
+	//T* operator->();
 
 	ContainerIndex operator++(int);
 	ContainerIndex operator--(int);
@@ -476,7 +478,21 @@ namespace MultiArrayTools
 	//return &mMa[*this];
 	return &mData[IB::mPos];
     }
+    /*
+    template <typename T, class... Indices>
+    T& ContainerIndex<T,Indices...>::operator*()
+    {
+	//return mMa[*this];
+	return mData[IB::mPos];
+    }
 
+    template <typename T, class... Indices>
+    T* ContainerIndex<T,Indices...>::operator->()
+    {
+	//return &mMa[*this];
+	return &mData[IB::mPos];
+    }
+    */
     template <typename T, class... Indices>
     ContainerIndex<T,Indices...> ContainerIndex<T,Indices...>::operator++(int)
     {
