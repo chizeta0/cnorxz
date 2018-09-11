@@ -6,6 +6,7 @@
 #include "slice.h"
 #include <ostream>
 #include "pack_num.h"
+#include <functional>
 
 namespace MultiArrayTools
 {
@@ -48,6 +49,9 @@ namespace MultiArrayTools
     template <size_t N, class MArray>
     auto prtr(const MArray& ma)
 	-> decltype(ma.template getRangePtr<N>());
+
+    template <class IndexType>
+    inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll);
 }
 
 /* ========================= *
@@ -137,6 +141,14 @@ namespace MultiArrayTools
 	-> decltype(ma.template getRangePtr<N>())
     {
 	return ma.template getRangePtr<N>();
+    }
+
+    template <class IndexType>
+    inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)
+    {
+	for((*ind) = 0; ind->pos() != ind->max(); ++(*ind)){
+	    ll();
+	}
     }
 
 }

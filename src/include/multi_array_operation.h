@@ -50,8 +50,12 @@ namespace MultiArrayTools
 	    -> Operation<T,divides<T>,OperationClass,Second>;
 
 	template <class IndexType>
-	auto c(std::shared_ptr<IndexType>& ind) const
+	auto c(const std::shared_ptr<IndexType>& ind) const
 	    -> Contraction<T,OperationClass,IndexType>;
+
+	template <class... Indices>
+	auto sl(const std::shared_ptr<Indices>&... inds) const
+	    -> ConstSlice<T,typename Indices::RangeType...>;
 
     private:		
 	friend OperationClass;
@@ -153,12 +157,14 @@ namespace MultiArrayTools
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
-		
+
+	const T* data() const;
+	
     private:
 
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
-	IndexType mIndex;
+	mutable IndexType mIndex;
 	//std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
     };
 
@@ -257,11 +263,15 @@ namespace MultiArrayTools
 
 	T* data() const;
 	
+	template <class... Indices>
+	auto sl(const std::shared_ptr<Indices>&... inds)
+	    -> Slice<T,typename Indices::RangeType...>;
+
     private:
 
 	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
-	IndexType mIndex;
+	mutable IndexType mIndex;
     };
 
     template <typename T>
@@ -454,10 +464,20 @@ namespace MultiArrayTools
 
     template <typename T, class OperationClass>
     template <class IndexType>
-    auto OperationBase<T,OperationClass>::c(std::shared_ptr<IndexType>& ind) const
+    auto OperationBase<T,OperationClass>::c(const std::shared_ptr<IndexType>& ind) const
 	-> Contraction<T,OperationClass,IndexType>
     {
 	return Contraction<T,OperationClass,IndexType>(THIS(), ind);
+    }
+
+    template <typename T, class OperationClass>
+    template <class... Indices>
+    auto OperationBase<T,OperationClass>::sl(const std::shared_ptr<Indices>&... inds) const
+	-> ConstSlice<T,typename Indices::RangeType...>
+    {
+	ConstSlice<T,typename Indices::RangeType...> out(inds->range()...);
+	out.define(inds...) = *this;
+	return out;
     }
 
     /*****************************************
@@ -567,6 +587,12 @@ namespace MultiArrayTools
 	return mDataPtr[pos.val()];
     }
 
+    template <typename T, class... Ranges>
+    const T* ConstOperationRoot<T,Ranges...>::data() const
+    {
+	return mDataPtr + mIndex().pos();
+    }
+    
     template <typename T, class... Ranges>
     MExt<void> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
@@ -697,9 +723,23 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     T* OperationRoot<T,Ranges...>::data() const
     {
-	return mDataPtr + mIndex.pos();
+	return mDataPtr + mIndex().pos();
     }
 
+    template <typename T, class... Ranges>
+    template <class... Indices>
+    auto OperationRoot<T,Ranges...>::sl(const std::shared_ptr<Indices>&... inds)
+	-> Slice<T,typename Indices::RangeType...>
+    {
+	Slice<T,typename Indices::RangeType...> out(inds->range()...);
+	out.define(inds...) = *this;
+	return out;
+    }
+
+
+    /************************
+     *   OperationValue     *
+     ************************/
 
     template <typename T>
     OperationValue<T>::OperationValue(const T& val) : mVal(val) {}
