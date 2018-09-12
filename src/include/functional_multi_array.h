@@ -108,17 +108,17 @@ namespace MultiArrayTools
 	
     private:
 	mutable T mVal;
-	Function mFunc;
+	std::shared_ptr<Function> mFunc;
 
 	mutable std::shared_ptr<MAType> mMaPtr;
 
     public:
 	
 	DEFAULT_MEMBERS(FunctionalMultiArray);
-	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges, const Function& func);
+	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges, const std::shared_ptr<Function>& func);
 	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges);
 	FunctionalMultiArray(const typename CRange::Space& space);
-	FunctionalMultiArray(const typename CRange::Space& space, const Function& func);
+	FunctionalMultiArray(const typename CRange::Space& space, const std::shared_ptr<Function>& func);
 	
 	virtual const T& operator[](const IndexType& i) const override;
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
@@ -164,9 +164,9 @@ namespace MultiArrayTools
     struct Application
     {
 	template <typename T, class Function, typename Meta>
-	static inline T apply(const Function& f, const Meta& m)
+	static inline T apply(const std::shared_ptr<Function>& f, const Meta& m)
 	{
-	    return f(m);
+	    return (*f)(m);
 	}
     };
 
@@ -174,7 +174,7 @@ namespace MultiArrayTools
     struct Application<true>
     {
 	template <typename T, class Function, typename Meta>
-	static inline T apply(const Function& f, const Meta& m)
+	static inline T apply(const std::shared_ptr<Function>& f, const Meta& m)
 	{
 	    return Function::apply(m);
 	}
@@ -182,7 +182,7 @@ namespace MultiArrayTools
 	
     template <typename T, class Function, class... SRanges>
     FunctionalMultiArray<T,Function,SRanges...>::FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges,
-								      const Function& func) :
+								      const std::shared_ptr<Function>& func) :
 	MultiArrayBase<T,SRanges...>(ranges...), mFunc(func) {}
 
     template <typename T, class Function, class... SRanges>
@@ -195,7 +195,7 @@ namespace MultiArrayTools
 
     template <typename T, class Function, class... SRanges>
     FunctionalMultiArray<T,Function,SRanges...>::FunctionalMultiArray(const typename CRange::Space& space,
-								      const Function& func) :
+								      const std::shared_ptr<Function>& func) :
 	MultiArrayBase<T,SRanges...>(space), mFunc(func) {}
 
     

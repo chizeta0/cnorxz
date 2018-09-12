@@ -373,11 +373,37 @@ namespace MultiArrayTools
 	
     };
 
+    namespace
+    {
+	template <bool FISSTATIC>
+	struct OpMaker
+	{
+	    template <class OpFunction, class... Ops>
+	    static inline auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
+		-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
+	    {
+		return Operation<typename OpFunction::value_type,OpFunction,Ops...>(f,ops...);
+	    }
+	};
+
+	template <>
+	struct OpMaker<true>
+	{
+	    template <class OpFunction, class... Ops>
+	    static inline auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
+		-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
+	    {
+		return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
+	    }
+	};
+
+    }
+    
     template <class OpFunction, class... Ops>
-    auto mkOperation(const OpFunction& f, const Ops&... ops)
+    auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
 	-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
     {
-	return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
+	return OpMaker<OpFunction::FISSTATIC>::mkOperation(f, ops...);
     }
 
 

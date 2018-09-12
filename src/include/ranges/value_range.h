@@ -35,8 +35,7 @@ namespace MultiArrayTools
 	typedef ValueRange<U> RangeType;
 	typedef ValueIndex IType;
 
-	ValueIndex(const U& val); // default range
-	ValueIndex(U&& val); // default range
+	ValueIndex(const std::shared_ptr<RangeType>& rptr);
 
 	static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t totalDim() { return 1; }
@@ -124,6 +123,12 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = 1;
 	static constexpr bool HASMETACONT = false;
 
+	static std::shared_ptr<ValueRange> Default()
+	{
+	    ValueRangeFactory<U> vrf;
+	    return std::dynamic_pointer_cast<ValueRange>( vrf.create() );
+	}
+	
     protected:
 
 	ValueRange() = default;
@@ -147,19 +152,15 @@ namespace MultiArrayTools
 	std::shared_ptr<RangeBase> mkDefaultValueRange()
 	{
 	    ValueRangeFactory<U> vrf;
-	    return vrf->create();
+	    return vrf.create();
 	}
     }
     
     template <typename U>
-    ValueIndex<U>::ValueIndex(const U& val) : IndexInterface<ValueIndex<U>,U>(mkDefaultValueRange<U>(), 0),
-					      mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
-					      mMeta(val) {}
-
-    template <typename U>
-    ValueIndex<U>::ValueIndex(U&& val) : IndexInterface<ValueIndex<U>,U>(mkDefaultValueRange<U>(), 0),
-					 mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
-					 mMeta(val) {}
+    ValueIndex<U>::ValueIndex(const std::shared_ptr<RangeType>& rptr) :
+	IndexInterface<ValueIndex<U>,U>(rptr, 0),
+	mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr))
+    {}
 
     template <typename U>
     IndexType ValueIndex<U>::type() const
