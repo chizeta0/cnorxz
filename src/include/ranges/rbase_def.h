@@ -72,6 +72,15 @@ namespace MultiArrayTools
     // anonymous_range.h
     //class AnonymousRange;
 
+    // value_range.h
+    template <typename U>
+    class ValueRange;
+
+    template <typename U>
+    class ValueRangeFactory;
+
+    template <typename U>
+    class ValueIndex;
 }
 
 #endif

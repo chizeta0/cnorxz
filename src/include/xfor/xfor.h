@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <memory>
 #include <tuple>
-#include "xfor/for_utils.h"
 #include "xfor/for_type.h"
+#include "xfor/for_utils.h"
 #include "xfor/exttype.h"
 
 namespace MultiArrayHelper
@@ -91,7 +91,7 @@ namespace MultiArrayHelper
 
     };
     
-    template <class IndexClass, class Expr, ForType FT = ForType::DEFAULT>
+    template <class IndexClass, class Expr, ForType FT>
     class For
     {
     private:

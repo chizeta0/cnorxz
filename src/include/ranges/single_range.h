@@ -15,13 +15,19 @@
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
-#include "xfor/xfor.h"
+#include "xfor/for_type.h"
+//#include "xfor/xfor.h"
 
-using MultiArrayHelper::For;
+
 
 namespace MultiArrayTools
 {
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
 
+    
     template <typename U, SpaceType TYPE>
     class SingleIndex : public IndexInterface<SingleIndex<U,TYPE>,U>
     {
