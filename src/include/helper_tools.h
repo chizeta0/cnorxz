@@ -52,6 +52,12 @@ namespace MultiArrayTools
 
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll);
+
+    template <class Index>
+    inline auto mkOp(const std::shared_ptr<Index>& i)
+	-> decltype(std::declval<FunctionalMultiArray<typename Index::MetaType,
+		    identity<typename Index::MetaType>,typename Index::RangeType> >
+		    ().exec(i));
 }
 
 /* ========================= *
@@ -149,6 +155,18 @@ namespace MultiArrayTools
 	for((*ind) = 0; ind->pos() != ind->max(); ++(*ind)){
 	    ll();
 	}
+    }
+
+    template <class Index>
+    inline auto mkOp(const std::shared_ptr<Index>& i)
+	-> decltype(std::declval<FunctionalMultiArray<typename Index::MetaType,
+		    identity<typename Index::MetaType>,typename Index::RangeType> >
+		    ().exec(i))
+    {
+	FunctionalMultiArray<typename Index::MetaType,
+			     identity<typename Index::MetaType>,
+			     typename Index::RangeType> fma(i->range());
+	return fma.exec(i);
     }
 
 }

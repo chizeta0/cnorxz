@@ -3,6 +3,8 @@
 #define __type_operations_h__
 
 #include <cstdlib>
+#include <vector>
+#include <algorithm>
 
 #include "base_def.h"
 #include "mbase_def.h"
@@ -16,6 +18,8 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
+    // MultiArray
+    
     template <typename T, class... Ranges>
     class operate
     {
@@ -54,7 +58,48 @@ namespace MultiArrayTools
 
     };
     
+    // vector
 
+    template <typename T>
+    class getter
+    {
+    private:
+	size_t mPos;
+    public:
+	static constexpr bool FISSTATIC = false;
+
+	getter(size_t i) : mPos(i) {}
+
+	inline T operator()(const std::vector<T>& in)
+	{
+	    return in[mPos];
+	}
+    };
+
+    template <typename T>
+    std::vector<T>& operator+=(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
+	return a;
+    }
+    
+    template <class OperationClass, typename T>
+    class OperationTemplate<std::vector<T>,OperationClass> : public OperationBase<std::vector<T>,OperationClass>
+    {
+    public:
+	typedef OperationBase<std::vector<T>,OperationClass> OB;
+
+	auto operator[](size_t i)
+	    -> Operation<T,getter<T>,OperationClass>
+	{
+	    std::shared_ptr<getter<T> > ff = std::make_shared<getter<T> >(i);
+	    return Operation<T,getter<T>,OperationClass>(ff,OB::THIS());
+	}
+	
+    private:
+	OperationTemplate() = default;
+	friend OperationClass;
+    };
 
 } // namespace MultiArrayTools
 
