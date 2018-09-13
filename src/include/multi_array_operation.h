@@ -502,7 +502,7 @@ namespace MultiArrayTools
 	-> ConstSlice<T,typename Indices::RangeType...>
     {
 	ConstSlice<T,typename Indices::RangeType...> out(inds->range()...);
-	out.define(inds...) = *this;
+	out.define(inds...) = THIS();
 	return out;
     }
 

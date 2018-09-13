@@ -67,6 +67,10 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     class SliceDef;
 
+    // slice.h
+    template <typename T, class... SRanges>
+    class ConstSliceDef;
+
     // map_range.h
     template <class MapF, class... Indices>
     class MapIndex;

@@ -34,10 +34,10 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
-	    -> SliceDef<T,SRanges...>;
+	    -> ConstSliceDef<T,SRanges...>;
 	
     private:
-	friend SliceDef<T,SRanges...>;
+	friend ConstSliceDef<T,SRanges...>;
 
 	void format(const std::array<size_t,sizeof...(SRanges)+1>& blocks);
 	
@@ -93,6 +93,39 @@ namespace MultiArrayTools
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
 
 	template <class Op>
+	static Slice<T,SRanges...> mkSlice( const typename Slice<T,SRanges...>::IndexType& ind,
+						 const Op& op )
+	{
+	    Slice<T,SRanges...> out(ind->range()->space(), &*ind);
+	    std::array<size_t,sizeof...(SRanges)+1> ff;
+	    for(size_t i = 0; i != sizeof...(SRanges)+1; ++i){
+		PackNum<sizeof...(SRanges)-1>::mkSliceBlocks(ff, ind, op);
+	    }
+	    out.format(ff);
+	    return out;
+	}
+	
+    private:
+	IType mIndex;
+	Slice<T,SRanges...>& mSl;
+	
+	SliceDef() = default;
+    public:
+
+	SliceDef(Slice<T,SRanges...>& sl,
+		 const std::shared_ptr<typename SRanges::IndexType>&... inds);
+
+	template <class... ORanges>
+	SliceDef& operator=(const OperationRoot<T,ORanges...>& op);
+    };
+    
+    template <typename T, class... SRanges>
+    class ConstSliceDef
+    {
+    public:
+	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+
+	template <class Op>
 	static ConstSlice<T,SRanges...> mkSlice( const typename ConstSlice<T,SRanges...>::IndexType& ind,
 						 const Op& op )
 	{
@@ -107,28 +140,34 @@ namespace MultiArrayTools
 	
     private:
 	IType mIndex;
-	Slice<T,SRanges...>* mSlPtr = nullptr;
-	ConstSlice<T,SRanges...>* mCSlPtr = nullptr;
+	ConstSlice<T,SRanges...>& mSl;
 	
-	SliceDef() = default;
+	ConstSliceDef() = default;
     public:
-	SliceDef(ConstSlice<T,SRanges...>& csl,
-		 const std::shared_ptr<typename SRanges::IndexType>&... inds);
-
-	SliceDef(Slice<T,SRanges...>& sl,
-		 const std::shared_ptr<typename SRanges::IndexType>&... inds);
+	ConstSliceDef(ConstSlice<T,SRanges...>& csl,
+		      const std::shared_ptr<typename SRanges::IndexType>&... inds);
 
 	template <class... ORanges>
-	SliceDef& operator=(const OperationRoot<T,ORanges...>& op);
+	ConstSliceDef& operator=(const ConstOperationRoot<T,ORanges...>& op);
+
+    	template <class... ORanges>
+	ConstSliceDef& operator=(const OperationRoot<T,ORanges...>& op);
     };
 
     template <typename T, class Op, class... Ranges>
     ConstSlice<T,Ranges...> mkSlice( const typename ConstSlice<T,Ranges...>::IndexType& ind,
 				     const Op& op )
     {
+	return ConstSliceDef<T,Ranges...>::mkSlice(ind, op);
+    }
+
+    template <typename T, class Op, class... Ranges>
+    Slice<T,Ranges...> mkSlice( const typename Slice<T,Ranges...>::IndexType& ind,
+				const Op& op )
+    {
 	return SliceDef<T,Ranges...>::mkSlice(ind, op);
     }
-    
+
 } // end namespace MultiArrayTools
 
 /* ========================= *
@@ -220,9 +259,9 @@ namespace MultiArrayTools
     
     template <typename T, class... SRanges>
     auto ConstSlice<T,SRanges...>::define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
-	-> SliceDef<T,SRanges...>
+	-> ConstSliceDef<T,SRanges...>
     {
-	return SliceDef<T,SRanges...>(*this, inds...);
+	return ConstSliceDef<T,SRanges...>(*this, inds...);
     }
 
     
@@ -330,20 +369,12 @@ namespace MultiArrayTools
 	return SliceDef<T,SRanges...>(*this, inds...);
     }
     
-    template <typename T, class... SRanges>
-    SliceDef<T,SRanges...>::SliceDef(ConstSlice<T,SRanges...>& csl,
-				     const std::shared_ptr<typename SRanges::IndexType>&... inds) :
-	mIndex(csl.begin()),
-	mCSlPtr(&csl)
-    {
-	mIndex(inds...);
-    }
 
     template <typename T, class... SRanges>
     SliceDef<T,SRanges...>::SliceDef(Slice<T,SRanges...>& sl,
 				     const std::shared_ptr<typename SRanges::IndexType>&... inds) :
 	mIndex(sl.begin()),
-	mSlPtr(&sl)
+	mSl(sl)
     {
 	mIndex(inds...);
     }
@@ -355,17 +386,44 @@ namespace MultiArrayTools
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
 	PackNum<sizeof...(SRanges)-1>::
 	    template mkSliceBlocks<T,OperationRoot<T,ORanges...>,SRanges...>(blocks, mIndex, op);
-	if(mCSlPtr){
-	    mCSlPtr->format(blocks);
-	    mCSlPtr->mData = op.data();
-	}
-	else {
-	    mSlPtr->format(blocks);
-	    mSlPtr->mData = op.data();
-	}
+	mSl.format(blocks);
+	mSl.mData = op.data();
 	return *this;
     }
-    
+
+    template <typename T, class... SRanges>
+    ConstSliceDef<T,SRanges...>::ConstSliceDef(ConstSlice<T,SRanges...>& sl,
+					       const std::shared_ptr<typename SRanges::IndexType>&... inds) :
+	mIndex(sl.begin()),
+	mSl(sl)
+    {
+	mIndex(inds...);
+    }
+
+    template <typename T, class... SRanges>
+    template <class... ORanges>
+    ConstSliceDef<T,SRanges...>& ConstSliceDef<T,SRanges...>::operator=(const ConstOperationRoot<T,ORanges...>& op)
+    {
+	std::array<size_t,sizeof...(SRanges)+1> blocks;
+	PackNum<sizeof...(SRanges)-1>::
+	    template mkSliceBlocks<T,ConstOperationRoot<T,ORanges...>,SRanges...>(blocks, mIndex, op);
+	mSl.format(blocks);
+	mSl.mData = op.data();
+	return *this;
+    }
+
+    template <typename T, class... SRanges>
+    template <class... ORanges>
+    ConstSliceDef<T,SRanges...>& ConstSliceDef<T,SRanges...>::operator=(const OperationRoot<T,ORanges...>& op)
+    {
+	std::array<size_t,sizeof...(SRanges)+1> blocks;
+	PackNum<sizeof...(SRanges)-1>::
+	    template mkSliceBlocks<T,OperationRoot<T,ORanges...>,SRanges...>(blocks, mIndex, op);
+	mSl.format(blocks);
+	mSl.mData = op.data();
+	return *this;
+    }
+
 
 } // end namespace MultiArrayTools
 
