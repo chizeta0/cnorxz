@@ -114,6 +114,16 @@ namespace MultiArrayHelper
 	{
 	    return PackNum<N-1>::mkMapOp(ma, itp, std::get<N>(itp), inds...);
 	}
+
+	template <size_t LAST,class OpTuple, class ETuple>
+	static inline void setOpPos(const OpTuple& ot, const ETuple& et)
+	{
+	    typedef typename std::remove_reference<decltype(std::get<N>(ot))>::type NextOpType;
+	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
+	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    std::get<N>( ot ).set( Getter<NEXT>::template getX<ETuple>( et ) );
+	    PackNum<N-1>::template setOpPos<NEXT>(ot, et);
+	}
     };
     
     template<>
@@ -190,6 +200,15 @@ namespace MultiArrayHelper
 	    -> decltype(ma.exec(std::get<0>(itp), inds...))
 	{
 	    return ma.exec(std::get<0>(itp), inds...);
+	}
+
+	template <size_t LAST,class OpTuple, class ETuple>
+	static inline void setOpPos(const OpTuple& ot, const ETuple& et)
+	{
+	    typedef typename std::remove_reference<decltype(std::get<0>(et))>::type NextOpType;
+	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
+	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    std::get<0>( ot ).set( Getter<NEXT>::template getX<ETuple>( et ) );
 	}
 
     };

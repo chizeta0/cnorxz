@@ -58,8 +58,8 @@ namespace MultiArrayTools
 	    -> ConstSlice<T,typename Indices::RangeType...>;
 
 	template <class... Indices>
-	auto slc(const std::shared_ptr<Indices>&... inds) const
-	    -> SliceContraction<T,typename Indices::RangeType...>;
+	auto slc(const std::shared_ptr<Indices>&... inds)
+	    -> SliceContraction<T,OperationClass,Indices...>;
 	
     private:		
 	friend OperationClass;
@@ -157,6 +157,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T get(ET pos) const;
 
+	template <class ET>
+	inline ConstOperationRoot& set(ET pos);
+
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
@@ -169,6 +172,7 @@ namespace MultiArrayTools
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
 	mutable IndexType mIndex;
+	size_t mOff = 0;
 	//std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
     };
 
@@ -191,6 +195,9 @@ namespace MultiArrayTools
 
 	template <class ET>
 	inline T get(ET pos) const;
+
+	template <class ET>
+	inline StaticCast& set(ET pos);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const
 	    -> decltype(mOp.rootSteps(iPtrNum));
@@ -224,6 +231,9 @@ namespace MultiArrayTools
 
 	template <class ET>
 	inline value_type get(ET pos) const;
+
+	template <class ET>
+	inline MetaOperationRoot& set(ET pos);
 
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
@@ -260,6 +270,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T get(ET pos) const;
 
+	template <class ET>
+	inline OperationRoot& set(ET pos);
+
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
@@ -276,6 +289,7 @@ namespace MultiArrayTools
 	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	mutable IndexType mIndex;
+	size_t mOff = 0;
     };
 
     template <typename T>
@@ -293,6 +307,9 @@ namespace MultiArrayTools
 
 	template <class ET>
 	inline T get(ET pos) const;
+
+	template <class ET>
+	inline OperationValue& set(ET pos);
 
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
@@ -368,6 +385,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T get(ET pos) const;
 
+	template <class ET>
+	inline Operation& set(ET pos);
+
 	auto rootSteps(std::intptr_t iPtrNum = 0) const // nullptr for simple usage with decltype
 	    -> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps));
 
@@ -435,6 +455,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T get(ET pos) const;
 
+	template <class ET>
+	inline Contraction& set(ET pos);
+
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
@@ -443,29 +466,33 @@ namespace MultiArrayTools
     };
 
     template <typename T, class Op, class... Indices>
-    class SliceContraction : public OperationTemplate<MultiArray<T,Indices...>,
-						      SliceContraction<MultiArray<T,Indices...>,Op,Indices...> >
+    //    class SliceContraction : public OperationTemplate
+    //<MultiArray<T,typename Indices::RangeType...>,
+    //SliceContraction<MultiArray<T,typename Indices::RangeType...>,Op,Indices...> >
+    class SliceContraction : public OperationTemplate<T,SliceContraction<T,Op,Indices...> >
     {
     public:
-	typedef MultiArray<T,Indices...> value_type;
-	typedef OperationTemplate<ConstSlice<T,Indices...>,
-				  SliceContraction<ConstSlice<T,Indices...>,Op,Indices...> > OT;
+	typedef MultiArray<T,typename Indices::RangeType...> value_type;
+	typedef OperationTemplate<T,SliceContraction<T,Op,Indices...> > OT;
 
 	static constexpr size_t SIZE = Op::SIZE;
 
     private:
 
-	const Op& mOp;
-	MultiArray<T,Indices...> mCont;
-	OperationRoot<T,Indices...> mTarOp;
+	Op& mOp;
+	mutable MultiArray<T,typename Indices::RangeType...> mCont;
+	mutable OperationRoot<T,typename Indices::RangeType...> mTarOp;
 		
     public:
 	typedef decltype(mOp.rootSteps(0)) ETuple;
 	
-	SliceContraction(const Op& op, const std::shared_ptr<Indices>&... ind);
+	SliceContraction(Op& op, std::shared_ptr<Indices>... ind);
 
 	template <class ET>
 	inline const value_type& get(ET pos) const;
+
+	template <class ET>
+	inline SliceContraction& set(ET pos);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));
@@ -540,6 +567,15 @@ namespace MultiArrayTools
 	ConstSlice<T,typename Indices::RangeType...> out(inds->range()...);
 	out.define(inds...) = THIS();
 	return out;
+    }
+
+    template <typename T, class OperationClass>
+    template <class... Indices>
+    auto OperationBase<T,OperationClass>::slc(const std::shared_ptr<Indices>&... inds)
+	-> SliceContraction<T,OperationClass,Indices...>
+    {
+	return SliceContraction<T,OperationClass,Indices...>
+	    (THIS(), inds...);
     }
 
     /*****************************************
@@ -643,10 +679,16 @@ namespace MultiArrayTools
     template <class ET>
     inline T ConstOperationRoot<T,Ranges...>::get(ET pos) const
     {
-	//VCHECK(pos.val());
-	//VCHECK(mDataPtr);
-	//VCHECK(mDataPtr[pos.val()])
-	return mDataPtr[pos.val()];
+	return mDataPtr[pos.val()+mOff];
+    }
+
+    template <typename T, class... Ranges>
+    template <class ET>
+    inline ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::set(ET pos)
+    {
+	mIndex = pos.val();
+	mOff = mIndex.pos();
+	return *this;
     }
 
     template <typename T, class... Ranges>
@@ -685,6 +727,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Op>
+    template <class ET>
+    inline StaticCast<T,Op>& StaticCast<T,Op>::set(ET pos)
+    {
+	mOp.set(pos);
+	return *this;
+    }
+    
+    template <typename T, class Op>
     auto StaticCast<T,Op>::rootSteps(std::intptr_t iPtrNum) const
 	-> decltype(mOp.rootSteps(iPtrNum))
     {
@@ -717,6 +767,14 @@ namespace MultiArrayTools
 	//VCHECK(mDataPtr);
 	//VCHECK(mDataPtr[pos.val()])
 	return mIndex.meta(pos.val());
+    }
+
+    template <class... Ranges>
+    template <class ET>
+    inline MetaOperationRoot<Ranges...>& MetaOperationRoot<Ranges...>::set(ET pos)
+    {
+	mIndex = pos.val();
+	return *this;
     }
 
     template <class... Ranges>
@@ -765,7 +823,16 @@ namespace MultiArrayTools
     template <class ET>
     inline T OperationRoot<T,Ranges...>::get(ET pos) const
     {
-	return mDataPtr[pos.val()];
+	return mDataPtr[pos.val()+mOff];
+    }
+
+    template <typename T, class... Ranges>
+    template <class ET>
+    inline OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::set(ET pos)
+    {
+	mIndex = pos.val();
+	mOff = mIndex.pos();
+	return *this;
     }
 
     template <typename T, class... Ranges>
@@ -814,6 +881,13 @@ namespace MultiArrayTools
     }
 
     template <typename T>
+    template <class ET>
+    inline OperationValue<T>& OperationValue<T>::set(ET pos)
+    {
+	return *this;
+    }
+
+    template <typename T>
     MExt<void> OperationValue<T>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return MExt<void>(0);
@@ -857,6 +931,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpFunction, class... Ops>
+    template <class ET>
+    inline Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::set(ET pos)
+    {
+	PackNum<sizeof...(Ops)-1>::setOpPos(mOps,pos);
+	return *this;
+    }
+
+    template <typename T, class OpFunction, class... Ops>
     auto Operation<T,OpFunction,Ops...>::rootSteps(std::intptr_t iPtrNum) const
 	-> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps))
     {
@@ -890,6 +972,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Op, class IndexType>
+    template <class ET>
+    inline Contraction<T,Op,IndexType>& Contraction<T,Op,IndexType>::set(ET pos)
+    {
+	mOp.set(pos);
+	return *this;
+    }
+
+    template <typename T, class Op, class IndexType>
     auto Contraction<T,Op,IndexType>::rootSteps(std::intptr_t iPtrNum) const
 	-> decltype(mOp.rootSteps(iPtrNum))
     {
@@ -908,17 +998,28 @@ namespace MultiArrayTools
      **************************/
 
     template <typename T, class Op, class... Indices>
-    SliceContraction<T,Op,Indices...>::SliceContraction(const Op& op, const std::shared_ptr<Indices>&... ind) :
+    SliceContraction<T,Op,Indices...>::SliceContraction(Op& op, std::shared_ptr<Indices>... ind) :
 	mOp(op),
-	mInds(ind...) {}
+	mCont(ind->range()...),
+	mTarOp(mCont,ind...) {}
 
     // forward loop !!!!
     template <typename T, class Op, class... Indices>
     template <class ET>
-    inline const MultiArray<T,Indices...>& SliceContraction<T,Op,Indices...>::get(ET pos) const
+    inline const MultiArray<T,typename Indices::RangeType...>&
+    SliceContraction<T,Op,Indices...>::get(ET pos) const
     {
-	mTarOp(mInds) = mOp.set(pos); // SET FUNCTION!!
+	mCont *= 0; // grrr
+	mTarOp = mOp.set(pos); // SET FUNCTION!!
 	return mCont;
+    }
+
+    template <typename T, class Op, class... Indices>
+    template <class ET>
+    inline SliceContraction<T,Op,Indices...>& SliceContraction<T,Op,Indices...>::set(ET pos)
+    {
+	mOp.set(pos);
+	return *this;
     }
 
     template <typename T, class Op, class... Indices>

@@ -668,7 +668,11 @@ namespace {
 	MultiArray<double,MRange> ma1(mr1ptr, v3);
 	MultiArray<double,SRange> ma2(sr2ptr, v1);
 	MultiArray<double,SRange> ma3(sr4ptr, v4);
-
+	MultiArray<double,SRange,SRange,SRange,SRange> ma4(sr1ptr,sr2ptr,sr3ptr,sr4ptr);
+	MultiArray<double,SRange> ma5(sr1ptr, v3);
+	MultiArray<double,SRange> ma6(sr3ptr, v2);
+	
+	auto si0 = MAT::getIndex( sr1ptr );
 	auto si1 = MAT::getIndex( sr2ptr );
 	auto si2 = MAT::getIndex( sr3ptr );
 	auto si3 = MAT::getIndex( sr4ptr );
@@ -676,6 +680,7 @@ namespace {
 	mi->operator()(si1,si2);
 	
 	res(mi,si3) = ma1(mi) + ma2(si1) + ma3(si3);
+	ma4(si0,si1,si2,si3) = ma5(si0)*ma2(si1)*ma6(si2)*ma3(si3);
 
 	EXPECT_EQ( xround( res.at(mkt(mkt('1','a'),'A')) ), xround(0.353 + 2.917 + 1.470) );
 	EXPECT_EQ( xround( res.at(mkt(mkt('1','a'),'B')) ), xround(0.353 + 2.917 + 2.210) );
@@ -691,7 +696,43 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','a'),'B')) ), xround(9.243 + 0.373 + 2.210) );
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'A')) ), xround(2.911 + 0.373 + 1.470) );
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 + 0.373 + 2.210) );
-    }
+
+	MultiArray<MultiArray<double,SRange,SRange>,SRange,SRange> ma7(sr2ptr,sr4ptr);
+	ma7(si1,si3) = ma4(si0,si1,si2,si3).slc(si0,si2);
+
+	si1->at('1');
+	si3->at('A');
+	Slice<double,SRange,SRange> sl(sr1ptr,sr3ptr);
+	sl.define(si2,si3) = ma4(si0,si1,si2,si3);
+
+	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('x','a')) ),
+		   xround( ma4.at(mkt('x','1','a','A')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('x','a')) ),
+		   xround( ma4.at(mkt('x','2','a','A')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('3','A')).at(mkt('x','a')) ),
+		   xround( ma4.at(mkt('x','3','a','A')) ) );
+
+    	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('x','b')) ),
+		   xround( ma4.at(mkt('x','1','b','A')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('x','b')) ),
+		   xround( ma4.at(mkt('x','2','b','A')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('3','A')).at(mkt('x','b')) ),
+		   xround( ma4.at(mkt('x','3','b','A')) ) );
+
+    	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('l','b')) ),
+		   xround( ma4.at(mkt('l','1','b','A')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('l','b')) ),
+		   xround( ma4.at(mkt('l','2','b','A')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('3','A')).at(mkt('l','b')) ),
+		   xround( ma4.at(mkt('l','3','b','A')) ) );
+
+    	EXPECT_EQ( xround( ma7.at(mkt('1','B')).at(mkt('l','b')) ),
+		   xround( ma4.at(mkt('l','1','b','B')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('2','B')).at(mkt('l','b')) ),
+		   xround( ma4.at(mkt('l','2','b','B')) ) );
+	EXPECT_EQ( xround( ma7.at(mkt('3','B')).at(mkt('l','b')) ),
+		   xround( ma4.at(mkt('l','3','b','B')) ) );
+}
     /*
     TEST_F(OpTest_MDim, ExecAnonOp1)
     {
