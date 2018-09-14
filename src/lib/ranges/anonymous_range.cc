@@ -146,6 +146,12 @@ namespace MultiArrayTools
     {
 	return mOrig.at(num);
     }
+
+    void AnonymousRange::sreplace(const std::shared_ptr<RangeBase> in, size_t num)
+    {
+	assert(mOrig[num]->size() == in->size());
+	mOrig[num] = in;
+    }
     
     /*****************
      *   Functions   *
