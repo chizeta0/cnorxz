@@ -88,6 +88,8 @@ namespace MultiArrayTools
 	template <class... Ranges>
 	std::shared_ptr<MultiRange<Ranges...> > scast(SIZET<Ranges>... sizes) const; // save cast
 
+	void sreplace(const std::shared_ptr<RangeBase> in, size_t num);
+	
 	bool isEmpty() const;
 	
 	friend AnonymousRangeFactory;

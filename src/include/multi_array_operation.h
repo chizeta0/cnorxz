@@ -57,6 +57,10 @@ namespace MultiArrayTools
 	auto sl(const std::shared_ptr<Indices>&... inds) const
 	    -> ConstSlice<T,typename Indices::RangeType...>;
 
+	template <class... Indices>
+	auto slc(const std::shared_ptr<Indices>&... inds) const
+	    -> SliceContraction<T,typename Indices::RangeType...>;
+	
     private:		
 	friend OperationClass;
 	friend OperationTemplate<T,OperationClass>;
@@ -438,6 +442,38 @@ namespace MultiArrayTools
 	auto loop(Expr exp) const -> decltype(mInd->iforh(exp));
     };
 
+    template <typename T, class Op, class... Indices>
+    class SliceContraction : public OperationTemplate<MultiArray<T,Indices...>,
+						      SliceContraction<MultiArray<T,Indices...>,Op,Indices...> >
+    {
+    public:
+	typedef MultiArray<T,Indices...> value_type;
+	typedef OperationTemplate<ConstSlice<T,Indices...>,
+				  SliceContraction<ConstSlice<T,Indices...>,Op,Indices...> > OT;
+
+	static constexpr size_t SIZE = Op::SIZE;
+
+    private:
+
+	const Op& mOp;
+	MultiArray<T,Indices...> mCont;
+	OperationRoot<T,Indices...> mTarOp;
+		
+    public:
+	typedef decltype(mOp.rootSteps(0)) ETuple;
+	
+	SliceContraction(const Op& op, const std::shared_ptr<Indices>&... ind);
+
+	template <class ET>
+	inline const value_type& get(ET pos) const;
+
+	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
+	    -> decltype(mOp.rootSteps(iPtrNum));
+
+	template <class Expr>
+	auto loop(Expr exp) const -> decltype(mOp.loop(exp)); // no loop
+	
+    };	
 }
 
 /* ========================= *
@@ -865,6 +901,38 @@ namespace MultiArrayTools
     auto Contraction<T,Op,IndexType>::loop(Expr exp) const -> decltype(mInd->iforh(exp))
     {
 	return mInd->iforh(exp);
+    }
+
+    /**************************
+     *   SliceContraction     *
+     **************************/
+
+    template <typename T, class Op, class... Indices>
+    SliceContraction<T,Op,Indices...>::SliceContraction(const Op& op, const std::shared_ptr<Indices>&... ind) :
+	mOp(op),
+	mInds(ind...) {}
+
+    // forward loop !!!!
+    template <typename T, class Op, class... Indices>
+    template <class ET>
+    inline const MultiArray<T,Indices...>& SliceContraction<T,Op,Indices...>::get(ET pos) const
+    {
+	mTarOp(mInds) = mOp.set(pos); // SET FUNCTION!!
+	return mCont;
+    }
+
+    template <typename T, class Op, class... Indices>
+    auto SliceContraction<T,Op,Indices...>::rootSteps(std::intptr_t iPtrNum) const
+	-> decltype(mOp.rootSteps(iPtrNum))
+    {
+	return mOp.rootSteps(iPtrNum);
+    }
+
+    template <typename T, class Op, class... Indices>
+    template <class Expr>
+    auto SliceContraction<T,Op,Indices...>::loop(Expr exp) const -> decltype(mOp.loop(exp))
+    {
+	return mOp.loop(exp);
     }
 
 }
