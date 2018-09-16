@@ -173,7 +173,7 @@ namespace MultiArrayTools
 	const T* mDataPtr;
 	mutable IndexType mIndex;
 	mutable size_t mOff = 0;
-	//std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr;
+	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr; // never remove this ptr, otherwise we lose temporary container instances!
     };
 
     template <typename T, class Op>
@@ -663,8 +663,8 @@ namespace MultiArrayTools
     ConstOperationRoot(std::shared_ptr<MultiArrayBase<T,Ranges...> > maptr,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mDataPtr(maptr->data()),
-	mIndex(maptr->begin())
-	//mMaPtr(maptr)
+	mIndex(maptr->begin()),
+	mMaPtr(maptr)
     {
 	mIndex(indices...);
     }
