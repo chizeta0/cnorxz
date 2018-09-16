@@ -318,14 +318,17 @@ namespace {
     TEST_F(MapTest, Exec1)
     {
 	MultiArray<double,SRange,SRange> ma1(sr1ptr,sr2ptr,v1);
-	MultiArray<double,MpRange> res(mpr1ptr);
+
 
 	auto ii1 = getIndex( rptr<0>( ma1 ) );
 	auto ii2 = getIndex( rptr<1>( ma1 ) );
 
-	auto jj = getIndex( mpr1ptr );
+	auto mr = mkMapR(std::make_shared<plus<size_t>>(),sr1ptr,sr2ptr);
+	MultiArray<double,MpRange> res(mr);
+	auto jj = getIndex( mr );
 	(*jj)(ii1,ii2);
-	
+	///auto jj = mkMapI( std::make_shared<plus<size_t> >(), ii1, ii1 );
+		
 	res(jj) = ma1(ii1,ii2);
 
 	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());

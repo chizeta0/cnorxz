@@ -26,6 +26,15 @@ namespace MultiArrayTools
     auto mkMulti(std::shared_ptr<RangeTypes>... ranges)
 	-> std::shared_ptr<MultiRange<RangeTypes...> >;
 
+    template <class Func, class... RangeTypes>
+    auto mkMapR(const Func& f, std::shared_ptr<RangeTypes>... ranges)
+	-> std::shared_ptr<MapRange<FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...>,
+				    RangeTypes...> >;
+
+    template <class Func, class... IndexTypes>
+    auto mkMapI(const Func& f, std::shared_ptr<IndexTypes>... indices)
+	-> decltype( getIndex( mkMapR( f, indices->range()... ) ) );
+
     template <class... IndexTypes>
     auto mkMIndex(std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkMulti( indices.range()... ) ) );
@@ -105,6 +114,33 @@ namespace MultiArrayTools
     {
 	auto mi = getIndex( mkMulti( indices->range()... ) );	    
 	(*mi)( indices... );
+	return mi;
+    }
+
+    template <class Func, class... RangeTypes>
+    auto mkMapR(const std::shared_ptr<Func>& f, std::shared_ptr<RangeTypes>... ranges)
+	-> std::shared_ptr<MapRange<FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...>,
+				    RangeTypes...> >
+    {
+	typedef FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...> FMA;
+	std::shared_ptr<MapRangeFactory<FMA,RangeTypes...>> mrfptr;
+	if(Func::FISSTATIC){
+	    FMA fma(ranges...);
+	    mrfptr = std::make_shared<MapRangeFactory<FMA,RangeTypes...> >( fma, ranges... );
+	}
+	else {
+	    FMA fma(ranges...,f);
+	    mrfptr = std::make_shared<MapRangeFactory<FMA,RangeTypes...> >( fma, ranges... );
+	}
+	return std::dynamic_pointer_cast<MapRange<FMA,RangeTypes...> >( mrfptr->create() );
+    }
+
+    template <class Func, class... IndexTypes>
+    auto mkMapI(const std::shared_ptr<Func>& f, std::shared_ptr<IndexTypes>... indices)
+	-> decltype( getIndex( mkMapR( f, indices->range()... ) ) )
+    {
+	auto mi = getIndex( mkMapR( f, indices->range()... ) );
+	(*mi)(indices...);
 	return mi;
     }
 
