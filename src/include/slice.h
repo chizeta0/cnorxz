@@ -15,6 +15,8 @@ namespace MultiArrayTools
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+
+	using MultiArrayBase<T,SRanges...>::operator();
 	
 	DEFAULT_MEMBERS(ConstSlice);
 
@@ -53,6 +55,9 @@ namespace MultiArrayTools
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+
+	using MultiArrayBase<T,SRanges...>::operator();
+	using MutableMultiArrayBase<T,SRanges...>::operator();
 	
 	DEFAULT_MEMBERS(Slice);
 

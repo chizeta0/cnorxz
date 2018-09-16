@@ -591,6 +591,7 @@ namespace MultiArrayTools
     inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
     operator()(size_t start, ExtType last) const
     {
+	//VCHECK(mSec.template get<ExtType>(last));
 	mM.add(start, mSec.template get<ExtType>(last) );
     }
     

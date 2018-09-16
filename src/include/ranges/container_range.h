@@ -66,6 +66,9 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 
+	template <size_t N>
+	size_t getBlockSize() const { return std::get<N>(mBlockSizes); }
+
 	const IndexPack& pack() const { return mIPack; }
 	
 	ContainerIndex& sync(); // recalculate 'IB::mPos' when externalControl == true

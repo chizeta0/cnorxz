@@ -75,6 +75,9 @@ namespace MultiArrayTools
 
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
+
+	template <size_t N>
+	size_t getBlockSize() const { return std::get<N>(mBlockSizes); }
 	
 	// raplace instances (in contrast to its analogon in ContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is

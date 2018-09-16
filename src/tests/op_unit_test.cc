@@ -469,7 +469,7 @@ namespace {
 		  << std::endl;
 	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
     }    
-    
+    /*
     TEST_F(OpTest_Performance, PCheck)
     {
 	MultiArray<double,MRange> ma2(mrptr, cv2);
@@ -508,7 +508,7 @@ namespace {
 	//EXPECT_EQ( xround( res.at(mkt(700,900)) ), xround(res2[700*vs1 + 900]) );
 	
     }
-
+    */
     TEST_F(OpTest_1Dim, ExecOp)
     {
 	MultiArray<double,SRange> ma1(srptr, v1);
@@ -675,10 +675,10 @@ namespace {
 	MultiArray<double,SRange> ma5(sr1ptr, v3);
 	MultiArray<double,SRange> ma6(sr3ptr, v2);
 	
-	auto si0 = MAT::getIndex( sr1ptr );
-	auto si1 = MAT::getIndex( sr2ptr );
-	auto si2 = MAT::getIndex( sr3ptr );
-	auto si3 = MAT::getIndex( sr4ptr );
+	auto si0 = MAT::getIndex( sr1ptr ); // 'x'
+	auto si1 = MAT::getIndex( sr2ptr ); // '1'
+	auto si2 = MAT::getIndex( sr3ptr ); // 'a'
+	auto si3 = MAT::getIndex( sr4ptr ); // 'A'
 	auto mi = MAT::getIndex( mr1ptr );
 	mi->operator()(si1,si2);
 	
@@ -704,10 +704,20 @@ namespace {
 	ma7(si1,si3) = ma4(si0,si1,si2,si3).slc(si0,si2);
 
 	si1->at('1');
-	si3->at('A');
-	Slice<double,SRange,SRange> sl(sr1ptr,sr3ptr);
-	sl.define(si2,si3) = ma4(si0,si1,si2,si3);
+	si0->at('x');
+	(*si2) = 0;
+	(*si3) = 0;
+	Slice<double,SRange,SRange> sl(sr4ptr,sr3ptr);
+	sl.define(si3,si2) = ma4(si0,si1,si2,si3);
+	MultiArrayBase<double,SRange,SRange>& slb = sl;
+	
+	MultiArray<double,SRange,SRange> ma8(sr3ptr,sr4ptr);
+	//ma8(si2,si3) = ma4(si0,si1,si2,si3);
+	ma8(si2,si3) = slb(si3,si2);
 
+	EXPECT_EQ( xround( ma8.at(mkt('a','A')) ), xround( sl.at(mkt('A','a')) ) );
+	EXPECT_EQ( xround( ma8.at(mkt('b','A')) ), xround( sl.at(mkt('A','b')) ) );
+	
 	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('x','a')) ),
 		   xround( ma4.at(mkt('x','1','a','A')) ) );
 	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('x','a')) ),

@@ -276,7 +276,8 @@ namespace MultiArrayHelper
 	    const auto& ni = ii.template get<N>();
 	    const size_t max = ni.max();
 	    const size_t tmp = getStepSize(ni, j);
-	    ss += tmp * sx;
+	    //ss += tmp * sx;
+	    ss += tmp * ii.template getBlockSize<N+1>();
 	    sx *= max;
 	    RPackNum<N-1>::getStepSizeX(ii, j, ss, sx);
 	}
@@ -507,7 +508,8 @@ namespace MultiArrayHelper
 	    const auto& ni = ii.template get<0>();
 	    const size_t max = ni.max();
 	    const size_t tmp = getStepSize(ni, j);
-	    ss += tmp * sx;
+	    //ss += tmp * sx;
+	    ss += tmp * ii.template getBlockSize<1>();
 	    sx *= max;
 	}
 
