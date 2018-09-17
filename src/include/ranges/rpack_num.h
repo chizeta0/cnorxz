@@ -251,22 +251,24 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::template checkDefaultable<Ranges...>();
 	}
 
-	template <class IndexPack, class Exprs>
-	static auto mkFor(const IndexPack& ipack, Exprs exs)
+	template <class IndexPack, class BlockArray, class Exprs>
+	static auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-			->ifor( RPackNum<N-1>::mkFor(ipack, exs) ) )
+			->ifor( 0, RPackNum<N-1>::mkFor(step, ipack, ba, exs) ) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-		->ifor( RPackNum<N-1>::mkFor(ipack, exs) );
+	    constexpr size_t NN = std::tuple_size<IndexPack>::value-N-1;
+	    return std::get<NN>(ipack)
+		->ifor( step*std::get<NN+1>(ba), RPackNum<N-1>::mkFor(step, ipack, ba, exs) );
 	}
 
-	template <class IndexPack, class Exprs>
-	static auto mkForh(const IndexPack& ipack, Exprs exs)
+	template <class IndexPack, class BlockArray, class Exprs>
+	static auto mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-			->iforh( RPackNum<N-1>::mkForh(ipack, exs) ) )
+			->iforh( 0, RPackNum<N-1>::mkForh(step, ipack, ba, exs) ) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-		->iforh( RPackNum<N-1>::mkForh(ipack, exs) );
+	    constexpr size_t NN = std::tuple_size<IndexPack>::value-N-1;
+	    return std::get<NN>(ipack)
+		->iforh( step*std::get<NN+1>(ba), RPackNum<N-1>::mkForh(step, ipack, ba, exs) );
 	}
 
 	template <class Index>
@@ -485,20 +487,24 @@ namespace MultiArrayHelper
 	    static_assert( Range::defaultable, "not defaultable" );
 	}
 
-	template <class IndexPack, class Exprs>
-	static auto mkFor(const IndexPack& ipack, Exprs exs)
+	template <class IndexPack, class BlockArray, class Exprs>
+	static auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-			->ifor(exs) )
+			->ifor(0,exs) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->ifor(exs);
+	    constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
+	    return std::get<NN>(ipack)
+		->ifor( step*std::get<NN+1>(ba), exs);
 	}
 
-	template <class IndexPack, class Exprs>
-	static auto mkForh(const IndexPack& ipack, Exprs exs)
+	template <class IndexPack, class BlockArray, class Exprs>
+	static auto mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
 	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-			->iforh(exs) )
+			->iforh(0,exs) )
 	{
-	    return std::get<std::tuple_size<IndexPack>::value-1>(ipack)->iforh(exs);
+	    constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
+	    return std::get<NN>(ipack)
+		->iforh( step*std::get<NN+1>(ba), exs);
 	}
 
 	template <class Index>

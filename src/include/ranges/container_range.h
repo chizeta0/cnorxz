@@ -107,12 +107,12 @@ namespace MultiArrayTools
 	void print(size_t offset);
 	
 	template <class Exprs>
-	auto ifor(Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs));
+	auto ifor(size_t step, Exprs exs) const
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs));
 
 	template <class Exprs>
-	auto iforh(Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs));
+	auto iforh(size_t step, Exprs exs) const
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs));
 
 	std::intptr_t container() const;
 	ContainerIndex& format(const std::array<size_t,sizeof...(Indices)+1>& blocks);
@@ -433,18 +433,18 @@ namespace MultiArrayTools
 
     template <typename T, class... Indices>
     template <class Exprs>
-    auto ContainerIndex<T,Indices...>::ifor(Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs))
+    auto ContainerIndex<T,Indices...>::ifor(size_t step, Exprs exs) const
+	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs))
     {
-	return RPackNum<sizeof...(Indices)-1>::mkFor(mIPack, exs);
+	return RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs);
     }
 
     template <typename T, class... Indices>
     template <class Exprs>
-    auto ContainerIndex<T,Indices...>::iforh(Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs))
+    auto ContainerIndex<T,Indices...>::iforh(size_t step, Exprs exs) const
+	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs))
     {
-	return RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs);
+	return RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs);
     }
 
     template <typename T, class... Indices>

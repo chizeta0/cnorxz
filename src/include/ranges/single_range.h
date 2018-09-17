@@ -80,11 +80,11 @@ namespace MultiArrayTools
 	void print(size_t offset);
 
 	template <class Expr>
-	auto ifor(Expr ex) const
+	auto ifor(size_t step, Expr ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr>;
 
 	template <class Expr>
-	auto iforh(Expr ex) const
+	auto iforh(size_t step, Expr ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
 
     private:
@@ -324,20 +324,20 @@ namespace MultiArrayTools
 
     template <typename U, SpaceType TYPE>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::ifor(Expr ex) const
+    auto SingleIndex<U,TYPE>::ifor(size_t step, Expr ex) const
 	-> For<SingleIndex<U,TYPE>,Expr>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr>(this, ex);
+	return For<SingleIndex<U,TYPE>,Expr>(this, step, ex);
     }
 
     template <typename U, SpaceType TYPE>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::iforh(Expr ex) const
+    auto SingleIndex<U,TYPE>::iforh(size_t step, Expr ex) const
 	-> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, ex);
+	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, step, ex);
     }
 
     

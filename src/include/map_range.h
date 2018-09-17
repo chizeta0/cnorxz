@@ -49,6 +49,7 @@ namespace MultiArrayTools
 	const OIType* mIndPtr;
 	size_t mSPos;
 	size_t mMax;
+	size_t mStep;
 	Expr mExpr;
 
 	typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
@@ -63,7 +64,7 @@ namespace MultiArrayTools
 	OpExpr& operator=(const OpExpr& in) = default;
 	OpExpr& operator=(OpExpr&& in) = default;
 	
-	OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType> oind, Expr ex);
+	OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType> oind, size_t step, Expr ex);
 
 	inline void operator()(size_t mlast, ExtType last) const;
 	inline void operator()(size_t mlast = 0) const;
@@ -165,10 +166,11 @@ namespace MultiArrayTools
 	void print(size_t offset) const;
 
 	template <class Exprs>
-	auto ifor(Exprs exs) const
+	auto ifor(size_t step, Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-			(mIPack, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, exs ) ) );
-	    
+			(step, mIPack, mBlockSizes, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, step, exs ) ) );
+	// first step arg not used!
+	
 	/*
 	template <class Exprs>
 	auto iforh(Exprs exs) const
@@ -300,8 +302,8 @@ namespace MultiArrayTools
 
     template <class MapF, class IndexPack, class Expr>
     OpExpr<MapF,IndexPack,Expr>::OpExpr(const MapF& mapf, const IndexPack& ipack,
-					 const std::shared_ptr<OIType> oind, Expr ex) :
-	mIndPtr(oind.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mExpr(ex),
+					const std::shared_ptr<OIType> oind, size_t step, Expr ex) :
+	mIndPtr(oind.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step), mExpr(ex),
 	mOp(mkMapOp(mapf, ipack)),
 	//mExt(ex.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
 	mExt( mOp.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr) ).extend
@@ -559,12 +561,12 @@ namespace MultiArrayTools
 
     template <class MapF, class... Indices>
     template <class Exprs>
-    auto MapIndex<MapF,Indices...>::ifor(Exprs exs) const
+    auto MapIndex<MapF,Indices...>::ifor(size_t step, Exprs exs) const
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-		    (mIPack, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, exs ) ) )
+		    (step, mIPack, mBlockSizes, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, step, exs ) ) )
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh
-	    (mIPack, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, exs ) );
+	    (step, mIPack, mBlockSizes, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, step, exs ) );
     }
     /*
     template <class MapF, class... Indices>

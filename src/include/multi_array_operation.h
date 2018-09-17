@@ -462,7 +462,7 @@ namespace MultiArrayTools
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
 	template <class Expr>
-	auto loop(Expr exp) const -> decltype(mInd->iforh(exp));
+	auto loop(Expr exp) const -> decltype(mInd->iforh(1,exp));
     };
 
     template <typename T, class Op, class... Indices>
@@ -632,7 +632,7 @@ namespace MultiArrayTools
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
 	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
-	const auto loop = mSecond.template loop<decltype(mIndex.ifor(ae))>( mIndex.ifor(ae) );
+	const auto loop = mSecond.template loop<decltype(mIndex.ifor(1,ae))>( mIndex.ifor(1,ae) );
 	// hidden Loops outside ! -> auto vectorizable
 	loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
     }
@@ -989,9 +989,9 @@ namespace MultiArrayTools
 
     template <typename T, class Op, class IndexType>
     template <class Expr>
-    auto Contraction<T,Op,IndexType>::loop(Expr exp) const -> decltype(mInd->iforh(exp))
+    auto Contraction<T,Op,IndexType>::loop(Expr exp) const -> decltype(mInd->iforh(1,exp))
     {
-	return mInd->iforh(exp);
+	return mInd->iforh(1,exp);
     }
 
     /**************************

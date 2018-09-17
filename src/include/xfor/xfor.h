@@ -18,6 +18,11 @@ namespace MultiArrayHelper
     template <ForType FT = ForType::DEFAULT>
     struct PosForward
     {
+	static inline size_t valuex(size_t last, size_t step, size_t pos)
+	{
+	    return last + pos * step;
+	}
+
 	static inline size_t value(size_t last, size_t max, size_t pos)
 	{
 	    return last * max + pos;
@@ -27,6 +32,11 @@ namespace MultiArrayHelper
     template <>
     struct PosForward<ForType::HIDDEN>
     {
+	static inline size_t valuex(size_t last, size_t step, size_t pos)
+	{
+	    return last;
+	}
+
 	static inline size_t value(size_t last, size_t max, size_t pos)
 	{
 	    return last;
@@ -102,6 +112,7 @@ namespace MultiArrayHelper
 	const IndexClass* mIndPtr;
 	size_t mSPos;
 	size_t mMax;
+	size_t mStep;
 	Expr mExpr;
 
 	typedef decltype(mExpr.rootSteps()) ExtType;
@@ -118,10 +129,10 @@ namespace MultiArrayHelper
 	For& operator=(For&& in) = default;
 	
 	For(const std::shared_ptr<IndexClass>& indPtr,
-	    Expr expr);
+	    size_t step, Expr expr);
 
 	For(const IndexClass* indPtr,
-	    Expr expr);
+	    size_t step, Expr expr);
 
 	
 	inline void operator()(size_t mlast, ExtType last) const;
@@ -150,8 +161,8 @@ namespace MultiArrayHelper
 
     template <class IndexClass, class Expr, ForType FT>
     For<IndexClass,Expr,FT>::For(const std::shared_ptr<IndexClass>& indPtr,
-				 Expr expr) :
-	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mExpr(expr),
+				 size_t step, Expr expr) :
+	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step), mExpr(expr),
 	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr.get() )))
     {
 	assert(mIndPtr != nullptr);
@@ -161,8 +172,9 @@ namespace MultiArrayHelper
 
     template <class IndexClass, class Expr, ForType FT>
     For<IndexClass,Expr,FT>::For(const IndexClass* indPtr,
-				 Expr expr) :
+				 size_t step, Expr expr) :
 	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
+	mStep(step),
 	mExpr(std::forward<Expr>( expr )),
 	mExt(expr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) ))
     {
