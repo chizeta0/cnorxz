@@ -313,14 +313,24 @@ namespace MultiArrayTools
 	//VCHECK(mIndPtr->id());
 	//VCHECK(mIndPtr->max());
     }
+
+    template <typename T>
+    inline void printxxx(const T& a) {}
+
+    template <>
+    inline void printxxx(const std::array<int,2>& a)
+    {
+	std::cout << "( " << std::get<0>(a) << " , " << std::get<1>(a) << " )" << std::endl;
+    }
     
     template <class MapF, class IndexPack, class Expr>
     inline void OpExpr<MapF,IndexPack,Expr>::operator()(size_t mlast,
 							 ExtType last) const
     {
 	constexpr size_t NEXT = Op::SIZE;
-	const ExtType npos = last;
-	const size_t pos = mIndPtr->posAt( mOp.get( npos ) );
+	const ExtType nxpos = last;
+	const size_t pos = mIndPtr->posAt( mOp.get( nxpos ) );
+	const ExtType npos = last + mExt*pos;
 	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
     }
@@ -330,8 +340,9 @@ namespace MultiArrayTools
     {
 	const ExtType last;
 	constexpr size_t NEXT = Op::SIZE;
-	const ExtType npos = last;
-	const size_t pos = mIndPtr->posAt( mOp.get( npos ) );
+	const ExtType nxpos = last;
+	const size_t pos = mIndPtr->posAt( mOp.get( nxpos ) );
+	const ExtType npos = last + mExt*pos;
 	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
     }
@@ -341,6 +352,7 @@ namespace MultiArrayTools
 	-> ExtType
     {
 	return mOp.rootSteps(iPtrNum).extend( mExpr.rootSteps(iPtrNum) );
+	//return mExpr.rootSteps(iPtrNum).extend( mOp.rootSteps(iPtrNum) );
     }
 
     

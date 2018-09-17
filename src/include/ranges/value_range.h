@@ -73,11 +73,11 @@ namespace MultiArrayTools
 	void print(size_t offset);
 
 	template <class Expr>
-	auto ifor(Expr ex) const
+	auto ifor(size_t step, Expr ex) const
 	    -> For<ValueIndex<U>,Expr>;
 
 	template <class Expr>
-	auto iforh(Expr ex) const
+	auto iforh(size_t step, Expr ex) const
 	    -> For<ValueIndex<U>,Expr,ForType::HIDDEN>;
 	
     private:
@@ -287,20 +287,20 @@ namespace MultiArrayTools
 
     template <typename U>
     template <class Expr>
-    auto ValueIndex<U>::ifor(Expr ex) const
+    auto ValueIndex<U>::ifor(size_t step, Expr ex) const
 	-> For<ValueIndex<U>,Expr>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<ValueIndex<U>,Expr>(this, ex);
+	return For<ValueIndex<U>,Expr>(this, step, ex);
     }
 
     template <typename U>
     template <class Expr>
-    auto ValueIndex<U>::iforh(Expr ex) const
+    auto ValueIndex<U>::iforh(size_t step, Expr ex) const
 	-> For<ValueIndex<U>,Expr,ForType::HIDDEN>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<ValueIndex<U>,Expr,ForType::HIDDEN>(this, ex);
+	return For<ValueIndex<U>,Expr,ForType::HIDDEN>(this, step, ex);
     }
 
 

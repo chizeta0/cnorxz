@@ -104,6 +104,81 @@ namespace MultiArrayTools
 	std::shared_ptr<RangeBase> create();
 	
     };
+
+    template <typename U>
+    class MetaMap
+    {
+    private:
+	std::map<U,size_t> mMap;
+    public:
+	MetaMap() = default;
+	MetaMap(const MetaMap& in) = default;
+	MetaMap(MetaMap&& in) = default;
+	MetaMap& operator=(const MetaMap& in) = default;
+	MetaMap& operator=(MetaMap&& in) = default;
+
+	//MetaMap(const std::map<U,size_t>& in) : mMap(in) {}
+	MetaMap(const std::vector<U>& in)
+	{
+	    for(size_t i = 0; i != in.size(); ++i){
+		mMap[in[i]] = i;
+	    }
+	}
+	
+	size_t at(const U& in) const { return mMap.at(in); }
+    };
+    
+    template <>
+    class MetaMap<std::array<int,2> >
+    {
+    private:
+	std::vector<size_t> mMap;
+	int min1;
+	int min2;
+	int max1;
+	int max2;
+	size_t s1;
+	size_t s2;
+    public:
+	typedef std::array<int,2> U;
+	
+	MetaMap() = default;
+	MetaMap(const MetaMap& in) = default;
+	MetaMap(MetaMap&& in) = default;
+	MetaMap& operator=(const MetaMap& in) = default;
+	MetaMap& operator=(MetaMap&& in) = default;
+
+	MetaMap(const std::vector<U>& in) : min1(in[0][0]),
+					    min2(in[0][1]),
+					    max1(in[0][0]),
+					    max2(in[0][1])
+	{
+	    CHECK;
+	    for(auto& x: in){
+		if(min1 > x[0]) min1 = x[0];
+		if(min2 > x[1]) min2 = x[1];
+		if(max1 < x[0]+1) max1 = x[0]+1;
+		if(max2 < x[1]+1) max2 = x[1]+1;
+	    }
+	    s1 = max1 - min1;
+	    s2 = max2 - min2;
+	    mMap.resize(s1*s2,-1);
+	    for(size_t i = 0; i != in.size(); ++i){
+		const size_t mpos = (in[i][0] - min1) * s2 + (in[i][1] - min2);
+		mMap[ mpos ] = i;
+	    }
+	}
+
+	size_t at(const U& in) const
+	{
+	    //CHECK;
+	    const size_t mpos = (in[0] - min1) * s2 + (in[1] - min2);
+	    assert(mpos < mMap.size());
+	    assert(mMap[ mpos ] != static_cast<size_t>( -1 ) );
+	    return mMap[ mpos ];
+	}
+	
+    };
     
     template <typename U, SpaceType TYPE>
     class SingleRange : public RangeInterface<SingleIndex<U,TYPE> >
@@ -144,7 +219,8 @@ namespace MultiArrayTools
 	SingleRange(const std::vector<U>& space);
 
 	std::vector<U> mSpace;
-	std::map<U,size_t> mMSpace;
+	//std::map<U,size_t> mMSpace;
+	MetaMap<U> mMSpace;
     };
 
 }
@@ -363,12 +439,13 @@ namespace MultiArrayTools
      ********************/
     
     template <typename U, SpaceType TYPE>
-    SingleRange<U,TYPE>::SingleRange(const std::vector<U>& space) : RangeInterface<SingleIndex<U,TYPE> >(),
-	mSpace(space)
+    SingleRange<U,TYPE>::SingleRange(const std::vector<U>& space) :
+	RangeInterface<SingleIndex<U,TYPE> >(),
+	mSpace(space), mMSpace(mSpace)
     {
-	for(size_t i = 0; i != mSpace.size(); ++i){
-	    mMSpace[mSpace[i]] = i;
-	}
+	//for(size_t i = 0; i != mSpace.size(); ++i){
+	//  mMSpace[mSpace[i]] = i;
+	//}
     }
     
     template <typename U, SpaceType TYPE>
