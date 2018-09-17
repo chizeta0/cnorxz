@@ -101,6 +101,29 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
+    inline std::array<int,2>& operator+=(std::array<int,2>& a, const std::array<int,2>& b)
+    {
+	std::get<0>(a) += std::get<0>(b);
+	std::get<1>(a) += std::get<1>(b);
+	return a;
+    }
+    
+    inline std::array<int,3>& operator+=(std::array<int,3>& a, const std::array<int,3>& b)
+    {
+	std::get<0>(a) += std::get<0>(b);
+	std::get<1>(a) += std::get<1>(b);
+	std::get<2>(a) += std::get<2>(b);
+	return a;
+    }
+    
+    inline std::tuple<int,int,int>& operator+=(std::tuple<int,int,int>& a, const std::tuple<int,int,int>& b)
+    {
+	std::get<0>(a) += std::get<0>(b);
+	std::get<1>(a) += std::get<1>(b);
+	std::get<2>(a) += std::get<2>(b);
+	return a;
+    }
+
 } // namespace MultiArrayTools
 
 #endif

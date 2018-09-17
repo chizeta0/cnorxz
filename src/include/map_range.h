@@ -124,6 +124,9 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 
+	template <size_t N>
+	size_t getBlockSize() const { return std::get<N>(mBlockSizes); }
+	
 	std::shared_ptr<OIType> outIndex() const;
 	
 	// raplace instances (in contrast to its analogon in ContainerIndex
@@ -262,6 +265,8 @@ namespace MultiArrayTools
 	virtual IndexType end() const final;
 
 	const MultiArray<size_t,ORType>& mapMultiplicity() const;
+	MultiArray<size_t,MapRange> explMapMultiplicity() const;
+
 	
 	template <class... ERanges>
 	auto cat(const std::shared_ptr<MapRange<ERanges...> >& erange)
@@ -761,6 +766,15 @@ namespace MultiArrayTools
 	-> const MultiArray<size_t,ORType>&
     {
 	return mMapMult;
+    }
+
+    template <class MapF, class... Ranges>
+    auto MapRange<MapF,Ranges...>::explMapMultiplicity() const
+	-> MultiArray<size_t,MapRange>
+    {
+	auto tmp = mMapMult;
+	return tmp.format( std::dynamic_pointer_cast<MapRange<MapF,Ranges...> >
+			   ( std::shared_ptr<RangeBase>( RB::mThis )) ); 
     }
     
     template <class MapF, class... Ranges>
