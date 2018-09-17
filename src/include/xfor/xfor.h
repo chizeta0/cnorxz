@@ -190,7 +190,8 @@ namespace MultiArrayHelper
 	typedef typename IndexClass::RangeType RangeType;
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
 	//for(size_t pos = mSPos; pos != mMax; ++pos){
-	    const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
+	    //const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
+	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
 	}
@@ -203,7 +204,8 @@ namespace MultiArrayHelper
 	const ExtType last;
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
 	//for(size_t pos = mSPos; pos != mMax; ++pos){
-	    const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
+	    //const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
+	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
 	}

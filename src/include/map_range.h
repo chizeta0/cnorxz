@@ -321,7 +321,7 @@ namespace MultiArrayTools
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType npos = last;
 	const size_t pos = mIndPtr->posAt( mOp.get( npos ) );
-	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
+	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
     }
 
@@ -332,7 +332,7 @@ namespace MultiArrayTools
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType npos = last;
 	const size_t pos = mIndPtr->posAt( mOp.get( npos ) );
-	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
+	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
     }
     
