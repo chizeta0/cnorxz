@@ -145,6 +145,7 @@ namespace MultiArrayTools
 	mRangePtr = in.mRangePtr;
 	mPos = in.mPos;
 	mMax = in.mMax;
+	return *this;
     }
 
     template <class I, typename MetaType>
@@ -153,6 +154,7 @@ namespace MultiArrayTools
 	mRangePtr = in.mRangePtr;
 	mPos = in.mPos;
 	mMax = in.mMax;
+	return *this;
     }
     
     template <class I, typename MetaType>

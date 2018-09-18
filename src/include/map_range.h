@@ -320,7 +320,9 @@ namespace MultiArrayTools
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType nxpos = last;
 	const size_t pos = mIndPtr->posAt( mOp.get( nxpos ) );
+	//VCHECK(pos);
 	const ExtType npos = last + mExt*pos;
+	//VCHECK(npos.next().next().val());
 	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
 	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
     }
@@ -709,7 +711,8 @@ namespace MultiArrayTools
     template <class MapF, class... Ranges>
     size_t MapRange<MapF,Ranges...>::size() const
     {
-	return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
+	return mOutRange->size();
+	//return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
     template <class MapF, class... Ranges>
