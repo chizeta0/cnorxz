@@ -28,7 +28,7 @@ namespace MultiArrayTools
 	I const& THIS() const { return static_cast<I const&>(*this); }
 
 	static constexpr bool ISINDEX = true;
-	
+
 	~IndexInterface() = default; 
 
 	constexpr IndexType type() const { return THIS().type(); }
@@ -82,10 +82,10 @@ namespace MultiArrayTools
 	friend I;
 	
 	IndexInterface();
-	IndexInterface(const IndexInterface& in) = default;
-	IndexInterface& operator=(const IndexInterface& in) = default;
-	IndexInterface(IndexInterface&& in) = default;
-	IndexInterface& operator=(IndexInterface&& in) = default;
+	IndexInterface(const IndexInterface& in);
+	IndexInterface& operator=(const IndexInterface& in);
+	IndexInterface(IndexInterface&& in);
+	IndexInterface& operator=(IndexInterface&& in);
 	
 	IndexInterface(const std::shared_ptr<RangeBase>& range, size_t pos);
 	
@@ -119,6 +119,40 @@ namespace MultiArrayTools
     IndexInterface<I,MetaType>::IndexInterface() : mId(indexId())
     {
 	mPtrNum = reinterpret_cast<std::intptr_t>(this);
+    }
+
+    template <class I, typename MetaType>
+    IndexInterface<I,MetaType>::IndexInterface(const IndexInterface& in) : mRangePtr(in.mRangePtr),
+									   mPos(in.mPos),
+									   mMax(in.mMax)
+    {
+	mId = indexId();
+	mPtrNum = reinterpret_cast<std::intptr_t>(this);
+    }
+
+    template <class I, typename MetaType>
+    IndexInterface<I,MetaType>::IndexInterface(IndexInterface&& in) : mRangePtr(in.mRangePtr),
+								      mPos(in.mPos),
+								      mMax(in.mMax)
+    {
+	mId = indexId();
+	mPtrNum = reinterpret_cast<std::intptr_t>(this);
+    }
+
+    template <class I, typename MetaType>
+    IndexInterface<I,MetaType>& IndexInterface<I,MetaType>::operator=(const IndexInterface& in)
+    {
+	mRangePtr = in.mRangePtr;
+	mPos = in.mPos;
+	mMax = in.mMax;
+    }
+
+    template <class I, typename MetaType>
+    IndexInterface<I,MetaType>& IndexInterface<I,MetaType>::operator=(IndexInterface&& in)
+    {
+	mRangePtr = in.mRangePtr;
+	mPos = in.mPos;
+	mMax = in.mMax;
     }
     
     template <class I, typename MetaType>

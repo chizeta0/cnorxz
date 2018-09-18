@@ -325,14 +325,19 @@ namespace {
 
 	auto mr = mkMapR(std::make_shared<plus<size_t>>(),sr1ptr,sr2ptr);
 	MultiArray<double,MpRange> res(mr);
+	MultiArray<double,MpRange> res2(mr);
 	auto jj = getIndex( mr );
 	(*jj)(ii1,ii2);
 	///auto jj = mkMapI( std::make_shared<plus<size_t> >(), ii1, ii1 );
 		
 	res(jj) = ma1(ii1,ii2);
+	auto mult = mr->mapMultiplicity();
+	auto jjx = jj->outIndex();
+	res2(jj) = ma1(ii1,ii2) / staticcast<double>( mult(jjx) );
 
 	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());
-
+	MultiArray<double,TRange> form2 = res2.format(mpr1ptr->outRange());
+	
 	EXPECT_EQ( jj->range()->outRange()->size(), 10 );
  	EXPECT_EQ( jj->range()->mapMultiplicity().at(9), 3 );
 	EXPECT_EQ( jj->range()->mapMultiplicity().at(3), 1 );
@@ -347,6 +352,17 @@ namespace {
 	EXPECT_EQ( form.at(12), -42.53 );
 	EXPECT_EQ( form.at(16), 80.41 );
 	EXPECT_EQ( form.at(18), 6.35 );
+
+	EXPECT_EQ( form2.at(3), -31.71 );
+	EXPECT_EQ( form2.at(7), -77.16 );
+	EXPECT_EQ( xround( form2.at(9) ), xround( (-18.81 + 72.31 -50.91) / 3. ) );
+	EXPECT_EQ( form2.at(5), -67.06 );
+	EXPECT_EQ( form2.at(11), -54.48 );
+	EXPECT_EQ( form2.at(13), -11.62 );
+	EXPECT_EQ( form2.at(15), -59.57 );
+	EXPECT_EQ( form2.at(12), -42.53 );
+	EXPECT_EQ( form2.at(16), 80.41 );
+	EXPECT_EQ( form2.at(18), 6.35 );
     }
     
     TEST_F(MetaOp_Test, SimpleCall)
