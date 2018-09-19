@@ -153,7 +153,6 @@ namespace MultiArrayTools
 					    max1(in[0][0]),
 					    max2(in[0][1])
 	{
-	    CHECK;
 	    for(auto& x: in){
 		if(min1 > x[0]) min1 = x[0];
 		if(min2 > x[1]) min2 = x[1];

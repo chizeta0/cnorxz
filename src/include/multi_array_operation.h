@@ -631,7 +631,6 @@ namespace MultiArrayTools
     template <typename T, class OpClass, class... Ranges>
     void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
-	CHECK;
 	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
 	const auto loop = mSecond.template loop<decltype(mIndex.ifor(1,ae))>( mIndex.ifor(1,ae) );
 	// hidden Loops outside ! -> auto vectorizable

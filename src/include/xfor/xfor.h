@@ -188,7 +188,6 @@ namespace MultiArrayHelper
 						    ExtType last) const
     {
 	typedef typename IndexClass::RangeType RangeType;
-	if(mlast == static_cast<size_t>( -1 ) ) { CHECK; }
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
 	//for(size_t pos = mSPos; pos != mMax; ++pos){
 	    //const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
@@ -201,7 +200,6 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr, ForType FT>
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast) const
     {
-	if(mlast == static_cast<size_t>( -1 ) ) { CHECK; }
 	typedef typename IndexClass::RangeType RangeType;
 	const ExtType last;
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
