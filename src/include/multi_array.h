@@ -81,6 +81,8 @@ namespace MultiArrayTools
 	
 	operator T() const;	
 
+	MultiArray& operator=(const T& in);
+	
 	MultiArray& operator+=(const MultiArray& in);
 	MultiArray& operator-=(const MultiArray& in);
 	MultiArray& operator*=(const T& in);
@@ -321,6 +323,15 @@ namespace MultiArrayTools
 	      std::move(mCont) );
     }	
 
+    template <typename T, class... SRanges>
+    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator=(const T& in)
+    {
+	for(auto& x: mCont){
+	    x = in;
+	}
+	return *this;
+    }
+    
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator+=(const MultiArray& in)
     {
