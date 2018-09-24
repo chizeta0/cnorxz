@@ -267,6 +267,8 @@ namespace MultiArrayTools
 	template <class OpClass>
 	OperationMaster<T,OpClass,Ranges...> operator=(const OpClass& in);
 
+	OperationMaster<T,OperationRoot,Ranges...> operator=(const OperationRoot& in);
+	
 	template <class ET>
 	inline T get(ET pos) const;
 
@@ -820,6 +822,13 @@ namespace MultiArrayTools
 	return OperationMaster<T,OpClass,Ranges...>(mDataPtr, in, mIndex);
     }
 
+    template <typename T, class... Ranges>
+    OperationMaster<T,OperationRoot<T,Ranges...>,Ranges...>
+    OperationRoot<T,Ranges...>::operator=(const OperationRoot<T,Ranges...>& in)
+    {
+	return operator=<OperationRoot<T,Ranges...> >(in);
+    }
+    
     template <typename T, class... Ranges>
     template <class ET>
     inline T OperationRoot<T,Ranges...>::get(ET pos) const
