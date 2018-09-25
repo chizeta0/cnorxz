@@ -482,14 +482,14 @@ namespace MultiArrayTools
     private:
 
 	const Op& mOp;
-	mutable MultiArray<T,typename Indices::RangeType...> mCont;
+	mutable std::shared_ptr<MultiArray<T,typename Indices::RangeType...> > mCont;
 	mutable OperationRoot<T,typename Indices::RangeType...> mTarOp;
 		
     public:
 	typedef decltype(mOp.rootSteps(0)) ETuple;
 	
 	SliceContraction(const Op& op, std::shared_ptr<Indices>... ind);
-
+	
 	template <class ET>
 	inline const value_type& get(ET pos) const;
 
@@ -1011,8 +1011,9 @@ namespace MultiArrayTools
     SliceContraction<T,Op,Indices...>::SliceContraction(const Op& op,
 							std::shared_ptr<Indices>... ind) :
 	mOp(op),
-	mCont(ind->range()...),
-	mTarOp(mCont,ind...) {}
+	mCont(std::make_shared<MultiArray<T,typename Indices::RangeType...> >(ind->range()...)),
+	mTarOp(*mCont,ind...)
+    { }
 
     // forward loop !!!!
     template <typename T, class Op, class... Indices>
@@ -1020,9 +1021,10 @@ namespace MultiArrayTools
     inline const MultiArray<T,typename Indices::RangeType...>&
     SliceContraction<T,Op,Indices...>::get(ET pos) const
     {
-	mCont *= 0; // grrr
-	mTarOp = mOp.set(pos); // SET FUNCTION!!
-	return mCont;
+	*mCont = 0;
+	mOp.set(pos);
+	mTarOp = mOp;
+	return *mCont;
     }
 
     template <typename T, class Op, class... Indices>
