@@ -56,8 +56,8 @@ namespace MultiArrayTools
 	//template <class Range2, class Range3>
 	//MultiArray& operator=(const MultiArray<MultiArray<T,Range2>,Range3> in);
 	
-	virtual T& operator[](const IndexType& i) override;
-	virtual const T& operator[](const IndexType& i) const override;
+	virtual T& operator[](const IndexType& i) final;
+	virtual const T& operator[](const IndexType& i) const final;
 	virtual T& at(const typename IndexType::MetaType& meta) override;
 	virtual const T& at(const typename IndexType::MetaType& meta) const override;
 	

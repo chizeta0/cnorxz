@@ -33,6 +33,12 @@ namespace MultiArrayTools
 	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
+
+	template <typename X>
+	using CIX = ContainerIndex<X,Indices...>;
+	
+	template <typename X>
+	friend class CIX;
 	
     private:
 	
@@ -50,6 +56,9 @@ namespace MultiArrayTools
 
 	ContainerIndex(const ContainerIndex& in) = default;
 	ContainerIndex& operator=(const ContainerIndex& in) = default;
+
+	template <typename X>
+	ContainerIndex& operator=(const ContainerIndex<X,Indices...>& in);
 	
 	template <class MRange>
 	ContainerIndex(const std::shared_ptr<MRange>& range,
@@ -251,7 +260,16 @@ namespace MultiArrayTools
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	mNonTrivialBlocks = true;
     }
-    
+
+    template <typename T, class... Indices>
+    template <typename X>
+    ContainerIndex<T,Indices...>&
+    ContainerIndex<T,Indices...>::operator=(const ContainerIndex<X,Indices...>& in)
+    {
+	mIPack = in.mIPack;
+	return (*this)();
+    }
+
     
     template <typename T, class... Indices>
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::sync()

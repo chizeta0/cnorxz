@@ -39,6 +39,9 @@ namespace MultiArrayTools
 
 	virtual ~MultiArrayBase() = default;
 
+	template <typename X>
+	const T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
+	
 	virtual const T& operator[](const IndexType& i) const = 0;
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const = 0;
 
@@ -95,6 +98,9 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(MutableMultiArrayBase);
 	MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
 	MutableMultiArrayBase(const typename CRange::Space& space);
+
+	template <typename X>
+	T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
 	
 	virtual T& operator[](const IndexType& i) = 0;
 	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
@@ -158,6 +164,16 @@ namespace MultiArrayTools
 	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
 	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
+
+    template <typename T, class... SRanges>
+    template <typename X>
+    const T& MultiArrayBase<T,SRanges...>::operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i)
+    {
+	IndexType ii(*mProtoI);
+	ii = i;
+	return (*this)[ii];
+    }
+
     
     template <typename T, class... SRanges>
     size_t MultiArrayBase<T,SRanges...>::size() const
@@ -279,6 +295,17 @@ namespace MultiArrayTools
 	return i.setData(data());
     }
     */
+
+    template <typename T, class... SRanges>
+    template <typename X>
+    T& MutableMultiArrayBase<T,SRanges...>::operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i)
+    {
+	IndexType ii(*MAB::mProtoI);
+	ii = i;
+	return (*this)[ii];
+    }
+
+    
     template <typename T, class... SRanges>
     bool MutableMultiArrayBase<T,SRanges...>::isConst() const
     {
