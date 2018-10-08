@@ -162,6 +162,7 @@ namespace MultiArrayTools
 	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
 	typedef MultiIndex<typename Ranges::IndexType...> IndexType;
 	typedef MultiRange RangeType;
+	typedef MultiRangeFactory<Ranges...> FType;
 	//typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:

@@ -187,6 +187,7 @@ namespace MultiArrayTools
 	typedef SingleIndex<U,TYPE> IndexType;
 	typedef SingleRange RangeType;
 	typedef U MetaType;
+	typedef SingleRangeFactory<U,TYPE> FType; 
 	//typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
 	
 	virtual size_t size() const final;
