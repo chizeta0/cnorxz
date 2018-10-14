@@ -64,6 +64,8 @@ namespace MultiArrayTools
 	const U* metaPtr() const;
 	SingleIndex& at(const U& metaPos);
 	size_t posAt(const U& metaPos) const;
+
+	bool isMeta(const U& metaPos) const;
 	
 	size_t dim(); // = 1
 	bool last();
@@ -126,6 +128,7 @@ namespace MultiArrayTools
 	}
 	
 	size_t at(const U& in) const { return mMap.at(in); }
+	size_t count(const U& in) const { return mMap.count(in); }
     };
     
     template <>
@@ -197,6 +200,8 @@ namespace MultiArrayTools
 	
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual std::vector<char> data() const final;
+	
+	bool isMeta(const U& metaPos) const;
 	
 	const U& get(size_t pos) const;
 	size_t getMeta(const U& metaPos) const;
@@ -333,6 +338,12 @@ namespace MultiArrayTools
     {
 	return mMetaPtr;
     }
+
+    template <typename U, SpaceType TYPE>
+    bool SingleIndex<U,TYPE>::isMeta(const U& metaPos) const
+    {
+	return mExplicitRangePtr->isMeta(metaPos);
+    }
     
     template <typename U, SpaceType TYPE>
     SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::at(const U& metaPos)
@@ -346,7 +357,7 @@ namespace MultiArrayTools
     {
 	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos );
     }
-    
+
     template <typename U, SpaceType TYPE>
     size_t SingleIndex<U,TYPE>::dim() // = 1
     {
@@ -472,6 +483,12 @@ namespace MultiArrayTools
 	return 1;
     }
 
+    template <typename U, SpaceType TYPE>
+    bool SingleRange<U,TYPE>::isMeta(const U& metaPos) const
+    {
+	return mMSpace.count(metaPos) != 0;
+    }
+    
     template <typename U, SpaceType TYPE>
     SpaceType SingleRange<U,TYPE>::spaceType() const
     {
