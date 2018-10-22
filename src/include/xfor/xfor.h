@@ -40,6 +40,7 @@ namespace MultiArrayHelper
 	ExpressionBase& operator=(ExpressionBase&& in) = default;
 
 	ExpressionBase(ExtType ext, Expr&& expr);
+        ExpressionBase(ExtType ext);
 	
 	virtual void operator()(size_t mlast, ExtType last) const = 0;
 	virtual void operator()(size_t mlast = 0) const = 0;
@@ -194,8 +195,7 @@ namespace MultiArrayHelper
 	DynamicalExpression& operator=(const DynamicalExpression& in) = default;
 	DynamicalExpression& operator=(DynamicalExpression&& in) = default;
 	
-	DynamicalExpression(const std::shared_ptr<ExpressionBase<Expr>>& next,
-			    Expr expr);
+	DynamicalExpression(const std::shared_ptr<ExpressionBase<Expr>>& next);
 
 	inline void operator()(size_t mlast, ExtType last) const override final;
 	inline void operator()(size_t mlast = 0) const override final;
@@ -222,7 +222,12 @@ namespace MultiArrayHelper
 	mExpr(std::forward<Expr>(expr)),
 	mExt(ext)
     {}
-    
+
+    template <class Expr>
+    ExpressionBase<Expr>::ExpressionBase(ExtType ext) :
+	mExt(ext)
+    {}
+
     template <class Expr>
     auto ExpressionBase<Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
@@ -352,9 +357,8 @@ namespace MultiArrayHelper
 
     template <class Expr>
     DynamicalExpression<Expr>::
-    DynamicalExpression(const std::shared_ptr<ExpressionBase<Expr>>& next,
-			Expr expr) :
-	ExpressionBase<Expr>(next->extension(), std::forward<Expr>(expr)),
+    DynamicalExpression(const std::shared_ptr<ExpressionBase<Expr>>& next) :
+	ExpressionBase<Expr>(next->extension()),
 	mNext(next)
     {}
 

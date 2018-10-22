@@ -72,6 +72,15 @@ namespace MultiArrayTools
     // anonymous_range.h
     //class AnonymousRange;
 
+    // dynamic_range.h
+    class DynamicIndex;
+    
+    // dynamic_range.h
+    class DynamicRangeFactory;
+    
+    // dynamic_range.h
+    class DynamicRange;
+
     // value_range.h
     template <typename U>
     class ValueRange;

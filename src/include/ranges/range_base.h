@@ -26,7 +26,8 @@ namespace MultiArrayTools
 #define include_range_type(x,n) x = n,
 #include "range_types/header.h"
 #undef include_range_type
-	 ANON = -1 // anonymous content
+	 ANON = -1, // anonymous content
+         DYN = -2 // dynamic content
 	};
 
     struct DataHeader
