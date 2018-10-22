@@ -93,9 +93,10 @@ namespace MultiArrayTools
     class MakeFor : public MakeForBase<Expr>
     {
     private:
-        const Index& mI;
+        std::shared_ptr<Index> mI;
+        MakeFor() = default;
     public:
-        MakeFor(const Index& i);
+        MakeFor(const std::shared_ptr<Index>& i);
         
         virtual DynamicalExpression<Expr> ifor(size_t step, Expr ex) const override;
         virtual DynamicalExpression<Expr> iforh(size_t step, Expr ex) const override;
@@ -304,7 +305,43 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
+    /*************************
+     *   IndexWrapperBase    *
+     *************************/
 
+    template <class Expr>
+    auto IndexWrapperBase::ifor(size_t step, Expr ex)
+        -> DynamicalExpression<Expr>
+    {
+        
+    }
+    
+    template <class Expr>
+    auto IndexWrapperBase::iforh(size_t step, Expr ex)
+        -> DynamicalExpression<Expr>
+    {
+
+    }
+    
+    /****************
+     *   MakeFor    *
+     ****************/
+
+    template <class Expr, class Index>
+    MakeFor<Expr,Index>::MakeFor(const Index& i) : mI(i) {}
+
+    template <class Expr, class Index>
+    DynamicalExpression<Expr> MakeFor<Expr,Index>::ifor(size_t step, Expr ex) const
+    {
+        return DynamicalExpression<Expr>(std::make_shared<For<Index,Expr>>(mI,step,ex));
+    }
+
+    template <class Expr, class Index>
+    DynamicalExpression<Expr> MakeFor<Expr,Index>::iforh(size_t step, Expr ex) const
+    {
+        return DynamicalExpression<Expr>(std::make_shared<For<Index,Expr,FT::HIDDEN>>(mI,step,ex));
+    }
+        
     /***********************
      *   DynamicRange    *
      ***********************/
