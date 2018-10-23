@@ -32,7 +32,7 @@ namespace MultiArrayTools
         const DynamicMetaElem& operator[](size_t pos) const;
     };
 
-    
+
     class IndexWrapperBase
     {
     public:
@@ -69,48 +69,23 @@ namespace MultiArrayTools
         virtual size_t getStepSize(size_t n) = 0;
 
         virtual std::intptr_t get() const = 0;
-        
-        template <class Expr>
-        auto ifor(size_t step, Expr ex)
-            -> DynamicalExpression<Expr>;
 
-        template <class Expr>
-        auto iforh(size_t step, Expr ex)
-            -> DynamicalExpression<Expr>;
     };
 
     typedef IndexWrapperBase IndexW;
     
-    template <class Expr>
-    class MakeForBase
-    {
-    public:
-        virtual DynamicalExpression<Expr> ifor(size_t step, Expr ex) const = 0;
-        virtual DynamicalExpression<Expr> iforh(size_t step, Expr ex) const = 0;
-    };
-
-    template <class Expr, class Index>
-    class MakeFor : public MakeForBase<Expr>
-    {
-    private:
-        std::shared_ptr<Index> mI;
-        MakeFor() = default;
-    public:
-        MakeFor(const std::shared_ptr<Index>& i);
-        
-        virtual DynamicalExpression<Expr> ifor(size_t step, Expr ex) const override;
-        virtual DynamicalExpression<Expr> iforh(size_t step, Expr ex) const override;
-    };
-    
     template <class Index>
     class IndexWrapper : public IndexWrapperBase
     {
-    private:
+    protected:
         IndexWrapper() = default;
-        
+
+    private:
         std::shared_ptr<Index> mI;
     public:
 
+        static constexpr size_t EXPRMAX = IndexWrapperBase::EXPRMAX;
+        
         IndexWrapper(const IndexWrapper& in) = default;
         IndexWrapper(IndexWrapper&& in) = default;
         IndexWrapper& operator=(const IndexWrapper& in) = default;
@@ -143,13 +118,14 @@ namespace MultiArrayTools
         
         virtual size_t getStepSize(size_t n) final { return mI->getStepSize(n); }
 
-        virtual std::intptr_t get() const final { return reinterpret_cast<std::intptr_t>(mI.get()); }        
-    };
+        virtual std::intptr_t get() const final { return reinterpret_cast<std::intptr_t>(mI.get()); }
 
+    };
+    
     class DynamicIndex : public IndexInterface<DynamicIndex,DynamicMetaT>
     {
     private:
-        std::vector<std::shared_ptr<IndexWrapperBase>> mIVec;
+        std::vector<std::pair<std::shared_ptr<IndexWrapperBase>,size_t>> mIVec;
     public:
         typedef IndexInterface<DynamicIndex,DynamicMetaT> IB;
 	typedef DynamicMetaT MetaType;
@@ -306,42 +282,24 @@ namespace MultiArrayTools
 namespace MultiArrayTools
 {
     /*************************
-     *   IndexWrapperBase    *
+     *   IndexForWrapper    *
      *************************/
 
-    template <class Expr>
-    auto IndexWrapperBase::ifor(size_t step, Expr ex)
+    template <class Index, class Expr>
+    auto IndexForWrapper<Index,Expr>::ifor(size_t step, Expr ex)
         -> DynamicalExpression<Expr>
-    {
-        
-    }
-    
-    template <class Expr>
-    auto IndexWrapperBase::iforh(size_t step, Expr ex)
-        -> DynamicalExpression<Expr>
-    {
-
-    }
-    
-    /****************
-     *   MakeFor    *
-     ****************/
-
-    template <class Expr, class Index>
-    MakeFor<Expr,Index>::MakeFor(const Index& i) : mI(i) {}
-
-    template <class Expr, class Index>
-    DynamicalExpression<Expr> MakeFor<Expr,Index>::ifor(size_t step, Expr ex) const
     {
         return DynamicalExpression<Expr>(std::make_shared<For<Index,Expr>>(mI,step,ex));
     }
-
-    template <class Expr, class Index>
-    DynamicalExpression<Expr> MakeFor<Expr,Index>::iforh(size_t step, Expr ex) const
+    
+    template <class Index, class Expr>
+    auto IndexForWrapper<Index,Expr>::iforh(size_t step, Expr ex)
+        -> DynamicalExpression<Expr>
     {
         return DynamicalExpression<Expr>(std::make_shared<For<Index,Expr,FT::HIDDEN>>(mI,step,ex));
     }
-        
+    
+       
     /***********************
      *   DynamicRange    *
      ***********************/
@@ -452,7 +410,24 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }
     
+    template <class Expr>
+    auto DynamicIndex::ifor(size_t step, Expr ex) const
+        -> DynamicalExpression
+    {
+        //for...
+        ExpressionHolder<Expr> epxr(ex); // derived from ExpressionBase; just to resolve underlying types!
+        IVec[0].first->ifor( ... mIVec[i].first->ifor(expr) );
+        // ...
+    }
+    
+    template <class Expr>
+    auto DynamicIndex::iforh(size_t step, Expr ex) const
+        -> DynamicalExpression
+    {
+        //for...
 
+        // ...
+    }
     
 }
 
