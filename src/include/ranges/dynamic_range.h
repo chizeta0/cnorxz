@@ -55,26 +55,28 @@ namespace MultiArrayTools
 	virtual std::string stringMeta() const = 0;
 	virtual DynamicMetaT meta() const = 0;
 	virtual const DynamicMetaT* metaPtr() const = 0;
-	virtual IndexWrapperBase& at(const U& metaPos) = 0;
-	virtual size_t posAt(const U& metaPos) const = 0;
+	//virtual IndexWrapperBase& at(const U& metaPos) = 0;
+	//virtual size_t posAt(const U& metaPos) const = 0;
 
 	//virtual bool isMeta(const U& metaPos) const = 0;
 	
-	virtual size_t dim() = 0;
-	virtual bool last() = 0;
-	virtual bool first() = 0;
+	virtual size_t dim() const = 0;
+	virtual bool last() const = 0;
+	virtual bool first() const = 0;
 
-	virtual std::shared_ptr<RangeBase> range() = 0;
+	virtual std::shared_ptr<RangeBase> range() const = 0;
         
-        virtual size_t getStepSize(size_t n) = 0;
+        virtual size_t getStepSize(size_t n) const = 0;
 
         virtual std::intptr_t get() const = 0;
 
+	virtual DynamicalExpression ifor(size_t step, DynamicalExpression ex) const = 0;
+	virtual DynamicalExpression iforh(size_t step, DynamicalExpression ex) const = 0;
     };
 
     typedef IndexWrapperBase IndexW;
     
-    template <class Index>
+    template <class Index, class Expr>
     class IndexWrapper : public IndexWrapperBase
     {
     protected:
@@ -84,8 +86,6 @@ namespace MultiArrayTools
         std::shared_ptr<Index> mI;
     public:
 
-        static constexpr size_t EXPRMAX = IndexWrapperBase::EXPRMAX;
-        
         IndexWrapper(const IndexWrapper& in) = default;
         IndexWrapper(IndexWrapper&& in) = default;
         IndexWrapper& operator=(const IndexWrapper& in) = default;
@@ -97,7 +97,7 @@ namespace MultiArrayTools
 	
 	virtual IndexWrapperBase& operator=(size_t pos) final { (*mI) = pos; return *this; }
 	virtual IndexWrapperBase& operator++() final { ++(*mI); return *this; }
-	virtual IndexWrapperBase& operator--() final { --(*mi); return *this; }
+	virtual IndexWrapperBase& operator--() final { --(*mI); return *this; }
 
 	virtual int pp(std::intptr_t idxPtrNum) final { return mI->pp(idxPtrNum); }
 	virtual int mm(std::intptr_t idxPtrNum) final { return mI->mm(idxPtrNum); }
@@ -105,27 +105,36 @@ namespace MultiArrayTools
 	virtual std::string stringMeta() const final { return mI->stringMeta(); }
 	virtual DynamicMetaT meta() const final { return DynamicMetaT(mI->meta()); }
 	virtual const DynamicMetaT* metaPtr() const final { return nullptr; }
-	virtual IndexWrapperBase& at(const U& metaPos) final { mI->at(metaPos); return *this; }
-	virtual size_t posAt(const U& metaPos) const final { return mI->posAt(metaPos); }
+	IndexWrapperBase& at(const typename Index::MetaType& metaPos) { mI->at(metaPos); return *this; }
+	size_t posAt(const typename Index::MetaType& metaPos) const { return mI->posAt(metaPos); }
 
 	//virtual bool isMeta(const U& metaPos) const final { return mI->isMeta(); }
 	
-	virtual size_t dim() final { return mI->dim(); }
-	virtual bool last() final { return mI->last(); }
-	virtual bool first() final { return mI->first(); }
+	virtual size_t dim() const final { return mI->dim(); }
+	virtual bool last() const final { return mI->last(); }
+	virtual bool first() const final { return mI->first(); }
 
-	virtual std::shared_ptr<RangeBase> range() final { return mI->range(); }
+	virtual std::shared_ptr<RangeBase> range() const final { return mI->range(); }
         
-        virtual size_t getStepSize(size_t n) final { return mI->getStepSize(n); }
+        virtual size_t getStepSize(size_t n) const final { return mI->getStepSize(n); }
 
         virtual std::intptr_t get() const final { return reinterpret_cast<std::intptr_t>(mI.get()); }
-
+	
+	virtual DynamicalExpression ifor(size_t step, DynamicalExpression ex) const final { return mI->ifor(step, ex); }
+	virtual DynamicalExpression iforh(size_t step, DynamicalExpression ex) const final { return mI->iforh(step, ex); }
+	
     };
+    
+    typedef SingleRange<size_t,SpaceType::DYN> DynamicRange;
     
     class DynamicIndex : public IndexInterface<DynamicIndex,DynamicMetaT>
     {
     private:
-        std::vector<std::pair<std::shared_ptr<IndexWrapperBase>,size_t>> mIVec;
+        std::vector<std::pair<std::shared_ptr<IndexW>,size_t>> mIVec;
+
+	inline DynamicalExpression mkFor(size_t i, size_t step,
+					 DynamicalExpression ex, bool hidden = false) const;	
+
     public:
         typedef IndexInterface<DynamicIndex,DynamicMetaT> IB;
 	typedef DynamicMetaT MetaType;
@@ -173,14 +182,15 @@ namespace MultiArrayTools
 
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
-	    -> DynamicalExpression<Expr>;
+	    -> DynamicalExpression;
 
 	template <class Expr>
 	auto iforh(size_t step, Expr ex) const
-	    -> DynamicalExpression<Expr>;
+	    -> DynamicalExpression;
 
     };    
 
+    
     // NOT THREAD SAVE!!
     class DynamicRangeFactory : public RangeFactoryBase
     {
@@ -209,8 +219,9 @@ namespace MultiArrayTools
 
 	bool mProductCreated = false;
     };
-    
-    class DynamicRange : public RangeInterface<DynamicIndex>
+
+    template <>
+    class SingleRange<size_t,SpaceType::DYN> : public RangeInterface<DynamicIndex>
     {
     public:
         static constexpr bool defaultable = true;
@@ -219,19 +230,19 @@ namespace MultiArrayTools
 	static constexpr bool HASMETACONT = false;
 	
 	typedef RangeBase RB;
-	typedef typename RangeInterface<DynamicIndex>::IndexType IndexType;
+	typedef DynamicIndex IndexType;
 	typedef DynamicRange RangeType;
 	typedef DynamicMetaT MetaType;
 
     private:
-	DynamicRange() = default;
-	DynamicRange(const DynamicRange& in) = default;
+	SingleRange() = default;
+	SingleRange(const SingleRange& in) = default;
 
 	template <class... RangeTypes>
-	DynamicRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
+	SingleRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs);
 	
 	template <class... RangeTypes>
-	DynamicRange(std::shared_ptr<RangeTypes>... origs);
+	SingleRange(std::shared_ptr<RangeTypes>... origs);
 
 	size_t mSize = 1;
 	bool mEmpty = true;
@@ -281,24 +292,6 @@ namespace MultiArrayTools
 
 namespace MultiArrayTools
 {
-    /*************************
-     *   IndexForWrapper    *
-     *************************/
-
-    template <class Index, class Expr>
-    auto IndexForWrapper<Index,Expr>::ifor(size_t step, Expr ex)
-        -> DynamicalExpression<Expr>
-    {
-        return DynamicalExpression<Expr>(std::make_shared<For<Index,Expr>>(mI,step,ex));
-    }
-    
-    template <class Index, class Expr>
-    auto IndexForWrapper<Index,Expr>::iforh(size_t step, Expr ex)
-        -> DynamicalExpression<Expr>
-    {
-        return DynamicalExpression<Expr>(std::make_shared<For<Index,Expr,FT::HIDDEN>>(mI,step,ex));
-    }
-    
        
     /***********************
      *   DynamicRange    *
@@ -333,7 +326,7 @@ namespace MultiArrayTools
      *   Functions   *
      *****************/
 
-    std::shared_ptr<DynamicRange> defaultRange(size_t size = 0);
+    //std::shared_ptr<DynamicRange> defaultRange(size_t size = 0);
 }
 
 namespace MultiArrayHelper
@@ -358,7 +351,7 @@ namespace MultiArrayHelper
 					      std::shared_ptr<DynamicRange> r)
     {
 	if(not r->isEmpty()){
-	    for(size_t i = r->anonymousDim(); i != 0; --i){
+	    for(size_t i = r->dim(); i != 0; --i){
 		v.insert(v.begin(), r->sub(i-1));
 	    }
 	}
@@ -409,24 +402,34 @@ namespace MultiArrayTools
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }
+
+    inline DynamicalExpression DynamicIndex::mkFor(size_t i, size_t step,
+						   DynamicalExpression ex, bool hidden) const
+    {
+	if(i != 0){
+	    auto& ii = *mIVec[i].first;
+	    return mkFor(i-1, step,  hidden ? ii.iforh(step, ex) : ii.ifor(step, ex));
+	}
+	else {
+	    auto& ii = *mIVec[0].first;
+	    return hidden ? ii.iforh(step, ex) : ii.ifor(step, ex);
+	}		
+    }
     
     template <class Expr>
     auto DynamicIndex::ifor(size_t step, Expr ex) const
         -> DynamicalExpression
     {
-        //for...
-        ExpressionHolder<Expr> epxr(ex); // derived from ExpressionBase; just to resolve underlying types!
-        IVec[0].first->ifor( ... mIVec[i].first->ifor(expr) );
-        // ...
+	DynamicalExpression expr(std::make_shared<Expr>(ex));
+	return mkFor(mIVec.size()-1, step, expr);
     }
     
     template <class Expr>
     auto DynamicIndex::iforh(size_t step, Expr ex) const
         -> DynamicalExpression
     {
-        //for...
-
-        // ...
+	DynamicalExpression expr(std::make_shared<Expr>(ex));
+	return mkFor(mIVec.size()-1, step, expr, true);
     }
     
 }

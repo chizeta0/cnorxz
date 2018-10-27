@@ -79,7 +79,7 @@ namespace MultiArrayTools
     class DynamicRangeFactory;
     
     // dynamic_range.h
-    class DynamicRange;
+    //class DynamicRange;
 
     // value_range.h
     template <typename U>
