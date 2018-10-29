@@ -123,6 +123,40 @@ namespace {
 	EXPECT_EQ(mr->template getPtr<1>()->size(), m3rptr->size() * sr2ptr->size());
     }
 
+    TEST_F(AnonymousTest, DCast1)
+    {
+	DynamicRangeFactory arf1(sr1ptr,m3rptr);
+	auto ar1a = std::dynamic_pointer_cast<DynamicRange>( arf1.create() );
+
+	arf1.append(sr2ptr);
+	
+	auto ar1b = std::dynamic_pointer_cast<DynamicRange>( arf1.create() );
+	
+	DynamicRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
+	auto ar2 = std::dynamic_pointer_cast<DynamicRange>( arf2.create() );
+
+	EXPECT_EQ(ar1b.get(), ar2.get());
+	EXPECT_EQ(ar1a->size(), sr1ptr->size() * m3rptr->size());
+	EXPECT_EQ(ar2->size(), sr1ptr->size() * m3rptr->size() * sr2ptr->size());
+
+	EXPECT_EQ(ar1a->sub(0)->size(), sr1ptr->size());
+	EXPECT_EQ(ar1a->sub(1)->size(), m3rptr->size());
+
+	EXPECT_EQ(ar2->sub(0)->size(), sr1ptr->size());
+	EXPECT_EQ(ar2->sub(1)->size(), m3rptr->size());
+	EXPECT_EQ(ar2->sub(2)->size(), sr2ptr->size());
+    }
+
+    TEST_F(AnonymousTest, DCast2)
+    {
+	DynamicRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
+	auto ar = std::dynamic_pointer_cast<DynamicRange>( arf2.create() );
+	auto mr = ar->template scast<SRange,DynamicRange>(1,2);
+
+	EXPECT_EQ(mr->template getPtr<0>()->size(), sr1ptr->size());
+	EXPECT_EQ(mr->template getPtr<1>()->size(), m3rptr->size() * sr2ptr->size());
+    }
+
     TEST_F(AnonymousTest, ToString1)
     {
 	std::vector<char> vv = sr1ptr->data();

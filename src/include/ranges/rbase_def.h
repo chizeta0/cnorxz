@@ -3,8 +3,14 @@
 #ifndef __ranges_base_def_h__
 #define __ranges_base_def_h__
 
+#include <cstdlib>
+
 namespace MultiArrayTools
 {
+
+    template <class R>
+    using SIZET = size_t;
+    
     /***********************
      *  Provided Types     *
      ***********************/

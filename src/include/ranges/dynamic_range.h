@@ -6,33 +6,20 @@
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
+#include "xfor/xfor.h"
+
+#include <map>
+#include "ranges/rpheader.h"
+#include "ranges/x_to_string.h"
+#include "ranges/type_map.h"
+
+#include "ranges/dynamic_meta.h"
+
 namespace MultiArrayTools
 {
-    typedef std::pair<const char*,size_t> DynamicMetaElem;
+
+    using MultiArrayHelper::DynamicalExpression;
     
-    class DynamicMetaT
-    {
-    private:
-        std::vector<DynamicMetaElem> mMeta;
-
-    public:
-        DynamicMetaT() = default;
-        DynamicMetaT(const DynamicMetaT& in) = default;
-        DynamicMetaT(DynamicMetaT&& in) = default;
-        DynamicMetaT& operator=(const DynamicMetaT& in) = default;
-        DynamicMetaT& operator=(DynamicMetaT&& in) = default;
-
-        template <typename... Us>
-        DynamicMetaT(const std::tuple<Us...>& meta);
-        
-        bool operator==(const DynamicMetaT& in) const;
-        bool operator!=(const DynamicMetaT& in) const;
-
-        DynamicMetaElem& operator[](size_t pos);
-        const DynamicMetaElem& operator[](size_t pos) const;
-    };
-
-
     class IndexWrapperBase
     {
     public:
@@ -53,13 +40,15 @@ namespace MultiArrayTools
 	virtual int mm(std::intptr_t idxPtrNum) = 0;
 
 	virtual std::string stringMeta() const = 0;
-	virtual DynamicMetaT meta() const = 0;
+	//virtual DynamicMetaT meta() const = 0;
 	virtual const DynamicMetaT* metaPtr() const = 0;
 	//virtual IndexWrapperBase& at(const U& metaPos) = 0;
 	//virtual size_t posAt(const U& metaPos) const = 0;
 
 	//virtual bool isMeta(const U& metaPos) const = 0;
-	
+
+        virtual size_t pos() const = 0;
+        virtual size_t max() const = 0;
 	virtual size_t dim() const = 0;
 	virtual bool last() const = 0;
 	virtual bool first() const = 0;
@@ -67,7 +56,8 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<RangeBase> range() const = 0;
         
         virtual size_t getStepSize(size_t n) const = 0;
-
+        virtual size_t getStepSizeComp(std::intptr_t j) const = 0;
+        
         virtual std::intptr_t get() const = 0;
 
 	virtual DynamicalExpression ifor(size_t step, DynamicalExpression ex) const = 0;
@@ -99,6 +89,9 @@ namespace MultiArrayTools
 	virtual IndexWrapperBase& operator++() final { ++(*mI); return *this; }
 	virtual IndexWrapperBase& operator--() final { --(*mI); return *this; }
 
+        virtual size_t pos() const final { return mI->pos(); }
+        virtual size_t max() const final { return mI->max(); }
+        
 	virtual int pp(std::intptr_t idxPtrNum) final { return mI->pp(idxPtrNum); }
 	virtual int mm(std::intptr_t idxPtrNum) final { return mI->mm(idxPtrNum); }
 
@@ -117,7 +110,8 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<RangeBase> range() const final { return mI->range(); }
         
         virtual size_t getStepSize(size_t n) const final { return mI->getStepSize(n); }
-
+        virtual size_t getStepSizeComp(std::intptr_t j) const final { return getStepSize(*this, j); }
+        
         virtual std::intptr_t get() const final { return reinterpret_cast<std::intptr_t>(mI.get()); }
 	
 	virtual DynamicalExpression ifor(size_t step, DynamicalExpression ex) const final { return mI->ifor(step, ex); }
@@ -130,7 +124,9 @@ namespace MultiArrayTools
     class DynamicIndex : public IndexInterface<DynamicIndex,DynamicMetaT>
     {
     private:
-        std::vector<std::pair<std::shared_ptr<IndexW>,size_t>> mIVec;
+        typedef std::vector<std::pair<std::shared_ptr<IndexW>,size_t>> IVecT;
+        
+        IVecT mIVec;
 
 	inline DynamicalExpression mkFor(size_t i, size_t step,
 					 DynamicalExpression ex, bool hidden = false) const;	
@@ -155,6 +151,8 @@ namespace MultiArrayTools
 	DynamicIndex& operator++();
 	DynamicIndex& operator--();
 
+        DynamicIndex& operator()(const IVecT& ivec);
+        
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
 
@@ -166,17 +164,19 @@ namespace MultiArrayTools
 
 	//bool isMeta(const MetaType& metaPos) const;
 	
-	size_t dim();
-	bool last();
-	bool first();
+	size_t dim() const;
+	bool last() const;
+	bool first() const;
+
+        const IndexW& get(size_t n) const;
 
 	std::shared_ptr<RangeType> range();
 	
 	template <size_t N>
 	void getPtr();
 
-	size_t getStepSize(size_t n);
-	
+	size_t getStepSize(size_t n) const;
+        
 	std::string id() const;
 	void print(size_t offset);
 
@@ -355,6 +355,21 @@ namespace MultiArrayHelper
 		v.insert(v.begin(), r->sub(i-1));
 	    }
 	}
+    }
+
+    template <>
+    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j)
+    {
+        size_t ss = 0;
+        size_t sx = 1;
+        for(size_t i = ii.dim(); i != 0; --i){
+            const auto& ni = ii.get(i);
+            const size_t max = ni.max();
+            const size_t tmp = ni.getStepSizeComp(j);
+            ss += tmp * ii.getStepSize(i);
+            sx *= max;
+        }
+        return ss;
     }
 
 }

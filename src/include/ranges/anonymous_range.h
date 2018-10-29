@@ -16,8 +16,8 @@ namespace MultiArrayTools
 
     typedef SingleIndex<size_t,SpaceType::ANON> AnonymousIndex;
 
-    template <class R>
-    using SIZET = size_t;
+    //template <class R>
+    //using SIZET = size_t;
 
     typedef SingleRange<size_t,SpaceType::ANON> AnonymousRange;
     

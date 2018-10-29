@@ -7,6 +7,8 @@
 #include <array>
 #include <tuple>
 
+#include "ranges/dynamic_meta.h"
+
 namespace MultiArrayHelper
 {
     template <typename T>
@@ -19,6 +21,11 @@ namespace MultiArrayHelper
     template <>
     inline std::string xToString<std::string>(const std::string& x);
 
+    using MultiArrayTools::DynamicMetaT;
+    
+    template <>
+    inline std::string xToString<DynamicMetaT>(const DynamicMetaT& x);
+    
     template <typename T>
     inline std::string xToString(const std::vector<T>& x);
 
@@ -69,6 +76,19 @@ namespace MultiArrayHelper
 	return x;
     }
 
+    template <>
+    inline std::string xToString<DynamicMetaT>(const DynamicMetaT& x)
+    {
+        std::string out = "[ ";
+        for(size_t i = 0; i != x.size(); ++i){
+            out += x[i].first;
+            out += " , ";
+        }
+        out.pop_back();
+        out.back() = ']';
+        return out;
+    }
+    
     template <typename T>
     inline std::string xToString(const std::vector<T>& x)
     {

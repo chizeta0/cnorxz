@@ -1,16 +1,54 @@
 
 #include "ranges/dynamic_range.h"
+#include "ranges/dynamic_meta.h"
 
 namespace MultiArrayTools
 {
-    /**********************
+    /*********************
+     *   DynamicMetaT    *
+     *********************/
+
+    bool DynamicMetaT::operator==(const DynamicMetaT& in) const
+    {
+        if(in.size() != mMeta.size()) { return false; }
+        for(size_t i = 0; i != mMeta.size(); ++i){
+            if(in[i].second != mMeta[i].second) { return false; }
+            for(size_t j = 0; j != mMeta[i].second; ++j){
+                if(in[i].first[j] != mMeta[i].first[j]) { return false; }
+            }
+        }
+        return true;
+    }
+    
+    bool DynamicMetaT::operator!=(const DynamicMetaT& in) const
+    {
+        return not operator==(in);
+    }
+    
+    size_t DynamicMetaT::size() const
+    {
+        return mMeta.size();
+    }
+    
+    DynamicMetaElem& DynamicMetaT::operator[](size_t pos)
+    {
+        return mMeta[pos];
+    }
+    
+    const DynamicMetaElem& DynamicMetaT::operator[](size_t pos) const
+    {
+        return mMeta[pos];
+    }
+
+    
+    /*********************
      *   DynamicIndex    *
-     **********************/
+     *********************/
 
     
     DynamicIndex::DynamicIndex(const std::shared_ptr<DynamicRange >& range) :
-	IndexInterface<DynamicIndex,MetaType>(range, 0),
-	mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
+	IndexInterface<DynamicIndex,MetaType>(range, 0)//,
+	//mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
     {}
 
     
@@ -25,21 +63,38 @@ namespace MultiArrayTools
 	IB::mPos = pos;
 	return *this;
     }
-
     
     DynamicIndex& DynamicIndex::operator++()
     {
-        // !!!
+        size_t ipos = mIVec.size()-1;
+        auto& ii = mIVec[ipos].first;
+        auto& jj = mIVec[ipos-1].first;
+        while(ii->pos() == ii->max()-1 and ipos != 0) {
+            (*ii) = 0;
+            ++(*jj);
+            --ipos;
+        }
 	return *this;
     }
-
     
     DynamicIndex& DynamicIndex::operator--()
     {
-        // !!!
+        size_t ipos = mIVec.size()-1;
+        auto& ii = mIVec[ipos].first;
+        auto& jj = mIVec[ipos-1].first;
+        while(ii->pos() == 0 and ipos != 0) {
+            (*ii) = ii->max()-1;
+            --(*jj);
+            --ipos;
+        }
 	return *this;
     }
 
+    DynamicIndex& DynamicIndex::operator()(const IVecT& ivec)
+    {
+        mIVec = ivec;
+        return *this;
+    }
     
     int DynamicIndex::pp(std::intptr_t idxPtrNum)
     {
@@ -61,13 +116,13 @@ namespace MultiArrayTools
     }
     
     
-    MetaType DynamicIndex::meta() const
+    DynamicIndex::MetaType DynamicIndex::meta() const
     {
-	return mExplicitRangePtr->meta(IB::mPos);
+	return std::dynamic_pointer_cast<DynamicRange const>( IB::mRangePtr )->get(IB::mPos);
     }
-
     
-    const MetaType* DynamicIndex::metaPtr() const
+    
+    const DynamicIndex::MetaType* DynamicIndex::metaPtr() const
     {
 	return nullptr;
     }
@@ -86,29 +141,33 @@ namespace MultiArrayTools
     }
 
     
-    size_t DynamicIndex::posAt(const U& metaPos) const
+    size_t DynamicIndex::posAt(const MetaType& metaPos) const
     {
 	return std::dynamic_pointer_cast<DynamicRange const>( IB::mRangePtr )->getMeta( metaPos );
     }
 
     
-    size_t DynamicIndex::dim() // = 1
+    size_t DynamicIndex::dim() const // = 1
     {
 	return 1;
     }
 
     
-    bool DynamicIndex::last()
+    bool DynamicIndex::last() const
     {
 	return IB::mPos == IB::mMax - 1;
     }
 
     
-    bool DynamicIndex::first()
+    bool DynamicIndex::first() const
     {
 	return IB::mPos == 0;
     }
 
+    const IndexW& DynamicIndex::get(size_t n) const
+    {
+        return *mIVec[n].first;
+    }
     
     std::shared_ptr<typename DynamicIndex::RangeType> DynamicIndex::range()
     {
@@ -120,12 +179,11 @@ namespace MultiArrayTools
     void DynamicIndex::getPtr() {}
     
     
-    size_t DynamicIndex::getStepSize(size_t n)
+    size_t DynamicIndex::getStepSize(size_t n) const
     {
-	return 1;
+	return mIVec[n].second;
     }
 
-    
     std::string DynamicIndex::id() const
     {
 	return std::string("dyn") + std::to_string(IB::mId);
@@ -139,7 +197,7 @@ namespace MultiArrayTools
 	}
 	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
 	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
+		  << "](" << IB::mRangePtr << "): " /*<< meta().first*/ << std::endl;
     }
     
     
@@ -197,14 +255,14 @@ namespace MultiArrayTools
      *   DynamicRange    *
      ***********************/
     
-    size_t DynamicRange::get(size_t pos) const
+    DynamicRange::MetaType DynamicRange::get(size_t pos) const
     {
-	return pos;
+	return MetaType(); // !!!
     }
         
-    size_t DynamicRange::getMeta(size_t metaPos) const
+    size_t DynamicRange::getMeta(const MetaType& metaPos) const
     {
-	return metaPos;
+	return 0; // !!!
     }
         
     size_t DynamicRange::size() const
@@ -214,7 +272,7 @@ namespace MultiArrayTools
         
     size_t DynamicRange::dim() const
     {
-	return 1;
+        return mOrig.size();
     }
 
     SpaceType DynamicRange::spaceType() const
@@ -258,11 +316,6 @@ namespace MultiArrayTools
 	return out;
     }
     
-    size_t DynamicRange::anonymousDim() const
-    {
-	return mOrig.size();
-    }
-    
     typename DynamicRange::IndexType DynamicRange::begin() const
     {
 	DynamicIndex i
@@ -296,7 +349,7 @@ namespace MultiArrayTools
     /*****************
      *   Functions   *
      *****************/
-
+    /*
     std::shared_ptr<DynamicRange> defaultRange(size_t size )
     {
 	DynamicRangeFactory arf
@@ -304,7 +357,7 @@ namespace MultiArrayTools
 	      (DynamicRange::factory().create() ) );
 	return std::dynamic_pointer_cast<DynamicRange>( arf.create() );
     }
-
+    */
 
     
 } // end namespace MultiArrayTools
