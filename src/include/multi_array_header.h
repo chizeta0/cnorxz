@@ -18,6 +18,7 @@
 #include "helper_tools.h"
 #include "operation_def.h"
 #include "map_range.h"
+#include "expressions.h"
 //#include "slice.h"
 //#include "manipulator.h"
 //#include "range_transformer.h"
@@ -60,5 +61,7 @@ namespace MultiArrayTools
     */
 
 }
+
+#include "multi_array_header.cc.h"
 
 #endif

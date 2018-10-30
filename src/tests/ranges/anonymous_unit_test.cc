@@ -5,8 +5,7 @@
 #include <iostream>
 
 #include "ranges/rheader.h"
-
-//#include "multi_array_header.h"
+#include "multi_array_header.h"
 
 namespace MAT = MultiArrayTools;
 
@@ -14,6 +13,8 @@ namespace {
 
     using namespace MAT;
 
+    typedef Expressions1 EC1;
+    
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
@@ -125,15 +126,15 @@ namespace {
 
     TEST_F(AnonymousTest, DCast1)
     {
-	DynamicRangeFactory arf1(sr1ptr,m3rptr);
-	auto ar1a = std::dynamic_pointer_cast<DynamicRange>( arf1.create() );
+	DynamicRangeFactory<EC1> arf1(sr1ptr,m3rptr);
+	auto ar1a = std::dynamic_pointer_cast<DynamicRange<EC1>>( arf1.create() );
 
 	arf1.append(sr2ptr);
 	
-	auto ar1b = std::dynamic_pointer_cast<DynamicRange>( arf1.create() );
+	auto ar1b = std::dynamic_pointer_cast<DynamicRange<EC1>>( arf1.create() );
 	
-	DynamicRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
-	auto ar2 = std::dynamic_pointer_cast<DynamicRange>( arf2.create() );
+	DynamicRangeFactory<EC1> arf2(sr1ptr,m3rptr,sr2ptr);
+	auto ar2 = std::dynamic_pointer_cast<DynamicRange<EC1>>( arf2.create() );
 
 	EXPECT_EQ(ar1b.get(), ar2.get());
 	EXPECT_EQ(ar1a->size(), sr1ptr->size() * m3rptr->size());
@@ -149,9 +150,9 @@ namespace {
 
     TEST_F(AnonymousTest, DCast2)
     {
-	DynamicRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
-	auto ar = std::dynamic_pointer_cast<DynamicRange>( arf2.create() );
-	auto mr = ar->template scast<SRange,DynamicRange>(1,2);
+	DynamicRangeFactory<EC1> arf2(sr1ptr,m3rptr,sr2ptr);
+	auto ar = std::dynamic_pointer_cast<DynamicRange<EC1>>( arf2.create() );
+	auto mr = ar->template scast<SRange,DynamicRange<EC1>>(1,2);
 
 	EXPECT_EQ(mr->template getPtr<0>()->size(), sr1ptr->size());
 	EXPECT_EQ(mr->template getPtr<1>()->size(), m3rptr->size() * sr2ptr->size());

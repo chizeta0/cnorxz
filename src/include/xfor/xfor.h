@@ -84,42 +84,6 @@ namespace MultiArrayHelper
 	}
     };
 
-    template <class Expr>
-    class ExpressionHolder : public ExpressionBase
-    {
-    private:
-	ExpressionHolder() = default;
-	
-        Expr mExpr;
-	typedef decltype(mExpr.rootSteps()) ExtType;
-	ExtType mExt;
-
-        mutable ExtType mRootSteps;
-
-    public:
-	typedef ExpressionBase EB;
-	
-	static constexpr size_t LAYER = Expr::LAYER + 1;
-	static constexpr size_t SIZE = Expr::SIZE;
-
-	ExpressionHolder(const ExpressionHolder& in) = default;
-	ExpressionHolder(ExpressionHolder&& in) = default;
-	ExpressionHolder& operator=(const ExpressionHolder& in) = default;
-	ExpressionHolder& operator=(ExpressionHolder&& in) = default;
-
-	ExpressionHolder(Expr expr);
-	
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const override final;
-
-        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
-        DExt dExtension() const override final;
-
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-	auto extension() const -> ExtType;
-
-    };
     
     template <class IndexClass, class Expr>
     class SingleExpression : public ExpressionBase
@@ -218,24 +182,27 @@ namespace MultiArrayHelper
     template <>
     inline size_t exceptMax<1>(size_t max) { return 1; }
 
-    class DynamicalExpression : public ExpressionBase
+    class DynamicExpression : public ExpressionBase
     {
     private:
-	DynamicalExpression() = default;
+	DynamicExpression() = default;
 
 	std::shared_ptr<ExpressionBase> mNext;
 
     public:
 	
-	DynamicalExpression(const DynamicalExpression& in) = default;
-	DynamicalExpression(DynamicalExpression&& in) = default;
-	DynamicalExpression& operator=(const DynamicalExpression& in) = default;
-	DynamicalExpression& operator=(DynamicalExpression&& in) = default;
+	DynamicExpression(const DynamicExpression& in) = default;
+	DynamicExpression(DynamicExpression&& in) = default;
+	DynamicExpression& operator=(const DynamicExpression& in) = default;
+	DynamicExpression& operator=(DynamicExpression&& in) = default;
 	
-	DynamicalExpression(const std::shared_ptr<ExpressionBase>& next) :
+	DynamicExpression(const std::shared_ptr<ExpressionBase>& next) :
 	    mNext(next)
 	{}
 
+        template <class Expr>
+        DynamicExpression(Expr ex) : mNext( std::make_shared<Expr>(ex) ) {}
+        
 	inline void operator()(size_t mlast, DExt last) const override final;
 	inline void operator()(size_t mlast = 0) const override final;
 
@@ -243,7 +210,45 @@ namespace MultiArrayHelper
         inline DExt dExtension() const override final;
 
     };
-    
+
+
+    template <class Expr>
+    class ExpressionHolder : public ExpressionBase
+    {
+    private:
+	ExpressionHolder() = default;
+	
+        DynamicExpression mExpr;
+	typedef decltype(std::declval<Expr>().rootSteps()) ExtType;
+	ExtType mExt;
+
+        mutable ExtType mRootSteps;
+
+    public:
+	typedef ExpressionBase EB;
+	
+	static constexpr size_t LAYER = Expr::LAYER + 1;
+	static constexpr size_t SIZE = Expr::SIZE;
+
+	ExpressionHolder(const ExpressionHolder& in) = default;
+	ExpressionHolder(ExpressionHolder&& in) = default;
+	ExpressionHolder& operator=(const ExpressionHolder& in) = default;
+	ExpressionHolder& operator=(ExpressionHolder&& in) = default;
+
+	ExpressionHolder(DynamicExpression expr);
+	
+	inline void operator()(size_t mlast, DExt last) const override final;
+	inline void operator()(size_t mlast, ExtType last) const;
+	inline void operator()(size_t mlast = 0) const override final;
+
+        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
+        DExt dExtension() const override final;
+
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+	auto extension() const -> ExtType;
+
+    };
+
 } // namespace MultiArrayHelper
 
 /* ========================= *
@@ -429,25 +434,25 @@ namespace MultiArrayHelper
     }
     
     /***************************
-     *   DynamicalExpression   *
+     *   DynamicExpression   *
      ***************************/
 
-    inline void DynamicalExpression::operator()(size_t mlast, DExt last) const
+    inline void DynamicExpression::operator()(size_t mlast, DExt last) const
     {
 	(*mNext)(mlast,last);
     }
 
-    inline void DynamicalExpression::operator()(size_t mlast) const
+    inline void DynamicExpression::operator()(size_t mlast) const
     {
 	(*mNext)(mlast);
     }
 
-    inline DExt DynamicalExpression::dRootSteps(std::intptr_t iPtrNum) const
+    inline DExt DynamicExpression::dRootSteps(std::intptr_t iPtrNum) const
     {
         return mNext->dRootSteps(iPtrNum);
     }
 
-    inline DExt DynamicalExpression::dExtension() const
+    inline DExt DynamicExpression::dExtension() const
     {
         return mNext->dExtension();
     }
@@ -457,7 +462,7 @@ namespace MultiArrayHelper
      ************************/
 
     template <class Expr>
-    ExpressionHolder<Expr>::ExpressionHolder(Expr expr) : mExpr(expr) {}
+    ExpressionHolder<Expr>::ExpressionHolder(DynamicExpression expr) : mExpr(expr) {}
 
     template <class Expr>
     inline void ExpressionHolder<Expr>::operator()(size_t mlast, DExt last) const
@@ -468,7 +473,10 @@ namespace MultiArrayHelper
     template <class Expr>
     inline void ExpressionHolder<Expr>::operator()(size_t mlast, ExtType last) const
     {
-	mExpr(mlast,last);
+	mExpr(mlast,
+              std::make_pair<size_t const*,size_t>
+              (reinterpret_cast<size_t const*>(&last),
+               sizeof(ExtType)/sizeof(size_t)));
     }
 
     template <class Expr>
@@ -493,14 +501,14 @@ namespace MultiArrayHelper
     auto ExpressionHolder<Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
-	return mExpr.rootSteps(iPtrNum);
+	return *reinterpret_cast<ExtType*>( mExpr.dRootSteps(iPtrNum).first );
     }
 
     template <class Expr>
     auto ExpressionHolder<Expr>::extension() const
 	-> ExtType
     {
-	return mExpr.extension();
+	return *reinterpret_cast<ExtType*>( mExpr.dExtension().first );
     }
 
 
