@@ -64,6 +64,8 @@ namespace {
 	return std::make_tuple(static_cast<size_t>( ts )...);
     }
 
+    typedef Expressions1 EC1;
+    
     template <typename T>
     struct Pow
     {
@@ -153,6 +155,8 @@ namespace {
 	std::vector<double> v2 = { 8.870, 4.790 };
 	std::vector<double> v3 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
 	std::vector<double> v4 = { 1.470, 2.210 };
+	std::vector<double> v5 = { 30.932, -33.693, -26.205, -15.504, 21.227, 17.829,
+				   -14.364, -1.868, -25.703, 13.836, 23.563, 41.339 };
     };
 
     class MapTest : public ::testing::Test
@@ -485,46 +489,7 @@ namespace {
 		  << std::endl;
 	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
     }    
-    /*
-    TEST_F(OpTest_Performance, PCheck)
-    {
-	MultiArray<double,MRange> ma2(mrptr, cv2);
-	MultiArray<double,SRange> ma1(sr1ptr, cv1);
-	MultiArray<double,MRange> res(mrptr);
 
-	auto si1 = MAT::getIndex(sr1ptr);
-	auto si2 = MAT::getIndex(sr2ptr);
-	auto mi = MAT::getIndex(mrptr);
-	(*mi)(si2, si1);
-
-	std::clock_t begin = std::clock();
-	
-	res(mi) = ma2(mi) * ma1(si1);
-
-	std::clock_t end = std::clock();
-	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
-		  << std::endl;
-
-	std::vector<double> res2(vs1*vs2);
-	std::clock_t begin2 = std::clock();
-	
-	for(size_t i = 0; i != vs2; ++i){
-	    for(size_t j = 0; j != vs1; ++j){
-		res2[i*vs1 + j] = cv1[j] * cv2[i*vs1 + j];
-	    }
-	}
-
-	std::clock_t end2 = std::clock();
-	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
-		  << std::endl;
-
-	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
-
-	EXPECT_EQ( xround( res.at(mkt(7,9)) ), xround(res2[7*vs1 + 9]) );
-	//EXPECT_EQ( xround( res.at(mkt(700,900)) ), xround(res2[700*vs1 + 900]) );
-	
-    }
-    */
     TEST_F(OpTest_1Dim, ExecOp)
     {
 	MultiArray<double,SRange> ma1(srptr, v1);
@@ -681,6 +646,53 @@ namespace {
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 / ( 1 + 4.790 / 2.210) ) );
     }
 
+    TEST_F(OpTest_MDim, ExecDOp)
+    {
+	//typedef MultiArray<double,AnonymousRange> AMA;
+	typedef MultiArray<double,DynamicRange<EC1> > DMA;
+	
+	MultiArray<double,MRange,SRange> ma1(mr1ptr,sr4ptr,v5);
+	MultiArray<double,SRange> ma2(sr2ptr,v1);
+	MultiArray<double,SRange,MRange> res(sr4ptr,mr1ptr);
+
+	DMA dma1 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( ma1 ) );
+	DMA dma2 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( ma2 ) );
+	DMA dres = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res ) );
+	
+	auto si2 = MAT::getIndex( sr2ptr );
+	auto si3 = MAT::getIndex( sr3ptr );
+	auto si4 = MAT::getIndex( sr4ptr );
+	auto mi = MAT::getIndex( mr1ptr );
+	(*mi)(si2,si3);
+
+	auto di1 = MAT::getIndex( MAT::rptr<0>( dma1 ) );
+	auto di2 = MAT::getIndex( MAT::rptr<0>( dma2 ) );
+	auto dir = MAT::getIndex( MAT::rptr<0>( dres ) );
+
+	(*di1)(mi,si4);
+	(*di2)(si2);
+	(*dir)(si4,mi);
+
+	dres(dir) = dma1(di1) + dma2(di2);
+
+	MultiArray<double,SRange,MRange> res2(sr4ptr,mr1ptr,dres.vdata());
+	
+	EXPECT_EQ( xround( res2.at( mkt('A',mkt('1','a')) ) ), xround( 30.932 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt('A',mkt('1','b')) ) ), xround( -26.205 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt('A',mkt('2','a')) ) ), xround( 21.227 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt('A',mkt('2','b')) ) ), xround( -14.364 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt('A',mkt('3','a')) ) ), xround( -25.703 + 0.373 ) );
+	EXPECT_EQ( xround( res2.at( mkt('A',mkt('3','b')) ) ), xround( 23.563 + 0.373 ) );
+
+	EXPECT_EQ( xround( res2.at( mkt('B',mkt('1','a')) ) ), xround( -33.693 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt('B',mkt('1','b')) ) ), xround( -15.504 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt('B',mkt('2','a')) ) ), xround( 17.829 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt('B',mkt('2','b')) ) ), xround( -1.868 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt('B',mkt('3','a')) ) ), xround( 13.836 + 0.373 ) );
+	EXPECT_EQ( xround( res2.at( mkt('B',mkt('3','b')) ) ), xround( 41.339 + 0.373 ) );
+	
+    }
+
     TEST_F(OpTest_MDim, ExecOp3)
     {
 	MultiArray<double,MRange,SRange> res(mr1ptr,sr4ptr);
@@ -762,6 +774,7 @@ namespace {
 	EXPECT_EQ( xround( ma7.at(mkt('3','B')).at(mkt('l','b')) ),
 		   xround( ma4.at(mkt('l','3','b','B')) ) );
 }
+
     /*
     TEST_F(OpTest_MDim, ExecAnonOp1)
     {

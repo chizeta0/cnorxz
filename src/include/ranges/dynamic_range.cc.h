@@ -10,6 +10,48 @@ namespace MultiArrayTools
     {
         using namespace MultiArrayHelper;
     }
+
+    /*************************
+     *   IndexWrapperBase    *
+     *************************/
+
+    template <class ExpressionCollection>
+    template <class Expr>
+    ExpressionHolder<Expr>
+    IndexWrapperBase<ExpressionCollection>::ifor(size_t step, ExpressionHolder<Expr> ex) const
+    {
+	return mEc->ifor(step, ex);
+    }
+
+    template <class ExpressionCollection>
+    template <class Expr>
+    ExpressionHolder<Expr>
+    IndexWrapperBase<ExpressionCollection>::iforh(size_t step, ExpressionHolder<Expr> ex) const
+    {
+	return mEc->iforh(step, ex);
+    }
+
+    template <class ExpressionCollection>
+    template <class Expr>
+    ExpressionHolder<Expr>
+    IndexWrapperBase<ExpressionCollection>::ifori(size_t step, Expr ex) const
+    {
+	return mEc->ifori(step, ex);
+    }
+
+    template <class ExpressionCollection>
+    template <class Expr>
+    ExpressionHolder<Expr>
+    IndexWrapperBase<ExpressionCollection>::iforhi(size_t step, Expr ex) const
+    {
+	return mEc->iforhi(step, ex);
+    }
+
+    template <class Index, class ExpressionCollection>
+    size_t IndexWrapper<Index,ExpressionCollection>::getStepSizeComp(std::intptr_t j) const
+    {
+	return MultiArrayHelper::getStepSize(*mI, j);
+    }
     
     /****************************
      *   DynamicRangeFactory    *
@@ -101,9 +143,16 @@ namespace MultiArrayTools
 
     template <class EC>
     DynamicIndex<EC>::DynamicIndex(const std::shared_ptr<DynamicRange<EC> >& range) :
-	IndexInterface<DynamicIndex,MetaType>(range, 0)//,
-	//mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
-    {}
+	IndexInterface<DynamicIndex,MetaType>(range, 0),
+	mIVec(range->dim())
+    {
+	size_t xx = 1;
+	for(size_t i = mIVec.size()-1; i != 0; --i){
+	    mIVec[i].second = xx;
+	    xx *= range->sub(i)->size();
+	}
+	mIVec[0].second = xx;
+    }
 
     template <class EC>
     IndexType DynamicIndex<EC>::type() const
@@ -151,6 +200,20 @@ namespace MultiArrayTools
     {
         mIVec = ivec;
         return *this;
+    }
+
+    template <class EC>
+    template <class... Indices>
+    DynamicIndex<EC>& DynamicIndex<EC>::operator()(const std::shared_ptr<Indices>&... is)
+    {
+	std::vector<std::shared_ptr<IndexW<EC>>> tmp =
+	    { std::make_shared<IndexWrapper<Indices,EC>>(is)... };
+	
+	assert(mIVec.size() == tmp.size());
+	for(size_t i = 0; i != mIVec.size(); ++i){
+	    mIVec[i].first = tmp[i];
+	}
+	return *this;
     }
     
     template <class EC>
@@ -207,7 +270,7 @@ namespace MultiArrayTools
     template <class EC>
     size_t DynamicIndex<EC>::dim() const // = 1
     {
-	return 1;
+	return mIVec.size();
     }
 
     template <class EC>
@@ -261,10 +324,37 @@ namespace MultiArrayTools
 	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
 		  << "](" << IB::mRangePtr << "): " /*<< meta().first*/ << std::endl;
     }
-    
+
+    template <class Expr>
+    struct ForMaker
+    {
+	template <class IVecT>
+	static inline auto mk(size_t i, size_t step, ExpressionHolder<Expr> ex, 
+			      const IVecT& ivec, bool hidden = false)
+	    -> ExpressionHolder<Expr>
+	{
+	    if(i != 0){
+		auto& ii = *ivec[i].first;
+		return mk(i-1, step,
+			  (hidden ? ii.iforh(step*ivec[i].second, ex) :
+			   ii.ifor(step*ivec[i].second, ex)),
+			  ivec, hidden);
+	    }
+	    else {
+		auto& ii = *ivec[0].first;
+		return hidden ? ii.iforh(step*ivec[i].second, ex) :
+		    ii.ifor(step*ivec[i].second, ex);
+	    }		
+	}
+    };
+
+    /*
     template <class EC>
-    inline DynamicExpression DynamicIndex<EC>::mkFor(size_t i, size_t step,
-						   DynamicExpression ex, bool hidden) const
+    template <class Expr>
+    inline auto DynamicIndex<EC>::mkFor(size_t i, size_t step,
+					ExpressionHolder<Expr> ex,
+					bool hidden) const
+	-> ExpressionHolder<Expr>
     {
 	if(i != 0){
 	    auto& ii = *mIVec[i].first;
@@ -275,23 +365,21 @@ namespace MultiArrayTools
 	    return hidden ? ii.iforh(step, ex) : ii.ifor(step, ex);
 	}		
     }
-
+    */
     template <class EC>
     template <class Expr>
-    auto DynamicIndex<EC>::ifor(size_t step, Expr ex) const
-        -> DynamicExpression
+    ExpressionHolder<Expr> DynamicIndex<EC>::ifor(size_t step, Expr ex) const
     {
-	DynamicExpression expr(std::make_shared<Expr>(ex));
-	return mkFor(mIVec.size()-1, step, expr);
+	return ForMaker<Expr>::mk(mIVec.size()-2, step, mIVec.back().first->ifori(step,ex),
+				  mIVec);
     }
 
     template <class EC>
     template <class Expr>
-    auto DynamicIndex<EC>::iforh(size_t step, Expr ex) const
-        -> DynamicExpression
+    ExpressionHolder<Expr> DynamicIndex<EC>::iforh(size_t step, Expr ex) const
     {
-	DynamicExpression expr(std::make_shared<Expr>(ex));
-	return mkFor(mIVec.size()-1, step, expr, true);
+	return ForMaker<Expr>::mk(mIVec.size()-2, step, mIVec.back().first->iforhi(step,ex),
+				  mIVec, true);
     }
 
 

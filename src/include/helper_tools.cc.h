@@ -114,4 +114,21 @@ namespace MultiArrayTools
     }
 
 
+    template <class EC, class MArray>
+    auto dynamic(const MArray& ma, bool slice)
+	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>
+    {
+	DynamicRangeFactory<EC> drf(ma.range()->space());
+	if(slice){
+	    return std::make_shared<ConstSlice<typename MArray::value_type,DynamicRange<EC>>>
+		( std::dynamic_pointer_cast<DynamicRange<EC>>( drf.create() ),
+		  ma.data() );
+	}
+	else {
+	    return std::make_shared<MultiArray<typename MArray::value_type,DynamicRange<EC>>>
+		( std::dynamic_pointer_cast<DynamicRange<EC>>( drf.create() ),
+		  ma.vdata() );
+	}
+    }
+
 }

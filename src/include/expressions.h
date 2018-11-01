@@ -21,13 +21,32 @@ namespace MultiArrayTools
     using DDMMA = MutableMultiArrayBase<double,DynamicRange<EC>>;
 
     template <class EC, class MA>
-    using oo = decltype(std::declval<MA>()(std::declval<std::shared_ptr<DynamicIndex<EC>>>()));
+    using oo = decltype(std::declval<MA>()(std::declval<const std::shared_ptr<DynamicIndex<EC>>&>()));
 
     template <template <class> class OpF, class... oos>
     using OO = Operation<double,OpF<double>,oos...>;
 
     template <class EC, template <class> class OpF, class... MAs>
     using OX = Operation<double,OpF<double>,oo<EC,MAs>...>;
+
+    template <class EC, class Second>
+    using AEXT = typename OperationMaster<double,Second,DynamicRange<EC>>::AssignmentExpr;
+
+    template <class EC, template <class> class OpF, class... MAs>
+    using AEX = AEXT<EC,OX<EC,OpF,MAs...>>;
+
+    template <class EC, template <class> class OpF>
+    using AEX_B_MM = AEX<EC,OpF,DDMMA<EC>,DDMMA<EC>>;
+
+    template <class EC, template <class> class OpF>
+    using AEX_B_MC = AEX<EC,OpF,DDMMA<EC>,DDMA<EC>>;
+
+    template <class EC, template <class> class OpF>
+    using AEX_B_CM = AEX<EC,OpF,DDMA<EC>,DDMMA<EC>>;
+
+    template <class EC, template <class> class OpF>
+    using AEX_B_CC = AEX<EC,OpF,DDMA<EC>,DDMA<EC>>;
+
     /*
     template <class EC>
     class ECInterface
@@ -53,57 +72,74 @@ namespace MultiArrayTools
     };
     */
     template <class EC, class Index>
-    EC makeec(const std::shared_ptr<Index>& i);
+    std::shared_ptr<EC> makeec(const std::shared_ptr<Index>& i);
 
 #define V_IFOR_X(Expr) \
-    virtual ExpressionHolder<Expr> iforx(size_t step, Expr ex) const = 0; \
-    virtual ExpressionHolder<Expr> iforhx(size_t step, Expr ex) const = 0
+    virtual ExpressionHolder<Expr> iforx(size_t step, ExpressionHolder<Expr> ex) const = 0; \
+    virtual ExpressionHolder<Expr> iforhx(size_t step, ExpressionHolder<Expr> ex) const = 0; \
+    virtual ExpressionHolder<Expr> iforxi(size_t step, Expr ex) const = 0; \
+    virtual ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const = 0
+
+#define V_IFOR_A(EC,OpF) \
+    V_IFOR_X(AEX_B_MM<EC Y() OpF>); \
+    V_IFOR_X(AEX_B_MC<EC Y() OpF>); \
+    V_IFOR_X(AEX_B_CM<EC Y() OpF>); \
+    V_IFOR_X(AEX_B_CC<EC Y() OpF>)
+    
 
     template <class Index>
     class E1;
-
+    
     class Expressions1 //: public ECInterface<Expressions1<X>>
     {
     public:
         typedef Expressions1 EX;
-        
-        template <class Index>
+
+	template <class Index>
         static auto make(const std::shared_ptr<Index>& i)
             -> decltype(makeec<E1<Index>>(i))
         {
             return makeec<E1<Index>>(i);
         }
-
+	
     private:
-        V_IFOR_X(OX<EX Y() plus Y() DDMA<EX> Y() DDMA<EX>>);
-        V_IFOR_X(OX<EX Y() minus Y() DDMA<EX> Y() DDMA<EX>>);
-        V_IFOR_X(OX<EX Y() multiplies Y() DDMA<EX> Y() DDMA<EX>>);
-        V_IFOR_X(OX<EX Y() divides Y() DDMA<EX> Y() DDMA<EX>>);
+        V_IFOR_A(EX,plus);
+        V_IFOR_A(EX,minus);
+        V_IFOR_A(EX,multiplies);
+        V_IFOR_A(EX,divides);
 
     public:
         template <class Expr>
-        auto ifor(size_t step, Expr ex) const
-            -> decltype(iforx(step, ex))
-        {
-            return iforx(step, ex);
-        }
+        inline ExpressionHolder<Expr> ifor(size_t step, ExpressionHolder<Expr> ex) const;
 
         template <class Expr>
-        auto iforh(size_t step, Expr ex) const
-            -> decltype(iforhx(step, ex))
-        {
-            return iforhx(step, ex);
-        }
+        inline ExpressionHolder<Expr> iforh(size_t step, ExpressionHolder<Expr> ex) const;
+
+	template <class Expr>
+        inline ExpressionHolder<Expr> ifori(size_t step, Expr ex) const;
+
+        template <class Expr>
+        inline ExpressionHolder<Expr> iforhi(size_t step, Expr ex) const;
 
     };
 
     
-#define O_IFOR_X(Expr,Ind) \
-    virtual ExpressionHolder<Expr> iforx(size_t step, Expr ex) const override final \
+#define D_IFOR_X(Expr,Ind) \
+    ExpressionHolder<Expr> iforx(size_t step, ExpressionHolder<Expr> ex) const \
     { return ExpressionHolder<Expr>(Ind->ifor(step, ex)); } \
-    virtual ExpressionHolder<Expr> iforhx(size_t step, Expr ex) const override final \
+    ExpressionHolder<Expr> iforhx(size_t step, ExpressionHolder<Expr> ex) const \
+    { return ExpressionHolder<Expr>(Ind->iforh(step, ex)); } \
+    ExpressionHolder<Expr> iforxi(size_t step, Expr ex) const \
+    { return ExpressionHolder<Expr>(Ind->ifor(step, ex)); } \
+    ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const \
     { return ExpressionHolder<Expr>(Ind->iforh(step, ex)); }
-    
+
+#define D_IFOR_A(EC,OpF,Ind) \
+    D_IFOR_X(AEX_B_MM<EC Y() OpF>,Ind); \
+    D_IFOR_X(AEX_B_MC<EC Y() OpF>,Ind); \
+    D_IFOR_X(AEX_B_CM<EC Y() OpF>,Ind); \
+    D_IFOR_X(AEX_B_CC<EC Y() OpF>,Ind)
+
     template <class Index>
     class E1 : public Expressions1
     {
@@ -115,10 +151,10 @@ namespace MultiArrayTools
         
         std::shared_ptr<Index> mI;
 
-        O_IFOR_X(OX<EX Y() plus Y() DDMA<EX> Y() DDMA<EX>>, mI);
-        O_IFOR_X(OX<EX Y() minus Y() DDMA<EX> Y() DDMA<EX>>, mI);
-        O_IFOR_X(OX<EX Y() multiplies Y() DDMA<EX> Y() DDMA<EX>>, mI);
-        O_IFOR_X(OX<EX Y() divides Y() DDMA<EX> Y() DDMA<EX>>, mI);
+        D_IFOR_A(EX,plus,mI);
+        D_IFOR_A(EX,minus,mI);
+        D_IFOR_A(EX,multiplies,mI);
+        D_IFOR_A(EX,divides,mI);
 
     public:
         E1(const E1& in) = default;
@@ -128,12 +164,6 @@ namespace MultiArrayTools
 
         E1(const std::shared_ptr<Index>& i) : mI(i) {} 
     };
-
-    template <class EC, class Index>
-    EC makeec(const std::shared_ptr<Index>& i)
-    {
-        return EC(i);
-    }
 
 
 } // namespace MultiArrayTools

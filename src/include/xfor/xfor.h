@@ -9,6 +9,9 @@
 #include "xfor/for_utils.h"
 #include "xfor/exttype.h"
 
+#define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
+    << " in " << __func__ << ": " << #a << " = " << a << std::endl; 
+
 namespace MultiArrayHelper
 {
 
@@ -271,8 +274,6 @@ namespace MultiArrayHelper
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
 	assert(mIndPtr != nullptr);
-	//VCHECK(mIndPtr->id());
-	//VCHECK(mIndPtr->max());
     }
 
     template <class IndexClass, class Expr, ForType FT>
@@ -282,8 +283,6 @@ namespace MultiArrayHelper
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
 	assert(mIndPtr != nullptr);
-	//VCHECK(mIndPtr->id());
-	//VCHECK(mIndPtr->max());
     }
 
     template <class IndexClass, class Expr, ForType FT>
@@ -501,14 +500,14 @@ namespace MultiArrayHelper
     auto ExpressionHolder<Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
-	return *reinterpret_cast<ExtType*>( mExpr.dRootSteps(iPtrNum).first );
+	return *reinterpret_cast<ExtType const*>( mExpr.dRootSteps(iPtrNum).first );
     }
 
     template <class Expr>
     auto ExpressionHolder<Expr>::extension() const
 	-> ExtType
     {
-	return *reinterpret_cast<ExtType*>( mExpr.dExtension().first );
+	return *reinterpret_cast<ExtType const*>( mExpr.dExtension().first );
     }
 
 

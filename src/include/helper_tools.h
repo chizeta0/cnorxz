@@ -59,6 +59,10 @@ namespace MultiArrayTools
     auto prtr(const MArray& ma)
 	-> decltype(ma.template getRangePtr<N>());
 
+    template <class EC, class MArray>
+    auto dynamic(const MArray& ma, bool slice = false)
+	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
+    
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)
     {

@@ -9,6 +9,32 @@ namespace MultiArrayTools
 {
 
     typedef std::pair<const char*,size_t> DynamicMetaElem;
+
+    template <size_t N>
+    struct DynamicMetaSetter
+    {
+	template <typename... Us>
+	static inline void set(const std::tuple<Us...>& in, std::vector<DynamicMetaElem>& meta)
+	{
+	    typedef typename std::tuple_element<N,std::tuple<Us...>>::type elemtype;
+	    meta[N].first = reinterpret_cast<const char*>( &std::get<N>(in) );
+	    meta[N].second = sizeof(elemtype);
+	    DynamicMetaSetter<N-1>::set(in,meta);
+	}	    
+    };
+
+    template <>
+    struct DynamicMetaSetter<0>
+    {
+	template <typename... Us>
+	static inline void set(const std::tuple<Us...>& in, std::vector<DynamicMetaElem>& meta)
+	{
+	    typedef typename std::tuple_element<0,std::tuple<Us...>>::type elemtype;
+	    meta[0].first = reinterpret_cast<const char*>( &std::get<0>(in) );
+	    meta[0].second = sizeof(elemtype);
+	}	    
+    };
+
     
     class DynamicMetaT
     {
@@ -23,9 +49,9 @@ namespace MultiArrayTools
         DynamicMetaT& operator=(DynamicMetaT&& in) = default;
 
         template <typename... Us>
-        DynamicMetaT(const std::tuple<Us...>& meta)
+        DynamicMetaT(const std::tuple<Us...>* meta) : mMeta(sizeof...(Us))
         {
-            
+	    DynamicMetaSetter<sizeof...(Us)-1>::set(*meta,mMeta);
         }
         
         bool operator==(const DynamicMetaT& in) const;

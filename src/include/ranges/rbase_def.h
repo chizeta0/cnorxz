@@ -5,6 +5,17 @@
 
 #include <cstdlib>
 
+#include <iostream>
+#ifndef CHECK
+#define CHECK std::cout << __FILE__ << ": @" << __LINE__ << " in " << __func__ << std::endl;
+#endif
+#ifndef VCHECK
+#define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
+  << " in " << __func__ << ": " << #a << " = " << a << std::endl;
+#endif
+
+
+
 namespace MultiArrayTools
 {
 

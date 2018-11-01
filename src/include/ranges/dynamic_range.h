@@ -19,9 +19,14 @@
 
 namespace MultiArrayTools
 {
+    namespace
+    {
+	using namespace MultiArrayHelper;
+    }
+    //using MultiArrayHelper::DynamicExpression;
 
-    using MultiArrayHelper::DynamicExpression;
-
+    //using MultiArrayHelper::ExpressionHolder;
+    
     template <class ExpressionCollection>
     class IndexWrapperBase
     {
@@ -46,7 +51,7 @@ namespace MultiArrayTools
 
 	virtual std::string stringMeta() const = 0;
 	//virtual DynamicMetaT meta() const = 0;
-	virtual const DynamicMetaT* metaPtr() const = 0;
+	//virtual const DynamicMetaT* metaPtr() const = 0;
 	//virtual IndexWrapperBase& at(const U& metaPos) = 0;
 	//virtual size_t posAt(const U& metaPos) const = 0;
 
@@ -64,16 +69,19 @@ namespace MultiArrayTools
         virtual size_t getStepSizeComp(std::intptr_t j) const = 0;
         
         virtual std::intptr_t get() const = 0;
+	virtual std::intptr_t ptrNum() const = 0;
+	
+        template <class Expr>
+        ExpressionHolder<Expr> ifor(size_t step, ExpressionHolder<Expr> ex) const;
 
         template <class Expr>
-        auto ifor(size_t step, Expr ex) const
-            -> decltype(mEc->ifor(step, ex))
-        { return mEc->ifor(step, ex); }
+        ExpressionHolder<Expr> iforh(size_t step, ExpressionHolder<Expr> ex) const;
+
+	template <class Expr>
+        ExpressionHolder<Expr> ifori(size_t step, Expr ex) const;
 
         template <class Expr>
-        auto iforh(size_t step, Expr ex) const
-            -> decltype(mEc->iforh(step, ex))
-        { return mEc->iforh(step, ex); }
+        ExpressionHolder<Expr> iforhi(size_t step, Expr ex) const;
 
     };
 
@@ -85,6 +93,10 @@ namespace MultiArrayTools
     {
     public:
         typedef IndexWrapperBase<ExpressionCollection> IWB;
+	typedef typename Index::MetaType MetaType;
+
+	static constexpr IndexType sType() { return IndexType::SINGLE; }
+	
     protected:
         IndexWrapper() = default;
 
@@ -113,8 +125,8 @@ namespace MultiArrayTools
 	virtual int mm(std::intptr_t idxPtrNum) final { return mI->mm(idxPtrNum); }
 
 	virtual std::string stringMeta() const final { return mI->stringMeta(); }
-	virtual DynamicMetaT meta() const final { return DynamicMetaT(mI->meta()); }
-	virtual const DynamicMetaT* metaPtr() const final { return nullptr; }
+	//virtual DynamicMetaT meta() const final { return DynamicMetaT(mI->meta()); }
+	//virtual const DynamicMetaT* metaPtr() const final { return nullptr; }
 	IndexWrapper& at(const typename Index::MetaType& metaPos) { mI->at(metaPos); return *this; }
 	size_t posAt(const typename Index::MetaType& metaPos) const { return mI->posAt(metaPos); }
 
@@ -127,9 +139,10 @@ namespace MultiArrayTools
 	virtual std::shared_ptr<RangeBase> range() const final { return mI->range(); }
         
         virtual size_t getStepSize(size_t n) const final { return mI->getStepSize(n); }
-        virtual size_t getStepSizeComp(std::intptr_t j) const final { return getStepSize(*this, j); }
+        virtual size_t getStepSizeComp(std::intptr_t j) const final;
         
         virtual std::intptr_t get() const final { return reinterpret_cast<std::intptr_t>(mI.get()); }
+	virtual std::intptr_t ptrNum() const final { return mI->ptrNum(); }
 	
     };
     
@@ -142,9 +155,6 @@ namespace MultiArrayTools
         typedef std::vector<std::pair<std::shared_ptr<IndexW<EC>>,size_t>> IVecT;
         
         IVecT mIVec;
-
-	inline DynamicExpression mkFor(size_t i, size_t step,
-					 DynamicExpression ex, bool hidden = false) const;	
 
     public:
         typedef IndexInterface<DynamicIndex<EC>,DynamicMetaT> IB;
@@ -167,6 +177,9 @@ namespace MultiArrayTools
 	DynamicIndex& operator--();
 
         DynamicIndex& operator()(const IVecT& ivec);
+
+	template <class... Indices>
+	DynamicIndex& operator()(const std::shared_ptr<Indices>&... is);
         
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
@@ -196,12 +209,10 @@ namespace MultiArrayTools
 	void print(size_t offset);
 
 	template <class Expr>
-	auto ifor(size_t step, Expr ex) const
-	    -> DynamicExpression;
+	ExpressionHolder<Expr> ifor(size_t step, Expr ex) const;
 
 	template <class Expr>
-	auto iforh(size_t step, Expr ex) const
-	    -> DynamicExpression;
+	ExpressionHolder<Expr> iforh(size_t step, Expr ex) const;
 
     };    
 
@@ -335,7 +346,8 @@ namespace MultiArrayHelper
     {
         size_t ss = 0;
         size_t sx = 1;
-        for(size_t i = ii.dim(); i != 0; --i){
+        for(size_t k = ii.dim(); k != 0; --k){
+	    const size_t i = k-1;
             const auto& ni = ii.get(i);
             const size_t max = ni.max();
             const size_t tmp = ni.getStepSizeComp(j);
@@ -347,6 +359,6 @@ namespace MultiArrayHelper
 
 }
 
-#include "dynamic_range.cc.h"
+//#include "dynamic_range.cc.h"
 
 #endif

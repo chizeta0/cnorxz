@@ -584,8 +584,6 @@ namespace MultiArrayHelper
 	template <class Index>
 	static inline size_t getStepSize(const Index& ii, std::intptr_t j)
 	{
-	    //VCHECK(ii.ptrNum());
-	    //VCHECK(j);
 	    return ii.ptrNum() == j ? 1 : 0;
 	}
     };
