@@ -75,10 +75,10 @@ namespace MultiArrayTools
     std::shared_ptr<EC> makeec(const std::shared_ptr<Index>& i);
 
 #define V_IFOR_X(Expr) \
-    virtual ExpressionHolder<Expr> iforx(size_t step, ExpressionHolder<Expr> ex) const = 0; \
-    virtual ExpressionHolder<Expr> iforhx(size_t step, ExpressionHolder<Expr> ex) const = 0; \
-    virtual ExpressionHolder<Expr> iforxi(size_t step, Expr ex) const = 0; \
-    virtual ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const = 0
+    virtual MultiArrayTools::ExpressionHolder<Expr> iforx(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const = 0; \
+    virtual MultiArrayTools::ExpressionHolder<Expr> iforhx(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const = 0; \
+    virtual MultiArrayTools::ExpressionHolder<Expr> iforxi(size_t step, Expr ex) const = 0; \
+    virtual MultiArrayTools::ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const = 0
 
 #define V_IFOR_A(EC,OpF) \
     V_IFOR_X(AEX_B_MM<EC XCOMMAX() OpF>); \
@@ -103,36 +103,36 @@ namespace MultiArrayTools
         }
 	
     private:
-        V_IFOR_A(EX,plus);
-        V_IFOR_A(EX,minus);
-        V_IFOR_A(EX,multiplies);
-        V_IFOR_A(EX,divides);
+        V_IFOR_A(EX,MultiArrayTools::plus);
+        V_IFOR_A(EX,MultiArrayTools::minus);
+        V_IFOR_A(EX,MultiArrayTools::multiplies);
+        V_IFOR_A(EX,MultiArrayTools::divides);
 
     public:
         template <class Expr>
-        inline ExpressionHolder<Expr> ifor(size_t step, ExpressionHolder<Expr> ex) const;
+        inline MultiArrayTools::ExpressionHolder<Expr> ifor(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const;
 
         template <class Expr>
-        inline ExpressionHolder<Expr> iforh(size_t step, ExpressionHolder<Expr> ex) const;
+        inline MultiArrayTools::ExpressionHolder<Expr> iforh(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const;
 
 	template <class Expr>
-        inline ExpressionHolder<Expr> ifori(size_t step, Expr ex) const;
+        inline MultiArrayTools::ExpressionHolder<Expr> ifori(size_t step, Expr ex) const;
 
         template <class Expr>
-        inline ExpressionHolder<Expr> iforhi(size_t step, Expr ex) const;
+        inline MultiArrayTools::ExpressionHolder<Expr> iforhi(size_t step, Expr ex) const;
 
     };
 
     
 #define D_IFOR_X(Expr,Ind) \
-    ExpressionHolder<Expr> iforx(size_t step, ExpressionHolder<Expr> ex) const \
-    { return ExpressionHolder<Expr>(Ind->ifor(step, ex)); } \
-    ExpressionHolder<Expr> iforhx(size_t step, ExpressionHolder<Expr> ex) const \
-    { return ExpressionHolder<Expr>(Ind->iforh(step, ex)); } \
-    ExpressionHolder<Expr> iforxi(size_t step, Expr ex) const \
-    { return ExpressionHolder<Expr>(Ind->ifor(step, ex)); } \
-    ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const \
-    { return ExpressionHolder<Expr>(Ind->iforh(step, ex)); }
+    MultiArrayTools::ExpressionHolder<Expr> iforx(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const \
+    { return MultiArrayTools::ExpressionHolder<Expr>(Ind->ifor(step, ex)); } \
+    MultiArrayTools::ExpressionHolder<Expr> iforhx(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const \
+    { return MultiArrayTools::ExpressionHolder<Expr>(Ind->iforh(step, ex)); } \
+    MultiArrayTools::ExpressionHolder<Expr> iforxi(size_t step, Expr ex) const \
+    { return MultiArrayTools::ExpressionHolder<Expr>(Ind->ifor(step, ex)); } \
+    MultiArrayTools::ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const \
+    { return MultiArrayTools::ExpressionHolder<Expr>(Ind->iforh(step, ex)); }
 
 #define D_IFOR_A(EC,OpF,Ind) \
     D_IFOR_X(AEX_B_MM<EC XCOMMAX() OpF>,Ind); \
@@ -151,10 +151,10 @@ namespace MultiArrayTools
         
         std::shared_ptr<Index> mI;
 
-        D_IFOR_A(EX,plus,mI);
-        D_IFOR_A(EX,minus,mI);
-        D_IFOR_A(EX,multiplies,mI);
-        D_IFOR_A(EX,divides,mI);
+        D_IFOR_A(EX,MultiArrayTools::plus,mI);
+        D_IFOR_A(EX,MultiArrayTools::minus,mI);
+        D_IFOR_A(EX,MultiArrayTools::multiplies,mI);
+        D_IFOR_A(EX,MultiArrayTools::divides,mI);
 
     public:
         E1(const E1& in) = default;

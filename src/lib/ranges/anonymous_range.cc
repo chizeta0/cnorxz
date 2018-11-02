@@ -152,7 +152,12 @@ namespace MultiArrayTools
 	assert(mOrig[num]->size() == in->size());
 	mOrig[num] = in;
     }
-    
+
+    const std::vector<std::shared_ptr<RangeBase> >& AnonymousRange::orig() const
+    {
+        return mOrig;
+    }
+   
     /*****************
      *   Functions   *
      *****************/

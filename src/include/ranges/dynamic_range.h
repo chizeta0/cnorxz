@@ -177,6 +177,7 @@ namespace MultiArrayTools
 	DynamicIndex& operator--();
 
         DynamicIndex& operator()(const IVecT& ivec);
+        DynamicIndex& operator()(const std::vector<std::shared_ptr<IndexW<EC>>>& ivec);
 
 	template <class... Indices>
 	DynamicIndex& operator()(const std::shared_ptr<Indices>&... is);
@@ -233,6 +234,8 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	DynamicRangeFactory(std::shared_ptr<RangeTypes>... origs);
 
+	DynamicRangeFactory(const std::vector<std::shared_ptr<RangeBase>>& origs);
+
 	template <class Range>
 	void append(std::shared_ptr<Range> r);
 	
@@ -271,6 +274,8 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	DynamicRange(std::shared_ptr<RangeTypes>... origs);
 
+        DynamicRange(const std::vector<std::shared_ptr<RangeBase>>& origs);
+
 	size_t mSize = 1;
 	bool mEmpty = true;
 	
@@ -299,6 +304,8 @@ namespace MultiArrayTools
 	template <class... Ranges>
 	std::shared_ptr<MultiRange<Ranges...> > scast(SIZET<Ranges>... sizes) const; // save cast
 
+        const std::vector<std::shared_ptr<RangeBase> >& orig() const;
+        
 	void sreplace(const std::shared_ptr<RangeBase> in, size_t num);
 	
 	bool isEmpty() const;
