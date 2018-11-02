@@ -7,7 +7,7 @@
 #include "multi_array_operation.h"
 #include "xfor/xfor.h"
 
-#define Y() ,
+#define XCOMMAX() ,
 
 namespace MultiArrayTools
 {
@@ -81,10 +81,10 @@ namespace MultiArrayTools
     virtual ExpressionHolder<Expr> iforhxi(size_t step, Expr ex) const = 0
 
 #define V_IFOR_A(EC,OpF) \
-    V_IFOR_X(AEX_B_MM<EC Y() OpF>); \
-    V_IFOR_X(AEX_B_MC<EC Y() OpF>); \
-    V_IFOR_X(AEX_B_CM<EC Y() OpF>); \
-    V_IFOR_X(AEX_B_CC<EC Y() OpF>)
+    V_IFOR_X(AEX_B_MM<EC XCOMMAX() OpF>); \
+    V_IFOR_X(AEX_B_MC<EC XCOMMAX() OpF>); \
+    V_IFOR_X(AEX_B_CM<EC XCOMMAX() OpF>); \
+    V_IFOR_X(AEX_B_CC<EC XCOMMAX() OpF>)
     
 
     template <class Index>
@@ -135,10 +135,10 @@ namespace MultiArrayTools
     { return ExpressionHolder<Expr>(Ind->iforh(step, ex)); }
 
 #define D_IFOR_A(EC,OpF,Ind) \
-    D_IFOR_X(AEX_B_MM<EC Y() OpF>,Ind); \
-    D_IFOR_X(AEX_B_MC<EC Y() OpF>,Ind); \
-    D_IFOR_X(AEX_B_CM<EC Y() OpF>,Ind); \
-    D_IFOR_X(AEX_B_CC<EC Y() OpF>,Ind)
+    D_IFOR_X(AEX_B_MM<EC XCOMMAX() OpF>,Ind); \
+    D_IFOR_X(AEX_B_MC<EC XCOMMAX() OpF>,Ind); \
+    D_IFOR_X(AEX_B_CM<EC XCOMMAX() OpF>,Ind); \
+    D_IFOR_X(AEX_B_CC<EC XCOMMAX() OpF>,Ind)
 
     template <class Index>
     class E1 : public Expressions1
