@@ -152,9 +152,18 @@ namespace MultiArrayTools
     template <class... SRanges2>
     MultiArray<T,SRanges2...> MultiArray<T,SRanges...>::format(const std::shared_ptr<SRanges2>&... nrs)
     {
+	MAB::mInit = false;
 	return MultiArray<T,SRanges2...>( nrs... , std::move(mCont) );
     }
-    
+
+    template <typename T, class... SRanges>
+    template <class... SRanges2>
+    MultiArray<T,SRanges2...> MultiArray<T,SRanges...>::format(const std::tuple<std::shared_ptr<SRanges2>...>& nrs)
+    {
+	MAB::mInit = false;
+	return MultiArray<T,SRanges2...>( nrs , std::move(mCont) );
+    }
+
     template <typename T, class... SRanges>
     const T* MultiArray<T,SRanges...>::data() const
     {

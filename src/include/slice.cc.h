@@ -13,6 +13,15 @@ namespace MultiArrayTools
     {
 	MAB::mProtoI->format(blocks);
     }
+
+    template <typename T, class... SRanges>
+    ConstSlice<T,SRanges...>::ConstSlice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
+					 const T* data) :
+	MultiArrayBase<T,SRanges...>(ranges),
+	mData(data)
+    {
+	MAB::mInit = true;
+    }
     
     template <typename T, class... SRanges>
     ConstSlice<T,SRanges...>::ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data) :

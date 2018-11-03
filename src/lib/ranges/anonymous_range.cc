@@ -11,8 +11,14 @@ namespace MultiArrayTools
     {
 	mProd = std::shared_ptr<oType>( new AnonymousRange() );
     }
+
     
     std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > AnonymousRangeFactory::mAleadyCreated;
+
+    AnonymousRangeFactory::AnonymousRangeFactory(const std::vector<std::shared_ptr<RangeBase>>& origs)
+    {
+        mProd = std::shared_ptr<oType>( new AnonymousRange( origs ) );
+    }
     
     std::shared_ptr<RangeBase> AnonymousRangeFactory::checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
     {
@@ -157,7 +163,21 @@ namespace MultiArrayTools
     {
         return mOrig;
     }
-   
+    
+    SingleRange<size_t,SpaceType::ANON>::SingleRange(const std::vector<std::shared_ptr<RangeBase>>& origs) :
+        RangeInterface<AnonymousIndex>(),
+        mOrig(origs)
+    {
+        mSize = 1;
+        for(auto& x: mOrig){
+            mSize *= x->size();
+        }
+        if(mOrig.size()){
+            mEmpty = false;
+        }
+    }
+
+    
     /*****************
      *   Functions   *
      *****************/

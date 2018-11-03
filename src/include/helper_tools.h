@@ -56,13 +56,29 @@ namespace MultiArrayTools
 	-> std::shared_ptr<Range>;
 
     template <size_t N, class MArray>
-    auto prtr(const MArray& ma)
+    auto rptr(const MArray& ma)
 	-> decltype(ma.template getRangePtr<N>());
 
     template <class EC, class MArray>
     auto dynamic(const MArray& ma, bool slice = false)
 	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
-    
+
+    template <typename T, class EC, class Range1, class... RangeTypes>
+    auto anonToDynView(const MultiArray<T,Range1,RangeTypes...,AnonymousRange>& ma)
+	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>;
+
+    template <typename T, class EC, class Range1, class... RangeTypes>
+    auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange<EC>>&& ma)
+	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>;
+
+    template <typename T, class EC>
+    auto anonToDynView(const MultiArray<T,AnonymousRange>& ma)
+	-> ConstSlice<T,DynamicRange<EC>>;
+
+    template <typename T, class EC>
+    auto dynToAnonMove(MultiArray<T,DynamicRange<EC>>&& ma)
+	-> MultiArray<T,AnonymousRange>;
+
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)
     {

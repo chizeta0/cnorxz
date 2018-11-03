@@ -67,6 +67,9 @@ namespace MultiArrayTools
 	template <class... SRanges2>
 	MultiArray<T,SRanges2...> format(const std::shared_ptr<SRanges2>&... nrs); // reformat array using 'nr' which in
 	//                                                                 total must have the same size as mRange
+
+	template <class... SRanges2>
+	MultiArray<T,SRanges2...> format(const std::tuple<std::shared_ptr<SRanges2>...>& nrs);
 	
 	virtual const T* data() const override;
 	virtual T* data() override;

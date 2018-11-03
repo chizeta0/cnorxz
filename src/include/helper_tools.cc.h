@@ -131,4 +131,73 @@ namespace MultiArrayTools
 	}
     }
 
+    namespace
+    {
+	template <size_t N>
+	struct CopyRanges
+	{
+	    template <class Space1, class Space2>
+	    static inline void exec(const Space1& space1, Space2& space2)
+	    {
+		std::get<N>(space2) = std::get<N>(space1);
+		CopyRanges<N-1>::exec(space1,space2);
+	    }
+	};
+
+	template <>
+	struct CopyRanges<0>
+	{
+	    template <class Space1, class Space2>
+	    static inline void exec(const Space1& space1, Space2& space2)
+	    {
+		std::get<0>(space2) = std::get<0>(space1);
+	    }
+	};
+    }
+    
+    template <typename T, class EC, class Range1, class... RangeTypes>
+    auto anonToDynView(const MultiArray<T,Range1,RangeTypes...,AnonymousRange>& ma)
+	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>
+    {
+	constexpr size_t LAST = sizeof...(RangeTypes)+1;
+	DynamicRangeFactory<EC> drf(rptr<LAST>(ma)->orig());
+	std::tuple<std::shared_ptr<Range1>,std::shared_ptr<RangeTypes>...,
+		   std::shared_ptr<DynamicRange<EC>>> mNSpace;
+	CopyRanges<LAST-1>::exec(ma.range()->space(),mNSpace);
+	std::get<LAST>(mNSpace) = createExplicit( drf );
+	return ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>(mNSpace, ma.data());
+    }
+
+    template <typename T, class EC, class Range1, class... RangeTypes>
+    auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange<EC>>&& ma)
+	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>
+    {
+	constexpr size_t LAST = sizeof...(RangeTypes)+1;
+	AnonymousRangeFactory arf(rptr<LAST>(ma)->orig());
+	std::tuple<std::shared_ptr<Range1>,std::shared_ptr<RangeTypes>...,
+		   std::shared_ptr<AnonymousRange>> mNSpace;
+	CopyRanges<LAST-1>::exec(ma.range()->space(),mNSpace);
+	std::get<LAST>(mNSpace) = createExplicit( arf );
+	return ma.format(mNSpace);
+    }
+
+    template <typename T, class EC>
+    auto anonToDynView(const MultiArray<T,AnonymousRange>& ma)
+	-> ConstSlice<T,DynamicRange<EC>>
+    {
+	DynamicRangeFactory<EC> drf(rptr<0>(ma)->orig());
+	auto mNSpace = std::make_tuple( createExplicit( drf ) );
+	return ConstSlice<T,DynamicRange<EC>>(mNSpace, ma.data());
+    }
+
+    template <typename T, class EC>
+    auto dynToAnonMove(MultiArray<T,DynamicRange<EC>>&& ma)
+	-> MultiArray<T,AnonymousRange>
+    {
+	AnonymousRangeFactory arf(rptr<0>(ma)->orig());
+	auto mNSpace = std::make_tuple( createExplicit( arf ) );
+	return ma.format(mNSpace);
+    }
+
+
 }

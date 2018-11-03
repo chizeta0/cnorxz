@@ -20,6 +20,8 @@ namespace MultiArrayTools
 	
 	DEFAULT_MEMBERS(ConstSlice);
 
+	ConstSlice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
+		   const T* data = nullptr);
 	ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data = nullptr);
 	ConstSlice(const MultiArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
 	

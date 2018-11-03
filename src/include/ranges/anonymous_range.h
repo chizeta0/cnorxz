@@ -36,6 +36,8 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	AnonymousRangeFactory(std::shared_ptr<RangeTypes>... origs);
 
+	AnonymousRangeFactory(const std::vector<std::shared_ptr<RangeBase>>& origs);
+	
 	template <class Range>
 	void append(std::shared_ptr<Range> r);
 	
@@ -110,6 +112,8 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	SingleRange(std::shared_ptr<RangeTypes>... origs);
 
+	SingleRange(const std::vector<std::shared_ptr<RangeBase>>& origs);
+	
 	size_t mSize = 1;
 	bool mEmpty = true;
 	
@@ -218,7 +222,7 @@ namespace MultiArrayTools
 	    mEmpty = false;
 	}
     }
-
+   
     template <class Range>
     std::shared_ptr<Range> SingleRange<size_t,SpaceType::ANON>::fullsub(size_t num) const
     {
