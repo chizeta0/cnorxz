@@ -258,7 +258,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::operator T() const
     {
-	static_assert( sizeof...(SRanges) == 1, "try to cast non-scalar type into scalar" );
+	//static_assert( sizeof...(SRanges) == 1, "try to cast non-scalar type into scalar" );
 	// TODO: check that SIZE is statically = 1 !!!
 	return mCont[0];
     }
