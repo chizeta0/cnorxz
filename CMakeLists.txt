@@ -6,7 +6,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++11 -Wpedantic -O3 
 
 enable_testing()
 
-set(INSTALL_PATH ${CMAKE_SOURCE_DIR}/install)
+if(IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
+  set(INSTALL_PATH ${CMAKE_INSTALL_PREFIX})
+else()
+  #set(INSTALL_PATH ${CMAKE_SOURCE_DIR}/install)
+  get_filename_component(INSTALL_PATH ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_PREFIX} ABSOLUTE)
+endif()
+message(WARNING "found absolute install path '${INSTALL_PATH}'") 
 
 find_package( GTest REQUIRED )
 if(GTest_FOUND)
