@@ -26,36 +26,26 @@ namespace MultiArrayTools
     //using MultiArrayHelper::DynamicExpression;
 
     //using MultiArrayHelper::ExpressionHolder;
-    
-    template <class ExpressionCollection>
-    class IndexWrapperBase
-    {
-    protected:
-        std::shared_ptr<ExpressionCollection> mEc;
-    public:
 
-        IndexWrapperBase() = default;
-        IndexWrapperBase(const IndexWrapperBase& in) = default;
-        IndexWrapperBase(IndexWrapperBase&& in) = default;
-        IndexWrapperBase& operator=(const IndexWrapperBase& in) = default;
-        IndexWrapperBase& operator=(IndexWrapperBase&& in) = default;
-        
+    class AbstractIW
+    {
+    public:
+        AbstractIW() = default;
+        AbstractIW(const AbstractIW& in) = default;
+        AbstractIW(AbstractIW&& in) = default;
+        AbstractIW& operator=(const AbstractIW& in) = default;
+        AbstractIW& operator=(AbstractIW&& in) = default;
+
         virtual IndexType type() const = 0;
 	
-	virtual IndexWrapperBase& operator=(size_t pos) = 0;
-	virtual IndexWrapperBase& operator++() = 0;
-	virtual IndexWrapperBase& operator--() = 0;
+	virtual AbstractIW& operator=(size_t pos) = 0;
+	virtual AbstractIW& operator++() = 0;
+	virtual AbstractIW& operator--() = 0;
 
 	virtual int pp(std::intptr_t idxPtrNum) = 0;
 	virtual int mm(std::intptr_t idxPtrNum) = 0;
 
 	virtual std::string stringMeta() const = 0;
-	//virtual DynamicMetaT meta() const = 0;
-	//virtual const DynamicMetaT* metaPtr() const = 0;
-	//virtual IndexWrapperBase& at(const U& metaPos) = 0;
-	//virtual size_t posAt(const U& metaPos) const = 0;
-
-	//virtual bool isMeta(const U& metaPos) const = 0;
 
         virtual size_t pos() const = 0;
         virtual size_t max() const = 0;
@@ -70,7 +60,28 @@ namespace MultiArrayTools
         
         virtual std::intptr_t get() const = 0;
 	virtual std::intptr_t ptrNum() const = 0;
-	
+
+        //virtual DynamicMetaT meta() const = 0;
+	//virtual const DynamicMetaT* metaPtr() const = 0;
+	//virtual AbstractIW& at(const U& metaPos) = 0;
+	//virtual size_t posAt(const U& metaPos) const = 0;
+
+	//virtual bool isMeta(const U& metaPos) const = 0;
+    };
+    
+    template <class ExpressionCollection>
+    class IndexWrapperBase : public AbstractIW
+    {
+    protected:
+        std::shared_ptr<ExpressionCollection> mEc;
+    public:
+
+        IndexWrapperBase() = default;
+        IndexWrapperBase(const IndexWrapperBase& in) = default;
+        IndexWrapperBase(IndexWrapperBase&& in) = default;
+        IndexWrapperBase& operator=(const IndexWrapperBase& in) = default;
+        IndexWrapperBase& operator=(IndexWrapperBase&& in) = default;
+        
         template <class Expr>
         ExpressionHolder<Expr> ifor(size_t step, ExpressionHolder<Expr> ex) const;
 
