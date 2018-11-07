@@ -451,16 +451,23 @@ namespace MultiArrayTools
     template <class MapF, class... Ranges>
     std::vector<char> MapRange<MapF,Ranges...>::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::ANY );
-	h.metaSize = sizeof...(Ranges);
-	h.multiple = 1;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
 	return out;
+    }
+
+    template <class MapF, class... Ranges>
+    DataHeader MapRange<MapF,Ranges...>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::ANY );
+	h.metaSize = sizeof...(Ranges);
+	h.multiple = 1;
+        return h;
     }
     
     template <class MapF, class... Ranges>

@@ -83,15 +83,21 @@ namespace MultiArrayTools
 
     std::vector<char> SingleRange<size_t,SpaceType::NUL>::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::NUL );
-	h.metaSize = 0;
-	h.multiple = 0;
+	DataHeader h = dataHeader(); 
 	std::vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	return out;
+    }
+
+    DataHeader SingleRange<size_t,SpaceType::NUL>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::NUL );
+	h.metaSize = 0;
+	h.multiple = 0;
+        return h;
     }
    
     typename SingleRange<size_t,SpaceType::NUL>::IndexType SingleRange<size_t,SpaceType::NUL>::begin() const

@@ -60,10 +60,7 @@ namespace MultiArrayTools
 
     std::vector<char> SingleRange<size_t,SpaceType::NONE>::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::NONE );
-	h.metaSize = sizeof(size_t);
-	h.multiple = 0;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
@@ -71,6 +68,15 @@ namespace MultiArrayTools
 	const char* scp = reinterpret_cast<const char*>(&mSize);
 	out.insert(out.end(), scp, scp + h.metaSize);
 	return out;
+    }
+
+    DataHeader SingleRange<size_t,SpaceType::NONE>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::NONE );
+	h.metaSize = sizeof(size_t);
+	h.multiple = 0;
+        return h;
     }
 
     

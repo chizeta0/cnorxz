@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 #include <iostream>
 
 namespace MultiArrayTools
@@ -79,6 +80,8 @@ namespace MultiArrayTools
 	    pos = termpos + 1;
 	}
     }
+
+#define XCOMMAX() ,
     
 #define include_type(t,n) template <> struct TypeMap<n> { typedef t type; };\
     template <> struct NumTypeMap<t> { static constexpr size_t num = n; };
@@ -89,10 +92,20 @@ namespace MultiArrayTools
     include_type(float,4)
     include_type(double,5)
     include_type(std::string,6)
-   
+    include_type(std::vector<size_t>,101)
+    include_type(std::vector<int>,102)
+    include_type(std::vector<double>,105)
+    include_type(std::vector<std::string>,106)
+    include_type(std::array<size_t XCOMMAX() 2>,201)
+    include_type(std::array<int XCOMMAX() 2>,202)
+    include_type(std::array<size_t XCOMMAX() 3>,301)
+    include_type(std::array<int XCOMMAX() 3>,302)
+    
 #undef include_type
 }
 #endif
+
+#undef XCOMMAX
 
 #ifdef register_type
 

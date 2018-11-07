@@ -41,7 +41,8 @@ namespace MultiArrayTools
 	virtual std::vector<char> data() const final;
 
 	virtual SpaceType spaceType() const final;
-	
+        virtual DataHeader dataHeader() const final;
+        
 	int get(size_t pos) const;
 	size_t getMeta(int metaPos) const;
 	

@@ -63,17 +63,23 @@ namespace MultiArrayTools
 
     std::vector<char> SingleRange<size_t,SpaceType::SPIN>::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::SPIN );
-	h.metaSize = 0;
-	h.multiple = 0;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	return out;
     }
-
+    
+    DataHeader SingleRange<size_t,SpaceType::SPIN>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::SPIN );
+	h.metaSize = 0;
+	h.multiple = 0;
+        return h;
+    }    
+    
     typename SingleRange<size_t,SpaceType::SPIN>::IndexType SingleRange<size_t,SpaceType::SPIN>::begin() const
     {
 	SingleIndex<size_t,SpaceType::SPIN> i( std::dynamic_pointer_cast<SingleRange<size_t,SpaceType::SPIN> >

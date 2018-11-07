@@ -110,10 +110,7 @@ namespace MultiArrayTools
 
     std::vector<char> AnonymousRange::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::ANON );
-	h.metaSize = mOrig.size();
-	h.multiple = 1;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
@@ -123,7 +120,16 @@ namespace MultiArrayTools
 	}
 	return out;
     }
-    
+
+    DataHeader AnonymousRange::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::ANON );
+	h.metaSize = mOrig.size();
+	h.multiple = 1;
+        return h;
+    }
+        
     size_t AnonymousRange::anonymousDim() const
     {
 	return mOrig.size();

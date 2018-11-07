@@ -66,10 +66,7 @@ namespace MultiArrayTools
 
     std::vector<char> SingleRange<int,SpaceType::PSPACE>::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::PSPACE );
-	h.metaSize = sizeof(size_t);
-	h.multiple = 0;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
@@ -77,6 +74,15 @@ namespace MultiArrayTools
 	const char* scp = reinterpret_cast<const char*>(&mSize);
 	out.insert(out.end(), scp, scp + h.metaSize);
 	return out;
+    }
+
+    DataHeader SingleRange<int,SpaceType::PSPACE>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::PSPACE );
+	h.metaSize = sizeof(size_t);
+	h.multiple = 0;
+        return h;
     }
     
     typename SingleRange<int,SpaceType::PSPACE>::IndexType SingleRange<int,SpaceType::PSPACE>::begin() const

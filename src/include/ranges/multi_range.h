@@ -189,7 +189,8 @@ namespace MultiArrayTools
 	virtual size_t size() const final;
 
 	virtual SpaceType spaceType() const final;
-	
+        virtual DataHeader dataHeader() const final;
+        
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual std::vector<char> data() const final;
 	
@@ -568,16 +569,23 @@ namespace MultiArrayTools
     template <class... Ranges>
     std::vector<char> MultiRange<Ranges...>::data() const
     {
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::ANY );
-	h.metaSize = sizeof...(Ranges);
-	h.multiple = 1;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
 	return out;
+    }
+
+    template <class... Ranges>
+    DataHeader MultiRange<Ranges...>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::ANY );
+	h.metaSize = sizeof...(Ranges);
+	h.multiple = 1;
+        return h;
     }
     
     template <class... Ranges>
