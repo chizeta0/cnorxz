@@ -109,7 +109,8 @@ namespace MultiArrayTools
 	virtual size_t dim() const final;
 
 	virtual SpaceType spaceType() const final;
-	
+        virtual DataHeader dataHeader() const final;
+        
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual std::vector<char> data() const final;
 
@@ -355,11 +356,7 @@ namespace MultiArrayTools
     std::vector<char> ValueRange<U>::data() const
     {
 	assert(0);
-	DataHeader h;
-	h.spaceType = static_cast<int>( SpaceType::NONE );
-	h.metaSize = 0;
-	h.metaType = NumTypeMap<U>::num;
-	h.multiple = 0;
+	DataHeader h = dataHeader();
 	std::vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
@@ -369,7 +366,18 @@ namespace MultiArrayTools
 	//out.insert(out.end(), scp, scp + h.metaSize);
 	return out;
     }
-    
+
+    template <typename U>
+    DataHeader ValueRange<U>::dataHeader() const
+    {
+	DataHeader h;
+	h.spaceType = static_cast<int>( SpaceType::NONE );
+	h.metaSize = 0;
+	h.metaType = NumTypeMap<U>::num;
+	h.multiple = 0;
+        return h;
+    }
+
     template <typename U>
     typename ValueRange<U>::IndexType ValueRange<U>::begin() const
     {
