@@ -115,5 +115,13 @@ register_type(3)
 register_type(4)
 register_type(5)
 register_type(6)
+register_type(101)
+register_type(102)
+register_type(105)
+register_type(106)
+register_type(201)
+register_type(202)
+register_type(301)
+register_type(302)
 
 #endif
