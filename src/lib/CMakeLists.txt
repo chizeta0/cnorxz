@@ -13,7 +13,7 @@ foreach(ccfile ${cc_files})
     ${ccfile})
 endforeach(ccfile)
 
-add_library(multiarray STATIC ${libmultiarray_a_SOURCES})
+add_library(multiarray SHARED ${libmultiarray_a_SOURCES})
 install(TARGETS multiarray
   ARCHIVE DESTINATION ${INSTALL_PATH}/lib
   LIBRARY DESTINATION ${INSTALL_PATH}/lib)
