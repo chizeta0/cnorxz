@@ -14,6 +14,7 @@ foreach(ccfile ${cc_files})
 endforeach(ccfile)
 
 add_library(multiarray SHARED ${libmultiarray_a_SOURCES})
+set_target_properties(multiarray PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 install(TARGETS multiarray
   ARCHIVE DESTINATION ${INSTALL_PATH}/lib
   LIBRARY DESTINATION ${INSTALL_PATH}/lib)
