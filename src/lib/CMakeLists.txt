@@ -13,8 +13,21 @@ foreach(ccfile ${cc_files})
     ${ccfile})
 endforeach(ccfile)
 
-add_library(multiarray SHARED ${libmultiarray_a_SOURCES})
+add_library(multiarray_obj OBJECT
+  ${libmultiarray_a_SOURCES}
+  )
+set_target_properties(multiarray_obj PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(multiarray SHARED
+  $<TARGET_OBJECTS:multiarray_obj>
+  )
 set_target_properties(multiarray PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+add_library(multiarray_static
+  $<TARGET_OBJECTS:multiarray_obj>
+  )
+set_target_properties(multiarray_obj PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
 install(TARGETS multiarray
   ARCHIVE DESTINATION ${INSTALL_PATH}/lib
   LIBRARY DESTINATION ${INSTALL_PATH}/lib)
