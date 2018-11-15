@@ -100,6 +100,12 @@ namespace MultiArrayTools
     include_type(std::array<int XCOMMAX() 2>,202)
     include_type(std::array<size_t XCOMMAX() 3>,301)
     include_type(std::array<int XCOMMAX() 3>,302)
+    include_type(std::array<int XCOMMAX() 4>,402)
+    include_type(std::array<int XCOMMAX() 5>,502)
+    include_type(std::array<int XCOMMAX() 6>,602)
+    include_type(std::array<int XCOMMAX() 7>,702)
+    include_type(std::array<int XCOMMAX() 8>,802)
+    include_type(std::array<int XCOMMAX() 9>,902)
     
 #undef include_type
 }
@@ -123,5 +129,11 @@ register_type(201)
 register_type(202)
 register_type(301)
 register_type(302)
+register_type(402)
+register_type(502)
+register_type(602)
+register_type(702)
+register_type(802)
+register_type(902)
 
 #endif
