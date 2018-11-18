@@ -113,27 +113,31 @@ namespace MultiArrayTools
 
 #undef XCOMMAX
 
+#define register_all_types \
+    register_type(1) \
+    register_type(2) \
+    register_type(3) \
+    register_type(4) \
+    register_type(5) \
+    register_type(6) \
+    register_type(101) \
+    register_type(102) \
+    register_type(105) \
+    register_type(106) \
+    register_type(201) \
+    register_type(202) \
+    register_type(301) \
+    register_type(302) \
+    register_type(402) \
+    register_type(502) \
+    register_type(602) \
+    register_type(702) \
+    register_type(802) \
+    register_type(902)
+
+
 #ifdef register_type
 
-register_type(1)
-register_type(2)
-register_type(3)
-register_type(4)
-register_type(5)
-register_type(6)
-register_type(101)
-register_type(102)
-register_type(105)
-register_type(106)
-register_type(201)
-register_type(202)
-register_type(301)
-register_type(302)
-register_type(402)
-register_type(502)
-register_type(602)
-register_type(702)
-register_type(802)
-register_type(902)
+register_all_types
 
 #endif
