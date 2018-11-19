@@ -177,6 +177,10 @@ namespace MultiArrayTools
     {
 	return this != &in;
     }
-
+    
+    std::intptr_t RangeBase::id() const
+    {
+        return reinterpret_cast<std::intptr_t>(this);
+    }
 
 } // end namespace MultiArrayTools
