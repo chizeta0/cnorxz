@@ -380,7 +380,7 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE>
     std::shared_ptr<typename SingleIndex<U,TYPE>::RangeType> SingleIndex<U,TYPE>::range()
     {
-	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
+	return mExplicitRangePtr;
     }
 
     template <typename U, SpaceType TYPE>

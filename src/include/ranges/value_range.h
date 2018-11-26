@@ -114,6 +114,8 @@ namespace MultiArrayTools
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual std::vector<char> data() const final;
 
+        U get(size_t pos) const;
+        
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 		
@@ -131,7 +133,7 @@ namespace MultiArrayTools
 	}
 	
     protected:
-
+        mutable U const* mMeta;
 	ValueRange() = default;
     };
     
@@ -256,7 +258,7 @@ namespace MultiArrayTools
     template <typename U>
     std::shared_ptr<typename ValueIndex<U>::RangeType> ValueIndex<U>::range()
     {
-	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
+	return mExplicitRangePtr;
     }
 
     template <typename U>
@@ -353,6 +355,12 @@ namespace MultiArrayTools
     }
 
     template <typename U>
+    U ValueRange<U>::get(size_t pos) const
+    {
+        return *mMeta;
+    }
+    
+    template <typename U>
     std::vector<char> ValueRange<U>::data() const
     {
 	assert(0);
@@ -384,6 +392,7 @@ namespace MultiArrayTools
 	ValueIndex<U> i( std::dynamic_pointer_cast<ValueRange<U> >
 			 ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
+        mMeta = &i.meta();
 	return i;
     }
     
@@ -393,6 +402,7 @@ namespace MultiArrayTools
 	ValueIndex<U> i( std::dynamic_pointer_cast<ValueRange<U> >
 			 ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
+        mMeta = &i.meta();
 	return i;
     }
 

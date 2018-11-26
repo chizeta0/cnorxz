@@ -246,6 +246,7 @@ namespace MultiArrayTools
 
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	//const T* mDataPtr;
+        mutable IndexType mWorkIndex;
         std::shared_ptr<IndexType> mIndex;
     };
 

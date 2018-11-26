@@ -264,7 +264,7 @@ namespace MultiArrayTools
     template <class Range>
     MetaOperationRoot<Range>::
     MetaOperationRoot(const std::shared_ptr<IndexType>& ind) :
-	mIndex( ind ) { }
+	mWorkIndex(*ind), mIndex( ind ) { }
 
     
     template <class Range>
@@ -275,7 +275,7 @@ namespace MultiArrayTools
 	//VCHECK(pos.val());
 	//VCHECK(mDataPtr);
 	//VCHECK(mDataPtr[pos.val()])
-	return mIndex->range()->get( pos.val() );
+	return (mWorkIndex = pos.val()).meta();
     }
 
     template <class Range>
