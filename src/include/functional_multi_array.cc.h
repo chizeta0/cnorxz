@@ -9,11 +9,6 @@ namespace MultiArrayTools
      *   FunctionalMultiArray   *	     
      ****************************/
 
-    /*
-    template <typename T, class Range, class Function>
-    FunctionalMultiArray<T,Range,Function>::FunctionalMultiArray(const Range& range) :
-	MultiArrayBase<T,SRanges...>(range), mFunc() {}
-    */
     template <bool FISSTATIC>
     struct Application
     {
@@ -103,24 +98,6 @@ namespace MultiArrayTools
 	return ConstOperationRoot<T,SRanges...>( *mMaPtr, inds... );
     }
 
-    /*
-    template <typename T, class Function, class... SRanges>
-    auto FunctionalMultiArray<T,Function,SRanges...>::
-    exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	-> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) )
-    {
- 	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds ) ... );
-    }
-    */
-    /*
-    template <typename T, class Function, class... SRanges>
-    auto FunctionalMultiArray<T,Function,SRanges...>::
-    exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	-> decltype( mkOperation( mFunc, mkOpObject(inds) ... ) )
-    {
- 	return mkOperation( mFunc, mkOpObject(inds) ... );
-    }
-    */
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
     exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const

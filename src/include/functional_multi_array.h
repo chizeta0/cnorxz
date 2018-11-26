@@ -41,36 +41,6 @@ namespace MultiArrayTools
 	return std::make_shared<decltype(ToMAObject<Index::RangeType::HASMETACONT>::mk(i))>
 	    (ToMAObject<Index::RangeType::HASMETACONT>::mk(i));
     }
-    /*
-    template <bool HASMETACONT>
-    struct ToOpObject
-    {
-	template <class Index>
-	static auto mk(const std::shared_ptr<Index>& ind)
-	    -> MetaOperationRoot<typename Index::RangeType>
-	{
-	    typedef typename Index::RangeType RangeType;
-	    MultiRangeFactory<RangeType> mrf(ind->range());
-	    auto mr = std::dynamic_pointer_cast<RangeType>( mrf.create() );
-	    typedef typename MultiRange<RangeType>::IndexType::MetaType value_type;
-	    ContainerIndex<value_type,Index> ci(mr,0);
-	    return MetaOperationRoot<typename Index::RangeType>(ci);
-	}
-    };
-    
-    template <>
-    struct ToOpObject<true>
-    {
-	template <class Index>
-	static auto mk(const std::shared_ptr<Index>& ind)
-	    -> ConstOperationRoot<typename Index::MetaType,
-				  typename Index::RangeType>
-	{
-	    return ConstOperationRoot<typename Index::MetaType,
-				      typename Index::RangeType>( mkMAObject(ind), ind);
-	}
-    };
-    */
 
     template <bool HASMETACONT>
     struct ToOpObject
@@ -100,9 +70,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	//typedef typename MultiArrayBase<T,CRange>::const_iterator const_iterator;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
-	//typedef typename CRange::IndexType IndexType;
 	typedef MultiArray<T,SRanges...> MAType;
 	typedef T value_type;
 	
@@ -128,12 +96,8 @@ namespace MultiArrayTools
 	virtual bool isSlice() const override;
 
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
-	
-	// EVALUTAION CLASS ??!!!!
 
 	auto exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
-	//	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) );
-        //-> decltype( mkOperation( mFunc, mkOpObject(inds) ... ) );
             -> Operation<T,Function,MetaOperationRoot<SRanges>...>;
             
 	virtual ConstOperationRoot<T,SRanges...>
