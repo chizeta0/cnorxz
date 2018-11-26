@@ -217,21 +217,19 @@ namespace MultiArrayTools
 	return StaticCast<T,Op>(op);
     }
     
-    template <class... Ranges>
-    class MetaOperationRoot : public OperationTemplate<std::tuple<typename Ranges::IndexType...>,
-						       MetaOperationRoot<Ranges...> >
+    template <class Range>
+    class MetaOperationRoot : public OperationTemplate<typename Range::MetaType,
+						       MetaOperationRoot<Range> >
     {
     public:
 
-	typedef ContainerIndex<std::tuple<typename Ranges::IndexType::MetaType...>,
-			       typename Ranges::IndexType...> IndexType;
+	typedef typename Range::IndexType IndexType;
 	typedef typename IndexType::MetaType value_type;
-	typedef OperationBase<value_type,MetaOperationRoot<Ranges...> > OT;
-	typedef ContainerRange<value_type,Ranges...> CRange;
+	typedef OperationBase<value_type,MetaOperationRoot<Range> > OT;
 	
 	static constexpr size_t SIZE = 1;
 	
-	MetaOperationRoot(const IndexType& ind);
+	MetaOperationRoot(const std::shared_ptr<IndexType>& ind);
 
 	template <class ET>
 	inline value_type get(ET pos) const;
@@ -248,7 +246,7 @@ namespace MultiArrayTools
 
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	//const T* mDataPtr;
-	IndexType mIndex;
+        std::shared_ptr<IndexType> mIndex;
     };
 
     template <typename T, class... Ranges>

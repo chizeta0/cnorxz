@@ -261,41 +261,43 @@ namespace MultiArrayTools
      *   MetaOperationRoot     *
      ****************************/
 
-    template <class... Ranges>
-    MetaOperationRoot<Ranges...>::
-    MetaOperationRoot(const IndexType& ind) :
+    template <class Range>
+    MetaOperationRoot<Range>::
+    MetaOperationRoot(const std::shared_ptr<IndexType>& ind) :
 	mIndex( ind ) { }
 
-    template <class... Ranges>
+    
+    template <class Range>
     template <class ET>
-    inline typename MetaOperationRoot<Ranges...>::value_type
-    MetaOperationRoot<Ranges...>::get(ET pos) const
+    inline typename MetaOperationRoot<Range>::value_type
+    MetaOperationRoot<Range>::get(ET pos) const
     {
 	//VCHECK(pos.val());
 	//VCHECK(mDataPtr);
 	//VCHECK(mDataPtr[pos.val()])
-	return mIndex.meta(pos.val());
+	return mIndex->range()->get( pos.val() );
     }
 
-    template <class... Ranges>
+    template <class Range>
     template <class ET>
-    inline const MetaOperationRoot<Ranges...>& MetaOperationRoot<Ranges...>::set(ET pos) const
+    inline const MetaOperationRoot<Range>& MetaOperationRoot<Range>::set(ET pos) const
     {
-	mIndex = pos.val();
+        assert(0);
+	//(*mIndex) = pos.val();
 	return *this;
     }
 
-    template <class... Ranges>
-    MExt<void> MetaOperationRoot<Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    template <class Range>
+    MExt<void> MetaOperationRoot<Range>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( mIndex, iPtrNum ));
+	return MExt<void>(getStepSize( *mIndex, iPtrNum ));
 	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
 
-    template <class... Ranges>
+    template <class Range>
     template <class Expr>
-    Expr MetaOperationRoot<Ranges...>::loop(Expr exp) const
+    Expr MetaOperationRoot<Range>::loop(Expr exp) const
     {
 	return exp;
     }

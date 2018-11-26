@@ -112,7 +112,7 @@ namespace MultiArrayTools
  	return mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds ) ... );
     }
     */
-
+    /*
     template <typename T, class Function, class... SRanges>
     auto FunctionalMultiArray<T,Function,SRanges...>::
     exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
@@ -120,5 +120,13 @@ namespace MultiArrayTools
     {
  	return mkOperation( mFunc, mkOpObject(inds) ... );
     }
-
+    */
+    template <typename T, class Function, class... SRanges>
+    auto FunctionalMultiArray<T,Function,SRanges...>::
+    exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
+	-> Operation<T,Function,MetaOperationRoot<SRanges>...>
+    {
+        return mkOperation( mFunc, MetaOperationRoot<SRanges>( inds ) ... );
+    }
+    
 } // namespace MultiArrayTools

@@ -133,8 +133,9 @@ namespace MultiArrayTools
 
 	auto exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
 	//	    -> decltype( mkOperation( mFunc, ConstOperationRoot<typename SRanges::IndexType::MetaType,SRanges>( mkMAObject( inds ), inds) ... ) );
-	    -> decltype( mkOperation( mFunc, mkOpObject(inds) ... ) );
-	    
+        //-> decltype( mkOperation( mFunc, mkOpObject(inds) ... ) );
+            -> Operation<T,Function,MetaOperationRoot<SRanges>...>;
+            
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
 	
