@@ -2,6 +2,8 @@
 #ifndef __arith_h__
 #define __arith_h__
 
+#include <functional>
+
 namespace MultiArrayTools
 {
 
@@ -14,6 +16,13 @@ namespace MultiArrayTools
 	{
 	    return ArgPack<N-1>::template mk<F,Tuple,decltype(std::get<N>(tp)),As...>(tp, std::get<N>(tp), as...);
 	}
+        
+	template <class F, class Tuple, typename... As>
+	static inline auto mkd(const F& ff, const Tuple& tp, As... as)
+	    -> decltype(ArgPack<N-1>::template mkd<F,Tuple,decltype(std::get<N>(tp)),As...>(ff, tp, std::get<N>(tp), as...))
+    	{
+	    return ArgPack<N-1>::template mkd<F,Tuple,decltype(std::get<N>(tp)),As...>(ff, tp, std::get<N>(tp), as...);
+	}
     };
 
     template <>
@@ -24,6 +33,13 @@ namespace MultiArrayTools
 	    -> decltype(F::apply(std::get<0>(tp), as...))
 	{
 	    return F::apply(std::get<0>(tp), as...);
+	}
+
+    	template <class F, class Tuple, typename... As>
+	static inline auto mkd(const F& ff, const Tuple& tp, As... as)
+	    -> decltype(ff(std::get<0>(tp), as...))
+	{
+	    return ff(std::get<0>(tp), as...);
 	}
     };
 
@@ -45,7 +61,8 @@ namespace MultiArrayTools
 	    return ArgPack<sizeof...(As)-1>::template mk<F,std::tuple<As...> >(arg);
 	}
     };
-    
+
+
     // OPERATIONS (STATIC)
     template <typename T>
     struct identity : public StaticFunctionBase<T, identity<T>, T>
@@ -107,6 +124,32 @@ namespace MultiArrayTools
 	}
     };
 
+    //  OPERATIONS (STATIC)
+    template <typename R, typename... Args>
+    class function
+    {
+    public:
+        static constexpr bool FISSTATIC = false;
+
+    private:
+        std::function<R(Args...)> mF;
+
+    public:
+
+        function() = default;
+        function(const std::function<R(Args...)>& in) : mF(in) {}
+        
+        inline R operator()(const Args&... args)
+        {
+            return mF(args...);
+        }
+
+        inline R operator()(const std::tuple<Args...>& args)
+        {
+            return ArgPack<sizeof...(Args)-1>::template mkd<std::function<R(Args...)>,std::tuple<Args...>>>(mF, args);
+        }
+};
+    
 #include <cmath>
 #define regFunc1(fff) template <typename T>\
     struct x_##fff : public StaticFunctionBase<T, x_##fff<T>, T> {\
