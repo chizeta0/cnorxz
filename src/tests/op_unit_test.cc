@@ -342,9 +342,9 @@ namespace {
 	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());
 	MultiArray<double,TRange> form2 = res2.format(mpr1ptr->outRange());
 	
-	EXPECT_EQ( jj->range()->outRange()->size(), 10 );
- 	EXPECT_EQ( jj->range()->mapMultiplicity().at(9), 3 );
-	EXPECT_EQ( jj->range()->mapMultiplicity().at(3), 1 );
+	EXPECT_EQ( jj->range()->outRange()->size(), static_cast<size_t>( 10 ) );
+ 	EXPECT_EQ( jj->range()->mapMultiplicity().at(9), static_cast<size_t>( 3 ) );
+	EXPECT_EQ( jj->range()->mapMultiplicity().at(3), static_cast<size_t>( 1 ) );
 
 	EXPECT_EQ( form.at(3), -31.71 );
 	EXPECT_EQ( form.at(7), -77.16 );
