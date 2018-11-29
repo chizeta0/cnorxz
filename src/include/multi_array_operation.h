@@ -62,7 +62,7 @@ namespace MultiArrayTools
 	    -> SliceContraction<T,OperationClass,Indices...>;
 
         template <typename R, class... Args> // Args = Operation Classes
-        auto a(const function<R,T,typename Args::value_type...>& ll, const Args&... args) const
+        auto a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll, const Args&... args) const
             -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>;
         
     private:		

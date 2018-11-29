@@ -78,11 +78,11 @@ namespace MultiArrayTools
 
     template <typename T, class OperationClass>
     template <typename R, class... Args>
-    auto OperationBase<T,OperationClass>::a(const function<R,T,typename Args::value_type...>& ll,
+    auto OperationBase<T,OperationClass>::a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll,
                                             const Args&... args) const
         -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>
     {
-        return Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>(THIS(), args...);
+        return Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>(ll, THIS(), args...);
     }
 
     /*****************************************

@@ -16,6 +16,39 @@
 namespace MultiArrayTools
 {
 
+    template <class IndexType>
+    using IPTR = std::shared_ptr<IndexType>;
+    
+    template <class IndexType1, class IndexType2>
+    inline auto operator|(const IPTR<IndexType1>& i1, const IPTR<IndexType2>& i2)
+        -> decltype(std::make_tuple(i1->THIS(),i2->THIS()))
+    {
+        return std::make_tuple(i1->THIS(),i2->THIS());
+    }
+
+    template <class IndexType1, class... IndexTypes2>
+    inline auto operator|(const IPTR<IndexType1>& i1,
+                          const std::tuple<IPTR<IndexTypes2>...>& i2)
+        -> decltype(std::tuple_cat(std::make_tuple(i1),i2))
+    {
+        return std::tuple_cat(std::make_tuple(i1),i2);
+    }
+
+    template <class IndexType2, class... IndexTypes1>
+    inline auto operator|(const std::tuple<IPTR<IndexTypes1>...>& i1,
+                          const IPTR<IndexType2>& i2)
+        -> decltype(std::tuple_cat(i1,std::make_tuple(i2)))
+    {
+        return std::tuple_cat(i1,std::make_tuple(i2));
+    }
+
+    template <class IndexType>
+    inline auto operator~(const IPTR<IndexType>& i)
+        -> decltype(std::make_tuple(i))
+    {
+        return std::make_tuple(i);
+    }
+
     // Explicitely specify subranges in template argument !!!
     template <typename T, class... SRanges>
     class MultiArrayBase
@@ -41,7 +74,8 @@ namespace MultiArrayTools
 
 	template <typename X>
 	const T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
-	
+        const T& operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is) const;
+        
 	virtual const T& operator[](const IndexType& i) const = 0;
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const = 0;
 
@@ -101,7 +135,8 @@ namespace MultiArrayTools
 
 	template <typename X>
 	T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
-	
+        T& operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is);
+        
 	virtual T& operator[](const IndexType& i) = 0;
 	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
 	

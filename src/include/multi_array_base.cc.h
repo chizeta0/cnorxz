@@ -33,6 +33,13 @@ namespace MultiArrayTools
 	return (*this)[ii];
     }
 
+    template <typename T, class... SRanges>
+    const T& MultiArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is) const
+    {
+	IndexType ii(*mProtoI);
+	ii(is);
+	return (*this)[ii];
+    }
     
     template <typename T, class... SRanges>
     size_t MultiArrayBase<T,SRanges...>::size() const
@@ -161,6 +168,14 @@ namespace MultiArrayTools
     {
 	IndexType ii(*MAB::mProtoI);
 	ii = i;
+	return (*this)[ii];
+    }
+
+    template <typename T, class... SRanges>
+    T& MutableMultiArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is)
+    {
+	IndexType ii(*MAB::mProtoI);
+	ii(is);
 	return (*this)[ii];
     }
 

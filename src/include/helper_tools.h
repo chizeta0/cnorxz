@@ -99,7 +99,15 @@ namespace MultiArrayTools
 			     typename Index::RangeType> fma(i->range());
 	return fma.exec(i);
     }
-        
+
+    template <typename R, typename... Ts>
+    struct Func
+    {
+        static inline std::shared_ptr<function<R,Ts...>> mk(const std::function<R(Ts...)>& ll)
+        {
+            return std::make_shared<function<R,Ts...>>(ll);
+        }
+    };
 }
 
 

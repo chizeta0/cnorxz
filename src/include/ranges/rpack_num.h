@@ -214,6 +214,13 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::swapIndices(ipack, ninds...);
 	}
 
+        template <class Pack, class... Indices>
+	static void swapIndices(Pack& ipack, const std::tuple<std::shared_ptr<Indices>...>& ninds)
+	{
+	    std::get<N>(ipack) = std::get<N>(ninds);
+	    RPackNum<N-1>::swapIndices(ipack, ninds);
+	}
+
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
 	{
@@ -453,6 +460,12 @@ namespace MultiArrayHelper
 	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind)
 	{
 	    std::get<std::tuple_size<Pack>::value-1>(ipack) = nind;
+	}
+
+        template <class Pack, class... Indices>
+	static void swapIndices(Pack& ipack, const std::tuple<std::shared_ptr<Indices>...>& ninds)
+	{
+	    std::get<0>(ipack) = std::get<0>(ninds);
 	}
 
 	template <class... Indices>

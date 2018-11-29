@@ -17,6 +17,7 @@ namespace MultiArrayTools
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
 
 	using MultiArrayBase<T,SRanges...>::operator();
+        using MultiArrayBase<T,SRanges...>::operator[];
 	
 	DEFAULT_MEMBERS(ConstSlice);
 
@@ -60,7 +61,9 @@ namespace MultiArrayTools
 
 	using MultiArrayBase<T,SRanges...>::operator();
 	using MutableMultiArrayBase<T,SRanges...>::operator();
-	
+        using MultiArrayBase<T,SRanges...>::operator[];
+	using MutableMultiArrayBase<T,SRanges...>::operator[];
+
 	DEFAULT_MEMBERS(Slice);
 
 	Slice(const std::shared_ptr<SRanges>&... ranges, T* data = nullptr);

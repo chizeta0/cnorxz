@@ -82,6 +82,7 @@ namespace MultiArrayTools
 	
 	ContainerIndex& sync(); // recalculate 'IB::mPos' when externalControl == true
 	ContainerIndex& operator()(const std::shared_ptr<Indices>&... inds); // control via external indices
+        ContainerIndex& operator()(const std::tuple<std::shared_ptr<Indices>...>& inds);
 	ContainerIndex& operator()(); // -> sync; just to shorten the code
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
@@ -301,6 +302,14 @@ namespace MultiArrayTools
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator()(const std::shared_ptr<Indices>&... inds)
     {
 	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds...);
+	mExternControl = true;
+	return sync();
+    }    
+
+    template <typename T, class... Indices>
+    ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& inds)
+    {
+	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds);
 	mExternControl = true;
 	return sync();
     }    
