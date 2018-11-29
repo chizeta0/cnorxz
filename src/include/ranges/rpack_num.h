@@ -152,14 +152,25 @@ namespace MultiArrayHelper
 	    std::get<N>(target) = std::get<N>(source)->meta();
 	    RPackNum<N-1>::getMetaPos(target, source);
 	}
-	
+
 	template <class IndexPack, typename MetaType>
 	static void setMeta(IndexPack& target, const MetaType& source)
 	{
 	    std::get<N>(target)->at( std::get<N>(source) );
 	    RPackNum<N-1>::setMeta(target, source);
 	}
-	
+
+	template <class SpaceClass>
+	inline static std::shared_ptr<RangeBase> getSub(const SpaceClass& space, size_t num)
+	{
+	    if(num == N){
+		return std::get<N>(space);
+	    }
+	    else {
+		return RPackNum<N-1>::getSub(space, num);
+	    }
+	}
+
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos)
 	{
@@ -413,7 +424,19 @@ namespace MultiArrayHelper
 	{
 	    std::get<0>(target)->at( std::get<0>( source ) );
 	}
-	
+
+	template <class SpaceClass>
+	inline static std::shared_ptr<RangeBase> getSub(const SpaceClass& space, size_t num)
+	{
+	    if(num == 0){
+		return std::get<0>(space);
+	    }
+	    else {
+		assert(0);
+		return std::shared_ptr<RangeBase>();
+	    }
+	}
+
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos)
 	{

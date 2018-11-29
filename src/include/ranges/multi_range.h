@@ -186,6 +186,8 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
+	virtual std::shared_ptr<RangeBase> sub(size_t num) const override;
+	
 	virtual size_t dim() const final;
 	virtual size_t size() const final;
 
@@ -304,7 +306,7 @@ namespace MultiArrayTools
     {
 	return std::get<N>(mIPack);
     }
-    
+
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
@@ -533,6 +535,12 @@ namespace MultiArrayTools
     auto MultiRange<Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
     {
 	return std::get<N>(mSpace);
+    }
+
+    template <class... Indices>
+    std::shared_ptr<RangeBase> MultiRange<Indices...>::sub(size_t num) const
+    {
+	return RPackNum<sizeof...(Indices)-1>::getSub(mSpace, num);
     }
 
     template <class... Ranges>
