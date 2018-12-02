@@ -654,10 +654,12 @@ namespace {
 	MultiArray<double,MRange,SRange> ma1(mr1ptr,sr4ptr,v5);
 	MultiArray<double,SRange> ma2(sr2ptr,v1);
 	MultiArray<double,SRange,MRange> res(sr4ptr,mr1ptr);
+	MultiArray<double,MRange,SRange> res2(mr1ptr,sr4ptr);
 
 	DMA dma1 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( ma1 ) );
 	DMA dma2 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( ma2 ) );
 	DMA dres = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res ) );
+	DMA dres2 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res2 ) );
 	
 	auto si2 = MAT::getIndex( sr2ptr );
 	auto si3 = MAT::getIndex( sr3ptr );
@@ -668,29 +670,49 @@ namespace {
 	auto di1 = MAT::getIndex( MAT::rptr<0>( dma1 ) );
 	auto di2 = MAT::getIndex( MAT::rptr<0>( dma2 ) );
 	auto dir = MAT::getIndex( MAT::rptr<0>( dres ) );
+	//auto dirx = MAT::getIndex( MAT::rptr<0>( dres ) );
+	auto dir2 = MAT::getIndex( MAT::rptr<0>( dres2 ) );
 
 	(*di1)(mi,si4);
 	(*di2)(si2);
 	(*dir)(si4,mi);
+	(*dir2)(mi,si4);
 
 	dres(dir) = dma1(di1) + dma2(di2);
-
-	MultiArray<double,SRange,MRange> res2(sr4ptr,mr1ptr,dres.vdata());
+	res = dres.format(sr4ptr,mr1ptr);
 	
-	EXPECT_EQ( xround( res2.at( mkt('A',mkt('1','a')) ) ), xround( 30.932 + 2.917 ) );
-	EXPECT_EQ( xround( res2.at( mkt('A',mkt('1','b')) ) ), xround( -26.205 + 2.917 ) );
-	EXPECT_EQ( xround( res2.at( mkt('A',mkt('2','a')) ) ), xround( 21.227 + 9.436 ) );
-	EXPECT_EQ( xround( res2.at( mkt('A',mkt('2','b')) ) ), xround( -14.364 + 9.436 ) );
-	EXPECT_EQ( xround( res2.at( mkt('A',mkt('3','a')) ) ), xround( -25.703 + 0.373 ) );
-	EXPECT_EQ( xround( res2.at( mkt('A',mkt('3','b')) ) ), xround( 23.563 + 0.373 ) );
+	EXPECT_EQ( xround( res.at( mkt('A',mkt('1','a')) ) ), xround( 30.932 + 2.917 ) );
+	EXPECT_EQ( xround( res.at( mkt('A',mkt('1','b')) ) ), xround( -26.205 + 2.917 ) );
+	EXPECT_EQ( xround( res.at( mkt('A',mkt('2','a')) ) ), xround( 21.227 + 9.436 ) );
+	EXPECT_EQ( xround( res.at( mkt('A',mkt('2','b')) ) ), xround( -14.364 + 9.436 ) );
+	EXPECT_EQ( xround( res.at( mkt('A',mkt('3','a')) ) ), xround( -25.703 + 0.373 ) );
+	EXPECT_EQ( xround( res.at( mkt('A',mkt('3','b')) ) ), xround( 23.563 + 0.373 ) );
 
-	EXPECT_EQ( xround( res2.at( mkt('B',mkt('1','a')) ) ), xround( -33.693 + 2.917 ) );
-	EXPECT_EQ( xround( res2.at( mkt('B',mkt('1','b')) ) ), xround( -15.504 + 2.917 ) );
-	EXPECT_EQ( xround( res2.at( mkt('B',mkt('2','a')) ) ), xround( 17.829 + 9.436 ) );
-	EXPECT_EQ( xround( res2.at( mkt('B',mkt('2','b')) ) ), xround( -1.868 + 9.436 ) );
-	EXPECT_EQ( xround( res2.at( mkt('B',mkt('3','a')) ) ), xround( 13.836 + 0.373 ) );
-	EXPECT_EQ( xround( res2.at( mkt('B',mkt('3','b')) ) ), xround( 41.339 + 0.373 ) );
+	EXPECT_EQ( xround( res.at( mkt('B',mkt('1','a')) ) ), xround( -33.693 + 2.917 ) );
+	EXPECT_EQ( xround( res.at( mkt('B',mkt('1','b')) ) ), xround( -15.504 + 2.917 ) );
+	EXPECT_EQ( xround( res.at( mkt('B',mkt('2','a')) ) ), xround( 17.829 + 9.436 ) );
+	EXPECT_EQ( xround( res.at( mkt('B',mkt('2','b')) ) ), xround( -1.868 + 9.436 ) );
+	EXPECT_EQ( xround( res.at( mkt('B',mkt('3','a')) ) ), xround( 13.836 + 0.373 ) );
+	EXPECT_EQ( xround( res.at( mkt('B',mkt('3','b')) ) ), xround( 41.339 + 0.373 ) );
+
+	//dres = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res ) );
+	dres2(dir2) = dres(dir);
+	res2 = dres2.format(mr1ptr,sr4ptr);
 	
+	EXPECT_EQ( xround( res2.at( mkt(mkt('1','a'),'A') ) ), xround( 30.932 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('1','b'),'A') ) ), xround( -26.205 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('2','a'),'A') ) ), xround( 21.227 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('2','b'),'A') ) ), xround( -14.364 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('3','a'),'A') ) ), xround( -25.703 + 0.373 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('3','b'),'A') ) ), xround( 23.563 + 0.373 ) );
+
+	EXPECT_EQ( xround( res2.at( mkt(mkt('1','a'),'B') ) ), xround( -33.693 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('1','b'),'B') ) ), xround( -15.504 + 2.917 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('2','a'),'B') ) ), xround( 17.829 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('2','b'),'B') ) ), xround( -1.868 + 9.436 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('3','a'),'B') ) ), xround( 13.836 + 0.373 ) );
+	EXPECT_EQ( xround( res2.at( mkt(mkt('3','b'),'B') ) ), xround( 41.339 + 0.373 ) );
+
     }
 
     TEST_F(OpTest_MDim, ExecOp3)

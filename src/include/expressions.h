@@ -34,6 +34,12 @@ namespace MultiArrayTools
 
     template <class EC, template <class> class OpF, class... MAs>
     using AEX = AEXT<EC,OX<EC,OpF,MAs...>>;
+    
+    template <class EC>
+    using AEX_M = AEXT<EC,oo<EC,DDMMA<EC>>>;
+
+    template <class EC>
+    using AEX_C = AEXT<EC,oo<EC,DDMA<EC>>>;
 
     template <class EC, template <class> class OpF>
     using AEX_B_MM = AEX<EC,OpF,DDMMA<EC>,DDMMA<EC>>;
@@ -85,7 +91,10 @@ namespace MultiArrayTools
     V_IFOR_X(AEX_B_MC<EC XCOMMAX() OpF>); \
     V_IFOR_X(AEX_B_CM<EC XCOMMAX() OpF>); \
     V_IFOR_X(AEX_B_CC<EC XCOMMAX() OpF>)
-    
+
+#define V_IFOR_A_1(EC) \
+    V_IFOR_X(AEX_M<EC>); \
+    V_IFOR_X(AEX_C<EC>)
 
     template <class Index>
     class E1;
@@ -107,7 +116,8 @@ namespace MultiArrayTools
         V_IFOR_A(EX,MultiArrayTools::minus);
         V_IFOR_A(EX,MultiArrayTools::multiplies);
         V_IFOR_A(EX,MultiArrayTools::divides);
-
+	V_IFOR_A_1(EX);
+	
     public:
         template <class Expr>
         inline MultiArrayTools::ExpressionHolder<Expr> ifor(size_t step, MultiArrayTools::ExpressionHolder<Expr> ex) const;
@@ -140,6 +150,10 @@ namespace MultiArrayTools
     D_IFOR_X(AEX_B_CM<EC XCOMMAX() OpF>,Ind); \
     D_IFOR_X(AEX_B_CC<EC XCOMMAX() OpF>,Ind)
 
+#define D_IFOR_A_1(EC,Ind)				\
+    D_IFOR_X(AEX_M<EC>,Ind);					\
+    D_IFOR_X(AEX_C<EC>,Ind)
+
     template <class Index>
     class E1 : public Expressions1
     {
@@ -155,7 +169,8 @@ namespace MultiArrayTools
         D_IFOR_A(EX,MultiArrayTools::minus,mI);
         D_IFOR_A(EX,MultiArrayTools::multiplies,mI);
         D_IFOR_A(EX,MultiArrayTools::divides,mI);
-
+	D_IFOR_A_1(EX,mI);
+	
     public:
         E1(const E1& in) = default;
         E1(E1&& in) = default;
