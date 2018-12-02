@@ -565,7 +565,7 @@ namespace {
 	auto i1 = MAT::getIndex( mr1ptr );
 	auto i2 = MAT::getIndex( sr4ptr );
 	
-	res(i1,i2) = ( ma1(i1) + ma2(i2) ) - ma3(i2);
+	res(i1,i2) = ( ma1(i1) + ma2(i2) ).p(i1,i2) - ma3(i2);
 
 	EXPECT_EQ( xround( res.at(mkt(mkt('1','a'),'A')) ), xround(0.353 + 8.870 - 1.470)  );
 	EXPECT_EQ( xround( res.at(mkt(mkt('1','a'),'B')) ), xround(0.353 + 4.790 - 2.210)  );

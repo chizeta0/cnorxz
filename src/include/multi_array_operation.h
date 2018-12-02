@@ -61,6 +61,14 @@ namespace MultiArrayTools
 	auto slc(const std::shared_ptr<Indices>&... inds) const
 	    -> SliceContraction<T,OperationClass,Indices...>;
 
+	template <class... Indices>
+	auto p(const std::shared_ptr<Indices>&... inds) const
+	    -> ConstOperationRoot<T,typename Indices::RangeType...>;
+
+	template <class... Indices>
+	auto operator()(const std::shared_ptr<Indices>&... inds) const
+	    -> MultiArray<T,typename Indices::RangeType...>;
+
         template <typename R, class... Args> // Args = Operation Classes
         auto a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll, const Args&... args) const
             -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>;

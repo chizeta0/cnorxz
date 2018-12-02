@@ -46,7 +46,7 @@ namespace MultiArrayTools
 	virtual int mm(std::intptr_t idxPtrNum) = 0;
 
 	virtual std::string stringMeta() const = 0;
-
+	
         virtual size_t pos() const = 0;
         virtual size_t max() const = 0;
 	virtual size_t dim() const = 0;
@@ -67,6 +67,15 @@ namespace MultiArrayTools
 	//virtual size_t posAt(const U& metaPos) const = 0;
 
 	//virtual bool isMeta(const U& metaPos) const = 0;
+	inline AbstractIW& at(const std::string smeta)
+	{
+	    for((*this) = 0; this->pos() != this->max(); ++(*this)){
+		if(this->stringMeta() == smeta){
+		    break;
+		}
+	    }
+	    return *this;
+	}
     };
     
     template <class ExpressionCollection>
