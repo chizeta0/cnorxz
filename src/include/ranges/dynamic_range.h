@@ -198,10 +198,12 @@ namespace MultiArrayTools
 
         DynamicIndex& operator()(const IVecT& ivec);
         DynamicIndex& operator()(const std::vector<std::shared_ptr<IndexW<EC>>>& ivec);
-
+		
 	template <class... Indices>
 	DynamicIndex& operator()(const std::shared_ptr<Indices>&... is);
-        
+
+	DynamicIndex<EC>& sync();
+	
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
 

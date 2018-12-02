@@ -185,6 +185,7 @@ namespace MultiArrayTools
     {
 	//VCHECK(ma.data());
 	mIndex(indices...);
+	mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
@@ -196,13 +197,17 @@ namespace MultiArrayTools
 	mMaPtr(maptr)
     {
 	mIndex(indices...);
+	mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
     ConstOperationRoot<T,Ranges...>::
     ConstOperationRoot(const T* data, const IndexType& ind) :
 	mDataPtr(data),
-	mIndex( ind ) { }
+	mIndex( ind )
+    {
+	mOff = mIndex.pos();
+    }
 
     template <typename T, class... Ranges>
     template <class ET>
@@ -335,13 +340,17 @@ namespace MultiArrayTools
 	mIndex( ma.begin() )
     {
 	mIndex(indices...);
+	mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
     OperationRoot(T* data, const IndexType& ind) :
 	mDataPtr(data),
-	mIndex( ind ) { }
+	mIndex( ind )
+    {
+	mOff = mIndex.pos();
+    }
 
     template <typename T, class... Ranges>
     template <class OpClass>

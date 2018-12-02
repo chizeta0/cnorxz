@@ -202,9 +202,23 @@ namespace MultiArrayTools
     }
 
     template <class EC>
+    DynamicIndex<EC>& DynamicIndex<EC>::sync()
+    {
+	size_t sv = 1;
+	IB::mPos = 0;
+	for(size_t i = 0; i != mIVec.size(); ++i){
+	    auto& x = mIVec[mIVec.size()-i-1];
+	    IB::mPos += x.first->pos() * sv;
+	    sv *= x.first->max();
+	}
+	return *this;
+    }
+    
+    template <class EC>
     DynamicIndex<EC>& DynamicIndex<EC>::operator()(const IVecT& ivec)
     {
         mIVec = ivec;
+	sync();
         return *this;
     }
 
@@ -215,6 +229,7 @@ namespace MultiArrayTools
 	for(size_t i = 0; i != mIVec.size(); ++i){
 	    mIVec[i].first = ivec[i];
 	}
+	sync();
         return *this;
     }
     
@@ -229,6 +244,7 @@ namespace MultiArrayTools
 	for(size_t i = 0; i != mIVec.size(); ++i){
 	    mIVec[i].first = tmp[i];
 	}
+	sync();
 	return *this;
     }
     
@@ -349,18 +365,19 @@ namespace MultiArrayTools
 			      const IVecT& ivec, bool hidden = false)
 	    -> ExpressionHolder<Expr>
 	{
-	    if(i != 0){
+	    if(i == 0) {
+		auto& ii = *ivec[0].first;
+		return hidden ? ii.iforh(step*ivec[i].second, ex) :
+		    ii.ifor(step*ivec[i].second, ex);
+	    }
+	    else {
 		auto& ii = *ivec[i].first;
 		return mk(i-1, step,
 			  (hidden ? ii.iforh(step*ivec[i].second, ex) :
 			   ii.ifor(step*ivec[i].second, ex)),
 			  ivec, hidden);
+
 	    }
-	    else {
-		auto& ii = *ivec[0].first;
-		return hidden ? ii.iforh(step*ivec[i].second, ex) :
-		    ii.ifor(step*ivec[i].second, ex);
-	    }		
 	}
     };
 
@@ -386,19 +403,27 @@ namespace MultiArrayTools
     template <class Expr>
     ExpressionHolder<Expr> DynamicIndex<EC>::ifor(size_t step, Expr ex) const
     {
-	return ForMaker<Expr>::mk(mIVec.size()-2, step, mIVec.back().first->ifori(step,ex),
-				  mIVec);
+	if(mIVec.size() == 1){
+	    return mIVec.back().first->ifori(step,ex);
+	}
+	else {
+	    return ForMaker<Expr>::mk(mIVec.size()-2, step, mIVec.back().first->ifori(step,ex),
+				      mIVec);
+	}
     }
 
     template <class EC>
     template <class Expr>
     ExpressionHolder<Expr> DynamicIndex<EC>::iforh(size_t step, Expr ex) const
     {
-	return ForMaker<Expr>::mk(mIVec.size()-2, step, mIVec.back().first->iforhi(step,ex),
-				  mIVec, true);
+	if(mIVec.size() == 1){
+	    return mIVec.back().first->iforhi(step,ex);
+	}
+	else {
+	    return ForMaker<Expr>::mk(mIVec.size()-2, step, mIVec.back().first->iforhi(step,ex),
+				      mIVec, true);
+	}
     }
-
-
 
     /***********************
      *   DynamicRange    *
