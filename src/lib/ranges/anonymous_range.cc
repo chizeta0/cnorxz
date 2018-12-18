@@ -165,6 +165,27 @@ namespace MultiArrayTools
 	mOrig[num] = in;
     }
 
+    void AnonymousRange::sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num)
+    {
+        size_t nsize = 1;
+        for(auto& x: in){
+            nsize *= x->size();
+        }
+	assert(mOrig[num]->size() == nsize);
+        auto norig = mOrig;
+        norig.resize(mOrig.size() + in.size() - 1);
+        for(size_t i = 0; i != num; ++i){
+            norig[i] = mOrig[i];
+        }
+        for(size_t i = 0; i != in.size(); ++i){
+            norig[num+i] = in[i];
+        }
+        for(size_t i = num + 1 ; i < mOrig.size(); ++i){
+            norig[in.size()+i-1] = mOrig[i];
+        }
+        mOrig = std::move( norig );
+    }
+
     const std::vector<std::shared_ptr<RangeBase> >& AnonymousRange::orig() const
     {
         return mOrig;
