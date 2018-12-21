@@ -317,7 +317,9 @@ namespace MultiArrayTools
         -> For<SubIndex<Index>,SubExpr<Index,Expr>>
     {
         return For<SubIndex<Index>,SubExpr<Index,Expr>>
-            (this, 1, SubExpr<Index,Expr>( mFullIndex, &mExplicitRangePtr->subset(), step, ex ) );
+            (this, 1, SubExpr<Index,Expr>
+	     ( mFullIndex, reinterpret_cast<std::intptr_t>(this),
+	       &mExplicitRangePtr->subset(), step, ex ) );
     }
 
     /************************
