@@ -151,7 +151,6 @@ namespace MultiArrayHelper
 	ExtType mExt;
 
         const std::vector<size_t>* mSubSet;
-        size_t mStep;
         
         mutable ExtType mRootSteps;
 
@@ -168,13 +167,10 @@ namespace MultiArrayHelper
 	
 	SubExpr(const std::shared_ptr<IndexClass>& indPtr,
 		std::intptr_t siptr,
-                const std::vector<size_t>* subset,
-                size_t step, Expr expr);
+                const std::vector<size_t>* subset, Expr expr);
 
-	SubExpr(const IndexClass* indPtr,
-		std::intptr_t siptr,
-                const std::vector<size_t>* subset,
-                size_t step, Expr expr);
+	SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
+                const std::vector<size_t>* subset, Expr expr);
 
 	
 	inline void operator()(size_t mlast, DExt last) const override final;
@@ -494,27 +490,22 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     SubExpr<IndexClass,Expr>::SubExpr(const std::shared_ptr<IndexClass>& indPtr,
 				      std::intptr_t siptr,
-                                      const std::vector<size_t>* subset,
-                                      size_t step,
-                                      Expr expr) :
+                                      const std::vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr.get()), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr),
 	mExt( mkExt(0).extend( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )) ) ),
-        mSubSet(subset), mStep(step)
+        mSubSet(subset)
     {
 	assert(mIndPtr != nullptr);
     }
 
     template <class IndexClass, class Expr>
-    SubExpr<IndexClass,Expr>::SubExpr(const IndexClass* indPtr,
-				      std::intptr_t siptr,
-                                      const std::vector<size_t>* subset,
-                                      size_t step,
-                                      Expr expr) :
+    SubExpr<IndexClass,Expr>::SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
+                                      const std::vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr),
 	mExt( mkExt(0).extend( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )) ) ),
-        mSubSet(subset), mStep(step)
+        mSubSet(subset)
     {
 	assert(mIndPtr != nullptr);
     }
@@ -529,9 +520,8 @@ namespace MultiArrayHelper
     inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast,
                                                      ExtType last) const
     {
-        // INCLUDE FOR LOOP HERE AGIAN !!!!
         const size_t pos = (*mSubSet)[last.val()];
-        const size_t mnpos = mlast * mStep;
+        const size_t mnpos = mlast;
         const ExtType npos = last + mExt*pos;
         mExpr(mnpos, Getter<1>::template getX<ExtType>( npos ));
     }
@@ -541,7 +531,7 @@ namespace MultiArrayHelper
     {
 	const ExtType last;
         const size_t pos = (*mSubSet)[last.val()];
-        const size_t mnpos = mlast * mStep;
+        const size_t mnpos = mlast;
         const ExtType npos = last + mExt*pos;
         mExpr(mnpos, Getter<1>::template getX<ExtType>( npos ));
     }
