@@ -132,7 +132,57 @@ namespace MultiArrayHelper
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 	auto extension() const -> ExtType;
     };
-    
+
+    template <class IndexClass, class Expr>
+    class SubExpr : public ExpressionBase
+    {
+    private:
+	SubExpr() = default;
+
+	const IndexClass* mIndPtr;
+	size_t mSPos;
+	size_t mMax;
+
+        Expr mExpr;
+	typedef decltype(mExpr.rootSteps()) ExtType;
+	ExtType mExt;
+
+        const std::vector<size_t>* mSubSet;
+        size_t mStep;
+        
+        mutable ExtType mRootSteps;
+
+    public:
+	typedef ExpressionBase EB;
+	
+	static constexpr size_t LAYER = Expr::LAYER + 1;
+	static constexpr size_t SIZE = Expr::SIZE;
+
+	SubExpr(const SubExpr& in) = default;
+	SubExpr& operator=(const SubExpr& in) = default;
+	SubExpr(SubExpr&& in) = default;
+	SubExpr& operator=(SubExpr&& in) = default;
+	
+	SubExpr(const std::shared_ptr<IndexClass>& indPtr,
+                const std::vector<size_t>* subset,
+                size_t step, Expr expr);
+
+	SubExpr(const IndexClass* indPtr,
+                const std::vector<size_t>* subset,
+                size_t step, Expr expr);
+
+	
+	inline void operator()(size_t mlast, DExt last) const override final;
+	inline void operator()(size_t mlast, ExtType last) const;
+	inline void operator()(size_t mlast = 0) const override final;
+
+        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
+        DExt dExtension() const override final;
+
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+	auto extension() const -> ExtType;
+    };
+
     template <class IndexClass, class Expr, ForType FT>
     class For : public ExpressionBase
     {
@@ -270,7 +320,7 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr, ForType FT>
     For<IndexClass,Expr,FT>::For(const std::shared_ptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
-	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
+	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
 	assert(mIndPtr != nullptr);
@@ -432,6 +482,96 @@ namespace MultiArrayHelper
 						    sizeof(ExtType)/sizeof(size_t));
     }
     
+    /****************
+     *   SubExpr    *
+     ****************/
+    
+    template <class IndexClass, class Expr>
+    SubExpr<IndexClass,Expr>::SubExpr(const std::shared_ptr<IndexClass>& indPtr,
+                                      const std::vector<size_t>* subset,
+                                      size_t step,
+                                      Expr expr) :
+	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
+        mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ))),
+        mSubSet(subset), mStep(step)
+    {
+	assert(mIndPtr != nullptr);
+    }
+
+    template <class IndexClass, class Expr>
+    SubExpr<IndexClass,Expr>::SubExpr(const IndexClass* indPtr,
+                                      const std::vector<size_t>* subset,
+                                      size_t step,
+                                      Expr expr) :
+	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
+        mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ))),
+        mSubSet(subset), mStep(step)
+    {
+	assert(mIndPtr != nullptr);
+    }
+
+    template <class IndexClass, class Expr>
+    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast, DExt last) const
+    {
+        operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
+    }
+    
+    template <class IndexClass, class Expr>
+    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast,
+                                                     ExtType last) const
+    {
+        // INCLUDE FOR LOOP HERE AGIAN !!!!
+        const size_t pos = (*mSubSet)[mlast];
+        const size_t mnpos = mlast * mStep;
+        VCHECK(mlast);
+        VCHECK(pos);
+        VCHECK(mnpos);
+        const ExtType npos = last + mExt*pos;
+        VCHECK(npos.val());
+        VCHECK(npos.next().val());
+        mExpr(mnpos, npos);
+    }
+
+    template <class IndexClass, class Expr>
+    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast) const
+    {
+	const ExtType last;
+        const size_t pos = (*mSubSet)[mlast];
+        const size_t mnpos = mlast * mStep;
+        const ExtType npos = last + mExt*pos;
+        mExpr(mnpos, npos);
+    }
+    
+    
+    template <class IndexClass, class Expr>
+    auto SubExpr<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
+	-> ExtType
+    {
+	return mExpr.rootSteps(iPtrNum);
+    }
+
+    template <class IndexClass, class Expr>
+    auto SubExpr<IndexClass,Expr>::extension() const
+	-> ExtType
+    {
+	return mExt;
+    }
+
+    template <class IndexClass, class Expr>
+    DExt SubExpr<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
+    {
+        mRootSteps = rootSteps(iPtrNum);
+        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
+						    sizeof(ExtType)/sizeof(size_t));
+    }
+
+    template <class IndexClass, class Expr>
+    DExt SubExpr<IndexClass,Expr>::dExtension() const
+    {
+        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
+						    sizeof(ExtType)/sizeof(size_t));
+    }
+
     /***************************
      *   DynamicExpression   *
      ***************************/

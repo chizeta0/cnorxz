@@ -54,6 +54,18 @@ namespace MultiArrayTools
     // single_range.h
     template <typename U, SpaceType TYPE>
     class SingleIndex;
+
+    // subrange.h
+    template <class Index>
+    class SubIndex;
+
+    // subrange.h
+    template <class Range>
+    class SubRangeFactory;
+
+    // subrange.h
+    template <class Range>
+    class SubRange;
     
     // multi_range.h
     template <class... Ranges>

@@ -159,6 +159,38 @@ namespace {
 				   -14.364, -1.868, -25.703, 13.836, 23.563, 41.339 };
     };
 
+    class OpTest_Sub : public ::testing::Test
+    {
+    protected:
+
+	typedef SingleRangeFactory<char,SpaceType::ANY> SRF;
+	typedef SRF::oType SRange;
+
+        OpTest_Sub()
+	{
+	    swapFactory<SRF>(rfbptr, {'x', 'l'} );
+	    sr1ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+	    swapFactory<SRF>(rfbptr, {'1', '2', '3'} );
+	    sr2ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+	    swapFactory<SRF>(rfbptr, {'a', 'b'} );
+	    sr3ptr = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
+
+        }
+
+	std::shared_ptr<RangeFactoryBase> rfbptr;
+        std::shared_ptr<SRange> sr1ptr;
+	std::shared_ptr<SRange> sr2ptr;
+	std::shared_ptr<SRange> sr3ptr;
+
+        std::vector<double> v1 = { 2.917, 9.436, 0.373, 0.353, 4.005, 1.070,
+                                   -14.364, -1.868, -25.703, 13.836, 23.563, 41.339 };
+
+        std::vector<double> v2 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
+    };
+
+    
     class MapTest : public ::testing::Test
     {
     protected:
@@ -506,6 +538,59 @@ namespace {
 	EXPECT_EQ( fabs( res.at('g') - (7.192+5.063) ) < 0.0001, true );
     }
 
+    TEST_F(OpTest_Sub, Exec)
+    {
+        MultiArray<double,SRange,SRange,SRange> ma1(sr1ptr, sr2ptr, sr3ptr, v1);
+        MultiArray<double,SRange,SRange> ma2(sr3ptr, sr2ptr, v2);
+
+        SubRangeFactory<SRange> subf(sr2ptr, std::vector<size_t>({0,2}));
+        auto subptr = MAT::createExplicit(subf);
+        
+        MultiArray<double,SubRange<SRange>,SRange,SRange> res(subptr,sr3ptr,sr1ptr,0.);
+
+        auto i1 = MAT::getIndex( sr1ptr );
+        auto i2 = MAT::getIndex( sr2ptr );
+        auto i3 = MAT::getIndex( sr3ptr );
+        auto si = MAT::getIndex( subptr );
+        (*si)(i2);
+
+        res(si,i3,i1) = ma2(i3,i2) - ma1(i1,i2,i3);
+
+        EXPECT_EQ( res.size(), 8 );
+        EXPECT_EQ( res.vdata().size(), 8 );
+        EXPECT_EQ( MAT::rptr<0>( res )->size(), 2 );
+
+        EXPECT_EQ( MAT::rptr<0>( res )->isMeta('1'), true );
+        EXPECT_EQ( MAT::rptr<0>( res )->isMeta('3'), true );
+        
+        EXPECT_EQ( xround( res.at(mkt('1','a','x')) ), xround(ma2.at(mkt('a','1')) - ma1.at(mkt('x','1','a'))) );
+        EXPECT_EQ( xround( res.at(mkt('1','a','l')) ), xround(ma2.at(mkt('a','1')) - ma1.at(mkt('l','1','a'))) );
+
+        EXPECT_EQ( xround( res.at(mkt('1','b','x')) ), xround(ma2.at(mkt('b','1')) - ma1.at(mkt('x','1','b'))) );
+        EXPECT_EQ( xround( res.at(mkt('1','b','l')) ), xround(ma2.at(mkt('b','1')) - ma1.at(mkt('l','1','b'))) );
+
+        EXPECT_EQ( xround( res.at(mkt('3','a','x')) ), xround(ma2.at(mkt('a','3')) - ma1.at(mkt('x','3','a'))) );
+        EXPECT_EQ( xround( res.at(mkt('3','a','l')) ), xround(ma2.at(mkt('a','3')) - ma1.at(mkt('l','3','a'))) );
+
+        EXPECT_EQ( xround( res.at(mkt('3','b','x')) ), xround(ma2.at(mkt('b','3')) - ma1.at(mkt('x','3','b'))) );
+        EXPECT_EQ( xround( res.at(mkt('3','b','l')) ), xround(ma2.at(mkt('b','3')) - ma1.at(mkt('l','3','b'))) );
+
+        auto res2 = res.format( subptr->outRange(), sr3ptr, sr1ptr );
+
+        EXPECT_EQ( xround( res2.at(mkt('1','a','x')) ), xround(ma2.at(mkt('a','1')) - ma1.at(mkt('x','1','a'))) );
+        EXPECT_EQ( xround( res2.at(mkt('1','a','l')) ), xround(ma2.at(mkt('a','1')) - ma1.at(mkt('l','1','a'))) );
+
+        EXPECT_EQ( xround( res2.at(mkt('1','b','x')) ), xround(ma2.at(mkt('b','1')) - ma1.at(mkt('x','1','b'))) );
+        EXPECT_EQ( xround( res2.at(mkt('1','b','l')) ), xround(ma2.at(mkt('b','1')) - ma1.at(mkt('l','1','b'))) );
+
+        EXPECT_EQ( xround( res2.at(mkt('3','a','x')) ), xround(ma2.at(mkt('a','3')) - ma1.at(mkt('x','3','a'))) );
+        EXPECT_EQ( xround( res2.at(mkt('3','a','l')) ), xround(ma2.at(mkt('a','3')) - ma1.at(mkt('l','3','a'))) );
+
+        EXPECT_EQ( xround( res2.at(mkt('3','b','x')) ), xround(ma2.at(mkt('b','3')) - ma1.at(mkt('x','3','b'))) );
+        EXPECT_EQ( xround( res2.at(mkt('3','b','l')) ), xround(ma2.at(mkt('b','3')) - ma1.at(mkt('l','3','b'))) );
+        
+    }
+    
     TEST_F(OpTest_MDim, ExecOp1)
     {
 	MultiArray<double,SRange,SRange> res(sr2ptr,sr4ptr);
