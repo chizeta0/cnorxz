@@ -78,11 +78,10 @@ namespace MultiArrayTools
 	auto ifor(size_t step, Expr ex) const
 	    -> For<SubIndex<Index>,SubExpr<Index,Expr>>;
 
-        /*
 	template <class Expr>
 	auto iforh(size_t step, Expr ex) const
-	    -> For<SubIndex<Index>,Expr,ForType::HIDDEN>;
-        */
+	    -> For<SubIndex<Index>,SubExpr<Index,Expr>,ForType::HIDDEN>;
+
     private:
 	std::shared_ptr<RangeType> mExplicitRangePtr;
 	//const U* mMetaPtr;
@@ -322,6 +321,18 @@ namespace MultiArrayTools
 	       &mExplicitRangePtr->subset(), ex ) );
     }
 
+    template <class Index>
+    template <class Expr>
+    auto SubIndex<Index>::iforh(size_t step, Expr ex) const
+	-> For<SubIndex<Index>,SubExpr<Index,Expr>,ForType::HIDDEN>
+    {
+        return For<SubIndex<Index>,SubExpr<Index,Expr>,ForType::HIDDEN>
+            (this, step, SubExpr<Index,Expr>
+	     ( mFullIndex, reinterpret_cast<std::intptr_t>(this),
+	       &mExplicitRangePtr->subset(), ex ) );
+    }
+
+    
     /************************
      *   SubRangeFactory    *
      ************************/
