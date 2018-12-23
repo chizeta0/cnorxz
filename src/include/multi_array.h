@@ -35,6 +35,9 @@ namespace MultiArrayTools
 	typedef MultiArrayBase<T,SRanges...> MAB;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	
+        using MultiArrayBase<T,SRanges...>::operator[];
+	using MutableMultiArrayBase<T,SRanges...>::operator[];
+
 	DEFAULT_MEMBERS(MultiArray);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val);

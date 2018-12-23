@@ -35,9 +35,9 @@ namespace MultiArrayTools
 
         SubIndex(const std::shared_ptr<RangeType>& range);
 
-        static constexpr IndexType sType() { return typename Index::sType(); }
-        static constexpr size_t totalDim() { return typename Index::totalDim(); }
-        static constexpr size_t sDim() { return typename Index::sDim(); }
+        static constexpr IndexType sType() { return IndexType::SINGLE; }
+        static constexpr size_t totalDim() { return 1; }
+        static constexpr size_t sDim() { return 1; }
 
         static constexpr SpaceType STYPE = Index::STYPE;
 
