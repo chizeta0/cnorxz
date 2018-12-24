@@ -21,9 +21,9 @@ namespace MultiArrayTools
     
     template <class IndexType1, class IndexType2>
     inline auto operator|(const IPTR<IndexType1>& i1, const IPTR<IndexType2>& i2)
-        -> decltype(std::make_tuple(i1->THIS(),i2->THIS()))
+        -> decltype(std::make_tuple(i1,i2))
     {
-        return std::make_tuple(i1->THIS(),i2->THIS());
+        return std::make_tuple(i1,i2);
     }
 
     template <class IndexType1, class... IndexTypes2>
