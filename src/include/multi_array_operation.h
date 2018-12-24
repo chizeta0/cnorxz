@@ -475,7 +475,8 @@ namespace MultiArrayTools
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
 	template <class Expr>
-	auto loop(Expr exp) const -> decltype(mInd->iforh(1,exp));
+	auto loop(Expr exp) const
+	    -> decltype(mInd->iforh(1,mOp.loop(exp)));
     };
 
     template <typename T, class Op, class... Indices>

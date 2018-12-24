@@ -66,10 +66,16 @@ namespace MultiArrayTools
 
     public:
 
-	DEFAULT_MEMBERS(MultiArrayBase);
+	//DEFAULT_MEMBERS(MultiArrayBase);
 	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
 	MultiArrayBase(const typename CRange::Space& space);
 
+	MultiArrayBase() = default;
+	MultiArrayBase(const MultiArrayBase& in);
+	MultiArrayBase(MultiArrayBase&& in);
+	MultiArrayBase& operator=(const MultiArrayBase& in);
+	MultiArrayBase& operator=(MultiArrayBase&& in);
+	
 	virtual ~MultiArrayBase() = default;
 
 	template <typename X>

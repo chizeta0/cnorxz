@@ -535,9 +535,10 @@ namespace MultiArrayTools
 
     template <typename T, class Op, class IndexType>
     template <class Expr>
-    auto Contraction<T,Op,IndexType>::loop(Expr exp) const -> decltype(mInd->iforh(1,exp))
+    auto Contraction<T,Op,IndexType>::loop(Expr exp) const
+	-> decltype(mInd->iforh(1,mOp.loop(exp)))
     {
-	return mInd->iforh(1,exp);
+	return mInd->iforh(1,mOp.loop(exp));
     }
 
     /**************************

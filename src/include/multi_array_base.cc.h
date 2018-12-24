@@ -9,6 +9,41 @@ namespace MultiArrayTools
      **********************/
 
     template <typename T, class... SRanges>
+    MultiArrayBase<T,SRanges...>::MultiArrayBase(const MultiArrayBase& in) :
+	mInit(in.mInit),
+	mRange(in.mRange)
+    {
+	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+    }
+	
+
+    template <typename T, class... SRanges>
+    MultiArrayBase<T,SRanges...>::MultiArrayBase(MultiArrayBase&& in) :
+	mInit(in.mInit),
+	mRange(in.mRange)
+    {
+	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+    }
+
+    template <typename T, class... SRanges>
+    MultiArrayBase<T,SRanges...>& MultiArrayBase<T,SRanges...>::operator=(const MultiArrayBase& in)
+    {
+	mInit = in.mInit;
+	mRange = in.mRange;
+	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	return *this;
+    }
+
+    template <typename T, class... SRanges>
+    MultiArrayBase<T,SRanges...>& MultiArrayBase<T,SRanges...>::operator=(MultiArrayBase&& in)
+    {
+	mInit = in.mInit;
+	mRange = in.mRange;
+	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	return *this;
+    }
+    
+    template <typename T, class... SRanges>
     MultiArrayBase<T,SRanges...>::MultiArrayBase(const std::shared_ptr<SRanges>&... ranges)
     {
 	ContainerRangeFactory<T,SRanges...> crf(ranges...);

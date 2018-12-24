@@ -297,7 +297,8 @@ namespace {
 	    data.resize(s);
 	    for(size_t i = 0; i != s; ++i){
 		double arg = static_cast<double>( i - s ) - 0.1; 
-		data[i] = sin(arg)/arg;
+		data[i] = sin(arg);
+		//VCHECK(data[i]);
 	    }
 	    SRF f;
 	    sr = std::dynamic_pointer_cast<SR>(f.create());
@@ -468,7 +469,7 @@ namespace {
 		for(size_t a = 0; a != 4; ++a){
 		    for(size_t b = 0; b != 4; ++b){
 			for(size_t c = 0; c != 4; ++c){
-			    const size_t sidx = d*4*4*4*4*4*4*4 + a*5*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
+			    const size_t sidx = d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
 			    vres[tidx] += data[sidx];
 			}
 		    }
