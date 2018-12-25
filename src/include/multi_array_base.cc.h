@@ -13,7 +13,9 @@ namespace MultiArrayTools
 	mInit(in.mInit),
 	mRange(in.mRange)
     {
-	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	if(mRange){
+	    mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	}
     }
 	
 
@@ -22,7 +24,9 @@ namespace MultiArrayTools
 	mInit(in.mInit),
 	mRange(in.mRange)
     {
-	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	if(mRange){
+	    mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	}
     }
 
     template <typename T, class... SRanges>
@@ -30,7 +34,9 @@ namespace MultiArrayTools
     {
 	mInit = in.mInit;
 	mRange = in.mRange;
-	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	if(mRange){
+	    mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	}
 	return *this;
     }
 
@@ -39,7 +45,9 @@ namespace MultiArrayTools
     {
 	mInit = in.mInit;
 	mRange = in.mRange;
-	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	if(mRange){
+	    mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
+	}
 	return *this;
     }
     
