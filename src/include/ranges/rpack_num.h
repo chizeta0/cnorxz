@@ -189,9 +189,10 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(*std::get<N>(ip).get())>::type TypeFromIndexPack;
 	    
 	    static_assert(std::is_same<SubIndexType,TypeFromIndexPack>::value,
-			  "inconsiśtent types");
+			  "inconsistent types");
 	    
 	    std::get<N>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<N>() ) );
+	    *std::get<N>(ip) = 0;
 	    RPackNum<N-1>::construct(ip, range);
 	}
 
@@ -202,7 +203,16 @@ namespace MultiArrayHelper
 	    std::get<N>(ip) = ind.template getPtr<N>() ;
 	    RPackNum<N-1>::copyInst(ip, ind);
 	}
-	
+
+	template <class IndexType, class... Indices>
+	static void copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
+			      const IndexType& ind)
+	{
+	    typedef typename std::remove_reference<decltype(*std::get<N>(ip))>::type SubType;
+	    std::get<N>(ip) = std::make_shared<SubType>( ind.template get<N>() ) ;
+	    RPackNum<N-1>::copyIndex(ip, ind);
+	}
+
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
 	{
@@ -454,9 +464,10 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(*std::get<0>(ip).get())>::type TypeFromIndexPack;
 	    
 	    static_assert(std::is_same<SubIndexType,TypeFromIndexPack>::value,
-			  "inconsiśtent types");
+			  "inconsistent types");
 	    
 	    std::get<0>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<0>() ) );
+	    *std::get<0>(ip) = 0;
 	}
 
 	template <class IndexType, class... Indices>
@@ -465,7 +476,15 @@ namespace MultiArrayHelper
 	{
 	    std::get<0>(ip) = ind.template getPtr<0>();
 	}
-	
+
+	template <class IndexType, class... Indices>
+	static void copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
+			      const IndexType& ind)
+	{
+	    typedef typename std::remove_reference<decltype(*std::get<0>(ip))>::type SubType;
+	    std::get<0>(ip) = std::make_shared<SubType>( ind.template get<0>() ) ;
+	}
+
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
 	{

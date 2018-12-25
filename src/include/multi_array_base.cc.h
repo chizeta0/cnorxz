@@ -85,7 +85,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::begin() const
     {
-	IndexType i(*mProtoI);
+	IndexType i(*mProtoI,true);
 	i = 0;
 	return i.setData(data());
     }
@@ -93,7 +93,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::end() const
     {
-	IndexType i(*mProtoI);
+	IndexType i(*mProtoI,true);
 	i = i.max();
 	//i = mRange->size();
 	return i.setData(data());
@@ -103,7 +103,7 @@ namespace MultiArrayTools
     typename MultiArrayBase<T,SRanges...>::IndexType
     MultiArrayBase<T,SRanges...>::beginIndex() const
     {
-	IndexType i(*mProtoI);
+	IndexType i(*mProtoI,true);
 	i = 0;
 	return i.setData(data());
     }
@@ -112,7 +112,7 @@ namespace MultiArrayTools
     typename MultiArrayBase<T,SRanges...>::IndexType
     MultiArrayBase<T,SRanges...>::endIndex() const
     {
-	IndexType i(*mProtoI);
+	IndexType i(*mProtoI,true);
 	i = i.max();
 	//i = mRange->size();
 	return i.setData(data());

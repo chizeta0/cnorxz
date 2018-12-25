@@ -67,11 +67,11 @@ namespace MultiArrayTools
     {
 	return true;
     }
-
+    
     template <typename T, class... SRanges>
     auto ConstSlice<T,SRanges...>::begin() const -> ConstSlice<T,SRanges...>::IType 
     {
-	IType i(*MAB::mProtoI);
+	IType i(*MAB::mProtoI,true);
 	i = 0;
 	//i = mStartPos;
 	return i.setData(data());
@@ -80,12 +80,12 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     auto ConstSlice<T,SRanges...>::end() const -> ConstSlice<T,SRanges...>::IType 
     {
-	IType i(*MAB::mProtoI);
+	IType i(*MAB::mProtoI,true);
 	i = i.max(); // CHECK !!!
 	//i = std::get<sizeof...(SRanges)>(mBlockSizes);
 	return i.setData(data());
     }
-
+    
     template <typename T, class... SRanges>
     std::shared_ptr<MultiArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous(bool slice) const
     {
@@ -169,7 +169,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     auto Slice<T,SRanges...>::begin() const -> Slice<T,SRanges...>::IType 
     {
-	IType i(*MAB::mProtoI);
+	IType i(*MAB::mProtoI,true);
 	i = 0;
 	//i = mStartPos;
 	return i.setData(data());
@@ -178,7 +178,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     auto Slice<T,SRanges...>::end() const -> Slice<T,SRanges...>::IType 
     {
-	IType i(*MAB::mProtoI);
+	IType i(*MAB::mProtoI,true);
 	i = i.max(); // CHECK !!!
 	//i = std::get<sizeof...(SRanges)>(mBlockSizes);
 	return i.setData(data());

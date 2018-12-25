@@ -49,14 +49,45 @@ namespace MultiArrayTools
 	IndexPack mIPack;
 	std::array<size_t,sizeof...(Indices)+1> mBlockSizes; 
 	const T* mData = nullptr;
+	size_t mCPos;
 	//const MultiArrayBase<T,typename Indices::RangeType...>* mMa = nullptr;
 	std::intptr_t mObjPtrNum;
 	
     public:
 
-	ContainerIndex(const ContainerIndex& in) = default;
+	ContainerIndex(const ContainerIndex& in) = default;	
 	ContainerIndex& operator=(const ContainerIndex& in) = default;
 
+	ContainerIndex(const ContainerIndex& in, bool copy) :
+	    IB(in),
+	    mNonTrivialBlocks(in.mNonTrivialBlocks),
+	    mExternControl(false),
+	    mBlockSizes(in.mBlockSizes),
+	    mData(in.mData),
+	    mCPos(in.mCPos),
+	    mObjPtrNum(in.mObjPtrNum)
+	{
+	    //if(copy){
+	    RPackNum<sizeof...(Indices)-1>::copyIndex(mIPack, in);
+		//}
+		//else {
+	    //mIPack = in.mIPack;
+		//}
+	}
+	
+	ContainerIndex& copy(const ContainerIndex& in)
+	{
+	    IB::operator=(in);
+	    mNonTrivialBlocks = in.mNonTrivialBlocks;
+	    mExternControl = false;
+	    mBlockSizes = in.mBlockSizes;
+	    mData = in.mData;
+	    mCPos = in.mCPos;
+	    mObjPtrNum = in.mObjPtrNum;
+	    RPackNum<sizeof...(Indices)-1>::copyIndex(mIPack, in);
+	    return *this;
+	}
+	
 	template <typename X>
 	ContainerIndex& operator=(const ContainerIndex<X,Indices...>& in);
 	
@@ -245,7 +276,8 @@ namespace MultiArrayTools
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
 	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
     }
 
     template <typename T, class... Indices>
@@ -258,7 +290,8 @@ namespace MultiArrayTools
     {
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	mBlockSizes = blockSizes;
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	mNonTrivialBlocks = true;
     }
 
@@ -277,6 +310,7 @@ namespace MultiArrayTools
     {
 	if(mExternControl){
 	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	    //VCHECK(id());
 	    //VCHECK(sizeof...(Indices));
 	    //assert(IB::mPos < IB::max());
@@ -330,6 +364,7 @@ namespace MultiArrayTools
 	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	}
 	RPackNum<sizeof...(Indices)-1>::pp( mIPack );
+	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	++IB::mPos;
 	return *this;
     }
@@ -341,6 +376,7 @@ namespace MultiArrayTools
 	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	}
 	RPackNum<sizeof...(Indices)-1>::mm( mIPack );
+	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	--IB::mPos;
 	return *this;
 
@@ -351,6 +387,7 @@ namespace MultiArrayTools
     {
 	IB::mPos = pos;
 	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	return *this;
     }
 
@@ -499,14 +536,15 @@ namespace MultiArrayTools
     const T& ContainerIndex<T,Indices...>::operator*() const
     {
 	//return mMa[*this];
-	return mData[IB::mPos];
+	return mData[mCPos];
+	//return mData[IB::mPos];
     }
 
     template <typename T, class... Indices>
     const T* ContainerIndex<T,Indices...>::operator->() const
     {
 	//return &mMa[*this];
-	return &mData[IB::mPos];
+	return &mData[mCPos];
     }
     /*
     template <typename T, class... Indices>

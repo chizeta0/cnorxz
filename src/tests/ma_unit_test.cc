@@ -221,39 +221,50 @@ namespace {
 	j->at('1');
 	sl3.define(j, j1, j2) = ma(mj, j);
 
+	auto ci = sl3.begin();
+
 	EXPECT_EQ( sl3.at( mkt('1', 'x','a') ), 2.917 );
+	EXPECT_EQ( *ci, 2.917 );
 	EXPECT_EQ( sl3.at( mkt('2', 'x','a') ), 9.436 );
 	EXPECT_EQ( sl3.at( mkt('3', 'x','a') ), 0.373 );
-	
+
 	EXPECT_EQ( sl3.at( mkt('1', 'x','l') ), 7.192 );
+	EXPECT_EQ( *(++ci), 7.192 );
 	EXPECT_EQ( sl3.at( mkt('2', 'x','l') ), 7.315 );
 	EXPECT_EQ( sl3.at( mkt('3', 'x','l') ), 1.536 );
 
 	EXPECT_EQ( sl3.at( mkt('1', 'x','f') ), 4.892 );
+	EXPECT_EQ( *(++ci), 4.892 );
 	EXPECT_EQ( sl3.at( mkt('2', 'x','f') ), 0.280 );
 	EXPECT_EQ( sl3.at( mkt('3', 'x','f') ), 8.870 );
 
 	EXPECT_EQ( sl3.at( mkt('1', 'x','g') ), 4.790 );
+	EXPECT_EQ( *(++ci), 4.790 );
 	EXPECT_EQ( sl3.at( mkt('2', 'x','g') ), 8.215 );
 	EXPECT_EQ( sl3.at( mkt('3', 'x','g') ), 5.063 );
-
 	
 	EXPECT_EQ( sl3.at( mkt('1', 'y','a') ), 1.530 );
+	EXPECT_EQ( *(++ci), 1.530 );
 	EXPECT_EQ( sl3.at( mkt('2', 'y','a') ), 3.084 );
 	EXPECT_EQ( sl3.at( mkt('3', 'y','a') ), 1.609 );
 	
 	EXPECT_EQ( sl3.at( mkt('1', 'y','l') ), 4.847 );
+	EXPECT_EQ( *(++ci), 4.847 );
 	EXPECT_EQ( sl3.at( mkt('2', 'y','l') ), 8.175 );
 	EXPECT_EQ( sl3.at( mkt('3', 'y','l') ), 0.112 );
 
 	EXPECT_EQ( sl3.at( mkt('1', 'y','f') ), 6.712 );
+	EXPECT_EQ( *(++ci), 6.712 );
 	EXPECT_EQ( sl3.at( mkt('2', 'y','f') ), 6.408 );
 	EXPECT_EQ( sl3.at( mkt('3', 'y','f') ), 1.959 );
 
 	EXPECT_EQ( sl3.at( mkt('1', 'y','g') ), 0.331 );
+	EXPECT_EQ( *(++ci), 0.331 );
 	EXPECT_EQ( sl3.at( mkt('2', 'y','g') ), 4.209 );
 	EXPECT_EQ( sl3.at( mkt('3', 'y','g') ), 2.951 );
 
+	EXPECT_EQ( *(++ci), 9.436 );
+	EXPECT_EQ( *(++ci), 7.315 );
 	
     }
     
