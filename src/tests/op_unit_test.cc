@@ -559,9 +559,9 @@ namespace {
         res(i3,i1) = (ma2(i3,i2) - ma1(i1,i2,i3)).c(si);
 	res2(i3,si,i1) = ma2(i3,i2) - ma1(i1,i2,i3);
 
-        EXPECT_EQ( res2.size(), 8 );
-        EXPECT_EQ( res2.vdata().size(), 8 );
-        EXPECT_EQ( MAT::rptr<1>( res2 )->size(), 2 );
+        EXPECT_EQ( res2.size(), static_cast<int>(8) );
+        EXPECT_EQ( res2.vdata().size(), static_cast<int>(8) );
+        EXPECT_EQ( MAT::rptr<1>( res2 )->size(), static_cast<int>(2) );
 
         EXPECT_EQ( MAT::rptr<1>( res2 )->isMeta('1'), true );
         EXPECT_EQ( MAT::rptr<1>( res2 )->isMeta('3'), true );
