@@ -9,6 +9,8 @@
 #include "xfor/for_utils.h"
 #include "xfor/exttype.h"
 
+#include <omp.h>
+
 #define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
     << " in " << __func__ << ": " << #a << " = " << a << std::endl; 
 
@@ -184,6 +186,9 @@ namespace MultiArrayHelper
 	auto extension() const -> ExtType;
     };
 
+    template <class IndexClass, class Expr>
+    class PFor;
+    
     template <class IndexClass, class Expr, ForType FT>
     class For : public ExpressionBase
     {
@@ -216,6 +221,54 @@ namespace MultiArrayHelper
 	    size_t step, Expr expr);
 
 	For(const IndexClass* indPtr,
+	    size_t step, Expr expr);
+
+	inline void operator()(size_t mlast, DExt last) const override final;
+	inline void operator()(size_t mlast, ExtType last) const;
+	inline void operator()(size_t mlast = 0) const override final;
+
+        PFor<IndexClass,Expr> parallel() const;
+        
+        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
+        DExt dExtension() const override final;
+
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+	auto extension() const -> ExtType;
+
+    };
+
+    template <class IndexClass, class Expr>
+    class PFor : public ExpressionBase
+    {
+    private:
+	PFor() = default;
+		
+	const IndexClass* mIndPtr;
+	size_t mSPos;
+	size_t mMax;
+	size_t mStep;
+
+	Expr mExpr;
+	typedef decltype(mExpr.rootSteps()) ExtType;
+	ExtType mExt;
+
+        mutable ExtType mRootSteps;
+        
+    public:
+	typedef ExpressionBase EB;
+	
+	static constexpr size_t LAYER = Expr::LAYER + 1;
+	static constexpr size_t SIZE = Expr::SIZE;
+
+	PFor(const PFor& in) = default;
+	PFor& operator=(const PFor& in) = default;
+	PFor(PFor&& in) = default;
+	PFor& operator=(PFor&& in) = default;
+       
+	PFor(const std::shared_ptr<IndexClass>& indPtr,
+	    size_t step, Expr expr);
+
+	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
 	inline void operator()(size_t mlast, DExt last) const override final;
@@ -395,6 +448,111 @@ namespace MultiArrayHelper
 
     template <class IndexClass, class Expr, ForType FT>
     DExt For<IndexClass,Expr,FT>::dExtension() const
+    {
+        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
+						    sizeof(ExtType)/sizeof(size_t));
+    }
+
+    template <class IndexClass, class Expr, ForType FT>
+    PFor<IndexClass,Expr> For<IndexClass,Expr,FT>::parallel() const
+    {
+        static_assert(FT == ForType::DEFAULT, "hidden for not parallelizable");
+        return PFor<IndexClass,Expr>(mIndPtr, mStep, mExpr);
+    }
+    
+    /******************
+     *    P F o r     *
+     ******************/
+    
+    template <class IndexClass, class Expr>
+    PFor<IndexClass,Expr>::PFor(const std::shared_ptr<IndexClass>& indPtr,
+				 size_t step, Expr expr) :
+	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
+        mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
+    {
+	assert(mIndPtr != nullptr);
+    }
+
+    template <class IndexClass, class Expr>
+    PFor<IndexClass,Expr>::PFor(const IndexClass* indPtr,
+				 size_t step, Expr expr) :
+	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
+        mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
+    {
+	assert(mIndPtr != nullptr);
+    }
+
+    template <class IndexClass, class Expr>
+    inline void PFor<IndexClass,Expr>::operator()(size_t mlast, DExt last) const
+    {
+        operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
+    }
+    
+    template <class IndexClass, class Expr>
+    inline void PFor<IndexClass,Expr>::operator()(size_t mlast,
+						    ExtType last) const
+    {
+	typedef typename IndexClass::RangeType RangeType;
+        int pos = 0;
+        size_t mnpos = 0;
+        ExtType npos;
+        auto expr = mExpr;
+#pragma omp parallel shared(expr,mnpos,npos) private(pos)
+        {
+#pragma omp for nowait
+            for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
+                mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
+                npos = last + mExt*static_cast<size_t>(pos);
+                expr(mnpos, npos);
+            }
+        }
+    }
+
+    template <class IndexClass, class Expr>
+    inline void PFor<IndexClass,Expr>::operator()(size_t mlast) const
+    {
+	typedef typename IndexClass::RangeType RangeType;
+	const ExtType last;
+        int pos = 0;
+        size_t mnpos = 0;
+        ExtType npos;
+        auto expr = mExpr;
+#pragma omp parallel shared(expr,mnpos,npos) private(pos)
+        {
+#pragma omp for nowait
+            for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
+                mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
+                npos = last + mExt*static_cast<size_t>(pos);
+                expr(mnpos, npos);
+            }
+        }
+    }
+    
+    
+    template <class IndexClass, class Expr>
+    auto PFor<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
+	-> ExtType
+    {
+	return mExpr.rootSteps(iPtrNum);
+    }
+
+    template <class IndexClass, class Expr>
+    auto PFor<IndexClass,Expr>::extension() const
+	-> ExtType
+    {
+	return mExt;
+    }
+
+    template <class IndexClass, class Expr>
+    DExt PFor<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
+    {
+        mRootSteps = rootSteps(iPtrNum);
+        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
+						    sizeof(ExtType)/sizeof(size_t));
+    }
+
+    template <class IndexClass, class Expr>
+    DExt PFor<IndexClass,Expr>::dExtension() const
     {
         return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
 						    sizeof(ExtType)/sizeof(size_t));
