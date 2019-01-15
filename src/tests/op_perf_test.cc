@@ -126,12 +126,15 @@ namespace {
     {
     public:
 
+        typedef ClassicRF CRF;
+        typedef ClassicRange CR;
+        
 	typedef SpinRF SRF;
 	typedef SpinRange SR;
 	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
 	typedef SR8F::oType SR8;
 
-	static const size_t s = 65536;
+	static const size_t s = 65536*1000;
 	
 	OpTest_Spin()
 	{
@@ -142,6 +145,8 @@ namespace {
 	    }
 	    SRF f;
 	    sr = std::dynamic_pointer_cast<SR>(f.create());
+            CRF cf(1000);
+            cr = std::dynamic_pointer_cast<CR>(cf.create());
 	}
 
 	void contract();
@@ -150,13 +155,15 @@ namespace {
 	
 	std::vector<double> data;
 	std::shared_ptr<SR> sr;
+        std::shared_ptr<CR> cr;
     };
 
     void OpTest_Spin::contract()
     {
-	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(sr, sr, sr, sr, sr, sr, sr, sr, data);
-	MultiArray<double,SR,SR> res1( sr, sr );
-	
+	MultiArray<double,CR,SR,SR,SR,SR,SR,SR,SR,SR> ma( cr, sr, sr, sr, sr, sr, sr, sr, sr, data);
+	MultiArray<double,CR,SR,SR> res1( cr, sr, sr );
+
+        auto ii = MAT::getIndex<CR>(cr);
 	auto alpha = MAT::getIndex<SR>();
 	auto beta = MAT::getIndex<SR>();
 	auto gamma = MAT::getIndex<SR>();
@@ -166,14 +173,14 @@ namespace {
 	auto mix = MAT::mkMIndex( alpha, beta, gamma );
 
 	std::clock_t begin = std::clock();
-	for(size_t i = 0; i != 1000; ++i){
-	    res1(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
-	}
+	//for(size_t i = 0; i != 1000; ++i){
+        res1(ii ,delta, deltap) += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+            //}
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 	
-	std::vector<double> vres(4*4);
+	std::vector<double> vres(4*4*1000);
 	for(size_t d = 0; d != 4; ++d){
 	    for(size_t p = 0; p != 4; ++p){
 		const size_t tidx = d*4 + p;
@@ -187,8 +194,8 @@ namespace {
 		    for(size_t c = 0; c != 4; ++c){
 			for(size_t d = 0; d != 4; ++d){
 			    for(size_t p = 0; p != 4; ++p){
-				const size_t tidx = d*4 + p;
-				const size_t sidx = d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + + c*5*4  + p;
+				const size_t tidx = i*4*4 + d*4 + p;
+				const size_t sidx = i*65536 + d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
 				vres[tidx] += data[sidx];
 			    }
 			}
@@ -198,25 +205,25 @@ namespace {
 	}
 	std::clock_t end2 = std::clock();
 
-	assert( xround(res1.at(mkts(0,0))) == xround(vres[0]) );
-	assert( xround(res1.at(mkts(0,1))) == xround(vres[1]) );
-	assert( xround(res1.at(mkts(0,2))) == xround(vres[2]) );
-	assert( xround(res1.at(mkts(0,3))) == xround(vres[3]) );
+	assert( xround(res1.at(mkts(0,0,0))) == xround(vres[0]) );
+	assert( xround(res1.at(mkts(0,0,1))) == xround(vres[1]) );
+	assert( xround(res1.at(mkts(0,0,2))) == xround(vres[2]) );
+	assert( xround(res1.at(mkts(0,0,3))) == xround(vres[3]) );
 	
-	assert( xround(res1.at(mkts(1,0))) == xround(vres[4]) );
-	assert( xround(res1.at(mkts(1,1))) == xround(vres[5]) );
-	assert( xround(res1.at(mkts(1,2))) == xround(vres[6]) );
-	assert( xround(res1.at(mkts(1,3))) == xround(vres[7]) );
+	assert( xround(res1.at(mkts(0,1,0))) == xround(vres[4]) );
+	assert( xround(res1.at(mkts(0,1,1))) == xround(vres[5]) );
+	assert( xround(res1.at(mkts(0,1,2))) == xround(vres[6]) );
+	assert( xround(res1.at(mkts(0,1,3))) == xround(vres[7]) );
 
-	assert( xround(res1.at(mkts(2,0))) == xround(vres[8]) );
-	assert( xround(res1.at(mkts(2,1))) == xround(vres[9]) );
-	assert( xround(res1.at(mkts(2,2))) == xround(vres[10]) );
-	assert( xround(res1.at(mkts(2,3))) == xround(vres[11]) );
+	assert( xround(res1.at(mkts(0,2,0))) == xround(vres[8]) );
+	assert( xround(res1.at(mkts(0,2,1))) == xround(vres[9]) );
+	assert( xround(res1.at(mkts(0,2,2))) == xround(vres[10]) );
+	assert( xround(res1.at(mkts(0,2,3))) == xround(vres[11]) );
 
-	assert( xround(res1.at(mkts(3,0))) == xround(vres[12]) );
-	assert( xround(res1.at(mkts(3,1))) == xround(vres[13]) );
-	assert( xround(res1.at(mkts(3,2))) == xround(vres[14]) );
-	assert( xround(res1.at(mkts(3,3))) == xround(vres[15]) );
+	assert( xround(res1.at(mkts(0,3,0))) == xround(vres[12]) );
+	assert( xround(res1.at(mkts(0,3,1))) == xround(vres[13]) );
+	assert( xround(res1.at(mkts(0,3,2))) == xround(vres[14]) );
+	assert( xround(res1.at(mkts(0,3,3))) == xround(vres[15]) );
 
 	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
 		  << std::endl;

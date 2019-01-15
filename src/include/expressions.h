@@ -30,7 +30,10 @@ namespace MultiArrayTools
     using OX = Operation<double,OpF<double>,oo<EC,MAs>...>;
 
     template <class EC, class Second>
-    using AEXT = typename OperationMaster<double,Second,DynamicRange<EC>>::AssignmentExpr;
+    using AEXT = typename OperationMaster<double,SelfIdentity<double>,Second,DynamicRange<EC>>::AssignmentExpr;
+
+    template <class EC, class Second>
+    using AEXT_P = typename OperationMaster<double,plus<double>,Second,DynamicRange<EC>>::AssignmentExpr;
 
     template <class EC, template <class> class OpF, class... MAs>
     using AEX = AEXT<EC,OX<EC,OpF,MAs...>>;

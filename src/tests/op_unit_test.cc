@@ -367,10 +367,10 @@ namespace {
 	(*jj)(ii1,ii2);
 	///auto jj = mkMapI( std::make_shared<plus<size_t> >(), ii1, ii1 );
 		
-	res(jj) = ma1(ii1,ii2);
+	res(jj) += ma1(ii1,ii2);
 	auto mult = mr->mapMultiplicity();
 	auto jjx = jj->outIndex();
-	res2(jj) = ma1(ii1,ii2) / staticcast<double>( mult(jjx) );
+	res2(jj) += ma1(ii1,ii2) / staticcast<double>( mult(jjx) );
 
 	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());
 	MultiArray<double,TRange> form2 = res2.format(mpr1ptr->outRange());
@@ -419,7 +419,7 @@ namespace {
 	auto i1 = MAT::getIndex(sr1ptr);
 	auto i2 = MAT::getIndex(sr2ptr);
 	
-	res(i1) = fma(i1,i2).c(i2);
+	res(i1) += fma(i1,i2).c(i2);
 
 	auto i = res.begin();
 	
@@ -452,12 +452,12 @@ namespace {
 	auto mix = MAT::mkMIndex( alpha, beta, gamma );
 
 	std::clock_t begin = std::clock();
-	res1(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	res1(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 
-	res2(delta, deltap) = ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);
+	res2(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);
 	
 	std::vector<double> vres(4*4);
 
@@ -556,7 +556,7 @@ namespace {
         auto si = MAT::getIndex( subptr );
         (*si)(i2);
 
-        res(i3,i1) = (ma2(i3,i2) - ma1(i1,i2,i3)).c(si);
+        res(i3,i1) += (ma2(i3,i2) - ma1(i1,i2,i3)).c(si);
 	res2(i3,si,i1) = ma2(i3,i2) - ma1(i1,i2,i3);
 
         EXPECT_EQ( res2.size(), static_cast<size_t>(8) );
@@ -628,7 +628,7 @@ namespace {
 	auto i1 = MAT::getIndex( sr2ptr );
 	auto i2 = MAT::getIndex( sr4ptr );
 
-	res(i1) = (ma1(i1) * ma2(i2)).c(i2);
+	res(i1) += (ma1(i1) * ma2(i2)).c(i2);
 
 	EXPECT_EQ( xround( res.at('1') ), xround(2.917 * 8.870 + 2.917 * 4.790) );
 	EXPECT_EQ( xround( res.at('2') ), xround(9.436 * 8.870 + 9.436 * 4.790) );

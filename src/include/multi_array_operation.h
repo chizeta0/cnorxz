@@ -88,8 +88,16 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
+    template <typename T>
+    struct SelfIdentity
+    {
+        static inline T apply(const T& a, const T& b)
+        {
+            return b;
+        }
+    };
     
-    template <typename T, class OpClass, class... Ranges>
+    template <typename T, class AOp, class OpClass, class... Ranges>
     class OperationMaster
     {
     public:
@@ -132,8 +140,9 @@ namespace MultiArrayTools
 	OperationMaster(T* data, const OpClass& second,
 			IndexType& index);
 
-	inline void set(size_t pos, T val) { mDataPtr[pos] = val; }
-	inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
+	inline void set(size_t pos, T val) { mDataPtr[pos] = AOp::apply(mDataPtr[pos],val); }
+        
+	//inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
 	inline T get(size_t pos) const;
 
     private:
@@ -276,9 +285,12 @@ namespace MultiArrayTools
 	OperationRoot(T* data, const IndexType& ind);
 
 	template <class OpClass>
-	OperationMaster<T,OpClass,Ranges...> operator=(const OpClass& in);
+	OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> operator=(const OpClass& in);
 
-	OperationMaster<T,OperationRoot,Ranges...> operator=(const OperationRoot& in);
+        template <class OpClass>
+	OperationMaster<T,plus<T>,OpClass,Ranges...> operator+=(const OpClass& in);
+
+	OperationMaster<T,SelfIdentity<T>,OperationRoot,Ranges...> operator=(const OperationRoot& in);
 	
 	template <class ET>
 	inline T get(ET pos) const;

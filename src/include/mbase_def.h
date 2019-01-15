@@ -33,7 +33,7 @@ namespace MultiArrayTools
     class OperationTemplate;
     
     // multi_array_operation.h
-    template <typename T, class OpClass, class... Ranges>
+    template <typename T, class AOp, class OpClass, class... Ranges>
     class OperationMaster;
     
     // multi_array_operation.h

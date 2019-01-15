@@ -110,22 +110,22 @@ namespace MultiArrayTools
      *   OperationMaster::AssignmentExpr     *
      *****************************************/
 
-    template <typename T, class OpClass, class... Ranges>
-    OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
     AssignmentExpr(OperationMaster& m, const OpClass& sec) :
 	mM(m), mSec(sec) {}
 
-    template <typename T, class OpClass, class... Ranges>
-    inline void OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    inline void OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
     operator()(size_t start, ExtType last) const
     {
 	//VCHECK(mSec.template get<ExtType>(last));
-	mM.add(start, mSec.template get<ExtType>(last) );
+	mM.set(start, mSec.template get<ExtType>(last) );
     }
     
-    template <typename T, class OpClass, class... Ranges>
-    typename OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::ExtType
-    OperationMaster<T,OpClass,Ranges...>::AssignmentExpr::
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    typename OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::ExtType
+    OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
     rootSteps(std::intptr_t iPtrNum) const
     {
 	return mSec.rootSteps(iPtrNum);
@@ -136,8 +136,8 @@ namespace MultiArrayTools
      *   OperationMaster     *
      *************************/
 
-    template <typename T, class OpClass, class... Ranges>
-    OperationMaster<T,OpClass,Ranges...>::
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    OperationMaster<T,AOp,OpClass,Ranges...>::
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
 		    IndexType& index) :
 	mSecond(second), mDataPtr(ma.data()),
@@ -146,8 +146,8 @@ namespace MultiArrayTools
 	performAssignment(0);
     }
 
-    template <typename T, class OpClass, class... Ranges>
-    OperationMaster<T,OpClass,Ranges...>::
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    OperationMaster<T,AOp,OpClass,Ranges...>::
     OperationMaster(T* data, const OpClass& second,
 		    IndexType& index) :
 	mSecond(second), mDataPtr(data),
@@ -156,17 +156,16 @@ namespace MultiArrayTools
 	performAssignment(0);
     }
 
-    template <typename T, class OpClass, class... Ranges>
-    void OperationMaster<T,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    void OperationMaster<T,AOp,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
 	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
-	const auto loop = mSecond.template loop<decltype(mIndex.ifor(1,ae))>( mIndex.ifor(1,ae) );
-	// hidden Loops outside ! -> auto vectorizable
+        const auto loop = mIndex.ifor( 1, mSecond.loop(ae) );
 	loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
     }
 
-    template <typename T, class OpClass, class... Ranges>
-    inline T OperationMaster<T,OpClass,Ranges...>::get(size_t pos) const
+    template <typename T, class AOp, class OpClass, class... Ranges>
+    inline T OperationMaster<T,AOp,OpClass,Ranges...>::get(size_t pos) const
     {
 	return mDataPtr[pos];
     }
@@ -354,13 +353,20 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     template <class OpClass>
-    OperationMaster<T,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
+    OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	return OperationMaster<T,OpClass,Ranges...>(mDataPtr, in, mIndex);
+	return OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>(mDataPtr, in, mIndex);
     }
 
     template <typename T, class... Ranges>
-    OperationMaster<T,OperationRoot<T,Ranges...>,Ranges...>
+    template <class OpClass>
+    OperationMaster<T,plus<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
+    {
+	return OperationMaster<T,plus<T>,OpClass,Ranges...>(mDataPtr, in, mIndex);
+    }
+
+    template <typename T, class... Ranges>
+    OperationMaster<T,SelfIdentity<T>,OperationRoot<T,Ranges...>,Ranges...>
     OperationRoot<T,Ranges...>::operator=(const OperationRoot<T,Ranges...>& in)
     {
 	return operator=<OperationRoot<T,Ranges...> >(in);
