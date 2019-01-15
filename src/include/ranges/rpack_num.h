@@ -299,6 +299,17 @@ namespace MultiArrayHelper
 		->iforh( step*std::get<NN+1>(ba), RPackNum<N-1>::mkForh(step, ipack, ba, exs) );
 	}
 
+        template <class IndexPack, class BlockArray, class Exprs>
+	static auto mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
+			->pifor( 0, RPackNum<N-1>::mkFor(step, ipack, ba, exs) ) )
+	{
+	    constexpr size_t NN = std::tuple_size<IndexPack>::value-N-1;
+	    return std::get<NN>(ipack)
+		->pifor( step*std::get<NN+1>(ba), RPackNum<N-1>::mkFor(step, ipack, ba, exs) );
+            // mkFor is correct here, because we want to multithread only the FIRST index!!
+	}
+
 	template <class Index>
 	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx)
 	{
@@ -560,6 +571,16 @@ namespace MultiArrayHelper
 	    constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
 	    return std::get<NN>(ipack)
 		->iforh( step*std::get<NN+1>(ba), exs);
+	}
+
+        template <class IndexPack, class BlockArray, class Exprs>
+	static auto mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
+	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
+			->pifor(0,exs) )
+	{
+	    constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
+	    return std::get<NN>(ipack)
+		->pifor( step*std::get<NN+1>(ba), exs);
 	}
 
 	template <class Index>

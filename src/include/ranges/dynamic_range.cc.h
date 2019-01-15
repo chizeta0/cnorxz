@@ -425,6 +425,13 @@ namespace MultiArrayTools
 	}
     }
 
+    template <class EC>
+    template <class Expr>
+    ExpressionHolder<Expr> DynamicIndex<EC>::pifor(size_t step, Expr ex) const
+    {
+        return ifor(step, ex); // no multithreading here at the moment...
+    }
+
     /***********************
      *   DynamicRange    *
      ***********************/

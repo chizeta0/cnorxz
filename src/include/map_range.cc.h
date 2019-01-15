@@ -287,6 +287,15 @@ namespace MultiArrayTools
 	    (step, mIPack, mBlockSizes, OpExpr<MapF,IndexPack,Exprs>
 	     ( range()->map(), mIPack, mOutIndex, step, exs ) );
     }
+
+    template <class MapF, class... Indices>
+    template <class Exprs>
+    auto MapIndex<MapF,Indices...>::pifor(size_t step, Exprs exs) const
+	-> decltype(ifor(step, exs))
+    {
+	return ifor(step, exs);
+    }
+
     /*
     template <class MapF, class... Indices>
     template <class Exprs>

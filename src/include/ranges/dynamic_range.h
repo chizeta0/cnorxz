@@ -237,6 +237,9 @@ namespace MultiArrayTools
 	template <class Expr>
 	ExpressionHolder<Expr> iforh(size_t step, Expr ex) const;
 
+        template <class Expr>
+	ExpressionHolder<Expr> pifor(size_t step, Expr ex) const;
+
     };    
 
     

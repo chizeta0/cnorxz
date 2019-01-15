@@ -47,7 +47,8 @@ namespace MultiArrayTools
 	static constexpr size_t sDim() { return 1; }
 
 	static constexpr SpaceType STYPE = TYPE;
-	
+        static constexpr bool PARALLEL = true; 
+        
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
 	IndexType type() const;
@@ -89,6 +90,10 @@ namespace MultiArrayTools
 	auto iforh(size_t step, Expr ex) const
 	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
 
+        template <class Expr>
+	auto pifor(size_t step, Expr ex) const
+	    -> PFor<SingleIndex<U,TYPE>,Expr>;
+        
     private:
 	std::shared_ptr<RangeType> mExplicitRangePtr;
 	const U* mMetaPtr;
@@ -426,6 +431,15 @@ namespace MultiArrayTools
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
 	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, step, ex);
+    }
+
+    template <typename U, SpaceType TYPE>
+    template <class Expr>
+    auto SingleIndex<U,TYPE>::pifor(size_t step, Expr ex) const
+	-> PFor<SingleIndex<U,TYPE>,Expr>
+    {
+	//static const size_t LAYER = typename Expr::LAYER; 
+	return PFor<SingleIndex<U,TYPE>,Expr>(this, step, ex);
     }
 
     

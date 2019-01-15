@@ -492,6 +492,7 @@ namespace MultiArrayHelper
     inline void PFor<IndexClass,Expr>::operator()(size_t mlast,
 						    ExtType last) const
     {
+        CHECK;
 	typedef typename IndexClass::RangeType RangeType;
         int pos = 0;
         size_t mnpos = 0;
@@ -511,6 +512,7 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     inline void PFor<IndexClass,Expr>::operator()(size_t mlast) const
     {
+        CHECK;
 	typedef typename IndexClass::RangeType RangeType;
 	const ExtType last;
         int pos = 0;

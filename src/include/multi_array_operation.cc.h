@@ -139,9 +139,9 @@ namespace MultiArrayTools
     template <typename T, class AOp, class OpClass, class... Ranges>
     OperationMaster<T,AOp,OpClass,Ranges...>::
     OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
-		    IndexType& index) :
+		    IndexType& index, bool doParallel) :
 	mSecond(second), mDataPtr(ma.data()),
-	mIndex(index)
+	mIndex(index), mDoParallel(doParallel)
     {
 	performAssignment(0);
     }
@@ -149,9 +149,9 @@ namespace MultiArrayTools
     template <typename T, class AOp, class OpClass, class... Ranges>
     OperationMaster<T,AOp,OpClass,Ranges...>::
     OperationMaster(T* data, const OpClass& second,
-		    IndexType& index) :
+		    IndexType& index, bool doParallel) :
 	mSecond(second), mDataPtr(data),
-	mIndex(index)
+	mIndex(index), mDoParallel(doParallel)
     {
 	performAssignment(0);
     }
@@ -160,8 +160,14 @@ namespace MultiArrayTools
     void OperationMaster<T,AOp,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
     {
 	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
-        const auto loop = mIndex.ifor( 1, mSecond.loop(ae) );
-	loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
+        if(mDoParallel){
+            const auto ploop = mIndex.pifor( 1, mSecond.loop(ae) );
+            ploop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
+        }
+        else {
+            const auto loop = mIndex.ifor( 1, mSecond.loop(ae) );
+            loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
+        }
     }
 
     template <typename T, class AOp, class OpClass, class... Ranges>
@@ -355,14 +361,14 @@ namespace MultiArrayTools
     template <class OpClass>
     OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	return OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>(mDataPtr, in, mIndex);
+	return OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>(mDataPtr, in, mIndex, mDoParallel);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     OperationMaster<T,plus<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-	return OperationMaster<T,plus<T>,OpClass,Ranges...>(mDataPtr, in, mIndex);
+	return OperationMaster<T,plus<T>,OpClass,Ranges...>(mDataPtr, in, mIndex, mDoParallel);
     }
 
     template <typename T, class... Ranges>
@@ -370,6 +376,13 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>::operator=(const OperationRoot<T,Ranges...>& in)
     {
 	return operator=<OperationRoot<T,Ranges...> >(in);
+    }
+
+    template <typename T, class... Ranges>
+    OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::par()
+    {
+        mDoParallel = true;
+        return *this;
     }
     
     template <typename T, class... Ranges>

@@ -96,7 +96,7 @@ namespace MultiArrayTools
             return b;
         }
     };
-    
+
     template <typename T, class AOp, class OpClass, class... Ranges>
     class OperationMaster
     {
@@ -135,10 +135,10 @@ namespace MultiArrayTools
 	//typedef typename MultiRange<Ranges...>::IndexType IndexType;
 	
 	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
-			IndexType& index);
+			IndexType& index, bool doParallel = false);
 
 	OperationMaster(T* data, const OpClass& second,
-			IndexType& index);
+			IndexType& index, bool doParallel = false);
 
 	inline void set(size_t pos, T val) { mDataPtr[pos] = AOp::apply(mDataPtr[pos],val); }
         
@@ -152,6 +152,7 @@ namespace MultiArrayTools
 	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
 	IndexType mIndex;
+        bool mDoParallel;
     };
 
     
@@ -291,7 +292,9 @@ namespace MultiArrayTools
 	OperationMaster<T,plus<T>,OpClass,Ranges...> operator+=(const OpClass& in);
 
 	OperationMaster<T,SelfIdentity<T>,OperationRoot,Ranges...> operator=(const OperationRoot& in);
-	
+
+        OperationRoot& par();
+        
 	template <class ET>
 	inline T get(ET pos) const;
 
@@ -315,6 +318,7 @@ namespace MultiArrayTools
 	T* mDataPtr;
 	mutable IndexType mIndex;
  	mutable size_t mOff = 0;
+        bool mDoParallel = false;
     };
 
     template <typename T>

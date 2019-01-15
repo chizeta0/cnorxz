@@ -33,7 +33,8 @@ namespace MultiArrayTools
 	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
-
+        static constexpr bool PARALLEL = std::tuple_element<0,std::tuple<Indices...>>::type::PARALLEL;
+        
 	template <typename X>
 	using CIX = ContainerIndex<X,Indices...>;
 	
@@ -154,6 +155,10 @@ namespace MultiArrayTools
 	template <class Exprs>
 	auto iforh(size_t step, Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs));
+
+        template <class Exprs>
+	auto pifor(size_t step, Exprs exs) const
+	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs));
 
 	std::intptr_t container() const;
 	ContainerIndex& format(const std::array<size_t,sizeof...(Indices)+1>& blocks);
@@ -509,6 +514,14 @@ namespace MultiArrayTools
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs))
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs);
+    }
+
+    template <typename T, class... Indices>
+    template <class Exprs>
+    auto ContainerIndex<T,Indices...>::pifor(size_t step, Exprs exs) const
+	-> decltype(RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs))
+    {
+	return RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs);
     }
 
     template <typename T, class... Indices>

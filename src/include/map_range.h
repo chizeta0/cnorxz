@@ -92,7 +92,8 @@ namespace MultiArrayTools
 	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
-	
+        static constexpr bool PARALLEL = false;
+        
     private:
 	
 	IndexPack mIPack;
@@ -170,7 +171,11 @@ namespace MultiArrayTools
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
 			(step, mIPack, mBlockSizes, OpExpr<MapF,IndexPack,Exprs>( range()->map(), mIPack, mOutIndex, step, exs ) ) );
 	// first step arg not used!
-	
+
+        template <class Exprs>
+	auto pifor(size_t step, Exprs exs) const
+	    -> decltype(ifor(step, exs)); // NO MULTITHREADING
+
 	/*
 	template <class Exprs>
 	auto iforh(Exprs exs) const

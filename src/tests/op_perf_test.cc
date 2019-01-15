@@ -134,18 +134,20 @@ namespace {
 	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
 	typedef SR8F::oType SR8;
 
-	static const size_t s = 65536*1000;
+        static const size_t os = 3000;
+	static const size_t s = 65536*os;
 	
 	OpTest_Spin()
 	{
 	    data.resize(s);
 	    for(size_t i = 0; i != s; ++i){
 		double arg = static_cast<double>( i - s ) - 0.1; 
-		data[i] = sin(arg)/arg;
+		data[i] = sin(arg);
+		//VCHECK(data[i]);
 	    }
 	    SRF f;
 	    sr = std::dynamic_pointer_cast<SR>(f.create());
-            CRF cf(1000);
+            CRF cf(os);
             cr = std::dynamic_pointer_cast<CR>(cf.create());
 	}
 
@@ -164,23 +166,24 @@ namespace {
 	MultiArray<double,CR,SR,SR> res1( cr, sr, sr );
 
         auto ii = MAT::getIndex<CR>(cr);
+        auto jj = MAT::getIndex<CR>(cr);
 	auto alpha = MAT::getIndex<SR>();
 	auto beta = MAT::getIndex<SR>();
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
 	auto deltap = MAT::getIndex<SR>();
 	
-	auto mix = MAT::mkMIndex( alpha, beta, gamma );
+	auto mix = MAT::mkMIndex( alpha, beta, gamma, jj );
 
 	std::clock_t begin = std::clock();
-	//for(size_t i = 0; i != 1000; ++i){
-        res1(ii ,delta, deltap) += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	//for(size_t i = 0; i != os; ++i){
+        res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
             //}
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 	
-	std::vector<double> vres(4*4*1000);
+	std::vector<double> vres(4*4*os);
 	for(size_t d = 0; d != 4; ++d){
 	    for(size_t p = 0; p != 4; ++p){
 		const size_t tidx = d*4 + p;
@@ -188,20 +191,22 @@ namespace {
 	    }
 	}
 	std::clock_t begin2 = std::clock();
-	for(size_t i = 0; i != 1000; ++i){
-	    for(size_t a = 0; a != 4; ++a){
-		for(size_t b = 0; b != 4; ++b){
-		    for(size_t c = 0; c != 4; ++c){
-			for(size_t d = 0; d != 4; ++d){
-			    for(size_t p = 0; p != 4; ++p){
-				const size_t tidx = i*4*4 + d*4 + p;
-				const size_t sidx = i*65536 + d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
-				vres[tidx] += data[sidx];
-			    }
-			}
-		    }
-		}
-	    }
+        for(size_t j = 0; j != os; ++j) {
+            for(size_t i = 0; i != os; ++i){
+                for(size_t a = 0; a != 4; ++a){
+                    for(size_t b = 0; b != 4; ++b){
+                        for(size_t c = 0; c != 4; ++c){
+                            for(size_t d = 0; d != 4; ++d){
+                                for(size_t p = 0; p != 4; ++p){
+                                    const size_t tidx = i*4*4 + d*4 + p;
+                                    const size_t sidx = i*65536 + d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
+                                    vres[tidx] += data[sidx];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 	}
 	std::clock_t end2 = std::clock();
 
