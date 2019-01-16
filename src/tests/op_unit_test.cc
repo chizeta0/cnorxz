@@ -457,7 +457,7 @@ namespace {
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 
-	res2(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);
+	res2(delta, deltap).par() += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);
 	
 	std::vector<double> vres(4*4);
 

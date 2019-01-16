@@ -100,6 +100,15 @@ res2(i1,i2) = res1(i1,i2) / fma(i2,i1)
 
 Further examples will follow; you can also look in the test executable source files in `./src/test/*.cc`
 
+# Multithreading
+
+Multithreading can be enabled by the operation class member function `par()`, which will parallelize the top loop. E.g. for the operation in the example above:
+```c++
+/* Enable multithreading for the loop over i1 */
+res1(i1,i2).par() = (ma_a(i1,i2,i4,i5) + ma_b(i4,i3)).c(i4);
+```
+Caution: If you want to multithread operations over functional multi arrays, you have to make sure by yourself that involved functors are either static or const (const member variables).
+
 # Planned features
 
 Basically the structure of the operation routines allows in some cases (at least in those, where it is possible for simple c++ for loops) vectorization and multi threading. So far the necessary implamentations are not done, but it is planned to enable these features.
