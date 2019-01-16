@@ -296,9 +296,8 @@ namespace {
 	{
 	    data.resize(s);
 	    for(size_t i = 0; i != s; ++i){
-		double arg = static_cast<double>( i - s ) - 0.1; 
-		data[i] = sin(arg);
-		//VCHECK(data[i]);
+		const double arg = static_cast<double>( s - i ) - 0.1; 
+		data[i] = sin(arg)*10;
 	    }
 	    SRF f;
 	    sr = std::dynamic_pointer_cast<SR>(f.create());

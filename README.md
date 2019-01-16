@@ -111,7 +111,7 @@ Caution: If you want to multithread operations over functional multi arrays, you
 
 # Planned features
 
-Basically the structure of the operation routines allows in some cases (at least in those, where it is possible for simple c++ for loops) vectorization and multi threading. So far the necessary implamentations are not done, but it is planned to enable these features.
+Basically the structure of the operation routines allows in some cases (at least in those, where it is possible for simple c++ for loops) vectorization. So far the necessary implamentations are not done, but it is planned to enable these features.
 
 # Known Issues
 
