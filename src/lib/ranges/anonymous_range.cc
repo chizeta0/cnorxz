@@ -159,13 +159,16 @@ namespace MultiArrayTools
 	return mOrig.at(num);
     }
 
-    void AnonymousRange::sreplace(const std::shared_ptr<RangeBase> in, size_t num)
+    std::shared_ptr<AnonymousRange> AnonymousRange::sreplace(const std::shared_ptr<RangeBase> in, size_t num) const
     {
 	assert(mOrig[num]->size() == in->size());
-	mOrig[num] = in;
+        auto tmp = mOrig;
+	tmp[num] = in;
+        AnonymousRangeFactory arf(tmp);
+        return std::dynamic_pointer_cast<AnonymousRange>(arf.create());
     }
 
-    void AnonymousRange::sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num)
+    std::shared_ptr<AnonymousRange> AnonymousRange::sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num) const
     {
         size_t nsize = 1;
         for(auto& x: in){
@@ -183,7 +186,9 @@ namespace MultiArrayTools
         for(size_t i = num + 1 ; i < mOrig.size(); ++i){
             norig[in.size()+i-1] = mOrig[i];
         }
-        mOrig = std::move( norig );
+        //mOrig = std::move( norig );
+        AnonymousRangeFactory arf(norig);
+        return std::dynamic_pointer_cast<AnonymousRange>(arf.create());
     }
 
     const std::vector<std::shared_ptr<RangeBase> >& AnonymousRange::orig() const

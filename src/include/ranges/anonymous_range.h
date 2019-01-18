@@ -93,8 +93,8 @@ namespace MultiArrayTools
 
         const std::vector<std::shared_ptr<RangeBase> >& orig() const;
         
-	void sreplace(const std::shared_ptr<RangeBase> in, size_t num);
-        void sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num);
+        std::shared_ptr<AnonymousRange> sreplace(const std::shared_ptr<RangeBase> in, size_t num) const;
+        std::shared_ptr<AnonymousRange> sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num) const;
 	
 	bool isEmpty() const;
 	
