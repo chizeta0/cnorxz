@@ -66,7 +66,7 @@ namespace MultiArrayTools
 	    -> ConstOperationRoot<T,typename Indices::RangeType...>;
 
 	template <class... Indices>
-	auto operator()(const std::shared_ptr<Indices>&... inds) const
+	auto to(const std::shared_ptr<Indices>&... inds) const
 	    -> MultiArray<T,typename Indices::RangeType...>;
 
         template <typename R, class... Args> // Args = Operation Classes

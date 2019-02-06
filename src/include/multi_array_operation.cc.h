@@ -89,10 +89,10 @@ namespace MultiArrayTools
 
     template <typename T, class OperationClass>
     template <class... Indices>
-    auto OperationBase<T,OperationClass>::operator()(const std::shared_ptr<Indices>&... inds) const
+    auto OperationBase<T,OperationClass>::to(const std::shared_ptr<Indices>&... inds) const
 	-> MultiArray<T,typename Indices::RangeType...>
     {
-	MultiArray<T,typename Indices::RangeType...> out(inds->range()... , static_cast<T>(0));
+	MultiArray<T,typename Indices::RangeType...> out(inds->range()...);
 	out(inds...) = THIS();
 	return out;
     }
