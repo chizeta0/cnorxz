@@ -1,6 +1,6 @@
 
 #include "map_range.h"
-//#include <type_traits>
+#include <type_traits>
 
 namespace MultiArrayTools
 {
@@ -398,11 +398,11 @@ namespace MultiArrayTools
         template <class MapF, class ORType>
         static void mk(std::shared_ptr<ORType>& outRange, MultiArray<size_t,ORType>& mapMult, const MapF& mapf)
         {
-            //static_assert( std::is_same<size_t,typename MapF::value_type>::value,
-            //               "out range value type for NONE must be size_t" );
+            static_assert( std::is_same<size_t,typename MapF::value_type>::value,
+                           "out range value type for NONE must be size_t" );
             size_t max = 0;
             for(auto ii = mapf.begin(); ii.max() != ii.pos(); ++ii) {
-                max = mapf[ii] > max ? mapf[ii]+1 : max;
+                max = mapf[ii]+1 > max ? mapf[ii]+1 : max;
             }
             std::vector<size_t> mult(max,0);
             for(auto ii = mapf.begin(); ii.max() != ii.pos(); ++ii) {
