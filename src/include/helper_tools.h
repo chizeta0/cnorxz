@@ -6,6 +6,7 @@
 #include "slice.h"
 #include <ostream>
 #include "pack_num.h"
+#include "map_range.h"
 #include <functional>
 
 namespace MultiArrayTools

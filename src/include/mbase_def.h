@@ -2,6 +2,8 @@
 #ifndef __mbase_def_h__
 #define __mbase_def_h__
 
+#include "ranges/rbase_def.h"
+
 namespace MultiArrayTools
 {
     /***********************
@@ -76,16 +78,16 @@ namespace MultiArrayTools
     class ConstSliceDef;
 
     // map_range.h
-    template <class MapF, class... Indices>
-    class MapIndex;
+    template <class MapF, SpaceType XSTYPE, class... Indices>
+    class GenMapIndex;
     
     // map_range.h
-    template <class MapF, class... Ranges>
-    class MapRangeFactory;
+    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    class GenMapRangeFactory;
 
     // map_range.h
-    template <class MapF, class... Ranges>
-    class MapRange;
+    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    class GenMapRange;
 }
 
 #endif

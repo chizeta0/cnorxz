@@ -14,8 +14,8 @@ namespace MultiArrayTools
     {
     public:
 
-	template <class MapF, class... Ranges>
-	friend class MapRangeFactory;
+	template <class MapF, SpaceType XSTYPE, class... Ranges>
+	friend class GenMapRangeFactory;
 	
     private:
 	static std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > mAleadyCreated;
