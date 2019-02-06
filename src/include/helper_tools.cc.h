@@ -45,31 +45,45 @@ namespace MultiArrayTools
 	return mi;
     }
 
-    template <class Func, class... RangeTypes>
-    auto mkMapR(const std::shared_ptr<Func>& f, std::shared_ptr<RangeTypes>... ranges)
-	-> std::shared_ptr<MapRange<FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...>,
-				    RangeTypes...> >
+    template <SpaceType STYPE, class Func, class... RangeTypes>
+    auto mkGenMapR(const std::shared_ptr<Func>& f, std::shared_ptr<RangeTypes>... ranges)
+	-> std::shared_ptr<GenMapRange<FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...>,
+                                       STYPE,RangeTypes...> >
     {
 	typedef FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...> FMA;
-	std::shared_ptr<MapRangeFactory<FMA,RangeTypes...>> mrfptr;
+	std::shared_ptr<GenMapRangeFactory<FMA,STYPE,RangeTypes...>> mrfptr;
 	if(Func::FISSTATIC){
 	    FMA fma(ranges...);
-	    mrfptr = std::make_shared<MapRangeFactory<FMA,RangeTypes...> >( fma, ranges... );
+	    mrfptr = std::make_shared<GenMapRangeFactory<FMA,STYPE,RangeTypes...> >( fma, ranges... );
 	}
 	else {
 	    FMA fma(ranges...,f);
-	    mrfptr = std::make_shared<MapRangeFactory<FMA,RangeTypes...> >( fma, ranges... );
+	    mrfptr = std::make_shared<GenMapRangeFactory<FMA,STYPE,RangeTypes...> >( fma, ranges... );
 	}
-	return std::dynamic_pointer_cast<MapRange<FMA,RangeTypes...> >( mrfptr->create() );
+	return std::dynamic_pointer_cast<GenMapRange<FMA,STYPE,RangeTypes...> >( mrfptr->create() );
+    }
+
+    template <SpaceType STYPE, class Func, class... IndexTypes>
+    auto mkGenMapI(const std::shared_ptr<Func>& f, std::shared_ptr<IndexTypes>... indices)
+	-> decltype( getIndex( mkGenMapR( f, indices->range()... ) ) )
+    {
+	auto mi = getIndex( mkGenMapR( f, indices->range()... ) );
+	(*mi)(indices...);
+	return mi;
+    }
+    
+    template <class Func, class... RangeTypes>
+    auto mkMapR(const Func& f, std::shared_ptr<RangeTypes>... ranges)
+	-> decltype( mkGenMapR<SpaceType::ANY>(f, ranges... ) )
+    {
+        return mkGenMapR<SpaceType::ANY>(f, ranges... );
     }
 
     template <class Func, class... IndexTypes>
-    auto mkMapI(const std::shared_ptr<Func>& f, std::shared_ptr<IndexTypes>... indices)
-	-> decltype( getIndex( mkMapR( f, indices->range()... ) ) )
+    auto mkMapI(const Func& f, std::shared_ptr<IndexTypes>... indices)
+	-> decltype( mkGenMapI<SpaceType::ANY>(f, indices... ) )
     {
-	auto mi = getIndex( mkMapR( f, indices->range()... ) );
-	(*mi)(indices...);
-	return mi;
+        return mkGenMapI<SpaceType::ANY>(f, indices... );
     }
 
     template <class... RangeTypes>

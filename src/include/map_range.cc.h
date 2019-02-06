@@ -1,5 +1,6 @@
 
 #include "map_range.h"
+#include <type_traits>
 
 namespace MultiArrayTools
 {
