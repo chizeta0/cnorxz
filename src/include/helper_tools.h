@@ -28,20 +28,20 @@ namespace MultiArrayTools
 	-> std::shared_ptr<MultiRange<RangeTypes...> >;
 
     template <SpaceType STYPE, class Func, class... RangeTypes>
-    auto mkGenMapR(const Func& f, std::shared_ptr<RangeTypes>... ranges)
+    auto mkGenMapR(const std::shared_ptr<Func>& f, std::shared_ptr<RangeTypes>... ranges)
 	-> std::shared_ptr<GenMapRange<FunctionalMultiArray<typename Func::value_type,Func,RangeTypes...>,
                                        STYPE,RangeTypes...> >;
 
     template <SpaceType STYPE, class Func, class... IndexTypes>
-    auto mkGenMapI(const Func& f, std::shared_ptr<IndexTypes>... indices)
+    auto mkGenMapI(const std::shared_ptr<Func>& f, std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkGenMapR<STYPE>( f, indices->range()... ) ) );
 
     template <class Func, class... RangeTypes>
-    auto mkMapR(const Func& f, std::shared_ptr<RangeTypes>... ranges)
+    auto mkMapR(const std::shared_ptr<Func>& f, std::shared_ptr<RangeTypes>... ranges)
 	-> decltype( mkGenMapR<SpaceType::ANY>(f, ranges... ) );
 
     template <class Func, class... IndexTypes>
-    auto mkMapI(const Func& f, std::shared_ptr<IndexTypes>... indices)
+    auto mkMapI(const std::shared_ptr<Func>& f, std::shared_ptr<IndexTypes>... indices)
 	-> decltype( mkGenMapI<SpaceType::ANY>(f, indices... ) );
 
     template <class... IndexTypes>

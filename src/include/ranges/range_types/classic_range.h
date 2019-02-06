@@ -34,7 +34,8 @@ namespace MultiArrayTools
 	typedef typename RangeInterface<SingleIndex<size_t,SpaceType::NONE> >::IndexType IndexType;
 	typedef SingleRange<size_t,SpaceType::NONE> RangeType;
 	typedef size_t MetaType;
-	
+        typedef SingleRangeFactory<size_t,SpaceType::NONE> FType; 
+        
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
 
