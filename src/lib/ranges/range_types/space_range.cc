@@ -11,60 +11,60 @@ namespace MultiArrayTools
     }
     
     /********************
-     *   SingleRange    *
+     *   GenSingleRange    *
      ********************/
     
-    SingleRangeFactory<int,SpaceType::PSPACE>::SingleRangeFactory(size_t size)
+    GenSingleRangeFactory<int,SpaceType::PSPACE,-1>::GenSingleRangeFactory(size_t size)
     {
 	// Quasi Singleton
 	if(not mProd){
-	    mProd = std::shared_ptr<oType>( new SingleRange<int,SpaceType::PSPACE>(size) );
+	    mProd = std::shared_ptr<oType>( new GenSingleRange<int,SpaceType::PSPACE,-1>(size) );
 	    setSelf();
 	}
     }
 
-    std::shared_ptr<RangeBase> SingleRangeFactory<int,SpaceType::PSPACE>::create()
+    std::shared_ptr<RangeBase> GenSingleRangeFactory<int,SpaceType::PSPACE,-1>::create()
     {
 	return mProd;
     }
     
     /********************
-     *   SingleRange    *
+     *   GenSingleRange    *
      ********************/
 
-    SingleRange<int,SpaceType::PSPACE>::SingleRange(size_t size) : mSize(size) { }
+    GenSingleRange<int,SpaceType::PSPACE,-1>::GenSingleRange(size_t size) : mSize(size) { }
     
-    int SingleRange<int,SpaceType::PSPACE>::get(size_t pos) const
+    int GenSingleRange<int,SpaceType::PSPACE,-1>::get(size_t pos) const
     {
 	return pos > mSize / 2 ? pos - mSize : pos;
     }
     
-    size_t SingleRange<int,SpaceType::PSPACE>::getMeta(int metaPos) const
+    size_t GenSingleRange<int,SpaceType::PSPACE,-1>::getMeta(int metaPos) const
     {
 	return metaPos < 0 ? metaPos + mSize : metaPos;
     }
     
-    size_t SingleRange<int,SpaceType::PSPACE>::size() const
+    size_t GenSingleRange<int,SpaceType::PSPACE,-1>::size() const
     {
 	return mSize;
     }
     
-    size_t SingleRange<int,SpaceType::PSPACE>::dim() const
+    size_t GenSingleRange<int,SpaceType::PSPACE,-1>::dim() const
     {
 	return 1;
     }
 
-    SpaceType SingleRange<int,SpaceType::PSPACE>::spaceType() const
+    SpaceType GenSingleRange<int,SpaceType::PSPACE,-1>::spaceType() const
     {
 	return SpaceType::PSPACE;
     }
     
-    std::string SingleRange<int,SpaceType::PSPACE>::stringMeta(size_t pos) const
+    std::string GenSingleRange<int,SpaceType::PSPACE,-1>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));
     }
 
-    std::vector<char> SingleRange<int,SpaceType::PSPACE>::data() const
+    std::vector<char> GenSingleRange<int,SpaceType::PSPACE,-1>::data() const
     {
 	DataHeader h = dataHeader();
 	std::vector<char> out;
@@ -76,7 +76,7 @@ namespace MultiArrayTools
 	return out;
     }
 
-    DataHeader SingleRange<int,SpaceType::PSPACE>::dataHeader() const
+    DataHeader GenSingleRange<int,SpaceType::PSPACE,-1>::dataHeader() const
     {
 	DataHeader h;
 	h.spaceType = static_cast<int>( SpaceType::PSPACE );
@@ -85,17 +85,17 @@ namespace MultiArrayTools
         return h;
     }
     
-    typename SingleRange<int,SpaceType::PSPACE>::IndexType SingleRange<int,SpaceType::PSPACE>::begin() const
+    typename GenSingleRange<int,SpaceType::PSPACE,-1>::IndexType GenSingleRange<int,SpaceType::PSPACE,-1>::begin() const
     {
-	SingleIndex<int,SpaceType::PSPACE> i( std::dynamic_pointer_cast<SingleRange<int,SpaceType::PSPACE> >
+	GenSingleIndex<int,SpaceType::PSPACE,-1> i( std::dynamic_pointer_cast<GenSingleRange<int,SpaceType::PSPACE,-1> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
     
-    typename SingleRange<int,SpaceType::PSPACE>::IndexType SingleRange<int,SpaceType::PSPACE>::end() const
+    typename GenSingleRange<int,SpaceType::PSPACE,-1>::IndexType GenSingleRange<int,SpaceType::PSPACE,-1>::end() const
     {
-	SingleIndex<int,SpaceType::PSPACE> i( std::dynamic_pointer_cast<SingleRange<int,SpaceType::PSPACE> >
+	GenSingleIndex<int,SpaceType::PSPACE,-1> i( std::dynamic_pointer_cast<GenSingleRange<int,SpaceType::PSPACE,-1> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
 	return i;

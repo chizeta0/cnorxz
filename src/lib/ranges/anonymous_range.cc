@@ -196,7 +196,7 @@ namespace MultiArrayTools
         return mOrig;
     }
     
-    SingleRange<size_t,SpaceType::ANON>::SingleRange(const std::vector<std::shared_ptr<RangeBase>>& origs) :
+    GenSingleRange<size_t,SpaceType::ANON,-1>::GenSingleRange(const std::vector<std::shared_ptr<RangeBase>>& origs) :
         RangeInterface<AnonymousIndex>(),
         mOrig(origs)
     {

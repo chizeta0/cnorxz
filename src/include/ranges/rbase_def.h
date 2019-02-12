@@ -44,16 +44,16 @@ namespace MultiArrayTools
     class IndexInterface;
 
     // single_range.h    
-    template <typename U, SpaceType TYPE>
-    class SingleRange;
+    template <typename U, SpaceType TYPE, size_t S>
+    class GenSingleRange;
 
     // single_range.h    
-    template <typename U, SpaceType TYPE>
-    class SingleRangeFactory;
+    template <typename U, SpaceType TYPE, size_t S>
+    class GenSingleRangeFactory;
 
     // single_range.h
-    template <typename U, SpaceType TYPE>
-    class SingleIndex;
+    template <typename U, SpaceType TYPE, size_t S>
+    class GenSingleIndex;
 
     // subrange.h
     template <class Index>

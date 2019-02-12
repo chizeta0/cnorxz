@@ -11,29 +11,29 @@ include_range_type(PSPACE,3) // Periodic 1dim space
 namespace MultiArrayTools
 {
      // Periodic 1dim space
-    typedef SingleIndex<int,SpaceType::PSPACE> XSpaceIndex;
+    typedef GenSingleIndex<int,SpaceType::PSPACE,-1> XSpaceIndex;
 
     template <>
-    class SingleRangeFactory<int,SpaceType::PSPACE> : public RangeFactoryBase
+    class GenSingleRangeFactory<int,SpaceType::PSPACE,-1> : public RangeFactoryBase
     {
     public:
 	
-	typedef SingleRange<int,SpaceType::PSPACE> oType;
+	typedef GenSingleRange<int,SpaceType::PSPACE,-1> oType;
 
-	SingleRangeFactory(size_t size = 0);
+	GenSingleRangeFactory(size_t size = 0);
 	std::shared_ptr<RangeBase> create();
 	
     };
     
     template <>
-    class SingleRange<int,SpaceType::PSPACE> : public RangeInterface<XSpaceIndex>
+    class GenSingleRange<int,SpaceType::PSPACE,-1> : public RangeInterface<XSpaceIndex>
     {
     public:
 	typedef RangeBase RB;
-	typedef typename RangeInterface<SingleIndex<int,SpaceType::PSPACE> >::IndexType IndexType;
-	typedef SingleRange<int,SpaceType::PSPACE> RangeType;
+	typedef typename RangeInterface<GenSingleIndex<int,SpaceType::PSPACE,-1> >::IndexType IndexType;
+	typedef GenSingleRange<int,SpaceType::PSPACE,-1> RangeType;
 	typedef int MetaType;
-        typedef SingleRangeFactory<int,SpaceType::PSPACE> FType; 
+        typedef GenSingleRangeFactory<int,SpaceType::PSPACE,-1> FType; 
 	
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
@@ -50,28 +50,28 @@ namespace MultiArrayTools
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 	
-	friend SingleRangeFactory<int,SpaceType::PSPACE>;
+	friend GenSingleRangeFactory<int,SpaceType::PSPACE,-1>;
 
 	static constexpr bool defaultable = true;
 	static constexpr size_t ISSTATIC = 0;
 	static constexpr size_t SIZE = -1;
 	static constexpr bool HASMETACONT = false;
 	
-	static SingleRangeFactory<int, SpaceType::PSPACE> factory(size_t size = 0)
-	{ return SingleRangeFactory<int, SpaceType::PSPACE>(size); }
+	static GenSingleRangeFactory<int,SpaceType::PSPACE,-1> factory(size_t size = 0)
+	{ return GenSingleRangeFactory<int,SpaceType::PSPACE,-1>(size); }
 	
     protected:
 
 	size_t mSize = 0;
 	
-	SingleRange() = default;
-	SingleRange(const SingleRange& in) = delete;
+	GenSingleRange() = default;
+	GenSingleRange(const GenSingleRange& in) = delete;
 	
-	SingleRange(size_t size);
+	GenSingleRange(size_t size);
     };
 
-    typedef SingleRange<int,SpaceType::PSPACE> PSpaceRange;
-    typedef SingleRangeFactory<int,SpaceType::PSPACE> PSpaceRF;
+    typedef GenSingleRange<int,SpaceType::PSPACE,-1> PSpaceRange;
+    typedef GenSingleRangeFactory<int,SpaceType::PSPACE,-1> PSpaceRF;
 
     std::shared_ptr<PSpaceRF> mkPSPACE(const char* dp, size_t size);
     

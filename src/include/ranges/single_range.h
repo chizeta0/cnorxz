@@ -28,19 +28,19 @@ namespace MultiArrayTools
     }
 
     
-    template <typename U, SpaceType TYPE>
-    class SingleIndex : public IndexInterface<SingleIndex<U,TYPE>,U>
+    template <typename U, SpaceType TYPE, size_t S>
+    class GenSingleIndex : public IndexInterface<GenSingleIndex<U,TYPE,S>,U>
     {
     public:
 
-	typedef IndexInterface<SingleIndex<U,TYPE>,U> IB;
+	typedef IndexInterface<GenSingleIndex<U,TYPE,S>,U> IB;
 	typedef U MetaType;
-	typedef SingleRange<U,TYPE> RangeType;
-	typedef SingleIndex IType;
+	typedef GenSingleRange<U,TYPE,S> RangeType;
+	typedef GenSingleIndex IType;
 
-	//DEFAULT_MEMBERS_X(SingleIndex);
+	//DEFAULT_MEMBERS_X(GenSingleIndex);
 	
-	SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range);
+	GenSingleIndex(const std::shared_ptr<GenSingleRange<U,TYPE,S> >& range);
 
 	static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t totalDim() { return 1; }
@@ -53,9 +53,9 @@ namespace MultiArrayTools
 	
 	IndexType type() const;
 	
-	SingleIndex& operator=(size_t pos);
-	SingleIndex& operator++();
-	SingleIndex& operator--();
+	GenSingleIndex& operator=(size_t pos);
+	GenSingleIndex& operator++();
+	GenSingleIndex& operator--();
 
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
@@ -63,7 +63,7 @@ namespace MultiArrayTools
 	std::string stringMeta() const;
 	U meta() const;
 	const U* metaPtr() const;
-	SingleIndex& at(const U& metaPos);
+	GenSingleIndex& at(const U& metaPos);
 	size_t posAt(const U& metaPos) const;
 
 	bool isMeta(const U& metaPos) const;
@@ -84,30 +84,30 @@ namespace MultiArrayTools
 
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
-	    -> For<SingleIndex<U,TYPE>,Expr>;
+	    -> For<GenSingleIndex<U,TYPE,S>,Expr>;
 
 	template <class Expr>
 	auto iforh(size_t step, Expr ex) const
-	    -> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>;
+	    -> For<GenSingleIndex<U,TYPE,S>,Expr,ForType::HIDDEN>;
 
         template <class Expr>
 	auto pifor(size_t step, Expr ex) const
-	    -> PFor<SingleIndex<U,TYPE>,Expr>;
+	    -> PFor<GenSingleIndex<U,TYPE,S>,Expr>;
         
     private:
 	std::shared_ptr<RangeType> mExplicitRangePtr;
 	const U* mMetaPtr;
     };
 
-    template <typename U, SpaceType TYPE>
-    class SingleRangeFactory : public RangeFactoryBase
+    template <typename U, SpaceType TYPE, size_t S>
+    class GenSingleRangeFactory : public RangeFactoryBase
     {
     public:
 	
-	typedef SingleRange<U,TYPE> oType;
+	typedef GenSingleRange<U,TYPE,S> oType;
 
-	SingleRangeFactory() = delete;
-	SingleRangeFactory(const std::vector<U>& space);
+	GenSingleRangeFactory() = delete;
+	GenSingleRangeFactory(const std::vector<U>& space);
 	std::shared_ptr<RangeBase> create();
 	
     };
@@ -186,17 +186,31 @@ namespace MultiArrayTools
 	}
 	
     };
-    
-    template <typename U, SpaceType TYPE>
-    class SingleRange : public RangeInterface<SingleIndex<U,TYPE> >
+
+    template <size_t S>
+    struct CheckStatic
+    {
+        static constexpr size_t ISSTATIC = true;
+        static constexpr size_t SIZE = S;
+    };
+
+    template <>
+    struct CheckStatic<-1>
+    {
+        static constexpr size_t ISSTATIC = false;
+        static constexpr size_t SIZE = -1;
+    };
+
+    template <typename U, SpaceType TYPE, size_t S>
+    class GenSingleRange : public RangeInterface<GenSingleIndex<U,TYPE,S> >
     {
     public:
 	typedef RangeBase RB;
-	typedef SingleIndex<U,TYPE> IndexType;
-	typedef SingleRange RangeType;
+	typedef GenSingleIndex<U,TYPE,S> IndexType;
+	typedef GenSingleRange RangeType;
 	typedef U MetaType;
-	typedef SingleRangeFactory<U,TYPE> FType; 
-	//typedef typename RangeInterface<SingleIndex<U,TYPE> >::IndexType IndexType;
+	typedef GenSingleRangeFactory<U,TYPE,S> FType; 
+	//typedef typename RangeInterface<GenSingleIndex<U,TYPE,S> >::IndexType IndexType;
 	
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
@@ -215,24 +229,33 @@ namespace MultiArrayTools
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 		
-	friend SingleRangeFactory<U,TYPE>;
+	friend GenSingleRangeFactory<U,TYPE,S>;
 
 	static constexpr bool defaultable = false;
-	static constexpr size_t ISSTATIC = 0;
-	static constexpr size_t SIZE = -1;
+	static constexpr size_t ISSTATIC = CheckStatic<S>::ISSTATIC;
+	static constexpr size_t SIZE = CheckStatic<S>::SIZE;
 	static constexpr bool HASMETACONT = true;
 	
     protected:
 
-	SingleRange() = delete;
-	SingleRange(const SingleRange& in) = delete;
+	GenSingleRange() = delete;
+	GenSingleRange(const GenSingleRange& in) = delete;
 	
-	SingleRange(const std::vector<U>& space);
+	GenSingleRange(const std::vector<U>& space);
 
 	std::vector<U> mSpace;
 	//std::map<U,size_t> mMSpace;
 	MetaMap<U> mMSpace;
     };
+
+    template <typename U, SpaceType TYPE>
+    using SingleRange = GenSingleRange<U,TYPE,-1>;
+
+    template <typename U, SpaceType TYPE>
+    using SingleIndex = GenSingleIndex<U,TYPE,-1>;
+
+    template <typename U, SpaceType TYPE>
+    using SingleRangeFactory = GenSingleRangeFactory<U,TYPE,-1>;
 
 }
 
@@ -243,7 +266,7 @@ namespace MultiArrayTools
 namespace MultiArrayTools
 {
     /******************
-     *  SingleIndex   *	     
+     *  GenSingleIndex   *	     
      ******************/
 
     template <bool HASMETACONT>
@@ -278,134 +301,134 @@ namespace MultiArrayTools
 	}
     };
 
-    template <typename U, SpaceType TYPE>
-    SingleIndex<U,TYPE>::SingleIndex(const std::shared_ptr<SingleRange<U,TYPE> >& range) :
-	IndexInterface<SingleIndex<U,TYPE>,U>(range, 0),
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleIndex<U,TYPE,S>::GenSingleIndex(const std::shared_ptr<GenSingleRange<U,TYPE,S> >& range) :
+	IndexInterface<GenSingleIndex<U,TYPE,S>,U>(range, 0),
 	mExplicitRangePtr(std::dynamic_pointer_cast<RangeType>(IB::mRangePtr)),
-	mMetaPtr(MetaPtrHandle<SingleIndex<U,TYPE>::RangeType::HASMETACONT>::set
+	mMetaPtr(MetaPtrHandle<GenSingleIndex<U,TYPE,S>::RangeType::HASMETACONT>::set
 		 ( dynamic_cast<RangeType*>(IB::mRangePtr.get() ) ) ) {}
 
-    template <typename U, SpaceType TYPE>
-    IndexType SingleIndex<U,TYPE>::type() const
+    template <typename U, SpaceType TYPE, size_t S>
+    IndexType GenSingleIndex<U,TYPE,S>::type() const
     {
 	return IndexType::SINGLE;
     }
 
-    template <typename U, SpaceType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator=(size_t pos)
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleIndex<U,TYPE,S>& GenSingleIndex<U,TYPE,S>::operator=(size_t pos)
     {
 	IB::mPos = pos;
 	return *this;
     }
 
-    template <typename U, SpaceType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator++()
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleIndex<U,TYPE,S>& GenSingleIndex<U,TYPE,S>::operator++()
     {
 	++IB::mPos;
 	return *this;
     }
 
-    template <typename U, SpaceType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::operator--()
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleIndex<U,TYPE,S>& GenSingleIndex<U,TYPE,S>::operator--()
     {
 	--IB::mPos;
 	return *this;
     }
 
-    template <typename U, SpaceType TYPE>
-    int SingleIndex<U,TYPE>::pp(std::intptr_t idxPtrNum)
+    template <typename U, SpaceType TYPE, size_t S>
+    int GenSingleIndex<U,TYPE,S>::pp(std::intptr_t idxPtrNum)
     {
 	++(*this);
 	return 1;
     }
 
-    template <typename U, SpaceType TYPE>
-    int SingleIndex<U,TYPE>::mm(std::intptr_t idxPtrNum)
+    template <typename U, SpaceType TYPE, size_t S>
+    int GenSingleIndex<U,TYPE,S>::mm(std::intptr_t idxPtrNum)
     {
 	--(*this);
 	return 1;
     }
 
-    template <typename U, SpaceType TYPE>
-    std::string SingleIndex<U,TYPE>::stringMeta() const
+    template <typename U, SpaceType TYPE, size_t S>
+    std::string GenSingleIndex<U,TYPE,S>::stringMeta() const
     {
-	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->stringMeta(IB::mPos);
+	return std::dynamic_pointer_cast<GenSingleRange<U,TYPE,S> const>( IB::mRangePtr )->stringMeta(IB::mPos);
     }
     
-    template <typename U, SpaceType TYPE>
-    U SingleIndex<U,TYPE>::meta() const
+    template <typename U, SpaceType TYPE, size_t S>
+    U GenSingleIndex<U,TYPE,S>::meta() const
     {
-	return MetaPtrHandle<SingleIndex<U,TYPE>::RangeType::HASMETACONT>::getMeta
+	return MetaPtrHandle<GenSingleIndex<U,TYPE,S>::RangeType::HASMETACONT>::getMeta
 	    ( mMetaPtr, IB::mPos, mExplicitRangePtr );
     }
 
-    template <typename U, SpaceType TYPE>
-    const U* SingleIndex<U,TYPE>::metaPtr() const
+    template <typename U, SpaceType TYPE, size_t S>
+    const U* GenSingleIndex<U,TYPE,S>::metaPtr() const
     {
 	return mMetaPtr;
     }
 
-    template <typename U, SpaceType TYPE>
-    bool SingleIndex<U,TYPE>::isMeta(const U& metaPos) const
+    template <typename U, SpaceType TYPE, size_t S>
+    bool GenSingleIndex<U,TYPE,S>::isMeta(const U& metaPos) const
     {
 	return mExplicitRangePtr->isMeta(metaPos);
     }
     
-    template <typename U, SpaceType TYPE>
-    SingleIndex<U,TYPE>& SingleIndex<U,TYPE>::at(const U& metaPos)
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleIndex<U,TYPE,S>& GenSingleIndex<U,TYPE,S>::at(const U& metaPos)
     {
-	(*this) = std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos );
+	(*this) = std::dynamic_pointer_cast<GenSingleRange<U,TYPE,S> const>( IB::mRangePtr )->getMeta( metaPos );
 	return *this;
     }
 
-    template <typename U, SpaceType TYPE>
-    size_t SingleIndex<U,TYPE>::posAt(const U& metaPos) const
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleIndex<U,TYPE,S>::posAt(const U& metaPos) const
     {
-	return std::dynamic_pointer_cast<SingleRange<U,TYPE> const>( IB::mRangePtr )->getMeta( metaPos );
+	return std::dynamic_pointer_cast<GenSingleRange<U,TYPE,S> const>( IB::mRangePtr )->getMeta( metaPos );
     }
 
-    template <typename U, SpaceType TYPE>
-    size_t SingleIndex<U,TYPE>::dim() // = 1
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleIndex<U,TYPE,S>::dim() // = 1
     {
 	return 1;
     }
 
-    template <typename U, SpaceType TYPE>
-    bool SingleIndex<U,TYPE>::last()
+    template <typename U, SpaceType TYPE, size_t S>
+    bool GenSingleIndex<U,TYPE,S>::last()
     {
 	return IB::mPos == IB::mMax - 1;
     }
 
-    template <typename U, SpaceType TYPE>
-    bool SingleIndex<U,TYPE>::first()
+    template <typename U, SpaceType TYPE, size_t S>
+    bool GenSingleIndex<U,TYPE,S>::first()
     {
 	return IB::mPos == 0;
     }
 
-    template <typename U, SpaceType TYPE>
-    std::shared_ptr<typename SingleIndex<U,TYPE>::RangeType> SingleIndex<U,TYPE>::range()
+    template <typename U, SpaceType TYPE, size_t S>
+    std::shared_ptr<typename GenSingleIndex<U,TYPE,S>::RangeType> GenSingleIndex<U,TYPE,S>::range()
     {
 	return mExplicitRangePtr;
     }
 
-    template <typename U, SpaceType TYPE>
+    template <typename U, SpaceType TYPE, size_t S>
     template <size_t N>
-    void SingleIndex<U,TYPE>::getPtr() {}
+    void GenSingleIndex<U,TYPE,S>::getPtr() {}
     
-    template <typename U, SpaceType TYPE>
-    size_t SingleIndex<U,TYPE>::getStepSize(size_t n)
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleIndex<U,TYPE,S>::getStepSize(size_t n)
     {
 	return 1;
     }
 
-    template <typename U, SpaceType TYPE>
-    std::string SingleIndex<U,TYPE>::id() const
+    template <typename U, SpaceType TYPE, size_t S>
+    std::string GenSingleIndex<U,TYPE,S>::id() const
     {
 	return std::string("sin") + std::to_string(IB::mId);
     }
 
-    template <typename U, SpaceType TYPE>
-    void SingleIndex<U,TYPE>::print(size_t offset)
+    template <typename U, SpaceType TYPE, size_t S>
+    void GenSingleIndex<U,TYPE,S>::print(size_t offset)
     {
 	if(offset == 0){
 	    std::cout << " === " << std::endl;
@@ -415,31 +438,31 @@ namespace MultiArrayTools
 		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
-    template <typename U, SpaceType TYPE>
+    template <typename U, SpaceType TYPE, size_t S>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::ifor(size_t step, Expr ex) const
-	-> For<SingleIndex<U,TYPE>,Expr>
+    auto GenSingleIndex<U,TYPE,S>::ifor(size_t step, Expr ex) const
+	-> For<GenSingleIndex<U,TYPE,S>,Expr>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr>(this, step, ex);
+	return For<GenSingleIndex<U,TYPE,S>,Expr>(this, step, ex);
     }
 
-    template <typename U, SpaceType TYPE>
+    template <typename U, SpaceType TYPE, size_t S>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::iforh(size_t step, Expr ex) const
-	-> For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>
+    auto GenSingleIndex<U,TYPE,S>::iforh(size_t step, Expr ex) const
+	-> For<GenSingleIndex<U,TYPE,S>,Expr,ForType::HIDDEN>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return For<SingleIndex<U,TYPE>,Expr,ForType::HIDDEN>(this, step, ex);
+	return For<GenSingleIndex<U,TYPE,S>,Expr,ForType::HIDDEN>(this, step, ex);
     }
 
-    template <typename U, SpaceType TYPE>
+    template <typename U, SpaceType TYPE, size_t S>
     template <class Expr>
-    auto SingleIndex<U,TYPE>::pifor(size_t step, Expr ex) const
-	-> PFor<SingleIndex<U,TYPE>,Expr>
+    auto GenSingleIndex<U,TYPE,S>::pifor(size_t step, Expr ex) const
+	-> PFor<GenSingleIndex<U,TYPE,S>,Expr>
     {
 	//static const size_t LAYER = typename Expr::LAYER; 
-	return PFor<SingleIndex<U,TYPE>,Expr>(this, step, ex);
+	return PFor<GenSingleIndex<U,TYPE,S>,Expr>(this, step, ex);
     }
 
     
@@ -447,14 +470,14 @@ namespace MultiArrayTools
      *   SingleRange    *
      ********************/
 
-    template <typename U, SpaceType TYPE>
-    SingleRangeFactory<U,TYPE>::SingleRangeFactory(const std::vector<U>& space)
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleRangeFactory<U,TYPE,S>::GenSingleRangeFactory(const std::vector<U>& space)
     {
-	mProd = std::shared_ptr<oType>( new SingleRange<U,TYPE>( space ) );
+	mProd = std::shared_ptr<oType>( new GenSingleRange<U,TYPE,S>( space ) );
     }
 
-    template <typename U, SpaceType TYPE>
-    std::shared_ptr<RangeBase> SingleRangeFactory<U,TYPE>::create()
+    template <typename U, SpaceType TYPE, size_t S>
+    std::shared_ptr<RangeBase> GenSingleRangeFactory<U,TYPE,S>::create()
     {
 	setSelf();
 	return mProd;
@@ -464,9 +487,9 @@ namespace MultiArrayTools
      *   SingleRange    *
      ********************/
     
-    template <typename U, SpaceType TYPE>
-    SingleRange<U,TYPE>::SingleRange(const std::vector<U>& space) :
-	RangeInterface<SingleIndex<U,TYPE> >(),
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleRange<U,TYPE,S>::GenSingleRange(const std::vector<U>& space) :
+	RangeInterface<GenSingleIndex<U,TYPE,S> >(),
 	mSpace(space), mMSpace(mSpace)
     {
 	//for(size_t i = 0; i != mSpace.size(); ++i){
@@ -474,50 +497,50 @@ namespace MultiArrayTools
 	//}
     }
     
-    template <typename U, SpaceType TYPE>
-    const U& SingleRange<U,TYPE>::get(size_t pos) const
+    template <typename U, SpaceType TYPE, size_t S>
+    const U& GenSingleRange<U,TYPE,S>::get(size_t pos) const
     {
 	return mSpace[pos];
     }
 
-    template <typename U, SpaceType TYPE>
-    size_t SingleRange<U,TYPE>::getMeta(const U& metaPos) const
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleRange<U,TYPE,S>::getMeta(const U& metaPos) const
     {
 	return mMSpace.at(metaPos);
     }
 
-    template <typename U, SpaceType TYPE>
-    size_t SingleRange<U,TYPE>::size() const
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleRange<U,TYPE,S>::size() const
     {
 	return mSpace.size();
     }
 
-    template <typename U, SpaceType TYPE>
-    size_t SingleRange<U,TYPE>::dim() const
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleRange<U,TYPE,S>::dim() const
     {
 	return 1;
     }
 
-    template <typename U, SpaceType TYPE>
-    bool SingleRange<U,TYPE>::isMeta(const U& metaPos) const
+    template <typename U, SpaceType TYPE, size_t S>
+    bool GenSingleRange<U,TYPE,S>::isMeta(const U& metaPos) const
     {
 	return mMSpace.count(metaPos) != 0;
     }
     
-    template <typename U, SpaceType TYPE>
-    SpaceType SingleRange<U,TYPE>::spaceType() const
+    template <typename U, SpaceType TYPE, size_t S>
+    SpaceType GenSingleRange<U,TYPE,S>::spaceType() const
     {
 	return TYPE;
     }
     
-    template <typename U, SpaceType TYPE>
-    std::string SingleRange<U,TYPE>::stringMeta(size_t pos) const
+    template <typename U, SpaceType TYPE, size_t S>
+    std::string GenSingleRange<U,TYPE,S>::stringMeta(size_t pos) const
     {
 	return xToString(get(pos));
     }
 
-    template <typename U, SpaceType TYPE>
-    std::vector<char> SingleRange<U,TYPE>::data() const
+    template <typename U, SpaceType TYPE, size_t S>
+    std::vector<char> GenSingleRange<U,TYPE,S>::data() const
     {
         DataHeader h = dataHeader();
 	std::vector<char> out;
@@ -530,8 +553,8 @@ namespace MultiArrayTools
 	return out;
     }
     
-    template <typename U, SpaceType TYPE>
-    DataHeader SingleRange<U,TYPE>::dataHeader() const
+    template <typename U, SpaceType TYPE, size_t S>
+    DataHeader GenSingleRange<U,TYPE,S>::dataHeader() const
     {
 	DataHeader h;
 	h.spaceType = static_cast<int>( TYPE );
@@ -541,19 +564,19 @@ namespace MultiArrayTools
         return h;
     }
     
-    template <typename U, SpaceType TYPE>
-    typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::begin() const
+    template <typename U, SpaceType TYPE, size_t S>
+    typename GenSingleRange<U,TYPE,S>::IndexType GenSingleRange<U,TYPE,S>::begin() const
     {
-	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+	GenSingleIndex<U,TYPE,S> i( std::dynamic_pointer_cast<GenSingleRange<U,TYPE,S> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
     
-    template <typename U, SpaceType TYPE>
-    typename SingleRange<U,TYPE>::IndexType SingleRange<U,TYPE>::end() const
+    template <typename U, SpaceType TYPE, size_t S>
+    typename GenSingleRange<U,TYPE,S>::IndexType GenSingleRange<U,TYPE,S>::end() const
     {
-	SingleIndex<U,TYPE> i( std::dynamic_pointer_cast<SingleRange<U,TYPE> >
+	GenSingleIndex<U,TYPE,S> i( std::dynamic_pointer_cast<GenSingleRange<U,TYPE,S> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
 	return i;

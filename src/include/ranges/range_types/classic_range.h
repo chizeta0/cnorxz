@@ -12,29 +12,29 @@
 
 namespace MultiArrayTools
 {
-    typedef SingleIndex<size_t,SpaceType::NONE> ClassicIndex;
+    typedef GenSingleIndex<size_t,SpaceType::NONE,-1> ClassicIndex;
 
     template <>
-    class SingleRangeFactory<size_t,SpaceType::NONE> : public RangeFactoryBase
+    class GenSingleRangeFactory<size_t,SpaceType::NONE,-1> : public RangeFactoryBase
     {
     public:
 	
-	typedef SingleRange<size_t,SpaceType::NONE> oType;
+	typedef GenSingleRange<size_t,SpaceType::NONE,-1> oType;
 
-	SingleRangeFactory(size_t size = 0);
+	GenSingleRangeFactory(size_t size = 0);
 	std::shared_ptr<RangeBase> create();
 	
     };
 
     template <>
-    class SingleRange<size_t,SpaceType::NONE> : public RangeInterface<ClassicIndex>
+    class GenSingleRange<size_t,SpaceType::NONE,-1> : public RangeInterface<ClassicIndex>
     {
     public:
 	typedef RangeBase RB;
-	typedef typename RangeInterface<SingleIndex<size_t,SpaceType::NONE> >::IndexType IndexType;
-	typedef SingleRange<size_t,SpaceType::NONE> RangeType;
+	typedef typename RangeInterface<GenSingleIndex<size_t,SpaceType::NONE,-1> >::IndexType IndexType;
+	typedef GenSingleRange<size_t,SpaceType::NONE,-1> RangeType;
 	typedef size_t MetaType;
-        typedef SingleRangeFactory<size_t,SpaceType::NONE> FType; 
+        typedef GenSingleRangeFactory<size_t,SpaceType::NONE,-1> FType; 
         
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
@@ -52,28 +52,28 @@ namespace MultiArrayTools
 	virtual IndexType end() const final;
 	//virtual std::shared_ptr<VIWB> index() const final;
 	
-	friend SingleRangeFactory<size_t,SpaceType::NONE>;
+	friend GenSingleRangeFactory<size_t,SpaceType::NONE,-1>;
 
 	static constexpr bool defaultable = true;
 	static constexpr size_t ISSTATIC = 0;
 	static constexpr size_t SIZE = -1;
 	static constexpr bool HASMETACONT = false;
 	
-	static SingleRangeFactory<size_t, SpaceType::NONE> factory(size_t size = 0)
-	{ return SingleRangeFactory<size_t, SpaceType::NONE>(size); }
+	static GenSingleRangeFactory<size_t,SpaceType::NONE,-1> factory(size_t size = 0)
+	{ return GenSingleRangeFactory<size_t,SpaceType::NONE,-1>(size); }
 	
     protected:
 
 	size_t mSize = 0; 
 	
-	SingleRange() = default;
-	SingleRange(const SingleRange& in) = delete;
+	GenSingleRange() = default;
+	GenSingleRange(const GenSingleRange& in) = delete;
 
-	SingleRange(size_t size);
+	GenSingleRange(size_t size);
     };
 
-    typedef SingleRange<size_t,SpaceType::NONE> ClassicRange;
-    typedef SingleRangeFactory<size_t,SpaceType::NONE> ClassicRF;
+    typedef GenSingleRange<size_t,SpaceType::NONE,-1> ClassicRange;
+    typedef GenSingleRangeFactory<size_t,SpaceType::NONE,-1> ClassicRF;
 }
 
 

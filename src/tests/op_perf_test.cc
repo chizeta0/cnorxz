@@ -134,13 +134,14 @@ namespace {
 	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
 	typedef SR8F::oType SR8;
 
-        static const size_t os = 3000;
-	static const size_t s = 65536*os;
-	
+        static const size_t os = 30;
+        static const size_t is = 65536;
+        static const size_t s = is*os;
+        
 	OpTest_Spin()
 	{
-	    data.resize(s);
-	    for(size_t i = 0; i != s; ++i){
+	    data.resize(is);
+	    for(size_t i = 0; i != is; ++i){
 		double arg = static_cast<double>( i - s ) - 0.1; 
 		data[i] = sin(arg);
 		//VCHECK(data[i]);
@@ -162,7 +163,7 @@ namespace {
 
     void OpTest_Spin::contract()
     {
-	MultiArray<double,CR,SR,SR,SR,SR,SR,SR,SR,SR> ma( cr, sr, sr, sr, sr, sr, sr, sr, sr, data);
+	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma( sr, sr, sr, sr, sr, sr, sr, sr, data);
 	MultiArray<double,CR,SR,SR> res1( cr, sr, sr );
 
         auto ii = MAT::getIndex<CR>(cr);
@@ -177,7 +178,8 @@ namespace {
 
 	std::clock_t begin = std::clock();
 	//for(size_t i = 0; i != os; ++i){
-        res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        //res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        res1(ii ,delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
             //}
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
@@ -199,7 +201,7 @@ namespace {
                             for(size_t d = 0; d != 4; ++d){
                                 for(size_t p = 0; p != 4; ++p){
                                     const size_t tidx = i*4*4 + d*4 + p;
-                                    const size_t sidx = i*65536 + d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
+                                    const size_t sidx = /*i*65536 +*/ d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
                                     vres[tidx] += data[sidx];
                                 }
                             }
