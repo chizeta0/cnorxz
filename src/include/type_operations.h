@@ -82,7 +82,60 @@ namespace MultiArrayTools
 	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
 	return a;
     }
-    
+
+    template <typename T>
+    std::vector<T>& operator-=(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::minus<T>());
+	return a;
+    }
+
+    template <typename T>
+    std::vector<T>& operator*=(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<T>());
+	return a;
+    }
+
+    template <typename T>
+    std::vector<T>& operator/=(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<T>());
+	return a;
+    }
+
+    template <typename T>
+    std::vector<T> operator+(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::plus<T>());
+	return out;
+    }
+
+    template <typename T>
+    std::vector<T> operator-(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::minus<T>());
+	return out;
+    }
+
+    template <typename T>
+    std::vector<T> operator*(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::multiplies<T>());
+	return out;
+    }
+
+    template <typename T>
+    std::vector<T> operator/(std::vector<T>& a, const std::vector<T>& b)
+    {
+	std::vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::divides<T>());
+	return out;
+    }
+
     template <class OperationClass, typename T>
     class OperationTemplate<std::vector<T>,OperationClass> : public OperationBase<std::vector<T>,OperationClass>
     {
@@ -101,28 +154,47 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-    inline std::array<int,2>& operator+=(std::array<int,2>& a, const std::array<int,2>& b)
+    template <typename T, size_t N>
+    inline std::array<T,N> operator+(std::array<T,N>& a, const std::array<T,N>& b)
     {
-	std::get<0>(a) += std::get<0>(b);
-	std::get<1>(a) += std::get<1>(b);
-	return a;
+	std::array<T,N> out;
+	for(size_t i = 0; i != N; ++i){
+	    out[i] = a[i] + b[i];
+	}
+	return out;
     }
+
+    template <typename T, size_t N>
+    inline std::array<T,N> operator-(std::array<T,N>& a, const std::array<T,N>& b)
+    {
+	std::array<T,N> out;
+	for(size_t i = 0; i != N; ++i){
+	    out[i] = a[i] - b[i];
+	}
+	return out;
+    }
+
+    template <typename T, size_t N>
+    inline std::array<T,N> operator*(std::array<T,N>& a, const std::array<T,N>& b)
+    {
+	std::array<T,N> out;
+	for(size_t i = 0; i != N; ++i){
+	    out[i] = a[i] * b[i];
+	}
+	return out;
+    }
+
+    template <typename T, size_t N>
+    inline std::array<T,N> operator/(std::array<T,N>& a, const std::array<T,N>& b)
+    {
+	std::array<T,N> out;
+	for(size_t i = 0; i != N; ++i){
+	    out[i] = a[i] / b[i];
+	}
+	return out;
+    }
+
     
-    inline std::array<int,3>& operator+=(std::array<int,3>& a, const std::array<int,3>& b)
-    {
-	std::get<0>(a) += std::get<0>(b);
-	std::get<1>(a) += std::get<1>(b);
-	std::get<2>(a) += std::get<2>(b);
-	return a;
-    }
-    
-    inline std::tuple<int,int,int>& operator+=(std::tuple<int,int,int>& a, const std::tuple<int,int,int>& b)
-    {
-	std::get<0>(a) += std::get<0>(b);
-	std::get<1>(a) += std::get<1>(b);
-	std::get<2>(a) += std::get<2>(b);
-	return a;
-    }
 
 } // namespace MultiArrayTools
 
