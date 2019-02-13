@@ -347,7 +347,7 @@ namespace MultiArrayTools
 	    }
 	}
 	if(not check){
-	    std::vector<std::intptr_t> pv(sizeof...(Ranges));
+	    vector<std::intptr_t> pv(sizeof...(Ranges));
 	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
 	    pv.push_back( reinterpret_cast<std::intptr_t>
 			  ( &std::dynamic_pointer_cast<oType>( mProd )->mMapf ) );
@@ -376,8 +376,8 @@ namespace MultiArrayTools
                 mult[mapf[ii]]++;
             }
 	
-            std::vector<typename MapF::value_type> outmeta(mult.size());
-            std::vector<size_t> outmult(mult.size());
+            vector<typename MapF::value_type> outmeta(mult.size());
+            vector<size_t> outmult(mult.size());
 
             size_t cnt = 0;
             for(auto& x: mult){
@@ -404,12 +404,12 @@ namespace MultiArrayTools
             for(auto ii = mapf.begin(); ii.max() != ii.pos(); ++ii) {
                 max = mapf[ii]+1 > max ? mapf[ii]+1 : max;
             }
-            std::vector<size_t> mult(max,0);
+            vector<size_t> mult(max,0);
             for(auto ii = mapf.begin(); ii.max() != ii.pos(); ++ii) {
                 mult[mapf[ii]]++;
             }
 	
-            std::vector<size_t> outmult(mult.size());
+            vector<size_t> outmult(mult.size());
 
             size_t cnt = 0;
             for(auto& x: mult){
@@ -505,10 +505,10 @@ namespace MultiArrayTools
     }
 
     template <class MapF, SpaceType XSTYPE, class... Ranges>
-    std::vector<char> GenMapRange<MapF,XSTYPE,Ranges...>::data() const
+    vector<char> GenMapRange<MapF,XSTYPE,Ranges...>::data() const
     {
 	DataHeader h = dataHeader();
-	std::vector<char> out;
+	vector<char> out;
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));

@@ -259,7 +259,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 	
 	const Space& space() const;
 	

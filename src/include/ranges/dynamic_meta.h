@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <utility>
 
+#include "allocator.h"
+
 namespace MultiArrayTools
 {
 
@@ -14,7 +16,7 @@ namespace MultiArrayTools
     struct DynamicMetaSetter
     {
 	template <typename... Us>
-	static inline void set(const std::tuple<Us...>& in, std::vector<DynamicMetaElem>& meta)
+	static inline void set(const std::tuple<Us...>& in, vector<DynamicMetaElem>& meta)
 	{
 	    typedef typename std::tuple_element<N,std::tuple<Us...>>::type elemtype;
 	    meta[N].first = reinterpret_cast<const char*>( &std::get<N>(in) );
@@ -27,7 +29,7 @@ namespace MultiArrayTools
     struct DynamicMetaSetter<0>
     {
 	template <typename... Us>
-	static inline void set(const std::tuple<Us...>& in, std::vector<DynamicMetaElem>& meta)
+	static inline void set(const std::tuple<Us...>& in, vector<DynamicMetaElem>& meta)
 	{
 	    typedef typename std::tuple_element<0,std::tuple<Us...>>::type elemtype;
 	    meta[0].first = reinterpret_cast<const char*>( &std::get<0>(in) );
@@ -39,7 +41,7 @@ namespace MultiArrayTools
     class DynamicMetaT
     {
     private:
-        std::vector<DynamicMetaElem> mMeta;
+        vector<DynamicMetaElem> mMeta;
 
     public:
         DynamicMetaT() = default;

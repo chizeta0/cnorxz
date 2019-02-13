@@ -107,9 +107,8 @@ namespace MultiArrayTools
 	typedef GenSingleRange<U,TYPE,S> oType;
 
 	GenSingleRangeFactory() = delete;
-	GenSingleRangeFactory(const std::vector<U>& space);
+	GenSingleRangeFactory(const vector<U>& space);
 	std::shared_ptr<RangeBase> create();
-	
     };
 
     template <typename U>
@@ -125,7 +124,7 @@ namespace MultiArrayTools
 	MetaMap& operator=(MetaMap&& in) = default;
 
 	//MetaMap(const std::map<U,size_t>& in) : mMap(in) {}
-	MetaMap(const std::vector<U>& in)
+	MetaMap(const vector<U>& in)
 	{
 	    for(size_t i = 0; i != in.size(); ++i){
 		mMap[in[i]] = i;
@@ -140,7 +139,7 @@ namespace MultiArrayTools
     class MetaMap<std::array<int,2> >
     {
     private:
-	std::vector<size_t> mMap;
+	vector<size_t> mMap;
 	int min1;
 	int min2;
 	int max1;
@@ -156,7 +155,7 @@ namespace MultiArrayTools
 	MetaMap& operator=(const MetaMap& in) = default;
 	MetaMap& operator=(MetaMap&& in) = default;
 
-	MetaMap(const std::vector<U>& in) : min1(in[0][0]),
+	MetaMap(const vector<U>& in) : min1(in[0][0]),
 					    min2(in[0][1]),
 					    max1(in[0][0]),
 					    max2(in[0][1])
@@ -201,6 +200,20 @@ namespace MultiArrayTools
         static constexpr size_t SIZE = -1;
     };
 
+    template <SpaceType TYPE>
+    struct CheckDefault
+    {
+	static constexpr size_t ISDEFAULT = false;
+	static constexpr size_t HASMETACONT = true; 
+    };
+
+    template <>
+    struct CheckDefault<SpaceType::NONE>
+    {
+	static constexpr size_t ISDEFAULT = true;
+	static constexpr size_t HASMETACONT = false; 
+    };
+    
     template <typename U, SpaceType TYPE, size_t S>
     class GenSingleRange : public RangeInterface<GenSingleIndex<U,TYPE,S> >
     {
@@ -219,7 +232,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 	
 	bool isMeta(const U& metaPos) const;
 	
@@ -231,19 +244,26 @@ namespace MultiArrayTools
 		
 	friend GenSingleRangeFactory<U,TYPE,S>;
 
-	static constexpr bool defaultable = false;
+	static GenSingleRangeFactory<U,TYPE,S> factory()
+	{
+	    static_assert( not CheckDefault<TYPE>::HASMETACONT,
+			   "asked for default factory for meta data containing range" );
+	    return GenSingleRangeFactory<U,TYPE,S>(vector<U>());
+	}
+	
+	static constexpr bool defaultable = CheckDefault<TYPE>::ISDEFAULT;
 	static constexpr size_t ISSTATIC = CheckStatic<S>::ISSTATIC;
 	static constexpr size_t SIZE = CheckStatic<S>::SIZE;
-	static constexpr bool HASMETACONT = true;
+	static constexpr bool HASMETACONT = CheckDefault<TYPE>::HASMETACONT;
 	
     protected:
 
 	GenSingleRange() = delete;
 	GenSingleRange(const GenSingleRange& in) = delete;
 	
-	GenSingleRange(const std::vector<U>& space);
+	GenSingleRange(const vector<U>& space);
 
-	std::vector<U> mSpace;
+	vector<U> mSpace;
 	//std::map<U,size_t> mMSpace;
 	MetaMap<U> mMSpace;
     };
@@ -471,7 +491,7 @@ namespace MultiArrayTools
      ********************/
 
     template <typename U, SpaceType TYPE, size_t S>
-    GenSingleRangeFactory<U,TYPE,S>::GenSingleRangeFactory(const std::vector<U>& space)
+    GenSingleRangeFactory<U,TYPE,S>::GenSingleRangeFactory(const vector<U>& space)
     {
 	mProd = std::shared_ptr<oType>( new GenSingleRange<U,TYPE,S>( space ) );
     }
@@ -488,7 +508,7 @@ namespace MultiArrayTools
      ********************/
     
     template <typename U, SpaceType TYPE, size_t S>
-    GenSingleRange<U,TYPE,S>::GenSingleRange(const std::vector<U>& space) :
+    GenSingleRange<U,TYPE,S>::GenSingleRange(const vector<U>& space) :
 	RangeInterface<GenSingleIndex<U,TYPE,S> >(),
 	mSpace(space), mMSpace(mSpace)
     {
@@ -509,10 +529,22 @@ namespace MultiArrayTools
 	return mMSpace.at(metaPos);
     }
 
+    template <size_t SIZE>
+    inline size_t getStatSizeOrDyn(size_t size)
+    {
+	return SIZE;
+    }
+
+    template <>
+    inline size_t getStatSizeOrDyn<-1>(size_t size)
+    {
+	return size;
+    }
+
     template <typename U, SpaceType TYPE, size_t S>
     size_t GenSingleRange<U,TYPE,S>::size() const
     {
-	return mSpace.size();
+	return getStatSizeOrDyn<S>(mSpace.size());
     }
 
     template <typename U, SpaceType TYPE, size_t S>
@@ -540,10 +572,10 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE, size_t S>
-    std::vector<char> GenSingleRange<U,TYPE,S>::data() const
+    vector<char> GenSingleRange<U,TYPE,S>::data() const
     {
         DataHeader h = dataHeader();
-	std::vector<char> out;
+	vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));

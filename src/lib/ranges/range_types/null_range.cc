@@ -81,10 +81,10 @@ namespace MultiArrayTools
 	return std::to_string(get(pos));
     }
 
-    std::vector<char> GenSingleRange<size_t,SpaceType::NUL,0>::data() const
+    vector<char> GenSingleRange<size_t,SpaceType::NUL,0>::data() const
     {
 	DataHeader h = dataHeader(); 
-	std::vector<char> out;
+	vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));

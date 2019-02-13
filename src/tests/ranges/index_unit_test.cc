@@ -17,7 +17,7 @@ namespace {
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }

@@ -7,7 +7,7 @@ namespace MultiArrayTools
     Scalar<T> scalar(const T& in)
     {
 	NullRF nrf;
-	return Scalar<T>( std::dynamic_pointer_cast<NullRange>( nrf.create() ), std::vector<T>( { in } ) );
+	return Scalar<T>( std::dynamic_pointer_cast<NullRange>( nrf.create() ), vector<T>( { in } ) );
     }
     
     /*******************
@@ -24,7 +24,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(const typename CRange::Space& space,
-					 std::vector<T>&& vec) :
+					 vector<T>&& vec) :
 	MutableMultiArrayBase<T,SRanges...>(space),
 	mCont(vec)
     {
@@ -52,7 +52,7 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec) :
+    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, const vector<T>& vec) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
 	mCont(vec)
     {
@@ -63,7 +63,7 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec) :
+    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, vector<T>&& vec) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
 	mCont(vec)
     {

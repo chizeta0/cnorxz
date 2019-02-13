@@ -18,7 +18,7 @@ namespace {
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }
@@ -160,7 +160,7 @@ namespace {
 
     TEST_F(AnonymousTest, ToString1)
     {
-	std::vector<char> vv = sr1ptr->data();
+	vector<char> vv = sr1ptr->data();
 	const char* dp = vv.data();
 	auto ff = createRangeFactory(&dp);
 	auto ss = std::dynamic_pointer_cast<SRange>( ff->create() );
@@ -183,9 +183,9 @@ namespace {
 	auto sr = std::dynamic_pointer_cast<SpinRange>( srf.create() );
 	auto nr = std::dynamic_pointer_cast<NameRange>( nrf.create() );
 	
-	std::vector<char> cv = cr->data();
-	std::vector<char> sv = sr->data();
-	std::vector<char> nv = nr->data(); 
+	vector<char> cv = cr->data();
+	vector<char> sv = sr->data();
+	vector<char> nv = nr->data(); 
 	const char* cp = cv.data();
 	const char* sp = sv.data();
 	const char* np = nv.data();
@@ -212,7 +212,7 @@ namespace {
 
     TEST_F(AnonymousTest, ToStringMulti)
     {
-	std::vector<char> vv = m3rptr->data();
+	vector<char> vv = m3rptr->data();
 	const char* dp = vv.data();
 	
 	auto ff2 = std::dynamic_pointer_cast<M3RF>( createRangeFactory(&dp) );
@@ -235,7 +235,7 @@ namespace {
     {
 	AnonymousRangeFactory arf2(sr1ptr,m3rptr,sr2ptr);
 	auto ar = std::dynamic_pointer_cast<AnonymousRange>( arf2.create() );
-	std::vector<char> vv = ar->data();
+	vector<char> vv = ar->data();
 	const char* dp = vv.data();
 	
 	auto ff2 = std::dynamic_pointer_cast<AnonymousRangeFactory>( createRangeFactory(&dp) );

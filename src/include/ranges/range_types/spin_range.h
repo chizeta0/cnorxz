@@ -40,7 +40,7 @@ namespace MultiArrayTools
 	virtual size_t dim() const final;
 
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;

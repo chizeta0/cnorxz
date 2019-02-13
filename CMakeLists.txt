@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(multi_array)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++11 -Wpedantic -O3 -g -march=native -fopenmp -funroll-loops -ftree-vectorize")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++11 -g -Wpedantic -Ofast -mavx2 -funroll-loops -fopenmp")
 
 enable_testing()
 

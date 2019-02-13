@@ -14,7 +14,7 @@
   << " in " << __func__ << ": " << #a << " = " << a << std::endl;
 #endif
 
-
+#include "allocator.h"
 
 namespace MultiArrayTools
 {

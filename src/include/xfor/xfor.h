@@ -9,6 +9,7 @@
 #include "xfor/for_utils.h"
 #include "xfor/exttype.h"
 
+#include "allocator.h"
 #include <omp.h>
 
 #define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
@@ -16,7 +17,7 @@
 
 namespace MultiArrayHelper
 {
-
+    using namespace MultiArrayTools;
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
 
@@ -152,7 +153,7 @@ namespace MultiArrayHelper
 	typedef decltype(mkExt(0).extend(mExpr.rootSteps())) ExtType;
 	ExtType mExt;
 
-        const std::vector<size_t>* mSubSet;
+        const vector<size_t>* mSubSet;
         
         mutable ExtType mRootSteps;
 
@@ -169,10 +170,10 @@ namespace MultiArrayHelper
 	
 	SubExpr(const std::shared_ptr<IndexClass>& indPtr,
 		std::intptr_t siptr,
-                const std::vector<size_t>* subset, Expr expr);
+                const vector<size_t>* subset, Expr expr);
 
 	SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
-                const std::vector<size_t>* subset, Expr expr);
+                const vector<size_t>* subset, Expr expr);
 
 	
 	inline void operator()(size_t mlast, DExt last) const override final;
@@ -650,7 +651,7 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     SubExpr<IndexClass,Expr>::SubExpr(const std::shared_ptr<IndexClass>& indPtr,
 				      std::intptr_t siptr,
-                                      const std::vector<size_t>* subset, Expr expr) :
+                                      const vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr.get()), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr),
 	mExt( mkExt(0).extend( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )) ) ),
@@ -661,7 +662,7 @@ namespace MultiArrayHelper
 
     template <class IndexClass, class Expr>
     SubExpr<IndexClass,Expr>::SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
-                                      const std::vector<size_t>* subset, Expr expr) :
+                                      const vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr),
 	mExt( mkExt(0).extend( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )) ) ),

@@ -81,7 +81,7 @@ namespace MultiArrayTools
         std::intptr_t id() const;
         
 	virtual std::string stringMeta(size_t pos) const = 0;
-	virtual std::vector<char> data() const = 0; // usefull when writing to files, etc...
+	virtual vector<char> data() const = 0; // usefull when writing to files, etc...
 
 	virtual SpaceType spaceType() const = 0;
         virtual DataHeader dataHeader() const = 0;

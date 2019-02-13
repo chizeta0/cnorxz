@@ -7,6 +7,8 @@
 #include <array>
 #include <iostream>
 
+#include "allocator.h"
+
 namespace MultiArrayTools
 {
 
@@ -23,7 +25,7 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    inline void stringCat(std::vector<char>& out, const std::vector<T>& in)
+    inline void stringCat(vector<char>& out, const vector<T>& in)
     {
 	//for(auto& x: in) { std::cout << x << std::endl; }
 	const char* scp = reinterpret_cast<const char*>(in.data());
@@ -31,20 +33,20 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    inline size_t metaSize(const std::vector<T>& in)
+    inline size_t metaSize(const vector<T>& in)
     {
 	return in.size() * sizeof(T);
     }
 	
     template <typename T>
-    inline void metaCat(std::vector<T>& vec, const char* begin, size_t size)
+    inline void metaCat(vector<T>& vec, const char* begin, size_t size)
     {
 	const T* tp = reinterpret_cast<const T*>( begin );
 	vec.insert(vec.end(), tp, tp + size / sizeof(T));
     }
 
     template <>
-    inline void stringCat<std::string>(std::vector<char>& out, const std::vector<std::string>& in)
+    inline void stringCat<std::string>(vector<char>& out, const vector<std::string>& in)
     {
 	//for(auto& x: in) { std::cout << x << std::endl; }
 	std::string tmp = "";
@@ -56,7 +58,7 @@ namespace MultiArrayTools
     }
 
     template <>
-    inline size_t metaSize<std::string>(const std::vector<std::string>& in)
+    inline size_t metaSize<std::string>(const vector<std::string>& in)
     {
 	size_t out = 0;
 	for(auto& x: in){
@@ -66,7 +68,7 @@ namespace MultiArrayTools
     }
     
     template <>
-    inline void metaCat<std::string>(std::vector<std::string>& vec, const char* begin, size_t size)
+    inline void metaCat<std::string>(vector<std::string>& vec, const char* begin, size_t size)
     {
 
 	std::string tmp(begin, size);
@@ -92,10 +94,10 @@ namespace MultiArrayTools
     include_type(float,4)
     include_type(double,5)
     include_type(std::string,6)
-    include_type(std::vector<size_t>,101)
-    include_type(std::vector<int>,102)
-    include_type(std::vector<double>,105)
-    include_type(std::vector<std::string>,106)
+    include_type(vector<size_t>,101)
+    include_type(vector<int>,102)
+    include_type(vector<double>,105)
+    include_type(vector<std::string>,106)
     include_type(std::array<size_t XCOMMAX() 2>,201)
     include_type(std::array<int XCOMMAX() 2>,202)
     include_type(std::array<size_t XCOMMAX() 3>,301)

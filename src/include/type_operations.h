@@ -70,77 +70,77 @@ namespace MultiArrayTools
 
 	getter(size_t i) : mPos(i) {}
 
-	inline T operator()(const std::vector<T>& in)
+	inline T operator()(const vector<T>& in)
 	{
 	    return in[mPos];
 	}
     };
 
     template <typename T>
-    std::vector<T>& operator+=(std::vector<T>& a, const std::vector<T>& b)
+    vector<T>& operator+=(vector<T>& a, const vector<T>& b)
     {
 	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
 	return a;
     }
 
     template <typename T>
-    std::vector<T>& operator-=(std::vector<T>& a, const std::vector<T>& b)
+    vector<T>& operator-=(vector<T>& a, const vector<T>& b)
     {
 	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::minus<T>());
 	return a;
     }
 
     template <typename T>
-    std::vector<T>& operator*=(std::vector<T>& a, const std::vector<T>& b)
+    vector<T>& operator*=(vector<T>& a, const vector<T>& b)
     {
 	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<T>());
 	return a;
     }
 
     template <typename T>
-    std::vector<T>& operator/=(std::vector<T>& a, const std::vector<T>& b)
+    vector<T>& operator/=(vector<T>& a, const vector<T>& b)
     {
 	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<T>());
 	return a;
     }
 
     template <typename T>
-    std::vector<T> operator+(std::vector<T>& a, const std::vector<T>& b)
+    vector<T> operator+(vector<T>& a, const vector<T>& b)
     {
-	std::vector<T> out(a.size());
+	vector<T> out(a.size());
 	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::plus<T>());
 	return out;
     }
 
     template <typename T>
-    std::vector<T> operator-(std::vector<T>& a, const std::vector<T>& b)
+    vector<T> operator-(vector<T>& a, const vector<T>& b)
     {
-	std::vector<T> out(a.size());
+	vector<T> out(a.size());
 	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::minus<T>());
 	return out;
     }
 
     template <typename T>
-    std::vector<T> operator*(std::vector<T>& a, const std::vector<T>& b)
+    vector<T> operator*(vector<T>& a, const vector<T>& b)
     {
-	std::vector<T> out(a.size());
+	vector<T> out(a.size());
 	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::multiplies<T>());
 	return out;
     }
 
     template <typename T>
-    std::vector<T> operator/(std::vector<T>& a, const std::vector<T>& b)
+    vector<T> operator/(vector<T>& a, const vector<T>& b)
     {
-	std::vector<T> out(a.size());
+	vector<T> out(a.size());
 	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::divides<T>());
 	return out;
     }
 
     template <class OperationClass, typename T>
-    class OperationTemplate<std::vector<T>,OperationClass> : public OperationBase<std::vector<T>,OperationClass>
+    class OperationTemplate<vector<T>,OperationClass> : public OperationBase<vector<T>,OperationClass>
     {
     public:
-	typedef OperationBase<std::vector<T>,OperationClass> OB;
+	typedef OperationBase<vector<T>,OperationClass> OB;
 
 	auto operator[](size_t i)
 	    -> Operation<T,getter<T>,OperationClass>
@@ -154,46 +154,55 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-    template <typename T, size_t N>
-    inline std::array<T,N> operator+(std::array<T,N>& a, const std::array<T,N>& b)
+    typedef struct v256 { double _x[4]; } v256;
+
+    template <int N>
+    inline void xadd(double* o, const double* a, const double* b)
     {
-	std::array<T,N> out;
-	for(size_t i = 0; i != N; ++i){
-	    out[i] = a[i] + b[i];
+	//#pragma omp simd aligned(o, a, b: 16)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] + b[i];
+	}  
+    }
+    
+    inline v256 operator+(const v256& a, const v256& b)
+    {
+	alignas(32) v256 out;
+	xadd<4>( reinterpret_cast<double*>(&out), reinterpret_cast<const double*>(&a),
+		 reinterpret_cast<const double*>(&b) );
+	return out;
+    }
+    /*
+    inline v256 operator-(const v256& a, const v256& b)
+    {
+        	alignas(32) v256 out;
+#pragma omp simd aligned(outp, ap, bp: 32)
+	for(int i = 0; i < IN; ++i){
+	    outp[i] = ap[i] - bp[i];
 	}
 	return out;
     }
 
-    template <typename T, size_t N>
-    inline std::array<T,N> operator-(std::array<T,N>& a, const std::array<T,N>& b)
+    inline v256 operator*(const v256& a, const v256& b)
     {
-	std::array<T,N> out;
-	for(size_t i = 0; i != N; ++i){
-	    out[i] = a[i] - b[i];
+	alignas(32) v256 out;
+#pragma omp simd aligned(outp, ap, bp: 32)
+	for(int i = 0; i < IN; ++i){
+	    outp[i] = ap[i] * bp[i];
 	}
 	return out;
     }
-
-    template <typename T, size_t N>
-    inline std::array<T,N> operator*(std::array<T,N>& a, const std::array<T,N>& b)
+    
+    inline v256 operator/(const v256& a, const v256& b)
     {
-	std::array<T,N> out;
-	for(size_t i = 0; i != N; ++i){
-	    out[i] = a[i] * b[i];
+	alignas(32) v256 out;
+#pragma omp simd aligned(outp, ap, bp: 32)
+	for(int i = 0; i < IN; ++i){
+	    outp[i] = ap[i] / bp[i];
 	}
 	return out;
     }
-
-    template <typename T, size_t N>
-    inline std::array<T,N> operator/(std::array<T,N>& a, const std::array<T,N>& b)
-    {
-	std::array<T,N> out;
-	for(size_t i = 0; i != N; ++i){
-	    out[i] = a[i] / b[i];
-	}
-	return out;
-    }
-
+    */
     
 
 } // namespace MultiArrayTools

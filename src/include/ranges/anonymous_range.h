@@ -36,7 +36,7 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	AnonymousRangeFactory(std::shared_ptr<RangeTypes>... origs);
 
-	AnonymousRangeFactory(const std::vector<std::shared_ptr<RangeBase>>& origs);
+	AnonymousRangeFactory(const vector<std::shared_ptr<RangeBase>>& origs);
 	
 	template <class Range>
 	void append(std::shared_ptr<Range> r);
@@ -45,9 +45,9 @@ namespace MultiArrayTools
 
     private:
 	
-	std::shared_ptr<RangeBase> checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec);
+	std::shared_ptr<RangeBase> checkIfCreated(const vector<std::shared_ptr<RangeBase> >& pvec);
 	
-	static std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > mAleadyCreated;
+	static std::map<std::shared_ptr<RangeBase>,vector<std::intptr_t> > mAleadyCreated;
 
 	bool mProductCreated = false;
     };
@@ -81,7 +81,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 	
 	std::shared_ptr<RangeBase> sub(size_t num) const;
 
@@ -91,10 +91,10 @@ namespace MultiArrayTools
 	template <class... Ranges>
 	std::shared_ptr<MultiRange<Ranges...> > scast(SIZET<Ranges>... sizes) const; // save cast
 
-        const std::vector<std::shared_ptr<RangeBase> >& orig() const;
+        const vector<std::shared_ptr<RangeBase> >& orig() const;
         
         std::shared_ptr<AnonymousRange> sreplace(const std::shared_ptr<RangeBase> in, size_t num) const;
-        std::shared_ptr<AnonymousRange> sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num) const;
+        std::shared_ptr<AnonymousRange> sreplace(const vector<std::shared_ptr<RangeBase>>& in, size_t num) const;
 	
 	bool isEmpty() const;
 	
@@ -114,12 +114,12 @@ namespace MultiArrayTools
 	template <class... RangeTypes>
 	GenSingleRange(std::shared_ptr<RangeTypes>... origs);
 
-	GenSingleRange(const std::vector<std::shared_ptr<RangeBase>>& origs);
+	GenSingleRange(const vector<std::shared_ptr<RangeBase>>& origs);
 	
 	size_t mSize = 1;
 	bool mEmpty = true;
 	
-	std::vector<std::shared_ptr<RangeBase> > mOrig;
+	vector<std::shared_ptr<RangeBase> > mOrig;
     };
 }
 
@@ -172,7 +172,7 @@ namespace MultiArrayHelper
 
     template <>
     inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange>& rp,
-						const std::vector<std::shared_ptr<RangeBase> >& orig,
+						const vector<std::shared_ptr<RangeBase> >& orig,
 						size_t origpos, size_t size)
     {
     	AnonymousRangeFactory arf;
@@ -184,7 +184,7 @@ namespace MultiArrayHelper
     }
 
     template <>
-    inline void setRangeToVec<AnonymousRange>(std::vector<std::shared_ptr<RangeBase> >& v,
+    inline void setRangeToVec<AnonymousRange>(vector<std::shared_ptr<RangeBase> >& v,
 					      std::shared_ptr<AnonymousRange> r)
     {
 	if(not r->isEmpty()){

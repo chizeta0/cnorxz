@@ -13,14 +13,14 @@ namespace MultiArrayTools
     }
 
     
-    std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > AnonymousRangeFactory::mAleadyCreated;
+    std::map<std::shared_ptr<RangeBase>,vector<std::intptr_t> > AnonymousRangeFactory::mAleadyCreated;
 
-    AnonymousRangeFactory::AnonymousRangeFactory(const std::vector<std::shared_ptr<RangeBase>>& origs)
+    AnonymousRangeFactory::AnonymousRangeFactory(const vector<std::shared_ptr<RangeBase>>& origs)
     {
         mProd = std::shared_ptr<oType>( new AnonymousRange( origs ) );
     }
     
-    std::shared_ptr<RangeBase> AnonymousRangeFactory::checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
+    std::shared_ptr<RangeBase> AnonymousRangeFactory::checkIfCreated(const vector<std::shared_ptr<RangeBase> >& pvec)
     {
 	std::shared_ptr<RangeBase> out;
 	bool check = false;
@@ -40,7 +40,7 @@ namespace MultiArrayTools
 	    }
 	}
 	if(not check){
-	    std::vector<std::intptr_t> app(pvec.size());
+	    vector<std::intptr_t> app(pvec.size());
 	    for(size_t i = 0; i != app.size(); ++i){
 		app[i] = reinterpret_cast<std::intptr_t>( pvec[i].get() );
 	    }
@@ -108,10 +108,10 @@ namespace MultiArrayTools
 	return out;
     }
 
-    std::vector<char> AnonymousRange::data() const
+    vector<char> AnonymousRange::data() const
     {
 	DataHeader h = dataHeader();
-	std::vector<char> out;
+	vector<char> out;
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	for(auto& x: mOrig){
@@ -168,7 +168,7 @@ namespace MultiArrayTools
         return std::dynamic_pointer_cast<AnonymousRange>(arf.create());
     }
 
-    std::shared_ptr<AnonymousRange> AnonymousRange::sreplace(const std::vector<std::shared_ptr<RangeBase>>& in, size_t num) const
+    std::shared_ptr<AnonymousRange> AnonymousRange::sreplace(const vector<std::shared_ptr<RangeBase>>& in, size_t num) const
     {
         size_t nsize = 1;
         for(auto& x: in){
@@ -191,12 +191,12 @@ namespace MultiArrayTools
         return std::dynamic_pointer_cast<AnonymousRange>(arf.create());
     }
 
-    const std::vector<std::shared_ptr<RangeBase> >& AnonymousRange::orig() const
+    const vector<std::shared_ptr<RangeBase> >& AnonymousRange::orig() const
     {
         return mOrig;
     }
     
-    GenSingleRange<size_t,SpaceType::ANON,-1>::GenSingleRange(const std::vector<std::shared_ptr<RangeBase>>& origs) :
+    GenSingleRange<size_t,SpaceType::ANON,-1>::GenSingleRange(const vector<std::shared_ptr<RangeBase>>& origs) :
         RangeInterface<AnonymousIndex>(),
         mOrig(origs)
     {

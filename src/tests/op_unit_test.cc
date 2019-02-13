@@ -31,15 +31,15 @@ namespace {
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }
 
     template <class Factory, typename T>
-    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::vector<T>& ilist)
+    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, vector<T>& ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }
@@ -106,8 +106,8 @@ namespace {
 
 	std::shared_ptr<RangeFactoryBase> rfbptr;
 	std::shared_ptr<SRange> srptr;
-	std::vector<double> v1 = { 2.917, 9.436, 0.373, 7.192 };
-	std::vector<double> v2 = { 8.870, 4.790, 8.215, 5.063 };
+	vector<double> v1 = { 2.917, 9.436, 0.373, 7.192 };
+	vector<double> v2 = { 8.870, 4.790, 8.215, 5.063 };
     };
     
     class OpTest_MDim : public ::testing::Test
@@ -151,11 +151,11 @@ namespace {
 	std::shared_ptr<SRange> sr4ptr;
 	std::shared_ptr<MRange> mr1ptr;
 	std::shared_ptr<MRange> mr2ptr;
-	std::vector<double> v1 = { 2.917, 9.436, 0.373 };
-	std::vector<double> v2 = { 8.870, 4.790 };
-	std::vector<double> v3 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
-	std::vector<double> v4 = { 1.470, 2.210 };
-	std::vector<double> v5 = { 30.932, -33.693, -26.205, -15.504, 21.227, 17.829,
+	vector<double> v1 = { 2.917, 9.436, 0.373 };
+	vector<double> v2 = { 8.870, 4.790 };
+	vector<double> v3 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
+	vector<double> v4 = { 1.470, 2.210 };
+	vector<double> v5 = { 30.932, -33.693, -26.205, -15.504, 21.227, 17.829,
 				   -14.364, -1.868, -25.703, 13.836, 23.563, 41.339 };
     };
 
@@ -184,10 +184,10 @@ namespace {
 	std::shared_ptr<SRange> sr2ptr;
 	std::shared_ptr<SRange> sr3ptr;
 
-        std::vector<double> v1 = { 2.917, 9.436, 0.373, 0.353, 4.005, 1.070,
+        vector<double> v1 = { 2.917, 9.436, 0.373, 0.353, 4.005, 1.070,
                                    -14.364, -1.868, -25.703, 13.836, 23.563, 41.339 };
 
-        std::vector<double> v2 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
+        vector<double> v2 = { 0.353, 4.005, 1.070, 2.310, 9.243, 2.911 };
     };
 
     
@@ -222,7 +222,7 @@ namespace {
 	std::shared_ptr<SRange> sr1ptr;
 	std::shared_ptr<SRange> sr2ptr;
 	std::shared_ptr<MpRange> mpr1ptr;
-	std::vector<double> v1 = { -31.71, -77.16, -18.81,
+	vector<double> v1 = { -31.71, -77.16, -18.81,
 				   -67.06, 72.31, -54.48,
 				   -50.91, -11.62, -59.57,
 				   -42.53, 80.41, 6.35 };
@@ -241,14 +241,14 @@ namespace {
 	OpTest_Performance()
 	{
 	
-	    std::vector<size_t> initvec1(vs1);
+	    vector<size_t> initvec1(vs1);
 	    cv1.resize(vs1);
 	    for(size_t i = 0; i != vs1; ++i){
 		initvec1[i] = i;
 		cv1[i] = sqrt( static_cast<double>(i)*0.53 );
 	    }
 
-	    std::vector<size_t> initvec2(vs2);
+	    vector<size_t> initvec2(vs2);
 	    cv2.resize(vs2*vs1);
 	    for(size_t i = 0; i != vs2; ++i){
 		initvec2[i] = i;
@@ -277,8 +277,8 @@ namespace {
 	std::shared_ptr<SRange> sr2ptr;
 	std::shared_ptr<MRange> mrptr;
 
-	std::vector<double> cv1;
-	std::vector<double> cv2;
+	vector<double> cv1;
+	vector<double> cv2;
     };
 
     class OpTest_Spin : public ::testing::Test
@@ -303,7 +303,7 @@ namespace {
 	    sr = std::dynamic_pointer_cast<SR>(f.create());
 	}
 
-	std::vector<double> data;
+	vector<double> data;
 	std::shared_ptr<SR> sr;
     };
 
@@ -337,8 +337,8 @@ namespace {
 	std::shared_ptr<SR> sr1ptr;
 	std::shared_ptr<SR> sr2ptr;
 
-	std::vector<double> mv1;
-	std::vector<double> mv2;
+	vector<double> mv1;
+	vector<double> mv2;
 
 	double vcontract(size_t i)
 	{
@@ -458,7 +458,7 @@ namespace {
 
 	res2(delta, deltap).par() += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);
 	
-	std::vector<double> vres(4*4);
+	vector<double> vres(4*4);
 
 	std::clock_t begin2 = std::clock();
 	for(size_t d = 0; d != 4; ++d){
@@ -517,7 +517,7 @@ namespace {
 	EXPECT_EQ( xround(res2.at(mkts(3,2))), xround(vres[14]) );
 	EXPECT_EQ( xround(res2.at(mkts(3,3))), xround(vres[15]) );
 
-	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
+	std::cout << "vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
 		  << std::endl;
 	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
     }    
@@ -543,7 +543,7 @@ namespace {
         MultiArray<double,SRange,SRange,SRange> ma1(sr1ptr, sr2ptr, sr3ptr, v1);
         MultiArray<double,SRange,SRange> ma2(sr3ptr, sr2ptr, v2);
 
-        SubRangeFactory<SRange> subf(sr2ptr, std::vector<size_t>({0,2}));
+        SubRangeFactory<SRange> subf(sr2ptr, vector<size_t>({0,2}));
         auto subptr = MAT::createExplicit(subf);
         
         MultiArray<double,SRange,SRange> res(sr3ptr,sr1ptr,0.);

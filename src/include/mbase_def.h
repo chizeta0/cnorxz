@@ -3,6 +3,7 @@
 #define __mbase_def_h__
 
 #include "ranges/rbase_def.h"
+#include "allocator.h"
 
 namespace MultiArrayTools
 {
