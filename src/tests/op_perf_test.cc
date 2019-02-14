@@ -195,16 +195,22 @@ namespace {
 	    }
 	}                  
 	std::clock_t begin2 = std::clock();
+	double* vrptr = vres.data();
+	double* dptr = data.data();
+	
         for(size_t j = 0; j != os; ++j) {
             for(size_t i = 0; i != os; ++i){
                 for(size_t a = 0; a != 4; ++a){
                     for(size_t b = 0; b != 4; ++b){
                         for(size_t c = 0; c != 4; ++c){
                             for(size_t d = 0; d != 4; ++d){
-                                for(size_t p = 0; p != 4; ++p){
-                                    const size_t tidx = i*4*4 + d*4 + p;
-                                    const size_t sidx = /*i*65536 +*/ d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
-                                    vres[tidx] += data[sidx];
+				const size_t tidx = i*4*4 + d*4;
+				const size_t sidx = /*i*65536 +*/ d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4;
+				double* xvrptr = vrptr + tidx;
+				double* xdptr = dptr + sidx;
+#pragma omp simd aligned(xvrptr, xdptr: 32)
+                                for(int p = 0; p < 4; p++){
+                                    xvrptr[p] += xdptr[p];
                                 }
                             }
                         }
