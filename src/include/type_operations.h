@@ -154,25 +154,40 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-    typedef struct v256 { double _x[4]; } v256;
+    typedef struct v256 { alignas(32) double _x[4]; } v256;
 
     template <int N>
     inline void xadd(double* o, const double* a, const double* b)
     {
-	//#pragma omp simd aligned(o, a, b: 16)
+#pragma omp simd aligned(o, a, b: 32)
 	for(int i = 0; i < N; i++) {
 	    o[i] = a[i] + b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xsadd(double* o, const double* a)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] += a[i];
 	}  
     }
     
     inline v256 operator+(const v256& a, const v256& b)
     {
-	alignas(32) v256 out;
-	xadd<4>( reinterpret_cast<double*>(&out), reinterpret_cast<const double*>(&a),
+	alignas(32) v256 o;
+	xadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a),
 		 reinterpret_cast<const double*>(&b) );
-	return out;
+	return o;
     }
-    /*
+
+    inline v256& operator+=(v256& o, const v256& a)
+    {
+	xsadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a) );
+	return o;
+    }
+/*
     inline v256 operator-(const v256& a, const v256& b)
     {
         	alignas(32) v256 out;

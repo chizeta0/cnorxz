@@ -91,9 +91,9 @@ namespace MultiArrayTools
     template <typename T>
     struct SelfIdentity
     {
-        static inline T apply(const T& a, const T& b)
+        static inline T& sapply(T& a, const T& b)
         {
-            return b;
+            return a = b;
         }
     };
 
@@ -140,7 +140,7 @@ namespace MultiArrayTools
 	OperationMaster(T* data, const OpClass& second,
 			IndexType& index, bool doParallel = false);
 
-	inline void set(size_t pos, T val) { mDataPtr[pos] = AOp::apply(mDataPtr[pos],val); }
+	inline void set(size_t pos, T val) { AOp::sapply(mDataPtr[pos],val); }
         
 	//inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
 	inline T get(size_t pos) const;

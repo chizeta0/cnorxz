@@ -86,6 +86,12 @@ namespace MultiArrayTools
 	{
 	    return a1 + a2;
 	}
+
+	static inline T& sapply(T& a1, T a2)
+	{
+	    return a1 += a2;
+	}
+
     };
 
     template <typename T>
