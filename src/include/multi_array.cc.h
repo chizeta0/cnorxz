@@ -219,7 +219,7 @@ namespace MultiArrayTools
 	}
 	else {
 	    assert( PackNum<sizeof...(SRanges)-1>::checkIfSameInstance( MAB::mRange->space(), in.mRange->space() ) );
-            for(size_t i = 0; i != size(); ++i){
+            for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] += in.mCont[i];
             }
 	    //std::transform(mCont.begin(), mCont.end(), in.mCont.begin(), mCont.begin(), std::plus<T>());
@@ -235,7 +235,7 @@ namespace MultiArrayTools
 	}
 	else {
 	    assert( PackNum<sizeof...(SRanges)-1>::checkIfSameInstance( MAB::mRange->space(), in.mRange->space() ) );
-            for(size_t i = 0; i != size(); ++i){
+            for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] -= in.mCont[i];
             }
 //std::transform(mCont.begin(), mCont.end(), in.mCont.begin(), mCont.begin(), std::minus<T>());
