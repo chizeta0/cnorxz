@@ -69,8 +69,8 @@ namespace MultiArrayTools
 	auto to(const std::shared_ptr<Indices>&... inds) const
 	    -> MultiArray<T,typename Indices::RangeType...>;
 
-        template <template <class> class AOp, class... Indices>
-	auto oto(const std::shared_ptr<Indices>&... inds) const
+        template <class... Indices>
+	auto addto(const std::shared_ptr<Indices>&... inds) const
 	    -> MultiArray<T,typename Indices::RangeType...>;
 
         template <typename R, class... Args> // Args = Operation Classes
