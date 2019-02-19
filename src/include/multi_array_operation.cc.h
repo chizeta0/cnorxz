@@ -98,6 +98,18 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OperationClass>
+    template <class AOp, class... Indices>
+    auto OperationBase<T,OperationClass>::oto(const AOp& aop,
+                                              const std::shared_ptr<Indices>&... inds) const
+	-> MultiArray<T,typename Indices::RangeType...>
+    {
+	MultiArray<T,typename Indices::RangeType...> out(inds->range()...,
+                                                         static_cast<T>(0));
+        AOp::selfApply(out(inds...), THIS());
+	return out;
+    }
+
+    template <typename T, class OperationClass>
     template <typename R, class... Args>
     auto OperationBase<T,OperationClass>::a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll,
                                             const Args&... args) const
