@@ -98,7 +98,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OperationClass>
-    template <template <class,class> class AOp, class... Indices>
+    template <template <class> class AOp, class... Indices>
     auto OperationBase<T,OperationClass>::oto(const std::shared_ptr<Indices>&... inds) const
 	-> MultiArray<T,typename Indices::RangeType...>
     {
