@@ -49,7 +49,7 @@ namespace MultiArrayHelper
 	template <typename... Ts>
 	static inline std::string mk(const std::tuple<Ts...>& tp)
 	{
-	    return TupleToString<N-1>::mk(tp) + " , " + xToString(std::get<N>(tp));
+	    return TupleToString<N-1>::mk(tp) + "," + xToString(std::get<N>(tp));
 	}
     };
 
@@ -79,12 +79,12 @@ namespace MultiArrayHelper
     template <>
     inline std::string xToString<DynamicMetaT>(const DynamicMetaT& x)
     {
-        std::string out = "[ ";
+        std::string out = "[";
         for(size_t i = 0; i != x.size(); ++i){
             out += x[i].first;
-            out += " , ";
+            out += ",";
         }
-        out.pop_back();
+        //out.pop_back();
         out.back() = ']';
         return out;
     }
@@ -92,11 +92,11 @@ namespace MultiArrayHelper
     template <typename T>
     inline std::string xToString(const std::vector<T>& x)
     {
-	std::string out = "[ ";
+	std::string out = "[";
 	for(auto& y: x){
-	    out += xToString(y) + " , ";
+	    out += xToString(y) + ",";
 	}
-	out.pop_back();
+	//out.pop_back();
 	out.back() = ']';
 	return out;
     }
@@ -104,11 +104,11 @@ namespace MultiArrayHelper
     template <typename T, size_t N>
     inline std::string xToString(const std::array<T,N>& x)
     {
-	std::string out = "[ ";
+	std::string out = "[";
 	for(auto& y: x){
-	    out += xToString(y) + " , ";
+	    out += xToString(y) + ",";
 	}
-	out.pop_back();
+	//out.pop_back();
 	out.back() = ']';
 	return out;
     }
@@ -116,7 +116,7 @@ namespace MultiArrayHelper
     template <typename... Ts>
     inline std::string xToString(const std::tuple<Ts...>& tp)
     {
-	return "{ " + TupleToString<sizeof...(Ts)-1>::mk(tp) + " }";
+	return "{" + TupleToString<sizeof...(Ts)-1>::mk(tp) + "}";
     }
 
 }
