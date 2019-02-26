@@ -29,7 +29,7 @@ namespace MultiArrayTools
 
     template <class MapF, class IndexPack, class Expr, SpaceType STYPE>
     inline void OpExpr<MapF,IndexPack,Expr,STYPE>::operator()(size_t mlast,
-							 ExtType last) const
+                                                              ExtType last)
     {
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType nxpos = last;
@@ -42,7 +42,7 @@ namespace MultiArrayTools
     }
 
     template <class MapF, class IndexPack, class Expr, SpaceType STYPE>
-    inline void OpExpr<MapF,IndexPack,Expr,STYPE>::operator()(size_t mlast) const
+    inline void OpExpr<MapF,IndexPack,Expr,STYPE>::operator()(size_t mlast)
     {
 	const ExtType last;
 	constexpr size_t NEXT = Op::SIZE;

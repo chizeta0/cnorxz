@@ -91,7 +91,7 @@ namespace MultiArrayTools
     template <typename T>
     struct SelfIdentity
     {
-        static inline T& sapply(T& a, const T& b)
+        static inline T& sapply(T& a, T b)
         {
             return a = b;
         }
@@ -107,27 +107,57 @@ namespace MultiArrayTools
 	private:
 	    AssignmentExpr() = default;
 	    	    
-	    OperationMaster& mM;
-	    const OpClass& mSec;
-
+	    //OperationMaster mM;
+	    OpClass mSec;
+            T* mDataPtr;
+            
 	public:
 
 	    static constexpr size_t LAYER = 0;
 	    static constexpr size_t SIZE = OpClass::SIZE;
 	    typedef decltype(mSec.rootSteps()) ExtType;
 	    
-	    AssignmentExpr(OperationMaster& m, const OpClass& sec);
+	    //AssignmentExpr(OperationMaster& m, const OpClass& sec);
+            AssignmentExpr(T* dataPtr, const OpClass& sec);
 
 	    AssignmentExpr(const AssignmentExpr& in) = default;
 	    AssignmentExpr(AssignmentExpr&& in) = default;
 	    
-	    inline void operator()(size_t start = 0) const; 
-	    inline void operator()(size_t start, ExtType last) const;
+	    inline void operator()(size_t start = 0); 
+	    inline void operator()(size_t start, ExtType last);
 
 	    auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 	    
 	};
-	
+
+        class AddExpr
+	{
+	private:
+	    AddExpr() = default;
+	    	    
+	    //OperationMaster mM;
+	    OpClass mSec;
+            T* mDataPtr;
+            
+	public:
+
+	    static constexpr size_t LAYER = 0;
+	    static constexpr size_t SIZE = OpClass::SIZE;
+	    typedef decltype(mSec.rootSteps()) ExtType;
+	    
+	    //AssignmentExpr(OperationMaster& m, const OpClass& sec);
+            AddExpr(T* dataPtr, const OpClass& sec);
+
+	    AddExpr(const AddExpr& in) = default;
+	    AddExpr(AddExpr&& in) = default;
+	    
+	    inline void operator()(size_t start = 0); 
+	    inline void operator()(size_t start, ExtType last);
+
+	    auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+	    
+	};
+
 	typedef T value_type;
 	//typedef OperationBase<T> OB;
 	typedef ContainerRange<T,Ranges...> CRange;
@@ -180,7 +210,7 @@ namespace MultiArrayTools
 	inline T get(ET pos) const;
 
 	template <class ET>
-	inline const ConstOperationRoot& set(ET pos) const;
+	inline ConstOperationRoot& set(ET pos);
 
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
@@ -193,8 +223,9 @@ namespace MultiArrayTools
 
 	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
-	mutable IndexType mIndex;
-	mutable size_t mOff = 0;
+        const T* mOrigDataPtr;
+	IndexType mIndex;
+	//size_t mOff = 0;
 	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr; // never remove this ptr, otherwise we lose temporary container instances!
     };
 
@@ -202,7 +233,7 @@ namespace MultiArrayTools
     class StaticCast : public OperationTemplate<T,StaticCast<T,Op> >
     {
     private:
-	const Op& mOp;
+	Op mOp;
 
     public:
 	
@@ -219,7 +250,7 @@ namespace MultiArrayTools
 	inline T get(ET pos) const;
 
 	template <class ET>
-	inline const StaticCast& set(ET pos) const;
+	inline StaticCast& set(ET pos);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const
 	    -> decltype(mOp.rootSteps(iPtrNum));
@@ -253,7 +284,7 @@ namespace MultiArrayTools
 	inline value_type get(ET pos) const;
 
 	template <class ET>
-	inline const MetaOperationRoot& set(ET pos) const;
+	inline MetaOperationRoot& set(ET pos);
 
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
@@ -284,7 +315,7 @@ namespace MultiArrayTools
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	OperationRoot(T* data, const IndexType& ind);
-
+        /*
 	template <class OpClass>
 	OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> operator=(const OpClass& in);
 
@@ -292,14 +323,23 @@ namespace MultiArrayTools
 	OperationMaster<T,plus<T>,OpClass,Ranges...> operator+=(const OpClass& in);
 
 	OperationMaster<T,SelfIdentity<T>,OperationRoot,Ranges...> operator=(const OperationRoot& in);
+        */
 
+        template <class OpClass>
+        OperationRoot& operator=(const OpClass& in);
+
+        template <class OpClass>
+        OperationRoot& operator+=(const OpClass& in);
+
+        OperationRoot& operator=(const OperationRoot& in);
+        
         OperationRoot& par();
         
 	template <class ET>
 	inline T get(ET pos) const;
 
 	template <class ET>
-	inline const OperationRoot& set(ET pos) const;
+	inline OperationRoot& set(ET pos);
 
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
@@ -316,8 +356,9 @@ namespace MultiArrayTools
 
 	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
-	mutable IndexType mIndex;
- 	mutable size_t mOff = 0;
+        T* mOrigDataPtr;
+	IndexType mIndex;
+ 	//size_t mOff = 0;
         bool mDoParallel = false;
     };
 
@@ -338,7 +379,7 @@ namespace MultiArrayTools
 	inline T get(ET pos) const;
 
 	template <class ET>
-	inline const OperationValue& set(ET pos) const;
+	inline OperationValue& set(ET pos);
 
 	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
@@ -415,7 +456,7 @@ namespace MultiArrayTools
 	inline T get(ET pos) const;
 
 	template <class ET>
-	inline const Operation& set(ET pos) const;
+	inline Operation& set(ET pos);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const // nullptr for simple usage with decltype
 	    -> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps));
@@ -473,7 +514,7 @@ namespace MultiArrayTools
 	
     private:
 
-	const Op& mOp;
+	Op mOp;
 	std::shared_ptr<IndexType> mInd;
 
     public:
@@ -485,7 +526,7 @@ namespace MultiArrayTools
 	inline T get(ET pos) const;
 
 	template <class ET>
-	inline const Contraction& set(ET pos) const;
+	inline Contraction& set(ET pos);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));
@@ -509,7 +550,7 @@ namespace MultiArrayTools
 
     private:
 
-	const Op& mOp;
+	mutable Op mOp;
 	mutable std::shared_ptr<MultiArray<T,typename Indices::RangeType...> > mCont;
 	mutable OperationRoot<T,typename Indices::RangeType...> mTarOp;
 		
@@ -522,7 +563,7 @@ namespace MultiArrayTools
 	inline const value_type& get(ET pos) const;
 
 	template <class ET>
-	inline const SliceContraction& set(ET pos) const;
+	inline SliceContraction& set(ET pos);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));

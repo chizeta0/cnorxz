@@ -66,8 +66,8 @@ namespace MultiArrayTools
 	
 	OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
 
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const;
+	inline void operator()(size_t mlast, ExtType last);
+	inline void operator()(size_t mlast = 0);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
