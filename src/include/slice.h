@@ -66,6 +66,8 @@ namespace MultiArrayTools
 
 	DEFAULT_MEMBERS(Slice);
 
+	Slice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
+	      T* data = nullptr);
 	Slice(const std::shared_ptr<SRanges>&... ranges, T* data = nullptr);
 	    
 	virtual const T& operator[](const IType& i) const final;

@@ -10,11 +10,11 @@ namespace MultiArrayTools
     }
 	
     /********************
-     *   SingleRange    *
+     *   GenSingleRange    *
      ********************/
 
-    std::shared_ptr<SingleRange<size_t,SpaceType::NUL>>
-    SingleRangeFactory<size_t,SpaceType::NUL>::mRInstance = nullptr;
+    std::shared_ptr<GenSingleRange<size_t,SpaceType::NUL,0>>
+    GenSingleRangeFactory<size_t,SpaceType::NUL,0>::mRInstance = nullptr;
     
     std::shared_ptr<NullRange> nullr()
     {
@@ -28,12 +28,12 @@ namespace MultiArrayTools
 	return std::make_shared<NullIndex>(nullr());
     }
 
-    SingleRangeFactory<size_t,SpaceType::NUL>::SingleRangeFactory()
+    GenSingleRangeFactory<size_t,SpaceType::NUL,0>::GenSingleRangeFactory()
     {
 	// Singleton
 	if(not mRInstance){
 	    if(not mProd){
-		mProd = std::shared_ptr<oType>( new SingleRange<size_t,SpaceType::NUL>() );
+		mProd = std::shared_ptr<oType>( new GenSingleRange<size_t,SpaceType::NUL,0>() );
 		setSelf();
 	    }
 	    mRInstance = std::dynamic_pointer_cast<NullRange>( mProd );
@@ -42,56 +42,56 @@ namespace MultiArrayTools
 	}
     }
 
-    std::shared_ptr<RangeBase> SingleRangeFactory<size_t,SpaceType::NUL>::create()
+    std::shared_ptr<RangeBase> GenSingleRangeFactory<size_t,SpaceType::NUL,0>::create()
     {
 	return mProd;
     }
     
     /********************
-     *   SingleRange    *
+     *   GenSingleRange    *
      ********************/
     
-    size_t SingleRange<size_t,SpaceType::NUL>::get(size_t pos) const
+    size_t GenSingleRange<size_t,SpaceType::NUL,0>::get(size_t pos) const
     {
 	return 0;
     }
     
-    size_t SingleRange<size_t,SpaceType::NUL>::getMeta(size_t metapos) const
+    size_t GenSingleRange<size_t,SpaceType::NUL,0>::getMeta(size_t metapos) const
     {
 	return 0;
     }
     
-    size_t SingleRange<size_t,SpaceType::NUL>::size() const
+    size_t GenSingleRange<size_t,SpaceType::NUL,0>::size() const
     {
 	return 1;
     }
     
-    size_t SingleRange<size_t,SpaceType::NUL>::dim() const
+    size_t GenSingleRange<size_t,SpaceType::NUL,0>::dim() const
     {
 	return 1;
     }
 
-    SpaceType SingleRange<size_t,SpaceType::NUL>::spaceType() const
+    SpaceType GenSingleRange<size_t,SpaceType::NUL,0>::spaceType() const
     {
 	return SpaceType::NUL;
     }
     
-    std::string SingleRange<size_t,SpaceType::NUL>::stringMeta(size_t pos) const
+    std::string GenSingleRange<size_t,SpaceType::NUL,0>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));
     }
 
-    std::vector<char> SingleRange<size_t,SpaceType::NUL>::data() const
+    vector<char> GenSingleRange<size_t,SpaceType::NUL,0>::data() const
     {
 	DataHeader h = dataHeader(); 
-	std::vector<char> out;
+	vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	return out;
     }
 
-    DataHeader SingleRange<size_t,SpaceType::NUL>::dataHeader() const
+    DataHeader GenSingleRange<size_t,SpaceType::NUL,0>::dataHeader() const
     {
 	DataHeader h;
 	h.spaceType = static_cast<int>( SpaceType::NUL );
@@ -100,17 +100,17 @@ namespace MultiArrayTools
         return h;
     }
    
-    typename SingleRange<size_t,SpaceType::NUL>::IndexType SingleRange<size_t,SpaceType::NUL>::begin() const
+    typename GenSingleRange<size_t,SpaceType::NUL,0>::IndexType GenSingleRange<size_t,SpaceType::NUL,0>::begin() const
     {
-	SingleIndex<size_t,SpaceType::NUL> i( std::dynamic_pointer_cast<SingleRange<size_t,SpaceType::NUL> >
+	GenSingleIndex<size_t,SpaceType::NUL,0> i( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NUL,0> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
     
-    typename SingleRange<size_t,SpaceType::NUL>::IndexType SingleRange<size_t,SpaceType::NUL>::end() const
+    typename GenSingleRange<size_t,SpaceType::NUL,0>::IndexType GenSingleRange<size_t,SpaceType::NUL,0>::end() const
     {
-	SingleIndex<size_t,SpaceType::NUL> i( std::dynamic_pointer_cast<SingleRange<size_t,SpaceType::NUL> >
+	GenSingleIndex<size_t,SpaceType::NUL,0> i( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NUL,0> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
 	return i;
@@ -118,12 +118,12 @@ namespace MultiArrayTools
 
     // put this in the interface class !!!
     /*
-    std::shared_ptr<VIWB> SingleRange<size_t,SpaceType::NUL>::index() const
+    std::shared_ptr<VIWB> GenSingleRange<size_t,SpaceType::NUL,0>::index() const
     {
 	typedef IndexWrapper<IndexType> IW;
 	return std::make_shared<IW>
             ( std::make_shared<IndexType>
-	      ( std::dynamic_pointer_cast<SingleRange<size_t,SpaceType::NUL> >
+	      ( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NUL,0> >
 		( std::shared_ptr<RangeBase>( RB::mThis ) ) ) );
     }
     */

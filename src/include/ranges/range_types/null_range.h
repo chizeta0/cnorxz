@@ -12,19 +12,19 @@ include_range_type(NUL,-2)
 
 namespace MultiArrayTools
 {   
-    typedef SingleIndex<size_t,SpaceType::NUL> NullIndex;
+    typedef GenSingleIndex<size_t,SpaceType::NUL,0> NullIndex;
 
-    std::shared_ptr<SingleRange<size_t,SpaceType::NUL> > nullr();
+    std::shared_ptr<GenSingleRange<size_t,SpaceType::NUL,0> > nullr();
     std::shared_ptr<NullIndex> nulli();
 
     template <>
-    class SingleRangeFactory<size_t,SpaceType::NUL> : public RangeFactoryBase
+    class GenSingleRangeFactory<size_t,SpaceType::NUL,0> : public RangeFactoryBase
     {
     public:
 	
-	typedef SingleRange<size_t,SpaceType::NUL> oType;
+	typedef GenSingleRange<size_t,SpaceType::NUL,0> oType;
 
-	SingleRangeFactory();
+	GenSingleRangeFactory();
 	std::shared_ptr<RangeBase> create();
 
 	friend std::shared_ptr<oType> nullr();
@@ -34,20 +34,20 @@ namespace MultiArrayTools
     };
 
     template <>
-    class SingleRange<size_t,SpaceType::NUL> : public RangeInterface<NullIndex>
+    class GenSingleRange<size_t,SpaceType::NUL,0> : public RangeInterface<NullIndex>
     {
     public:
 	typedef RangeBase RB;
-	typedef typename RangeInterface<SingleIndex<size_t,SpaceType::NUL> >::IndexType IndexType;
-	typedef SingleRange<size_t,SpaceType::NUL> RangeType;
+	typedef typename RangeInterface<GenSingleIndex<size_t,SpaceType::NUL,0> >::IndexType IndexType;
+	typedef GenSingleRange<size_t,SpaceType::NUL,0> RangeType;
 	typedef size_t MetaType;
-        typedef SingleRangeFactory<size_t,SpaceType::NUL> FType; 
+        typedef GenSingleRangeFactory<size_t,SpaceType::NUL,0> FType; 
 	
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
 
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
@@ -59,7 +59,7 @@ namespace MultiArrayTools
 	virtual IndexType end() const final;
 	//virtual std::shared_ptr<VIWB> index() const final;
 	
-	friend SingleRangeFactory<size_t,SpaceType::NUL>;
+	friend GenSingleRangeFactory<size_t,SpaceType::NUL,0>;
 
 	static constexpr bool defaultable = true;
 
@@ -67,19 +67,19 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = 1;
 	static constexpr bool HASMETACONT = false;
 	
-	static SingleRangeFactory<size_t,SpaceType::NUL> factory()
-	{ return SingleRangeFactory<size_t,SpaceType::NUL>(); }
+	static GenSingleRangeFactory<size_t,SpaceType::NUL,0> factory()
+	{ return GenSingleRangeFactory<size_t,SpaceType::NUL,0>(); }
 	
     protected:
 
-	SingleRange() = default;
-	SingleRange(const SingleRange& in) = delete;
+	GenSingleRange() = default;
+	GenSingleRange(const GenSingleRange& in) = delete;
 
-	//SingleRange(size_t spinNum);
+	//GenSingleRange(size_t spinNum);
     };
 
-    typedef SingleRange<size_t,SpaceType::NUL> NullRange;
-    typedef SingleRangeFactory<size_t,SpaceType::NUL> NullRF;
+    typedef GenSingleRange<size_t,SpaceType::NUL,0> NullRange;
+    typedef GenSingleRangeFactory<size_t,SpaceType::NUL,0> NullRF;
     
     std::shared_ptr<NullRF> mkNUL(const char* dp, size_t size);
 	

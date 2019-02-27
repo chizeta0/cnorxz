@@ -100,7 +100,7 @@ namespace MultiArrayTools
 
         SubRangeFactory() = delete;
         SubRangeFactory(const std::shared_ptr<Range>& fullRange,
-                        const std::vector<size_t>& subset);
+                        const vector<size_t>& subset);
         std::shared_ptr<RangeBase> create();
     };
     
@@ -121,7 +121,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 	
 	bool isMeta(const MetaType& metaPos) const;
 	
@@ -132,7 +132,7 @@ namespace MultiArrayTools
 	virtual IndexType end() const final;
 
         std::shared_ptr<Range> fullRange() const;
-        const std::vector<size_t>& subset() const;
+        const vector<size_t>& subset() const;
         std::shared_ptr<SingleRange<MetaType,SpaceType::ANY>> outRange() const;
         
         friend SubRangeFactory<Range>;
@@ -147,10 +147,10 @@ namespace MultiArrayTools
         SubRange() = delete;
         SubRange(const SubRange& in) = delete;
 
-        SubRange(const std::shared_ptr<Range>& fullRange, const std::vector<size_t>& subset);
+        SubRange(const std::shared_ptr<Range>& fullRange, const vector<size_t>& subset);
         
         std::shared_ptr<Range> mFullRange;
-        std::vector<size_t> mSubSet;
+        vector<size_t> mSubSet;
     };
     
 } // namespace MultiArrayTools
@@ -350,7 +350,7 @@ namespace MultiArrayTools
 
     template <class Range>
     SubRangeFactory<Range>::SubRangeFactory(const std::shared_ptr<Range>& fullRange,
-                                            const std::vector<size_t>& subset)
+                                            const vector<size_t>& subset)
     {
         mProd = std::shared_ptr<oType>( new SubRange<Range>( fullRange, subset ) );
     }
@@ -368,7 +368,7 @@ namespace MultiArrayTools
 
     template <class Range>
     SubRange<Range>::SubRange(const std::shared_ptr<Range>& fullRange,
-                              const std::vector<size_t>& subset) :
+                              const vector<size_t>& subset) :
         RangeInterface<SubIndex<typename Range::IndexType>>(),
         mFullRange(fullRange), mSubSet(subset) {}
 
@@ -408,14 +408,14 @@ namespace MultiArrayTools
     }
 
     template <class Range>
-    std::vector<char> SubRange<Range>::data() const
+    vector<char> SubRange<Range>::data() const
     {
         DataHeader h = dataHeader();
-        std::vector<char> out;
+        vector<char> out;
         out.reserve(h.metaSize + sizeof(DataHeader));
         char* hcp = reinterpret_cast<char*>(&h);
         out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
-        std::vector<MetaType> subvec(mSubSet.size());
+        vector<MetaType> subvec(mSubSet.size());
         size_t i = 0;
         for(auto& x: mSubSet){
             subvec[i++] = mFullRange->get(x);
@@ -477,7 +477,7 @@ namespace MultiArrayTools
     }
 
     template <class Range>
-    const std::vector<size_t>& SubRange<Range>::subset() const
+    const vector<size_t>& SubRange<Range>::subset() const
     {
         return mSubSet;
     }
@@ -485,7 +485,7 @@ namespace MultiArrayTools
     template <class Range>
     std::shared_ptr<SingleRange<typename SubRange<Range>::MetaType,SpaceType::ANY>> SubRange<Range>::outRange() const
     {
-        std::vector<MetaType> ometa(mSubSet.size());
+        vector<MetaType> ometa(mSubSet.size());
         size_t i = 0;
         for(auto& x: mSubSet){
             ometa[i++] = mFullRange->get(x);

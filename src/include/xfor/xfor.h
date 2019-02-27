@@ -9,6 +9,7 @@
 #include "xfor/for_utils.h"
 #include "xfor/exttype.h"
 
+#include "allocator.h"
 #include <omp.h>
 
 #define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
@@ -16,7 +17,7 @@
 
 namespace MultiArrayHelper
 {
-
+    using namespace MultiArrayTools;
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
 
@@ -34,8 +35,8 @@ namespace MultiArrayHelper
 	ExpressionBase& operator=(const ExpressionBase& in) = default;
 	ExpressionBase& operator=(ExpressionBase&& in) = default;
 
-	virtual void operator()(size_t mlast, DExt last) const = 0;
-	virtual void operator()(size_t mlast = 0) const = 0;
+	virtual void operator()(size_t mlast, DExt last) = 0;
+	virtual void operator()(size_t mlast = 0) = 0;
 
         virtual DExt dRootSteps(std::intptr_t iPtrNum = 0) const = 0;
         virtual DExt dExtension() const = 0;
@@ -126,9 +127,9 @@ namespace MultiArrayHelper
 			 Expr expr);
 
 	
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const override final;
+	inline void operator()(size_t mlast, DExt last) override final;
+	inline void operator()(size_t mlast, ExtType last);
+	inline void operator()(size_t mlast = 0) override final;
 
         DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         DExt dExtension() const override final;
@@ -152,7 +153,7 @@ namespace MultiArrayHelper
 	typedef decltype(mkExt(0).extend(mExpr.rootSteps())) ExtType;
 	ExtType mExt;
 
-        const std::vector<size_t>* mSubSet;
+        const vector<size_t>* mSubSet;
         
         mutable ExtType mRootSteps;
 
@@ -169,15 +170,15 @@ namespace MultiArrayHelper
 	
 	SubExpr(const std::shared_ptr<IndexClass>& indPtr,
 		std::intptr_t siptr,
-                const std::vector<size_t>* subset, Expr expr);
+                const vector<size_t>* subset, Expr expr);
 
 	SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
-                const std::vector<size_t>* subset, Expr expr);
+                const vector<size_t>* subset, Expr expr);
 
 	
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const override final;
+	inline void operator()(size_t mlast, DExt last) override final;
+	inline void operator()(size_t mlast, ExtType last) ;
+	inline void operator()(size_t mlast = 0) override final;
 
         DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         DExt dExtension() const override final;
@@ -223,9 +224,9 @@ namespace MultiArrayHelper
 	For(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const override final;
+	inline void operator()(size_t mlast, DExt last) override final;
+	inline void operator()(size_t mlast, ExtType last) ;
+	inline void operator()(size_t mlast = 0) override final;
 
         PFor<IndexClass,Expr> parallel() const;
         
@@ -271,9 +272,9 @@ namespace MultiArrayHelper
 	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const override final;
+	inline void operator()(size_t mlast, DExt last) override final;
+	inline void operator()(size_t mlast, ExtType last) ;
+	inline void operator()(size_t mlast = 0) override final;
 
         DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         DExt dExtension() const override final;
@@ -310,8 +311,8 @@ namespace MultiArrayHelper
         template <class Expr>
         DynamicExpression(Expr ex) : mNext( std::make_shared<Expr>(ex) ) {}
         
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast = 0) const override final;
+	inline void operator()(size_t mlast, DExt last) override final;
+	inline void operator()(size_t mlast = 0) override final;
 
         inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         inline DExt dExtension() const override final;
@@ -344,9 +345,9 @@ namespace MultiArrayHelper
 
 	ExpressionHolder(DynamicExpression expr);
 	
-	inline void operator()(size_t mlast, DExt last) const override final;
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const override final;
+	inline void operator()(size_t mlast, DExt last) override final;
+	inline void operator()(size_t mlast, ExtType last) ;
+	inline void operator()(size_t mlast = 0) override final;
 
         DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         DExt dExtension() const override final;
@@ -390,14 +391,14 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr, ForType FT>
-    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast, DExt last) const
+    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast, DExt last)
     {
         operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
     template <class IndexClass, class Expr, ForType FT>
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast,
-						    ExtType last) const
+						    ExtType last)
     {
 	typedef typename IndexClass::RangeType RangeType;
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
@@ -410,7 +411,7 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr, ForType FT>
-    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast) const
+    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast)
     {
 	typedef typename IndexClass::RangeType RangeType;
 	const ExtType last;
@@ -483,14 +484,14 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr>
-    inline void PFor<IndexClass,Expr>::operator()(size_t mlast, DExt last) const
+    inline void PFor<IndexClass,Expr>::operator()(size_t mlast, DExt last)
     {
         operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
     template <class IndexClass, class Expr>
     inline void PFor<IndexClass,Expr>::operator()(size_t mlast,
-						    ExtType last) const
+						    ExtType last)
     {
         CHECK;
 	typedef typename IndexClass::RangeType RangeType;
@@ -510,7 +511,7 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr>
-    inline void PFor<IndexClass,Expr>::operator()(size_t mlast) const
+    inline void PFor<IndexClass,Expr>::operator()(size_t mlast)
     {
         CHECK;
 	typedef typename IndexClass::RangeType RangeType;
@@ -587,14 +588,14 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr>
-    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast, DExt last) const
+    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast, DExt last)
     {
         operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
 
     template <class IndexClass, class Expr>
     inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast,
-							      ExtType last) const
+							      ExtType last)
     {
 	//typedef typename IndexClass::RangeType RangeType;
 	const size_t pos = mIndPtr->pos();
@@ -604,7 +605,7 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr>
-    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast) const
+    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast)
     {
 	//typedef typename IndexClass::RangeType RangeType;
 	const ExtType last;
@@ -650,7 +651,7 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     SubExpr<IndexClass,Expr>::SubExpr(const std::shared_ptr<IndexClass>& indPtr,
 				      std::intptr_t siptr,
-                                      const std::vector<size_t>* subset, Expr expr) :
+                                      const vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr.get()), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr),
 	mExt( mkExt(0).extend( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )) ) ),
@@ -661,7 +662,7 @@ namespace MultiArrayHelper
 
     template <class IndexClass, class Expr>
     SubExpr<IndexClass,Expr>::SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
-                                      const std::vector<size_t>* subset, Expr expr) :
+                                      const vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr),
 	mExt( mkExt(0).extend( mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )) ) ),
@@ -671,14 +672,14 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr>
-    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast, DExt last) const
+    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast, DExt last)
     {
         operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
     template <class IndexClass, class Expr>
     inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast,
-                                                     ExtType last) const
+                                                     ExtType last)
     {
         const size_t pos = (*mSubSet)[last.val()];
         const size_t mnpos = mlast;
@@ -687,7 +688,7 @@ namespace MultiArrayHelper
     }
 
     template <class IndexClass, class Expr>
-    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast) const
+    inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast)
     {
 	const ExtType last;
         const size_t pos = (*mSubSet)[last.val()];
@@ -730,12 +731,12 @@ namespace MultiArrayHelper
      *   DynamicExpression   *
      ***************************/
 
-    inline void DynamicExpression::operator()(size_t mlast, DExt last) const
+    inline void DynamicExpression::operator()(size_t mlast, DExt last)
     {
 	(*mNext)(mlast,last);
     }
 
-    inline void DynamicExpression::operator()(size_t mlast) const
+    inline void DynamicExpression::operator()(size_t mlast)
     {
 	(*mNext)(mlast);
     }
@@ -758,13 +759,13 @@ namespace MultiArrayHelper
     ExpressionHolder<Expr>::ExpressionHolder(DynamicExpression expr) : mExpr(expr) {}
 
     template <class Expr>
-    inline void ExpressionHolder<Expr>::operator()(size_t mlast, DExt last) const
+    inline void ExpressionHolder<Expr>::operator()(size_t mlast, DExt last)
     {
 	mExpr(mlast,last);
     }
 
     template <class Expr>
-    inline void ExpressionHolder<Expr>::operator()(size_t mlast, ExtType last) const
+    inline void ExpressionHolder<Expr>::operator()(size_t mlast, ExtType last)
     {
 	mExpr(mlast,
               std::make_pair<size_t const*,size_t>
@@ -773,7 +774,7 @@ namespace MultiArrayHelper
     }
 
     template <class Expr>
-    inline void ExpressionHolder<Expr>::operator()(size_t mlast) const
+    inline void ExpressionHolder<Expr>::operator()(size_t mlast)
     {
 	mExpr(mlast);
     }

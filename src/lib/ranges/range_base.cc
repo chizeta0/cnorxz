@@ -15,7 +15,7 @@ namespace MultiArrayTools
     template <class... Ranges>
     using STP = std::tuple<std::shared_ptr<Ranges>...>;
 
-    typedef std::vector<std::shared_ptr<RangeBase> > RVEC;
+    typedef vector<std::shared_ptr<RangeBase> > RVEC;
 
     template <class... Ranges>
     inline bool compareSpaceTypes(const RVEC& rvec)
@@ -127,7 +127,7 @@ namespace MultiArrayTools
 		    assert(0);
 		}
 #define register_type(x) else if(x == h.metaType) {	\
-		    std::vector<TypeMap<x>::type> vd;\
+		    vector<TypeMap<x>::type> vd;\
 		    metaCat(vd, *dp, h.metaSize); \
 		    out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \
 							      SpaceType::ANY> >(vd); }

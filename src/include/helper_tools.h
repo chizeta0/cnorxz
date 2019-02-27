@@ -61,7 +61,7 @@ namespace MultiArrayTools
 	-> std::shared_ptr<typename RangeFactory::oType>;
 
     template <class Range>
-    auto createRange(const std::vector<char>& cvec)
+    auto createRange(const vector<char>& cvec)
 	-> std::shared_ptr<Range>;
 
     template <size_t N, class MArray>

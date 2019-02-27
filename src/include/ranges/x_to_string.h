@@ -27,7 +27,7 @@ namespace MultiArrayHelper
     inline std::string xToString<DynamicMetaT>(const DynamicMetaT& x);
     
     template <typename T>
-    inline std::string xToString(const std::vector<T>& x);
+    inline std::string xToString(const vector<T>& x);
 
     template <typename T, size_t N>
     inline std::string xToString(const std::array<T,N>& x);
@@ -90,7 +90,7 @@ namespace MultiArrayHelper
     }
     
     template <typename T>
-    inline std::string xToString(const std::vector<T>& x)
+    inline std::string xToString(const vector<T>& x)
     {
 	std::string out = "[";
 	for(auto& y: x){

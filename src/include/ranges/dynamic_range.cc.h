@@ -72,7 +72,7 @@ namespace MultiArrayTools
     }
 
     template <class EC>
-    DynamicRangeFactory<EC>::DynamicRangeFactory(const std::vector<std::shared_ptr<RangeBase>>& origs)
+    DynamicRangeFactory<EC>::DynamicRangeFactory(const vector<std::shared_ptr<RangeBase>>& origs)
     {
         mProd = std::shared_ptr<oType>( new DynamicRange<EC>( origs ) );
     }
@@ -99,10 +99,10 @@ namespace MultiArrayTools
 
     // INSTANCIATE IF NEEDED!!
     template <class EC>
-    std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > DynamicRangeFactory<EC>::mAleadyCreated;
+    std::map<std::shared_ptr<RangeBase>,vector<std::intptr_t> > DynamicRangeFactory<EC>::mAleadyCreated;
 
     template <class EC>
-    std::shared_ptr<RangeBase> DynamicRangeFactory<EC>::checkIfCreated(const std::vector<std::shared_ptr<RangeBase> >& pvec)
+    std::shared_ptr<RangeBase> DynamicRangeFactory<EC>::checkIfCreated(const vector<std::shared_ptr<RangeBase> >& pvec)
     {
 	std::shared_ptr<RangeBase> out;
 	bool check = false;
@@ -122,7 +122,7 @@ namespace MultiArrayTools
 	    }
 	}
 	if(not check){
-	    std::vector<std::intptr_t> app(pvec.size());
+	    vector<std::intptr_t> app(pvec.size());
 	    for(size_t i = 0; i != app.size(); ++i){
 		app[i] = reinterpret_cast<std::intptr_t>( pvec[i].get() );
 	    }
@@ -223,7 +223,7 @@ namespace MultiArrayTools
     }
 
     template <class EC>
-    DynamicIndex<EC>& DynamicIndex<EC>::operator()(const std::vector<std::shared_ptr<IndexW<EC>>>& ivec)
+    DynamicIndex<EC>& DynamicIndex<EC>::operator()(const vector<std::shared_ptr<IndexW<EC>>>& ivec)
     {
         assert(mIVec.size() == ivec.size());
 	for(size_t i = 0; i != mIVec.size(); ++i){
@@ -237,7 +237,7 @@ namespace MultiArrayTools
     template <class... Indices>
     DynamicIndex<EC>& DynamicIndex<EC>::operator()(const std::shared_ptr<Indices>&... is)
     {
-	std::vector<std::shared_ptr<IndexW<EC>>> tmp =
+	vector<std::shared_ptr<IndexW<EC>>> tmp =
 	    { std::make_shared<IndexWrapper<Indices,EC>>(is)... };
 	
 	assert(mIVec.size() == tmp.size());
@@ -489,10 +489,10 @@ namespace MultiArrayTools
     }
 
     template <class EC>
-    std::vector<char> DynamicRange<EC>::data() const
+    vector<char> DynamicRange<EC>::data() const
     {
 	DataHeader h = dataHeader();
-	std::vector<char> out;
+	vector<char> out;
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	for(auto& x: mOrig){
@@ -571,7 +571,7 @@ namespace MultiArrayTools
     }
 
     template <class EC>
-    DynamicRange<EC>::DynamicRange(const std::vector<std::shared_ptr<RangeBase>>& origs) :
+    DynamicRange<EC>::DynamicRange(const vector<std::shared_ptr<RangeBase>>& origs) :
         RangeInterface<DynamicIndex<EC>>(),
         mOrig(origs)
     {
@@ -602,7 +602,7 @@ namespace MultiArrayTools
     }
 
     template <class EC>
-    const std::vector<std::shared_ptr<RangeBase> >& DynamicRange<EC>::orig() const
+    const vector<std::shared_ptr<RangeBase> >& DynamicRange<EC>::orig() const
     {
         return mOrig;
     }

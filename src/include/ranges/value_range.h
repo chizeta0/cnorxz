@@ -112,7 +112,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 
         U get(size_t pos) const;
         
@@ -361,11 +361,11 @@ namespace MultiArrayTools
     }
     
     template <typename U>
-    std::vector<char> ValueRange<U>::data() const
+    vector<char> ValueRange<U>::data() const
     {
 	assert(0);
 	DataHeader h = dataHeader();
-	std::vector<char> out;
+	vector<char> out;
 	out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));

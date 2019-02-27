@@ -71,7 +71,7 @@ namespace MultiArrayHelper
 	}
 
 	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
-	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, const Args&... args)
+	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
@@ -116,7 +116,7 @@ namespace MultiArrayHelper
 	}
 
 	template <size_t LAST,class OpTuple, class ETuple>
-	static inline void setOpPos(const OpTuple& ot, const ETuple& et)
+	static inline void setOpPos(OpTuple& ot, const ETuple& et)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<N>(ot))>::type NextOpType;
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
@@ -203,7 +203,7 @@ namespace MultiArrayHelper
 	}
 
 	template <size_t LAST,class OpTuple, class ETuple>
-	static inline void setOpPos(const OpTuple& ot, const ETuple& et)
+	static inline void setOpPos(OpTuple& ot, const ETuple& et)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<0>(et))>::type NextOpType;
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");

@@ -201,7 +201,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 	
 	const Space& space() const;
 	
@@ -519,7 +519,7 @@ namespace MultiArrayTools
 	    }
 	}
 	if(not check){
-	    std::vector<std::intptr_t> pv(sizeof...(Ranges));
+	    vector<std::intptr_t> pv(sizeof...(Ranges));
 	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
 	    MultiRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
 	    out = mProd;
@@ -590,10 +590,10 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    std::vector<char> MultiRange<Ranges...>::data() const
+    vector<char> MultiRange<Ranges...>::data() const
     {
 	DataHeader h = dataHeader();
-	std::vector<char> out;
+	vector<char> out;
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));

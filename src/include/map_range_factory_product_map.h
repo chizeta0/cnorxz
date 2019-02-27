@@ -18,7 +18,7 @@ namespace MultiArrayTools
 	friend class GenMapRangeFactory;
 	
     private:
-	static std::map<std::shared_ptr<RangeBase>,std::vector<std::intptr_t> > mAleadyCreated;
+	static std::map<std::shared_ptr<RangeBase>,vector<std::intptr_t> > mAleadyCreated;
     };
     
 }

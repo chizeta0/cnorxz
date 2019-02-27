@@ -15,7 +15,7 @@ namespace {
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }
@@ -50,7 +50,7 @@ namespace {
 
 	std::shared_ptr<RangeFactoryBase> rfbptr;
 	std::shared_ptr<SRange> srptr;
-	std::vector<double> vv = { 3.141, 2.718, 1.618, 0.693, 0.577 };
+	vector<double> vv = { 3.141, 2.718, 1.618, 0.693, 0.577 };
     };
 
     
@@ -91,7 +91,7 @@ namespace {
 	std::shared_ptr<SRange> sr3ptr;
 	std::shared_ptr<SRange> sr4ptr;
 	std::shared_ptr<MRange> mrptr;
-	std::vector<double> vv = { 2.917, 9.436, 0.373, 7.192, 7.315, 1.536, 4.892, 0.280,
+	vector<double> vv = { 2.917, 9.436, 0.373, 7.192, 7.315, 1.536, 4.892, 0.280,
 				   8.870, 4.790, 8.215, 5.063, 1.530, 3.084, 1.609, 4.847,
 				   8.175, 0.112, 6.712, 6.408, 1.959, 0.331, 4.209, 2.951 };
     };
@@ -114,7 +114,7 @@ namespace {
     
     TEST_F(MATest_1Dim, ForLoop)
     {
-	std::vector<double> v2 = { 0.693 , 2.718, 3.141, 1.618, 9.98 };
+	vector<double> v2 = { 0.693 , 2.718, 3.141, 1.618, 9.98 };
 	MultiArray<double,MATest_1Dim::SRange> ma(srptr, std::move( v2 ) );
 	size_t cnt = 0;
 	for(auto el: ma){

@@ -66,8 +66,8 @@ namespace MultiArrayTools
 	
 	OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
 
-	inline void operator()(size_t mlast, ExtType last) const;
-	inline void operator()(size_t mlast = 0) const;
+	inline void operator()(size_t mlast, ExtType last);
+	inline void operator()(size_t mlast = 0);
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
@@ -259,7 +259,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
         
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 	
 	const Space& space() const;
 	

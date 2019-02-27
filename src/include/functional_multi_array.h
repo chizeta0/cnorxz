@@ -15,7 +15,7 @@ namespace MultiArrayTools
 	static auto mk(const std::shared_ptr<Index>& i)
 	    -> MultiArray<typename Index::MetaType, typename Index::RangeType>
 	{
-	    std::vector<typename Index::MetaType> vv(i->range()->size());
+	    vector<typename Index::MetaType> vv(i->range()->size());
 	    for(Index j = (*i); j.pos() != j.max(); ++j){
 		vv[j.pos()] = j.meta();
 	    }	    

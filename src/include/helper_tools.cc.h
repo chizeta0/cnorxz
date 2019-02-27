@@ -109,7 +109,7 @@ namespace MultiArrayTools
     }
 
     template <class Range>
-    auto createRange(const std::vector<char>& cvec)
+    auto createRange(const vector<char>& cvec)
 	-> std::shared_ptr<Range>
     {
 	const char* dp = cvec.data();

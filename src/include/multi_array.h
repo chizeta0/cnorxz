@@ -24,7 +24,6 @@ namespace MultiArrayTools
 	    return ma;
 	}
     };
-
     
     template <typename T, class... SRanges>
     class MultiArray : public MutableMultiArrayBase<T,SRanges...>
@@ -41,15 +40,15 @@ namespace MultiArrayTools
 	DEFAULT_MEMBERS(MultiArray);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val);
-	MultiArray(const std::shared_ptr<SRanges>&... ranges, const std::vector<T>& vec);
-	MultiArray(const std::shared_ptr<SRanges>&... ranges, std::vector<T>&& vec);
+	MultiArray(const std::shared_ptr<SRanges>&... ranges, const vector<T>& vec);
+	MultiArray(const std::shared_ptr<SRanges>&... ranges, vector<T>&& vec);
 	MultiArray(const typename CRange::Space& space);
-	MultiArray(const typename CRange::Space& space, std::vector<T>&& vec);
+	MultiArray(const typename CRange::Space& space, vector<T>&& vec);
 	MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes);
 	
 	// Only if ALL ranges have default extensions:
-	//MultiArray(const std::vector<T>& vec);
-	//MultiArray(std::vector<T>&& vec);
+	//MultiArray(const vector<T>& vec);
+	//MultiArray(vector<T>&& vec);
 	
 	// template <class Range2, class Range3>
 	// MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in);
@@ -76,8 +75,8 @@ namespace MultiArrayTools
 	
 	virtual const T* data() const override;
 	virtual T* data() override;
-	virtual std::vector<T>& vdata() { return mCont; }
-	virtual const std::vector<T>& vdata() const { return mCont; }
+	virtual vector<T>& vdata() { return mCont; }
+	virtual const vector<T>& vdata() const { return mCont; }
 
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
@@ -99,7 +98,7 @@ namespace MultiArrayTools
 	
     private:
 	
-	std::vector<T> mCont;
+	vector<T> mCont;
     };
 
     template <typename T>
@@ -119,7 +118,7 @@ namespace MultiArrayTools
 	    const size_t smas = sma.size();
 	    const size_t mas = ma.size();
 	    auto cr = ma.range()->cat(sma.range());
-	    std::vector<T> ov;
+	    vector<T> ov;
 	    ov.reserve(mas * smas);
 
 	    for(auto& x: ma){

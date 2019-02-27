@@ -5,9 +5,11 @@
 #include <cassert>
 
 #include "multi_array_header.h"
+#include "conversions.h"
 
 #include <ctime>
 #include <cmath>
+#include <chrono>
 
 #define ONLY_SPIN
 
@@ -32,15 +34,15 @@ namespace {
     template <class Factory, typename T>
     void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::initializer_list<T> ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }
 
     template <class Factory, typename T>
-    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, std::vector<T>& ilist)
+    void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr, vector<T>& ilist)
     {
-	std::vector<T> tmp = ilist;
+	vector<T> tmp = ilist;
 	auto nptr = std::make_shared<Factory>( tmp );
 	fptr = nptr;
     }
@@ -78,14 +80,14 @@ namespace {
 	OpTest_Performance()
 	{
 	
-	    std::vector<size_t> initvec1(vs1);
-	    cv1.resize(vs1);
+	    vector<size_t> initvec1(vs1);
+ 	    cv1.resize(vs1);
 	    for(size_t i = 0; i != vs1; ++i){
 		initvec1[i] = i;
 		cv1[i] = sqrt( static_cast<double>(i)*0.53 );
 	    }
 
-	    std::vector<size_t> initvec2(vs2);
+	    vector<size_t> initvec2(vs2);
 	    cv2.resize(vs2*vs1);
 	    for(size_t i = 0; i != vs2; ++i){
 		initvec2[i] = i;
@@ -112,14 +114,14 @@ namespace {
 	//const size_t vs2 = 1000;
 	const size_t vs1 = 4000;
 	const size_t vs2 = 2500;
-
+ 
 	std::shared_ptr<RangeFactoryBase> rfbptr;
 	std::shared_ptr<SRange> sr1ptr;
 	std::shared_ptr<SRange> sr2ptr;
 	std::shared_ptr<MRange> mrptr;
 
-	std::vector<double> cv1;
-	std::vector<double> cv2;
+	vector<double> cv1;
+	vector<double> cv2;
     };
 #endif
     class OpTest_Spin
@@ -132,15 +134,16 @@ namespace {
 	typedef SpinRF SRF;
 	typedef SpinRange SR;
 	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
-	typedef SR8F::oType SR8;
-
-        static const size_t os = 3000;
-	static const size_t s = 65536*os;
+ 	typedef SR8F::oType SR8;
+ 
+          static const size_t os = 3000;
+          static const size_t is = 65536;
+          static const size_t s = is*os;
 	
 	OpTest_Spin()
 	{
-	    data.resize(s);
-	    for(size_t i = 0; i != s; ++i){
+	    data.resize(is);
+	    for(size_t i = 0; i != is; ++i){
 		double arg = static_cast<double>( i - s ) - 0.1; 
 		data[i] = sin(arg);
 		//VCHECK(data[i]);
@@ -151,18 +154,18 @@ namespace {
             cr = std::dynamic_pointer_cast<CR>(cf.create());
 	}
 
-	void contract();
+     	void contract();
 	
     private:
 	
-	std::vector<double> data;
+	vector<double> data;
 	std::shared_ptr<SR> sr;
         std::shared_ptr<CR> cr;
     };
 
     void OpTest_Spin::contract()
     {
-	MultiArray<double,CR,SR,SR,SR,SR,SR,SR,SR,SR> ma( cr, sr, sr, sr, sr, sr, sr, sr, sr, data);
+	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma( sr, sr, sr, sr, sr, sr, sr, sr, data);
 	MultiArray<double,CR,SR,SR> res1( cr, sr, sr );
 
         auto ii = MAT::getIndex<CR>(cr);
@@ -171,36 +174,35 @@ namespace {
 	auto beta = MAT::getIndex<SR>();
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
-	auto deltap = MAT::getIndex<SR>();
+	//auto deltap = MAT::getIndex<SR>();
+	auto deltap = MAT::getIndex<GenSingleRange<size_t,SpaceType::NONE,1>>();
 	
-	auto mix = MAT::mkMIndex( alpha, beta, gamma, jj );
+	auto mix = MAT::mkMIndex( jj, alpha, beta, gamma );
 
-	std::clock_t begin = std::clock();
-	//for(size_t i = 0; i != os; ++i){
-        res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
-            //}
-	std::clock_t end = std::clock();
-	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
-		  << std::endl;
-	
-	std::vector<double> vres(4*4*os);
+        
+	vector<double> vres(4*4*os);
 	for(size_t d = 0; d != 4; ++d){
 	    for(size_t p = 0; p != 4; ++p){
 		const size_t tidx = d*4 + p;
 		vres[tidx] = 0.;
 	    }
-	}
-	std::clock_t begin2 = std::clock();
-        for(size_t j = 0; j != os; ++j) {
-            for(size_t i = 0; i != os; ++i){
-                for(size_t a = 0; a != 4; ++a){
-                    for(size_t b = 0; b != 4; ++b){
-                        for(size_t c = 0; c != 4; ++c){
-                            for(size_t d = 0; d != 4; ++d){
-                                for(size_t p = 0; p != 4; ++p){
-                                    const size_t tidx = i*4*4 + d*4 + p;
-                                    const size_t sidx = i*65536 + d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4 + p;
-                                    vres[tidx] += data[sidx];
+	}                  
+        auto begin2 = std::chrono::system_clock::now();
+	double* vrptr = vres.data();
+	double* dptr = data.data();
+        for(size_t i = 0; i != os; ++i){
+            for(size_t d = 0; d != 4; ++d){
+                for(size_t j = 0; j != os; ++j) {
+                    for(size_t a = 0; a != 4; ++a){
+                        for(size_t b = 0; b != 4; ++b){
+                            for(size_t c = 0; c != 4; ++c){
+				const size_t tidx = i*4*4 + d*4;
+				const size_t sidx = /*i*65536 +*/ d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4;
+				double* xvrptr = vrptr + tidx;
+				double* xdptr = dptr + sidx;
+#pragma omp simd aligned(xvrptr, xdptr: 32)
+                                for(int p = 0; p < 4; p++){
+                                    xvrptr[p] += xdptr[p];
                                 }
                             }
                         }
@@ -208,8 +210,20 @@ namespace {
                 }
             }
 	}
-	std::clock_t end2 = std::clock();
+        auto end2 = std::chrono::system_clock::now();
+	std::cout << "vector - for loop time: " << std::chrono::duration<double>(end2-begin2).count()
+		  << std::endl;
 
+        
+        auto begin = std::chrono::system_clock::now();
+	//for(size_t i = 0; i != os; ++i){
+        //res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        tcast<v256>(res1)(ii ,delta, deltap).par() += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	//}
+        auto end = std::chrono::system_clock::now();
+	std::cout << "MultiArray time: " << std::chrono::duration<double>(end-begin).count()
+		  << std::endl;
+	
 	assert( xround(res1.at(mkts(0,0,0))) == xround(vres[0]) );
 	assert( xround(res1.at(mkts(0,0,1))) == xround(vres[1]) );
 	assert( xround(res1.at(mkts(0,0,2))) == xround(vres[2]) );
@@ -230,9 +244,9 @@ namespace {
 	assert( xround(res1.at(mkts(0,3,2))) == xround(vres[14]) );
 	assert( xround(res1.at(mkts(0,3,3))) == xround(vres[15]) );
 
-	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
-		  << std::endl;
-	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
+	std::cout << "ratio: "
+                  << std::chrono::duration<double>(end-begin).count() / std::chrono::duration<double>(end2-begin2).count()
+                  << std::endl;
     }    
 #ifndef ONLY_SPIN    
     void OpTest_Performance::PCheck()
@@ -254,7 +268,7 @@ namespace {
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 
-	std::vector<double> res2(vs1*vs2);
+	vector<double> res2(vs1*vs2);
 	std::clock_t begin2 = std::clock();
 	
 	for(size_t i = 0; i != vs2; ++i){
@@ -264,7 +278,7 @@ namespace {
 	}
 
 	std::clock_t end2 = std::clock();
-	std::cout << "std::vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
+	std::cout << "vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
 		  << std::endl;
 
 	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;

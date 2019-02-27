@@ -12,35 +12,35 @@ include_range_type(SPIN,2)
 
 namespace MultiArrayTools
 {
-    typedef SingleIndex<size_t,SpaceType::SPIN> SpinIndex;
+    typedef GenSingleIndex<size_t,SpaceType::SPIN,4> SpinIndex;
 
     template <>
-    class SingleRangeFactory<size_t,SpaceType::SPIN> : public RangeFactoryBase
+    class GenSingleRangeFactory<size_t,SpaceType::SPIN,4> : public RangeFactoryBase
     {
     public:
 	
-	typedef SingleRange<size_t,SpaceType::SPIN> oType;
+	typedef GenSingleRange<size_t,SpaceType::SPIN,4> oType;
 
-	SingleRangeFactory();
+	GenSingleRangeFactory();
 	std::shared_ptr<RangeBase> create();
 	
     };
 
     template <>
-    class SingleRange<size_t,SpaceType::SPIN> : public RangeInterface<SpinIndex>
+    class GenSingleRange<size_t,SpaceType::SPIN,4> : public RangeInterface<SpinIndex>
     {
     public:
 	typedef RangeBase RB;
-	typedef typename RangeInterface<SingleIndex<size_t,SpaceType::SPIN> >::IndexType IndexType;
-	typedef SingleRange<size_t,SpaceType::SPIN> RangeType;
+	typedef typename RangeInterface<GenSingleIndex<size_t,SpaceType::SPIN,4> >::IndexType IndexType;
+	typedef GenSingleRange<size_t,SpaceType::SPIN,4> RangeType;
 	typedef size_t MetaType;
-        typedef SingleRangeFactory<size_t,SpaceType::SPIN> FType; 
+        typedef GenSingleRangeFactory<size_t,SpaceType::SPIN,4> FType; 
         
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
 
 	virtual std::string stringMeta(size_t pos) const final;
-	virtual std::vector<char> data() const final;
+	virtual vector<char> data() const final;
 
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
@@ -52,7 +52,7 @@ namespace MultiArrayTools
 	virtual IndexType end() const final;
 	//virtual std::shared_ptr<VIWB> index() const final;
 	
-	friend SingleRangeFactory<size_t,SpaceType::SPIN>;
+	friend GenSingleRangeFactory<size_t,SpaceType::SPIN,4>;
 
 	static constexpr bool defaultable = true;
 	static constexpr size_t mSpinNum = 4;
@@ -61,19 +61,19 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = mSpinNum;
 	static constexpr bool HASMETACONT = false;
 	
-	static SingleRangeFactory<size_t, SpaceType::SPIN> factory()
-	{ return SingleRangeFactory<size_t, SpaceType::SPIN>(); }
+	static GenSingleRangeFactory<size_t,SpaceType::SPIN,4> factory()
+	{ return GenSingleRangeFactory<size_t,SpaceType::SPIN,4>(); }
 	
     protected:
 
-	SingleRange() = default;
-	SingleRange(const SingleRange& in) = delete;
+	GenSingleRange() = default;
+	GenSingleRange(const GenSingleRange& in) = delete;
 
-	//SingleRange(size_t spinNum);
+	//GenSingleRange(size_t spinNum);
     };
 
-    typedef SingleRange<size_t,SpaceType::SPIN> SpinRange;
-    typedef SingleRangeFactory<size_t,SpaceType::SPIN> SpinRF;
+    typedef GenSingleRange<size_t,SpaceType::SPIN,4> SpinRange;
+    typedef GenSingleRangeFactory<size_t,SpaceType::SPIN,4> SpinRF;
 
     std::shared_ptr<SpinRF> mkSPIN(const char* dp, size_t size);
 }

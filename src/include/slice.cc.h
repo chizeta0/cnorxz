@@ -115,7 +115,16 @@ namespace MultiArrayTools
     Slice<T,SRanges...>::Slice(const std::shared_ptr<SRanges>&... ranges, T* data) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
 	mData(data) {}
-    
+
+    template <typename T, class... SRanges>
+    Slice<T,SRanges...>::Slice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
+			       T* data) :
+	MutableMultiArrayBase<T,SRanges...>(ranges),
+	mData(data)
+    {
+	MAB::mInit = true;
+    }
+
     template <typename T, class... SRanges>
     const T& Slice<T,SRanges...>::operator[](const IType& i) const
     {

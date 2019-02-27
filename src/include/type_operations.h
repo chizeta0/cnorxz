@@ -70,24 +70,77 @@ namespace MultiArrayTools
 
 	getter(size_t i) : mPos(i) {}
 
-	inline T operator()(const std::vector<T>& in)
+	inline T operator()(const vector<T>& in)
 	{
 	    return in[mPos];
 	}
     };
 
     template <typename T>
-    std::vector<T>& operator+=(std::vector<T>& a, const std::vector<T>& b)
+    vector<T>& operator+=(vector<T>& a, const vector<T>& b)
     {
 	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<T>());
 	return a;
     }
-    
+
+    template <typename T>
+    vector<T>& operator-=(vector<T>& a, const vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::minus<T>());
+	return a;
+    }
+
+    template <typename T>
+    vector<T>& operator*=(vector<T>& a, const vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::multiplies<T>());
+	return a;
+    }
+
+    template <typename T>
+    vector<T>& operator/=(vector<T>& a, const vector<T>& b)
+    {
+	std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::divides<T>());
+	return a;
+    }
+
+    template <typename T>
+    vector<T> operator+(vector<T>& a, const vector<T>& b)
+    {
+	vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::plus<T>());
+	return out;
+    }
+
+    template <typename T>
+    vector<T> operator-(vector<T>& a, const vector<T>& b)
+    {
+	vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::minus<T>());
+	return out;
+    }
+
+    template <typename T>
+    vector<T> operator*(vector<T>& a, const vector<T>& b)
+    {
+	vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::multiplies<T>());
+	return out;
+    }
+
+    template <typename T>
+    vector<T> operator/(vector<T>& a, const vector<T>& b)
+    {
+	vector<T> out(a.size());
+	std::transform(a.begin(), a.end(), b.begin(), out.begin(), std::divides<T>());
+	return out;
+    }
+
     template <class OperationClass, typename T>
-    class OperationTemplate<std::vector<T>,OperationClass> : public OperationBase<std::vector<T>,OperationClass>
+    class OperationTemplate<vector<T>,OperationClass> : public OperationBase<vector<T>,OperationClass>
     {
     public:
-	typedef OperationBase<std::vector<T>,OperationClass> OB;
+	typedef OperationBase<vector<T>,OperationClass> OB;
 
 	auto operator[](size_t i)
 	    -> Operation<T,getter<T>,OperationClass>
@@ -101,28 +154,74 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-    inline std::array<int,2>& operator+=(std::array<int,2>& a, const std::array<int,2>& b)
+    struct v256
     {
-	std::get<0>(a) += std::get<0>(b);
-	std::get<1>(a) += std::get<1>(b);
-	return a;
+        alignas(32) double _x[4];
+    };
+
+    template <int N>
+    inline void xadd(double* o, const double* a, const double* b)
+    {
+#pragma omp simd aligned(o, a, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] + b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xsadd(double* o, const double* a)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] += a[i];
+	}  
+    }
+
+    inline v256 operator+(const v256& a, const v256& b)
+    {
+	v256 o;
+	xadd<4>( o._x, a._x, b._x );
+	return o;
+    }
+
+    inline v256& operator+=(v256& o, const v256& a)
+    {
+	//xsadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a) );
+        xsadd<4>( o._x, a._x );
+	return o;
+    }
+/*
+    inline v256 operator-(const v256& a, const v256& b)
+    {
+        	v256 out;
+#pragma omp simd aligned(outp, ap, bp: 32)
+	for(int i = 0; i < IN; ++i){
+	    outp[i] = ap[i] - bp[i];
+	}
+	return out;
+    }
+
+    inline v256 operator*(const v256& a, const v256& b)
+    {
+	v256 out;
+#pragma omp simd aligned(outp, ap, bp: 32)
+	for(int i = 0; i < IN; ++i){
+	    outp[i] = ap[i] * bp[i];
+	}
+	return out;
     }
     
-    inline std::array<int,3>& operator+=(std::array<int,3>& a, const std::array<int,3>& b)
+    inline v256 operator/(const v256& a, const v256& b)
     {
-	std::get<0>(a) += std::get<0>(b);
-	std::get<1>(a) += std::get<1>(b);
-	std::get<2>(a) += std::get<2>(b);
-	return a;
+	v256 out;
+#pragma omp simd aligned(outp, ap, bp: 32)
+	for(int i = 0; i < IN; ++i){
+	    outp[i] = ap[i] / bp[i];
+	}
+	return out;
     }
+    */
     
-    inline std::tuple<int,int,int>& operator+=(std::tuple<int,int,int>& a, const std::tuple<int,int,int>& b)
-    {
-	std::get<0>(a) += std::get<0>(b);
-	std::get<1>(a) += std::get<1>(b);
-	std::get<2>(a) += std::get<2>(b);
-	return a;
-    }
 
 } // namespace MultiArrayTools
 
