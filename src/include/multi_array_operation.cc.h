@@ -283,7 +283,7 @@ namespace MultiArrayTools
     const T* ConstOperationRoot<T,Ranges...>::data() const
     {
         auto i = mIndex;
-	return mDataPtr + i().pos();
+	return mOrigDataPtr + i().pos();
     }
     
     template <typename T, class... Ranges>
@@ -416,7 +416,7 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     //OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	typename OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>::AssignmentExpr ae(mDataPtr, in);
+	typename OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>::AssignmentExpr ae(mOrigDataPtr, in);
         // Expression to be executed within loop
         if(mDoParallel){
             auto ploop = mIndex.pifor( 1, in.loop(ae) );
@@ -435,7 +435,7 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     //OperationMaster<T,plus<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-        typename OperationMaster<T,plus<T>,OpClass,Ranges...>::AddExpr ae(mDataPtr, in);
+        typename OperationMaster<T,plus<T>,OpClass,Ranges...>::AddExpr ae(mOrigDataPtr, in);
         // Expression to be executed within loop
         if(mDoParallel){
             auto ploop = mIndex.pifor( 1, in.loop(ae) );
@@ -498,7 +498,7 @@ namespace MultiArrayTools
     T* OperationRoot<T,Ranges...>::data() const
     {
         auto i = mIndex;
-	return mDataPtr + i().pos();
+	return mOrigDataPtr + i().pos();
     }
 
     template <typename T, class... Ranges>
