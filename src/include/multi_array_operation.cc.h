@@ -234,6 +234,7 @@ namespace MultiArrayTools
     {
 	//VCHECK(ma.data());
 	mIndex(indices...);
+        mDataPtr = mOrigDataPtr + mIndex.pos();
 	//mOff = mIndex.pos();
     }
 
@@ -247,6 +248,7 @@ namespace MultiArrayTools
 	mMaPtr(maptr)
     {
 	mIndex(indices...);
+        mDataPtr = mOrigDataPtr + mIndex.pos();
 	//mOff = mIndex.pos();
     }
 
@@ -257,6 +259,7 @@ namespace MultiArrayTools
         mOrigDataPtr(data),
 	mIndex( ind )
     {
+        mDataPtr = mOrigDataPtr + mIndex.pos();
 	//mOff = mIndex.pos();
     }
 
@@ -279,7 +282,8 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const T* ConstOperationRoot<T,Ranges...>::data() const
     {
-	return mDataPtr + mIndex().pos();
+        auto i = mIndex;
+	return mDataPtr + i().pos();
     }
     
     template <typename T, class... Ranges>
@@ -392,6 +396,7 @@ namespace MultiArrayTools
 	mIndex( ma.begin() )
     {
 	mIndex(indices...);
+        mDataPtr = mOrigDataPtr + mIndex.pos();
 	//mOff = mIndex.pos();
     }
 
@@ -402,6 +407,7 @@ namespace MultiArrayTools
         mOrigDataPtr(data),
 	mIndex( ind )
     {
+        mDataPtr = mOrigDataPtr + mIndex.pos();
 	//mOff = mIndex.pos();
     }
 
