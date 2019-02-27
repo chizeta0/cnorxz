@@ -9,6 +9,7 @@
 
 #include <ctime>
 #include <cmath>
+#include <chrono>
 
 #define ONLY_SPIN
 
@@ -135,7 +136,7 @@ namespace {
 	typedef MultiRangeFactory<SR,SR,SR,SR,SR,SR,SR,SR> SR8F;
  	typedef SR8F::oType SR8;
  
-          static const size_t os = 300;
+          static const size_t os = 3000;
           static const size_t is = 65536;
           static const size_t s = is*os;
 	
@@ -176,17 +177,9 @@ namespace {
 	//auto deltap = MAT::getIndex<SR>();
 	auto deltap = MAT::getIndex<GenSingleRange<size_t,SpaceType::NONE,1>>();
 	
-	auto mix = MAT::mkMIndex( alpha, beta, gamma, jj );
+	auto mix = MAT::mkMIndex( jj, alpha, beta, gamma );
 
-	std::clock_t begin = std::clock();
-	//for(size_t i = 0; i != os; ++i){
-        //res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
-        tcast<v256>(res1)(ii ,delta, deltap) += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
-	//}
-	std::clock_t end = std::clock();
-	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
-		  << std::endl;
-	
+        
 	vector<double> vres(4*4*os);
 	for(size_t d = 0; d != 4; ++d){
 	    for(size_t p = 0; p != 4; ++p){
@@ -194,16 +187,15 @@ namespace {
 		vres[tidx] = 0.;
 	    }
 	}                  
-	std::clock_t begin2 = std::clock();
+        auto begin2 = std::chrono::system_clock::now();
 	double* vrptr = vres.data();
 	double* dptr = data.data();
-	
-        for(size_t j = 0; j != os; ++j) {
-            for(size_t i = 0; i != os; ++i){
-                for(size_t a = 0; a != 4; ++a){
-                    for(size_t b = 0; b != 4; ++b){
-                        for(size_t c = 0; c != 4; ++c){
-                            for(size_t d = 0; d != 4; ++d){
+        for(size_t i = 0; i != os; ++i){
+            for(size_t d = 0; d != 4; ++d){
+                for(size_t j = 0; j != os; ++j) {
+                    for(size_t a = 0; a != 4; ++a){
+                        for(size_t b = 0; b != 4; ++b){
+                            for(size_t c = 0; c != 4; ++c){
 				const size_t tidx = i*4*4 + d*4;
 				const size_t sidx = /*i*65536 +*/ d*4*4*4*4*4*4*4 + a*5*4*4*4*4*4 + b*5*4*4*4 + c*5*4;
 				double* xvrptr = vrptr + tidx;
@@ -218,8 +210,20 @@ namespace {
                 }
             }
 	}
-	std::clock_t end2 = std::clock();
+        auto end2 = std::chrono::system_clock::now();
+	std::cout << "vector - for loop time: " << std::chrono::duration<double>(end2-begin2).count()
+		  << std::endl;
 
+        
+        auto begin = std::chrono::system_clock::now();
+	//for(size_t i = 0; i != os; ++i){
+        //res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        tcast<v256>(res1)(ii ,delta, deltap).par() += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	//}
+        auto end = std::chrono::system_clock::now();
+	std::cout << "MultiArray time: " << std::chrono::duration<double>(end-begin).count()
+		  << std::endl;
+	
 	assert( xround(res1.at(mkts(0,0,0))) == xround(vres[0]) );
 	assert( xround(res1.at(mkts(0,0,1))) == xround(vres[1]) );
 	assert( xround(res1.at(mkts(0,0,2))) == xround(vres[2]) );
@@ -240,9 +244,9 @@ namespace {
 	assert( xround(res1.at(mkts(0,3,2))) == xround(vres[14]) );
 	assert( xround(res1.at(mkts(0,3,3))) == xround(vres[15]) );
 
-	std::cout << "vector - for loop time: " << static_cast<double>( end2 - begin2 ) / CLOCKS_PER_SEC
-		  << std::endl;
-	std::cout << "ratio: " << static_cast<double>( end - begin ) / static_cast<double>( end2 - begin2 ) << std::endl;
+	std::cout << "ratio: "
+                  << std::chrono::duration<double>(end-begin).count() / std::chrono::duration<double>(end2-begin2).count()
+                  << std::endl;
     }    
 #ifndef ONLY_SPIN    
     void OpTest_Performance::PCheck()
