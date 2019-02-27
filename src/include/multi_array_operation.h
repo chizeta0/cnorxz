@@ -197,6 +197,7 @@ namespace MultiArrayTools
 	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
 	static constexpr size_t SIZE = 1;
+        static constexpr bool CONT = true;
 	
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -207,7 +208,7 @@ namespace MultiArrayTools
 	ConstOperationRoot(const T* data, const IndexType& ind);
 
 	template <class ET>
-	inline T get(ET pos) const;
+	inline const T& get(ET pos) const;
 
 	template <class ET>
 	inline ConstOperationRoot& set(ET pos);
@@ -243,6 +244,7 @@ namespace MultiArrayTools
 	typedef typename Op::IndexType IndexType;
 
 	static constexpr size_t SIZE = Op::SIZE;
+        static constexpr bool CONT = false;
 	
 	StaticCast(const Op& op);
 
@@ -277,7 +279,8 @@ namespace MultiArrayTools
 	typedef OperationBase<value_type,MetaOperationRoot<Range> > OT;
 	
 	static constexpr size_t SIZE = 1;
-	
+        static constexpr bool CONT = false;
+        
 	MetaOperationRoot(const std::shared_ptr<IndexType>& ind);
 
 	template <class ET>
@@ -310,6 +313,7 @@ namespace MultiArrayTools
 	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
 	static constexpr size_t SIZE = 1;
+        static constexpr bool CONT = true;
 	
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -336,7 +340,7 @@ namespace MultiArrayTools
         OperationRoot& par();
         
 	template <class ET>
-	inline T get(ET pos) const;
+	inline T& get(ET pos) const;
 
 	template <class ET>
 	inline OperationRoot& set(ET pos);
@@ -372,11 +376,12 @@ namespace MultiArrayTools
 	typedef ContainerIndex<T,NullIndex> IndexType;
 
 	static constexpr size_t SIZE = 1;
+        static constexpr bool CONT = true;
 
 	OperationValue(const T& val);
 
 	template <class ET>
-	inline T get(ET pos) const;
+	inline const T& get(ET pos) const;
 
 	template <class ET>
 	inline OperationValue& set(ET pos);
@@ -441,6 +446,7 @@ namespace MultiArrayTools
 	
 	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
 	static constexpr bool FISSTATIC = OpFunction::FISSTATIC;
+        static constexpr bool CONT = false;
 
     private:
 	std::tuple<Ops...> mOps;
@@ -500,7 +506,6 @@ namespace MultiArrayTools
 	return OpMaker<OpFunction::FISSTATIC>::mkOperation(f, ops...);
     }
 
-
     
     template <typename T, class Op, class IndexType>
     class Contraction : public OperationTemplate<T,Contraction<T,Op,IndexType> >
@@ -511,7 +516,8 @@ namespace MultiArrayTools
 	typedef OperationBase<T,Contraction<T,Op,IndexType> > OT;
 
 	static constexpr size_t SIZE = Op::SIZE;
-	
+        static constexpr bool CONT = Op::CONT;
+        
     private:
 
 	Op mOp;
@@ -523,7 +529,8 @@ namespace MultiArrayTools
 	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
 
 	template <class ET>
-	inline T get(ET pos) const;
+	inline auto get(ET pos) const
+            -> decltype(mOp.template get<ET>(pos));
 
 	template <class ET>
 	inline Contraction& set(ET pos);
@@ -547,7 +554,8 @@ namespace MultiArrayTools
 	typedef OperationTemplate<T,SliceContraction<T,Op,Indices...> > OT;
 
 	static constexpr size_t SIZE = Op::SIZE;
-
+        static constexpr bool CONT = false;
+        
     private:
 
 	mutable Op mOp;

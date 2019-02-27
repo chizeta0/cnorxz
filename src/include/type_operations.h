@@ -177,17 +177,17 @@ namespace MultiArrayTools
 	}  
     }
 
-    inline v256 operator+(v256 a, v256 b)
+    inline v256 operator+(const v256& a, const v256& b)
     {
 	v256 o;
-	xadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a),
-		 reinterpret_cast<const double*>(&b) );
+	xadd<4>( o._x, a._x, b._x );
 	return o;
     }
 
-    inline v256& operator+=(v256& o, v256 a)
+    inline v256& operator+=(v256& o, const v256& a)
     {
-	xsadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a) );
+	//xsadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a) );
+        xsadd<4>( o._x, a._x );
 	return o;
     }
 /*

@@ -251,7 +251,7 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     template <class ET>
-    inline T ConstOperationRoot<T,Ranges...>::get(ET pos) const
+    inline const T& ConstOperationRoot<T,Ranges...>::get(ET pos) const
     {
 	return mDataPtr[pos.val()/*+mOff*/];
     }
@@ -449,7 +449,7 @@ namespace MultiArrayTools
     
     template <typename T, class... Ranges>
     template <class ET>
-    inline T OperationRoot<T,Ranges...>::get(ET pos) const
+    inline T& OperationRoot<T,Ranges...>::get(ET pos) const
     {
 	return mDataPtr[pos.val()/*+mOff*/];
     }
@@ -504,7 +504,7 @@ namespace MultiArrayTools
 
     template <typename T>
     template <class ET>
-    inline T OperationValue<T>::get(ET pos) const
+    inline const T& OperationValue<T>::get(ET pos) const
     {
 	return mVal;
     }
@@ -595,7 +595,8 @@ namespace MultiArrayTools
     // forward loop !!!!
     template <typename T, class Op, class IndexType>
     template <class ET>
-    inline T Contraction<T,Op,IndexType>::get(ET pos) const
+    inline auto Contraction<T,Op,IndexType>::get(ET pos) const
+        -> decltype(mOp.template get<ET>(pos))
     {
 	return mOp.template get<ET>(pos);
     }
