@@ -165,6 +165,20 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
+    template <class... SRanges2>
+    Slice<T,SRanges2...> MultiArray<T,SRanges...>::slformat(const std::shared_ptr<SRanges2>&... nrs)
+    {
+        return Slice<T,SRanges2...>( nrs..., mCont.data() );
+    }
+
+    template <typename T, class... SRanges>
+    template <class... SRanges2>
+    ConstSlice<T,SRanges2...> MultiArray<T,SRanges...>::slformat(const std::shared_ptr<SRanges2>&... nrs) const
+    {
+        return ConstSlice<T,SRanges2...>( nrs..., mCont.data() );
+    }
+    
+    template <typename T, class... SRanges>
     const T* MultiArray<T,SRanges...>::data() const
     {
 	return mCont.data();

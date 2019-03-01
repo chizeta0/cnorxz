@@ -68,6 +68,13 @@ namespace MultiArrayTools
     auto rptr(const MArray& ma)
 	-> decltype(ma.template getRangePtr<N>());
 
+    template <size_t I, class MIndex>
+    auto get(const std::shared_ptr<MIndex>& i)
+        -> decltype(i->template getPtr<I>())
+    {
+        return i->template getPtr<I>();
+    }
+    
     template <class EC, class MArray>
     auto dynamic(const MArray& ma, bool slice = false)
 	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
@@ -94,6 +101,24 @@ namespace MultiArrayTools
 	for((*ind) = 0; ind->pos() != ind->max(); ++(*ind)){
 	    ll();
 	}
+    }
+
+    // parallel:
+    template <class IndexType>
+    inline void PFor(const std::shared_ptr<IndexType>& ind,
+                    const std::function<void(const std::shared_ptr<IndexType>&)>& ll)
+    {
+        const int max = static_cast<int>(ind->max());
+        int i = 0;
+#pragma omp parallel shared(ind,ll) private(i)
+        {
+#pragma omp for nowait
+            for(i = 0; i < max; i++) {
+                auto ii = getIndex( ind->range() );
+                ((*ii) = i)();
+                ll(ii);
+            }
+        }
     }
 
 

@@ -72,7 +72,13 @@ namespace MultiArrayTools
 
 	template <class... SRanges2>
 	MultiArray<T,SRanges2...> format(const std::tuple<std::shared_ptr<SRanges2>...>& nrs);
-	
+
+        template <class... SRanges2>
+        Slice<T,SRanges2...> slformat(const std::shared_ptr<SRanges2>&... nrs);
+
+        template <class... SRanges2>
+        ConstSlice<T,SRanges2...> slformat(const std::shared_ptr<SRanges2>&... nrs) const;
+
 	virtual const T* data() const override;
 	virtual T* data() override;
 	virtual vector<T>& vdata() { return mCont; }

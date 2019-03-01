@@ -499,7 +499,7 @@ namespace MultiArrayHelper
         size_t mnpos = 0;
         ExtType npos;
         auto expr = mExpr;
-#pragma omp parallel shared(expr,mnpos,npos) private(pos)
+#pragma omp parallel shared(expr) private(pos,mnpos,npos)
         {
 #pragma omp for nowait
             for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
@@ -520,7 +520,7 @@ namespace MultiArrayHelper
         size_t mnpos = 0;
         ExtType npos;
         auto expr = mExpr;
-#pragma omp parallel shared(expr,mnpos,npos) private(pos)
+#pragma omp parallel shared(expr) private(pos,mnpos,npos)
         {
 #pragma omp for nowait
             for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){

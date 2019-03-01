@@ -169,11 +169,173 @@ namespace MultiArrayTools
     }
 
     template <int N>
+    inline void x1add(double* o, const double* a, const double& b)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] + b;
+	}  
+    }
+
+    template <int N>
+    inline void x2add(double* o, const double& a, const double* b)
+    {
+#pragma omp simd aligned(o, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a + b[i];
+	}  
+    }
+
+    template <int N>
     inline void xsadd(double* o, const double* a)
     {
 #pragma omp simd aligned(o, a: 32)
 	for(int i = 0; i < N; i++) {
 	    o[i] += a[i];
+	}  
+    }
+
+    template <int N>
+    inline void xradd(double& o, const double* a)
+    {
+#pragma omp simd reduction(+: o) aligned(a: 32)
+	for(int i = 0; i < N; i++) {
+	    o += a[i];
+	}
+    }
+
+    template <int N>
+    inline void xsub(double* o, const double* a, const double* b)
+    {
+#pragma omp simd aligned(o, a, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] - b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xssub(double* o, const double* a)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] -= a[i];
+	}  
+    }
+
+    template <int N>
+    inline void xrsub(double& o, const double* a)
+    {
+#pragma omp simd reduction(-: o) aligned(a: 32)
+	for(int i = 0; i < N; i++) {
+	    o -= a[i];
+	}
+    }
+
+    template <int N>
+    inline void x1sub(double* o, const double* a, const double& b)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] - b;
+	}  
+    }
+
+    template <int N>
+    inline void x2sub(double* o, const double& a, const double* b)
+    {
+#pragma omp simd aligned(o, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a - b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xmul(double* o, const double* a, const double* b)
+    {
+#pragma omp simd aligned(o, a, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] * b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xsmul(double* o, const double* a)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] *= a[i];
+	}  
+    }
+
+    template <int N>
+    inline void xrmul(double& o, const double* a)
+    {
+#pragma omp simd reduction(*: o) aligned(a: 32)
+	for(int i = 0; i < N; i++) {
+	    o *= a[i];
+	}
+    }
+
+    template <int N>
+    inline void x1mul(double* o, const double* a, const double& b)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] * b;
+	}  
+    }
+
+    template <int N>
+    inline void x2mul(double* o, const double& a, const double* b)
+    {
+#pragma omp simd aligned(o, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a * b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xdiv(double* o, const double* a, const double* b)
+    {
+#pragma omp simd aligned(o, a, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] / b[i];
+	}  
+    }
+
+    template <int N>
+    inline void xsdiv(double* o, const double* a)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] /= a[i];
+	}  
+    }
+    /*
+    template <int N>
+    inline void xrdiv(double& o, const double* a)
+    {
+#pragma omp simd reduction(/: o) aligned(a: 32)
+	for(int i = 0; i < N; i++) {
+	    o /= a[i];
+	}
+    }
+    */
+    template <int N>
+    inline void x1div(double* o, const double* a, const double& b)
+    {
+#pragma omp simd aligned(o, a: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a[i] / b;
+	}  
+    }
+
+    template <int N>
+    inline void x2div(double* o, const double& a, const double* b)
+    {
+#pragma omp simd aligned(o, b: 32)
+	for(int i = 0; i < N; i++) {
+	    o[i] = a / b[i];
 	}  
     }
 
@@ -184,45 +346,131 @@ namespace MultiArrayTools
 	return o;
     }
 
+    inline v256 operator+(const v256& a, const double& b)
+    {
+	v256 o;
+	x1add<4>( o._x, a._x, b );
+	return o;
+    }
+
+    inline v256 operator+(const double& a, const v256& b)
+    {
+	v256 o;
+	x2add<4>( o._x, a, b._x );
+	return o;
+    }
+
+    inline double& operator+=(double& o, const v256& a)
+    {
+        xradd<4>( o, a._x );
+	return o;
+    }
+
     inline v256& operator+=(v256& o, const v256& a)
     {
-	//xsadd<4>( reinterpret_cast<double*>(&o), reinterpret_cast<const double*>(&a) );
         xsadd<4>( o._x, a._x );
 	return o;
     }
-/*
+
     inline v256 operator-(const v256& a, const v256& b)
     {
-        	v256 out;
-#pragma omp simd aligned(outp, ap, bp: 32)
-	for(int i = 0; i < IN; ++i){
-	    outp[i] = ap[i] - bp[i];
-	}
-	return out;
+	v256 o;
+	xsub<4>( o._x, a._x, b._x );
+	return o;
+    }
+
+    inline v256 operator-(const v256& a, const double& b)
+    {
+	v256 o;
+	x1sub<4>( o._x, a._x, b );
+	return o;
+    }
+
+    inline v256 operator-(const double& a, const v256& b)
+    {
+	v256 o;
+	x2sub<4>( o._x, a, b._x );
+	return o;
+    }
+
+    inline double& operator-=(double& o, const v256& a)
+    {
+        xrsub<4>( o, a._x );
+	return o;
+    }
+
+    inline v256& operator-=(v256& o, const v256& a)
+    {
+        xssub<4>( o._x, a._x );
+	return o;
     }
 
     inline v256 operator*(const v256& a, const v256& b)
     {
-	v256 out;
-#pragma omp simd aligned(outp, ap, bp: 32)
-	for(int i = 0; i < IN; ++i){
-	    outp[i] = ap[i] * bp[i];
-	}
-	return out;
+	v256 o;
+	xmul<4>( o._x, a._x, b._x );
+	return o;
     }
-    
+
+    inline v256& operator*=(v256& o, const v256& a)
+    {
+        xsmul<4>( o._x, a._x );
+	return o;
+    }
+
+    inline v256 operator*(const v256& a, const double& b)
+    {
+	v256 o;
+	x1mul<4>( o._x, a._x, b );
+	return o;
+    }
+
+    inline v256 operator*(const double& a, const v256& b)
+    {
+	v256 o;
+	x2mul<4>( o._x, a, b._x );
+	return o;
+    }
+
+    inline double& operator*=(double& o, const v256& a)
+    {
+        xrmul<4>( o, a._x );
+	return o;
+    }
+
     inline v256 operator/(const v256& a, const v256& b)
     {
-	v256 out;
-#pragma omp simd aligned(outp, ap, bp: 32)
-	for(int i = 0; i < IN; ++i){
-	    outp[i] = ap[i] / bp[i];
-	}
-	return out;
+	v256 o;
+	xdiv<4>( o._x, a._x, b._x );
+	return o;
+    }
+
+    inline v256 operator/(const v256& a, const double& b)
+    {
+	v256 o;
+	x1div<4>( o._x, a._x, b );
+	return o;
+    }
+
+    inline v256 operator/(const double& a, const v256& b)
+    {
+	v256 o;
+	x2div<4>( o._x, a, b._x );
+	return o;
+    }
+    /*
+    inline double& operator/=(double& o, const v256& a)
+    {
+        xrdiv<4>( o, a._x );
+	return o;
     }
     */
-    
-
+    inline v256& operator/=(v256& o, const v256& a)
+    {
+        xsdiv<4>( o._x, a._x );
+	return o;
+    }
+   
 } // namespace MultiArrayTools
 
 #endif
