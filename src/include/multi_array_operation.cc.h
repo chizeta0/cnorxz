@@ -345,7 +345,7 @@ namespace MultiArrayTools
     template <class Range>
     MetaOperationRoot<Range>::
     MetaOperationRoot(const std::shared_ptr<IndexType>& ind) :
-	mWorkIndex(*ind), mIndex( ind ) { }
+	mWorkIndex(*ind), mIndex( ind ) {}
 
     
     template <class Range>

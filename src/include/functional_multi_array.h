@@ -15,6 +15,7 @@ namespace MultiArrayTools
 	static auto mk(const std::shared_ptr<Index>& i)
 	    -> MultiArray<typename Index::MetaType, typename Index::RangeType>
 	{
+            assert(0); // deprecated
 	    vector<typename Index::MetaType> vv(i->range()->size());
 	    for(Index j = (*i); j.pos() != j.max(); ++j){
 		vv[j.pos()] = j.meta();
@@ -55,6 +56,16 @@ namespace MultiArrayTools
 	}
     };
 
+    template <>
+    struct ToOpObject<false>
+    {
+        template <class Index>
+	static auto mk(const std::shared_ptr<Index>& ind)
+	    -> MetaOperationRoot<typename Index::RangeType>
+        {
+            return MetaOperationRoot<typename Index::RangeType>( ind );
+        }
+    };
     
     template <class Index>
     auto mkOpObject(const std::shared_ptr<Index>& i)
