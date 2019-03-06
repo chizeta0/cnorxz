@@ -117,106 +117,40 @@ namespace MultiArrayTools
         return Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>(ll, THIS(), args...);
     }
 
-    /*****************************************
-     *   OperationMaster::AssignmentExpr     *
-     *****************************************/
-    /*
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
-    AssignmentExpr(OperationMaster& m, const OpClass& sec) :
-	mM(m), mSec(sec) {}
-    */
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
-    AssignmentExpr(T* dataPtr, const OpClass& sec) :
+    /************************
+     *   AssignmentExpr     *
+     ************************/
+
+    template <typename T, class OpClass>
+    AssignmentExpr<T,OpClass>::AssignmentExpr(T* dataPtr, const OpClass& sec) :
         mSec(sec), mDataPtr(dataPtr) {}
     
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    inline void OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
-    operator()(size_t start, ExtType last)
+    template <typename T, class OpClass>
+    inline void AssignmentExpr<T,OpClass>::operator()(size_t start, ExtType last)
     {
-	//VCHECK(mSec.template get<ExtType>(last));
-	//mM.set(start, mSec.template get<ExtType>(last) );
         mDataPtr[start] = mSec.template get<ExtType>(last);
-        //AOp::sapply(mDataPtr[start], mSec.template get<ExtType>(last));
     }
     
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    typename OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::ExtType
-    OperationMaster<T,AOp,OpClass,Ranges...>::AssignmentExpr::
-    rootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class OpClass>
+    typename AssignmentExpr<T,OpClass>::ExtType AssignmentExpr<T,OpClass>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mSec.rootSteps(iPtrNum);
     }
 
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    OperationMaster<T,AOp,OpClass,Ranges...>::AddExpr::
-    AddExpr(T* dataPtr, const OpClass& sec) :
+    template <typename T, class OpClass>
+    AddExpr<T,OpClass>::AddExpr(T* dataPtr, const OpClass& sec) :
         mSec(sec), mDataPtr(dataPtr) {}
     
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    inline void OperationMaster<T,AOp,OpClass,Ranges...>::AddExpr::
-    operator()(size_t start, ExtType last)
+    template <typename T, class OpClass>
+    inline void AddExpr<T,OpClass>::operator()(size_t start, ExtType last)
     {
-	//VCHECK(mSec.template get<ExtType>(last));
-	//mM.set(start, mSec.template get<ExtType>(last) );
         mDataPtr[start] += mSec.template get<ExtType>(last);
-        //AOp::sapply(mDataPtr[start], mSec.template get<ExtType>(last));
     }
     
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    typename OperationMaster<T,AOp,OpClass,Ranges...>::AddExpr::ExtType
-    OperationMaster<T,AOp,OpClass,Ranges...>::AddExpr::
-    rootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class OpClass>
+    typename AddExpr<T,OpClass>::ExtType AddExpr<T,OpClass>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mSec.rootSteps(iPtrNum);
-    }
-
-    
-    /*************************
-     *   OperationMaster     *
-     *************************/
-
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    OperationMaster<T,AOp,OpClass,Ranges...>::
-    OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
-		    IndexType& index, bool doParallel) :
-	mSecond(second), mDataPtr(ma.data()),
-	mIndex(index), mDoParallel(doParallel)
-    {
-	performAssignment(0);
-    }
-
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    OperationMaster<T,AOp,OpClass,Ranges...>::
-    OperationMaster(T* data, const OpClass& second,
-		    IndexType& index, bool doParallel) :
-	mSecond(second), mDataPtr(data),
-	mIndex(index), mDoParallel(doParallel)
-    {
-	performAssignment(0);
-    }
-
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    void OperationMaster<T,AOp,OpClass,Ranges...>::performAssignment(std::intptr_t blockIndexNum)
-    {
-        /*
-	AssignmentExpr ae(*this, mSecond); // Expression to be executed within loop
-        if(mDoParallel){
-            auto ploop = mIndex.pifor( 1, mSecond.loop(ae) );
-            ploop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
-        }
-        else {
-            auto loop = mIndex.ifor( 1, mSecond.loop(ae) );
-            loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
-        }
-        */
-    }
-
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    inline T OperationMaster<T,AOp,OpClass,Ranges...>::get(size_t pos) const
-    {
-	return mDataPtr[pos];
     }
 
    
@@ -232,10 +166,8 @@ namespace MultiArrayTools
         mOrigDataPtr(ma.data()),
 	mIndex( ma.begin() )
     {
-	//VCHECK(ma.data());
 	mIndex(indices...);
         mDataPtr = mOrigDataPtr + mIndex.pos();
-	//mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
@@ -397,7 +329,6 @@ namespace MultiArrayTools
     {
 	mIndex(indices...);
         mDataPtr = mOrigDataPtr + mIndex.pos();
-	//mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
@@ -408,67 +339,57 @@ namespace MultiArrayTools
 	mIndex( ind )
     {
         mDataPtr = mOrigDataPtr + mIndex.pos();
-	//mOff = mIndex.pos();
+    }
+
+    template <typename T, class... Ranges>
+    template <class OpClass>
+    auto OperationRoot<T,Ranges...>::assign(const OpClass& in)
+        -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))))
+    {
+        return mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
+    }
+
+    template <typename T, class... Ranges>
+    template <class OpClass>
+    auto OperationRoot<T,Ranges...>::plus(const OpClass& in)
+        -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))))
+    {
+        return mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in)));
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
-    //OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	typename OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>::AssignmentExpr ae(mOrigDataPtr, in);
-        // Expression to be executed within loop
-        if(mDoParallel){
-            auto ploop = mIndex.pifor( 1, in.loop(ae) );
-            ploop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
-        }
-        else {
-            auto loop = mIndex.ifor( 1, in.loop(ae) );
-            loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
-        }
+        assign(in)();
         return *this;
-	//return OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...>(mDataPtr, in, mIndex, mDoParallel);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
-    //OperationMaster<T,plus<T>,OpClass,Ranges...> OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-        typename OperationMaster<T,plus<T>,OpClass,Ranges...>::AddExpr ae(mOrigDataPtr, in);
-        // Expression to be executed within loop
-        if(mDoParallel){
-            auto ploop = mIndex.pifor( 1, in.loop(ae) );
-            ploop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
-        }
-        else {
-            auto loop = mIndex.ifor( 1, in.loop(ae) );
-            loop(); // execute overall loop(s) and so internal hidden loops and so the inherited expressions
-        }
+        plus(in)();
         return *this;
-	//return OperationMaster<T,plus<T>,OpClass,Ranges...>(mDataPtr, in, mIndex, mDoParallel);
     }
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OperationRoot<T,Ranges...>& in)
-    //OperationMaster<T,SelfIdentity<T>,OperationRoot<T,Ranges...>,Ranges...>
-    //OperationRoot<T,Ranges...>::operator=(const OperationRoot<T,Ranges...>& in)
     {
 	return operator=<OperationRoot<T,Ranges...> >(in);
     }
 
     template <typename T, class... Ranges>
-    OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::par()
+    ParallelOperationRoot<T,Ranges...> OperationRoot<T,Ranges...>::par()
     {
-        mDoParallel = true;
-        return *this;
+        return ParallelOperationRoot<T,Ranges...>(mOrigDataPtr, mIndex);
     }
     
     template <typename T, class... Ranges>
     template <class ET>
     inline T& OperationRoot<T,Ranges...>::get(ET pos) const
     {
-	return mDataPtr[pos.val()/*+mOff*/];
+	return mDataPtr[pos.val()];
     }
 
     template <typename T, class... Ranges>
@@ -484,7 +405,6 @@ namespace MultiArrayTools
     MExt<void> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return MExt<void>(getStepSize( mIndex, iPtrNum ));
-	//return MExt<void>(getStepSize( mIndex.info(), iPtrNum ));
     }
 
     template <typename T, class... Ranges>
@@ -509,6 +429,108 @@ namespace MultiArrayTools
 	Slice<T,typename Indices::RangeType...> out(inds->range()...);
 	out.define(inds...) = *this;
 	return out;
+    }
+
+    /*******************************
+     *   ParallelOperationRoot     *
+     *******************************/
+    
+    template <typename T, class... Ranges>
+    ParallelOperationRoot<T,Ranges...>::
+    ParallelOperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
+	mDataPtr(ma.data()),
+        mOrigDataPtr(ma.data()),
+	mIndex( ma.begin() )
+    {
+	mIndex(indices...);
+        mDataPtr = mOrigDataPtr + mIndex.pos();
+    }
+
+    template <typename T, class... Ranges>
+    ParallelOperationRoot<T,Ranges...>::
+    ParallelOperationRoot(T* data, const IndexType& ind) :
+	mDataPtr(data),
+        mOrigDataPtr(data),
+	mIndex( ind )
+    {
+        mDataPtr = mOrigDataPtr + mIndex.pos();
+    }
+
+    template <typename T, class... Ranges>
+    template <class OpClass>
+    auto ParallelOperationRoot<T,Ranges...>::assign(const OpClass& in)
+        -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))))
+    {
+        return mIndex.pifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
+    }
+
+    template <typename T, class... Ranges>
+    template <class OpClass>
+    auto ParallelOperationRoot<T,Ranges...>::plus(const OpClass& in)
+        -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))))
+    {
+        return mIndex.pifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in)));
+    }
+
+    template <typename T, class... Ranges>
+    template <class OpClass>
+    ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::operator=(const OpClass& in)
+    {
+        assign(in)();
+        return *this;
+    }
+
+    template <typename T, class... Ranges>
+    template <class OpClass>
+    ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::operator+=(const OpClass& in)
+    {
+        plus(in)();
+        return *this;
+    }
+
+    template <typename T, class... Ranges>
+    ParallelOperationRoot<T,Ranges...>&
+    ParallelOperationRoot<T,Ranges...>::operator=(const ParallelOperationRoot<T,Ranges...>& in)
+    {
+	return operator=<ParallelOperationRoot<T,Ranges...> >(in);
+    }
+    
+    template <typename T, class... Ranges>
+    template <class ET>
+    inline T& ParallelOperationRoot<T,Ranges...>::get(ET pos) const
+    {
+	return mDataPtr[pos.val()/*+mOff*/];
+    }
+
+    template <typename T, class... Ranges>
+    template <class ET>
+    inline ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::set(ET pos)
+    {
+	mIndex = pos.val();
+	mDataPtr = mOrigDataPtr + mIndex.pos();
+	return *this;
+    }
+
+    template <typename T, class... Ranges>
+    MExt<void> ParallelOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    {
+	return MExt<void>(getStepSize( mIndex, iPtrNum ));
+	//return MExt<void>(getStepSize( mIndex.info(), iPtrNum ));
+    }
+
+    template <typename T, class... Ranges>
+    template <class Expr>
+    Expr ParallelOperationRoot<T,Ranges...>::loop(Expr exp) const
+    {
+	return exp;
+    }
+
+    template <typename T, class... Ranges>
+    T* ParallelOperationRoot<T,Ranges...>::data() const
+    {
+        auto i = mIndex;
+	return mOrigDataPtr + i().pos();
     }
 
 

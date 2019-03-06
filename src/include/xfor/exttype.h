@@ -7,6 +7,41 @@
 namespace MultiArrayHelper
 {
 
+    template <size_t I>
+    struct Getter
+    {
+	template <class ExtType>
+	static inline size_t get(const ExtType& et)
+	{
+	    return Getter<I-1>::get(et.next());
+	}
+
+	template <class ExtType>
+	static inline auto getX(const ExtType& et)
+	    -> decltype(Getter<I-1>::getX(et.next()))
+	{
+	    return Getter<I-1>::getX(et.next());
+	}	
+    };
+
+    template <>
+    struct Getter<0>
+    {
+	template <class ExtType>
+	static inline size_t get(const ExtType& et)
+	{
+	    return et.get();
+	}
+
+	template <class ExtType>
+	static inline auto getX(const ExtType& et)
+	    -> ExtType
+	{
+	    return et;
+	}	
+    };
+
+    
     template <class X>
     class MExt
     {
@@ -38,7 +73,12 @@ namespace MultiArrayHelper
 
 	inline const size_t& val() const;
 	inline const X& next() const;
-	
+
+        template <size_t N>
+        inline auto nn() const
+            -> decltype(Getter<N>::getX(*this))
+        { return Getter<N>::getX(*this); }
+        
 	inline MExt operator+(const MExt& in) const;
 	inline MExt operator*(size_t in) const;
 
@@ -78,7 +118,12 @@ namespace MultiArrayHelper
 
 	inline const size_t& val() const;
 	inline size_t next() const { return 0; }
-	
+
+        template <size_t N>
+        inline auto nn() const
+            -> decltype(Getter<N>::getX(*this))
+        { return Getter<N>::getX(*this); }
+        
 	inline MExt operator+(const MExt& in) const;
 	inline MExt operator*(size_t in) const;
 
@@ -89,39 +134,6 @@ namespace MultiArrayHelper
     };    
 
 
-    template <size_t I>
-    struct Getter
-    {
-	template <class ExtType>
-	static inline size_t get(const ExtType& et)
-	{
-	    return Getter<I-1>::get(et.next());
-	}
-
-	template <class ExtType>
-	static inline auto getX(const ExtType& et)
-	    -> decltype(Getter<I-1>::getX(et.next()))
-	{
-	    return Getter<I-1>::getX(et.next());
-	}	
-    };
-
-    template <>
-    struct Getter<0>
-    {
-	template <class ExtType>
-	static inline size_t get(const ExtType& et)
-	{
-	    return et.get();
-	}
-
-	template <class ExtType>
-	static inline auto getX(const ExtType& et)
-	    -> ExtType
-	{
-	    return et;
-	}	
-    };
 
 } // end namespace MultiArrayHelper
 

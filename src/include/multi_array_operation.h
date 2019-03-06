@@ -101,95 +101,54 @@ namespace MultiArrayTools
         }
     };
 
-    template <typename T, class AOp, class OpClass, class... Ranges>
-    class OperationMaster
+    template <typename T, class OpClass>
+    class AssignmentExpr
     {
+    private:
+        AssignmentExpr() = default;
+	    	    
+        OpClass mSec;
+        T* mDataPtr;
+            
     public:
 
-	class AssignmentExpr
-	{
-	private:
-	    AssignmentExpr() = default;
-	    	    
-	    //OperationMaster mM;
-	    OpClass mSec;
-            T* mDataPtr;
-            
-	public:
-
-	    static constexpr size_t LAYER = 0;
-	    static constexpr size_t SIZE = OpClass::SIZE;
-	    typedef decltype(mSec.rootSteps()) ExtType;
+        static constexpr size_t LAYER = 0;
+        static constexpr size_t SIZE = OpClass::SIZE;
+        typedef decltype(mSec.rootSteps()) ExtType;
 	    
-	    //AssignmentExpr(OperationMaster& m, const OpClass& sec);
-            AssignmentExpr(T* dataPtr, const OpClass& sec);
-
-	    AssignmentExpr(const AssignmentExpr& in) = default;
-	    AssignmentExpr(AssignmentExpr&& in) = default;
+        AssignmentExpr(T* dataPtr, const OpClass& sec);
+        AssignmentExpr(const AssignmentExpr& in) = default;
+        AssignmentExpr(AssignmentExpr&& in) = default;
 	    
-	    inline void operator()(size_t start = 0); 
-	    inline void operator()(size_t start, ExtType last);
-
-	    auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-	    
-	};
-
-        class AddExpr
-	{
-	private:
-	    AddExpr() = default;
-	    	    
-	    //OperationMaster mM;
-	    OpClass mSec;
-            T* mDataPtr;
-            
-	public:
-
-	    static constexpr size_t LAYER = 0;
-	    static constexpr size_t SIZE = OpClass::SIZE;
-	    typedef decltype(mSec.rootSteps()) ExtType;
-	    
-	    //AssignmentExpr(OperationMaster& m, const OpClass& sec);
-            AddExpr(T* dataPtr, const OpClass& sec);
-
-	    AddExpr(const AddExpr& in) = default;
-	    AddExpr(AddExpr&& in) = default;
-	    
-	    inline void operator()(size_t start = 0); 
-	    inline void operator()(size_t start, ExtType last);
-
-	    auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-	    
-	};
-
-	typedef T value_type;
-	//typedef OperationBase<T> OB;
-	typedef ContainerRange<T,Ranges...> CRange;
-	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
-	//typedef typename MultiRange<Ranges...>::IndexType IndexType;
-	
-	OperationMaster(MutableMultiArrayBase<T,Ranges...>& ma, const OpClass& second,
-			IndexType& index, bool doParallel = false);
-
-	OperationMaster(T* data, const OpClass& second,
-			IndexType& index, bool doParallel = false);
-
-	inline void set(size_t pos, T val) { AOp::sapply(mDataPtr[pos],val); }
-        
-	//inline void add(size_t pos, T val) { mDataPtr[pos] += val; }
-	inline T get(size_t pos) const;
-
-    private:
-
-	void performAssignment(std::intptr_t blockIndexNum);
-	OpClass const& mSecond;
-	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
-	T* mDataPtr;
-	IndexType mIndex;
-        bool mDoParallel;
+        inline void operator()(size_t start = 0); 
+        inline void operator()(size_t start, ExtType last);
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
     };
 
-    
+    template <typename T, class OpClass>
+    class AddExpr
+    {
+    private:
+        AddExpr() = default;
+	    	    
+        OpClass mSec;
+        T* mDataPtr;
+            
+    public:
+
+        static constexpr size_t LAYER = 0;
+        static constexpr size_t SIZE = OpClass::SIZE;
+        typedef decltype(mSec.rootSteps()) ExtType;
+	    
+        AddExpr(T* dataPtr, const OpClass& sec);
+        AddExpr(const AddExpr& in) = default;
+        AddExpr(AddExpr&& in) = default;
+	    
+        inline void operator()(size_t start = 0); 
+        inline void operator()(size_t start, ExtType last);
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+    };
+
     template <typename T, class... Ranges>
     class ConstOperationRoot : public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
     {
@@ -226,11 +185,9 @@ namespace MultiArrayTools
 	
     private:
 
-	//MultiArrayBase<T,Ranges...> const& mArrayRef;
 	const T* mDataPtr;
         const T* mOrigDataPtr;
 	IndexType mIndex;
-	//size_t mOff = 0;
 	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr; // never remove this ptr, otherwise we lose temporary container instances!
     };
 
@@ -300,8 +257,6 @@ namespace MultiArrayTools
 		
     private:
 
-	//MultiArrayBase<T,Ranges...> const& mArrayRef;
-	//const T* mDataPtr;
         mutable IndexType mWorkIndex;
         std::shared_ptr<IndexType> mIndex;
     };
@@ -318,21 +273,27 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
-	
+
+    private:
+
+	T* mDataPtr;
+        T* mOrigDataPtr;
+	IndexType mIndex;
+
+    public:
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	OperationRoot(T* data, const IndexType& ind);
-        /*
-	template <class OpClass>
-	OperationMaster<T,SelfIdentity<T>,OpClass,Ranges...> operator=(const OpClass& in);
 
         template <class OpClass>
-	OperationMaster<T,plus<T>,OpClass,Ranges...> operator+=(const OpClass& in);
+        auto assign(const OpClass& in)
+            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
 
-	OperationMaster<T,SelfIdentity<T>,OperationRoot,Ranges...> operator=(const OperationRoot& in);
-        */
-
+        template <class OpClass>
+        auto plus(const OpClass& in)
+            -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))));
+        
         template <class OpClass>
         OperationRoot& operator=(const OpClass& in);
 
@@ -341,7 +302,7 @@ namespace MultiArrayTools
 
         OperationRoot& operator=(const OperationRoot& in);
         
-        OperationRoot& par();
+        ParallelOperationRoot<T,Ranges...> par();
         
 	template <class ET>
 	inline T& get(ET pos) const;
@@ -353,21 +314,69 @@ namespace MultiArrayTools
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
-
+        
 	T* data() const;
 	
 	template <class... Indices>
 	auto sl(const std::shared_ptr<Indices>&... inds)
 	    -> Slice<T,typename Indices::RangeType...>;
 
+    };
+
+    template <typename T, class... Ranges>
+    class ParallelOperationRoot : public OperationTemplate<T,ParallelOperationRoot<T,Ranges...> >
+    {
+    public:
+
+	typedef T value_type;
+	typedef OperationBase<T,ParallelOperationRoot<T,Ranges...> > OT;
+	typedef ContainerRange<T,Ranges...> CRange;
+	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
+
+	static constexpr size_t SIZE = 1;
+        static constexpr bool CONT = true;
+
     private:
 
-	//MutableMultiArrayBase<T,Ranges...>& mArrayRef;
 	T* mDataPtr;
         T* mOrigDataPtr;
 	IndexType mIndex;
- 	//size_t mOff = 0;
-        bool mDoParallel = false;
+
+    public:
+	ParallelOperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+                              const std::shared_ptr<typename Ranges::IndexType>&... indices);
+
+	ParallelOperationRoot(T* data, const IndexType& ind);
+
+        template <class OpClass>
+        auto assign(const OpClass& in)
+            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
+
+        template <class OpClass>
+        auto plus(const OpClass& in)
+            -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))));
+
+        template <class OpClass>
+        ParallelOperationRoot& operator=(const OpClass& in);
+
+        template <class OpClass>
+        ParallelOperationRoot& operator+=(const OpClass& in);
+
+        ParallelOperationRoot& operator=(const ParallelOperationRoot& in);
+        
+	template <class ET>
+	inline T& get(ET pos) const;
+
+	template <class ET>
+	inline ParallelOperationRoot& set(ET pos);
+
+	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+
+	template <class Expr>
+	Expr loop(Expr exp) const;
+        
+	T* data() const;
+
     };
 
     template <typename T>

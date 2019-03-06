@@ -402,8 +402,6 @@ namespace MultiArrayHelper
     {
 	typedef typename IndexClass::RangeType RangeType;
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
-	//for(size_t pos = mSPos; pos != mMax; ++pos){
-	    //const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
 	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
@@ -416,8 +414,6 @@ namespace MultiArrayHelper
 	typedef typename IndexClass::RangeType RangeType;
 	const ExtType last;
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
-	//for(size_t pos = mSPos; pos != mMax; ++pos){
-	    //const size_t mnpos = PosForward<FT>::value(mlast, mMax, pos);
 	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
@@ -498,9 +494,9 @@ namespace MultiArrayHelper
         int pos = 0;
         size_t mnpos = 0;
         ExtType npos;
-        auto expr = mExpr;
-#pragma omp parallel shared(expr) private(pos,mnpos,npos)
+#pragma omp parallel shared(mExpr) private(pos,mnpos,npos)
         {
+            auto expr = mExpr;
 #pragma omp for nowait
             for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
                 mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
@@ -519,9 +515,9 @@ namespace MultiArrayHelper
         int pos = 0;
         size_t mnpos = 0;
         ExtType npos;
-        auto expr = mExpr;
-#pragma omp parallel shared(expr) private(pos,mnpos,npos)
+#pragma omp parallel shared(mExpr) private(pos,mnpos,npos)
         {
+            auto expr = mExpr;
 #pragma omp for nowait
             for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
                 mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
