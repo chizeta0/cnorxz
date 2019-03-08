@@ -95,6 +95,14 @@ namespace MultiArrayTools
     auto dynToAnonMove(MultiArray<T,DynamicRange<EC>>&& ma)
 	-> MultiArray<T,AnonymousRange>;
 
+    template <class Range>
+    auto metaSlice(const std::shared_ptr<Range>& r)
+        -> ConstSlice<typename Range::value_type,ClassicRange>;
+
+    template <class Range, class ORange>
+    auto metaSlice(const std::shared_ptr<Range>& r, const std::shared_ptr<ORange>& ro)
+        -> ConstSlice<typename Range::value_type,ORange>;
+
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)
     {

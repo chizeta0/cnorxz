@@ -562,6 +562,17 @@ namespace MultiArrayTools
 			   ( std::shared_ptr<RangeBase>( RB::mThis )) ); 
     }
 
+    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    std::vector<size_t> GenMapRange<MapF,XSTYPE,Ranges...>::mapPos() const
+    {
+        auto i = mMapf.begin();
+        std::vector<size_t> out(i.max());
+        for(; i.pos() != i.max(); ++i){
+            out[i.pos()] = mOutRange->getMeta( mMapf[i] );
+        }
+        return out;
+    }
+    
     /*
     template <class MapF, SpaceType XSTYPE, class... Ranges>
     template <class... ERanges>
