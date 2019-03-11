@@ -215,17 +215,17 @@ namespace MultiArrayTools
 
     template <class Range>
     auto metaSlice(const std::shared_ptr<Range>& r)
-        -> ConstSlice<typename Range::value_type,ClassicRange>
+        -> ConstSlice<typename Range::MetaType,ClassicRange>
     {
         ClassicRF crf(r->size());
-        return ConstSlice<typename Range::value_type,ClassicRange>( createExplicit(crf), &r->get(0) );
+        return ConstSlice<typename Range::MetaType,ClassicRange>( createExplicit(crf), &r->get(0) );
     }
 
     template <class Range, class ORange>
     auto metaSlice(const std::shared_ptr<Range>& r, const std::shared_ptr<ORange>& ro)
-        -> ConstSlice<typename Range::value_type,ORange>
+        -> ConstSlice<typename Range::MetaType,ORange>
     {
-        return ConstSlice<typename Range::value_type,ORange>( ro, &r->get(0) );
+        return ConstSlice<typename Range::MetaType,ORange>( ro, &r->get(0) );
     }
 
 

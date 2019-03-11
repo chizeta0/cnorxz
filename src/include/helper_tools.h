@@ -97,11 +97,11 @@ namespace MultiArrayTools
 
     template <class Range>
     auto metaSlice(const std::shared_ptr<Range>& r)
-        -> ConstSlice<typename Range::value_type,ClassicRange>;
+        -> ConstSlice<typename Range::MetaType,ClassicRange>;
 
     template <class Range, class ORange>
     auto metaSlice(const std::shared_ptr<Range>& r, const std::shared_ptr<ORange>& ro)
-        -> ConstSlice<typename Range::value_type,ORange>;
+        -> ConstSlice<typename Range::MetaType,ORange>;
 
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)

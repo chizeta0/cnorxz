@@ -269,7 +269,7 @@ namespace MultiArrayTools
 	const MultiArray<size_t,ORType>& mapMultiplicity() const;
 	MultiArray<size_t,GenMapRange> explMapMultiplicity() const;
 
-        std::vector<size_t> mapPos() const;
+        vector<size_t> mapPos() const;
         
 	/*
 	template <class... ERanges>

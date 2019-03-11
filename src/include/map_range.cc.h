@@ -563,10 +563,10 @@ namespace MultiArrayTools
     }
 
     template <class MapF, SpaceType XSTYPE, class... Ranges>
-    std::vector<size_t> GenMapRange<MapF,XSTYPE,Ranges...>::mapPos() const
+    vector<size_t> GenMapRange<MapF,XSTYPE,Ranges...>::mapPos() const
     {
         auto i = mMapf.begin();
-        std::vector<size_t> out(i.max());
+        vector<size_t> out(i.max());
         for(; i.pos() != i.max(); ++i){
             out[i.pos()] = mOutRange->getMeta( mMapf[i] );
         }
