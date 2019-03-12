@@ -388,7 +388,7 @@ namespace MultiArrayTools
 	typedef ContainerRange<T,NullRange> CRange;
 	typedef ContainerIndex<T,NullIndex> IndexType;
 
-	static constexpr size_t SIZE = 1;
+	static constexpr size_t SIZE = 0;
         static constexpr bool CONT = true;
 
 	OperationValue(const T& val);
@@ -399,7 +399,7 @@ namespace MultiArrayTools
 	template <class ET>
 	inline OperationValue& set(ET pos);
 
-	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	None rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;

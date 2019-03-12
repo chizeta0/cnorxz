@@ -74,7 +74,7 @@ namespace MultiArrayHelper
 	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
-	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
+	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    typedef decltype(std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
 	    return PackNum<N-1>::template mkOpExpr<NEXT,T,ETuple,OpTuple,OpFunction,ArgT,Args...>

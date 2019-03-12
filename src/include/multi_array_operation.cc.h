@@ -346,6 +346,7 @@ namespace MultiArrayTools
     auto OperationRoot<T,Ranges...>::assign(const OpClass& in)
         -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))))
     {
+        static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
     }
 
@@ -354,6 +355,7 @@ namespace MultiArrayTools
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in)
         -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))))
     {
+        static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in)));
     }
 
@@ -556,9 +558,9 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    MExt<void> OperationValue<T>::rootSteps(std::intptr_t iPtrNum) const
+    None OperationValue<T>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(0);
+	return None();
     }
 
     template <typename T>

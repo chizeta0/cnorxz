@@ -38,10 +38,11 @@ namespace MultiArrayTools
     class OpExpr
     {
     public:
+	typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
 	typedef SingleIndex<typename MapF::value_type,STYPE> OIType;
 	//typedef typename MapF::IndexPack IndexPack;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
-	static constexpr size_t SIZE = Expr::SIZE;
+	static constexpr size_t SIZE = Expr::SIZE + Op::SIZE;
 	
     private:
 	OpExpr() = default;
@@ -51,8 +52,6 @@ namespace MultiArrayTools
 	size_t mMax;
 	size_t mStep;
 	Expr mExpr;
-
-	typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
 	Op mOp;
 	
 	typedef decltype(mOp.rootSteps(std::declval<intptr_t>()).extend( mExpr.rootSteps(std::declval<intptr_t>()) )) ExtType;

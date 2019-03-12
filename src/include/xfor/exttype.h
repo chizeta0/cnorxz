@@ -52,7 +52,8 @@ namespace MultiArrayHelper
 	
     public:
 	
-	static constexpr size_t NUM = X::NUM + 1;
+	static constexpr size_t NUM = X::SIZE;
+        static constexpr size_t SIZE = NUM + 1;
 
 	MExt() = default;
 	MExt(const MExt& in) = default;
@@ -71,6 +72,9 @@ namespace MultiArrayHelper
 	template <size_t N>
 	inline MExt(const std::array<size_t,N>& arr);
 
+        template <class Y>
+        inline MExt(const MExt<Y>& y);
+        
 	inline const size_t& val() const;
 	inline const X& next() const;
 
@@ -88,6 +92,27 @@ namespace MultiArrayHelper
 	
     };    
 
+    struct None
+    {
+        None() = default;
+        None(const None& in) = default;
+        None(None&& in) = default;
+        None& operator=(const None& in) = default;
+        None& operator=(None&& in) = default;
+        
+        template <class Y>
+        None(const Y& y) {}
+        
+        static constexpr size_t SIZE = 0;
+        
+        inline None operator+(const None& in) const { return None(); }
+	inline None operator*(size_t in) const { return None(); }
+        
+        template <class Y>
+        Y extend(const Y& y) const
+        { return y; }
+    };
+    
     template <>
     class MExt<void>
     {
@@ -98,7 +123,8 @@ namespace MultiArrayHelper
     public:
 	
 	static constexpr size_t NUM = 0;
-
+        static constexpr size_t SIZE = NUM + 1;
+        
 	MExt() = default;
 	MExt(const MExt& in) = default;
 	MExt& operator=(const MExt& in) = default;
@@ -107,17 +133,24 @@ namespace MultiArrayHelper
 	
 	inline MExt(size_t ext);
 
+        inline MExt(size_t y, const None& z) : mExt(y) {}
+
 	template <class Z>
 	inline MExt(size_t y, const Z& z);
-	
+
+
+
 	template <class Y, class Z>
 	inline MExt(const Y& y, const Z& z);
 
 	template <size_t N>
 	inline MExt(const std::array<size_t,N>& arr);
 
+        template <class Y>
+        inline MExt(const MExt<Y>& y);
+        
 	inline const size_t& val() const;
-	inline size_t next() const { return 0; }
+	inline None next() const { return None(); }
 
         template <size_t N>
         inline auto nn() const
@@ -161,7 +194,12 @@ namespace MultiArrayHelper
     template <class Y, class Z>
     inline MExt<X>::MExt(const Y& y, const Z& z) :
 	mExt(y.val()), mNext(y.next(), z) {}
-    
+
+    template <class X>
+    template <class Y>
+    inline MExt<X>::MExt(const MExt<Y>& y) :
+        mExt(y.val()), mNext(y.next()) {}
+
     template <class X>
     inline const size_t& MExt<X>::val() const
     {
@@ -206,6 +244,10 @@ namespace MultiArrayHelper
     template <size_t N>
     inline MExt<void>::MExt(const std::array<size_t,N>& arr) :
 	mExt(std::get<NUM>(arr)) {}
+
+    template <class Y>
+    inline MExt<void>::MExt(const MExt<Y>& y) :
+        mExt(y.val()) {}
 
     //template <>
     inline const size_t& MExt<void>::val() const

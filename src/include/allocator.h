@@ -68,7 +68,7 @@ namespace MultiArrayTools
 {
     template <typename T>
     using vector = std::vector<T,MultiArrayHelper::Allocator<T>>;
-
+    
 } // namespace MultiArrayTools
 
 #endif
