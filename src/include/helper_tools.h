@@ -64,6 +64,10 @@ namespace MultiArrayTools
     auto createRange(const vector<char>& cvec)
 	-> std::shared_ptr<Range>;
 
+    template <class Range, typename... Args>
+    auto createRangeE(const Args&... args)
+        -> std::shared_ptr<Range>;
+    
     template <size_t N, class MArray>
     auto rptr(const MArray& ma)
 	-> decltype(ma.template getRangePtr<N>());
@@ -102,6 +106,14 @@ namespace MultiArrayTools
     template <class Range, class ORange>
     auto metaSlice(const std::shared_ptr<Range>& r, const std::shared_ptr<ORange>& ro)
         -> ConstSlice<typename Range::MetaType,ORange>;
+
+    template <typename T, class... Ranges>
+    auto mkArray(const std::shared_ptr<Ranges>&... rs)
+        -> MultiArray<T,Ranges...>;
+
+    template <typename T, class... Ranges>
+    auto mkArray(const std::shared_ptr<Ranges>&... rs, const T& val)
+        -> MultiArray<T,Ranges...>;
 
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)

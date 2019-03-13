@@ -120,6 +120,14 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<Range>( rbptr );
     }
 
+    template <class Range, typename... Args>
+    auto createRangeE(const Args&... args)
+        -> std::shared_ptr<Range>
+    {
+        typename Range::Factory f(args...);
+        return createExplicit(f);
+    }
+
     template <size_t N, class MArray>
     auto rptr(const MArray& ma)
 	-> decltype(ma.template getRangePtr<N>())
@@ -226,6 +234,20 @@ namespace MultiArrayTools
         -> ConstSlice<typename Range::MetaType,ORange>
     {
         return ConstSlice<typename Range::MetaType,ORange>( ro, &r->get(0) );
+    }
+
+    template <typename T, class... Ranges>
+    auto mkArray(const std::shared_ptr<Ranges>&... rs)
+        -> MultiArray<T,Ranges...>
+    {
+        return MultiArray<T,Ranges...>(rs...);
+    }
+
+    template <typename T, class... Ranges>
+    auto mkArray(const std::shared_ptr<Ranges>&... rs, const T& val)
+        -> MultiArray<T,Ranges...>
+    {
+        return MultiArray<T,Ranges...>(rs..., val);
     }
 
 
