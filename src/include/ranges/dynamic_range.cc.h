@@ -439,6 +439,13 @@ namespace MultiArrayTools
     template <class EC>
     typename DynamicRange<EC>::MetaType DynamicRange<EC>::get(size_t pos) const
     {
+	for(size_t i = mOrig.size(); i != 0; --i) {
+	    auto& x = mOrig[i-1];
+	    const size_t redpos = pos % x->size();
+	    out = out + x->stringMeta(redpos);
+	    pos -= redpos;
+	    pos /= x->size();
+	}
 	return MetaType(); // !!!
     }
 

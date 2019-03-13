@@ -79,8 +79,10 @@ namespace MultiArrayTools
 	bool operator!=(const RangeBase& in) const;
 
         std::intptr_t id() const;
-        
+
+        virtual size_t typeNum() const = 0;
 	virtual std::string stringMeta(size_t pos) const = 0;
+        virtual const char* cmeta(size_t pos) const = 0;
 	virtual vector<char> data() const = 0; // usefull when writing to files, etc...
 
 	virtual SpaceType spaceType() const = 0;

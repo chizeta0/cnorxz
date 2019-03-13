@@ -178,7 +178,7 @@ namespace MultiArrayTools
 
     public:
         typedef IndexInterface<DynamicIndex<EC>,DynamicMetaT> IB;
-	typedef DynamicMetaT MetaType;
+	typedef std::vector<char> MetaType;
 	typedef DynamicRange<EC> RangeType;
 	typedef DynamicIndex IType;
 
@@ -287,7 +287,7 @@ namespace MultiArrayTools
 	typedef RangeBase RB;
 	typedef DynamicIndex<EC> IndexType;
 	typedef DynamicRange RangeType;
-	typedef DynamicMetaT MetaType;
+	typedef std::vector<char> MetaType;
 
     private:
 	DynamicRange() = default;
