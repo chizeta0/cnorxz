@@ -52,7 +52,20 @@ namespace MultiArrayTools
     {
 	return SpaceType::NONE;
     }
+
+    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::typeNum() const
+    {
+        return NumTypeMap<size_t>::num;
+    }
     
+    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::cmeta(char* target, size_t pos) const
+    {
+        if(target){
+            *reinterpret_cast<size_t*>(target) = pos;
+        }
+        return sizeof(size_t);
+    }
+
     std::string GenSingleRange<size_t,SpaceType::NONE,-1>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));

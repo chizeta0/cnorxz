@@ -169,7 +169,7 @@ namespace MultiArrayTools
     //typedef SingleRange<size_t,SpaceType::DYN> DynamicRange;
 
     template <class EC>
-    class DynamicIndex : public IndexInterface<DynamicIndex<EC>,DynamicMetaT>
+    class DynamicIndex : public IndexInterface<DynamicIndex<EC>,std::vector<char>>
     {
     private:
         typedef vector<std::pair<std::shared_ptr<IndexW<EC>>,size_t>> IVecT;
@@ -177,7 +177,7 @@ namespace MultiArrayTools
         IVecT mIVec;
 
     public:
-        typedef IndexInterface<DynamicIndex<EC>,DynamicMetaT> IB;
+        typedef IndexInterface<DynamicIndex<EC>,std::vector<char>> IB;
 	typedef std::vector<char> MetaType;
 	typedef DynamicRange<EC> RangeType;
 	typedef DynamicIndex IType;
@@ -319,6 +319,8 @@ namespace MultiArrayTools
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
         
+        virtual size_t typeNum() const final;
+        virtual size_t cmeta(char* target, size_t pos) const final;
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual vector<char> data() const final;
 	

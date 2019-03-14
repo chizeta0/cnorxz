@@ -439,14 +439,9 @@ namespace MultiArrayTools
     template <class EC>
     typename DynamicRange<EC>::MetaType DynamicRange<EC>::get(size_t pos) const
     {
-	for(size_t i = mOrig.size(); i != 0; --i) {
-	    auto& x = mOrig[i-1];
-	    const size_t redpos = pos % x->size();
-	    out = out + x->stringMeta(redpos);
-	    pos -= redpos;
-	    pos /= x->size();
-	}
-	return MetaType(); // !!!
+        std::vector<char> out(cmeta(nullptr,0));
+        cmeta(out.data(),pos);
+        return out;
     }
 
     template <class EC>
@@ -477,6 +472,27 @@ namespace MultiArrayTools
     bool DynamicRange<EC>::isEmpty() const
     {
 	return mEmpty;
+    }
+
+    template <class EC>
+    size_t DynamicRange<EC>::typeNum() const
+    {
+        return 0;
+    }
+
+    template <class EC>
+    size_t DynamicRange<EC>::cmeta(char* target, size_t pos) const
+    {
+        size_t out = 0;
+	for(size_t i = mOrig.size(); i != 0; --i) {
+	    auto& x = mOrig[i-1];
+	    const size_t redpos = pos % x->size();
+            const size_t offset = x->cmeta(target+out,redpos);
+            out += offset;
+	    pos -= redpos;
+	    pos /= x->size();
+	}
+        return out;
     }
 
     template <class EC>

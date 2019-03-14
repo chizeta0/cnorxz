@@ -232,9 +232,9 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const final;
 
         virtual size_t typeNum() const final;
+        virtual size_t cmeta(char* target, size_t pos) const final;
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual vector<char> data() const final;
-        virtual const char* cmeta() const final;
 	
 	bool isMeta(const U& metaPos) const;
 	
@@ -372,12 +372,6 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE, size_t S>
-    size_t GenSingleIndex<U,TYPE,S>::typeNum() const
-    {
-        return NumTypeMap<U>::num;
-    }
-    
-    template <typename U, SpaceType TYPE, size_t S>
     std::string GenSingleIndex<U,TYPE,S>::stringMeta() const
     {
 	return std::dynamic_pointer_cast<GenSingleRange<U,TYPE,S> const>( IB::mRangePtr )->stringMeta(IB::mPos);
@@ -388,12 +382,6 @@ namespace MultiArrayTools
     {
 	return MetaPtrHandle<GenSingleIndex<U,TYPE,S>::RangeType::HASMETACONT>::getMeta
 	    ( mMetaPtr, IB::mPos, mExplicitRangePtr );
-    }
-
-    template <typename U, SpaceType TYPE, size_t S>
-    const char* GenSingleIndex<U,TYPE,S>::cmeta() const
-    {
-        return reinterpret_cast<const char*>(mSpace.data());
     }
     
     template <typename U, SpaceType TYPE, size_t S>
@@ -578,7 +566,22 @@ namespace MultiArrayTools
     {
 	return TYPE;
     }
+
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleRange<U,TYPE,S>::typeNum() const
+    {
+        return NumTypeMap<U>::num;
+    }
     
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleRange<U,TYPE,S>::cmeta(char* target, size_t pos) const
+    {
+        if(target){
+            *reinterpret_cast<U*>(target) = mSpace[pos];
+        }
+        return sizeof(U);
+    }
+
     template <typename U, SpaceType TYPE, size_t S>
     std::string GenSingleRange<U,TYPE,S>::stringMeta(size_t pos) const
     {

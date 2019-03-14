@@ -92,7 +92,26 @@ namespace MultiArrayTools
     {
 	return mEmpty;
     }
+
+    size_t AnonymousRange::typeNum() const
+    {
+        return 0;
+    }
     
+    size_t AnonymousRange::cmeta(char* target, size_t pos) const
+    {
+        size_t out = 0;
+	for(size_t i = mOrig.size(); i != 0; --i) {
+	    auto& x = mOrig[i-1];
+	    const size_t redpos = pos % x->size();
+            const size_t offset = x->cmeta(target+out, redpos);
+            out += offset;
+	    pos -= redpos;
+	    pos /= x->size();
+	}
+        return out;
+    }
+
     std::string AnonymousRange::stringMeta(size_t pos) const
     {
 	std::string out = "[ ";

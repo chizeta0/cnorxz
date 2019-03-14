@@ -200,6 +200,8 @@ namespace MultiArrayTools
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
         
+        virtual size_t typeNum() const final;
+        virtual size_t cmeta(char* target, size_t pos) const final;
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual vector<char> data() const final;
 	
@@ -582,11 +584,23 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
+    size_t MultiRange<Ranges...>::typeNum() const
+    {
+        return 0;
+    }
+
+    template <class... Ranges>
+    size_t MultiRange<Ranges...>::cmeta(char* target, size_t pos) const
+    {
+        return RPackNum<sizeof...(Ranges)-1>::getCMeta(target,pos,mSpace);
+    }
+    
+    template <class... Ranges>
     std::string MultiRange<Ranges...>::stringMeta(size_t pos) const
     {
 	auto i = begin();
 	i = pos;
-	return "[ " + RPackNum<sizeof...(Ranges)-1>::metaTupleToString(i.meta()) + " ]";
+	return "[ " + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + " ]";
     }
 
     template <class... Ranges>

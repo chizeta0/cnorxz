@@ -340,10 +340,10 @@ namespace MultiArrayHelper
 		RPackNum<N-1>::checkIfCreated(p,a);
 	}
 
-	template <class MetaTuple>
-	static inline std::string metaTupleToString(const MetaTuple& mtp)
+	template <class MIndex>
+	static inline std::string getStringMeta(const MIndex& mi)
 	{
-	    return RPackNum<N-1>::metaTupleToString(mtp) + " , " + xToString(std::get<N>(mtp));
+	    return RPackNum<N-1>::getStringMeta(mi) + " , " + mi.template getPtr<N>()->stringMeta();
 	}
 
 	template <class... Ranges>
@@ -369,6 +369,16 @@ namespace MultiArrayHelper
 	    std::get<N>( stp ) = std::dynamic_pointer_cast<RType>( rbvec[N] );
 	    RPackNum<N-1>::setSpace(rbvec, stp);
 	}
+
+        template <class... Ranges>
+        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+        {
+            constexpr size_t NN = sizeof...(Ranges);
+            auto& r = *std::get<NN-N-1>(stp);
+            const size_t ownPos = pos % r.size();
+            const size_t offset = r.cmeta(target,ownPos);
+            return offset + RPackNum<N-1>::getCMeta(target + offset , (pos - ownPos) / r.size(), stp);
+        }
     };
 
     
@@ -610,10 +620,10 @@ namespace MultiArrayHelper
 	    return reinterpret_cast<std::intptr_t>( std::get<0>(p).get() ) == a[0];
 	}
 
-	template <class MetaTuple>
-	static inline std::string metaTupleToString(const MetaTuple& mtp)
+        template <class MIndex>
+	static inline std::string getStringMeta(const MIndex& mi)
 	{
-	    return xToString(std::get<0>(mtp));
+	    return mi.template getPtr<0>()->stringMeta();
 	}
 
 	template <class... Ranges>
@@ -637,6 +647,15 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(*std::get<0>( stp ))>::type RType;
 	    std::get<0>( stp ) = std::dynamic_pointer_cast<RType>( rbvec[0] );
 	}
+
+        template <class... Ranges>
+        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+        {
+            constexpr size_t NN = sizeof...(Ranges);
+            auto& r = *std::get<NN-1>(stp);
+            const size_t ownPos = pos % r.size();
+            return r.cmeta(target,ownPos);
+        }
 
     };
     

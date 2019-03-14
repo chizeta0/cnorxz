@@ -497,11 +497,23 @@ namespace MultiArrayTools
     }
 
     template <class MapF, SpaceType XSTYPE, class... Ranges>
+    size_t GenMapRange<MapF,XSTYPE,Ranges...>::typeNum() const
+    {
+        return 0;
+    }
+
+    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    size_t GenMapRange<MapF,XSTYPE,Ranges...>::cmeta(char* target, size_t pos) const
+    {
+        return RPackNum<sizeof...(Ranges)-1>::getCMeta(target,pos,mSpace);
+    }
+
+    template <class MapF, SpaceType XSTYPE, class... Ranges>
     std::string GenMapRange<MapF,XSTYPE,Ranges...>::stringMeta(size_t pos) const
     {
 	auto i = begin();
 	i = pos;
-	return "[ " + RPackNum<sizeof...(Ranges)-1>::metaTupleToString(i.meta()) + " ]";
+        return "[ " + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + " ]";
     }
 
     template <class MapF, SpaceType XSTYPE, class... Ranges>

@@ -55,7 +55,20 @@ namespace MultiArrayTools
     {
 	return SpaceType::SPIN;
     }
+
+    size_t GenSingleRange<size_t,SpaceType::SPIN,4>::typeNum() const
+    {
+        return NumTypeMap<size_t>::num;
+    }
     
+    size_t GenSingleRange<size_t,SpaceType::SPIN,4>::cmeta(char* target, size_t pos) const
+    {
+        if(target){
+            *reinterpret_cast<size_t*>(target) = pos;
+        }
+        return sizeof(size_t);
+    }
+
     std::string GenSingleRange<size_t,SpaceType::SPIN,4>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));

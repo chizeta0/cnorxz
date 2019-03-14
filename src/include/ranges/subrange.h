@@ -120,6 +120,8 @@ namespace MultiArrayTools
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
         
+        virtual size_t typeNum() const final;
+        virtual size_t cmeta(char* target, size_t pos) const final;
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual vector<char> data() const final;
 	
@@ -399,6 +401,18 @@ namespace MultiArrayTools
         h.metaType = NumTypeMap<MetaType>::num;
         h.multiple = 0;
         return h;
+    }
+
+    template <class Range>
+    size_t SubRange<Range>::typeNum() const
+    {
+        return mFullRange->typeNum();
+    }
+
+    template <class Range>
+    size_t SubRange<Range>::cmeta(char* target, size_t pos) const
+    {
+        return mFullRange->cmeta(target, mSubSet[pos]);
     }
 
     template <class Range>
