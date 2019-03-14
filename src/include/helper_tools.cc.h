@@ -121,10 +121,10 @@ namespace MultiArrayTools
     }
 
     template <class Range, typename... Args>
-    auto createRangeE(const Args&... args)
+    auto createRangeE(Args&&... args)
         -> std::shared_ptr<Range>
     {
-        typename Range::Factory f(args...);
+        typename Range::FType f(args...);
         return createExplicit(f);
     }
 

@@ -439,7 +439,7 @@ namespace MultiArrayTools
     template <class EC>
     typename DynamicRange<EC>::MetaType DynamicRange<EC>::get(size_t pos) const
     {
-        std::vector<char> out(cmeta(nullptr,0));
+        vector<char> out(cmeta(nullptr,0));
         cmeta(out.data(),pos);
         return out;
     }

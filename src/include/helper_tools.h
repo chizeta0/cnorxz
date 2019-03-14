@@ -65,7 +65,7 @@ namespace MultiArrayTools
 	-> std::shared_ptr<Range>;
 
     template <class Range, typename... Args>
-    auto createRangeE(const Args&... args)
+    auto createRangeE(Args&&... args)
         -> std::shared_ptr<Range>;
     
     template <size_t N, class MArray>

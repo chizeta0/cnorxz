@@ -108,6 +108,7 @@ namespace MultiArrayTools
 
 	GenSingleRangeFactory() = delete;
 	GenSingleRangeFactory(const vector<U>& space);
+        GenSingleRangeFactory(vector<U>&& space);
 	std::shared_ptr<RangeBase> create();
     };
 
@@ -264,6 +265,7 @@ namespace MultiArrayTools
 	GenSingleRange(const GenSingleRange& in) = delete;
 	
 	GenSingleRange(const vector<U>& space);
+        GenSingleRange(vector<U>&& space);
 
 	vector<U> mSpace;
 	//std::map<U,size_t> mMSpace;
@@ -499,6 +501,12 @@ namespace MultiArrayTools
     }
 
     template <typename U, SpaceType TYPE, size_t S>
+    GenSingleRangeFactory<U,TYPE,S>::GenSingleRangeFactory(vector<U>&& space)
+    {
+        mProd = std::shared_ptr<oType>( new GenSingleRange<U,TYPE,S>( space ) );
+    }
+    
+    template <typename U, SpaceType TYPE, size_t S>
     std::shared_ptr<RangeBase> GenSingleRangeFactory<U,TYPE,S>::create()
     {
 	setSelf();
@@ -518,7 +526,13 @@ namespace MultiArrayTools
 	//  mMSpace[mSpace[i]] = i;
 	//}
     }
-    
+
+    template <typename U, SpaceType TYPE, size_t S>
+    GenSingleRange<U,TYPE,S>::GenSingleRange(vector<U>&& space) :
+	RangeInterface<GenSingleIndex<U,TYPE,S> >(),
+	mSpace(space), mMSpace(mSpace) {}
+
+        
     template <typename U, SpaceType TYPE, size_t S>
     const U& GenSingleRange<U,TYPE,S>::get(size_t pos) const
     {

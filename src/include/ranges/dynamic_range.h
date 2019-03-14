@@ -90,6 +90,8 @@ namespace MultiArrayTools
         IndexWrapperBase(IndexWrapperBase&& in) = default;
         IndexWrapperBase& operator=(const IndexWrapperBase& in) = default;
         IndexWrapperBase& operator=(IndexWrapperBase&& in) = default;
+
+        using AbstractIW::operator=;
         
         template <class Expr>
         ExpressionHolder<Expr> ifor(size_t step, ExpressionHolder<Expr> ex) const;
@@ -134,17 +136,17 @@ namespace MultiArrayTools
         
         virtual IndexType type() const final { return mI->type(); }
 	
-	virtual IndexWrapper& operator=(size_t pos) final { (*mI) = pos; return *this; }
-	virtual IndexWrapper& operator++() final { ++(*mI); return *this; }
-	virtual IndexWrapper& operator--() final { --(*mI); return *this; }
+	virtual IndexWrapper& operator=(size_t pos) override final { (*mI) = pos; return *this; }
+	virtual IndexWrapper& operator++() override final { ++(*mI); return *this; }
+	virtual IndexWrapper& operator--() override final { --(*mI); return *this; }
 
-        virtual size_t pos() const final { return mI->pos(); }
-        virtual size_t max() const final { return mI->max(); }
+        virtual size_t pos() const override final { return mI->pos(); }
+        virtual size_t max() const override final { return mI->max(); }
         
-	virtual int pp(std::intptr_t idxPtrNum) final { return mI->pp(idxPtrNum); }
-	virtual int mm(std::intptr_t idxPtrNum) final { return mI->mm(idxPtrNum); }
+	virtual int pp(std::intptr_t idxPtrNum) override final { return mI->pp(idxPtrNum); }
+	virtual int mm(std::intptr_t idxPtrNum) override final { return mI->mm(idxPtrNum); }
 
-	virtual std::string stringMeta() const final { return mI->stringMeta(); }
+	virtual std::string stringMeta() const override final { return mI->stringMeta(); }
 	//virtual DynamicMetaT meta() const final { return DynamicMetaT(mI->meta()); }
 	//virtual const DynamicMetaT* metaPtr() const final { return nullptr; }
 	IndexWrapper& at(const typename Index::MetaType& metaPos) { mI->at(metaPos); return *this; }
@@ -152,24 +154,24 @@ namespace MultiArrayTools
 
 	//virtual bool isMeta(const U& metaPos) const final { return mI->isMeta(); }
 	
-	virtual size_t dim() const final { return mI->dim(); }
-	virtual bool last() const final { return mI->last(); }
-	virtual bool first() const final { return mI->first(); }
+	virtual size_t dim() const override final { return mI->dim(); }
+	virtual bool last() const override final { return mI->last(); }
+	virtual bool first() const override final { return mI->first(); }
 
-	virtual std::shared_ptr<RangeBase> range() const final { return mI->range(); }
+	virtual std::shared_ptr<RangeBase> range() const override final { return mI->range(); }
         
-        virtual size_t getStepSize(size_t n) const final { return mI->getStepSize(n); }
-        virtual size_t getStepSizeComp(std::intptr_t j) const final;
+        virtual size_t getStepSize(size_t n) const override final { return mI->getStepSize(n); }
+        virtual size_t getStepSizeComp(std::intptr_t j) const override final;
         
-        virtual std::intptr_t get() const final { return reinterpret_cast<std::intptr_t>(mI.get()); }
-	virtual std::intptr_t ptrNum() const final { return mI->ptrNum(); }
+        virtual std::intptr_t get() const override final { return reinterpret_cast<std::intptr_t>(mI.get()); }
+	virtual std::intptr_t ptrNum() const override final { return mI->ptrNum(); }
 	
     };
     
     //typedef SingleRange<size_t,SpaceType::DYN> DynamicRange;
 
     template <class EC>
-    class DynamicIndex : public IndexInterface<DynamicIndex<EC>,std::vector<char>>
+    class DynamicIndex : public IndexInterface<DynamicIndex<EC>,vector<char>>
     {
     private:
         typedef vector<std::pair<std::shared_ptr<IndexW<EC>>,size_t>> IVecT;
@@ -177,8 +179,8 @@ namespace MultiArrayTools
         IVecT mIVec;
 
     public:
-        typedef IndexInterface<DynamicIndex<EC>,std::vector<char>> IB;
-	typedef std::vector<char> MetaType;
+        typedef IndexInterface<DynamicIndex<EC>,vector<char>> IB;
+	typedef vector<char> MetaType;
 	typedef DynamicRange<EC> RangeType;
 	typedef DynamicIndex IType;
 
@@ -287,8 +289,9 @@ namespace MultiArrayTools
 	typedef RangeBase RB;
 	typedef DynamicIndex<EC> IndexType;
 	typedef DynamicRange RangeType;
-	typedef std::vector<char> MetaType;
-
+	typedef vector<char> MetaType;
+        typedef DynamicRangeFactory<EC> FType;
+        
     private:
 	DynamicRange() = default;
 	DynamicRange(const DynamicRange& in) = default;

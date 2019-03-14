@@ -83,7 +83,8 @@ namespace MultiArrayTools
 	virtual T* data() override;
 	virtual vector<T>& vdata() { return mCont; }
 	virtual const vector<T>& vdata() const { return mCont; }
-
+        vector<T>&& vmove() { MAB::mInit = false; return std::move(mCont); }
+        
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
 	
