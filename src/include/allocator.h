@@ -68,6 +68,18 @@ namespace MultiArrayTools
 {
     template <typename T>
     using vector = std::vector<T,MultiArrayHelper::Allocator<T>>;
+
+    template <typename T>
+    inline std::vector<T> toStdVec(const vector<T>& v)
+    {
+        return std::vector<T>(v.begin(), v.end());
+    }
+
+    template <typename T>
+    inline vector<T> toMatVec(const std::vector<T>& v)
+    {
+        return vector<T>(v.begin(), v.end());
+    }
     
 } // namespace MultiArrayTools
 
