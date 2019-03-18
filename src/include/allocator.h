@@ -18,7 +18,12 @@ namespace MultiArrayHelper
 	typedef T value_type;
 	static constexpr size_t type_size = sizeof(value_type);	
 	static constexpr size_t N = 32;
-	
+
+        struct VX
+        {
+            alignas(N) char x[N];
+        };
+        
 	Allocator() = default;
 
 	template <typename U>
@@ -26,26 +31,18 @@ namespace MultiArrayHelper
 
 	T* allocate(size_t n)
 	{
-	    //constexpr size_t NN = N*type_size;
 	    const size_t nn = n*type_size;
-	    if(n > static_cast<size_t>(-1-N)) throw std::bad_alloc();
-	    auto p = static_cast<char*>(std::malloc(nn + N));
-	    if(not p) throw std::bad_alloc();
-	    auto ip = reinterpret_cast<std::intptr_t>(p);
-	    auto diff = N - (ip % N);
-	    p += diff;
-	    //auto ipx = reinterpret_cast<std::intptr_t>(p);
-	    //std::cout << "ixp: " << ipx << std::endl;
-	    //std::cout << "ixp %: " << ipx % N << std::endl;
-	    auto ps = reinterpret_cast<std::intptr_t*>(p);
-	    ps[-1] = diff;
-	    return reinterpret_cast<T*>(p);
+            const size_t off = nn%N;
+            const size_t nnx = (off == 0) ? nn : nn + N - off;
+            const size_t nnd = nnx/4;
+            VX* vx = new VX[nnd];
+	    return reinterpret_cast<T*>(vx);
 	}
 
 	void deallocate(T* p, size_t n)
 	{
-	    auto ps = reinterpret_cast<std::intptr_t*>(p);
-	    std::free(reinterpret_cast<char*>(p)-ps[-1]);
+            VX* vx = reinterpret_cast<VX*>(p);
+            delete [] vx;
 	}
     };
 
