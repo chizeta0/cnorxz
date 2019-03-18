@@ -34,7 +34,7 @@ namespace MultiArrayHelper
 	    const size_t nn = n*type_size;
             const size_t off = nn%N;
             const size_t nnx = (off == 0) ? nn : nn + N - off;
-            const size_t nnd = nnx/4;
+            const size_t nnd = nnx/N;
             VX* vx = new VX[nnd];
 	    return reinterpret_cast<T*>(vx);
 	}
