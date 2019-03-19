@@ -76,16 +76,19 @@ namespace MultiArrayTools
 	return SpaceType::NUL;
     }
 
-    size_t GenSingleRange<size_t,SpaceType::NUL,0>::typeNum() const
+    vector<size_t> GenSingleRange<size_t,SpaceType::NUL,0>::typeNum() const
     {
-        return NumTypeMap<size_t>::num;
+        return {NumTypeMap<size_t>::num};
     }
     
     size_t GenSingleRange<size_t,SpaceType::NUL,0>::cmeta(char* target, size_t pos) const
     {
-        if(target){
-            *reinterpret_cast<size_t*>(target) = 0;
-        }
+        *reinterpret_cast<size_t*>(target) = 0;
+        return sizeof(size_t);
+    }
+
+    size_t GenSingleRange<size_t,SpaceType::NUL,0>::cmetaSize() const
+    {
         return sizeof(size_t);
     }
 

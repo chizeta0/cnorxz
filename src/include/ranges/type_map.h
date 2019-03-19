@@ -16,6 +16,7 @@ namespace MultiArrayTools
     struct TypeMap
     {
 	typedef void type;
+        static constexpr size_t size = 0;
     };
 
     template <typename T>
@@ -85,7 +86,7 @@ namespace MultiArrayTools
 
 #define XCOMMAX() ,
     
-#define include_type(t,n) template <> struct TypeMap<n> { typedef t type; };\
+#define include_type(t,n) template <> struct TypeMap<n> { typedef t type; static constexpr size_t size = sizeof(t); }; \
     template <> struct NumTypeMap<t> { static constexpr size_t num = n; };
 
     include_type(size_t,1)
@@ -110,10 +111,25 @@ namespace MultiArrayTools
     include_type(std::array<int XCOMMAX() 9>,902)
     
 #undef include_type
+
+    inline size_t sizeFromTypeNum(size_t tn)
+    {
+        if(tn == 1){ return sizeof(size_t); }
+        else if(tn == 2){ return sizeof(int); }
+        else if(tn == 3){ return sizeof(char); }
+        else if(tn == 4){ return sizeof(float); }
+        else if(tn == 5){ return sizeof(double); }
+        else if(tn == 6){ return sizeof(std::string); }
+        else if(tn > 6 and tn < 100){ assert(0); }
+        else if(tn >= 100 and tn < 200) { return sizeof(std::vector<char>); }
+        else { const size_t nx = tn % 100; return sizeFromTypeNum(nx)*(tn-nx)/100; }
+    }
 }
+
 #endif
 
 #undef XCOMMAX
+
 
 #define register_all_types \
     register_type(1) \

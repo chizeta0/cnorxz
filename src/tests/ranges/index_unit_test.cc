@@ -5,7 +5,8 @@
 #include <iostream>
 
 #include "ranges/rheader.h"
-
+#include "expressions.h"
+#include "ranges/dynamic_range.cc.h"
 //#include "multi_array_header.h"
 
 namespace MAT = MultiArrayTools;
@@ -34,6 +35,44 @@ namespace {
     {
 	return std::make_tuple(ts...);
     }
+
+    class DynIndexTest : public ::testing::Test
+    {
+    protected:
+        typedef DynamicRangeFactory<Expressions1> DRF;
+        typedef DRF::oType DR;
+
+	typedef SingleRangeFactory<char,SpaceType::ANY> SRF;
+	typedef SRF::oType SRange;
+
+	typedef MultiRangeFactory<SRange,SRange,SRange> M3RF;
+	typedef M3RF::oType M3Range;
+
+        DynIndexTest()
+        {
+            SRF srf({'e', 'b', 'n'});
+            sr = std::dynamic_pointer_cast<SRange>( srf.create() );
+
+            SRF srf1({'a', 'b'});
+            SRF srf2({'1'});
+            SRF srf3({'0', '7'});
+            auto sr1 = std::dynamic_pointer_cast<SRange>( srf1.create() );
+            auto sr2 = std::dynamic_pointer_cast<SRange>( srf2.create() );
+            auto sr3 = std::dynamic_pointer_cast<SRange>( srf3.create() );
+            M3RF mrf(sr1,sr2,sr3);
+            mr = std::dynamic_pointer_cast<M3Range>( mrf.create() );
+
+            vector<std::shared_ptr<RangeBase>> rv(2);
+            rv[0] = sr;
+            rv[1] = mr;
+            DRF drf(rv);
+            dr = std::dynamic_pointer_cast<DR>( drf.create() );
+        }
+
+        std::shared_ptr<DR> dr;
+        std::shared_ptr<SRange> sr;
+        std::shared_ptr<M3Range> mr;
+    };
     
     class IndexTest : public ::testing::Test
     {
@@ -210,6 +249,28 @@ namespace {
 	mi = mi.max()-1;
 	EXPECT_EQ(ci1().pos(), ci1.max()-1);
 	EXPECT_EQ(ci2().pos(), ci2.max()-1);
+    }
+
+    TEST_F(DynIndexTest, Iterate)
+    {
+        for(auto i = dr->begin(); i.pos() != i.max(); ++i){
+            EXPECT_EQ(i.meta().size(), 4*sizeof(char));
+        }
+        auto j = dr->begin();
+        EXPECT_EQ(j.meta(), vector<char>({'e','a','1','0'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'e','a','1','7'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'e','b','1','0'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'e','b','1','7'}));
+
+        EXPECT_EQ((++j).meta(), vector<char>({'b','a','1','0'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'b','a','1','7'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'b','b','1','0'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'b','b','1','7'}));
+
+        EXPECT_EQ((++j).meta(), vector<char>({'n','a','1','0'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'n','a','1','7'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'n','b','1','0'}));
+        EXPECT_EQ((++j).meta(), vector<char>({'n','b','1','7'}));
     }
     
 } // end namespace 

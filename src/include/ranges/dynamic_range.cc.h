@@ -176,13 +176,16 @@ namespace MultiArrayTools
     template <class EC>
     DynamicIndex<EC>& DynamicIndex<EC>::operator++()
     {
-        size_t ipos = mIVec.size()-1;
-        auto& ii = mIVec[ipos].first;
-        auto& jj = mIVec[ipos-1].first;
-        while(ii->pos() == ii->max()-1 and ipos != 0) {
-            (*ii) = 0;
-            ++(*jj);
-            --ipos;
+        ++IB::mPos;
+        if(mIvecInit){
+            size_t ipos = mIVec.size()-1;
+            auto& ii = mIVec[ipos].first;
+            auto& jj = mIVec[ipos-1].first;
+            while(ii->pos() == ii->max()-1 and ipos != 0) {
+                (*ii) = 0;
+                ++(*jj);
+                --ipos;
+            }
         }
 	return *this;
     }
@@ -190,13 +193,16 @@ namespace MultiArrayTools
     template <class EC>
     DynamicIndex<EC>& DynamicIndex<EC>::operator--()
     {
-        size_t ipos = mIVec.size()-1;
-        auto& ii = mIVec[ipos].first;
-        auto& jj = mIVec[ipos-1].first;
-        while(ii->pos() == 0 and ipos != 0) {
-            (*ii) = ii->max()-1;
-            --(*jj);
-            --ipos;
+        --IB::mPos;
+        if(mIvecInit){
+            size_t ipos = mIVec.size()-1;
+            auto& ii = mIVec[ipos].first;
+            auto& jj = mIVec[ipos-1].first;
+            while(ii->pos() == 0 and ipos != 0) {
+                (*ii) = ii->max()-1;
+                --(*jj);
+                --ipos;
+            }
         }
 	return *this;
     }
@@ -204,6 +210,7 @@ namespace MultiArrayTools
     template <class EC>
     DynamicIndex<EC>& DynamicIndex<EC>::sync()
     {
+        assert(mIvecInit);
 	size_t sv = 1;
 	IB::mPos = 0;
 	for(size_t i = 0; i != mIVec.size(); ++i){
@@ -217,6 +224,7 @@ namespace MultiArrayTools
     template <class EC>
     DynamicIndex<EC>& DynamicIndex<EC>::operator()(const IVecT& ivec)
     {
+        mIvecInit = true;
         mIVec = ivec;
 	sync();
         return *this;
@@ -225,6 +233,7 @@ namespace MultiArrayTools
     template <class EC>
     DynamicIndex<EC>& DynamicIndex<EC>::operator()(const vector<std::shared_ptr<IndexW<EC>>>& ivec)
     {
+        mIvecInit = true;
         assert(mIVec.size() == ivec.size());
 	for(size_t i = 0; i != mIVec.size(); ++i){
 	    mIVec[i].first = ivec[i];
@@ -237,6 +246,7 @@ namespace MultiArrayTools
     template <class... Indices>
     DynamicIndex<EC>& DynamicIndex<EC>::operator()(const std::shared_ptr<Indices>&... is)
     {
+        mIvecInit = true;
 	vector<std::shared_ptr<IndexW<EC>>> tmp =
 	    { std::make_shared<IndexWrapper<Indices,EC>>(is)... };
 	
@@ -320,6 +330,7 @@ namespace MultiArrayTools
     template <class EC>
     const IndexW<EC>& DynamicIndex<EC>::get(size_t n) const
     {
+        assert(mIvecInit);
         return *mIVec[n].first;
     }
 
@@ -439,7 +450,7 @@ namespace MultiArrayTools
     template <class EC>
     typename DynamicRange<EC>::MetaType DynamicRange<EC>::get(size_t pos) const
     {
-        vector<char> out(cmeta(nullptr,0));
+        vector<char> out(cmetaSize());
         cmeta(out.data(),pos);
         return out;
     }
@@ -475,22 +486,42 @@ namespace MultiArrayTools
     }
 
     template <class EC>
-    size_t DynamicRange<EC>::typeNum() const
+    vector<size_t> DynamicRange<EC>::typeNum() const
     {
-        return 0;
+        vector<size_t> o;
+        for(auto& x: mOrig){
+            auto tn = x->typeNum();
+            o.insert(o.end(), tn.begin(), tn.end());
+        }
+        return o;
     }
 
     template <class EC>
     size_t DynamicRange<EC>::cmeta(char* target, size_t pos) const
     {
         size_t out = 0;
+        size_t off = cmetaSize();
 	for(size_t i = mOrig.size(); i != 0; --i) {
 	    auto& x = mOrig[i-1];
 	    const size_t redpos = pos % x->size();
-            const size_t offset = x->cmeta(target+out,redpos);
-            out += offset;
+            const size_t s = x->cmetaSize();
+            out += s;
+            off -= s;
 	    pos -= redpos;
 	    pos /= x->size();
+            x->cmeta(target+off,redpos);
+	}
+        assert(off == 0);
+        return out;
+    }
+
+    template <class EC>
+    size_t DynamicRange<EC>::cmetaSize() const
+    {
+        size_t out = 0;
+	for(size_t i = mOrig.size(); i != 0; --i) {
+            auto& x = mOrig[i-1];
+            out += x->cmetaSize();
 	}
         return out;
     }

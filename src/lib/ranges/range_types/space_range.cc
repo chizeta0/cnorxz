@@ -59,16 +59,19 @@ namespace MultiArrayTools
 	return SpaceType::PSPACE;
     }
 
-    size_t GenSingleRange<int,SpaceType::PSPACE,-1>::typeNum() const
+    vector<size_t> GenSingleRange<int,SpaceType::PSPACE,-1>::typeNum() const
     {
-        return NumTypeMap<int>::num;
+        return {NumTypeMap<int>::num};
     }
     
     size_t GenSingleRange<int,SpaceType::PSPACE,-1>::cmeta(char* target, size_t pos) const
     {
-        if(target){
-            *reinterpret_cast<int*>(target) = get(pos);
-        }
+        *reinterpret_cast<int*>(target) = get(pos);
+        return sizeof(int);
+    }
+
+    size_t GenSingleRange<int,SpaceType::PSPACE,-1>::cmetaSize() const
+    {
         return sizeof(int);
     }
 

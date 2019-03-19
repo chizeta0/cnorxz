@@ -231,7 +231,7 @@ namespace MultiArrayTools
 	GenMapRange(const MapF& mapf, const Space& space);
 	
 	Space mSpace;
-	const MapF& mMapf;
+	MapF mMapf;
 	std::shared_ptr<ORType> mOutRange;
 	MultiArray<size_t,ORType> mMapMult;
 
@@ -257,8 +257,9 @@ namespace MultiArrayTools
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
         
-        virtual size_t typeNum() const final;
+        virtual vector<size_t> typeNum() const final;
         virtual size_t cmeta(char* target, size_t pos) const final;
+        virtual size_t cmetaSize() const final;
 	virtual std::string stringMeta(size_t pos) const final;
 	virtual vector<char> data() const final;
 	

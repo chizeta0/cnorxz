@@ -93,21 +93,39 @@ namespace MultiArrayTools
 	return mEmpty;
     }
 
-    size_t AnonymousRange::typeNum() const
+    vector<size_t> AnonymousRange::typeNum() const
     {
-        return 0;
+        vector<size_t> o;
+        for(auto& x: mOrig){
+            auto tn = x->typeNum();
+            o.insert(o.end(), tn.begin(), tn.end());
+        }
+        return o;
     }
     
     size_t AnonymousRange::cmeta(char* target, size_t pos) const
     {
         size_t out = 0;
+        size_t off = cmetaSize();
 	for(size_t i = mOrig.size(); i != 0; --i) {
 	    auto& x = mOrig[i-1];
 	    const size_t redpos = pos % x->size();
-            const size_t offset = x->cmeta(target+out, redpos);
-            out += offset;
+            const size_t s = x->cmetaSize();
+            out += s;
+            off -= s;
 	    pos -= redpos;
 	    pos /= x->size();
+            x->cmeta(target+off,redpos);
+	}
+        return out;
+    }
+
+    size_t AnonymousRange::cmetaSize() const
+    {
+        size_t out = 0;
+	for(size_t i = mOrig.size(); i != 0; --i) {
+            auto& x = mOrig[i-1];
+            out += x->cmetaSize();
 	}
         return out;
     }

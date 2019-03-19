@@ -371,13 +371,33 @@ namespace MultiArrayHelper
 	}
 
         template <class... Ranges>
-        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp,
+                                      size_t off)
+        {
+            //constexpr size_t NN = sizeof...(Ranges);
+            auto& r = *std::get<N>(stp);
+            const size_t ownPos = pos % r.size();
+            const size_t s = r.cmetaSize();
+            off -= s;
+            r.cmeta(target+off,ownPos);
+            return s + RPackNum<N-1>::getCMeta(target, (pos - ownPos) / r.size(), stp, off);
+        }
+
+        template <class... Ranges>
+        static inline size_t getCMetaSize(const std::tuple<std::shared_ptr<Ranges>...>& stp)
         {
             constexpr size_t NN = sizeof...(Ranges);
             auto& r = *std::get<NN-N-1>(stp);
-            const size_t ownPos = pos % r.size();
-            const size_t offset = r.cmeta(target,ownPos);
-            return offset + RPackNum<N-1>::getCMeta(target + offset , (pos - ownPos) / r.size(), stp);
+            return r.cmetaSize() + RPackNum<N-1>::getCMetaSize(stp);
+        }
+
+        template <class... Ranges>
+        static inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+        {
+            auto& r = *std::get<N>(stp);
+            auto tn = r.typeNum();
+            res.insert(res.begin(), tn.begin(), tn.end());
+            RPackNum<N-1>::getTypeNum(res, stp);
         }
     };
 
@@ -649,12 +669,33 @@ namespace MultiArrayHelper
 	}
 
         template <class... Ranges>
-        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp,
+                                      size_t off)
+        {
+            //constexpr size_t NN = sizeof...(Ranges);
+            auto& r = *std::get<0>(stp);
+            const size_t ownPos = pos % r.size();
+            const size_t s = r.cmetaSize();
+            off -= s;
+            assert(off == 0);
+            r.cmeta(target,ownPos);
+            return s;
+        }
+
+        template <class... Ranges>
+        static inline size_t getCMetaSize(const std::tuple<std::shared_ptr<Ranges>...>& stp)
         {
             constexpr size_t NN = sizeof...(Ranges);
             auto& r = *std::get<NN-1>(stp);
-            const size_t ownPos = pos % r.size();
-            return r.cmeta(target,ownPos);
+            return r.cmetaSize();
+        }
+
+        template <class... Ranges>
+        static inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+        {
+            auto& r = *std::get<0>(stp);
+            auto tn = r.typeNum();
+            res.insert(res.begin(), tn.begin(), tn.end());
         }
 
     };
