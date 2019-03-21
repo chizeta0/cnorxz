@@ -18,7 +18,7 @@ namespace MultiArrayTools
     OpExpr<MapF,IndexPack,Expr,STYPE>::OpExpr(const MapF& mapf, const IndexPack& ipack,
 					const std::shared_ptr<OIType>& oind, size_t step, Expr ex) :
 	mIndPtr(oind.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
-	mStep(step), mExpr( std::forward<Expr>(ex) ),
+	mStep(step), mExpr( ex ),
 	mOp(mkMapOp(mapf, ipack)),
 	//mExt(ex.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
 	mExt( mOp.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr ) ).extend

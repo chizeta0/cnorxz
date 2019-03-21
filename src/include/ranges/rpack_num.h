@@ -720,7 +720,9 @@ namespace MultiArrayHelper
 	template <class Index>
 	static inline size_t getStepSize(const Index& ii, std::intptr_t j)
 	{
-	    return ii.ptrNum() == j ? 1 : 0;
+            const std::intptr_t ip = reinterpret_cast<std::intptr_t>(&ii);
+            return ip == j ? 1 : 0;
+	    //return ii.ptrNum() == j ? 1 : 0;
 	}
     };
     
