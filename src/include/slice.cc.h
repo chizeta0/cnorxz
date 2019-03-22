@@ -89,7 +89,12 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     std::shared_ptr<MultiArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous(bool slice) const
     {
-	assert(0); // think about carefully!!!!
+        assert(slice);
+        assert(not MAB::mProtoI->sliceMode()); // only originally ordered slices!
+        AnonymousRangeFactory arf(MAB::mRange->space());
+        return std::make_shared<ConstSlice<T,AnonymousRange> >
+            ( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
+              data() );
 	return nullptr;
     }
     

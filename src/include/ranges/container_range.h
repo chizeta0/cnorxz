@@ -535,6 +535,7 @@ namespace MultiArrayTools
     format(const std::array<size_t,sizeof...(Indices)+1>& blocks)
     {
 	mBlockSizes = blocks;
+        mNonTrivialBlocks = true;
 	return *this;
     }
     

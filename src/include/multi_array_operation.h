@@ -125,6 +125,31 @@ namespace MultiArrayTools
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
     };
 
+    template <typename T, class Target, class OpClass>
+    class AssignmentExpr2
+    {
+    private:
+        AssignmentExpr2() = default;
+
+        Target mTar;
+        OpClass mSec;
+        T* mDataPtr;
+            
+    public:
+
+        static constexpr size_t LAYER = 0;
+        static constexpr size_t SIZE = Target::SIZE + OpClass::SIZE;
+        typedef decltype(mTar.rootSteps(0).extend( mSec.rootSteps(0) )) ExtType;
+	    
+        AssignmentExpr2(T* dataPtr, const Target& tar, const OpClass& sec);
+        AssignmentExpr2(const AssignmentExpr2& in) = default;
+        AssignmentExpr2(AssignmentExpr2&& in) = default;
+	    
+        inline void operator()(size_t start = 0); 
+        inline void operator()(size_t start, ExtType last);
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+    };
+
     template <typename T, class OpClass>
     class AddExpr
     {
@@ -290,6 +315,11 @@ namespace MultiArrayTools
         auto assign(const OpClass& in)
             -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
 
+        template <class OpClass, class Index>
+        auto assign(const OpClass& in, const std::shared_ptr<Index>& i)
+            -> decltype(i->ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
+                                          (mOrigDataPtr,*this,in))));
+            
         template <class OpClass>
         auto plus(const OpClass& in)
             -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))));
