@@ -120,6 +120,32 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<Range>( rbptr );
     }
 
+    inline auto createRange(const vector<char>* cvec, int metaType, size_t size)
+        -> std::shared_ptr<RangeBase>
+    {
+        auto f = createSingleRangeFactory(cvec, metaType, size);
+        return f->create();
+    }
+
+    inline auto createRangeA(const vector<char>* cvec, int metaType, size_t size)
+	-> std::shared_ptr<AnonymousRange>
+    {
+        AnonymousRangeFactory arf(createRange(cvec, metaType, size));
+        return createExplicit(arf);
+    }
+
+    inline auto cvecMetaCast(const std::shared_ptr<SingleRange<vector<char>,SpaceType::ANY>>& r, int metaType)
+        -> std::shared_ptr<RangeBase>
+    {
+        return createRange(&r->get(0), metaType, r->size());
+    }
+
+    inline auto cvecMetaCastA(const std::shared_ptr<SingleRange<vector<char>,SpaceType::ANY>>& r, int metaType)
+        -> std::shared_ptr<AnonymousRange>
+    {
+        return createRangeA(&r->get(0), metaType, r->size());
+    }
+
     template <class Range, typename... Args>
     auto createRangeE(Args&&... args)
         -> std::shared_ptr<Range>

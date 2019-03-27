@@ -122,15 +122,15 @@ namespace MultiArrayTools
         return out;
     }
 
-    std::shared_ptr<RangeFactoryBase> createSingleRangeFactory(const vector<vector<char>>& d, int metaType)
+    std::shared_ptr<RangeFactoryBase> createSingleRangeFactory(const vector<char>*& d, int metaType, size_t size)
     {
         std::shared_ptr<RangeFactoryBase> out = nullptr;
         if(metaType == -1){
             assert(0);
         }
 #define register_type(x) else if(x == metaType) { \
-            vector<TypeMap<x>::type> vd(d.size());      \
-            std::transform(d.begin(),d.end(),vd.begin(), \
+            vector<TypeMap<x>::type> vd(size);    \
+            std::transform(d,d+size,vd.begin(), \
                            [](const vector<char>& c) \
                            { assert(c.size() == sizeof(TypeMap<x>::type)); \
                                return *reinterpret_cast<TypeMap<x>::type const*>(c.data()); }); \

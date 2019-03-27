@@ -64,6 +64,12 @@ namespace MultiArrayTools
     auto createRange(const vector<char>& cvec)
 	-> std::shared_ptr<Range>;
 
+    inline auto createRange(const vector<char>* cvec, int metaType, size_t size)
+	-> std::shared_ptr<RangeBase>;
+
+    inline auto createRangeA(const vector<char>* cvec, int metaType, size_t size)
+	-> std::shared_ptr<AnonymousRange>;
+
     template <class Range, typename... Args>
     auto createRangeE(Args&&... args)
         -> std::shared_ptr<Range>;
