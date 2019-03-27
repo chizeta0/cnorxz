@@ -7,6 +7,8 @@
 
 #include "ranges/range_base.h"
 
+#include <algorithm>
+
 namespace MultiArrayTools
 {
 
@@ -100,6 +102,48 @@ namespace MultiArrayTools
 	return out;
     }
 
+
+    std::shared_ptr<RangeFactoryBase> mkANY(int metaType, size_t metaSize, char const** dp)
+    {
+        std::shared_ptr<RangeFactoryBase> out = nullptr;
+        if(metaType == -1){
+            assert(0);
+        }
+#define register_type(x) else if(x == metaType) { \
+		    vector<TypeMap<x>::type> vd; \
+		    metaCat(vd, *dp, metaSize); \
+		    out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \
+							      SpaceType::ANY> >(vd); }
+#include "ranges/type_map.h"
+#undef register_type
+        else {
+            assert(0);
+        }
+        return out;
+    }
+
+    std::shared_ptr<RangeFactoryBase> createSingleRangeFactory(const vector<vector<char>>& d, int metaType)
+    {
+        std::shared_ptr<RangeFactoryBase> out = nullptr;
+        if(metaType == -1){
+            assert(0);
+        }
+#define register_type(x) else if(x == metaType) { \
+            vector<TypeMap<x>::type> vd(d.size());      \
+            std::transform(d.begin(),d.end(),vd.begin(), \
+                           [](const vector<char>& c) \
+                           { assert(c.size() == sizeof(TypeMap<x>::type)); \
+                               return *reinterpret_cast<TypeMap<x>::type const*>(c.data()); }); \
+            out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \
+                                                      SpaceType::ANY> >(vd); }
+#include "ranges/type_map.h"
+#undef register_type
+        else {
+            assert(0);
+        }
+        return out;
+    }
+    
     std::shared_ptr<RangeFactoryBase> createRangeFactory(char const** dp)
     {
 	DataHeader h = *reinterpret_cast<const DataHeader*>(*dp);
@@ -123,20 +167,7 @@ namespace MultiArrayTools
 	else {
 	    if(h.spaceType == static_cast<int>( SpaceType::ANY ) ) {
 		// generic single range
-		if(h.metaType == -1){
-		    assert(0);
-		}
-#define register_type(x) else if(x == h.metaType) {	\
-		    vector<TypeMap<x>::type> vd;\
-		    metaCat(vd, *dp, h.metaSize); \
-		    out = std::make_shared<SingleRangeFactory<TypeMap<x>::type, \
-							      SpaceType::ANY> >(vd); }
-#include "ranges/type_map.h"
-#undef register_type
-		else {
-		    assert(0);
-		}
-		
+                out = mkANY(h.metaType, h.metaSize, dp);
 	    }
 	    else if(h.spaceType == static_cast<int>( SpaceType::NONE ) ) {
 		// classic range

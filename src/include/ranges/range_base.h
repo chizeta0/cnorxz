@@ -63,6 +63,7 @@ namespace MultiArrayTools
     };
 
     std::shared_ptr<RangeFactoryBase> createRangeFactory(const char** dp);
+    std::shared_ptr<RangeFactoryBase> createSingleRangeFactory(const vector<vector<char>>& d, size_t metaType);
     
     class RangeBase
     {
