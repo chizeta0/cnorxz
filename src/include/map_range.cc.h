@@ -425,13 +425,19 @@ namespace MultiArrayTools
             mapMult = MultiArray<size_t,ORType>( outRange, outmult );
         }
     };
-    //!!!!!
+
     template <class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
     void GenMapRange<Op,XSTYPE,Ranges...>::mkOutRange(const MA& mapf)
     {
 	//FunctionalMultiArray<typename MapF::value_type,MapF,Ranges...> fma(mSpace, mMapf);
         OutRangeMaker<XSTYPE>::mk(mOutRange,mMapMult,mapf);
+        auto i = mapf.begin();
+        mMapPos.resize(i.max());
+        for(; i.pos() != i.max(); ++i){
+            mMapPos[i.pos()] = mOutRange->getMeta( mapf[i] );
+        }
+
     }
     
     template <class Op, SpaceType XSTYPE, class... Ranges>
@@ -593,12 +599,7 @@ namespace MultiArrayTools
     template <class Op, SpaceType XSTYPE, class... Ranges>
     vector<size_t> GenMapRange<Op,XSTYPE,Ranges...>::mapPos() const
     {
-        auto i = mMapf.begin();
-        vector<size_t> out(i.max());
-        for(; i.pos() != i.max(); ++i){
-            out[i.pos()] = mOutRange->getMeta( mMapf[i] );
-        }
-        return out;
+        return mMapPos;
     }
     
     /*

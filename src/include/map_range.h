@@ -259,7 +259,8 @@ namespace MultiArrayTools
 	//Op mMapf;
 	std::shared_ptr<ORType> mOutRange;
 	MultiArray<size_t,ORType> mMapMult;
-
+        vector<size_t> mMapPos;
+        
     private:
         template <class MA>
 	void mkOutRange(const MA& mapf);
