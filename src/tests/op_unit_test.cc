@@ -197,14 +197,30 @@ namespace {
 
 	typedef SingleRangeFactory<size_t,SpaceType::ANY> SRF;
 	typedef SRF::oType SRange;
-
+        typedef typename SRange::IndexType SIndex;
+        /*
 	typedef FunctionalMultiArray<size_t,plus<size_t>,SRange,SRange> MapF;
 	
 	typedef MapRangeFactory<MapF,SRange,SRange> MpRF;
 	typedef MpRF::oType MpRange;
-
-	typedef MpRange::ORType TRange;
+        */
 	
+
+        std::shared_ptr<SRange> sr1ptr;
+	std::shared_ptr<SRange> sr2ptr;
+        std::shared_ptr<SIndex> si1ptr;
+        std::shared_ptr<SIndex> si2ptr;
+        
+	//std::shared_ptr<MpRange> mpr1ptr;
+	vector<double> v1 = { -31.71, -77.16, -18.81,
+                              -67.06, 72.31, -54.48,
+                              -50.91, -11.62, -59.57,
+                              -42.53, 80.41, 6.35 };
+
+        typedef std::remove_reference<decltype(*mkMapR( mkMapOp(std::make_shared<plus<size_t>>(),getIndex(sr1ptr),getIndex(sr2ptr)) , sr1ptr, sr2ptr ))>::type MpRange;
+        std::shared_ptr<MpRange> mpr1ptr;
+        typedef MpRange::ORType TRange;
+        
 	MapTest()
 	{
 	    SRF srf1( { 1,  3,  7,  10 } );
@@ -212,20 +228,12 @@ namespace {
 
 	    sr1ptr = std::dynamic_pointer_cast<SRange>( srf1.create() );
 	    sr2ptr = std::dynamic_pointer_cast<SRange>( srf2.create() );
-
-	    MapF map(sr1ptr,sr2ptr);
-	    MpRF mprf1( map, sr1ptr, sr2ptr );
-
-	    mpr1ptr = std::dynamic_pointer_cast<MpRange>( mprf1.create() );
+            si1ptr = getIndex(sr1ptr);
+            si2ptr = getIndex(sr2ptr);
+            
+            mpr1ptr = mkMapR( mkMapOp(std::make_shared<plus<size_t>>(),si1ptr,si2ptr) , sr1ptr, sr2ptr );
 	}
 
-	std::shared_ptr<SRange> sr1ptr;
-	std::shared_ptr<SRange> sr2ptr;
-	std::shared_ptr<MpRange> mpr1ptr;
-	vector<double> v1 = { -31.71, -77.16, -18.81,
-				   -67.06, 72.31, -54.48,
-				   -50.91, -11.62, -59.57,
-				   -42.53, 80.41, 6.35 };
     };
     
     class OpTest_Performance : public ::testing::Test
@@ -358,8 +366,9 @@ namespace {
 
 	auto ii1 = getIndex( rptr<0>( ma1 ) );
 	auto ii2 = getIndex( rptr<1>( ma1 ) );
-
-	auto mr = mkMapR(std::make_shared<plus<size_t>>(),sr1ptr,sr2ptr);
+        
+        auto mr = mkMapR( mkMapOp(std::make_shared<plus<size_t>>(),ii1,ii2) , sr1ptr, sr2ptr );
+	//auto mr = mkMapR(std::make_shared<plus<size_t>>(),sr1ptr,sr2ptr);
 	MultiArray<double,MpRange> res(mr);
 	MultiArray<double,MpRange> res2(mr);
 	auto jj = getIndex( mr );

@@ -26,20 +26,35 @@ namespace MultiArrayTools
 	using namespace MultiArrayHelper;
     }
 
-    template <class MA, class... Indices>
-    auto mkMapOp(const MA& ma,
-		 const std::tuple<std::shared_ptr<Indices>...>& itp)
-	-> decltype(PackNum<sizeof...(Indices)-1>::mkMapOp(ma, itp))
+
+    template <class Func, class... Indices>
+    auto mkMapOp(const std::shared_ptr<Func>& func,
+		 const std::shared_ptr<Indices>&... is)
+	-> decltype(std::make_tuple(FunctionalMultiArray<typename Func::value_type,Func,
+                                    typename Indices::RangeType...>().exec(is...),
+                                    FunctionalMultiArray<typename Func::value_type,Func,
+                                    typename Indices::RangeType...>()))
     {
-	return PackNum<sizeof...(Indices)-1>::mkMapOp(ma, itp);
+        typedef FunctionalMultiArray<typename Func::value_type,Func,typename Indices::RangeType...> FMA;
+        if(Func::FISSTATIC){
+            FMA fma(is->range()...);
+            return std::make_tuple(fma.exec(is...),fma);
+        }
+        else {
+            FMA fma(is->range()...,func);
+            return std::make_tuple(fma.exec(is...),fma);
+        }
     }
+
     
-    template <class MapF, class IndexPack, class Expr, SpaceType STYPE = SpaceType::ANY>
+    
+    template <class Op, class IndexPack, class Expr, SpaceType STYPE = SpaceType::ANY>
+    //template <class MapF, class IndexPack, class Expr, SpaceType STYPE = SpaceType::ANY>
     class OpExpr
     {
     public:
-	typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
-	typedef SingleIndex<typename MapF::value_type,STYPE> OIType;
+	//typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
+	typedef SingleIndex<typename Op::value_type,STYPE> OIType;
 	//typedef typename MapF::IndexPack IndexPack;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE + Op::SIZE;
@@ -62,8 +77,9 @@ namespace MultiArrayTools
 	OpExpr(OpExpr&& in) = default;
 	OpExpr& operator=(const OpExpr& in) = default;
 	OpExpr& operator=(OpExpr&& in) = default;
-	
-	OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
+
+        OpExpr(const Op& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
+	//OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
 
 	inline void operator()(size_t mlast, ExtType last);
 	inline void operator()(size_t mlast = 0);
@@ -72,19 +88,19 @@ namespace MultiArrayTools
 
     };
     
-    template <class MapF, SpaceType XSTYPE, class... Indices>
-    class GenMapIndex : public IndexInterface<GenMapIndex<MapF,XSTYPE,Indices...>,
+    template <class Op, SpaceType XSTYPE, class... Indices>
+    class GenMapIndex : public IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,
                                               std::tuple<typename Indices::MetaType...> >
     {
     public:
 	
-	typedef IndexInterface<GenMapIndex<MapF,XSTYPE,Indices...>,
+	typedef IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,
 			       std::tuple<typename Indices::MetaType...> > IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	typedef std::tuple<typename Indices::MetaType...> MetaType;
-	typedef GenMapRange<MapF,XSTYPE,typename Indices::RangeType...> RangeType;
+	typedef GenMapRange<Op,XSTYPE,typename Indices::RangeType...> RangeType;
 	typedef GenMapIndex IType;
-	typedef SingleIndex<typename MapF::value_type,XSTYPE> OIType;
+	typedef SingleIndex<typename Op::value_type,XSTYPE> OIType;
 	
 	static constexpr IndexType sType() { return IndexType::MULTI; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
@@ -168,7 +184,7 @@ namespace MultiArrayTools
 	template <class Exprs>
 	auto ifor(size_t step, Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-			(step, mIPack, mBlockSizes, OpExpr<MapF,IndexPack,Exprs,XSTYPE>( range()->map(), mIPack, mOutIndex, step, exs ) ) );
+			(step, mIPack, mBlockSizes, OpExpr<Op,IndexPack,Exprs,XSTYPE>( range()->map(), mIPack, mOutIndex, step, exs ) ) );
 	// first step arg not used!
 
         template <class Exprs>
@@ -188,15 +204,20 @@ namespace MultiArrayTools
      *************************/
 
     // NOT THREAD SAVE
-    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    template <class Op, SpaceType XSTYPE, class... Ranges>
     class GenMapRangeFactory : public RangeFactoryBase
     {
     public:
-	typedef GenMapRange<MapF,XSTYPE,Ranges...> oType;
+	typedef GenMapRange<Op,XSTYPE,Ranges...> oType;
 	
 	GenMapRangeFactory() = delete;
-	GenMapRangeFactory(const MapF& mapf, const std::shared_ptr<Ranges>&... rs);
-	GenMapRangeFactory(const MapF& mapf, const typename GenMapRange<MapF,XSTYPE,Ranges...>::Space& space);
+
+        template <class MA>
+	GenMapRangeFactory(const std::tuple<Op,MA>& mapf, const std::shared_ptr<Ranges>&... rs);
+
+        template <class MA>
+	GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
+                           const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& space);
 
 	virtual std::shared_ptr<RangeBase> create() override;
 
@@ -210,33 +231,38 @@ namespace MultiArrayTools
      *   MapRange   *
      ******************/
     
-    template <class MapF, SpaceType XSTYPE, class... Ranges>
-    class GenMapRange : public RangeInterface<GenMapIndex<MapF,XSTYPE,typename Ranges::IndexType...> >
+    template <class Op, SpaceType XSTYPE, class... Ranges>
+    class GenMapRange : public RangeInterface<GenMapIndex<Op,XSTYPE,typename Ranges::IndexType...> >
     {
     public:
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
-	typedef GenMapIndex<MapF,XSTYPE,typename Ranges::IndexType...> IndexType;
+	typedef GenMapIndex<Op,XSTYPE,typename Ranges::IndexType...> IndexType;
 	typedef GenMapRange RangeType;
-	typedef SingleRange<typename MapF::value_type,XSTYPE> ORType;
-	typedef SingleRangeFactory<typename MapF::value_type,XSTYPE> ORFType;
+	typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
+	typedef SingleRangeFactory<typename Op::value_type,XSTYPE> ORFType;
 	//typedef typename RangeInterface<MapIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:
 	GenMapRange() = delete;
 	GenMapRange(const GenMapRange& in) = delete;
 	GenMapRange& operator=(const GenMapRange& in) = delete;
-	
-	GenMapRange(const MapF& mapf, const std::shared_ptr<Ranges>&... rs);
-	GenMapRange(const MapF& mapf, const Space& space);
+
+        template <class MA>
+        GenMapRange(const std::tuple<Op,MA>& mapf, const Space& space);
+
+        template <class MA>
+        GenMapRange(const std::tuple<Op,MA>& mapf, const std::shared_ptr<Ranges>&... rs);
 	
 	Space mSpace;
-	MapF mMapf;
+        Op mMapf;
+	//Op mMapf;
 	std::shared_ptr<ORType> mOutRange;
 	MultiArray<size_t,ORType> mMapMult;
 
     private:
-	void mkOutRange();
+        template <class MA>
+	void mkOutRange(const MA& mapf);
 	
     public:
 	
@@ -249,7 +275,7 @@ namespace MultiArrayTools
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
 	std::shared_ptr<ORType> outRange() const;
-	const MapF& map() const;
+	const Op& map() const;
 	
 	virtual size_t dim() const final;
 	virtual size_t size() const final;
@@ -278,31 +304,30 @@ namespace MultiArrayTools
 	auto cat(const std::shared_ptr<GenMapRange<ERanges...> >& erange)
 	    -> std::shared_ptr<GenMapRange<Ranges...,ERanges...> >;
         */
-	friend GenMapRangeFactory<MapF,XSTYPE,Ranges...>;
+	friend GenMapRangeFactory<Op,XSTYPE,Ranges...>;
 
 	static constexpr bool HASMETACONT = false;
 	static constexpr bool defaultable = false;
-	static constexpr size_t ISSTATIC = SubProp<MapF,Ranges...>::ISSTATIC;
-	static constexpr size_t SIZE = SubProp<MapF,Ranges...>::SIZE;
+	static constexpr size_t ISSTATIC = SubProp<Op,Ranges...>::ISSTATIC;
+	static constexpr size_t SIZE = SubProp<Op,Ranges...>::SIZE;
     };
 
     // for legacy
-    template <class MapF, class... Indices>
-    using MapIndex = GenMapIndex<MapF,SpaceType::ANY,Indices...>;
+    template <class Op, class... Indices>
+    using MapIndex = GenMapIndex<Op,SpaceType::ANY,Indices...>;
 
-    template <class MapF, class... Ranges>
-    using MapRangeFactory = GenMapRangeFactory<MapF,SpaceType::ANY,Ranges...>;
+    template <class Op, class... Ranges>
+    using MapRangeFactory = GenMapRangeFactory<Op,SpaceType::ANY,Ranges...>;
 
-    template <class MapF, class... Ranges>
-    using MapRange = GenMapRange<MapF,SpaceType::ANY,Ranges...>;
+    template <class Op, class... Ranges>
+    using MapRange = GenMapRange<Op,SpaceType::ANY,Ranges...>;
 
-    template <class MapF, class... Indices>
-    auto mapResult/*<MapIndex<MapF,Indices...> >*/(const std::shared_ptr<MapIndex<MapF,Indices...> >& ind)
+    template <class Op, class... Indices>
+    auto mapResult/*<MapIndex<Op,Indices...> >*/(const std::shared_ptr<MapIndex<Op,Indices...> >& ind)
 	-> decltype(ind->outIndex())
     {
 	return ind->outIndex();
     }
-
 }
 
 
