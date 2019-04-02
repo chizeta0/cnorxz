@@ -68,12 +68,14 @@ namespace MultiArrayTools
 
 	// CHECK / IMPLEMENT !!!!!!
 	template <class Expr>
-	auto ifor(const Expr ex) const -> decltype(THIS().template ifor<Expr>(ex))
-	{ return THIS().template ifor<Expr>(ex); }
+	auto ifor(size_t step, const Expr ex) const
+            -> decltype(THIS().template ifor<Expr>(step,ex))
+	{ return THIS().template ifor<Expr>(step,ex); }
 
 	template <class Expr>
-	auto iforh(const Expr ex) const -> decltype(THIS().template iforh<Expr>(ex))
-	{ return THIS().template iforh<Expr>(ex); }
+	auto iforh(size_t step, const Expr ex) const
+            -> decltype(THIS().template iforh<Expr>(step,ex))
+	{ return THIS().template iforh<Expr>(step,ex); }
 
 	std::intptr_t ptrNum() const;
 	

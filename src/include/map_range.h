@@ -48,14 +48,12 @@ namespace MultiArrayTools
 
     
     
-    template <class Op, class IndexPack, class Expr, SpaceType STYPE = SpaceType::ANY>
+    template <class Op, class Expr, SpaceType STYPE = SpaceType::ANY>
     //template <class MapF, class IndexPack, class Expr, SpaceType STYPE = SpaceType::ANY>
     class OpExpr
     {
     public:
-	//typedef decltype(mkMapOp(std::declval<MapF>(), std::declval<IndexPack>())) Op;
 	typedef SingleIndex<typename Op::value_type,STYPE> OIType;
-	//typedef typename MapF::IndexPack IndexPack;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE + Op::SIZE;
 	
@@ -78,8 +76,7 @@ namespace MultiArrayTools
 	OpExpr& operator=(const OpExpr& in) = default;
 	OpExpr& operator=(OpExpr&& in) = default;
 
-        OpExpr(const Op& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
-	//OpExpr(const MapF& mapf, const IndexPack& ipack, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
+        OpExpr(const Op& mapf, const std::shared_ptr<OIType>& oind, size_t step, Expr ex);
 
 	inline void operator()(size_t mlast, ExtType last);
 	inline void operator()(size_t mlast = 0);
@@ -90,14 +87,17 @@ namespace MultiArrayTools
     
     template <class Op, SpaceType XSTYPE, class... Indices>
     class GenMapIndex : public IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,
-                                              std::tuple<typename Indices::MetaType...> >
+                                              typename Op::value_type>
+                                              //std::tuple<typename Indices::MetaType...> >
     {
     public:
 	
 	typedef IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,
-			       std::tuple<typename Indices::MetaType...> > IB;
+                               typename Op::value_type> IB;
+			       //std::tuple<typename Indices::MetaType...> > IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
-	typedef std::tuple<typename Indices::MetaType...> MetaType;
+	//typedef std::tuple<typename Indices::MetaType...> MetaType;
+        typedef typename Op::value_type MetaType;
 	typedef GenMapRange<Op,XSTYPE,typename Indices::RangeType...> RangeType;
 	typedef GenMapIndex IType;
 	typedef SingleIndex<typename Op::value_type,XSTYPE> OIType;
@@ -184,18 +184,18 @@ namespace MultiArrayTools
 	template <class Exprs>
 	auto ifor(size_t step, Exprs exs) const
 	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-			(step, mIPack, mBlockSizes, OpExpr<Op,IndexPack,Exprs,XSTYPE>( range()->map(), mIPack, mOutIndex, step, exs ) ) );
+			(step, mIPack, mBlockSizes, OpExpr<Op,Exprs,XSTYPE>( range()->map(), mOutIndex, step, exs ) ) );
 	// first step arg not used!
 
         template <class Exprs>
 	auto pifor(size_t step, Exprs exs) const
 	    -> decltype(ifor(step, exs)); // NO MULTITHREADING
 
-	/*
+	
 	template <class Exprs>
-	auto iforh(Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(mIPack, exs));
-	*/
+	auto iforh(size_t step, Exprs exs) const
+	    -> decltype(ifor(step, exs));
+	
     };
 
     
@@ -241,6 +241,7 @@ namespace MultiArrayTools
 	typedef GenMapRange RangeType;
 	typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
 	typedef SingleRangeFactory<typename Op::value_type,XSTYPE> ORFType;
+        typedef typename Op::value_type MetaType;
 	//typedef typename RangeInterface<MapIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:

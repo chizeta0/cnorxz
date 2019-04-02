@@ -107,6 +107,16 @@ namespace MultiArrayTools
     template <class Range>
     class SubRange : public RangeInterface<SubIndex<typename Range::IndexType>>
     {
+    private:
+
+        SubRange() = delete;
+        SubRange(const SubRange& in) = delete;
+
+        SubRange(const std::shared_ptr<Range>& fullRange, const vector<size_t>& subset);
+        
+        std::shared_ptr<Range> mFullRange;
+        vector<size_t> mSubSet;
+
     public:
         typedef RangeBase RB;
         typedef SubIndex<typename Range::IndexType> IndexType;
@@ -128,7 +138,8 @@ namespace MultiArrayTools
 	
 	bool isMeta(const MetaType& metaPos) const;
 	
-	const MetaType& get(size_t pos) const;
+	auto get(size_t pos) const
+            -> decltype(mFullRange->get(mSubSet[pos]));
 	size_t getMeta(const MetaType& metaPos) const;
 	
 	virtual IndexType begin() const final;
@@ -145,15 +156,6 @@ namespace MultiArrayTools
         static constexpr size_t SIZE = -1;
         static constexpr bool HASMETACONT = false;
         
-    private:
-
-        SubRange() = delete;
-        SubRange(const SubRange& in) = delete;
-
-        SubRange(const std::shared_ptr<Range>& fullRange, const vector<size_t>& subset);
-        
-        std::shared_ptr<Range> mFullRange;
-        vector<size_t> mSubSet;
     };
     
 } // namespace MultiArrayTools
@@ -457,7 +459,8 @@ namespace MultiArrayTools
     }
 
     template <class Range>
-    const typename SubRange<Range>::MetaType& SubRange<Range>::get(size_t pos) const
+    auto SubRange<Range>::get(size_t pos) const
+        -> decltype(mFullRange->get(mSubSet[pos]))
     {
         return mFullRange->get( mSubSet[pos] );
     }
