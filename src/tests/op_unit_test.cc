@@ -376,9 +376,8 @@ namespace {
 	///auto jj = mkMapI( std::make_shared<plus<size_t> >(), ii1, ii1 );
 		
 	res(jj) += ma1(ii1,ii2);
-	auto mult = mr->mapMultiplicity();
-	auto jjx = jj->outIndex();
-	res2(jj) += ma1(ii1,ii2) / staticcast<double>( mult(jjx) );
+	auto mult = mr->explMapMultiplicity();
+        res2(jj) += ma1(ii1,ii2) / staticcast<double>( mult(jj) );
 
 	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());
 	MultiArray<double,TRange> form2 = res2.format(mpr1ptr->outRange());
@@ -386,7 +385,7 @@ namespace {
 	EXPECT_EQ( jj->range()->outRange()->size(), static_cast<size_t>( 10 ) );
  	EXPECT_EQ( jj->range()->mapMultiplicity().at(9), static_cast<size_t>( 3 ) );
 	EXPECT_EQ( jj->range()->mapMultiplicity().at(3), static_cast<size_t>( 1 ) );
-
+        
 	EXPECT_EQ( form.at(3), -31.71 );
 	EXPECT_EQ( form.at(7), -77.16 );
 	EXPECT_EQ( form.at(9), -18.81 + 72.31 -50.91 );
@@ -397,7 +396,7 @@ namespace {
 	EXPECT_EQ( form.at(12), -42.53 );
 	EXPECT_EQ( form.at(16), 80.41 );
 	EXPECT_EQ( form.at(18), 6.35 );
-
+        
 	EXPECT_EQ( form2.at(3), -31.71 );
 	EXPECT_EQ( form2.at(7), -77.16 );
 	EXPECT_EQ( xround( form2.at(9) ), xround( (-18.81 + 72.31 -50.91) / 3. ) );
