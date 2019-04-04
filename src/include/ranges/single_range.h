@@ -132,7 +132,16 @@ namespace MultiArrayTools
 	    }
 	}
 	
-	size_t at(const U& in) const { return mMap.at(in); }
+	size_t at(const U& in) const
+        {
+            auto x = mMap.find(in);
+            if(x != mMap.end()){
+                return x->second;
+            }
+            else {
+                return mMap.size();
+            }
+        }
 	size_t count(const U& in) const { return mMap.count(in); }
     };
     
@@ -540,12 +549,6 @@ namespace MultiArrayTools
 	return mSpace[pos];
     }
 
-    template <typename U, SpaceType TYPE, size_t S>
-    size_t GenSingleRange<U,TYPE,S>::getMeta(const U& metaPos) const
-    {
-	return mMSpace.at(metaPos);
-    }
-
     template <size_t SIZE>
     inline size_t getStatSizeOrDyn(size_t size)
     {
@@ -556,6 +559,12 @@ namespace MultiArrayTools
     inline size_t getStatSizeOrDyn<-1>(size_t size)
     {
 	return size;
+    }
+
+    template <typename U, SpaceType TYPE, size_t S>
+    size_t GenSingleRange<U,TYPE,S>::getMeta(const U& metaPos) const
+    {
+        return mMSpace.at(metaPos);
     }
 
     template <typename U, SpaceType TYPE, size_t S>

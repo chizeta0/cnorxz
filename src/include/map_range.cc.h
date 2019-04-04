@@ -34,9 +34,11 @@ namespace MultiArrayTools
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType nxpos = last;
 	const size_t pos = mIndPtr->posAt( mOp.get( nxpos ) );
-	const ExtType npos = last + mExt*pos;
-	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
-	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
+        if(pos != mIndPtr->max()){
+            const ExtType npos = last + mExt*pos;
+            const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
+            mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
+        }
     }
 
     template <class Op, class Index, class Expr, SpaceType STYPE>
@@ -46,9 +48,11 @@ namespace MultiArrayTools
 	constexpr size_t NEXT = Op::SIZE;
 	const ExtType nxpos = last;
 	const size_t pos = mIndPtr->posAt( mOp.get( nxpos ) );
-	const ExtType npos = last + mExt*pos;
-	const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
-	mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
+        if(pos != mIndPtr->max()){
+            const ExtType npos = last + mExt*pos;
+            const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
+            mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
+        }
     }
     
     template <class Op, class Index, class Expr, SpaceType STYPE>
