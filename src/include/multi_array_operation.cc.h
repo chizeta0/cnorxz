@@ -691,7 +691,7 @@ namespace MultiArrayTools
     auto Contraction<T,Op,IndexType>::loop(Expr exp) const
 	-> decltype(mInd->iforh(1,mOp.loop(exp)))
     {
-	return mInd->iforh(1,mOp.loop(exp));
+	return mInd->iforh(0,mOp.loop(exp));
     }
 
     /**************************
