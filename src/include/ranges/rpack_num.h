@@ -343,7 +343,7 @@ namespace MultiArrayHelper
 	template <class MIndex>
 	static inline std::string getStringMeta(const MIndex& mi)
 	{
-	    return RPackNum<N-1>::getStringMeta(mi) + " , " + mi.template getPtr<N>()->stringMeta();
+	    return RPackNum<N-1>::getStringMeta(mi) + "," + mi.template getPtr<N>()->stringMeta();
 	}
 
 	template <class... Ranges>

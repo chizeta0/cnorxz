@@ -610,7 +610,7 @@ namespace MultiArrayTools
     {
 	auto i = begin();
 	i = pos;
-	return "[ " + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + " ]";
+	return "[" + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + "]";
     }
 
     template <class... Ranges>
