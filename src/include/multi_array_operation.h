@@ -312,16 +312,16 @@ namespace MultiArrayTools
 	OperationRoot(T* data, const IndexType& ind);
 
         template <class OpClass>
-        auto assign(const OpClass& in)
+        auto assign(const OpClass& in) const
             -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
 
         template <class OpClass, class Index>
-        auto assign(const OpClass& in, const std::shared_ptr<Index>& i)
+        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
             -> decltype(i->ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
                                           (mOrigDataPtr,*this,in))));
             
         template <class OpClass>
-        auto plus(const OpClass& in)
+        auto plus(const OpClass& in) const
             -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))));
         
         template <class OpClass>
