@@ -53,7 +53,7 @@ namespace MultiArrayTools
     class OpExpr
     {
     public:
-        typedef typename Index::OIType OIType;
+        //typedef typename Index::OIType OIType;
 	//typedef SingleIndex<typename Op::value_type,STYPE> OIType;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE + Op::SIZE;

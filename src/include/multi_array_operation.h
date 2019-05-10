@@ -315,6 +315,10 @@ namespace MultiArrayTools
         auto assign(const OpClass& in) const
             -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
 
+        template <class OpClass>
+        auto assignExpr(const OpClass& in) const
+            -> decltype(in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
+        
         template <class OpClass, class Index>
         auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
             -> decltype(i->ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
