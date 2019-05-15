@@ -194,7 +194,7 @@ namespace MultiArrayTools
     }
     
     template <typename T, class EC, class Range1, class... RangeTypes>
-    auto anonToDynView(const MultiArray<T,Range1,RangeTypes...,AnonymousRange>& ma)
+    auto anonToDynView(const MultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>
     {
 	constexpr size_t LAST = sizeof...(RangeTypes)+1;
@@ -220,7 +220,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class EC>
-    auto anonToDynView(const MultiArray<T,AnonymousRange>& ma)
+    auto anonToDynView(const MultiArrayBase<T,AnonymousRange>& ma)
 	-> ConstSlice<T,DynamicRange<EC>>
     {
 	DynamicRangeFactory<EC> drf(rptr<0>(ma)->orig());

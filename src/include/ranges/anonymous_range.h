@@ -66,7 +66,8 @@ namespace MultiArrayTools
 	typedef typename RangeInterface<AnonymousIndex>::IndexType IndexType;
 	typedef GenSingleRange<size_t,SpaceType::ANON,-1> RangeType;
 	typedef size_t MetaType;
-	
+        typedef AnonymousRangeFactory FType;
+        
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
 

@@ -89,7 +89,7 @@ namespace MultiArrayTools
 	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
 
     template <typename T, class EC, class Range1, class... RangeTypes>
-    auto anonToDynView(const MultiArray<T,Range1,RangeTypes...,AnonymousRange>& ma)
+    auto anonToDynView(const MultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>;
 
     template <typename T, class EC, class Range1, class... RangeTypes>
@@ -97,7 +97,7 @@ namespace MultiArrayTools
 	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>;
 
     template <typename T, class EC>
-    auto anonToDynView(const MultiArray<T,AnonymousRange>& ma)
+    auto anonToDynView(const MultiArrayBase<T,AnonymousRange>& ma)
 	-> ConstSlice<T,DynamicRange<EC>>;
 
     template <typename T, class EC>
