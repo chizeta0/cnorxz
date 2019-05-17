@@ -25,7 +25,7 @@ namespace MultiArrayTools
 		   const T* data = nullptr);
 	ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data = nullptr);
 	ConstSlice(const MultiArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
-	
+
 	virtual const T& operator[](const IType& i) const final;
 	virtual const T& at(const typename IType::MetaType& meta) const override;
 	
@@ -69,7 +69,9 @@ namespace MultiArrayTools
 	Slice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
 	      T* data = nullptr);
 	Slice(const std::shared_ptr<SRanges>&... ranges, T* data = nullptr);
-	    
+
+        Slice& operator=(T val);
+        
 	virtual const T& operator[](const IType& i) const final;
 	virtual T& operator[](const IType& i) final;
 	virtual const T& at(const typename IType::MetaType& meta) const override;

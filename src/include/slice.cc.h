@@ -131,6 +131,15 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
+    Slice<T,SRanges...>& Slice<T,SRanges...>::operator=(T val)
+    {
+        OperationRoot<T,SRanges...> opr(data(), begin());
+        OperationValue<T> opv(val);
+        opr = opv;
+        return *this;
+    }
+    
+    template <typename T, class... SRanges>
     const T& Slice<T,SRanges...>::operator[](const IType& i) const
     {
 	//assert(i.sliceMode()); // -> compare objects !!!!!

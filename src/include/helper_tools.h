@@ -8,6 +8,7 @@
 #include "pack_num.h"
 #include "map_range.h"
 #include <functional>
+#include "xfor/iloop.h"
 
 namespace MultiArrayTools
 {
@@ -120,6 +121,15 @@ namespace MultiArrayTools
     auto mkArray(const std::shared_ptr<Ranges>&... rs, const T& val)
         -> MultiArray<T,Ranges...>;
 
+    template <class OpTp, class IndTp, class VarTp, class LTp>
+    auto mkILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
+                 const std::array<size_t,std::tuple_size<LTp>::value>& umpos,
+                 const std::array<size_t,std::tuple_size<VarTp>::value>& setzero)
+        -> MultiArrayHelper::ILoop<OpTp,IndTp,VarTp,LTp>
+    {
+        return MultiArrayHelper::ILoop<OpTp,IndTp,VarTp,LTp>(opTp, indTp, varTp, lTp, umpos, setzero);
+    }
+    
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)
     {
