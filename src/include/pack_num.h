@@ -70,14 +70,14 @@ namespace MultiArrayHelper
 	    PackNum<N-1>::mkExt(out, siar, second);
 	}
 
-	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
-	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
+	template <size_t LAST, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	static inline auto mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    typedef decltype(std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
-	    return PackNum<N-1>::template mkOpExpr<NEXT,T,ETuple,OpTuple,OpFunction,ArgT,Args...>
+	    return PackNum<N-1>::template mkOpExpr<NEXT,ETuple,OpTuple,OpFunction,ArgT,Args...>
 		( f, pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
 	}
 
@@ -157,8 +157,8 @@ namespace MultiArrayHelper
 	    std::get<0>(out) = second.rootSteps( std::get<0>(siar) );
 	}
 	
-	template <size_t LAST, typename T, class ETuple, class OpTuple, class OpFunction, typename... Args>
-	static inline T mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, const Args&... args)
+	template <size_t LAST, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	static inline auto mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, const Args&... args)
 	{
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;

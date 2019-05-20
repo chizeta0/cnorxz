@@ -506,7 +506,7 @@ namespace MultiArrayTools
 	Operation(std::shared_ptr<OpFunction> ff, const Ops&... ops);
 	
 	template <class ET>
-	inline T get(ET pos) const;
+	inline auto get(ET pos) const;
 
 	template <class ET>
 	inline Operation& set(ET pos);

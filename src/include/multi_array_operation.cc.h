@@ -631,11 +631,11 @@ namespace MultiArrayTools
 
     template <typename T, class OpFunction, class... Ops>
     template <class ET>
-    inline T Operation<T,OpFunction,Ops...>::get(ET pos) const
+    inline auto Operation<T,OpFunction,Ops...>::get(ET pos) const
     {
 	typedef std::tuple<Ops...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
-	    template mkOpExpr<SIZE,T,ET,OpTuple,OpFunction>(mF, pos, mOps);
+	    template mkOpExpr<SIZE,ET,OpTuple,OpFunction>(mF, pos, mOps);
     }
 
     template <typename T, class OpFunction, class... Ops>
