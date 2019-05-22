@@ -129,7 +129,14 @@ namespace MultiArrayTools
     {
         return MultiArrayHelper::ILoop<OpTp,IndTp,VarTp,LTp>(opTp, indTp, varTp, lTp, umpos, setzero);
     }
-    
+
+    template <class CF>
+    auto mkPILoop(const CF& cf)
+        -> MultiArrayHelper::PILoop<CF>
+    {
+        return MultiArrayHelper::PILoop<CF>(cf);
+    }
+
     template <class IndexType>
     inline void For(const std::shared_ptr<IndexType>& ind, const std::function<void(void)>& ll)
     {

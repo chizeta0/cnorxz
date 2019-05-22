@@ -6,6 +6,7 @@
 #include <memory>
 #include <tuple>
 #include <array>
+#include <omp.h>
 
 namespace MultiArrayHelper
 {
@@ -87,7 +88,7 @@ namespace MultiArrayHelper
     private:
         static constexpr size_t LTpSize = std::tuple_size<LTp>::value;
         static constexpr size_t VarTpSize = std::tuple_size<VarTp>::value;
-            
+
         OpTp mOpTp;
         IndTp mIndTp;
 
@@ -102,6 +103,8 @@ namespace MultiArrayHelper
         static constexpr bool CONT = false;
         typedef decltype(NN<LTpSize-1>::rootSteps(mLTp)) ExtType;
 
+        ILoop() { assert(omp_get_thread_num() == 0); }
+        
         ILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
               const std::array<size_t,LTpSize>& umpos, const std::array<size_t,VarTpSize>& setzero) :
             mOpTp(opTp), mIndTp(indTp), mVarTp(varTp), mLTp(lTp), mUmpos(umpos), mSetzero(setzero) {}
@@ -118,6 +121,120 @@ namespace MultiArrayHelper
             -> ExtType
         {
             return NN<LTpSize-1>::rootSteps(mLTp,i);
+        }
+            
+    };
+
+    template <size_t N>
+    struct CreateLoops
+    {
+        template <class CLTp, class VarTp>
+        static inline auto apply(CLTp& cltp, VarTp& varTp)
+        {
+            return std::tuple_cat( CreateLoops<N-1>::apply(cltp,varTp) , std::make_tuple( std::get<N>(cltp)(varTp) ) );
+        }
+    };
+
+    template <>
+    struct CreateLoops <0>
+    {
+        template <class CLTp, class VarTp>
+        static inline auto apply(CLTp& cltp, VarTp& varTp)
+        {
+            return std::make_tuple( std::get<0>(cltp)(varTp) );
+        }
+    };
+
+    template <size_t N>
+    struct ThrCpy
+    {
+        template <class VarTp>
+        static inline auto apply(size_t thread1, size_t thread2, const VarTp& varTp)
+        {
+            auto& var = std::get<N>(varTp);
+            typedef typename std::remove_reference<decltype(*var)>::type Type;
+            return std::tuple_cat( ThrCpy<N-1>::apply(thread1, thread2, varTp),
+                                   std::make_tuple( (thread1 == thread2) ? var : std::make_shared<Type>(*var) ) );
+        }
+    };
+
+    template <>
+    struct ThrCpy <0>
+    {
+        template <class VarTp>
+        static inline auto apply(size_t thread1, size_t thread2, const VarTp& varTp)
+        {
+            auto& var = std::get<0>(varTp);
+            typedef typename std::remove_reference<decltype(*var)>::type Type;
+            return std::make_tuple( (thread1 == thread2) ? var : std::make_shared<Type>(*var) );
+        }
+    };
+
+    template <class... Vars>
+    auto thrCpy(size_t thread1, size_t thread2, const std::tuple<std::shared_ptr<Vars>...>& vars)
+    {
+        return ThrCpy<sizeof...(Vars)>::apply(thread1, thread2, vars);
+    }
+
+    template <class... CLs>
+    auto createLoops(std::tuple<CLs...>& cls)
+    {
+        return CreateLoops<sizeof...(CLs)>::apply(cls);
+    }
+
+    // CF = creation function
+    // if instance copied to different thread, the "copy" will be newly created from this function
+    // -> ensures that there is NO SHARED WORKSPACE
+    template <class CF>
+    class PILoop
+    {
+    private:
+        size_t mThreadId = 0;
+        CF mCF;
+        
+        typedef decltype(mCF()) LType;
+
+        LType mL;
+        
+        static constexpr size_t LTpSize = LType::LTpSize;
+        static constexpr size_t VarTpSize = LType::VarTpSize;
+            
+    public:
+        static constexpr size_t SIZE = LType::SIZE;
+        static constexpr bool CONT = LType::CONT;
+        typedef typename LType::ExtType ExtType;
+
+        PILoop() : mThreadId(omp_get_thread_num()) {}
+
+        PILoop(const PILoop& in) : mThreadId(omp_get_thread_num()), mCF(in.mCF), mL((mThreadId == in.mThreadId) ? in.mL : mCF()) {}
+        PILoop& operator=(const PILoop& in)
+        {
+            mThreadId = omp_get_thread_num();
+            mCF = in.mCF;
+            mL = (mThreadId == in.mThreadId) ? in.mL : mCF();
+            return *this;
+        }
+
+        PILoop(PILoop&& in) : mThreadId(omp_get_thread_num()), mCF(std::move(in.mCF)), mL((mThreadId == in.mThreadId) ? std::move(in.mL) : std::move(mCF())) {}
+        PILoop& operator=(PILoop&& in)
+        {
+            mThreadId = omp_get_thread_num();
+            mCF = std::move(in.mCF);
+            mL = (mThreadId == in.mThreadId) ? std::move(in.mL) : std::move(mCF());
+            return *this;
+        }
+
+        PILoop(const CF& cf) : mThreadId(omp_get_thread_num()), mCF(cf), mL(mCF()) {}
+
+        inline size_t operator()(size_t mpos, ExtType pos)
+        {
+            return mL(mpos, pos);
+        }
+
+        auto rootSteps(std::intptr_t i = 0) const
+            -> ExtType
+        {
+            return mL.rootSteps(i);
         }
             
     };
