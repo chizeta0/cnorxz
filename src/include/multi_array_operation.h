@@ -73,6 +73,14 @@ namespace MultiArrayTools
 	auto addto(const std::shared_ptr<Indices>&... inds) const
 	    -> MultiArray<T,typename Indices::RangeType...>;
 
+        template <class... Indices>
+	auto pto(const std::shared_ptr<Indices>&... inds) const
+	    -> MultiArray<T,typename Indices::RangeType...>;
+
+        template <class... Indices>
+	auto paddto(const std::shared_ptr<Indices>&... inds) const
+	    -> MultiArray<T,typename Indices::RangeType...>;
+
         template <typename R, class... Args> // Args = Operation Classes
         auto a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll, const Args&... args) const
             -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>;
