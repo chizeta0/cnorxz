@@ -8,16 +8,16 @@ namespace MultiArrayTools
      *   GenSingleRange    *
      ********************/
     
-    GenSingleRangeFactory<size_t,SpaceType::NONE,-1>::GenSingleRangeFactory(size_t size)
+    GenSingleRangeFactory<size_t,SpaceType::NONE,MUI>::GenSingleRangeFactory(size_t size)
     {
 	// Quasi Singleton
 	if(not mProd){
-	    mProd = std::shared_ptr<oType>( new GenSingleRange<size_t,SpaceType::NONE,-1>(size) );
+	    mProd = std::shared_ptr<oType>( new GenSingleRange<size_t,SpaceType::NONE,MUI>(size) );
 	    setSelf();
 	}
     }
 
-    std::shared_ptr<RangeBase> GenSingleRangeFactory<size_t,SpaceType::NONE,-1>::create()
+    std::shared_ptr<RangeBase> GenSingleRangeFactory<size_t,SpaceType::NONE,MUI>::create()
     {
 	return mProd;
     }
@@ -26,55 +26,55 @@ namespace MultiArrayTools
      *   GenSingleRange    *
      ********************/
 
-    GenSingleRange<size_t,SpaceType::NONE,-1>::GenSingleRange(size_t size) : mSize(size) {}
+    GenSingleRange<size_t,SpaceType::NONE,MUI>::GenSingleRange(size_t size) : mSize(size) {}
     
-    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::get(size_t pos) const
+    size_t GenSingleRange<size_t,SpaceType::NONE,MUI>::get(size_t pos) const
     {
 	return pos;
     }
     
-    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::getMeta(size_t metaPos) const
+    size_t GenSingleRange<size_t,SpaceType::NONE,MUI>::getMeta(size_t metaPos) const
     {
 	return metaPos;
     }
     
-    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::size() const
+    size_t GenSingleRange<size_t,SpaceType::NONE,MUI>::size() const
     {
 	return mSize;
     }
     
-    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::dim() const
+    size_t GenSingleRange<size_t,SpaceType::NONE,MUI>::dim() const
     {
 	return 1;
     }
 
-    SpaceType GenSingleRange<size_t,SpaceType::NONE,-1>::spaceType() const
+    SpaceType GenSingleRange<size_t,SpaceType::NONE,MUI>::spaceType() const
     {
 	return SpaceType::NONE;
     }
 
-    vector<size_t> GenSingleRange<size_t,SpaceType::NONE,-1>::typeNum() const
+    vector<size_t> GenSingleRange<size_t,SpaceType::NONE,MUI>::typeNum() const
     {
         return {NumTypeMap<size_t>::num};
     }
     
-    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::cmeta(char* target, size_t pos) const
+    size_t GenSingleRange<size_t,SpaceType::NONE,MUI>::cmeta(char* target, size_t pos) const
     {
         *reinterpret_cast<size_t*>(target) = pos;
         return sizeof(size_t);
     }
 
-    size_t GenSingleRange<size_t,SpaceType::NONE,-1>::cmetaSize() const
+    size_t GenSingleRange<size_t,SpaceType::NONE,MUI>::cmetaSize() const
     {
         return sizeof(size_t);
     }
 
-    std::string GenSingleRange<size_t,SpaceType::NONE,-1>::stringMeta(size_t pos) const
+    std::string GenSingleRange<size_t,SpaceType::NONE,MUI>::stringMeta(size_t pos) const
     {
 	return std::to_string(get(pos));
     }
 
-    vector<char> GenSingleRange<size_t,SpaceType::NONE,-1>::data() const
+    vector<char> GenSingleRange<size_t,SpaceType::NONE,MUI>::data() const
     {
 	DataHeader h = dataHeader();
 	vector<char> out;
@@ -86,7 +86,7 @@ namespace MultiArrayTools
 	return out;
     }
 
-    DataHeader GenSingleRange<size_t,SpaceType::NONE,-1>::dataHeader() const
+    DataHeader GenSingleRange<size_t,SpaceType::NONE,MUI>::dataHeader() const
     {
 	DataHeader h;
 	h.spaceType = static_cast<int>( SpaceType::NONE );
@@ -96,17 +96,17 @@ namespace MultiArrayTools
     }
 
     
-    typename GenSingleRange<size_t,SpaceType::NONE,-1>::IndexType GenSingleRange<size_t,SpaceType::NONE,-1>::begin() const
+    typename GenSingleRange<size_t,SpaceType::NONE,MUI>::IndexType GenSingleRange<size_t,SpaceType::NONE,MUI>::begin() const
     {
-	GenSingleIndex<size_t,SpaceType::NONE,-1> i( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NONE,-1> >
+	GenSingleIndex<size_t,SpaceType::NONE,MUI> i( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NONE,MUI> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
     
-    typename GenSingleRange<size_t,SpaceType::NONE,-1>::IndexType GenSingleRange<size_t,SpaceType::NONE,-1>::end() const
+    typename GenSingleRange<size_t,SpaceType::NONE,MUI>::IndexType GenSingleRange<size_t,SpaceType::NONE,MUI>::end() const
     {
-	GenSingleIndex<size_t,SpaceType::NONE,-1> i( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NONE,-1> >
+	GenSingleIndex<size_t,SpaceType::NONE,MUI> i( std::dynamic_pointer_cast<GenSingleRange<size_t,SpaceType::NONE,MUI> >
 			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = size();
 	return i;

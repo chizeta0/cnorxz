@@ -204,10 +204,10 @@ namespace MultiArrayTools
     };
 
     template <>
-    struct CheckStatic<-1>
+    struct CheckStatic<MUI>
     {
         static constexpr size_t ISSTATIC = false;
-        static constexpr size_t SIZE = -1;
+        static constexpr size_t SIZE = MUI;
     };
 
     template <SpaceType TYPE>
@@ -283,13 +283,13 @@ namespace MultiArrayTools
     };
 
     template <typename U, SpaceType TYPE>
-    using SingleRange = GenSingleRange<U,TYPE,-1>;
+    using SingleRange = GenSingleRange<U,TYPE,MUI>;
 
     template <typename U, SpaceType TYPE>
-    using SingleIndex = GenSingleIndex<U,TYPE,-1>;
+    using SingleIndex = GenSingleIndex<U,TYPE,MUI>;
 
     template <typename U, SpaceType TYPE>
-    using SingleRangeFactory = GenSingleRangeFactory<U,TYPE,-1>;
+    using SingleRangeFactory = GenSingleRangeFactory<U,TYPE,MUI>;
 
 }
 
@@ -556,7 +556,7 @@ namespace MultiArrayTools
     }
 
     template <>
-    inline size_t getStatSizeOrDyn<-1>(size_t size)
+    inline size_t getStatSizeOrDyn<MUI>(size_t size)
     {
 	return size;
     }

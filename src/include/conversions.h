@@ -22,13 +22,13 @@ namespace MultiArrayTools
 	};
 
 	template <>
-	struct OrigSize<-1>
+	struct OrigSize<MUI>
 	{
 	    template <typename C, typename T>
 	    struct FromTo
 	    {
 		static void check() {}
-		static constexpr size_t SIZE = -1;
+		static constexpr size_t SIZE = MUI;
 	    };
 	};
     }
