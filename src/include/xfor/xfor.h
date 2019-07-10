@@ -161,7 +161,7 @@ namespace MultiArrayHelper
 	typedef ExpressionBase EB;
 	
 	static constexpr size_t LAYER = Expr::LAYER + 1;
-	static constexpr size_t SIZE = Expr::SIZE;
+	static constexpr size_t SIZE = Expr::SIZE + 1;
 
 	SubExpr(const SubExpr& in) = default;
 	SubExpr& operator=(const SubExpr& in) = default;

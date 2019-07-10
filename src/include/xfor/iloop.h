@@ -14,6 +14,13 @@ namespace MultiArrayHelper
     struct NN
     {
         template <class LTp>
+        static inline constexpr size_t LSIZE()
+        {
+            typedef typename std::tuple_element<N,LTp>::type LType;
+            return LType::SIZE + NN<N-1>::template LSIZE<LTp>();
+        }
+        
+        template <class LTp>
         static inline constexpr size_t lsize(const LTp& ltp)
         {
             typedef typename std::tuple_element<N,LTp>::type LType;
@@ -44,12 +51,19 @@ namespace MultiArrayHelper
             std::get<N>(ltp)(std::get<N>(umpos)*mpos, pos.template nn<NN<N-1>::lsize(ltp)>());
             return 0;
         }
-
+      
     };
 
     template <>
     struct NN<0>
     {
+        template <class LTp>
+        static inline constexpr size_t LSIZE()
+        {
+            typedef typename std::tuple_element<0,LTp>::type LType;
+            return LType::SIZE;
+        }
+
         template <class LTp>
         static inline constexpr size_t lsize(const LTp& ltp)
         {
@@ -88,7 +102,7 @@ namespace MultiArrayHelper
     private:
         static constexpr size_t LTpSize = std::tuple_size<LTp>::value;
         static constexpr size_t VarTpSize = std::tuple_size<VarTp>::value;
-
+        
         OpTp mOpTp;
         IndTp mIndTp;
 
@@ -99,7 +113,8 @@ namespace MultiArrayHelper
         std::array<size_t,VarTpSize> mSetzero; // set variable to zero after each cycle
             
     public:
-        static constexpr size_t SIZE = NN<LTpSize-1>::lsize(std::declval<LTp>());
+        //static constexpr size_t SIZE = NN<LTpSize-1>::lsize(std::declval<LTp>());
+        static constexpr size_t SIZE = NN<LTpSize-1>::template LSIZE<LTp>();
         static constexpr bool CONT = false;
         typedef decltype(NN<LTpSize-1>::rootSteps(mLTp)) ExtType;
 
@@ -108,7 +123,7 @@ namespace MultiArrayHelper
         ILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
               const std::array<size_t,LTpSize>& umpos, const std::array<size_t,VarTpSize>& setzero) :
             mOpTp(opTp), mIndTp(indTp), mVarTp(varTp), mLTp(lTp), mUmpos(umpos), mSetzero(setzero) {}
-            
+        
         inline size_t operator()(size_t mpos, ExtType pos)
         {
             NN<VarTpSize-1>::zero(mVarTp, mSetzero);
@@ -122,7 +137,11 @@ namespace MultiArrayHelper
         {
             return NN<LTpSize-1>::rootSteps(mLTp,i);
         }
-            
+
+        VarTp& var() const
+        {
+            return mVarTp;
+        }
     };
 
     template <size_t N>
@@ -236,7 +255,11 @@ namespace MultiArrayHelper
         {
             return mL.rootSteps(i);
         }
-            
+
+        auto var() const
+        {
+            return mL.var();
+        }
     };
 
 }
