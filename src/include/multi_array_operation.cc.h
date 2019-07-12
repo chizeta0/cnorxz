@@ -244,16 +244,18 @@ namespace MultiArrayTools
     template <class ET>
     inline ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::set(ET pos)
     {
-	mIndex = pos.val();
-	mDataPtr = mOrigDataPtr + mIndex.pos();
+	//mIndex = pos.val();
+	//mDataPtr = mOrigDataPtr + mIndex.pos();
+        mDataPtr = mOrigDataPtr + pos.val();
 	return *this;
     }
 
     template <typename T, class... Ranges>
     const T* ConstOperationRoot<T,Ranges...>::data() const
     {
-        auto i = mIndex;
-	return mOrigDataPtr + i().pos();
+        //auto i = mIndex;
+	//return mOrigDataPtr/* + i().pos()*/;
+        return mDataPtr;
     }
     
     template <typename T, class... Ranges>
@@ -457,8 +459,9 @@ namespace MultiArrayTools
     template <class ET>
     inline OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::set(ET pos)
     {
-	mIndex = pos.val();
-	mDataPtr = mOrigDataPtr + mIndex.pos();
+	//mIndex = pos.val();
+	//mDataPtr = mOrigDataPtr + mIndex.pos();
+        mDataPtr = mOrigDataPtr + pos.val();
 	return *this;
     }
 
@@ -478,8 +481,9 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     T* OperationRoot<T,Ranges...>::data() const
     {
-        auto i = mIndex;
-	return mOrigDataPtr + i().pos();
+        //auto i = mIndex;
+	//return mOrigDataPtr/* + i().pos()*/;
+        return mDataPtr;
     }
 
     template <typename T, class... Ranges>
