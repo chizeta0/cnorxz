@@ -89,6 +89,10 @@ namespace MultiArrayTools
     auto dynamic(const MArray& ma, bool slice = false)
 	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
 
+    template <class EC, class MArray>
+    auto mdynamic(MArray& ma, bool slice)
+	-> std::shared_ptr<MutableMultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
+    
     template <typename T, class EC, class Range1, class... RangeTypes>
     auto anonToDynView(const MultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>;
