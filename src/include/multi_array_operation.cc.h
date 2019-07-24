@@ -18,35 +18,31 @@ namespace MultiArrayTools
 
     
     template <typename T, class OperationClass>
-    template <class Second>
-    auto OperationBase<T,OperationClass>::operator+(const OperationBase<T,Second>& in) const
-	-> Operation<T,plus<T>,OperationClass,Second>
+    template <typename U, class Second>
+    auto OperationBase<T,OperationClass>::operator+(const OperationBase<U,Second>& in) const
     {
-    	return Operation<T,plus<T>,OperationClass,Second>(THIS(), in.THIS());
+    	return Operation<plusv<T,U>,plusx<T,U>,OperationClass,Second>(THIS(), in.THIS());
     }
 
     template <typename T, class OperationClass>
-    template <class Second>
-    auto OperationBase<T,OperationClass>::operator-(const OperationBase<T,Second>& in) const
-	-> Operation<T,minus<T>,OperationClass,Second>
+    template <typename U, class Second>
+    auto OperationBase<T,OperationClass>::operator-(const OperationBase<U,Second>& in) const
     {
-    	return Operation<T,minus<T>,OperationClass,Second>(THIS(), in.THIS());
+    	return Operation<minusv<T,U>,minusx<T,U>,OperationClass,Second>(THIS(), in.THIS());
     }
     
     template <typename T, class OperationClass>
-    template <class Second>
-    auto OperationBase<T,OperationClass>::operator*(const OperationBase<T,Second>& in) const
-	-> Operation<T,multiplies<T>,OperationClass,Second>
+    template <typename U, class Second>
+    auto OperationBase<T,OperationClass>::operator*(const OperationBase<U,Second>& in) const
     {
-    	return Operation<T,multiplies<T>,OperationClass,Second>(THIS(), in.THIS());
+    	return Operation<multipliesv<T,U>,multipliesx<T,U>,OperationClass,Second>(THIS(), in.THIS());
     }
 
     template <typename T, class OperationClass>
-    template <class Second>
-    auto OperationBase<T,OperationClass>::operator/(const OperationBase<T,Second>& in) const
-	-> Operation<T,divides<T>,OperationClass,Second>
+    template <typename U, class Second>
+    auto OperationBase<T,OperationClass>::operator/(const OperationBase<U,Second>& in) const
     {
-    	return Operation<T,divides<T>,OperationClass,Second>(THIS(), in.THIS());
+    	return Operation<dividesv<T,U>,dividesx<T,U>,OperationClass,Second>(THIS(), in.THIS());
     }
 
     template <typename T, class OperationClass>

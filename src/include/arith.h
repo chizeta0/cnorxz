@@ -75,7 +75,86 @@ namespace MultiArrayTools
 	    return a;
 	}
     };
+
+    template <typename T, typename U>
+    using plusv = decltype(std::declval<T>()+std::declval<U>());
+
+    template <typename T, typename U>
+    using minusv = decltype(std::declval<T>()-std::declval<U>());
+
+    template <typename T, typename U>
+    using multipliesv = decltype(std::declval<T>()*std::declval<U>());
+
+    template <typename T, typename U>
+    using dividesv = decltype(std::declval<T>()/std::declval<U>());
+
+    template <typename T, typename U>
+    struct plusx : public StaticFunctionBase<plusv<T,U>, plusx<T,U>, T, U>
+    {
+	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<plusv<T,U>, plusx<T,U>, T, U>::apply;
+	
+	static inline plusv<T,U> apply(T a1, U a2)
+	{
+	    return a1 + a2;
+	}
+
+    	static inline T& selfApply(T& a1, const T& a2)
+	{
+	    return a1 += a2;
+	}
+    };
+
+    template <typename T, typename U>
+    struct minusx : public StaticFunctionBase<minusv<T,U>, minusx<T,U>, T, U>
+    {
+	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<minusv<T,U>, minusx<T,U>, T, U>::apply;
+	
+	static inline plusv<T,U> apply(T a1, U a2)
+	{
+	    return a1 - a2;
+	}
+    };
+
+    template <typename T, typename U>
+    struct multipliesx : public StaticFunctionBase<multipliesv<T,U>, multipliesx<T,U>, T, U>
+    {
+	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<multipliesv<T,U>, multipliesx<T,U>, T, U>::apply;
+	
+	static inline multipliesv<T,U> apply(T a1, U a2)
+	{
+	    return a1 * a2;
+	}
+    };
+
+    template <typename T, typename U>
+    struct dividesx : public StaticFunctionBase<dividesv<T,U>, dividesx<T,U>, T, U>
+    {
+	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<dividesv<T,U>, dividesx<T,U>, T, U>::apply;
+	
+	static inline dividesv<T,U> apply(T a1, U a2)
+	{
+	    return a1 / a2;
+	}
+
+    };
+
+    template <typename T>
+    using plus = plusx<T,T>;
+
+    template <typename T>
+    using minus = minusx<T,T>;
     
+    template <typename T>
+    using multiplies = multipliesx<T,T>;
+
+    template <typename T>
+    using divides = dividesx<T,T>;
+
+    /*
     template <typename T>
     struct plus : public StaticFunctionBase<T, plus<T>, T, T>
     {
@@ -128,7 +207,7 @@ namespace MultiArrayTools
 	    return a1 / a2;
 	}
     };
-
+    */
     //  OPERATIONS (STATIC)
     template <typename R, typename... Args>
     class function

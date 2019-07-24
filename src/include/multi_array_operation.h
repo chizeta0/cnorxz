@@ -33,21 +33,17 @@ namespace MultiArrayTools
 	OperationClass& THIS() { return static_cast<OperationClass&>(*this); }
 	const OperationClass& THIS() const { return static_cast<OperationClass const&>(*this); }
 
-	template <class Second>
-	auto operator+(const OperationBase<T,Second>& in) const
-	    -> Operation<T,plus<T>,OperationClass,Second>;
+        template <typename U, class Second>
+	auto operator+(const OperationBase<U,Second>& in) const;
 	
-	template <class Second>
-	auto operator-(const OperationBase<T,Second>& in) const
-	    -> Operation<T,minus<T>,OperationClass,Second>;
+        template <typename U, class Second>
+	auto operator-(const OperationBase<U,Second>& in) const;
 	
-	template <class Second>
-	auto operator*(const OperationBase<T,Second>& in) const
-	    -> Operation<T,multiplies<T>,OperationClass,Second>;
+        template <typename U, class Second>
+	auto operator*(const OperationBase<U,Second>& in) const;
 	
-	template <class Second>
-	auto operator/(const OperationBase<T,Second>& in) const
-	    -> Operation<T,divides<T>,OperationClass,Second>;
+        template <typename U, class Second>
+	auto operator/(const OperationBase<U,Second>& in) const;
 
 	template <class IndexType>
 	auto c(const std::shared_ptr<IndexType>& ind) const
