@@ -231,21 +231,26 @@ namespace MultiArrayTools
     std::shared_ptr<AnonymousRange> AnonymousRange::sreplace(const std::shared_ptr<RangeBase>& in,
                                                              const vector<size_t>& num) const
     {
-        size_t cnt = num[0];
-        size_t rep_size = 1;
-        // assert continuous ordering or replaced ranges:
-        for(auto& x: num){
-            assert(cnt++ == x);
-            rep_size *= mOrig[x]->size();
+        if(num.size() != 0){
+            size_t cnt = num[0];
+            size_t rep_size = 1;
+            // assert continuous ordering or replaced ranges:
+            for(auto& x: num){
+                assert(cnt++ == x);
+                rep_size *= mOrig[x]->size();
+            }
+            assert(rep_size == in->size());
+            vector<std::shared_ptr<RangeBase>> norig;
+            norig.reserve(mOrig.size()-num.size()+1);
+            norig.insert(norig.end(),mOrig.begin(),mOrig.begin()+num[0]);
+            norig.push_back(in);
+            norig.insert(norig.end(),mOrig.begin()+num.back()+1,mOrig.end());
+            AnonymousRangeFactory arf(norig);
+            return std::dynamic_pointer_cast<AnonymousRange>(arf.create());
         }
-        assert(rep_size == in->size());
-        vector<std::shared_ptr<RangeBase>> norig;
-        norig.reserve(mOrig.size()-num.size()+1);
-        norig.insert(norig.end(),mOrig.begin(),mOrig.begin()+num[0]);
-        norig.push_back(in);
-        norig.insert(norig.end(),mOrig.begin()+num.back()+1,mOrig.end());
-        AnonymousRangeFactory arf(norig);
-        return std::dynamic_pointer_cast<AnonymousRange>(arf.create());
+        else {
+            return std::dynamic_pointer_cast<AnonymousRange>( std::shared_ptr<RangeBase>(RB::mThis) );
+        }
     }
     
     const vector<std::shared_ptr<RangeBase> >& AnonymousRange::orig() const

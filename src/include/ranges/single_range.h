@@ -223,7 +223,30 @@ namespace MultiArrayTools
 	static constexpr size_t ISDEFAULT = true;
 	static constexpr size_t HASMETACONT = false; 
     };
-    
+
+    template <typename U>
+    struct ToCMeta
+    {
+        static inline size_t apply(char* target, const U& elem)
+        {
+            *reinterpret_cast<U*>(target) = elem;
+            return sizeof(U);
+        }
+    };
+
+    template <typename V>
+    struct ToCMeta<vector<V>>
+    {
+        static inline size_t apply(char* target, const vector<V>& elem)
+        {
+            size_t o = 0;
+            for(auto& e: elem){
+                o += ToCMeta<V>::apply(target, e);
+            }
+            return o;
+        }
+    };
+
     template <typename U, SpaceType TYPE, size_t S>
     class GenSingleRange : public RangeInterface<GenSingleIndex<U,TYPE,S> >
     {
@@ -600,8 +623,9 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE, size_t S>
     size_t GenSingleRange<U,TYPE,S>::cmeta(char* target, size_t pos) const
     {
-        *reinterpret_cast<U*>(target) = mSpace[pos];
-        return sizeof(U);
+        //*reinterpret_cast<U*>(target) = mSpace[pos];
+        //return sizeof(U);
+        return ToCMeta<U>::apply(target, mSpace[pos]);
     }
 
     template <typename U, SpaceType TYPE, size_t S>
