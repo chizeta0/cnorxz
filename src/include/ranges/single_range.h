@@ -241,7 +241,7 @@ namespace MultiArrayTools
         {
             size_t o = 0;
             for(auto& e: elem){
-                o += ToCMeta<V>::apply(target, e);
+                o += ToCMeta<V>::apply(target+o, e);
             }
             return o;
         }
