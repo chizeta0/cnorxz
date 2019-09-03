@@ -232,6 +232,11 @@ namespace MultiArrayTools
             *reinterpret_cast<U*>(target) = elem;
             return sizeof(U);
         }
+
+        static inline size_t size(const U& elem)
+        {
+            return sizeof(U);
+        }
     };
 
     template <typename V>
@@ -244,6 +249,11 @@ namespace MultiArrayTools
                 o += ToCMeta<V>::apply(target+o, e);
             }
             return o;
+        }
+
+        static inline size_t size(const vector<V>& elem)
+        {
+            return elem.size();
         }
     };
 
@@ -631,7 +641,7 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE, size_t S>
     size_t GenSingleRange<U,TYPE,S>::cmetaSize() const
     {
-        return sizeof(U);
+        return ToCMeta<U>::size(mSpace[0])*sizeof(U);
     }
 
     template <typename U, SpaceType TYPE, size_t S>
