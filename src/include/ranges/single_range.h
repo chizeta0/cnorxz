@@ -641,7 +641,7 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE, size_t S>
     size_t GenSingleRange<U,TYPE,S>::cmetaSize() const
     {
-        return ToCMeta<U>::size(mSpace[0])*sizeof(U)
+        return ToCMeta<U>::size(mSpace[0])*sizeof(U);
     }
 
     template <typename U, SpaceType TYPE, size_t S>
