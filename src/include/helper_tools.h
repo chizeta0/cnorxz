@@ -98,12 +98,20 @@ namespace MultiArrayTools
 	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>;
 
     template <typename T, class EC, class Range1, class... RangeTypes>
+    auto anonToDynView(MutableMultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
+	-> Slice<T,Range1,RangeTypes...,DynamicRange<EC>>;
+
+    template <typename T, class EC, class Range1, class... RangeTypes>
     auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange<EC>>&& ma)
 	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>;
 
     template <typename T, class EC>
     auto anonToDynView(const MultiArrayBase<T,AnonymousRange>& ma)
 	-> ConstSlice<T,DynamicRange<EC>>;
+
+    template <typename T, class EC>
+    auto anonToDynView(MutableMultiArrayBase<T,AnonymousRange>& ma)
+	-> Slice<T,DynamicRange<EC>>;
 
     template <typename T, class EC>
     auto dynToAnonMove(MultiArray<T,DynamicRange<EC>>&& ma)
