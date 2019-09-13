@@ -138,22 +138,6 @@ namespace MultiArrayTools
      *   AssignmentExpr     *
      ************************/
 
-    template <typename T, class OpClass>
-    AssignmentExpr<T,OpClass>::AssignmentExpr(T* dataPtr, const OpClass& sec) :
-        mSec(sec), mDataPtr(dataPtr) {}
-    
-    template <typename T, class OpClass>
-    inline void AssignmentExpr<T,OpClass>::operator()(size_t start, ExtType last)
-    {
-        mDataPtr[start] = mSec.template get<ExtType>(last);
-    }
-    
-    template <typename T, class OpClass>
-    typename AssignmentExpr<T,OpClass>::ExtType AssignmentExpr<T,OpClass>::rootSteps(std::intptr_t iPtrNum) const
-    {
-	return mSec.rootSteps(iPtrNum);
-    }
-
     template <typename T, class Target, class OpClass>
     AssignmentExpr2<T,Target,OpClass>::AssignmentExpr2(T* dataPtr, const Target& tar, const OpClass& sec) :
         mTar(tar), mSec(sec), mDataPtr(dataPtr) {}
@@ -380,19 +364,22 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::assign(const OpClass& in) const
-        -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))))
+        -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
+                                          (mOrigDataPtr,*this,in))))
+
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
+        return mIndex.ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
+                                     (mOrigDataPtr,*this,in)));
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::assignExpr(const OpClass& in) const
-        -> decltype(in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)))
+        -> decltype(in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>(mOrigDataPtr,*this,in)))
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in));
+        return in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>(mOrigDataPtr,*this,in));
     }
     
     template <typename T, class... Ranges>
@@ -404,7 +391,6 @@ namespace MultiArrayTools
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return i->ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
                                  (mOrigDataPtr,*this,in)));
-        //return mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
     }
 
     template <typename T, class... Ranges>
@@ -521,9 +507,12 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     template <class OpClass>
     auto ParallelOperationRoot<T,Ranges...>::assign(const OpClass& in)
-        -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))))
+        -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+                                          (mOrigDataPtr,*this,in))))
+
     {
-        return mIndex.pifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
+        return mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+                                      (mOrigDataPtr,*this,in)));
     }
 
     template <typename T, class... Ranges>

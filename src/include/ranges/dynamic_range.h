@@ -61,6 +61,8 @@ namespace MultiArrayTools
         virtual std::intptr_t get() const = 0;
 	virtual std::intptr_t ptrNum() const = 0;
 
+        virtual std::shared_ptr<AbstractIW> duplicate() const = 0;
+        
         //virtual DynamicMetaT meta() const = 0;
 	//virtual const DynamicMetaT* metaPtr() const = 0;
 	//virtual AbstractIW& at(const U& metaPos) = 0;
@@ -105,6 +107,9 @@ namespace MultiArrayTools
         template <class Expr>
         ExpressionHolder<Expr> iforhi(size_t step, Expr ex) const;
 
+        std::shared_ptr<IndexWrapperBase> duplicateI() const
+        { return std::dynamic_pointer_cast<IndexWrapperBase>( this->duplicate() ); }
+        
     };
 
     template <class EC>
@@ -165,6 +170,9 @@ namespace MultiArrayTools
         
         virtual std::intptr_t get() const override final { return reinterpret_cast<std::intptr_t>(mI.get()); }
 	virtual std::intptr_t ptrNum() const override final { return mI->ptrNum(); }
+
+        virtual std::shared_ptr<AbstractIW> duplicate() const override final
+        { return std::make_shared<IndexWrapper>( std::make_shared<Index>( *mI ) ); }
 	
     };
     

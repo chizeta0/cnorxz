@@ -105,30 +105,6 @@ namespace MultiArrayTools
         }
     };
 
-    template <typename T, class OpClass>
-    class AssignmentExpr
-    {
-    private:
-        AssignmentExpr() = default;
-	    	    
-        OpClass mSec;
-        T* mDataPtr;
-            
-    public:
-
-        static constexpr size_t LAYER = 0;
-        static constexpr size_t SIZE = OpClass::SIZE;
-        typedef decltype(mSec.rootSteps()) ExtType;
-	    
-        AssignmentExpr(T* dataPtr, const OpClass& sec);
-        AssignmentExpr(const AssignmentExpr& in) = default;
-        AssignmentExpr(AssignmentExpr&& in) = default;
-	    
-        inline void operator()(size_t start = 0); 
-        inline void operator()(size_t start, ExtType last);
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-    };
-
     template <typename T, class Target, class OpClass>
     class AssignmentExpr2
     {
@@ -317,12 +293,13 @@ namespace MultiArrayTools
 
         template <class OpClass>
         auto assign(const OpClass& in) const
-            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
+            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
+                                              (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
         auto assignExpr(const OpClass& in) const
-            -> decltype(in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in)));
-        
+            -> decltype(in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>(mOrigDataPtr,*this,in)));
+            
         template <class OpClass, class Index>
         auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
             -> decltype(i->ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
@@ -388,7 +365,8 @@ namespace MultiArrayTools
 
         template <class OpClass>
         auto assign(const OpClass& in)
-            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,OpClass>(mOrigDataPtr,in))));
+            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+                                               (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
         auto plus(const OpClass& in)

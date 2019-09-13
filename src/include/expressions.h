@@ -29,32 +29,32 @@ namespace MultiArrayTools
     template <class EC, template <class> class OpF, class... MAs>
     using OX = Operation<double,OpF<double>,oo<EC,MAs>...>;
 
-    template <class EC, class Second>
-    using AEXT = AssignmentExpr<double,Second>;
+    template <class EC, class Tar, class Second>
+    using AEXT = AssignmentExpr2<double,Tar,Second>;
 
-    template <class EC, class Second>
-    using AEXT_P = AssignmentExpr<double,Second>;
+    template <class EC, class Tar, class Second>
+    using AEXT_P = AssignmentExpr2<double,Tar,Second>;
 
-    template <class EC, template <class> class OpF, class... MAs>
-    using AEX = AEXT<EC,OX<EC,OpF,MAs...>>;
+    template <class EC, class Tar, template <class> class OpF, class... MAs>
+    using AEX = AEXT<EC,Tar,OX<EC,OpF,MAs...>>;
     
     template <class EC>
-    using AEX_M = AEXT<EC,oo<EC,DDMMA<EC>>>;
+    using AEX_M = AEXT<EC,oo<EC,DDMMA<EC>>,oo<EC,DDMMA<EC>>>;
 
     template <class EC>
-    using AEX_C = AEXT<EC,oo<EC,DDMA<EC>>>;
+    using AEX_C = AEXT<EC,oo<EC,DDMMA<EC>>,oo<EC,DDMA<EC>>>;
 
     template <class EC, template <class> class OpF>
-    using AEX_B_MM = AEX<EC,OpF,DDMMA<EC>,DDMMA<EC>>;
+    using AEX_B_MM = AEX<EC,oo<EC,DDMMA<EC>>,OpF,DDMMA<EC>,DDMMA<EC>>;
 
     template <class EC, template <class> class OpF>
-    using AEX_B_MC = AEX<EC,OpF,DDMMA<EC>,DDMA<EC>>;
+    using AEX_B_MC = AEX<EC,oo<EC,DDMMA<EC>>,OpF,DDMMA<EC>,DDMA<EC>>;
 
     template <class EC, template <class> class OpF>
-    using AEX_B_CM = AEX<EC,OpF,DDMA<EC>,DDMMA<EC>>;
+    using AEX_B_CM = AEX<EC,oo<EC,DDMMA<EC>>,OpF,DDMA<EC>,DDMMA<EC>>;
 
     template <class EC, template <class> class OpF>
-    using AEX_B_CC = AEX<EC,OpF,DDMA<EC>,DDMA<EC>>;
+    using AEX_B_CC = AEX<EC,oo<EC,DDMMA<EC>>,OpF,DDMA<EC>,DDMA<EC>>;
 
     /*
     template <class EC>
