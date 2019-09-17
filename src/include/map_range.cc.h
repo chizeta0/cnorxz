@@ -329,6 +329,26 @@ namespace MultiArrayTools
 
     template <class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
+    GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::shared_ptr<ORType>& outr,
+                                                                const std::tuple<Op,MA>& mapf,
+                                                                const std::shared_ptr<Ranges>&... rs)
+    {
+	mProd = std::shared_ptr< GenMapRange<Op,XSTYPE,Ranges...> >
+            ( new GenMapRange<Op,XSTYPE,Ranges...>( outr, mapf, rs... ) );
+    }
+    
+    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class MA>
+    GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::shared_ptr<ORType>& outr,
+                                                                const std::tuple<Op,MA>& mapf,
+                                                                const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& st)
+    {
+	mProd = std::shared_ptr< GenMapRange<Op,XSTYPE,Ranges...> >
+            ( new GenMapRange<Op,XSTYPE,Ranges...>( outr, mapf, st ) );
+    }
+
+    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class MA>
     GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
                                                                 const std::shared_ptr<Ranges>&... rs)
     {
@@ -456,7 +476,43 @@ namespace MultiArrayTools
         }
 
     }
-    
+
+    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class MA>
+    GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+                                                  const std::shared_ptr<Ranges>&... rs) :
+        mSpace(std::make_tuple(rs...)),
+        mMapf(std::get<0>(mapf)),
+        mOutRange(outr),
+        mMapMult(mOutRange,0),
+        mMapPos(std::get<1>(mapf).size(),mOutRange->size())
+    {
+        auto& ma = std::get<1>(mapf);
+        auto jj = mMapMult.begin();
+        for(auto ii = ma.begin(); ii.pos() != ii.max(); ++ii){
+            ++mMapMult[jj.at(ma[ii])];
+            mMapPos[ii.pos()] = jj.pos();
+        }
+    }
+
+    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class MA>
+    GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+                                                  const Space& space) :
+        mSpace(space),
+        mMapf(std::get<0>(mapf)),
+        mOutRange(outr),
+        mMapMult(mOutRange,0),
+        mMapPos(std::get<1>(mapf).size(),mOutRange->size())
+    {
+        auto& ma = std::get<1>(mapf);
+        auto jj = mMapMult.begin();
+        for(auto ii = ma.begin(); ii.pos() != ii.max(); ++ii){
+            ++mMapMult[jj.at(ma[ii])];
+            mMapPos[ii.pos()] = jj.pos();
+        }
+    }
+
     template <class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
     GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::tuple<Op,MA>& mapf,

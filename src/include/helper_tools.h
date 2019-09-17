@@ -32,6 +32,14 @@ namespace MultiArrayTools
     auto mkGenMapR(const std::tuple<Op,MA>& f, std::shared_ptr<RangeTypes>... ranges)
 	-> std::shared_ptr<GenMapRange<Op,STYPE,RangeTypes...> >;
 
+    template <class Op, SpaceType XSTYPE>
+    using MapORType = SingleRange<typename Op::value_type,XSTYPE>;
+    
+    template <SpaceType STYPE, class Op, class MA, class... RangeTypes>
+    auto mkGenMapRwith(const std::shared_ptr<MapORType<Op,STYPE>>& outr, const std::tuple<Op,MA>& f,
+                       std::shared_ptr<RangeTypes>... ranges)
+	-> std::shared_ptr<GenMapRange<Op,STYPE,RangeTypes...> >;
+
     template <SpaceType STYPE, class Op, class MA, class... IndexTypes>
     auto mkGenMapI(const std::tuple<Op,MA>& f, std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkGenMapR<STYPE>( f, indices->range()... ) ) );
@@ -39,6 +47,11 @@ namespace MultiArrayTools
     template <class Op, class MA, class... RangeTypes>
     auto mkMapR(const std::tuple<Op,MA>& f, std::shared_ptr<RangeTypes>... ranges)
 	-> decltype( mkGenMapR<SpaceType::ANY>(f, ranges... ) );
+
+    template <class Op, class MA, class... RangeTypes>
+    auto mkMapRwith(const std::shared_ptr<MapORType<Op,SpaceType::ANY>>& outr, const std::tuple<Op,MA>& f,
+                    std::shared_ptr<RangeTypes>... ranges)
+	-> decltype( mkGenMapRwith<SpaceType::ANY>(outr, f, ranges... ) );
 
     template <class Op, class MA, class... IndexTypes>
     auto mkMapI(const std::tuple<Op,MA>& f, std::shared_ptr<IndexTypes>... indices)

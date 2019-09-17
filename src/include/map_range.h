@@ -211,9 +211,18 @@ namespace MultiArrayTools
     class GenMapRangeFactory : public RangeFactoryBase
     {
     public:
+	typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
 	typedef GenMapRange<Op,XSTYPE,Ranges...> oType;
 	
 	GenMapRangeFactory() = delete;
+
+        template <class MA>
+        GenMapRangeFactory(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+                           const std::shared_ptr<Ranges>&... rs);
+
+        template <class MA>
+        GenMapRangeFactory(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+                           const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& st);
 
         template <class MA>
 	GenMapRangeFactory(const std::tuple<Op,MA>& mapf, const std::shared_ptr<Ranges>&... rs);
@@ -251,6 +260,14 @@ namespace MultiArrayTools
 	GenMapRange() = delete;
 	GenMapRange(const GenMapRange& in) = delete;
 	GenMapRange& operator=(const GenMapRange& in) = delete;
+
+        template <class MA>
+        GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+                    const std::shared_ptr<Ranges>&... rs);
+
+        template <class MA>
+        GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+                    const Space& space);
 
         template <class MA>
         GenMapRange(const std::tuple<Op,MA>& mapf, const Space& space);
