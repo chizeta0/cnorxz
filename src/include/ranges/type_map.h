@@ -26,63 +26,126 @@ namespace MultiArrayTools
     };
 
     template <typename T>
+    struct TypeHandle
+    {
+        static inline void stringCat(vector<char>& out, const vector<T>& in)
+        {
+            //for(auto& x: in) { std::cout << x << std::endl; }
+            const char* scp = reinterpret_cast<const char*>(in.data());
+            out.insert(out.end(), scp, scp + in.size() * sizeof(T));
+        }
+
+        static inline size_t metaSize(const vector<T>& in)
+        {
+            return in.size() * sizeof(T);
+        }
+	
+        static inline void metaCat(vector<T>& vec, const char* begin, size_t size)
+        {
+            const T* tp = reinterpret_cast<const T*>( begin );
+            vec.insert(vec.end(), tp, tp + size / sizeof(T));
+        }
+    };
+
+    template <>
+    struct TypeHandle<std::string>
+    {
+        static inline void stringCat(vector<char>& out, const vector<std::string>& in)
+        {
+            //for(auto& x: in) { std::cout << x << std::endl; }
+            std::string tmp = "";
+            for(auto& x: in){
+                tmp += x + '\n';
+            }
+            const char* scp = reinterpret_cast<const char*>(tmp.data());
+            out.insert(out.end(), scp, scp + tmp.size());
+        }
+
+        static inline size_t metaSize(const vector<std::string>& in)
+        {
+            size_t out = 0;
+            for(auto& x: in){
+                out += x.size() + 1;
+            }
+            return out;
+        }
+    
+        static inline void metaCat(vector<std::string>& vec, const char* begin, size_t size)
+        {
+
+            std::string tmp(begin, size);
+            //std::cout << tmp << std::endl;
+            size_t pos = 0;
+            while(pos != tmp.size()){
+                std::string es = "\n";
+                size_t termpos = tmp.find_first_of(es, pos);
+                std::string tmpstr = tmp.substr(pos, termpos-pos);
+                vec.push_back(tmpstr);
+                pos = termpos + 1;
+            }
+        }
+    };
+    
+    template <typename T>
+    struct TypeHandle<vector<T>>
+    {
+        static inline void stringCat(vector<char>& out, const vector<vector<T>>& in)
+        {
+            //for(auto& x: in) { std::cout << x << std::endl; }
+            for(auto& x: in){
+                const size_t size = x.size();
+                const char* ss = reinterpret_cast<const char*>(&size);
+                const char* scp = reinterpret_cast<const char*>(x.data());
+                out.insert(out.end(), ss, ss + sizeof(size_t));
+                out.insert(out.end(), scp, scp + size*sizeof(T));
+            }
+        }
+
+        static inline size_t metaSize(const vector<vector<T>>& in)
+        {
+            size_t out = 0;
+            for(auto& x: in){
+                out += x.size()*sizeof(T);
+                out += sizeof(size_t);
+            }
+            return out;
+        }
+        
+        static inline void metaCat(vector<vector<T>>& vec, const char* begin, size_t size)
+        {
+            size_t pos = 0;
+            while(pos < size){
+                const size_t xsize = *reinterpret_cast<const size_t*>(begin+pos);
+                pos += sizeof(size_t);
+                const T* dbegin = reinterpret_cast<const T*>(begin+pos);
+                const T* dend = dbegin+xsize;
+                vec.emplace_back(dbegin,dend);
+                //vector<T> tmp(begin+pos, begin+npos);
+                //vec.push_back(tmp);
+                pos += xsize*sizeof(T);
+            }
+            assert(pos == size);
+        }
+    };
+
+    template <typename T>
     inline void stringCat(vector<char>& out, const vector<T>& in)
     {
-	//for(auto& x: in) { std::cout << x << std::endl; }
-	const char* scp = reinterpret_cast<const char*>(in.data());
-	out.insert(out.end(), scp, scp + in.size() * sizeof(T));
+        TypeHandle<T>::stringCat(out,in);
     }
 
     template <typename T>
     inline size_t metaSize(const vector<T>& in)
     {
-	return in.size() * sizeof(T);
+        return TypeHandle<T>::metaSize(in);
     }
 	
     template <typename T>
     inline void metaCat(vector<T>& vec, const char* begin, size_t size)
     {
-	const T* tp = reinterpret_cast<const T*>( begin );
-	vec.insert(vec.end(), tp, tp + size / sizeof(T));
+        TypeHandle<T>::metaCat(vec,begin,size);
     }
 
-    template <>
-    inline void stringCat<std::string>(vector<char>& out, const vector<std::string>& in)
-    {
-	//for(auto& x: in) { std::cout << x << std::endl; }
-	std::string tmp = "";
-	for(auto& x: in){
-	    tmp += x + '\n';
-	}
-	const char* scp = reinterpret_cast<const char*>(tmp.data());
-	out.insert(out.end(), scp, scp + tmp.size());
-    }
-
-    template <>
-    inline size_t metaSize<std::string>(const vector<std::string>& in)
-    {
-	size_t out = 0;
-	for(auto& x: in){
-	    out += x.size() + 1;
-	}
-	return out;
-    }
-    
-    template <>
-    inline void metaCat<std::string>(vector<std::string>& vec, const char* begin, size_t size)
-    {
-
-	std::string tmp(begin, size);
-	//std::cout << tmp << std::endl;
-	size_t pos = 0;
-	while(pos != tmp.size()){
-	    std::string es = "\n";
-	    size_t termpos = tmp.find_first_of(es, pos);
-	    std::string tmpstr = tmp.substr(pos, termpos-pos);
-	    vec.push_back(tmpstr);
-	    pos = termpos + 1;
-	}
-    }
 
 #define XCOMMAX() ,
     
