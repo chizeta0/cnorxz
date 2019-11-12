@@ -594,7 +594,10 @@ namespace MultiArrayTools
     template <class Op, SpaceType XSTYPE, class... Ranges>
     size_t GenMapRange<Op,XSTYPE,Ranges...>::cmeta(char* target, size_t pos) const
     {
-        return RPackNum<sizeof...(Ranges)-1>::getCMeta(target,pos,mSpace,cmetaSize());
+        //MetaType* xtarget = reinterpret_cast<MetaType*>(target);
+        assert(0);
+        return 0;
+        //return RPackNum<sizeof...(Ranges)-1>::getCMeta(xtarget,pos,mSpace,cmetaSize());
     }
 
     template <class Op, SpaceType XSTYPE, class... Ranges>

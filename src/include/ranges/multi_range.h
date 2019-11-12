@@ -596,7 +596,8 @@ namespace MultiArrayTools
     size_t MultiRange<Ranges...>::cmeta(char* target, size_t pos) const
     {
         const size_t off = cmetaSize();
-        return RPackNum<sizeof...(Ranges)-1>::getCMeta(target,pos,mSpace,off);
+        MetaType* xtarget = reinterpret_cast<MetaType*>(target);
+        return RPackNum<sizeof...(Ranges)-1>::getCMeta(xtarget,pos,mSpace,off);
     }
 
     template <class... Ranges>

@@ -370,17 +370,17 @@ namespace MultiArrayHelper
 	    RPackNum<N-1>::setSpace(rbvec, stp);
 	}
 
-        template <class... Ranges>
-        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp,
-                                      size_t off)
+        template <class MetaType, class... Ranges>
+        static inline size_t getCMeta(MetaType* xtarget, size_t pos,
+                                      const std::tuple<std::shared_ptr<Ranges>...>& stp, size_t off)
         {
             //constexpr size_t NN = sizeof...(Ranges);
             auto& r = *std::get<N>(stp);
             const size_t ownPos = pos % r.size();
             const size_t s = r.cmetaSize();
             off -= s;
-            r.cmeta(target+off,ownPos);
-            return s + RPackNum<N-1>::getCMeta(target, (pos - ownPos) / r.size(), stp, off);
+            r.cmeta(reinterpret_cast<char*>(&std::get<N>(*xtarget)), ownPos);
+            return s + RPackNum<N-1>::getCMeta(xtarget, (pos - ownPos) / r.size(), stp, off);
         }
 
         template <class... Ranges>
@@ -668,9 +668,9 @@ namespace MultiArrayHelper
 	    std::get<0>( stp ) = std::dynamic_pointer_cast<RType>( rbvec[0] );
 	}
 
-        template <class... Ranges>
-        static inline size_t getCMeta(char* target, size_t pos, const std::tuple<std::shared_ptr<Ranges>...>& stp,
-                                      size_t off)
+        template <class MetaType, class... Ranges>
+        static inline size_t getCMeta(MetaType* xtarget, size_t pos,
+                                      const std::tuple<std::shared_ptr<Ranges>...>& stp, size_t off)
         {
             //constexpr size_t NN = sizeof...(Ranges);
             auto& r = *std::get<0>(stp);
@@ -678,7 +678,7 @@ namespace MultiArrayHelper
             const size_t s = r.cmetaSize();
             off -= s;
             assert(off == 0);
-            r.cmeta(target,ownPos);
+            r.cmeta(reinterpret_cast<char*>(&std::get<0>(*xtarget)), ownPos);
             return s;
         }
 

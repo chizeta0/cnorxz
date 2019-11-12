@@ -529,16 +529,16 @@ namespace MultiArrayTools
     template <class EC>
     std::string DynamicRange<EC>::stringMeta(size_t pos) const
     {
-	std::string out = "[ ";
+	std::string out = "";
 	//size_t xpos = pos;
 	for(size_t i = mOrig.size(); i != 0; --i) {
 	    auto& x = mOrig[i-1];
 	    const size_t redpos = pos % x->size();
-	    out = ( (i == mOrig.size()) ? out : out + " , " ) + x->stringMeta(redpos);
+	    out = x->stringMeta(redpos) + ( (i == mOrig.size()) ? out : ", " + out );
 	    pos -= redpos;
 	    pos /= x->size();
 	}
-	out += " ]";
+	out = "[" + out + "]";
 	return out;
     }
 

@@ -251,26 +251,73 @@ namespace {
 	EXPECT_EQ(ci2().pos(), ci2.max()-1);
     }
 
+    const char& resolve0(const vector<char>& cv)
+    {
+        return cv[0];
+    }
+
+    const std::tuple<char,char,char>& resolve1(const vector<char>& cv)
+    {
+        return *reinterpret_cast<const std::tuple<char,char,char>*>(cv.data()+1);
+    }
+
     TEST_F(DynIndexTest, Iterate)
     {
         for(auto i = dr->begin(); i.pos() != i.max(); ++i){
             EXPECT_EQ(i.meta().size(), 4*sizeof(char));
         }
         auto j = dr->begin();
-        EXPECT_EQ(j.meta(), vector<char>({'e','a','1','0'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'e','a','1','7'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'e','b','1','0'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'e','b','1','7'}));
+        //std::cout << j.stringMeta() << std::endl;
+        EXPECT_EQ(j.stringMeta(), "[e, [a,1,0]]");
+        EXPECT_EQ(resolve0(j.meta()), 'e');
+        EXPECT_EQ(resolve1(j.meta()), mkt('a','1','0'));
 
-        EXPECT_EQ((++j).meta(), vector<char>({'b','a','1','0'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'b','a','1','7'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'b','b','1','0'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'b','b','1','7'}));
+        EXPECT_EQ((++j).stringMeta(), "[e, [a,1,7]]");
+        EXPECT_EQ(resolve0(j.meta()), 'e');
+        EXPECT_EQ(resolve1(j.meta()), mkt('a','1','7'));
 
-        EXPECT_EQ((++j).meta(), vector<char>({'n','a','1','0'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'n','a','1','7'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'n','b','1','0'}));
-        EXPECT_EQ((++j).meta(), vector<char>({'n','b','1','7'}));
+        EXPECT_EQ((++j).stringMeta(), "[e, [b,1,0]]");
+        EXPECT_EQ(resolve0(j.meta()), 'e');
+        EXPECT_EQ(resolve1(j.meta()), mkt('b','1','0'));
+
+        EXPECT_EQ((++j).stringMeta(), "[e, [b,1,7]]");
+        EXPECT_EQ(resolve0(j.meta()), 'e');
+        EXPECT_EQ(resolve1(j.meta()), mkt('b','1','7'));
+
+
+        EXPECT_EQ((++j).stringMeta(), "[b, [a,1,0]]");
+        EXPECT_EQ(resolve0(j.meta()), 'b');
+        EXPECT_EQ(resolve1(j.meta()), mkt('a','1','0'));
+
+        EXPECT_EQ((++j).stringMeta(), "[b, [a,1,7]]");
+        EXPECT_EQ(resolve0(j.meta()), 'b');
+        EXPECT_EQ(resolve1(j.meta()), mkt('a','1','7'));
+
+        EXPECT_EQ((++j).stringMeta(), "[b, [b,1,0]]");
+        EXPECT_EQ(resolve0(j.meta()), 'b');
+        EXPECT_EQ(resolve1(j.meta()), mkt('b','1','0'));
+
+        EXPECT_EQ((++j).stringMeta(), "[b, [b,1,7]]");
+        EXPECT_EQ(resolve0(j.meta()), 'b');
+        EXPECT_EQ(resolve1(j.meta()), mkt('b','1','7'));
+
+
+        EXPECT_EQ((++j).stringMeta(), "[n, [a,1,0]]");
+        EXPECT_EQ(resolve0(j.meta()), 'n');
+        EXPECT_EQ(resolve1(j.meta()), mkt('a','1','0'));
+
+        EXPECT_EQ((++j).stringMeta(), "[n, [a,1,7]]");
+        EXPECT_EQ(resolve0(j.meta()), 'n');
+        EXPECT_EQ(resolve1(j.meta()), mkt('a','1','7'));
+
+        EXPECT_EQ((++j).stringMeta(), "[n, [b,1,0]]");
+        EXPECT_EQ(resolve0(j.meta()), 'n');
+        EXPECT_EQ(resolve1(j.meta()), mkt('b','1','0'));
+
+        EXPECT_EQ((++j).stringMeta(), "[n, [b,1,7]]");
+        EXPECT_EQ(resolve0(j.meta()), 'n');
+        EXPECT_EQ(resolve1(j.meta()), mkt('b','1','7'));
+
     }
     
 } // end namespace 
