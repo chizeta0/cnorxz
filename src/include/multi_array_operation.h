@@ -130,22 +130,28 @@ namespace MultiArrayTools
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
     };
 
-    template <typename T, class OpClass>
+    //template <typename T, class OpClass>
+    template <typename T, class Target, class OpClass>
     class AddExpr
     {
     private:
         AddExpr() = default;
 	    	    
+        Target mTar;
         OpClass mSec;
         T* mDataPtr;
             
     public:
 
         static constexpr size_t LAYER = 0;
-        static constexpr size_t SIZE = OpClass::SIZE;
-        typedef decltype(mSec.rootSteps()) ExtType;
+        static constexpr size_t SIZE = Target::SIZE + OpClass::SIZE;
+        typedef decltype(mTar.rootSteps(0).extend( mSec.rootSteps(0) )) ExtType;
+        //        static constexpr size_t LAYER = 0;
+        //static constexpr size_t SIZE = OpClass::SIZE;
+        //typedef decltype(mSec.rootSteps()) ExtType;
 	    
-        AddExpr(T* dataPtr, const OpClass& sec);
+        //AddExpr(T* dataPtr, const OpClass& sec);
+        AddExpr(T* dataPtr, const Target& tar, const OpClass& sec);
         AddExpr(const AddExpr& in) = default;
         AddExpr(AddExpr&& in) = default;
 	    
@@ -307,8 +313,14 @@ namespace MultiArrayTools
             
         template <class OpClass>
         auto plus(const OpClass& in) const
-            -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))));
-        
+            -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OperationRoot<T,Ranges...>,OpClass>
+                                              (mOrigDataPtr,*this,in))));
+
+        template <class OpClass, class Index>
+        auto plus(const OpClass& in, const std::shared_ptr<Index>& i) const
+            -> decltype(i->ifor(1,in.loop(AddExpr<T,OperationRoot<T,Ranges...>,OpClass>
+                                          (mOrigDataPtr,*this,in))));
+            
         template <class OpClass>
         OperationRoot& operator=(const OpClass& in);
 
@@ -370,7 +382,8 @@ namespace MultiArrayTools
 
         template <class OpClass>
         auto plus(const OpClass& in)
-            -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,OpClass>(mOrigDataPtr,in))));
+            -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+                                               (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
         ParallelOperationRoot& operator=(const OpClass& in);
