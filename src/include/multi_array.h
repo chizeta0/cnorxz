@@ -42,7 +42,11 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, const vector<T>& vec);
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, vector<T>&& vec);
-	MultiArray(const typename CRange::Space& space);
+
+        template <class... Ranges>
+	MultiArray(const std::shared_ptr<SRanges>&... ranges, MultiArray<T,Ranges...>&& in); // same effect as format
+
+        MultiArray(const typename CRange::Space& space);
 	MultiArray(const typename CRange::Space& space, vector<T>&& vec);
 	MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes);
 	

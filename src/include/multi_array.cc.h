@@ -74,6 +74,17 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
+    template <class... Ranges>
+    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, MultiArray<T,Ranges...>&& in) :
+	MutableMultiArrayBase<T,SRanges...>(ranges...),
+        mCont( std::move( in.mCont ) )
+    {
+        // maybe some checks here in the future...
+        assert(mCont.size() == MAB::mRange->size());
+	MAB::mInit = true;
+    }
+
+    template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes) :
 	MutableMultiArrayBase<T,SRanges...>
 	( ama.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
