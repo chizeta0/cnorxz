@@ -9,6 +9,9 @@
 #include <cassert>
 #include <iostream>
 
+#define MIB_SIZE 1024*1024 // 1MiB
+#define WARN_SIZE MIB_SIZE*100 // 100 MiB
+
 namespace MultiArrayHelper
 {
 
@@ -32,6 +35,9 @@ namespace MultiArrayHelper
 	T* allocate(size_t n)
 	{
 	    const size_t nn = n*type_size;
+            if(nn >= WARN_SIZE){
+                std::cout << __func__ << ": WARNING: allocating " << nn/(MIB_SIZE) << " MiB" << std::endl;
+            }
             const size_t off = nn%N;
             const size_t nnx = (off == 0) ? nn : nn + N - off;
             const size_t nnd = nnx/N;

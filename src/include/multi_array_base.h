@@ -153,7 +153,7 @@ namespace MultiArrayTools
 
 	virtual bool isConst() const override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() = 0;
+	//virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() = 0;
 	
 	virtual ConstOperationRoot<T,SRanges...>
 	op(const std::shared_ptr<IndexType>& ind) const override;

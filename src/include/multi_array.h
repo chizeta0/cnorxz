@@ -47,7 +47,7 @@ namespace MultiArrayTools
 	MultiArray(const std::shared_ptr<SRanges>&... ranges, MultiArray<T,Ranges...>&& in); // same effect as format
 
         MultiArray(const typename CRange::Space& space);
-	MultiArray(const typename CRange::Space& space, vector<T>&& vec);
+	MultiArray(const typename CRange::Space& space, const vector<T>& vec);
 	MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes);
 	
 	// Only if ALL ranges have default extensions:
@@ -90,7 +90,7 @@ namespace MultiArrayTools
         vector<T>&& vmove() { MAB::mInit = false; return std::move(mCont); }
         
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
+	//virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
 	
 	auto cat() const
 	    -> decltype(ArrayCatter<T>::cat(*this));

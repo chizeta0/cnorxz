@@ -24,7 +24,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(const typename CRange::Space& space,
-					 vector<T>&& vec) :
+					 const vector<T>& vec) :
 	MutableMultiArrayBase<T,SRanges...>(space),
 	mCont(vec)
     {
@@ -65,7 +65,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, vector<T>&& vec) :
 	MutableMultiArrayBase<T,SRanges...>(ranges...),
-	mCont(vec)
+	mCont(std::forward<vector<T>>(vec))
     {
 	MAB::mInit = true;
 	if(mCont.size() > MAB::mRange->size()){
@@ -82,6 +82,7 @@ namespace MultiArrayTools
         // maybe some checks here in the future...
         assert(mCont.size() == MAB::mRange->size());
 	MAB::mInit = true;
+        in.mInit = false;
     }
 
     template <typename T, class... SRanges>
@@ -91,6 +92,7 @@ namespace MultiArrayTools
 	mCont( std::move( ama.mCont ) )
     {
 	MAB::mInit = true;
+        ama.mInit = false;
     }
     
     /*
@@ -163,16 +165,16 @@ namespace MultiArrayTools
     template <class... SRanges2>
     MultiArray<T,SRanges2...> MultiArray<T,SRanges...>::format(const std::shared_ptr<SRanges2>&... nrs)
     {
-	MAB::mInit = false;
-	return MultiArray<T,SRanges2...>( nrs... , std::move(mCont) );
+	//MAB::mInit = false;
+	return MultiArray<T,SRanges2...>( nrs... , mCont );
     }
 
     template <typename T, class... SRanges>
     template <class... SRanges2>
     MultiArray<T,SRanges2...> MultiArray<T,SRanges...>::format(const std::tuple<std::shared_ptr<SRanges2>...>& nrs)
     {
-	MAB::mInit = false;
-	return MultiArray<T,SRanges2...>( nrs , std::move(mCont) );
+	//MAB::mInit = false;
+	return MultiArray<T,SRanges2...>( nrs , mCont );
     }
 
     template <typename T, class... SRanges>
@@ -215,8 +217,9 @@ namespace MultiArrayTools
 		( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
 		  mCont );
 	}
-    }	
+    }
 
+    /*
     template <typename T, class... SRanges>
     std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymousMove()
     {
@@ -226,7 +229,7 @@ namespace MultiArrayTools
 	    ( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
 	      std::move(mCont) );
     }	
-
+    */
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator=(const T& in)
     {

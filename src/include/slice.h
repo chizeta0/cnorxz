@@ -86,7 +86,7 @@ namespace MultiArrayTools
 	virtual auto end() const -> IType override;
 
 	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
+	//virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
 
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	    -> SliceDef<T,SRanges...>;
