@@ -6,6 +6,7 @@
 #include <vector>
 #include <array>
 #include <tuple>
+#include <algorithm>
 
 #include "ranges/dynamic_meta.h"
 
@@ -40,7 +41,9 @@ namespace MultiArrayHelper
     template <typename T>
     inline std::string xToString(const T& x)
     {
-	return std::to_string(x);
+        std::string out = std::to_string(x);
+        std::replace(out.begin(), out.end(), ',', '.');
+	return out;
     }
 
     template <size_t N>
