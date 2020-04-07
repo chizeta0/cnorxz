@@ -111,7 +111,7 @@ namespace MultiArrayTools
         GenSingleRangeFactory(vector<U>&& space);
 	std::shared_ptr<RangeBase> create();
     };
-
+    
     template <typename U>
     class MetaMap
     {
@@ -144,7 +144,7 @@ namespace MultiArrayTools
         }
 	size_t count(const U& in) const { return mMap.count(in); }
     };
-    
+    /*
     template <>
     class MetaMap<std::array<int,2> >
     {
@@ -195,7 +195,7 @@ namespace MultiArrayTools
 	}
 	
     };
-
+    */
     template <size_t S>
     struct CheckStatic
     {
