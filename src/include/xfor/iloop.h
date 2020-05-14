@@ -19,14 +19,14 @@ namespace MultiArrayHelper
             typedef typename std::tuple_element<N,LTp>::type LType;
             return LType::SIZE + NN<N-1>::template LSIZE<LTp>();
         }
-        
+	/*
         template <class LTp>
         static inline constexpr size_t lsize(const LTp& ltp)
         {
             typedef typename std::tuple_element<N,LTp>::type LType;
             return LType::SIZE + NN<N-1>::lsize(ltp);
         }
-
+	*/
         template <class LTp>
         static inline auto rootSteps(const LTp& ltp, std::intptr_t i = 0)
         {
@@ -48,7 +48,8 @@ namespace MultiArrayHelper
                                   size_t mpos, ExtType pos)
         {
             NN<N-1>::exec(ltp,umpos,mpos,pos);
-            std::get<N>(ltp)(std::get<N>(umpos)*mpos, pos.template nn<NN<N-1>::lsize(ltp)>());
+            //std::get<N>(ltp)(std::get<N>(umpos)*mpos, pos.template nn<NN<N-1>::lsize(ltp)>());
+            std::get<N>(ltp)(std::get<N>(umpos)*mpos, pos.template nn<NN<N-1>::template LSIZE<LTp>()>());
             return 0;
         }
       
