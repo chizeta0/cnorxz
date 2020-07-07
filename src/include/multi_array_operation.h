@@ -17,6 +17,8 @@
 
 #include "arith.h"
 
+#include "xfor/xfor.h"
+
 namespace MultiArrayTools
 {
 
@@ -106,7 +108,7 @@ namespace MultiArrayTools
     };
 
     template <typename T, class Target, class OpClass>
-    class AssignmentExpr2
+    class AssignmentExpr2 : public ExpressionBase
     {
     private:
         AssignmentExpr2() = default;
@@ -128,6 +130,11 @@ namespace MultiArrayTools
         inline void operator()(size_t start = 0); 
         inline void operator()(size_t start, ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+
+        inline void operator()(size_t mlast, DExt last) override final;
+
+        inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
+        inline DExt dExtension() const override final;
     };
 
     //template <typename T, class OpClass>

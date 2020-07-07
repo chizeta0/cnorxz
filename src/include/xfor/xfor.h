@@ -21,8 +21,42 @@ namespace MultiArrayHelper
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
 
-    typedef std::pair<size_t const*,size_t> DExt;
+    //typedef std::pair<size_t const*,size_t> DExt;
 
+    class ExtBase
+    {
+    public:
+        ExtBase() = default;
+        ExtBase(const ExtBase& in) = default;
+        ExtBase(ExtBase&& in) = default;
+        ExtBase& operator=(const ExtBase& in) = default;
+        ExtBase& operator=(ExtBase&& in) = default;
+        
+        //virtual size_t size() const = 0;
+        //virtual size_t rootSteps() const = 0;
+    };
+
+    template <class ExtType>
+    class ExtT : public ExtBase
+    {
+    private:
+        ExtType mExt;
+    public:
+        ExtT() = default;
+        ExtT(const ExtT& in) = default;
+        ExtT(ExtT&& in) = default;
+        ExtT& operator=(const ExtT& in) = default;
+        ExtT& operator=(ExtT&& in) = default;
+
+        ExtT(const ExtType& in) : mExt(in) {}
+        
+        //virtual size_t size() const override final;
+        //virtual size_t rootSteps() const override final;
+        const ExtType& ext() const { return mExt; }
+    };
+
+    typedef std::shared_ptr<ExtBase> DExt;
+    
     inline MExt<void> mkExt(size_t s) { return MExt<void>(s); }
     
     class ExpressionBase
@@ -367,7 +401,7 @@ namespace MultiArrayHelper
 
 namespace MultiArrayHelper
 {
-
+    
     /*****************
      *     F o r     *
      *****************/
@@ -393,7 +427,8 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr, ForType FT>
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast, DExt last)
     {
-        operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
+        operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+        //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
     template <class IndexClass, class Expr, ForType FT>
@@ -438,16 +473,18 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr, ForType FT>
     DExt For<IndexClass,Expr,FT>::dRootSteps(std::intptr_t iPtrNum) const
     {
-        mRootSteps = rootSteps(iPtrNum);
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+        //mRootSteps = rootSteps(iPtrNum);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
+	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
     template <class IndexClass, class Expr, ForType FT>
     DExt For<IndexClass,Expr,FT>::dExtension() const
     {
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(mExt);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
+	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
     template <class IndexClass, class Expr, ForType FT>
@@ -482,7 +519,8 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     inline void PFor<IndexClass,Expr>::operator()(size_t mlast, DExt last)
     {
-        operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
+        operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+        //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
     template <class IndexClass, class Expr>
@@ -545,16 +583,18 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     DExt PFor<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
     {
-        mRootSteps = rootSteps(iPtrNum);
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+        //mRootSteps = rootSteps(iPtrNum);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
+	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
     template <class IndexClass, class Expr>
     DExt PFor<IndexClass,Expr>::dExtension() const
     {
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(mExt);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
+	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
     /************************
@@ -586,7 +626,8 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast, DExt last)
     {
-        operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
+        operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+        //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
 
     template <class IndexClass, class Expr>
@@ -628,16 +669,18 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     DExt SingleExpression<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
     {
-        mRootSteps = rootSteps(iPtrNum);
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+        //mRootSteps = rootSteps(iPtrNum);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
+	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
     template <class IndexClass, class Expr>
     DExt SingleExpression<IndexClass,Expr>::dExtension() const
     {
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(mExt);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
+        //				    sizeof(ExtType)/sizeof(size_t));
     }
     
     /****************
@@ -670,7 +713,8 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast, DExt last)
     {
-        operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
+        operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+        //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
     template <class IndexClass, class Expr>
@@ -711,16 +755,18 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     DExt SubExpr<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
     {
-        mRootSteps = rootSteps(iPtrNum);
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+        //mRootSteps = rootSteps(iPtrNum);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
+        //sizeof(ExtType)/sizeof(size_t));
     }
 
     template <class IndexClass, class Expr>
     DExt SubExpr<IndexClass,Expr>::dExtension() const
     {
-        return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
-						    sizeof(ExtType)/sizeof(size_t));
+        return std::make_shared<ExtT<ExtType>>(mExt);
+        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
+	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
     /***************************
@@ -764,9 +810,7 @@ namespace MultiArrayHelper
     inline void ExpressionHolder<Expr>::operator()(size_t mlast, ExtType last)
     {
 	mExpr(mlast,
-              std::make_pair<size_t const*,size_t>
-              (reinterpret_cast<size_t const*>(&last),
-               sizeof(ExtType)/sizeof(size_t)));
+              std::make_shared<ExtT<ExtType>>(last));
     }
 
     template <class Expr>
@@ -791,14 +835,16 @@ namespace MultiArrayHelper
     auto ExpressionHolder<Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
-	return *reinterpret_cast<ExtType const*>( mExpr.dRootSteps(iPtrNum).first );
+        return std::dynamic_pointer_cast<ExtT<ExtType>>(*mExpr.dRootSteps(iPtrNum))->ext();
+	//return *reinterpret_cast<ExtType const*>( mExpr.dRootSteps(iPtrNum).first );
     }
 
     template <class Expr>
     auto ExpressionHolder<Expr>::extension() const
 	-> ExtType
     {
-	return *reinterpret_cast<ExtType const*>( mExpr.dExtension().first );
+        return std::dynamic_pointer_cast<ExtT<ExtType>>(*mExpr.dExtension())->ext();
+	//return *reinterpret_cast<ExtType const*>( mExpr.dExtension().first );
     }
 
 

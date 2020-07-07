@@ -156,6 +156,25 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Target, class OpClass>
+    inline void AssignmentExpr2<T,Target,OpClass>::operator()(size_t mlast, DExt last)
+    {
+        (*this)(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+    }
+
+    template <typename T, class Target, class OpClass>
+    inline DExt AssignmentExpr2<T,Target,OpClass>::dRootSteps(std::intptr_t iPtrNum) const
+    {
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+    }
+
+    template <typename T, class Target, class OpClass>
+    inline DExt AssignmentExpr2<T,Target,OpClass>::dExtension() const
+    {
+        CHECK;
+        return nullptr; //???!!!
+    }
+
+    template <typename T, class Target, class OpClass>
     AddExpr<T,Target,OpClass>::AddExpr(T* dataPtr, const Target& tar, const OpClass& sec) :
         mTar(tar), mSec(sec), mDataPtr(dataPtr) {}
     
@@ -173,7 +192,6 @@ namespace MultiArrayTools
 	//return mSec.rootSteps(iPtrNum);
     }
 
-   
     /****************************
      *   ConstOperationRoot     *
      ****************************/
