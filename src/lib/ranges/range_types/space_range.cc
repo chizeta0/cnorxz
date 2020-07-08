@@ -61,7 +61,7 @@ namespace MultiArrayTools
 
     vector<size_t> GenSingleRange<int,SpaceType::PSPACE,MUI>::typeNum() const
     {
-        return {NumTypeMap<int>::num};
+        return {NumTypeMap<int>::num()};
     }
     
     size_t GenSingleRange<int,SpaceType::PSPACE,MUI>::cmeta(char* target, size_t pos) const

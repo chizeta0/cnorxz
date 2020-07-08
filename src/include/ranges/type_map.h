@@ -150,7 +150,7 @@ namespace MultiArrayTools
 #define XCOMMAX() ,
     
 #define include_type(t,n) template <> struct TypeMap<n> { typedef t type; static constexpr size_t size = sizeof(t); }; \
-    template <> struct NumTypeMap<t> { static constexpr size_t num = n; };
+    template <> struct NumTypeMap<t> { inline static size_t num(){ return n; } };
 
 #include "ranges/type_register.h"
     /*

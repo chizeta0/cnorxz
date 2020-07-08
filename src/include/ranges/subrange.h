@@ -401,7 +401,7 @@ namespace MultiArrayTools
         DataHeader h;
         h.spaceType = static_cast<int>( SpaceType::ANY );
         h.metaSize = metaSize(mSubSet);
-        h.metaType = NumTypeMap<MetaType>::num;
+        h.metaType = NumTypeMap<MetaType>::num();
         h.multiple = 0;
         return h;
     }

@@ -631,7 +631,7 @@ namespace MultiArrayTools
     template <typename U, SpaceType TYPE, size_t S>
     vector<size_t> GenSingleRange<U,TYPE,S>::typeNum() const
     {
-        return {NumTypeMap<U>::num};
+        return {NumTypeMap<U>::num()};
     }
     
     template <typename U, SpaceType TYPE, size_t S>
@@ -674,7 +674,7 @@ namespace MultiArrayTools
 	DataHeader h;
 	h.spaceType = static_cast<int>( TYPE );
 	h.metaSize = metaSize(mSpace);
-	h.metaType = NumTypeMap<U>::num;
+	h.metaType = NumTypeMap<U>::num();
 	h.multiple = 0;
         return h;
     }

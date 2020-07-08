@@ -355,7 +355,7 @@ namespace MultiArrayTools
     template <typename U>
     vector<size_t> ValueRange<U>::typeNum() const
     {
-        return {NumTypeMap<U>::num};
+        return {NumTypeMap<U>::num()};
     }
         
     template <typename U>
@@ -404,7 +404,7 @@ namespace MultiArrayTools
 	DataHeader h;
 	h.spaceType = static_cast<int>( SpaceType::NONE );
 	h.metaSize = 0;
-	h.metaType = NumTypeMap<U>::num;
+	h.metaType = NumTypeMap<U>::num();
 	h.multiple = 0;
         return h;
     }
