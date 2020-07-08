@@ -1,4 +1,5 @@
 
+include_type(vector<char>,1000)
 include_type(size_t,1)
 include_type(int,2)
 include_type(char,3)
