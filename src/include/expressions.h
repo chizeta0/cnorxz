@@ -11,7 +11,7 @@
 
 namespace MultiArrayTools
 {
-
+    /*
     //class Expressions1;
 
     template <class EC>
@@ -55,7 +55,7 @@ namespace MultiArrayTools
 
     template <class EC, template <class> class OpF>
     using AEX_B_CC = AEX<EC,oo<EC,DDMMA<EC>>,OpF,DDMA<EC>,DDMA<EC>>;
-
+    */
     /*
     template <class EC>
     class ECInterface
@@ -80,6 +80,7 @@ namespace MultiArrayTools
         }
     };
     */
+    /*
     template <class EC, class Index>
     std::shared_ptr<EC> makeec(const std::shared_ptr<Index>& i);
 
@@ -182,8 +183,7 @@ namespace MultiArrayTools
 
         E1(const std::shared_ptr<Index>& i) : mI(i) {} 
     };
-
-
+    */
 } // namespace MultiArrayTools
 
 #endif

@@ -26,7 +26,7 @@ namespace MultiArrayTools
     //using MultiArrayHelper::DynamicExpression;
 
     //using MultiArrayHelper::ExpressionHolder;
-
+    /*
     class AbstractIW
     {
     public:
@@ -36,11 +36,23 @@ namespace MultiArrayTools
         AbstractIW& operator=(const AbstractIW& in) = default;
         AbstractIW& operator=(AbstractIW&& in) = default;
 
+    };
+    */
+    class IndexWrapperBase
+    {
+    public:
+
+        IndexWrapperBase() = default;
+        IndexWrapperBase(const IndexWrapperBase& in) = default;
+        IndexWrapperBase(IndexWrapperBase&& in) = default;
+        IndexWrapperBase& operator=(const IndexWrapperBase& in) = default;
+        IndexWrapperBase& operator=(IndexWrapperBase&& in) = default;
+
         virtual IndexType type() const = 0;
 	
-	virtual AbstractIW& operator=(size_t pos) = 0;
-	virtual AbstractIW& operator++() = 0;
-	virtual AbstractIW& operator--() = 0;
+	virtual IndexWrapperBase& operator=(size_t pos) = 0;
+	virtual IndexWrapperBase& operator++() = 0;
+	virtual IndexWrapperBase& operator--() = 0;
 
 	virtual int pp(std::intptr_t idxPtrNum) = 0;
 	virtual int mm(std::intptr_t idxPtrNum) = 0;
@@ -61,7 +73,7 @@ namespace MultiArrayTools
         virtual std::intptr_t get() const = 0;
 	virtual std::intptr_t ptrNum() const = 0;
 
-        virtual std::shared_ptr<AbstractIW> duplicate() const = 0;
+        virtual std::shared_ptr<IndexWrapperBase> duplicate() const = 0;
         
         //virtual DynamicMetaT meta() const = 0;
 	//virtual const DynamicMetaT* metaPtr() const = 0;
@@ -69,7 +81,7 @@ namespace MultiArrayTools
 	//virtual size_t posAt(const U& metaPos) const = 0;
 
 	//virtual bool isMeta(const U& metaPos) const = 0;
-	inline AbstractIW& at(const std::string smeta)
+	inline IndexWrapperBase& at(const std::string smeta)
 	{
 	    for((*this) = 0; this->pos() != this->max(); ++(*this)){
 		if(this->stringMeta() == smeta){
@@ -78,48 +90,22 @@ namespace MultiArrayTools
 	    }
 	    return *this;
 	}
-    };
-    
-    template <class ExpressionCollection>
-    class IndexWrapperBase : public AbstractIW
-    {
-    protected:
-        std::shared_ptr<ExpressionCollection> mEc;
-    public:
 
-        IndexWrapperBase() = default;
-        IndexWrapperBase(const IndexWrapperBase& in) = default;
-        IndexWrapperBase(IndexWrapperBase&& in) = default;
-        IndexWrapperBase& operator=(const IndexWrapperBase& in) = default;
-        IndexWrapperBase& operator=(IndexWrapperBase&& in) = default;
-
-        using AbstractIW::operator=;
-        
-        template <class Expr>
-        ExpressionHolder<Expr> ifor(size_t step, ExpressionHolder<Expr> ex) const;
-
-        template <class Expr>
-        ExpressionHolder<Expr> iforh(size_t step, ExpressionHolder<Expr> ex) const;
-
-	template <class Expr>
-        ExpressionHolder<Expr> ifori(size_t step, Expr ex) const;
-
-        template <class Expr>
-        ExpressionHolder<Expr> iforhi(size_t step, Expr ex) const;
-
+        virtual DynamicExpression ifor(size_t step, DynamicExpression ex) const = 0;
+        virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const = 0;
+        /*
         std::shared_ptr<IndexWrapperBase> duplicateI() const
         { return std::dynamic_pointer_cast<IndexWrapperBase>( this->duplicate() ); }
-        
+        */
     };
 
-    template <class EC>
-    using IndexW = IndexWrapperBase<EC>;
+    typedef IndexWrapperBase IndexW;
     
-    template <class Index, class ExpressionCollection>
-    class IndexWrapper : public IndexWrapperBase<ExpressionCollection>
+    template <class Index>
+    class IndexWrapper : public IndexWrapperBase
     {
     public:
-        typedef IndexWrapperBase<ExpressionCollection> IWB;
+        typedef IndexWrapperBase IWB;
 	typedef typename Index::MetaType MetaType;
 
 	static constexpr IndexType sType() { return IndexType::SINGLE; }
@@ -136,8 +122,7 @@ namespace MultiArrayTools
         IndexWrapper& operator=(const IndexWrapper& in) = default;
         IndexWrapper& operator=(IndexWrapper&& in) = default;
 
-        IndexWrapper(const std::shared_ptr<Index>& i) : mI(i)
-        { IWB::mEc = ExpressionCollection::make(mI); }
+        IndexWrapper(const std::shared_ptr<Index>& i) : mI(i) {}
         
         virtual IndexType type() const final { return mI->type(); }
 	
@@ -171,26 +156,30 @@ namespace MultiArrayTools
         virtual std::intptr_t get() const override final { return reinterpret_cast<std::intptr_t>(mI.get()); }
 	virtual std::intptr_t ptrNum() const override final { return mI->ptrNum(); }
 
-        virtual std::shared_ptr<AbstractIW> duplicate() const override final
+        virtual DynamicExpression ifor(size_t step, DynamicExpression ex) const override final
+        { return mI->ifor(step, ex); }
+        virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const override final
+        { return mI->iforh(step, ex); }
+
+        virtual std::shared_ptr<IndexWrapperBase> duplicate() const override final
         { return std::make_shared<IndexWrapper>( std::make_shared<Index>( *mI ) ); }
 	
     };
     
     //typedef SingleRange<size_t,SpaceType::DYN> DynamicRange;
 
-    template <class EC>
-    class DynamicIndex : public IndexInterface<DynamicIndex<EC>,vector<char>>
+    class DynamicIndex : public IndexInterface<DynamicIndex,vector<char>>
     {
     private:
-        typedef vector<std::pair<std::shared_ptr<IndexW<EC>>,size_t>> IVecT;
+        typedef vector<std::pair<std::shared_ptr<IndexW>,size_t>> IVecT;
         
         IVecT mIVec;
         bool mIvecInit = false;
         
     public:
-        typedef IndexInterface<DynamicIndex<EC>,vector<char>> IB;
+        typedef IndexInterface<DynamicIndex,vector<char>> IB;
 	typedef vector<char> MetaType;
-	typedef DynamicRange<EC> RangeType;
+	typedef DynamicRange RangeType;
 	typedef DynamicIndex IType;
 
         DynamicIndex(const std::shared_ptr<RangeType>& range);
@@ -208,12 +197,12 @@ namespace MultiArrayTools
 	DynamicIndex& operator--();
 
         DynamicIndex& operator()(const IVecT& ivec);
-        DynamicIndex& operator()(const vector<std::shared_ptr<IndexW<EC>>>& ivec);
+        DynamicIndex& operator()(const vector<std::shared_ptr<IndexW>>& ivec);
 		
 	template <class... Indices>
 	DynamicIndex& operator()(const std::shared_ptr<Indices>&... is);
 
-	DynamicIndex<EC>& sync();
+	DynamicIndex& sync();
 	
 	int pp(std::intptr_t idxPtrNum);
 	int mm(std::intptr_t idxPtrNum);
@@ -230,7 +219,7 @@ namespace MultiArrayTools
 	bool last() const;
 	bool first() const;
 
-        const IndexW<EC>& get(size_t n) const;
+        const IndexW& get(size_t n) const;
 
 	std::shared_ptr<RangeType> range();
 	
@@ -255,12 +244,11 @@ namespace MultiArrayTools
 
     
     // NOT THREAD SAVE!!
-    template <class EC>
     class DynamicRangeFactory : public RangeFactoryBase
     {
     public:
 	
-	typedef DynamicRange<EC> oType;
+	typedef DynamicRange oType;
 
 	DynamicRangeFactory();
 
@@ -286,8 +274,7 @@ namespace MultiArrayTools
 	bool mProductCreated = false;
     };
 
-    template <class EC>
-    class DynamicRange : public RangeInterface<DynamicIndex<EC>>
+    class DynamicRange : public RangeInterface<DynamicIndex>
     {
     public:
         static constexpr bool defaultable = true;
@@ -296,10 +283,10 @@ namespace MultiArrayTools
 	static constexpr bool HASMETACONT = false;
 	
 	typedef RangeBase RB;
-	typedef DynamicIndex<EC> IndexType;
+	typedef DynamicIndex IndexType;
 	typedef DynamicRange RangeType;
 	typedef vector<char> MetaType;
-        typedef DynamicRangeFactory<EC> FType;
+        typedef DynamicRangeFactory FType;
         
     private:
 	DynamicRange() = default;
@@ -351,10 +338,10 @@ namespace MultiArrayTools
 	
 	bool isEmpty() const;
 	
-	friend DynamicRangeFactory<EC>;
+	friend DynamicRangeFactory;
 	
-	static DynamicRangeFactory<EC> factory()
-	{ return DynamicRangeFactory<EC>(); }
+	static DynamicRangeFactory factory()
+	{ return DynamicRangeFactory(); }
 
     };
 
@@ -365,22 +352,20 @@ namespace MultiArrayHelper
 {
     using namespace MultiArrayTools;
 
-    template <class EC>
-    inline void resolveSetRange(std::shared_ptr<DynamicRange<EC>>& rp,
+    inline void resolveSetRange(std::shared_ptr<DynamicRange>& rp,
                                 const vector<std::shared_ptr<RangeBase> >& orig,
                                 size_t origpos, size_t size)
     {
-    	DynamicRangeFactory<EC> arf;
+    	DynamicRangeFactory arf;
 	for(size_t op = origpos; op != origpos + size; ++op){
 	    //VCHECK(op);
 	    arf.append(orig[op]);
 	}
-    	rp = std::dynamic_pointer_cast<DynamicRange<EC>>( arf.create() );
+    	rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
     }
 
-    template <class EC>
     inline void setRangeToVec(vector<std::shared_ptr<RangeBase> >& v,
-                              std::shared_ptr<DynamicRange<EC>> r)
+                              std::shared_ptr<DynamicRange> r)
     {
 	if(not r->isEmpty()){
 	    for(size_t i = r->dim(); i != 0; --i){
@@ -389,8 +374,7 @@ namespace MultiArrayHelper
 	}
     }
 
-    template <class EC>
-    inline size_t getStepSize(const DynamicIndex<EC>& ii, std::intptr_t j)
+    inline size_t getStepSize(const DynamicIndex& ii, std::intptr_t j)
     {
         size_t ss = 0;
         size_t sx = 1;

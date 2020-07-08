@@ -98,36 +98,36 @@ namespace MultiArrayTools
         return i->template getPtr<I>();
     }
     
-    template <class EC, class MArray>
+    template <class MArray>
     auto dynamic(const MArray& ma, bool slice = false)
-	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
+	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange>>;
 
-    template <class EC, class MArray>
+    template <class MArray>
     auto mdynamic(MArray& ma, bool slice)
-	-> std::shared_ptr<MutableMultiArrayBase<typename MArray::value_type,DynamicRange<EC>>>;
+	-> std::shared_ptr<MutableMultiArrayBase<typename MArray::value_type,DynamicRange>>;
     
-    template <typename T, class EC, class Range1, class... RangeTypes>
+    template <typename T, class Range1, class... RangeTypes>
     auto anonToDynView(const MultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
-	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange<EC>>;
+	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange>;
 
-    template <typename T, class EC, class Range1, class... RangeTypes>
+    template <typename T, class Range1, class... RangeTypes>
     auto anonToDynView(MutableMultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
-	-> Slice<T,Range1,RangeTypes...,DynamicRange<EC>>;
+	-> Slice<T,Range1,RangeTypes...,DynamicRange>;
 
-    template <typename T, class EC, class Range1, class... RangeTypes>
-    auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange<EC>>&& ma)
+    template <typename T, class Range1, class... RangeTypes>
+    auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange>&& ma)
 	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>;
 
-    template <typename T, class EC>
+    template <typename T>
     auto anonToDynView(const MultiArrayBase<T,AnonymousRange>& ma)
-	-> ConstSlice<T,DynamicRange<EC>>;
+	-> ConstSlice<T,DynamicRange>;
 
-    template <typename T, class EC>
+    template <typename T>
     auto anonToDynView(MutableMultiArrayBase<T,AnonymousRange>& ma)
-	-> Slice<T,DynamicRange<EC>>;
+	-> Slice<T,DynamicRange>;
 
-    template <typename T, class EC>
-    auto dynToAnonMove(MultiArray<T,DynamicRange<EC>>&& ma)
+    template <typename T>
+    auto dynToAnonMove(MultiArray<T,DynamicRange>&& ma)
 	-> MultiArray<T,AnonymousRange>;
 
     template <class Range>

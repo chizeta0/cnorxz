@@ -64,7 +64,7 @@ namespace {
 	return std::make_tuple(static_cast<size_t>( ts )...);
     }
 
-    typedef Expressions1 EC1;
+    //typedef Expressions1 EC1;
     
     template <typename T>
     struct Pow
@@ -736,17 +736,17 @@ namespace {
     TEST_F(OpTest_MDim, ExecDOp)
     {
 	//typedef MultiArray<double,AnonymousRange> AMA;
-	typedef MultiArray<double,DynamicRange<EC1> > DMA;
+	typedef MultiArray<double,DynamicRange> DMA;
 	
 	MultiArray<double,MRange,SRange> ma1(mr1ptr,sr4ptr,v5);
 	MultiArray<double,SRange> ma2(sr2ptr,v1);
 	MultiArray<double,SRange,MRange> res(sr4ptr,mr1ptr);
 	MultiArray<double,MRange,SRange> res2(mr1ptr,sr4ptr);
 
-	DMA dma1 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( ma1 ) );
-	DMA dma2 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( ma2 ) );
-	DMA dres = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res ) );
-	DMA dres2 = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res2 ) );
+	DMA dma1 = *std::dynamic_pointer_cast<DMA>( dynamic( ma1 ) );
+	DMA dma2 = *std::dynamic_pointer_cast<DMA>( dynamic( ma2 ) );
+	DMA dres = *std::dynamic_pointer_cast<DMA>( dynamic( res ) );
+	DMA dres2 = *std::dynamic_pointer_cast<DMA>( dynamic( res2 ) );
 	
 	auto si2 = MAT::getIndex( sr2ptr );
 	auto si3 = MAT::getIndex( sr3ptr );
@@ -782,7 +782,7 @@ namespace {
 	EXPECT_EQ( xround( res.at( mkt('B',mkt('3','a')) ) ), xround( 13.836 + 0.373 ) );
 	EXPECT_EQ( xround( res.at( mkt('B',mkt('3','b')) ) ), xround( 41.339 + 0.373 ) );
 
-	//dres = *std::dynamic_pointer_cast<DMA>( dynamic<EC1>( res ) );
+	//dres = *std::dynamic_pointer_cast<DMA>( dynamic( res ) );
 	dres2(dir2) = dres(dir);
 	res2 = dres2.format(mr1ptr,sr4ptr);
 	

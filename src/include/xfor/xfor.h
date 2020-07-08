@@ -34,7 +34,11 @@ namespace MultiArrayHelper
         
         virtual size_t size() const = 0;
         //virtual size_t rootSteps() const = 0;
+        virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
+        virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
     };
+
+    typedef std::shared_ptr<ExtBase> DExt;
 
     template <class ExtType>
     class ExtT : public ExtBase
@@ -53,9 +57,35 @@ namespace MultiArrayHelper
         virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
         //virtual size_t rootSteps() const override final;
         const ExtType& ext() const { return mExt; }
+
+        virtual DExt operator+(const ExtBase& in) const override final
+        { return std::make_shared<ExtT>( mExt + dynamic_cast<const ExtT&>(in).mExt ); }
+        virtual DExt operator*(size_t in) const override final
+        { return std::make_shared<ExtT>( mExt * in ); }
     };
 
-    typedef std::shared_ptr<ExtBase> DExt;
+
+    class DExtT
+    {
+    private:
+        DExt mDExt;
+    public:
+        DExtT() = default;
+        DExtT(const DExtT& in) = default;
+        DExtT(DExtT&& in) = default;
+        DExtT& operator=(const DExtT& in) = default;
+        DExtT& operator=(DExtT&& in) = default;
+        DExtT(const DExt& in) : mDExt(in) {}
+        
+        virtual size_t size() const { return mDExt->size(); }
+        inline const DExt& get() const { return mDExt; }
+        
+        inline DExtT operator+(const DExtT& in) const
+        { return DExtT( (*mDExt) + (*in.mDExt) ) ; }
+        inline DExtT operator*(size_t in) const
+        { return DExtT( (*mDExt) * in ) ; }
+        
+    };
     
     inline MExt<void> mkExt(size_t s) { return MExt<void>(s); }
     
@@ -333,6 +363,9 @@ namespace MultiArrayHelper
 
     public:
 	
+	static constexpr size_t LAYER = 0;
+	static constexpr size_t SIZE = 0;
+
 	DynamicExpression(const DynamicExpression& in) = default;
 	DynamicExpression(DynamicExpression&& in) = default;
 	DynamicExpression& operator=(const DynamicExpression& in) = default;
@@ -343,13 +376,22 @@ namespace MultiArrayHelper
 	{}
 
         template <class Expr>
+        DynamicExpression(const ExpressionBase& next) :
+	    mNext(std::make_shared<Expr>(next))
+	{}
+
+        template <class Expr>
         DynamicExpression(Expr ex) : mNext( std::make_shared<Expr>(ex) ) {}
         
 	inline void operator()(size_t mlast, DExt last) override final;
+        inline void operator()(size_t mlast, DExtT last) { (*this)(mlast,last.get()); }
 	inline void operator()(size_t mlast = 0) override final;
 
         inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         inline DExt dExtension() const override final;
+
+        inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return dRootSteps(iPtrNum); }
+        inline DExtT extension() const { return dExtension(); }
 
     };
 

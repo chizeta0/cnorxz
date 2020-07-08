@@ -3,7 +3,7 @@
 
 namespace MultiArrayTools
 {
-
+    /*
     template <class Expr>
     inline ExpressionHolder<Expr> Expressions1::ifor(size_t step,
 						     ExpressionHolder<Expr> ex) const
@@ -35,5 +35,5 @@ namespace MultiArrayTools
     {
         return std::make_shared<EC>(i);
     }
-
+    */
 } // namespace MultiArrayTools

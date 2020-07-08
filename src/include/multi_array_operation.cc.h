@@ -191,12 +191,38 @@ namespace MultiArrayTools
         mDataPtr[last.val()] += mSec.get(last.next());
         //mDataPtr[start] += mSec.template get<ExtType>(last);
     }
+
+    template <typename T, class Target, class OpClass>
+    inline void AddExpr<T,Target,OpClass>::operator()(size_t start)
+    {
+        ExtType last;
+        mDataPtr[last.val()] += mSec.get(last.next());
+    }
     
     template <typename T, class Target, class OpClass>
     typename AddExpr<T,Target,OpClass>::ExtType AddExpr<T,Target,OpClass>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mTar.rootSteps(iPtrNum).extend( mSec.rootSteps(iPtrNum) );
 	//return mSec.rootSteps(iPtrNum);
+    }
+
+    template <typename T, class Target, class OpClass>
+    inline void AddExpr<T,Target,OpClass>::operator()(size_t mlast, DExt last)
+    {
+        (*this)(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+    }
+
+    template <typename T, class Target, class OpClass>
+    inline DExt AddExpr<T,Target,OpClass>::dRootSteps(std::intptr_t iPtrNum) const
+    {
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+    }
+
+    template <typename T, class Target, class OpClass>
+    inline DExt AddExpr<T,Target,OpClass>::dExtension() const
+    {
+        CHECK;
+        return nullptr; //???!!!
     }
 
     /****************************
