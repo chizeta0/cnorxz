@@ -68,7 +68,7 @@ namespace MultiArrayHelper
     class DExtT
     {
     private:
-        DExt mDExt;
+        DExt mDExt = nullptr;
     public:
         DExtT() = default;
         DExtT(const DExtT& in) = default;
@@ -81,9 +81,9 @@ namespace MultiArrayHelper
         inline const DExt& get() const { return mDExt; }
         
         inline DExtT operator+(const DExtT& in) const
-        { return DExtT( (*mDExt) + (*in.mDExt) ) ; }
+        { if (not mDExt) return in; else return DExtT( (*mDExt) + (*in.mDExt) ) ; }
         inline DExtT operator*(size_t in) const
-        { return DExtT( (*mDExt) * in ) ; }
+        { if (not mDExt) return *this; else return DExtT( (*mDExt) * in ) ; }
         
     };
     

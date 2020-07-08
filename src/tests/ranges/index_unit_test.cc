@@ -39,7 +39,7 @@ namespace {
     class DynIndexTest : public ::testing::Test
     {
     protected:
-        typedef DynamicRangeFactory<Expressions1> DRF;
+        typedef DynamicRangeFactory DRF;
         typedef DRF::oType DR;
 
 	typedef SingleRangeFactory<char,SpaceType::ANY> SRF;
