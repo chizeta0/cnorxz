@@ -152,6 +152,8 @@ namespace MultiArrayTools
 #define include_type(t,n) template <> struct TypeMap<n> { typedef t type; static constexpr size_t size = sizeof(t); }; \
     template <> struct NumTypeMap<t> { static constexpr size_t num = n; };
 
+#include "ranges/type_register.h"
+    /*
     include_type(size_t,1)
     include_type(int,2)
     include_type(char,3)
@@ -176,7 +178,7 @@ namespace MultiArrayTools
     include_type(std::array<int XCOMMAX() 7>,702)
     include_type(std::array<int XCOMMAX() 8>,802)
     include_type(std::array<int XCOMMAX() 9>,902)
-    
+    */
 #undef include_type
 
     inline size_t sizeFromTypeNum(size_t tn)
