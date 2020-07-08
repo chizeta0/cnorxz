@@ -6,6 +6,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <cassert>
 
 #include "allocator.h"
 
@@ -22,7 +23,7 @@ namespace MultiArrayTools
     template <typename T>
     struct NumTypeMap
     {
-	static constexpr size_t num = 0;
+	static size_t num() { assert(0); return 0; };
     };
 
     template <typename T>
