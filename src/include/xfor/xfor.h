@@ -32,7 +32,7 @@ namespace MultiArrayHelper
         ExtBase& operator=(const ExtBase& in) = default;
         ExtBase& operator=(ExtBase&& in) = default;
         
-        //virtual size_t size() const = 0;
+        virtual size_t size() const = 0;
         //virtual size_t rootSteps() const = 0;
     };
 
@@ -50,7 +50,7 @@ namespace MultiArrayHelper
 
         ExtT(const ExtType& in) : mExt(in) {}
         
-        //virtual size_t size() const override final;
+        virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
         //virtual size_t rootSteps() const override final;
         const ExtType& ext() const { return mExt; }
     };
@@ -835,7 +835,7 @@ namespace MultiArrayHelper
     auto ExpressionHolder<Expr>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
-        return std::dynamic_pointer_cast<ExtT<ExtType>>(*mExpr.dRootSteps(iPtrNum))->ext();
+        return std::dynamic_pointer_cast<ExtT<ExtType>>(mExpr.dRootSteps(iPtrNum))->ext();
 	//return *reinterpret_cast<ExtType const*>( mExpr.dRootSteps(iPtrNum).first );
     }
 
@@ -843,7 +843,7 @@ namespace MultiArrayHelper
     auto ExpressionHolder<Expr>::extension() const
 	-> ExtType
     {
-        return std::dynamic_pointer_cast<ExtT<ExtType>>(*mExpr.dExtension())->ext();
+        return std::dynamic_pointer_cast<ExtT<ExtType>>(mExpr.dExtension())->ext();
 	//return *reinterpret_cast<ExtType const*>( mExpr.dExtension().first );
     }
 

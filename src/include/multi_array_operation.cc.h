@@ -143,6 +143,13 @@ namespace MultiArrayTools
         mTar(tar), mSec(sec), mDataPtr(dataPtr) {}
     
     template <typename T, class Target, class OpClass>
+    inline void AssignmentExpr2<T,Target,OpClass>::operator()(size_t start)
+    {
+        ExtType last;
+        mDataPtr[last.val()] = mSec.get(last.next());
+    }
+
+    template <typename T, class Target, class OpClass>
     inline void AssignmentExpr2<T,Target,OpClass>::operator()(size_t start, ExtType last)
     {
         mDataPtr[last.val()] = mSec.get(last.next());
