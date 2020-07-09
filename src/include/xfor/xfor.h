@@ -55,6 +55,7 @@ namespace MultiArrayHelper
         ExtT(const ExtType& in) : mExt(in) {}
         
         virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
+        //virtual size_t size() const override final { return ExtType::MExtSize(); }
         //virtual size_t rootSteps() const override final;
         const ExtType& ext() const { return mExt; }
 
@@ -87,7 +88,7 @@ namespace MultiArrayHelper
         
     };
     
-    inline MExt<void> mkExt(size_t s) { return MExt<void>(s); }
+    inline MExt<None> mkExt(size_t s) { return MExt<None>(s); }
     
     class ExpressionBase
     {

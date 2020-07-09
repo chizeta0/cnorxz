@@ -232,13 +232,13 @@ namespace MultiArrayTools
 	void print(size_t offset);
 
 	template <class Expr>
-	ExpressionHolder<Expr> ifor(size_t step, Expr ex) const;
+	DynamicExpression ifor(size_t step, Expr ex) const;
 
 	template <class Expr>
-	ExpressionHolder<Expr> iforh(size_t step, Expr ex) const;
+	DynamicExpression iforh(size_t step, Expr ex) const;
 
         template <class Expr>
-	ExpressionHolder<Expr> pifor(size_t step, Expr ex) const;
+	DynamicExpression pifor(size_t step, Expr ex) const;
 
     };    
 

@@ -102,34 +102,34 @@ namespace MultiArrayTools
 
     
     template <class Expr>
-    ExpressionHolder<Expr> DynamicIndex::ifor(size_t step, Expr ex) const
+    DynamicExpression DynamicIndex::ifor(size_t step, Expr ex) const
     {
 	if(mIVec.size() == 1){
-	    return ExpressionHolder<Expr>(mIVec.back().first->ifor(step,ex));
+	    return mIVec.back().first->ifor(step,ex);
 	}
 	else {
-	    return ExpressionHolder<Expr>(ForMaker::mk(mIVec.size()-2, step,
-                                                       mIVec.back().first->ifor(step,ex),mIVec));
+	    return ForMaker::mk(mIVec.size()-2, step,
+                                mIVec.back().first->ifor(step,ex),mIVec);
 	}
     }
 
     
     template <class Expr>
-    ExpressionHolder<Expr> DynamicIndex::iforh(size_t step, Expr ex) const
+    DynamicExpression DynamicIndex::iforh(size_t step, Expr ex) const
     {
 	if(mIVec.size() == 1){
-	    return ExpressionHolder<Expr>(mIVec.back().first->iforh(step,ex));
+	    return mIVec.back().first->iforh(step,ex);
 	}
 	else {
-	    return ExpressionHolder<Expr>(ForMaker::mk(mIVec.size()-2, step,
-                                                       mIVec.back().first->iforh(step,ex),
-                                                       mIVec, true));
+	    return ForMaker::mk(mIVec.size()-2, step,
+                                mIVec.back().first->iforh(step,ex),
+                                mIVec, true);
 	}
     }
 
     
     template <class Expr>
-    ExpressionHolder<Expr> DynamicIndex::pifor(size_t step, Expr ex) const
+    DynamicExpression DynamicIndex::pifor(size_t step, Expr ex) const
     {
         return ifor(step, ex); // no multithreading here at the moment...
     }

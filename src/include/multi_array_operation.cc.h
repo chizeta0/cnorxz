@@ -321,10 +321,10 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... Ranges>
-    MExt<void> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    MExt<None> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( mIndex, iPtrNum ));
-	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<None>(getStepSize( mIndex, iPtrNum ));
+	//return MExt<None>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
 
@@ -402,10 +402,10 @@ namespace MultiArrayTools
     }
 
     template <class Range>
-    MExt<void> MetaOperationRoot<Range>::rootSteps(std::intptr_t iPtrNum) const
+    MExt<None> MetaOperationRoot<Range>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( *mIndex, iPtrNum ));
-	//return MExt<void>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<None>(getStepSize( *mIndex, iPtrNum ));
+	//return MExt<None>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
     }
 
 
@@ -544,9 +544,9 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    MExt<void> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    MExt<None> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( mIndex, iPtrNum ));
+	return MExt<None>(getStepSize( mIndex, iPtrNum ));
     }
 
     template <typename T, class... Ranges>
@@ -661,10 +661,10 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    MExt<void> ParallelOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    MExt<None> ParallelOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<void>(getStepSize( mIndex, iPtrNum ));
-	//return MExt<void>(getStepSize( mIndex.info(), iPtrNum ));
+	return MExt<None>(getStepSize( mIndex, iPtrNum ));
+	//return MExt<None>(getStepSize( mIndex.info(), iPtrNum ));
     }
 
     template <typename T, class... Ranges>

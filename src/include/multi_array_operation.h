@@ -204,7 +204,7 @@ namespace MultiArrayTools
 	template <class ET>
 	inline ConstOperationRoot& set(ET pos);
 
-	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	MExt<None> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
@@ -278,7 +278,7 @@ namespace MultiArrayTools
 	template <class ET>
 	inline MetaOperationRoot& set(ET pos);
 
-	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	MExt<None> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
@@ -354,7 +354,7 @@ namespace MultiArrayTools
 	template <class ET>
 	inline OperationRoot& set(ET pos);
 
-	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	MExt<None> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;
@@ -416,7 +416,7 @@ namespace MultiArrayTools
 	template <class ET>
 	inline ParallelOperationRoot& set(ET pos);
 
-	MExt<void> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	MExt<None> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	Expr loop(Expr exp) const;

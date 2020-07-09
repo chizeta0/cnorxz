@@ -35,7 +35,7 @@ namespace MultiArrayHelper
     };
 
     template <>
-    struct SubProp<void>
+    struct SubProp<None>
     {
 	static constexpr size_t ISSTATIC = 1;
 	static constexpr size_t SIZE = 1;

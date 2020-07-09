@@ -114,14 +114,14 @@ namespace MultiArrayHelper
     };
     
     template <>
-    class MExt<void>
+    class MExt<None>
     {
     private:
 
 	size_t mExt = 0u;
 	
     public:
-	
+
 	static constexpr size_t NUM = 0;
         static constexpr size_t SIZE = NUM + 1;
         
@@ -226,45 +226,45 @@ namespace MultiArrayHelper
 
     
     //template <>
-    inline MExt<void>::MExt(size_t ext) : mExt(ext) {}
+    inline MExt<None>::MExt(size_t ext) : mExt(ext) {}
 
 
     //template <>
     template <class Z>
-    inline MExt<void>::MExt(size_t y, const Z& z) :
+    inline MExt<None>::MExt(size_t y, const Z& z) :
 	mExt(z.val()) {}
     
     //template <>
     template <class Y, class Z>
-    inline MExt<void>::MExt(const Y& y, const Z& z) :
+    inline MExt<None>::MExt(const Y& y, const Z& z) :
 	mExt(y.val()) {}
 
 
     //template <>
     template <size_t N>
-    inline MExt<void>::MExt(const std::array<size_t,N>& arr) :
+    inline MExt<None>::MExt(const std::array<size_t,N>& arr) :
 	mExt(std::get<NUM>(arr)) {}
 
     template <class Y>
-    inline MExt<void>::MExt(const MExt<Y>& y) :
+    inline MExt<None>::MExt(const MExt<Y>& y) :
         mExt(y.val()) {}
 
     //template <>
-    inline const size_t& MExt<void>::val() const
+    inline const size_t& MExt<None>::val() const
     {
 	return mExt;
     }
     
     //template <>
-    inline MExt<void> MExt<void>::operator+(const MExt<void>& in) const
+    inline MExt<None> MExt<None>::operator+(const MExt<None>& in) const
     {
-	return MExt<void>(mExt + in.val());
+	return MExt<None>(mExt + in.val());
     }
 
     //template <>
-    inline MExt<void> MExt<void>::operator*(size_t in) const
+    inline MExt<None> MExt<None>::operator*(size_t in) const
     {
-	return MExt<void>(mExt * in);
+	return MExt<None>(mExt * in);
     }
 
 
