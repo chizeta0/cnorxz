@@ -107,7 +107,12 @@ namespace MultiArrayTools
         }
     };
 
-    template <typename T, class Target, class OpClass>
+    enum class OpIndexAff {
+                           EXTERN = 0,
+                           TARGET = 1
+    };
+    
+    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr2 : public ExpressionBase
     {
     private:
@@ -138,7 +143,7 @@ namespace MultiArrayTools
     };
 
     //template <typename T, class OpClass>
-    template <typename T, class Target, class OpClass>
+    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AddExpr : public ExpressionBase
     {
     private:
@@ -311,7 +316,7 @@ namespace MultiArrayTools
 
         template <class OpClass>
         auto assign(const OpClass& in) const
-            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
+            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                               (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
@@ -325,7 +330,7 @@ namespace MultiArrayTools
             
         template <class OpClass>
         auto plus(const OpClass& in) const
-            -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OperationRoot<T,Ranges...>,OpClass>
+            -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                               (mOrigDataPtr,*this,in))));
 
         template <class OpClass, class Index>
@@ -389,12 +394,12 @@ namespace MultiArrayTools
 
         template <class OpClass>
         auto assign(const OpClass& in)
-            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                                (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
         auto plus(const OpClass& in)
-            -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+            -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                                (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
