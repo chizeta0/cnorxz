@@ -36,6 +36,9 @@ namespace MultiArrayHelper
         //virtual size_t rootSteps() const = 0;
         virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
         virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
+
+	template <class ExtType>
+	const ExtType& expl() const { return dynamic_cast<const ExtT<ExtType>*>(this)->ext(); }
     };
 
     typedef std::shared_ptr<ExtBase> DExt;
@@ -444,6 +447,11 @@ namespace MultiArrayHelper
 
 namespace MultiArrayHelper
 {
+    template <class ExtType>
+    const ExtType& ExtBase::expl() const
+    {
+	return dynamic_cast<const ExtT<ExtType>*>(this)->ext();
+    }
     
     /*****************
      *     F o r     *
