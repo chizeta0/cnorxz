@@ -24,9 +24,9 @@ namespace MultiArrayTools
 	DynamicOperationBase& operator=(const DynamicOperationBase& in) = default;
 	DynamicOperationBase& operator=(DynamicOperationBase&& in) = default;
 
-	virtual const T& get(const DExt& pos) const = 0;
-	virtual DynamicOperationBase& set(const DExt& pos) = 0;
-	virtual DExt rootSteps(std::intptr_t iPtrNum = 0) const = 0;
+	virtual const T& get(const DExtT& pos) const = 0;
+	virtual DynamicOperationBase& set(const DExtT& pos) = 0;
+	virtual DExtT rootSteps(std::intptr_t iPtrNum = 0) const = 0;
 	virtual DynamicExpression loop(const DynamicExpression& exp) const = 0;
 	virtual const T* data() const = 0;
 	
@@ -48,11 +48,40 @@ namespace MultiArrayTools
 
 	DynamicOperation(const Operation& op) : mOp(op) {}
 
-	virtual const T& get(const DExt& pos) const override final;
-	virtual DynamicOperationBase& set(const DExt& pos) override final;
-	virtual DExt rootSteps(std::intptr_t iPtrNum = 0) const override final;
+	virtual const T& get(const DExtT& pos) const override final;
+	virtual DynamicOperationBase<T>& set(const DExtT& pos) override final;
+	virtual DExtT rootSteps(std::intptr_t iPtrNum = 0) const override final;
 	virtual DynamicExpression loop(const DynamicExpression& exp) const override final;
 	virtual const T* data() const override final;
+    };
+
+    template <typename T>
+    class DynamicO : public OperationTemplate<T,DynamicO<T>>
+    {
+    private:
+	// NOT THREAD SAFE!!!
+	std::shared_ptr<DynamicOperationBase<T>> mOp;
+    public:
+	typedef T value_type;
+	typedef OperationBase<T,DynamicO<T>> OT;
+	
+	static constexpr size_t SIZE = 1;
+	static constexpr bool CONT = true;
+	
+	DynamicO() = default;
+	DynamicO(const DynamicO& in) = default;
+	DynamicO(DynamicO&& in) = default;
+	DynamicO& operator=(const DynamicO& in) = default;
+	DynamicO& operator=(DynamicO&& in) = default;
+
+	template <class Op>
+	DynamicO(const Op& op) : mOp(std::make_shared<DynamicOperation<T,Op>>(op)) {}
+	
+	inline const T& get(const DExtT& pos) const { return mOp->get(pos); }
+	inline DynamicO& set(const DExtT& pos) { return mOp->set(pos); }
+	inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return mOp->rootSteps(iPtrNum); }
+	inline DynamicExpression loop(const DynamicExpression& exp) const { return mOp->loop(exp); }
+	inline const T* data() const { return mOp->data(); }
     };
     
 } // namespace MultiArrayTools

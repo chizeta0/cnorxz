@@ -4,20 +4,23 @@
 namespace MultiArrayTools
 {
     template <typename T, class Operation>
-    const T& DynamicOperation<T,Operation>::get(const DExt& pos) const
+    const T& DynamicOperation<T,Operation>::get(const DExtT& pos) const
     {
+	VCHECK(pos.size());
+	VCHECK(sizeof(ET)/sizeof(size_t));
+	assert(0);
 	return mOp.get(pos.expl<ET>());
     }
     
     template <typename T, class Operation>
-    DynamicOperationBase& DynamicOperation<T,Operation>::set(const DExt& pos)
+    DynamicOperationBase<T>& DynamicOperation<T,Operation>::set(const DExtT& pos)
     {
 	mOp.set(pos.expl<ET>());
 	return *this;
     }
     
     template <typename T, class Operation>
-    DExt DynamicOperation<T,Operation>::rootSteps(std::intptr_t iPtrNum = 0) const
+    DExtT DynamicOperation<T,Operation>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mOp.rootSteps(iPtrNum);
     }
@@ -33,5 +36,6 @@ namespace MultiArrayTools
     {
 	return mOp.data();
     }
+
 
 } // namespace MultiArrayTools

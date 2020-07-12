@@ -45,6 +45,13 @@ namespace MultiArrayTools
 	return mi;
     }
 
+    template <class Index>
+    auto mkIndexW(const std::shared_ptr<Index>& ind)
+	-> std::shared_ptr<IndexW>
+    {
+	return std::make_shared<IndexWrapper<Index>>(ind);
+    }
+
     template <SpaceType STYPE, class Op, class MA, class... RangeTypes>
     auto mkGenMapR(const std::tuple<Op,MA>& f, std::shared_ptr<RangeTypes>... ranges)
 	-> std::shared_ptr<GenMapRange<Op,STYPE,RangeTypes...> >

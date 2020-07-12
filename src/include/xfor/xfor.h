@@ -26,16 +26,17 @@ namespace MultiArrayHelper
     class ExtBase
     {
     public:
-        ExtBase() = default;
-        ExtBase(const ExtBase& in) = default;
-        ExtBase(ExtBase&& in) = default;
-        ExtBase& operator=(const ExtBase& in) = default;
-        ExtBase& operator=(ExtBase&& in) = default;
+	ExtBase() = default;
+	ExtBase(const ExtBase& in) = default;
+	ExtBase(ExtBase&& in) = default;
+	ExtBase& operator=(const ExtBase& in) = default;
+	ExtBase& operator=(ExtBase&& in) = default;
         
-        virtual size_t size() const = 0;
-        //virtual size_t rootSteps() const = 0;
-        virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
-        virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
+	virtual size_t size() const = 0;
+	virtual const size_t& val() const = 0;
+	//virtual size_t rootSteps() const = 0;
+	virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
+	virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
 	
 	template <class ExtType>
 	const ExtType& expl() const;
@@ -48,49 +49,82 @@ namespace MultiArrayHelper
     class ExtT : public ExtBase
     {
     private:
-        ExtType mExt;
+	ExtType mExt;
     public:
-        ExtT() = default;
-        ExtT(const ExtT& in) = default;
-        ExtT(ExtT&& in) = default;
-        ExtT& operator=(const ExtT& in) = default;
-        ExtT& operator=(ExtT&& in) = default;
+	static constexpr size_t SIZE = ExtType::SIZE;
+	static constexpr size_t NUM = ExtType::NUM;
+	
+	ExtT() = default;
+	ExtT(const ExtT& in) = default;
+	ExtT(ExtT&& in) = default;
+	ExtT& operator=(const ExtT& in) = default;
+	ExtT& operator=(ExtT&& in) = default;
 
-        ExtT(const ExtType& in) : mExt(in) {}
+	ExtT(const ExtType& in) : mExt(in) {}
         
-        virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
-        //virtual size_t size() const override final { return ExtType::MExtSize(); }
-        //virtual size_t rootSteps() const override final;
-        const ExtType& ext() const { return mExt; }
+	virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
+	//virtual size_t size() const override final { return ExtType::MExtSize(); }
+	//virtual size_t rootSteps() const override final;
+	const ExtType& ext() const { return mExt; }
+	virtual const size_t& val() const override final { return mExt.val(); }
 
-        virtual DExt operator+(const ExtBase& in) const override final
-        { return std::make_shared<ExtT>( mExt + dynamic_cast<const ExtT&>(in).mExt ); }
-        virtual DExt operator*(size_t in) const override final
-        { return std::make_shared<ExtT>( mExt * in ); }
+	virtual DExt operator+(const ExtBase& in) const override final
+	{ return std::make_shared<ExtT>( mExt + dynamic_cast<const ExtT&>(in).mExt ); }
+	virtual DExt operator*(size_t in) const override final
+	{ return std::make_shared<ExtT>( mExt * in ); }
     };
+    //class DExtT;
 
-
-    class DExtT
+    template <class X>
+    class DExtTX
     {
     private:
-        DExt mDExt = nullptr;
+	DExt mDExt = nullptr;
+	X mNext;
     public:
-        DExtT() = default;
-        DExtT(const DExtT& in) = default;
-        DExtT(DExtT&& in) = default;
-        DExtT& operator=(const DExtT& in) = default;
-        DExtT& operator=(DExtT&& in) = default;
-        DExtT(const DExt& in) : mDExt(in) {}
-        
+	static constexpr size_t NUM = X::SIZE;
+	static constexpr size_t SIZE = NUM + 1;
+	
+        DExtTX() = default;
+        DExtTX(const DExtTX& in) = default;
+        DExtTX(DExtTX&& in) = default;
+        DExtTX& operator=(const DExtTX& in) = default;
+        DExtTX& operator=(DExtTX&& in) = default;
+        DExtTX(const DExt& in) : mDExt(in) {}
+
+	template <class Y>
+	DExtTX& operator=(const Y& y) { mDExt = std::make_shared<ExtT<Y>>(y); return *this; }
+
+	template <class Y>
+	DExtTX(const Y& y) : mDExt(std::make_shared<ExtT<Y>>(y)) {}
+
+	DExtTX(const DExt& y, const X& x) : mDExt(y),
+					    mNext(x) {}
+
         virtual size_t size() const { return mDExt->size(); }
         inline const DExt& get() const { return mDExt; }
         
-        inline DExtT operator+(const DExtT& in) const
-        { if (not mDExt) return in; else return DExtT( (*mDExt) + (*in.mDExt) ) ; }
-        inline DExtT operator*(size_t in) const
-        { if (not mDExt) return *this; else return DExtT( (*mDExt) * in ) ; }
-        
+        inline DExtTX operator+(const DExtTX& in) const
+        { if (not mDExt) return in; else return DExtTX( (*mDExt) + (*in.mDExt) ) ; }
+        inline DExtTX operator*(size_t in) const
+        { if (not mDExt) return *this; else return DExtTX( (*mDExt) * in ) ; }
+
+	template <class ExtType>
+	inline const ExtType& expl() const { return mDExt->expl<ExtType>(); }
+
+	template <class Y>
+	inline auto extend(const Y& y) const -> DExtTX<decltype(mNext.extend(y))>
+	{ return DExtTX<decltype(mNext.extend(y))>(mDExt, mNext.extend(y)); }
+
+	inline const size_t& val() const { return mDExt->val(); }
+	inline const X& next() const { return mNext; }
+
+	template <size_t N>
+	inline auto nn() const -> decltype(Getter<N>::getX(*this))
+	    { return Getter<N>::getX(*this); }
     };
+
+    typedef DExtTX<None> DExtT;
     
     inline MExt<None> mkExt(size_t s) { return MExt<None>(s); }
     

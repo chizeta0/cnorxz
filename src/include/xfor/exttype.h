@@ -138,8 +138,6 @@ namespace MultiArrayHelper
 	template <class Z>
 	inline MExt(size_t y, const Z& z);
 
-
-
 	template <class Y, class Z>
 	inline MExt(const Y& y, const Z& z);
 

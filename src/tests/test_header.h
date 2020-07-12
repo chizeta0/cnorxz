@@ -19,6 +19,11 @@ double xround(double arg)
     
 using namespace MAT;
 
+typedef ClassicRange CR;
+typedef ClassicRF CRF;
+typedef DynamicRange DR;
+typedef DynamicRangeFactory DRF;
+
 template <class Factory>
 void swapFactory(std::shared_ptr<RangeFactoryBase>& fptr)
 {

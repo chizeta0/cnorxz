@@ -6,6 +6,7 @@
 #include "multi_array_base.cc.h"
 #include "multi_array.cc.h"
 #include "slice.cc.h"
+#include "dynamic_operation.cc.h"
 //#include "expressions.cc.h"
 
 #include "ranges/dynamic_range.cc.h"

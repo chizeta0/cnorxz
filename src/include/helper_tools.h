@@ -61,6 +61,10 @@ namespace MultiArrayTools
     auto mkMIndex(std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkMulti( indices.range()... ) ) );
 
+    template <class Index>
+    auto mkIndexW(const std::shared_ptr<Index>& ind)
+	-> std::shared_ptr<IndexW>;
+
     template <class... RangeTypes>
     auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
 	-> MultiRange<RangeTypes...>;

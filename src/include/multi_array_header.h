@@ -11,6 +11,7 @@
 #include "helper_tools.h"
 #include "operation_def.h"
 #include "map_range.h"
+#include "dynamic_operation.h"
 //#include "expressions.h"
 
 #include "multi_array_header.cc.h"
