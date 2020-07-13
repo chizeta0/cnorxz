@@ -6,9 +6,6 @@ namespace MultiArrayTools
     template <typename T, class Operation>
     const T& DynamicOperation<T,Operation>::get(const DExtT& pos) const
     {
-	VCHECK(pos.size());
-	VCHECK(sizeof(ET)/sizeof(size_t));
-	assert(0);
 	return mOp.get(pos.expl<ET>());
     }
     

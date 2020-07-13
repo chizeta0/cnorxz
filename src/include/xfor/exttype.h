@@ -60,7 +60,7 @@ namespace MultiArrayHelper
 	MExt& operator=(const MExt& in) = default;
 	MExt(MExt&& in) = default;
 	MExt& operator=(MExt&& in) = default;
-	
+
 	inline MExt(size_t ext, X next);
 
 	template <class Z>
@@ -74,7 +74,9 @@ namespace MultiArrayHelper
 
         template <class Y>
         inline MExt(const MExt<Y>& y);
-        
+
+	inline void zero();
+	
 	inline const size_t& val() const;
 	inline const X& next() const;
 
@@ -107,7 +109,9 @@ namespace MultiArrayHelper
         
         inline None operator+(const None& in) const { return None(); }
 	inline None operator*(size_t in) const { return None(); }
-        
+
+	inline void zero() {}
+	
         template <class Y>
         Y extend(const Y& y) const
         { return y; }
@@ -150,6 +154,8 @@ namespace MultiArrayHelper
 	inline const size_t& val() const;
 	inline None next() const { return None(); }
 
+	inline void zero();
+	
         template <size_t N>
         inline auto nn() const
             -> decltype(Getter<N>::getX(*this))
@@ -209,7 +215,14 @@ namespace MultiArrayHelper
     {
 	return mNext;
     }
-    
+
+    template <class X>
+    inline void MExt<X>::zero()
+    {
+	mExt = 0u;
+	mNext.zero();
+    }
+
     template <class X>
     inline MExt<X> MExt<X>::operator+(const MExt<X>& in) const
     {
@@ -248,11 +261,16 @@ namespace MultiArrayHelper
         mExt(y.val()) {}
 
     //template <>
+    inline void MExt<None>::zero()
+    {
+	mExt = 0u;
+    }
+
     inline const size_t& MExt<None>::val() const
     {
 	return mExt;
     }
-    
+
     //template <>
     inline MExt<None> MExt<None>::operator+(const MExt<None>& in) const
     {

@@ -37,6 +37,9 @@ namespace MultiArrayHelper
 	//virtual size_t rootSteps() const = 0;
 	virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
 	virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
+	virtual void zero() = 0;
+
+	virtual std::shared_ptr<ExtBase> deepCopy() const = 0;
 	
 	template <class ExtType>
 	const ExtType& expl() const;
@@ -61,12 +64,15 @@ namespace MultiArrayHelper
 	ExtT& operator=(ExtT&& in) = default;
 
 	ExtT(const ExtType& in) : mExt(in) {}
-        
+
+	virtual std::shared_ptr<ExtBase> deepCopy() const override final { return std::make_shared<ExtT<ExtType>>(mExt); }
+
 	virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
 	//virtual size_t size() const override final { return ExtType::MExtSize(); }
 	//virtual size_t rootSteps() const override final;
 	const ExtType& ext() const { return mExt; }
 	virtual const size_t& val() const override final { return mExt.val(); }
+	virtual void zero() override final { mExt.zero(); }
 
 	virtual DExt operator+(const ExtBase& in) const override final
 	{ return std::make_shared<ExtT>( mExt + dynamic_cast<const ExtT&>(in).mExt ); }
@@ -79,17 +85,17 @@ namespace MultiArrayHelper
     class DExtTX
     {
     private:
-	DExt mDExt = nullptr;
+	mutable DExt mDExt = nullptr;
 	X mNext;
     public:
 	static constexpr size_t NUM = X::SIZE;
 	static constexpr size_t SIZE = NUM + 1;
 	
         DExtTX() = default;
-        DExtTX(const DExtTX& in) = default;
-        DExtTX(DExtTX&& in) = default;
-        DExtTX& operator=(const DExtTX& in) = default;
-        DExtTX& operator=(DExtTX&& in) = default;
+        DExtTX(const DExtTX& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
+        DExtTX(DExtTX&& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
+        DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }
+        DExtTX& operator=(DExtTX&& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }
         DExtTX(const DExt& in) : mDExt(in) {}
 
 	template <class Y>
@@ -110,7 +116,8 @@ namespace MultiArrayHelper
         { if (not mDExt) return *this; else return DExtTX( (*mDExt) * in ) ; }
 
 	template <class ExtType>
-	inline const ExtType& expl() const { return mDExt->expl<ExtType>(); }
+	inline const ExtType& expl() const
+	{ if(mDExt == nullptr) mDExt = std::make_shared<ExtT<ExtType>>(); assert(mDExt != nullptr); return mDExt->expl<ExtType>(); }
 
 	template <class Y>
 	inline auto extend(const Y& y) const -> DExtTX<decltype(mNext.extend(y))>
@@ -119,6 +126,8 @@ namespace MultiArrayHelper
 	inline const size_t& val() const { return mDExt->val(); }
 	inline const X& next() const { return mNext; }
 
+	inline void zero() { mDExt->zero(); }
+	
 	template <size_t N>
 	inline auto nn() const -> decltype(Getter<N>::getX(*this))
 	    { return Getter<N>::getX(*this); }
@@ -533,7 +542,8 @@ namespace MultiArrayHelper
     inline void For<IndexClass,Expr,FT>::operator()(size_t mlast)
     {
 	typedef typename IndexClass::RangeType RangeType;
-	const ExtType last;
+	ExtType last = rootSteps();
+	last.zero();
 	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
 	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
@@ -635,10 +645,12 @@ namespace MultiArrayHelper
     {
         CHECK;
 	typedef typename IndexClass::RangeType RangeType;
-	const ExtType last;
+	ExtType last = rootSteps();
+	last.zero();
         int pos = 0;
         size_t mnpos = 0;
-        ExtType npos;
+        ExtType npos = rootSteps();
+	npos.zero();
 #pragma omp parallel shared(mExpr) private(pos,mnpos,npos)
         {
             auto expr = mExpr;
@@ -731,7 +743,8 @@ namespace MultiArrayHelper
     inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast)
     {
 	//typedef typename IndexClass::RangeType RangeType;
-	const ExtType last;
+	ExtType last = rootSteps();
+	last.zero();
 	const size_t pos = mIndPtr->pos();
 	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
 	const ExtType npos = last + mExt*pos;
@@ -816,7 +829,8 @@ namespace MultiArrayHelper
     template <class IndexClass, class Expr>
     inline void SubExpr<IndexClass,Expr>::operator()(size_t mlast)
     {
-	const ExtType last;
+	ExtType last = rootSteps();
+	last.zero();
         const size_t pos = (*mSubSet)[last.val()];
         const size_t mnpos = mlast;
         const ExtType npos = last + mExt*pos;
