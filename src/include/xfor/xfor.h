@@ -91,7 +91,7 @@ namespace MultiArrayHelper
 	static constexpr size_t NUM = X::SIZE;
 	static constexpr size_t SIZE = NUM + 1;
 	
-        DExtTX() = default;
+        DExtTX() { mDExt = std::make_shared<ExtT<None>>(); }
         DExtTX(const DExtTX& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
         DExtTX(DExtTX&& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
         DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }

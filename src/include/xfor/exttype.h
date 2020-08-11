@@ -96,6 +96,7 @@ namespace MultiArrayHelper
 
     struct None
     {
+        static constexpr size_t VAL = 0;
         None() = default;
         None(const None& in) = default;
         None(None&& in) = default;
@@ -110,6 +111,7 @@ namespace MultiArrayHelper
         inline None operator+(const None& in) const { return None(); }
 	inline None operator*(size_t in) const { return None(); }
 
+	inline const size_t& val() const { assert(0); return VAL; }
 	inline void zero() {}
 	
         template <class Y>
