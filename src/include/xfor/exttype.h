@@ -92,6 +92,10 @@ namespace MultiArrayHelper
 	auto extend(const Y& y) const -> MExt<decltype(mNext.extend(y))>
 	{ return MExt<decltype(mNext.extend(y))>(mExt, mNext.extend(y)); }
 	
+	std::string stype() const { return std::string("E[") + mNext.stype() + "]"; }
+
+	const MExt& lowest() const { return *this; }
+	MExt& lowest() { return *this; }
     };    
 
     struct None
@@ -117,6 +121,11 @@ namespace MultiArrayHelper
         template <class Y>
         Y extend(const Y& y) const
         { return y; }
+
+	std::string stype() const { return "N"; }
+
+	const None& lowest() const { return *this; }
+	None& lowest() { return *this; }
     };
     
     template <>
@@ -170,6 +179,10 @@ namespace MultiArrayHelper
 	auto extend(const Y& y) const -> MExt<Y>
 	{ return MExt<Y>(mExt,y); }
 
+	std::string stype() const { return "E[N]"; }
+
+	const MExt& lowest() const { return *this; }
+	MExt& lowest() { return *this; }
     };    
 
 
