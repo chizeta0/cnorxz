@@ -181,6 +181,7 @@ namespace MultiArrayTools
     template <typename T, class Target, class OpClass, OpIndexAff OIA>
     inline void AssignmentExpr2<T,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
+        //CHECK;
         mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
     }
     

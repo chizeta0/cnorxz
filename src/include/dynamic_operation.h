@@ -29,6 +29,7 @@ namespace MultiArrayTools
 	virtual DExtT rootSteps(std::intptr_t iPtrNum = 0) const = 0;
 	virtual DynamicExpression loop(const DynamicExpression& exp) const = 0;
 	virtual const T* data() const = 0;
+        virtual std::shared_ptr<DynamicOperationBase<T>> deepCopy() const = 0;
 	
     };
 
@@ -38,7 +39,8 @@ namespace MultiArrayTools
     private:
 	Operation mOp;
     public:
-	typedef decltype(std::declval<Operation>().rootSteps()) ET;
+        typedef decltype(mOp.rootSteps()) ET;
+	//typedef decltype(std::declval<Operation>().rootSteps()) ET;
 	
 	DynamicOperation() = default;
 	DynamicOperation(const DynamicOperation& in) = default;
@@ -53,6 +55,7 @@ namespace MultiArrayTools
 	virtual DExtT rootSteps(std::intptr_t iPtrNum = 0) const override final;
 	virtual DynamicExpression loop(const DynamicExpression& exp) const override final;
 	virtual const T* data() const override final;
+        virtual std::shared_ptr<DynamicOperationBase<T>> deepCopy() const override final;
     };
 
     template <typename T>
@@ -69,15 +72,16 @@ namespace MultiArrayTools
 	static constexpr bool CONT = true;
 	
 	DynamicO() = default;
-	DynamicO(const DynamicO& in) = default;
-	DynamicO(DynamicO&& in) = default;
-	DynamicO& operator=(const DynamicO& in) = default;
-	DynamicO& operator=(DynamicO&& in) = default;
+	DynamicO(const DynamicO& in) : mOp(in.mOp->deepCopy()) {}
+	DynamicO(DynamicO&& in) : mOp(in.mOp->deepCopy()) {}
+	DynamicO& operator=(const DynamicO& in) { mOp = in.mOp->deepCopy(); }
+	DynamicO& operator=(DynamicO&& in) { mOp = in.mOp->deepCopy(); }
 
 	template <class Op>
 	DynamicO(const Op& op) : mOp(std::make_shared<DynamicOperation<T,Op>>(op)) {}
-	
-	inline const T& get(const DExtT& pos) const { return mOp->get(pos); }
+
+        template <class X>
+	inline const T& get(const DExtTX<X>& pos) const { return mOp->get(pos.reduce()); }
 	inline DynamicO& set(const DExtT& pos) { return mOp->set(pos); }
 	inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return mOp->rootSteps(iPtrNum); }
 	inline DynamicExpression loop(const DynamicExpression& exp) const { return mOp->loop(exp); }

@@ -41,6 +41,7 @@ namespace MultiArrayHelper
 	}	
     };
 
+    struct None;
     
     template <class X>
     class MExt
@@ -86,12 +87,14 @@ namespace MultiArrayHelper
         { return Getter<N>::getX(*this); }
         
 	inline MExt operator+(const MExt& in) const;
+	inline MExt operator+(const None& in) const;
 	inline MExt operator*(size_t in) const;
 
 	template <class Y>
 	auto extend(const Y& y) const -> MExt<decltype(mNext.extend(y))>
 	{ return MExt<decltype(mNext.extend(y))>(mExt, mNext.extend(y)); }
-	
+
+        std::string stype() const { return std::string("E[") + mNext.stype() + "]"; }
     };    
 
     struct None
@@ -117,6 +120,8 @@ namespace MultiArrayHelper
         template <class Y>
         Y extend(const Y& y) const
         { return y; }
+
+        std::string stype() const { return std::string("N"); }
     };
     
     template <>
@@ -164,11 +169,14 @@ namespace MultiArrayHelper
         { return Getter<N>::getX(*this); }
         
 	inline MExt operator+(const MExt& in) const;
+	inline MExt operator+(const None& in) const;
 	inline MExt operator*(size_t in) const;
 
 	template <class Y>
 	auto extend(const Y& y) const -> MExt<Y>
 	{ return MExt<Y>(mExt,y); }
+
+        std::string stype() const { return std::string("E[N]"); }
 
     };    
 
@@ -232,6 +240,12 @@ namespace MultiArrayHelper
     }
 
     template <class X>
+    inline MExt<X> MExt<X>::operator+(const None& in) const
+    {
+	return *this;
+    }
+
+    template <class X>
     inline MExt<X> MExt<X>::operator*(size_t in) const
     {
 	return MExt<X>(mExt * in, mNext * in);
@@ -277,6 +291,11 @@ namespace MultiArrayHelper
     inline MExt<None> MExt<None>::operator+(const MExt<None>& in) const
     {
 	return MExt<None>(mExt + in.val());
+    }
+
+    inline MExt<None> MExt<None>::operator+(const None& in) const
+    {
+	return *this;
     }
 
     //template <>

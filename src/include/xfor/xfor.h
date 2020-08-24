@@ -44,6 +44,7 @@ namespace MultiArrayHelper
 	template <class ExtType>
 	const ExtType& expl() const;
 
+        virtual std::string stype() const = 0;
     };
 
     typedef std::shared_ptr<ExtBase> DExt;
@@ -75,12 +76,26 @@ namespace MultiArrayHelper
 	virtual void zero() override final { mExt.zero(); }
 
 	virtual DExt operator+(const ExtBase& in) const override final
-	{ return std::make_shared<ExtT>( mExt + dynamic_cast<const ExtT&>(in).mExt ); }
+	{ return std::make_shared<ExtT<ExtType>>( mExt + dynamic_cast<const ExtT<ExtType>&>(in).mExt ); }
 	virtual DExt operator*(size_t in) const override final
-	{ return std::make_shared<ExtT>( mExt * in ); }
+	{ return std::make_shared<ExtT<ExtType>>( mExt * in ); }
+
+        virtual std::string stype() const override final { return std::string("T[") + mExt.stype() + "]"; }
     };
     //class DExtT;
 
+    template <class ExtType>
+    DExt mkDExt(const ExtT<ExtType>& in)
+    {
+        return std::make_shared<ExtT<ExtType>>(in);
+    }
+
+    template <class ExtType>
+    ExtT<ExtType> mkExtT(const ExtType& in)
+    {
+        return ExtT<ExtType>(in);
+    }
+    
     template <class X>
     class DExtTX
     {
@@ -96,24 +111,26 @@ namespace MultiArrayHelper
         DExtTX(DExtTX&& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
         DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }
         DExtTX& operator=(DExtTX&& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }
-        DExtTX(const DExt& in) : mDExt(in) {}
-
+        explicit DExtTX(const DExt& in) : mDExt(in) {}
+        /*
 	template <class Y>
 	DExtTX& operator=(const Y& y) { mDExt = std::make_shared<ExtT<Y>>(y); return *this; }
 
 	template <class Y>
 	DExtTX(const Y& y) : mDExt(std::make_shared<ExtT<Y>>(y)) {}
-
-	DExtTX(const DExt& y, const X& x) : mDExt(y),
-					    mNext(x) {}
+        */
+	explicit DExtTX(const DExt& y, const X& x) : mDExt(y->deepCopy()),
+                                                     mNext(x) {}
 
         virtual size_t size() const { return mDExt->size(); }
         inline const DExt& get() const { return mDExt; }
+
+        inline DExtTX<None> reduce() const { return DExtTX<None>(mDExt,None(0)); }
         
         inline DExtTX operator+(const DExtTX& in) const
-        { if (not mDExt) return in; else return DExtTX( (*mDExt) + (*in.mDExt) ) ; }
+        { if (not mDExt) return in; else return DExtTX( (*mDExt) + (*in.mDExt), mNext + in.mNext ); }
         inline DExtTX operator*(size_t in) const
-        { if (not mDExt) return *this; else return DExtTX( (*mDExt) * in ) ; }
+        { if (not mDExt) return *this; else return DExtTX((*mDExt) * in, mNext * in); }
 
 	template <class ExtType>
 	inline const ExtType& expl() const
@@ -131,6 +148,8 @@ namespace MultiArrayHelper
 	template <size_t N>
 	inline auto nn() const -> decltype(Getter<N>::getX(*this))
 	    { return Getter<N>::getX(*this); }
+
+        std::string stype() const { return std::string("D[") + mDExt->stype() + "," + mNext.stype() + "]"; }
     };
 
     typedef DExtTX<None> DExtT;
@@ -438,8 +457,8 @@ namespace MultiArrayHelper
         inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         inline DExt dExtension() const override final;
 
-        inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return dRootSteps(iPtrNum); }
-        inline DExtT extension() const { return dExtension(); }
+        inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return DExtT(dRootSteps(iPtrNum)); }
+        inline DExtT extension() const { return DExtT(dExtension()); }
 
     };
 

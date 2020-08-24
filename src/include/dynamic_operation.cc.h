@@ -6,7 +6,6 @@ namespace MultiArrayTools
     template <typename T, class Operation>
     const T& DynamicOperation<T,Operation>::get(const DExtT& pos) const
     {
-        VCHECK(pos.expl<ET>().val());
 	return mOp.get(pos.expl<ET>());
     }
     
@@ -20,7 +19,7 @@ namespace MultiArrayTools
     template <typename T, class Operation>
     DExtT DynamicOperation<T,Operation>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return mOp.rootSteps(iPtrNum);
+	return DExtT(mkDExt(mkExtT(mOp.rootSteps(iPtrNum))),None(0));
     }
     
     template <typename T, class Operation>
@@ -33,6 +32,12 @@ namespace MultiArrayTools
     const T* DynamicOperation<T,Operation>::data() const
     {
 	return mOp.data();
+    }
+
+    template <typename T, class Operation>
+    std::shared_ptr<DynamicOperationBase<T>> DynamicOperation<T,Operation>::deepCopy() const
+    {
+        return std::make_shared<DynamicOperation<T,Operation>>(*this);
     }
 
 
