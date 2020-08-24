@@ -753,7 +753,8 @@ namespace MultiArrayTools
     template <class ET>
     inline Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::set(ET pos)
     {
-	PackNum<sizeof...(Ops)-1>::setOpPos(mOps,pos);
+	typedef std::tuple<Ops...> OpTuple;
+	PackNum<sizeof...(Ops)-1>::template setOpPos<SIZE,OpTuple,ET>(mOps,pos);
 	return *this;
     }
 

@@ -529,7 +529,8 @@ namespace MultiArrayTools
 	template <class Expr>
 	auto loop(Expr exp) const
 	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp));
-	
+
+	T* data() const { assert(0); return nullptr; }
     };
 
     namespace

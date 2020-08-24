@@ -4,7 +4,7 @@
 namespace MultiArrayTools
 {
     template <typename T, class Operation>
-    const T& DynamicOperation<T,Operation>::get(const DExtT& pos) const
+    T DynamicOperation<T,Operation>::get(const DExtT& pos) const
     {
 	return mOp.get(pos.expl<ET>());
     }

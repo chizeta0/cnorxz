@@ -122,7 +122,7 @@ namespace MultiArrayHelper
 	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    std::get<N>( ot ).set( Getter<NEXT>::template getX<ETuple>( et ) );
-	    PackNum<N-1>::template setOpPos<NEXT>(ot, et);
+	    PackNum<N-1>::template setOpPos<NEXT,OpTuple,ETuple>(ot, et);
 	}
     };
     
@@ -205,9 +205,9 @@ namespace MultiArrayHelper
 	template <size_t LAST,class OpTuple, class ETuple>
 	static inline void setOpPos(OpTuple& ot, const ETuple& et)
 	{
-	    typedef typename std::remove_reference<decltype(std::get<0>(et))>::type NextOpType;
-	    static_assert(LAST > NextOpType::SIZE, "inconsistent array positions");
+	    typedef typename std::remove_reference<decltype(std::get<0>(ot))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    static_assert(NEXT == 0, "inconsistent array positions");
 	    std::get<0>( ot ).set( Getter<NEXT>::template getX<ETuple>( et ) );
 	}
 
