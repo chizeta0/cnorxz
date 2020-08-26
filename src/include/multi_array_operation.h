@@ -595,6 +595,8 @@ namespace MultiArrayTools
 	template <class ET>
 	inline Contraction& set(ET pos);
 
+	T* data() const { assert(0); return nullptr; }
+
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
