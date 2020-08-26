@@ -172,7 +172,10 @@ namespace MultiArrayTools
     {
     private:
         typedef vector<std::pair<std::shared_ptr<IndexW>,size_t>> IVecT;
-        
+	typedef std::map<std::string,std::shared_ptr<IndexW>> IMapT;
+
+	static IMapT sIMap;
+	
         IVecT mIVec;
         bool mIvecInit = false;
         
@@ -184,6 +187,7 @@ namespace MultiArrayTools
 
         DynamicIndex(const std::shared_ptr<RangeType>& range);
 
+	static void clearIMap() { sIMap.clear(); }
         static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t totalDim() { return 1; }
 	static constexpr size_t sDim() { return 1; }
@@ -198,6 +202,7 @@ namespace MultiArrayTools
 
         DynamicIndex& operator()(const IVecT& ivec);
         DynamicIndex& operator()(const vector<std::shared_ptr<IndexW>>& ivec);
+        DynamicIndex& operator()(const vector<std::string>& inames);
 		
 	template <class... Indices>
 	DynamicIndex& operator()(const std::shared_ptr<Indices>&... is);

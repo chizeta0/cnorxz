@@ -91,6 +91,7 @@ namespace MultiArrayTools
         virtual DataHeader dataHeader() const = 0;
 
 	virtual std::shared_ptr<RangeBase> sub(size_t num) const { return std::shared_ptr<RangeBase>(); }
+	virtual std::shared_ptr<IndexWrapperBase> aindex() const = 0;
 	
 	friend RangeFactoryBase;
 	
@@ -112,6 +113,9 @@ namespace MultiArrayTools
 	
 	virtual Index begin() const = 0;
 	virtual Index end() const = 0;
+	virtual std::shared_ptr<IndexWrapperBase> aindex() const override final
+	//{ auto i = std::make_shared<Index>(this->begin()); return std::make_shared<IndexWrapper<Index>>(i); } //!!!
+	{ auto i = std::make_shared<Index>(this->begin()); return nullptr; } //!!!
 
     protected:
 	RangeInterface() = default;

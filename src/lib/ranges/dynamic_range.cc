@@ -26,7 +26,7 @@ namespace MultiArrayTools
     // INSTANCIATE IF NEEDED!!
     
     std::map<std::shared_ptr<RangeBase>,vector<std::intptr_t> > DynamicRangeFactory::mAleadyCreated;
-
+    DynamicIndex::IMapT DynamicIndex::sIMap;
     
     std::shared_ptr<RangeBase> DynamicRangeFactory::checkIfCreated(const vector<std::shared_ptr<RangeBase> >& pvec)
     {
@@ -168,6 +168,23 @@ namespace MultiArrayTools
         return *this;
     }
     
+    DynamicIndex& DynamicIndex::operator()(const vector<std::string>& inames)
+    {
+        mIvecInit = true;
+        assert(mIVec.size() == inames.size());
+	for(size_t i = 0; i != mIVec.size(); ++i){
+	    const std::string& iname = inames[i];
+	    if(sIMap.count(iname) != 0){
+		assert(this->range()->sub(i) == sIMap.at(iname)->range());
+	    }
+	    else {
+		sIMap[iname] = this->range()->sub(i)->aindex();
+	    }
+	    mIVec[i].first = sIMap.at(iname);
+	}
+	sync();
+        return *this;
+    }
     
     
     int DynamicIndex::pp(std::intptr_t idxPtrNum)

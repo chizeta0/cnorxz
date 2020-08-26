@@ -103,8 +103,12 @@ namespace MultiArrayTools
     //class AnonymousRange;
 
     // dynamic_range.h
-    //class AbstractIW;
-    
+    class IndexWrapperBase;
+
+    // dynamic_range.h
+    template <class Index>
+    class IndexWrapper;
+
     // dynamic_range.h
     //template <class EC>
     class DynamicIndex;
