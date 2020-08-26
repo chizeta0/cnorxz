@@ -209,7 +209,53 @@ namespace
 
     TEST_F(OpTest_Dyn, Functional)
     {
+	auto i1 = getIndex(cr1);
+	auto di1 = getIndex(dr1);
+	auto di2 = getIndex(dr2);
+	auto di4 = getIndex(dr4);
 
+	(*di1)({imap["i2_1"],imap["i2_2"],imap["i3_1"],imap["i4_1"]});
+	(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
+	(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
+
+	auto resx1 = res1;
+	auto resx2 = res1;
+	auto resx3 = res1;
+	res1(i1,di4) = ma1(i1,di1) * exp(ma2(i1,di2));
+	resx1(i1,di4) = mkDynOp(ma1(i1,di1)) * exp(mkDynOp(ma2(i1,di2)));
+        resx2(i1,di4) = mkDynOp(ma1(i1,di1) * exp(ma2(i1,di2)));
+	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(exp(mkDynOp(ma2(i1,di2)))));
+        
+	auto i2_1 = imap.at("i2_1");
+	auto i2_2 = imap.at("i2_2");
+	auto i3_1 = imap.at("i3_1");
+	auto i4_1 = imap.at("i4_1");
+	auto i4_2 = imap.at("i4_2");
+	
+	for(size_t ii1 = 0; ii1 != i1->max(); ++ii1){
+	    for(size_t ii2_1 = 0; ii2_1 != i2_1->max(); ++ii2_1){
+		size_t ii2_2 = 0;
+		for(size_t ii3_1 = 0; ii3_1 != i3_1->max(); ++ii3_1){
+		    for(size_t ii4_1 = 0; ii4_1 != i4_1->max(); ++ii4_1){
+			for(size_t ii4_2 = 0; ii4_2 != i4_2->max(); ++ii4_2){
+			    const size_t jr = (((ii1*i2_1->max() + ii2_1)*i3_1->max() + ii3_1)*i4_1->max() + ii4_1)*i4_2->max() + ii4_2;
+			    const size_t j1 = (((ii1*i2_1->max() + ii2_1)*i2_2->max() + ii2_2)*i3_1->max() + ii3_1)*i4_1->max() + ii4_1;
+			    const size_t j2 = ((ii1*i3_1->max() + ii3_1)*i3_1->max() + ii3_1)*i4_2->max() + ii4_2;
+			    auto resv = xround(res1.vdata()[jr]);
+			    auto resx1v = xround(resx1.vdata()[jr]);
+			    auto resx2v = xround(resx2.vdata()[jr]);
+			    auto resx3v = xround(resx3.vdata()[jr]);
+	 		    auto x12 = xround(ma1.vdata()[j1]*exp(ma2.vdata()[j2]));
+			    EXPECT_EQ( resv, x12 );
+			    EXPECT_EQ( resx1v, x12 );
+			    EXPECT_EQ( resx2v, x12 );
+			    EXPECT_EQ( resx3v, x12 );
+			}
+		    }
+		}
+	    }
+	    //std::cout << std::endl;
+	}
     }
     
 }
