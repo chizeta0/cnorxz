@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <vector>
 #include "ranges/dynamic_meta.h"
+#include "ranges/ranges_header.cc.h"
 
 namespace MultiArrayTools
 {

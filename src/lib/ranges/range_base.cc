@@ -6,6 +6,7 @@
 #include "ranges/range_types/header.h"
 
 #include "ranges/range_base.h"
+#include "ranges/ranges_header.cc.h"
 
 #include <algorithm>
 

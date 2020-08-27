@@ -1,5 +1,6 @@
 
 #include "ranges/type_map.h"
+#include "ranges/ranges_header.cc.h"
 
 namespace MultiArrayTools
 {

@@ -1,5 +1,5 @@
 
-//#include "ranges/dynamic_range.h"
+#include "ranges/dynamic_range.h"
 //#include "ranges/dynamic_meta.h"
 
 #include "rpack_num.h"
@@ -11,11 +11,6 @@ namespace MultiArrayTools
         using namespace MultiArrayHelper;
     }
 
-    template <class Index>
-    size_t IndexWrapper<Index>::getStepSizeComp(std::intptr_t j) const
-    {
-        return MultiArrayHelper::getStepSize(*mI, j);
-    }
 
     /****************************
      *   DynamicRangeFactory    *

@@ -1,6 +1,7 @@
 
 #include "ranges/rheader.h"
 #include "ranges/x_to_string.h"
+#include "ranges/ranges_header.cc.h"
 
 namespace MultiArrayTools
 {

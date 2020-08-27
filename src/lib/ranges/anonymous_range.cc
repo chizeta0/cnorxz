@@ -1,5 +1,6 @@
 
 #include "ranges/anonymous_range.h"
+#include "ranges/ranges_header.cc.h"
 
 namespace MultiArrayTools
 {
