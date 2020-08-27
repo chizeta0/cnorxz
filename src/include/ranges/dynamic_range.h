@@ -165,6 +165,12 @@ namespace MultiArrayTools
         { return std::make_shared<IndexWrapper>( std::make_shared<Index>( *mI ) ); }
 	
     };
+
+    template <class Index>
+    std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i)
+    {
+	return std::make_shared<IndexWrapper<Index>>(std::make_shared<Index>(i));
+    }
     
     //typedef SingleRange<size_t,SpaceType::DYN> DynamicRange;
 
@@ -267,6 +273,9 @@ namespace MultiArrayTools
 
 	template <class Range>
 	void append(std::shared_ptr<Range> r);
+
+	template <class Range>
+	void appendx(std::shared_ptr<Range> r);
 	
 	std::shared_ptr<RangeBase> create();
 
@@ -287,6 +296,7 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = -1;
 	static constexpr bool HASMETACONT = false;
 	
+        typedef vector<std::shared_ptr<IndexW>> IVecT;
 	typedef RangeBase RB;
 	typedef DynamicIndex IndexType;
 	typedef DynamicRange RangeType;
@@ -309,6 +319,7 @@ namespace MultiArrayTools
 	bool mEmpty = true;
 	
 	vector<std::shared_ptr<RangeBase> > mOrig;
+	IVecT mProtoI;
 
     public:
 	virtual size_t size() const final;
@@ -330,6 +341,7 @@ namespace MultiArrayTools
 	virtual vector<char> data() const final;
 	
 	std::shared_ptr<RangeBase> sub(size_t num) const;
+	std::shared_ptr<IndexW> subI(size_t num) const;
 
 	template <class Range>
 	std::shared_ptr<Range> fullsub(size_t num) const;
@@ -364,7 +376,7 @@ namespace MultiArrayHelper
     	DynamicRangeFactory arf;
 	for(size_t op = origpos; op != origpos + size; ++op){
 	    //VCHECK(op);
-	    arf.append(orig[op]);
+	    arf.appendx(orig[op]);
 	}
     	rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
     }
