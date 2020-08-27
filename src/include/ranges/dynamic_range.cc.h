@@ -2,7 +2,7 @@
 #include "ranges/dynamic_range.h"
 //#include "ranges/dynamic_meta.h"
 
-#include "rpack_num.h"
+//#include "rpack_num.h"
 
 namespace MultiArrayTools
 {
@@ -33,20 +33,6 @@ namespace MultiArrayTools
     
     
     template <class Range>
-    void DynamicRangeFactory::appendx(std::shared_ptr<Range> r)
-    {
-	if(mProductCreated){
-	    
-	    mProd = std::shared_ptr<oType>( new DynamicRange( *std::dynamic_pointer_cast<oType>(mProd) ) );
-	    mProductCreated = false;
-	}
-	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
-	std::dynamic_pointer_cast<oType>(mProd)->mSize *= r->size();
-	std::dynamic_pointer_cast<oType>(mProd)->mEmpty = false;
-	//std::dynamic_pointer_cast<oType>(mProd)->mProtoI.push_back(mkIndexWrapper(r->begin()));
-    }
-
-    template <class Range>
     void DynamicRangeFactory::append(std::shared_ptr<Range> r)
     {
 	if(mProductCreated){
@@ -57,7 +43,6 @@ namespace MultiArrayTools
 	std::dynamic_pointer_cast<oType>(mProd)->mOrig.push_back(r);
 	std::dynamic_pointer_cast<oType>(mProd)->mSize *= r->size();
 	std::dynamic_pointer_cast<oType>(mProd)->mEmpty = false;
-	std::dynamic_pointer_cast<oType>(mProd)->mProtoI.push_back(mkIndexWrapper(r->begin()));
     }
 
     
@@ -148,51 +133,11 @@ namespace MultiArrayTools
      *   DynamicRange    *
      ***********************/
 
-    template <size_t N>
-    struct InitProto
-    {
-	template <class... RangeTypes>
-	static void mk(vector<std::shared_ptr<IndexW>>& proto,
-		       const std::tuple<std::shared_ptr<RangeTypes>...>& orig)
-	{
-	    proto[N] = mkIndexWrapper(std::get<N>(orig)->begin());
-	    InitProto<N-1>::mk(proto, orig);
-	}
-
-	template <class RangeType, class... RangeTypes>
-	static void mk(vector<std::shared_ptr<IndexW>>& proto, size_t n,
-		       std::shared_ptr<RangeType> o, std::shared_ptr<RangeTypes>... origs)
-	{
-	    proto[n-1-N] = mkIndexWrapper(o->begin());
-	    InitProto<N-1>::mk(proto, n, origs...);
-	}
-    };
-
-    template <>
-    struct InitProto<0>
-    {
-	template <class... RangeTypes>
-	static void mk(vector<std::shared_ptr<IndexW>>& proto,
-		       const std::tuple<std::shared_ptr<RangeTypes>...>& orig)
-	{
-	    proto[0] = mkIndexWrapper(std::get<0>(orig)->begin());
-	}
-
-	template <class RangeType, class... RangeTypes>
-	static void mk(vector<std::shared_ptr<IndexW>>& proto, size_t n,
-		       std::shared_ptr<RangeType> o, std::shared_ptr<RangeTypes>... origs)
-	{
-	    proto[n-1] = mkIndexWrapper(o->begin());
-}
-    };
-
     template <class... RangeTypes>
     DynamicRange::DynamicRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<DynamicIndex>()
     {
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
-	mProtoI.resize(sizeof...(RangeTypes));
-	InitProto<sizeof...(RangeTypes)-1>::mk(mProtoI, origs);
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
@@ -206,8 +151,6 @@ namespace MultiArrayTools
     {
 	auto rst = std::make_tuple(origs...);
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
-	mProtoI.resize(sizeof...(RangeTypes));
-	InitProto<sizeof...(RangeTypes)-1>::mk(mProtoI, sizeof...(RangeTypes), origs...);
 	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
@@ -233,3 +176,53 @@ namespace MultiArrayTools
 
     
 } // end namespace MultiArrayTools
+
+namespace MultiArrayHelper
+{
+    namespace
+    {
+        using namespace MultiArrayTools;
+    }
+
+    template <>
+    inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
+                                              const vector<std::shared_ptr<RangeBase> >& orig,
+                                              size_t origpos, size_t size)
+    {
+    	DynamicRangeFactory arf;
+	for(size_t op = origpos; op != origpos + size; ++op){
+	    //VCHECK(op);
+	    arf.append(orig[op]);
+	}
+    	rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
+    }
+
+    template <>
+    inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
+                                            std::shared_ptr<DynamicRange> r)
+    {
+	if(not r->isEmpty()){
+	    for(size_t i = r->dim(); i != 0; --i){
+		v.insert(v.begin(), r->sub(i-1));
+	    }
+	}
+    }
+
+    template <>
+    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j)
+    {
+        size_t ss = 0;
+        size_t sx = 1;
+        for(size_t k = ii.dim(); k != 0; --k){
+	    const size_t i = k-1;
+            const auto& ni = ii.get(i);
+            const size_t max = ni.max();
+            const size_t tmp = ni.getStepSizeComp(j);
+            ss += tmp * ii.getStepSize(i);
+            sx *= max;
+        }
+        return ss;
+    }
+
+}
+

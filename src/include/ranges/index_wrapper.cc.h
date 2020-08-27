@@ -145,7 +145,7 @@ namespace MultiArrayTools
     }
 
     template <class Index>
-    std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i)
+    inline std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i)
     {
 	return std::make_shared<IndexWrapper<Index>>(std::make_shared<Index>(i));
     }

@@ -17,6 +17,7 @@
 #include "ranges/dynamic_meta.h"
 
 #include "index_wrapper.h"
+#include "rpack_num.h"
 
 namespace MultiArrayTools
 {
@@ -24,23 +25,6 @@ namespace MultiArrayTools
     {
 	using namespace MultiArrayHelper;
     }
-    //using MultiArrayHelper::DynamicExpression;
-
-    //using MultiArrayHelper::ExpressionHolder;
-    /*
-    class AbstractIW
-    {
-    public:
-        AbstractIW() = default;
-        AbstractIW(const AbstractIW& in) = default;
-        AbstractIW(AbstractIW&& in) = default;
-        AbstractIW& operator=(const AbstractIW& in) = default;
-        AbstractIW& operator=(AbstractIW&& in) = default;
-
-    };
-    */
-    
-    //typedef SingleRange<size_t,SpaceType::DYN> DynamicRange;
 
     class DynamicIndex : public IndexInterface<DynamicIndex,vector<char>>
     {
@@ -142,10 +126,7 @@ namespace MultiArrayTools
 	template <class Range>
 	void append(std::shared_ptr<Range> r);
 
-	template <class Range>
-	void appendx(std::shared_ptr<Range> r);
-	
-	std::shared_ptr<RangeBase> create();
+        std::shared_ptr<RangeBase> create();
 
     private:
 	
@@ -164,7 +145,6 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = -1;
 	static constexpr bool HASMETACONT = false;
 	
-        typedef vector<std::shared_ptr<IndexW>> IVecT;
 	typedef RangeBase RB;
 	typedef DynamicIndex IndexType;
 	typedef DynamicRange RangeType;
@@ -187,7 +167,6 @@ namespace MultiArrayTools
 	bool mEmpty = true;
 	
 	vector<std::shared_ptr<RangeBase> > mOrig;
-	IVecT mProtoI;
 
     public:
 	virtual size_t size() const final;
@@ -209,7 +188,6 @@ namespace MultiArrayTools
 	virtual vector<char> data() const final;
 	
 	std::shared_ptr<RangeBase> sub(size_t num) const;
-	std::shared_ptr<IndexW> subI(size_t num) const;
 
 	template <class Range>
 	std::shared_ptr<Range> fullsub(size_t num) const;
@@ -235,44 +213,22 @@ namespace MultiArrayTools
 
 namespace MultiArrayHelper
 {
-    using namespace MultiArrayTools;
-
-    inline void resolveSetRange(std::shared_ptr<DynamicRange>& rp,
-                                const vector<std::shared_ptr<RangeBase> >& orig,
-                                size_t origpos, size_t size)
+    namespace
     {
-    	DynamicRangeFactory arf;
-	for(size_t op = origpos; op != origpos + size; ++op){
-	    //VCHECK(op);
-	    arf.appendx(orig[op]);
-	}
-    	rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
+        using namespace MultiArrayTools;
     }
 
-    inline void setRangeToVec(vector<std::shared_ptr<RangeBase> >& v,
-                              std::shared_ptr<DynamicRange> r)
-    {
-	if(not r->isEmpty()){
-	    for(size_t i = r->dim(); i != 0; --i){
-		v.insert(v.begin(), r->sub(i-1));
-	    }
-	}
-    }
+    template <>
+    inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
+                                              const vector<std::shared_ptr<RangeBase> >& orig,
+                                              size_t origpos, size_t size);
 
-    inline size_t getStepSize(const DynamicIndex& ii, std::intptr_t j)
-    {
-        size_t ss = 0;
-        size_t sx = 1;
-        for(size_t k = ii.dim(); k != 0; --k){
-	    const size_t i = k-1;
-            const auto& ni = ii.get(i);
-            const size_t max = ni.max();
-            const size_t tmp = ni.getStepSizeComp(j);
-            ss += tmp * ii.getStepSize(i);
-            sx *= max;
-        }
-        return ss;
-    }
+    template <>
+    inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
+                                            std::shared_ptr<DynamicRange> r);
+
+    template <>
+    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j);
 
 }
 

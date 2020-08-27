@@ -100,6 +100,9 @@ namespace MultiArrayTools
 	RangeBase() = default;
 	std::weak_ptr<RangeBase> mThis;
     };
+
+    template <class Index>
+    inline std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i);
     
     template <class Index>
     class RangeInterface : public RangeBase
@@ -114,8 +117,9 @@ namespace MultiArrayTools
 	virtual Index begin() const = 0;
 	virtual Index end() const = 0;
 	virtual std::shared_ptr<IndexWrapperBase> aindex() const override final
+        { return mkIndexWrapper(this->begin()); }
 	//{ auto i = std::make_shared<Index>(this->begin()); return std::make_shared<IndexWrapper<Index>>(i); } //!!!
-	{ auto i = std::make_shared<Index>(this->begin()); return nullptr; } //!!!
+	//{ auto i = std::make_shared<Index>(this->begin()); return nullptr; } //!!!
 
     protected:
 	RangeInterface() = default;

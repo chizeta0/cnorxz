@@ -179,7 +179,7 @@ namespace MultiArrayTools
 		assert(this->range()->sub(i) == sIMap.at(iname)->range());
 	    }
 	    else {
-		sIMap[iname] = this->range()->subI(i);
+		sIMap[iname] = this->range()->sub(i)->aindex();
 	    }
 	    mIVec[i].first = sIMap.at(iname);
 	}
@@ -445,13 +445,6 @@ namespace MultiArrayTools
 	return mOrig.at(num);
     }
 
-    std::shared_ptr<IndexW> DynamicRange::subI(size_t num) const
-    {
-	assert(mProtoI.at(num) != nullptr);
-	return mProtoI.at(num)->duplicate();
-    }
-
-    
     void DynamicRange::sreplace(const std::shared_ptr<RangeBase> in, size_t num)
     {
 	assert(mOrig[num]->size() == in->size());

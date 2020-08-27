@@ -136,10 +136,10 @@ namespace MultiArrayTools
         virtual std::shared_ptr<IndexWrapperBase> duplicate() const override final;
 	
     };
-
+    /*
     template <class Index>
     std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i);
-
+    */
 }
 
 #endif
