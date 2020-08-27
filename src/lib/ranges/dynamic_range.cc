@@ -175,12 +175,17 @@ namespace MultiArrayTools
         assert(mIVec.size() == inames.size());
 	for(size_t i = 0; i != mIVec.size(); ++i){
 	    const std::string& iname = inames[i];
+            const std::string smeta = (iname.find_first_of("=") != std::string::npos) ? iname.substr(iname.find_first_of("=")+1) : "";
 	    if(sIMap.count(iname) != 0){
 		assert(this->range()->sub(i) == sIMap.at(iname)->range());
 	    }
 	    else {
 		sIMap[iname] = this->range()->sub(i)->aindex();
 	    }
+            if(smeta != ""){
+                sIMap.at(iname)->at(smeta);
+                assert(sIMap.at(iname)->pos() != sIMap.at(iname)->max());
+            }
 	    mIVec[i].first = sIMap.at(iname);
 	}
 	sync();

@@ -214,9 +214,12 @@ namespace
 	auto di2 = getIndex(dr2);
 	auto di4 = getIndex(dr4);
 
-	(*di1)({imap["i2_1"],imap["i2_2"],imap["i3_1"],imap["i4_1"]});
-	(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
-	(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
+	//(*di1)({imap["i2_1"],imap["i2_2"],imap["i3_1"],imap["i4_1"]});
+	//(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
+	//(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
+        (*di1)({"ia_1","ia_2","ib_1","ic_1"});
+	(*di2)({"ib_1","ib_1","ic_2"});
+	(*di4)({"ia_1","ib_1","ic_1","ic_2"});
 
 	auto resx1 = res1;
 	auto resx2 = res1;
