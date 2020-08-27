@@ -61,16 +61,26 @@ namespace MultiArrayTools
     template <class Op>
     struct OpH
     {
-        Op mOp;
+	Op mOp;
+	OpH(const Op& op) : mOp(op) {}
     };
     
     template <typename T, class Operation, class... Ranges>
-    class DynamicOuterOp : public DynamicOperationBase<OpH<ConstOperationRoot<T,Ranges...>>>
+    class DynamicOuterOp : public DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>
     {
     private:
 	Operation mOp;
-        //ConstOperationRoot<T,Ranges...> mProto;
-        OpH<ConstOperationRoot<T,Ranges...>> mProto;
+        //OperationRoot<T,Ranges...> mProto;
+	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
+        OpH<OperationRoot<T,Ranges...>> mProto;
+	/*
+	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
+		      std::tuple<std::shared_ptr<typename Ranges::IndexType>...>,
+		      std::tuple<std::shared_ptr<MultiArray<T,Ranges...>>>,
+		      std::tuple<decltype(mProto.mOp.assign( mOp ))>> LoopT;
+	
+	LoopT mL;
+	*/
     public:
         typedef decltype(mOp.rootSteps()) ET;
 	//typedef decltype(std::declval<Operation>().rootSteps()) ET;
@@ -82,15 +92,19 @@ namespace MultiArrayTools
 	DynamicOuterOp& operator=(DynamicOuterOp&& in) = default;
 
 	DynamicOuterOp(const Operation& op, const std::shared_ptr<typename Ranges::IndexType>&... inds);
-
-	virtual OpH<ConstOperationRoot<T,Ranges...>> get(const DExtT& pos) const override final;
-	virtual DynamicOperationBase<OpH<ConstOperationRoot<T,Ranges...>>>& set(const DExtT& pos) override final;
+	
+	virtual OpH<OperationRoot<T,Ranges...>> get(const DExtT& pos) const override final;
+	virtual DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>& set(const DExtT& pos) override final;
 	virtual DExtT rootSteps(std::intptr_t iPtrNum = 0) const override final;
 	virtual DynamicExpression loop(const DynamicExpression& exp) const override final;
-	virtual const OpH<ConstOperationRoot<T,Ranges...>>* data() const override final;
-        virtual std::shared_ptr<DynamicOperationBase<OpH<ConstOperationRoot<T,Ranges...>>>> deepCopy() const override final;
+	virtual const OpH<OperationRoot<T,Ranges...>>* data() const override final;
+        virtual std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>> deepCopy() const override final;
     };
 
+    template <class Operation, class... Indices>
+    DynamicOuterOp<typename Operation::value_type,Operation,typename Indices::RangeType...>
+    mkDynOutOp(const Operation& op, const std::shared_ptr<Indices>&... inds);
+    
     template <typename T>
     class DynamicO : public OperationTemplate<T,DynamicO<T>>
     {
@@ -113,6 +127,9 @@ namespace MultiArrayTools
 	template <class Op>
 	DynamicO(const Op& op) : mOp(std::make_shared<DynamicOperation<T,Op>>(op)) {}
 
+	DynamicO(const std::shared_ptr<DynamicOperationBase<T>>& op) :
+	    mOp(op) {}
+	
         template <class X>
 	inline T get(const DExtTX<X>& pos) const { return mOp->get(pos.reduce()); }
         template <class X>

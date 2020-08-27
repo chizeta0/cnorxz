@@ -53,12 +53,15 @@ namespace
 	std::map<std::string,std::shared_ptr<IndexW>> imap;
 
 	std::shared_ptr<DR> dr1;
+	std::shared_ptr<DR> dr1a;
 	std::shared_ptr<DR> dr2;
 	std::shared_ptr<DR> dr3;
 	std::shared_ptr<DR> dr4;
 	std::shared_ptr<DR> dr5;
 	std::shared_ptr<DR> dr6;
 	std::shared_ptr<CR> cr1;
+
+	std::shared_ptr<CR::IndexType> ci4;
 	
 	OpTest_Dyn()
 	{
@@ -70,6 +73,7 @@ namespace
 	    auto cr5 = createRangeE<CR>(13);
 
 	    dr1 = createRangeE<DR>(cr2,cr2,cr3,cr4);
+	    dr1a = createRangeE<DR>(cr2,cr2,cr3);
 	    dr2 = createRangeE<DR>(cr3,cr3,cr4);
 	    dr3 = createRangeE<DR>(cr2,cr5);
 	    dr5 = createRangeE<DR>(cr5);
@@ -94,7 +98,8 @@ namespace
 	    imap["i2_2"] = mkIndexW(getIndex(cr2));
 	    imap["i3_1"] = mkIndexW(getIndex(cr3));
 	    imap["i3_2"] = mkIndexW(getIndex(cr3));
-	    imap["i4_1"] = mkIndexW(getIndex(cr4));
+	    ci4 = getIndex(cr4);
+	    imap["i4_1"] = mkIndexW(ci4);
 	    imap["i4_2"] = mkIndexW(getIndex(cr4));
 	    imap["i5_1"] = mkIndexW(getIndex(cr5));
 	    imap["i5_2"] = mkIndexW(getIndex(cr5));
@@ -105,21 +110,39 @@ namespace
     {
 	auto i1 = getIndex(cr1);
 	auto di1 = getIndex(dr1);
+	auto di1a = getIndex(dr1a);
 	auto di2 = getIndex(dr2);
 	auto di4 = getIndex(dr4);
 
+	auto mi = mkMIndex(i1,di1a);
+	
 	(*di1)({imap["i2_1"],imap["i2_2"],imap["i3_1"],imap["i4_1"]});
+	(*di1a)({imap["i2_1"],imap["i2_2"],imap["i3_1"]});
 	(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
 	(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
 
 	auto resx1 = res1;
 	auto resx2 = res1;
 	auto resx3 = res1;
+	auto resx4 = res1;
+	//auto xx = std::make_shared<decltype(resx4)>(resx4);
 	res1(i1,di4) = ma1(i1,di1) * ma2(i1,di2);
 	resx1(i1,di4) = mkDynOp(ma1(i1,di1)) * mkDynOp(ma2(i1,di2));
         resx2(i1,di4) = mkDynOp(ma1(i1,di1) * ma2(i1,di2));
 	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(ma2(i1,di2)));
-        
+	
+	auto op1 = mkDynOutOp(ma1(i1,di1) * ma2(i1,di2), ci4);
+	/**auto opr = resx4(i1,di4);
+	auto loop = mkILoop(std::make_tuple(opr,op1), std::make_tuple(ci4),
+			    std::make_tuple(xx), std::make_tuple(opr.assign( op1.data()->mOp )),
+			    //std::make_tuple(), std::make_tuple(),
+			    std::array<size_t,1>({1}), std::array<size_t,1>({0}));
+	*/
+	//std::array<size_t,0>(), std::array<size_t,0>());
+	//!!!!
+	//mi->ifor(1, loop)();
+	
+	//mi->ifor(1, opr.assign( op1.data()->mOp ))();
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");
 	auto i3_1 = imap.at("i3_1");
