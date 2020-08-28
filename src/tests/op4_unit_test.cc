@@ -62,7 +62,8 @@ namespace
 	std::shared_ptr<DR> dr6;
 	std::shared_ptr<CR> cr1;
 
-	std::shared_ptr<CR::IndexType> ci4;
+	std::shared_ptr<CR::IndexType> ci4_1;
+	std::shared_ptr<CR::IndexType> ci4_2;
 	
 	OpTest_Dyn()
 	{
@@ -81,7 +82,7 @@ namespace
 	    dr6 = createRangeE<DR>(cr3,cr4);
 
 	    dr4 = createRangeE<DR>(cr2,cr3,cr4,cr4);
-	    dr4a = createRangeE<DR>(cr2,cr3,cr4);
+	    dr4a = createRangeE<DR>(cr2,cr3);
 
 	    ma1 = mkArray<double>(cr1,dr1);
 	    ma2 = mkArray<double>(cr1,dr2);
@@ -100,9 +101,10 @@ namespace
 	    imap["i2_2"] = mkIndexW(getIndex(cr2));
 	    imap["i3_1"] = mkIndexW(getIndex(cr3));
 	    imap["i3_2"] = mkIndexW(getIndex(cr3));
-	    ci4 = getIndex(cr4);
-	    imap["i4_1"] = mkIndexW(getIndex(cr4));
-	    imap["i4_2"] = mkIndexW(ci4);
+	    ci4_1 = getIndex(cr4);
+	    ci4_2 = getIndex(cr4);
+	    imap["i4_1"] = mkIndexW(ci4_1);
+	    imap["i4_2"] = mkIndexW(ci4_2);
 	    imap["i5_1"] = mkIndexW(getIndex(cr5));
 	    imap["i5_2"] = mkIndexW(getIndex(cr5));
 	}
@@ -121,7 +123,7 @@ namespace
 	//(*di1a)({imap["i2_1"],imap["i2_2"],imap["i3_1"]});
 	(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
 	(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
-	(*di4a)({imap["i2_1"],imap["i3_1"],imap["i4_1"]});
+	(*di4a)({imap["i2_1"],imap["i3_1"]});
 
 	auto mi = mkMIndex(i1,di4a);
 
@@ -135,11 +137,12 @@ namespace
         resx2(i1,di4) = mkDynOp(ma1(i1,di1) * ma2(i1,di2));
 	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(ma2(i1,di2)));
 
-	auto op1 = mkDynOutOp((ma1(i1,di1) * ma2(i1,di2)), ci4);
+	auto op1 = mkDynOutOp((ma1(i1,di1) * ma2(i1,di2)), ci4_1, ci4_2);
 	auto opr = resx4(i1,di4);
         
-	auto loop = mkILoop(std::make_tuple(opr,op1,*op1.data()->mOp), std::make_tuple(ci4),
-			    std::make_tuple(xx), std::make_tuple(opr.assign( *op1.data()->mOp, ci4 )),
+	auto loop = mkILoop(std::make_tuple(opr,op1,*op1.data()->mOp), std::make_tuple(ci4_1, ci4_2),
+			    std::make_tuple(xx),
+                            std::make_tuple(opr.assign( *op1.data()->mOp, mkMIndex(ci4_1, ci4_2) )),
 			    std::array<size_t,1>({1}), std::array<size_t,1>({0}));
         
         mi->ifor(1, mkGetExpr(op1,loop))();
