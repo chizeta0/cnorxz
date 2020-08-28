@@ -211,6 +211,52 @@ namespace MultiArrayTools
         return nullptr; //???!!!
     }
 
+    template <class OpClass, class NextExpr>
+    GetExpr<OpClass,NextExpr>::GetExpr(const OpClass& sec, const NextExpr& nexpr) :
+        mSec(sec), mNExpr(nexpr) {}
+    
+    template <class OpClass, class NextExpr>
+    inline void GetExpr<OpClass,NextExpr>::operator()(size_t start)
+    {
+        ExtType last = rootSteps();
+	last.zero();
+        mSec.get(last);
+        mNExpr(start,last.next());
+    }
+
+    template <class OpClass, class NextExpr>
+    inline void GetExpr<OpClass,NextExpr>::operator()(size_t start, ExtType last)
+    {
+        mSec.get(last);
+        mNExpr(start,last.next());
+    }
+    
+    template <class OpClass, class NextExpr>
+    typename GetExpr<OpClass,NextExpr>::ExtType
+    GetExpr<OpClass,NextExpr>::rootSteps(std::intptr_t iPtrNum) const
+    {
+	return mSec.rootSteps(iPtrNum).extend( mNExpr.rootSteps(iPtrNum) );
+    }
+
+    template <class OpClass, class NextExpr>
+    inline void GetExpr<OpClass,NextExpr>::operator()(size_t mlast, DExt last)
+    {
+        (*this)(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+    }
+
+    template <class OpClass, class NextExpr>
+    inline DExt GetExpr<OpClass,NextExpr>::dRootSteps(std::intptr_t iPtrNum) const
+    {
+        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+    }
+
+    template <class OpClass, class NextExpr>
+    inline DExt GetExpr<OpClass,NextExpr>::dExtension() const
+    {
+        CHECK;
+        return nullptr; //???!!!
+    }
+
     template <typename T, class Target, class OpClass, OpIndexAff OIA>
     AddExpr<T,Target,OpClass,OIA>::AddExpr(T* dataPtr, const Target& tar, const OpClass& sec) :
         mTar(tar), mSec(sec), mDataPtr(dataPtr) {}

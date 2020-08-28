@@ -61,8 +61,9 @@ namespace MultiArrayTools
     template <class Op>
     struct OpH
     {
-	Op mOp;
-	OpH(const Op& op) : mOp(op) {}
+        std::shared_ptr<Op> mOp;
+	OpH(const Op& op) : mOp(std::make_shared<Op>(op)) {}
+
     };
     
     template <typename T, class Operation, class... Ranges>
@@ -77,7 +78,7 @@ namespace MultiArrayTools
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
 		      std::tuple<std::shared_ptr<typename Ranges::IndexType>...>,
 		      std::tuple<std::shared_ptr<MultiArray<T,Ranges...>>>,
-		      std::tuple<decltype(mProto.mOp.assign( mOp ))>> LoopT;
+            std::tuple<decltype(mProto.mOp->assign( mOp, mkMIndex(std::shared_ptr<typename Ranges::IndexType>()...) ))>> LoopT;
 	
 	mutable LoopT mL;
 	

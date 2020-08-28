@@ -47,29 +47,25 @@ namespace MultiArrayTools
         : mOp(op),
 	  mMa(std::make_shared<MultiArray<T,Ranges...>>(mkArray<T>(inds->range()...))),
 	  mProto(OperationRoot<T,Ranges...>(*mMa,inds...)),
-          mL(std::make_tuple(mProto.mOp,mOp), std::make_tuple(inds...),
-             std::make_tuple(mMa), std::make_tuple(mProto.mOp.assign( mOp )),
-             std::array<size_t,1>({0}), std::array<size_t,1>({0}))
+          mL(std::make_tuple(*mProto.mOp,mOp), std::make_tuple(inds...),
+             std::make_tuple(mMa), std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(inds...) )),
+             std::array<size_t,1>({1}), std::array<size_t,1>({0}))
     {
-        VCHECK(reinterpret_cast<std::intptr_t>(mProto.mOp.data()));
-        VCHECK(reinterpret_cast<std::intptr_t>(mMa->data()));
+        *mMa = 0;
     }
 
     template <typename T, class Operation, class... Ranges>
     OpH<OperationRoot<T,Ranges...>> DynamicOuterOp<T,Operation,Ranges...>::get(const DExtT& pos) const
     {
-        CHECK;
-        //mOp.get(pos.expl<ET>());
-        //mL(0,pos.expl<ET>());
+        mL(0,pos.expl<ET>());
         // execute assignment... care about threads!!!
-        return mProto.mOp; // empty
+        return mProto; // empty
     }
     
     template <typename T, class Operation, class... Ranges>
     DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>&
     DynamicOuterOp<T,Operation,Ranges...>::set(const DExtT& pos)
     {
-        CHECK;
 	mOp.set(pos.expl<ET>());
 	return *this;
     }
@@ -77,21 +73,18 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... Ranges>
     DExtT DynamicOuterOp<T,Operation,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-        CHECK;
         return DExtT(mkDExt(mkExtT(mL.rootSteps(iPtrNum))),None(0));
     }
     
     template <typename T, class Operation, class... Ranges>
     DynamicExpression DynamicOuterOp<T,Operation,Ranges...>::loop(const DynamicExpression& exp) const
     {
-        CHECK;
         return mOp.loop(exp); // ???!!
     }
     
     template <typename T, class Operation, class... Ranges>
     const OpH<OperationRoot<T,Ranges...>>* DynamicOuterOp<T,Operation,Ranges...>::data() const
     {
-        CHECK;
         return &mProto;
     }
     
@@ -99,7 +92,6 @@ namespace MultiArrayTools
     std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>>
     DynamicOuterOp<T,Operation,Ranges...>::deepCopy() const
     {
-        CHECK;
         return std::make_shared<DynamicOuterOp<T,Operation,Ranges...>>(*this);
     }
 

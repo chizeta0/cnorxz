@@ -102,6 +102,9 @@ namespace MultiArrayHelper
     private:
 	mutable DExt mDExt = nullptr;
 	X mNext;
+
+        template <class Y>
+        friend class DExtTX;
     public:
 	static constexpr size_t NUM = X::SIZE;
 	static constexpr size_t SIZE = NUM + 1;
@@ -119,8 +122,12 @@ namespace MultiArrayHelper
 	template <class Y>
 	DExtTX(const Y& y) : mDExt(std::make_shared<ExtT<Y>>(y)) {}
         */
-	explicit DExtTX(const DExt& y, const X& x) : mDExt(y->deepCopy()),
-                                                     mNext(x) {}
+
+        template <class Y>
+        DExtTX(const DExtTX<Y>& in) : mDExt(in.mDExt), mNext(in.mNext) {}
+        
+	DExtTX(const DExt& y, const X& x) : mDExt(y->deepCopy()),
+                                            mNext(x) {}
 
         virtual size_t size() const { return mDExt->size(); }
         inline const DExt& get() const { return mDExt; }

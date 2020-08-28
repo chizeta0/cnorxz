@@ -142,6 +142,41 @@ namespace MultiArrayTools
         inline DExt dExtension() const override final;
     };
 
+    template <class OpClass, class NextExpr>
+    class GetExpr : public ExpressionBase
+    {
+    private:
+        GetExpr() = default;
+
+        OpClass mSec;
+        NextExpr mNExpr;
+            
+    public:
+
+        static constexpr size_t LAYER = 0;
+        static constexpr size_t SIZE = OpClass::SIZE + NextExpr::SIZE;
+        typedef decltype(mSec.rootSteps(0).extend( mNExpr.rootSteps(0) ) ) ExtType;
+	    
+        GetExpr(const OpClass& sec, const NextExpr& nexpr);
+        GetExpr(const GetExpr& in) = default;
+        GetExpr(GetExpr&& in) = default;
+	    
+        inline void operator()(size_t start = 0);
+        inline void operator()(size_t start, ExtType last);
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+
+        inline void operator()(size_t mlast, DExt last) override final;
+
+        inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
+        inline DExt dExtension() const override final;
+    };
+
+    template <class OpClass, class NextExpr>
+    auto mkGetExpr(const OpClass& op, const NextExpr& nexpr)
+    {
+        return GetExpr<OpClass,NextExpr>(op, nexpr);
+    }
+    
     //template <typename T, class OpClass>
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AddExpr : public ExpressionBase
