@@ -7,6 +7,7 @@
 #include <tuple>
 #include <array>
 #include <omp.h>
+#include "xfor.h"
 
 namespace MultiArrayHelper
 {
@@ -98,7 +99,7 @@ namespace MultiArrayHelper
     };
 
     template <class OpTp, class IndTp, class VarTp, class LTp>
-    class ILoop
+    class ILoop : public ExpressionBase
     {
     private:
         static constexpr size_t LTpSize = std::tuple_size<LTp>::value;
@@ -121,7 +122,7 @@ namespace MultiArrayHelper
 
         ILoop() { assert(omp_get_thread_num() == 0); }
         
-        ILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
+         ILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
               const std::array<size_t,LTpSize>& umpos, const std::array<size_t,VarTpSize>& setzero) :
             mOpTp(opTp), mIndTp(indTp), mVarTp(varTp), mLTp(lTp), mUmpos(umpos), mSetzero(setzero) {}
         
@@ -142,6 +143,28 @@ namespace MultiArrayHelper
         VarTp& var() const
         {
             return mVarTp;
+        }
+
+        virtual void operator()(size_t mlast, DExt last) override final
+        {
+            operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+        }
+
+        virtual void operator()(size_t mlast = 0) override final
+        {
+            ExtType last = rootSteps();
+            last.zero();
+            operator()(mlast, last);
+        }
+        
+        virtual DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final
+        {
+            return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+        }
+        
+        virtual DExt dExtension() const override final
+        {
+            return nullptr; //!!
         }
     };
 

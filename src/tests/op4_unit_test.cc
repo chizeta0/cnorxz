@@ -125,24 +125,30 @@ namespace
 	auto resx2 = res1;
 	auto resx3 = res1;
 	auto resx4 = res1;
-	//auto xx = std::make_shared<decltype(resx4)>(resx4);
+	auto xx = std::make_shared<decltype(resx4)>(resx4);
 	res1(i1,di4) = ma1(i1,di1) * ma2(i1,di2);
 	resx1(i1,di4) = mkDynOp(ma1(i1,di1)) * mkDynOp(ma2(i1,di2));
         resx2(i1,di4) = mkDynOp(ma1(i1,di1) * ma2(i1,di2));
 	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(ma2(i1,di2)));
 	
 	auto op1 = mkDynOutOp(ma1(i1,di1) * ma2(i1,di2), ci4);
-	/**auto opr = resx4(i1,di4);
-	auto loop = mkILoop(std::make_tuple(opr,op1), std::make_tuple(ci4),
-			    std::make_tuple(xx), std::make_tuple(opr.assign( op1.data()->mOp )),
+        auto op1x = ma1(i1,di1) * ma2(i1,di2);
+	auto opr = resx4(i1,di4);
+        
+	auto loop = mkILoop(std::make_tuple(opr,op1,op1.data()->mOp), std::make_tuple(ci4),
+			    std::make_tuple(xx), std::make_tuple(opr.assign( op1.data()->mOp, ci4 )),
 			    //std::make_tuple(), std::make_tuple(),
 			    std::array<size_t,1>({1}), std::array<size_t,1>({0}));
-	*/
-	//std::array<size_t,0>(), std::array<size_t,0>());
-	//!!!!
+        
+        /*
+	auto loop = mkILoop(std::make_tuple(opr,op1x), std::make_tuple(ci4),
+			    std::make_tuple(xx), std::make_tuple(opr.assign( op1x, ci4 )),
+			    //std::make_tuple(), std::make_tuple(),
+			    std::array<size_t,1>({1}), std::array<size_t,1>({0}));
+        */
 	//mi->ifor(1, loop)();
+        mi->ifor(1, loop)();
 	
-	//mi->ifor(1, opr.assign( op1.data()->mOp ))();
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");
 	auto i3_1 = imap.at("i3_1");

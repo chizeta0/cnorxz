@@ -73,16 +73,16 @@ namespace MultiArrayTools
         //OperationRoot<T,Ranges...> mProto;
 	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
-	/*
+	
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
 		      std::tuple<std::shared_ptr<typename Ranges::IndexType>...>,
 		      std::tuple<std::shared_ptr<MultiArray<T,Ranges...>>>,
 		      std::tuple<decltype(mProto.mOp.assign( mOp ))>> LoopT;
 	
-	LoopT mL;
-	*/
+	mutable LoopT mL;
+	
     public:
-        typedef decltype(mOp.rootSteps()) ET;
+        typedef decltype(mL.rootSteps()) ET;
 	//typedef decltype(std::declval<Operation>().rootSteps()) ET;
 	
 	DynamicOuterOp() = default;
