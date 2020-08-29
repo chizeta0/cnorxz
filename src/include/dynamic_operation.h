@@ -74,11 +74,15 @@ namespace MultiArrayTools
         //OperationRoot<T,Ranges...> mProto;
 	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
+
+
 	
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
 		      std::tuple<std::shared_ptr<typename Ranges::IndexType>...>,
 		      std::tuple<std::shared_ptr<MultiArray<T,Ranges...>>>,
             std::tuple<decltype(mProto.mOp->assign( mOp, mkMIndex(std::shared_ptr<typename Ranges::IndexType>()...) ))>> LoopT;
+	
+	
 	
 	mutable LoopT mL;
 	

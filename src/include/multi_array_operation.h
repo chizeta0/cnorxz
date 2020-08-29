@@ -131,7 +131,14 @@ namespace MultiArrayTools
         AssignmentExpr2(T* dataPtr, const Target& tar, const OpClass& sec);
         AssignmentExpr2(const AssignmentExpr2& in) = default;
         AssignmentExpr2(AssignmentExpr2&& in) = default;
-	    
+        AssignmentExpr2& operator=(const AssignmentExpr2& in) = default;
+        AssignmentExpr2& operator=(AssignmentExpr2&& in) = default;
+
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<AssignmentExpr2<T,Target,OpClass,OIA>>(*this);
+	}
+	
         inline void operator()(size_t start = 0); 
         inline void operator()(size_t start, ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
@@ -160,7 +167,14 @@ namespace MultiArrayTools
         GetExpr(const OpClass& sec, const NextExpr& nexpr);
         GetExpr(const GetExpr& in) = default;
         GetExpr(GetExpr&& in) = default;
+        GetExpr& operator=(const GetExpr& in) = default;
+        GetExpr& operator=(GetExpr&& in) = default;
 	    
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<GetExpr<OpClass,NextExpr>>(*this);
+	}
+
         inline void operator()(size_t start = 0);
         inline void operator()(size_t start, ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
@@ -201,7 +215,14 @@ namespace MultiArrayTools
         AddExpr(T* dataPtr, const Target& tar, const OpClass& sec);
         AddExpr(const AddExpr& in) = default;
         AddExpr(AddExpr&& in) = default;
+        AddExpr& operator=(const AddExpr& in) = default;
+        AddExpr& operator=(AddExpr&& in) = default;
 	    
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<AddExpr<T,Target,OpClass,OIA>>(*this);
+	}
+
         inline void operator()(size_t start = 0); 
         inline void operator()(size_t start, ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;

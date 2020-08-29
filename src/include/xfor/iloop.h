@@ -126,7 +126,12 @@ namespace MultiArrayHelper
               const std::array<size_t,LTpSize>& umpos, const std::array<size_t,VarTpSize>& setzero) :
             mOpTp(opTp), mIndTp(indTp), mVarTp(varTp), mLTp(lTp), mUmpos(umpos), mSetzero(setzero) {}
         
-        inline size_t operator()(size_t mpos, ExtType pos)
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<ILoop<OpTp,IndTp,VarTp,LTp>>(*this);
+	}
+
+	inline size_t operator()(size_t mpos, ExtType pos)
         {
             NN<VarTpSize-1>::zero(mVarTp, mSetzero);
             //VCHECK(mpos);
@@ -229,7 +234,7 @@ namespace MultiArrayHelper
     // if instance copied to different thread, the "copy" will be newly created from this function
     // -> ensures that there is NO SHARED WORKSPACE
     template <class CF>
-    class PILoop
+    class PILoop : public ExpressionBase
     {
     private:
         size_t mThreadId = 0;
@@ -268,10 +273,25 @@ namespace MultiArrayHelper
         }
 
         PILoop(const CF& cf) : mThreadId(omp_get_thread_num()), mCF(cf), mL(mCF()) {}
+	/*
+	virtual void ensureThread() override final
+	{
+	    VCHECK(omp_get_thread_num());
+	    //if(static_cast<int>(mThreadId) != omp_get_thread_num()){
+	    mThreadId = omp_get_thread_num();
+	    mL = mCF();
+	    //}
+	}
+	*/
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<PILoop<CF>>(*this);
+	}
 
         inline size_t operator()(size_t mpos, ExtType pos)
         {
-            return mL(mpos, pos);
+	    mL(mpos, pos);
+	    return 0;
         }
 
         auto rootSteps(std::intptr_t i = 0) const
@@ -283,6 +303,28 @@ namespace MultiArrayHelper
         auto var() const
         {
             return mL.var();
+        }
+
+        virtual void operator()(size_t mlast, DExt last) override final
+        {
+            operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+        }
+
+        virtual void operator()(size_t mlast = 0) override final
+        {
+            ExtType last = rootSteps();
+            last.zero();
+            operator()(mlast, last);
+        }
+        
+        virtual DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final
+        {
+            return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+        }
+        
+        virtual DExt dExtension() const override final
+        {
+            return nullptr; //!!
         }
     };
 

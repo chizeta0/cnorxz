@@ -137,15 +137,21 @@ namespace
         resx2(i1,di4) = mkDynOp(ma1(i1,di1) * ma2(i1,di2));
 	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(ma2(i1,di2)));
 
-	auto op1 = mkDynOutOp((ma1(i1,di1) * ma2(i1,di2)), ci4_1, ci4_2);
+	//auto op1 = mkDynOutOp((ma1(i1,di1) * ma2(i1,di2)), ci4_1, ci4_2);
+	//auto opr = resx4(i1,di4);
+	auto op1x = (ma1(i1,di1) * ma2(i1,di2));
 	auto opr = resx4(i1,di4);
-        
-	auto loop = mkILoop(std::make_tuple(opr,op1,*op1.data()->mOp), std::make_tuple(ci4_1, ci4_2),
-			    std::make_tuple(xx),
-                            std::make_tuple(opr.assign( *op1.data()->mOp, mkMIndex(ci4_1, ci4_2) )),
-			    std::array<size_t,1>({1}), std::array<size_t,1>({0}));
-        
-        mi->ifor(1, mkGetExpr(op1,loop))();
+	
+	auto loop = mkPILoop
+	    ( [&op1x,&opr,&xx,this](){
+		auto op1 = mkDynOutOp(op1x, ci4_1, ci4_2);
+		return mkGetExpr(op1,mkILoop(std::make_tuple(opr,op1,*op1.data()->mOp), std::make_tuple(ci4_1, ci4_2),
+					     std::make_tuple(xx),
+					     std::make_tuple(opr.assign( *op1.data()->mOp, mkMIndex(ci4_1, ci4_2) )),
+					     std::array<size_t,1>({1}), std::array<size_t,1>({0}))); } );
+
+	//loop.dummy();
+        mi->pifor(1,loop)();
 	
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");

@@ -112,8 +112,8 @@ namespace MultiArrayHelper
         DExtTX() { mDExt = std::make_shared<ExtT<None>>(); }
         DExtTX(const DExtTX& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
         DExtTX(DExtTX&& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
-        DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }
-        DExtTX& operator=(DExtTX&& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); }
+        DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); return *this; }
+        DExtTX& operator=(DExtTX&& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); return *this; }
         explicit DExtTX(const DExt& in) : mDExt(in) {}
         /*
 	template <class Y>
@@ -173,6 +173,8 @@ namespace MultiArrayHelper
 	ExpressionBase& operator=(const ExpressionBase& in) = default;
 	ExpressionBase& operator=(ExpressionBase&& in) = default;
 
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const = 0;
+	
 	virtual void operator()(size_t mlast, DExt last) = 0;
 	virtual void operator()(size_t mlast = 0) = 0;
 
@@ -264,7 +266,11 @@ namespace MultiArrayHelper
 	SingleExpression(const IndexClass* indPtr,
 			 Expr expr);
 
-	
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<SingleExpression<IndexClass,Expr>>(*this);
+	}
+
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last);
 	inline void operator()(size_t mlast = 0) override final;
@@ -313,7 +319,11 @@ namespace MultiArrayHelper
 	SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
                 const vector<size_t>* subset, Expr expr);
 
-	
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<SubExpr<IndexClass,Expr>>(*this);
+	}
+
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;
@@ -361,6 +371,11 @@ namespace MultiArrayHelper
 
 	For(const IndexClass* indPtr,
 	    size_t step, Expr expr);
+
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<For<IndexClass,Expr,FT>>(*this);
+	}
 
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
@@ -410,6 +425,11 @@ namespace MultiArrayHelper
 	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<PFor<IndexClass,Expr>>(*this);
+	}
+
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;
@@ -431,8 +451,9 @@ namespace MultiArrayHelper
     class DynamicExpression : public ExpressionBase
     {
     private:
-	DynamicExpression() = default;
+	DynamicExpression() : mThreadId(omp_get_thread_num()) {}
 
+	size_t mThreadId;
 	std::shared_ptr<ExpressionBase> mNext;
 
     public:
@@ -440,10 +461,29 @@ namespace MultiArrayHelper
 	static constexpr size_t LAYER = 0;
 	static constexpr size_t SIZE = 0;
 
-	DynamicExpression(const DynamicExpression& in) = default;
-	DynamicExpression(DynamicExpression&& in) = default;
-	DynamicExpression& operator=(const DynamicExpression& in) = default;
-	DynamicExpression& operator=(DynamicExpression&& in) = default;
+	DynamicExpression(const DynamicExpression& in) :
+	    mThreadId(omp_get_thread_num()),
+	    mNext( (static_cast<int>(in.mThreadId) == omp_get_thread_num()) ?
+		   in.mNext : in.mNext->deepCopy()) {}
+	DynamicExpression(DynamicExpression&& in) :
+	    mThreadId(omp_get_thread_num()),
+	    mNext( (static_cast<int>(in.mThreadId) == omp_get_thread_num()) ?
+		   in.mNext : in.mNext->deepCopy()) {}
+	DynamicExpression& operator=(const DynamicExpression& in)
+	{
+	    mThreadId = omp_get_thread_num();
+	    mNext = (static_cast<int>(in.mThreadId) == omp_get_thread_num()) ?
+		in.mNext : in.mNext->deepCopy();
+	    return *this;
+	}
+	
+	DynamicExpression& operator=(DynamicExpression&& in)
+	{
+	    mThreadId = omp_get_thread_num();
+	    mNext = (static_cast<int>(in.mThreadId) == omp_get_thread_num()) ?
+		in.mNext : in.mNext->deepCopy();
+	    return *this;
+	}
 	
 	DynamicExpression(const std::shared_ptr<ExpressionBase>& next) :
 	    mNext(next)
@@ -457,6 +497,11 @@ namespace MultiArrayHelper
         template <class Expr>
         DynamicExpression(Expr ex) : mNext( std::make_shared<Expr>(ex) ) {}
         
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<DynamicExpression>(*this);
+	}
+
 	inline void operator()(size_t mlast, DExt last) override final;
         inline void operator()(size_t mlast, DExtT last) { (*this)(mlast,last.get()); }
 	inline void operator()(size_t mlast = 0) override final;
@@ -495,6 +540,11 @@ namespace MultiArrayHelper
 
 	ExpressionHolder(DynamicExpression expr);
 	
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	{
+	    return std::make_shared<ExpressionHolder<Expr>>(*this);
+	}
+
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;

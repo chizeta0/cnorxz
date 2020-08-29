@@ -50,9 +50,7 @@ namespace MultiArrayTools
           mL(std::make_tuple(*mProto.mOp,mOp), std::make_tuple(inds...),
              std::make_tuple(mMa), std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(inds...) )),
              std::array<size_t,1>({1}), std::array<size_t,1>({0}))
-    {
-        *mMa = 0;
-    }
+    {}
 
     template <typename T, class Operation, class... Ranges>
     OpH<OperationRoot<T,Ranges...>> DynamicOuterOp<T,Operation,Ranges...>::get(const DExtT& pos) const
