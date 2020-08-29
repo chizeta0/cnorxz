@@ -70,8 +70,10 @@ namespace MultiArrayTools
     class DynamicOuterOp : public DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>
     {
     private:
+	size_t mThreadId;
 	Operation mOp;
         //OperationRoot<T,Ranges...> mProto;
+	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> mIndices;
 	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
 
@@ -90,11 +92,11 @@ namespace MultiArrayTools
         typedef decltype(mL.rootSteps()) ET;
 	//typedef decltype(std::declval<Operation>().rootSteps()) ET;
 	
-	DynamicOuterOp() = default;
-	DynamicOuterOp(const DynamicOuterOp& in) = default;
-	DynamicOuterOp(DynamicOuterOp&& in) = default;
-	DynamicOuterOp& operator=(const DynamicOuterOp& in) = default;
-	DynamicOuterOp& operator=(DynamicOuterOp&& in) = default;
+	DynamicOuterOp() : mThreadId(omp_get_thread_num()) {}
+	DynamicOuterOp(const DynamicOuterOp& in);
+	DynamicOuterOp(DynamicOuterOp&& in);
+	DynamicOuterOp& operator=(const DynamicOuterOp& in);
+	DynamicOuterOp& operator=(DynamicOuterOp&& in);
 
 	DynamicOuterOp(const Operation& op, const std::shared_ptr<typename Ranges::IndexType>&... inds);
 	

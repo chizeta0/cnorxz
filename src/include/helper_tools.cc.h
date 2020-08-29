@@ -36,6 +36,41 @@ namespace MultiArrayTools
 	return std::dynamic_pointer_cast<MultiRange<RangeTypes...> >( mrf.create() );
     }
 
+    namespace
+    {
+	template <size_t N>
+	struct IndexToRangeTuple
+	{
+	    template <class... IndexTypes>
+	    static inline void set(std::tuple<std::shared_ptr<typename IndexTypes::RangeType>...>& out,
+		     const std::tuple<std::shared_ptr<IndexTypes>...>& indices)
+	    {
+		std::get<N>(out) = std::get<N>(indices)->range();
+		IndexToRangeTuple<N-1>::set(out,indices);
+	    }
+	};
+
+	template <>
+	struct IndexToRangeTuple<0>
+	{
+	    template <class... IndexTypes>
+	    static inline void set(std::tuple<std::shared_ptr<typename IndexTypes::RangeType>...>& out,
+		     const std::tuple<std::shared_ptr<IndexTypes>...>& indices)
+	    {
+		std::get<0>(out) = std::get<0>(indices)->range();
+	    }
+	};
+    }
+    
+    template <class... IndexTypes>
+    auto indexToRangeTuple(const std::tuple<std::shared_ptr<IndexTypes>...>& indices)
+	-> std::tuple<std::shared_ptr<typename IndexTypes::RangeType>...>
+    {
+	std::tuple<std::shared_ptr<typename IndexTypes::RangeType>...> out;
+	IndexToRangeTuple<sizeof...(IndexTypes)-1>::set(out, indices);
+	return out;
+    }
+
     template <class... IndexTypes>
     auto mkMIndex(std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkMulti( indices->range()... ) ) )
@@ -44,6 +79,16 @@ namespace MultiArrayTools
 	(*mi)( indices... );
 	return mi;
     }
+
+    template <class... IndexTypes>
+    auto mkMIndex(const std::tuple<std::shared_ptr<IndexTypes>...>& indices)
+	-> decltype( getIndex( mkMulti( indexToRangeTuple(indices) ) ) )
+    {
+	auto mi = getIndex( mkMulti( indexToRangeTuple(indices) ) );	    
+	(*mi)( indices );
+	return mi;
+    }
+
 
     template <class Index>
     auto mkIndexW(const std::shared_ptr<Index>& ind)
@@ -102,7 +147,7 @@ namespace MultiArrayTools
 
     template <class... RangeTypes>
     auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
-	-> MultiRange<RangeTypes...>
+	-> std::shared_ptr<MultiRange<RangeTypes...>>
     {
 	MultiRangeFactory<RangeTypes...> mrf( rangesTuple );
 	return std::dynamic_pointer_cast<MultiRange<RangeTypes...> >( mrf.create() );

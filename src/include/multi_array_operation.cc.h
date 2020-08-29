@@ -483,6 +483,18 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
+    OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+		  const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices) :
+	mDataPtr(ma.data()),
+        mOrigDataPtr(ma.data()),
+	mIndex( ma.begin() )
+    {
+	mIndex(indices);
+        mDataPtr = mOrigDataPtr + mIndex.pos();
+    }
+
+    template <typename T, class... Ranges>
+    OperationRoot<T,Ranges...>::
     OperationRoot(T* data, const IndexType& ind) :
 	mDataPtr(data),
         mOrigDataPtr(data),

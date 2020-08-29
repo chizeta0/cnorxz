@@ -42,9 +42,88 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Operation, class... Ranges>
+    DynamicOuterOp<T,Operation,Ranges...>::DynamicOuterOp(const DynamicOuterOp& in) :
+	mThreadId(omp_get_thread_num()), mOp(in.mOp),
+	mIndices(in.mIndices),
+	mMa((mThreadId != in.mThreadId) ? std::make_shared<MultiArray<T,Ranges...>>(*in.mMa) : in.mMa),
+	mProto((mThreadId != in.mThreadId) ? OperationRoot<T,Ranges...>(*mMa,mIndices) : in.mProto),
+	mL((mThreadId != in.mThreadId) ?
+	   mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
+		   std::make_tuple(mMa),
+		   std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(mIndices) )),
+		   std::array<size_t,1>({1}), std::array<size_t,1>({0})) :
+	   in.mL)
+	   
+    {*mMa = 0;}
+
+    template <typename T, class Operation, class... Ranges>
+    DynamicOuterOp<T,Operation,Ranges...>::DynamicOuterOp(DynamicOuterOp&& in) :
+	mThreadId(omp_get_thread_num()), mOp(in.mOp),
+	mIndices(in.mIndices),
+	mMa((mThreadId != in.mThreadId) ? std::make_shared<MultiArray<T,Ranges...>>(*in.mMa) : in.mMa),
+	mProto((mThreadId != in.mThreadId) ? OperationRoot<T,Ranges...>(*mMa,mIndices) : in.mProto),
+	mL((mThreadId != in.mThreadId) ?
+	   mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
+		   std::make_tuple(mMa),
+		   std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(mIndices) )),
+		   std::array<size_t,1>({1}), std::array<size_t,1>({0})) :
+	   in.mL)
+	   
+    {*mMa = 0;}
+
+    template <typename T, class Operation, class... Ranges>
+    DynamicOuterOp<T,Operation,Ranges...>&
+    DynamicOuterOp<T,Operation,Ranges...>::operator=(const DynamicOuterOp& in)
+    {
+	mThreadId = omp_get_thread_num();
+	mOp = in.mOp;
+	mIndices = in.mIndices;
+	if(mThreadId != in.mThreadId){
+	    mMa = std::make_shared<MultiArray<T,Ranges...>>(in.mMa);
+	    mProto = OperationRoot<T,Ranges...>(*mMa,mIndices);
+	    mL = mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
+			 std::make_tuple(mMa),
+			 std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(mIndices) )),
+			 std::array<size_t,1>({1}), std::array<size_t,1>({0}));
+	}
+	else {
+	    mMa = in.mMa;
+	    mProto = in.mProto;
+	    mL = in.mL;
+	}
+	*mMa = 0;
+	return *this;
+    }
+
+    template <typename T, class Operation, class... Ranges>
+    DynamicOuterOp<T,Operation,Ranges...>&
+    DynamicOuterOp<T,Operation,Ranges...>::operator=(DynamicOuterOp&& in)
+    {
+	mThreadId = omp_get_thread_num();
+	mOp = in.mOp;
+	mIndices = in.mIndices;
+	if(mThreadId != in.mThreadId){
+	    mMa = std::make_shared<MultiArray<T,Ranges...>>(in.mMa);
+	    mProto = OperationRoot<T,Ranges...>(*mMa,mIndices);
+	    mL = mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
+			 std::make_tuple(mMa),
+			 std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(mIndices) )),
+			 std::array<size_t,1>({1}), std::array<size_t,1>({0}));
+	}
+	else {
+	    mMa = in.mMa;
+	    mProto = in.mProto;
+	    mL = in.mL;
+	}
+	*mMa = 0;
+	return *this;
+    }
+
+    template <typename T, class Operation, class... Ranges>
     DynamicOuterOp<T,Operation,Ranges...>::DynamicOuterOp(const Operation& op,
                                                           const std::shared_ptr<typename Ranges::IndexType>&... inds)
-        : mOp(op),
+        : mThreadId(omp_get_thread_num()), mOp(op),
+	  mIndices(inds...),
 	  mMa(std::make_shared<MultiArray<T,Ranges...>>(mkArray<T>(inds->range()...))),
 	  mProto(OperationRoot<T,Ranges...>(*mMa,inds...)),
           mL(std::make_tuple(*mProto.mOp,mOp), std::make_tuple(inds...),

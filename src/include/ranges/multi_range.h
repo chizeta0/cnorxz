@@ -85,6 +85,7 @@ namespace MultiArrayTools
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MultiIndex instances
 	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
+	MultiIndex& operator()(const std::tuple<std::shared_ptr<Indices>...>& indices);
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
@@ -320,6 +321,14 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
 	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
+	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	return *this;
+    }
+
+    template <class... Indices>
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& indices)
+    {
+	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices);
 	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return *this;
     }

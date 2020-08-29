@@ -56,18 +56,27 @@ namespace MultiArrayTools
     template <class Op, class MA, class... IndexTypes>
     auto mkMapI(const std::tuple<Op,MA>& f, std::shared_ptr<IndexTypes>... indices)
 	-> decltype( mkGenMapI<SpaceType::ANY>(f, indices... ) );
+
+    template <class... IndexTypes>
+    auto indexToRangeTuple(const std::tuple<std::shared_ptr<IndexTypes>...>& indices)
+	-> std::tuple<std::shared_ptr<typename IndexTypes::RangeType>...>;
+
+    template <class... RangeTypes>
+    auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
+	-> std::shared_ptr<MultiRange<RangeTypes...>>;
     
     template <class... IndexTypes>
     auto mkMIndex(std::shared_ptr<IndexTypes>... indices)
 	-> decltype( getIndex( mkMulti( indices.range()... ) ) );
 
+    template <class... IndexTypes>
+    auto mkMIndex(const std::tuple<std::shared_ptr<IndexTypes>...>& indices)
+	-> decltype( getIndex( mkMulti( indexToRangeTuple(indices) ) ) );
+
     template <class Index>
     auto mkIndexW(const std::shared_ptr<Index>& ind)
 	-> std::shared_ptr<IndexW>;
 
-    template <class... RangeTypes>
-    auto mkMulti(std::tuple<std::shared_ptr<RangeTypes>...> rangesTuple)
-	-> MultiRange<RangeTypes...>;
 
     template <class RangeFactory>
     auto createExplicit(RangeFactory& rf)

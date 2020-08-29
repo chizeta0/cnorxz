@@ -368,6 +368,9 @@ namespace MultiArrayTools
 	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
+	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+		      const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices);
+
 	OperationRoot(T* data, const IndexType& ind);
 
         template <class OpClass>
