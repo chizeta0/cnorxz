@@ -60,6 +60,7 @@ namespace
 	std::shared_ptr<DR> dr4a;
 	std::shared_ptr<DR> dr5;
 	std::shared_ptr<DR> dr6;
+	std::shared_ptr<DR> dr6a;
 	std::shared_ptr<CR> cr1;
 
 	std::shared_ptr<CR::IndexType> ci4_1;
@@ -80,6 +81,7 @@ namespace
 	    dr3 = createRangeE<DR>(cr2,cr5);
 	    dr5 = createRangeE<DR>(cr5);
 	    dr6 = createRangeE<DR>(cr3,cr4);
+	    dr6a = createRangeE<DR>(cr3);
 
 	    dr4 = createRangeE<DR>(cr2,cr3,cr4,cr4);
 	    dr4a = createRangeE<DR>(cr2,cr3);
@@ -192,20 +194,28 @@ namespace
 	auto di3 = getIndex(dr3);
 	auto di5 = getIndex(dr5);
 	auto di6 = getIndex(dr6);
+	//auto di6a = getIndex(dr6a);
 
 	(*di1)({imap["i2_1"],imap["i2_1"],imap["i3_1"],imap["i4_1"]});
 	(*di3)({imap["i2_1"],imap["i5_1"]});
 	(*di5)({imap["i5_1"]});
 	(*di6)({imap["i3_1"],imap["i4_1"]});
+	//(*di6a)({imap["i3_1"]});
 
 	auto resx1 = res2;
 	auto resx2 = res2;
 	auto resx3 = res2;
+	//auto resx4 = res2;
         res2(i1,di6) += (ma1(i1,di1) * ma5(di5)).c(di3);
 	resx1(i1,di6) += (mkDynOp(ma1(i1,di1)) * mkDynOp(ma5(di5))).c(di3);
         resx2(i1,di6) += mkDynOp((ma1(i1,di1) * ma5(di5)).c(di3));
 	resx3(i1,di6) += mkDynOp((mkDynOp(ma1(i1,di1)) * mkDynOp(ma5(di5))).c(di3));
-        
+
+
+	//auto op1 = mkDynOutOp(ma1(i1,di1) * ma5(di5), ci4_1);
+	
+        //resx2(i1,di6) += mkDynOp((ma1(i1,di1) * ma5(di5)).c(di3));
+	
 	auto i2_1 = imap.at("i2_1");
 	auto i3_1 = imap.at("i3_1");
 	auto i4_1 = imap.at("i4_1");

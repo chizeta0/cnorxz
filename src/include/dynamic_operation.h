@@ -108,9 +108,6 @@ namespace MultiArrayTools
         virtual std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>> deepCopy() const override final;
     };
 
-    template <class Operation, class... Indices>
-    DynamicOuterOp<typename Operation::value_type,Operation,typename Indices::RangeType...>
-    mkDynOutOp(const Operation& op, const std::shared_ptr<Indices>&... inds);
     
     template <typename T>
     class DynamicO : public OperationTemplate<T,DynamicO<T>>
@@ -145,7 +142,24 @@ namespace MultiArrayTools
 	inline DynamicExpression loop(const DynamicExpression& exp) const { return mOp->loop(exp); }
 	inline const T* data() const { return mOp->data(); }
     };
-    
+
+    template <class Operation, class... Indices>
+    auto mkDynOutOp(const Operation& op, const std::shared_ptr<Indices>&... inds)
+    {
+	return DynamicO<OpH<OperationRoot<typename Operation::value_type,
+					  typename Indices::RangeType...>>>
+	    (DynamicOuterOp<typename Operation::value_type,Operation,
+	     typename Indices::RangeType...>(op, inds...));
+    }
+
+    // Build plan
+    /*
+    template <class Operation>
+    class OperationBuilder
+    {
+
+    };
+    */
 } // namespace MultiArrayTools
 
 #endif

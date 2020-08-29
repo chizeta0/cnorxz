@@ -135,7 +135,6 @@ namespace MultiArrayTools
     OpH<OperationRoot<T,Ranges...>> DynamicOuterOp<T,Operation,Ranges...>::get(const DExtT& pos) const
     {
         mL(0,pos.expl<ET>());
-        // execute assignment... care about threads!!!
         return mProto; // empty
     }
     
@@ -170,14 +169,6 @@ namespace MultiArrayTools
     DynamicOuterOp<T,Operation,Ranges...>::deepCopy() const
     {
         return std::make_shared<DynamicOuterOp<T,Operation,Ranges...>>(*this);
-    }
-
-    template <class Operation, class... Indices>
-    DynamicOuterOp<typename Operation::value_type,Operation,typename Indices::RangeType...>
-    mkDynOutOp(const Operation& op, const std::shared_ptr<Indices>&... inds)
-    {
-	return DynamicOuterOp<typename Operation::value_type,Operation,
-			      typename Indices::RangeType...>(op, inds...);
     }
 
 } // namespace MultiArrayTools
