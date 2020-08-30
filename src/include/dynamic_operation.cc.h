@@ -131,10 +131,24 @@ namespace MultiArrayTools
              std::array<size_t,1>({1}), std::array<size_t,1>({0}))
     {}
 
+    /*
+    DynamicOuterOp(const std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<typename Operatrion::value_type,Ranges...>>>>& dyn,
+		   const Operation& op, const std::shared_ptr<Indices>&... inds	)
+	: mThreadId(omp_get_thread_num()),
+	  //mDyn(dyn),
+	  mOp(op), mIndices(inds...),
+	  mMa(std::make_shared<MultiArray<T,Ranges...>>(mkArray<T>(inds->range()...))),
+	  mProto(OperationRoot<T,Ranges...>(*mMa,inds...)),
+          mL(std::make_tuple(*mProto.mOp,mOp), std::make_tuple(inds...),
+             std::make_tuple(mMa), std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(inds...) )),
+             std::array<size_t,1>({1}), std::array<size_t,1>({0}))
+    {}
+    */
+    
     template <typename T, class Operation, class... Ranges>
     OpH<OperationRoot<T,Ranges...>> DynamicOuterOp<T,Operation,Ranges...>::get(const DExtT& pos) const
     {
-	if(mPrev) mPrev.get(pos.expl<ET>());
+	//if(mPrev) mPrev.get(pos.expl<ET>());
         mL(0,pos.expl<ET>());
         return mProto; // empty
     }
@@ -164,7 +178,7 @@ namespace MultiArrayTools
     {
         return &mProto;
     }
-
+    /*
     template <class Op1, class Op2>
     template <class ET>
     inline T TwoOp<Op1,Op2>::get(const ET& pos) const
@@ -173,7 +187,7 @@ namespace MultiArrayTools
 	
     }
 
-    
+    */
     template <typename T, class Operation, class... Ranges>
     std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>>
     DynamicOuterOp<T,Operation,Ranges...>::deepCopy() const

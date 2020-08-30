@@ -72,12 +72,12 @@ namespace MultiArrayTools
     {
     private:
 	size_t mThreadId;
+	//std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>> mDyn;
 	Operation mOp;
         //OperationRoot<T,Ranges...> mProto;
 	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> mIndices;
 	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
-	std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>> mPrev;
 
 	
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
@@ -100,7 +100,10 @@ namespace MultiArrayTools
 	DynamicOuterOp& operator=(DynamicOuterOp&& in);
 
 	DynamicOuterOp(const Operation& op, const std::shared_ptr<typename Ranges::IndexType>&... inds);
-	
+	/*
+	DynamicOuterOp(const std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<typename Operatrion::value_type,Ranges...>>>>& dyn,
+		       const Operation& op, const std::shared_ptr<Indices>&... inds	);
+	*/
 	virtual OpH<OperationRoot<T,Ranges...>> get(const DExtT& pos) const override final;
 	virtual DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>& set(const DExtT& pos) override final;
 	virtual DExtT rootSteps(std::intptr_t iPtrNum = 0) const override final;
@@ -143,7 +146,7 @@ namespace MultiArrayTools
 	inline DynamicExpression loop(const DynamicExpression& exp) const { return mOp->loop(exp); }
 	inline const T* data() const { return mOp->data(); }
     };
-
+    /*
     template <class Op1>
     class TwoOp : public OperationTemplate<typename Op2::value_type,TwoOp<Op1>>
     {
@@ -162,7 +165,7 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T get(const ET& pos) const;
     };
-    
+    */
     template <class Operation, class... Indices>
     auto mkDynOutOp(const Operation& op, const std::shared_ptr<Indices>&... inds)
     {
@@ -171,7 +174,17 @@ namespace MultiArrayTools
 	    (DynamicOuterOp<typename Operation::value_type,Operation,
 	     typename Indices::RangeType...>(op, inds...));
     }
-
+    /*
+    template <class Operation, class... Indices>
+    auto mkDynOutOp(const std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<typename Operatrion::value_type,Ranges...>>>>& dyn,
+		    const Operation& op, const std::shared_ptr<Indices>&... inds)
+    {
+	return DynamicO<OpH<OperationRoot<typename Operation::value_type,
+					  typename Indices::RangeType...>>>
+	    (DynamicOuterOp<typename Operation::value_type,Operation,
+	     typename Indices::RangeType...>(dyn, op, inds...));
+    }
+    */
     // Build plan
     /*
     template <class Operation>

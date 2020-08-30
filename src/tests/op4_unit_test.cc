@@ -71,9 +71,11 @@ namespace
 	    cr1 = createRangeE<CR>(5);
 	    
 	    auto cr2 = createRangeE<CR>(7);
+	    //auto cr2 = createRangeE<CR>(2);
 	    auto cr3 = createRangeE<CR>(11);
 	    auto cr4 = createRangeE<CR>(3);
 	    auto cr5 = createRangeE<CR>(13);
+	    //auto cr5 = createRangeE<CR>(1);
 
 	    dr1 = createRangeE<DR>(cr2,cr2,cr3,cr4);
 	    //dr1a = createRangeE<DR>(cr2,cr2,cr3);
@@ -81,7 +83,7 @@ namespace
 	    dr3 = createRangeE<DR>(cr2,cr5);
 	    dr5 = createRangeE<DR>(cr5);
 	    dr6 = createRangeE<DR>(cr3,cr4);
-	    dr6a = createRangeE<DR>(cr3);
+	    dr6a = createRangeE<DR>(cr3,cr2,cr5);
 
 	    dr4 = createRangeE<DR>(cr2,cr3,cr4,cr4);
 	    dr4a = createRangeE<DR>(cr2,cr3);
@@ -200,7 +202,7 @@ namespace
 	(*di3)({imap["i2_1"],imap["i5_1"]});
 	(*di5)({imap["i5_1"]});
 	(*di6)({imap["i3_1"],imap["i4_1"]});
-	(*di6a)({imap["i3_1"]});
+	(*di6a)({imap["i3_1"],imap["i2_1"],imap["i5_1"]});
 
 	auto resx1 = res2;
 	auto resx2 = res2;
@@ -211,15 +213,28 @@ namespace
         resx2(i1,di6) += mkDynOp((ma1(i1,di1) * ma5(di5)).c(di3));
 	resx3(i1,di6) += mkDynOp((mkDynOp(ma1(i1,di1)) * mkDynOp(ma5(di5))).c(di3));
 
+	auto xx = std::make_shared<decltype(resx4)>(resx4);
+	auto mi = mkMIndex(i1,di6a);
 
 	auto op1 = ma1(i1,di1);
 	auto op2 = ma5(di5);
-	auto dop1 = mkDynOutOp(op1 * op2, ci4_1);
-	auto op3 = *dop1.data()->mOp;
-	auto dop2 = mkDynOutOp( dop1.c(di3), op3.c(di3), ci4_1 );
 	auto opr = resx4(i1,di6);
 
-        //resx2(i1,di6) += mkDynOp((ma1(i1,di1) * ma5(di5)).c(di3));
+	
+	auto loop = mkPILoop
+	    ( [&opr,&op1,&op2,&xx,&di3,this](){
+		auto dop1 = mkDynOutOp(op1 * op2, ci4_1);
+		auto op3 = *dop1.data()->mOp;
+		auto dop2 = mkDynOutOp( op3, ci4_1 );
+		return mkGetExpr
+		    (dop1,mkGetExpr
+		     (dop2,mkILoop
+		      (std::make_tuple(opr,*dop2.data()->mOp), std::make_tuple(ci4_1),
+		       std::make_tuple(xx),
+		       std::make_tuple(opr.plus( *dop2.data()->mOp, mkMIndex(ci4_1) )),
+		       std::array<size_t,1>({1}), std::array<size_t,1>({0})))); } );
+
+        mi->pifor(1,loop)();
 	
 	auto i2_1 = imap.at("i2_1");
 	auto i3_1 = imap.at("i3_1");
@@ -238,16 +253,18 @@ namespace
                             vv += ma1.vdata()[j1] * ma5.vdata()[j2];
                         }
                     }
-                    
+		    
                     auto resv = xround(res2.vdata()[jr]);
                     auto resx1v = xround(resx1.vdata()[jr]);
                     auto resx2v = xround(resx2.vdata()[jr]);
                     auto resx3v = xround(resx3.vdata()[jr]);
+                    auto resx4v = xround(resx4.vdata()[jr]);
                     auto x12 = xround(vv);
                     EXPECT_EQ( resv, x12 );
                     EXPECT_EQ( resx1v, x12 );
                     EXPECT_EQ( resx2v, x12 );
                     EXPECT_EQ( resx3v, x12 );
+                    EXPECT_EQ( resx4v, x12 );
 		}
 	    }
 	    //std::cout << std::endl;
