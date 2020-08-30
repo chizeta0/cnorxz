@@ -64,6 +64,7 @@ namespace MultiArrayTools
         std::shared_ptr<Op> mOp;
 	OpH(const Op& op) : mOp(std::make_shared<Op>(op)) {}
 
+	// overload all operations here ...
     };
     
     template <typename T, class Operation, class... Ranges>
@@ -76,7 +77,7 @@ namespace MultiArrayTools
 	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> mIndices;
 	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
-
+	std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>> mPrev;
 
 	
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
@@ -143,6 +144,25 @@ namespace MultiArrayTools
 	inline const T* data() const { return mOp->data(); }
     };
 
+    template <class Op1>
+    class TwoOp : public OperationTemplate<typename Op2::value_type,TwoOp<Op1>>
+    {
+    private:
+
+	Op1 mOp1;
+	typename Op1::value_type mOp2; // mOp1.data()->mOp
+
+    public:
+
+	typedef typename Op2::value_type value_type;
+	typedef value_type T;
+	
+	TwoOp(const Op1& op1);
+
+	template <class ET>
+	inline T get(const ET& pos) const;
+    };
+    
     template <class Operation, class... Indices>
     auto mkDynOutOp(const Operation& op, const std::shared_ptr<Indices>&... inds)
     {

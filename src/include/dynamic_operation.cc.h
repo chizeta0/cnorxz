@@ -134,6 +134,7 @@ namespace MultiArrayTools
     template <typename T, class Operation, class... Ranges>
     OpH<OperationRoot<T,Ranges...>> DynamicOuterOp<T,Operation,Ranges...>::get(const DExtT& pos) const
     {
+	if(mPrev) mPrev.get(pos.expl<ET>());
         mL(0,pos.expl<ET>());
         return mProto; // empty
     }
@@ -163,6 +164,15 @@ namespace MultiArrayTools
     {
         return &mProto;
     }
+
+    template <class Op1, class Op2>
+    template <class ET>
+    inline T TwoOp<Op1,Op2>::get(const ET& pos) const
+    {
+	return mOp2.get(pos);
+	
+    }
+
     
     template <typename T, class Operation, class... Ranges>
     std::shared_ptr<DynamicOperationBase<OpH<OperationRoot<T,Ranges...>>>>

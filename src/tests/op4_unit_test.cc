@@ -194,26 +194,31 @@ namespace
 	auto di3 = getIndex(dr3);
 	auto di5 = getIndex(dr5);
 	auto di6 = getIndex(dr6);
-	//auto di6a = getIndex(dr6a);
+	auto di6a = getIndex(dr6a);
 
 	(*di1)({imap["i2_1"],imap["i2_1"],imap["i3_1"],imap["i4_1"]});
 	(*di3)({imap["i2_1"],imap["i5_1"]});
 	(*di5)({imap["i5_1"]});
 	(*di6)({imap["i3_1"],imap["i4_1"]});
-	//(*di6a)({imap["i3_1"]});
+	(*di6a)({imap["i3_1"]});
 
 	auto resx1 = res2;
 	auto resx2 = res2;
 	auto resx3 = res2;
-	//auto resx4 = res2;
+	auto resx4 = res2;
         res2(i1,di6) += (ma1(i1,di1) * ma5(di5)).c(di3);
 	resx1(i1,di6) += (mkDynOp(ma1(i1,di1)) * mkDynOp(ma5(di5))).c(di3);
         resx2(i1,di6) += mkDynOp((ma1(i1,di1) * ma5(di5)).c(di3));
 	resx3(i1,di6) += mkDynOp((mkDynOp(ma1(i1,di1)) * mkDynOp(ma5(di5))).c(di3));
 
 
-	//auto op1 = mkDynOutOp(ma1(i1,di1) * ma5(di5), ci4_1);
-	
+	auto op1 = ma1(i1,di1);
+	auto op2 = ma5(di5);
+	auto dop1 = mkDynOutOp(op1 * op2, ci4_1);
+	auto op3 = *dop1.data()->mOp;
+	auto dop2 = mkDynOutOp( dop1.c(di3), op3.c(di3), ci4_1 );
+	auto opr = resx4(i1,di6);
+
         //resx2(i1,di6) += mkDynOp((ma1(i1,di1) * ma5(di5)).c(di3));
 	
 	auto i2_1 = imap.at("i2_1");
