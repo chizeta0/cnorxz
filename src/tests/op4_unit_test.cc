@@ -65,6 +65,8 @@ namespace
 
 	std::shared_ptr<CR::IndexType> ci4_1;
 	std::shared_ptr<CR::IndexType> ci4_2;
+
+	typedef CR::IndexType CI;
 	
 	OpTest_Dyn()
 	{
@@ -224,15 +226,12 @@ namespace
 	auto loop = mkPILoop
 	    ( [&opr,&op1,&op2,&xx,&di3,this](){
 		auto dop1 = mkDynOutOp(op1 * op2, ci4_1);
-		auto op3 = *dop1.data()->mOp;
-		auto dop2 = mkDynOutOp( op3, ci4_1 );
 		return mkGetExpr
-		    (dop1,mkGetExpr
-		     (dop2,mkILoop
-		      (std::make_tuple(opr,*dop2.data()->mOp), std::make_tuple(ci4_1),
-		       std::make_tuple(xx),
-		       std::make_tuple(opr.plus( *dop2.data()->mOp, mkMIndex(ci4_1) )),
-		       std::array<size_t,1>({1}), std::array<size_t,1>({0})))); } );
+		    (dop1,mkILoop
+		     (std::make_tuple(opr,*dop1.data()->mOp), std::make_tuple(ci4_1),
+		      std::make_tuple(xx),
+		      std::make_tuple(opr.plus( *dop1.data()->mOp, mkMIndex(ci4_1) )),
+		      std::array<size_t,1>({1}), std::array<size_t,1>({0}))); } );
 
         mi->pifor(1,loop)();
 	
@@ -272,27 +271,54 @@ namespace
 
     }
 
+    typedef vector<std::string> svec;
+    
     TEST_F(OpTest_Dyn, Functional)
     {
 	auto i1 = getIndex(cr1);
 	auto di1 = getIndex(dr1);
 	auto di2 = getIndex(dr2);
 	auto di4 = getIndex(dr4);
-
+	auto di4a = getIndex(dr4a);
+	
 	//(*di1)({imap["i2_1"],imap["i2_2"],imap["i3_1"],imap["i4_1"]});
 	//(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
 	//(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
         (*di1)({"ia_1","ia_2","ib_1","ic_1"});
 	(*di2)({"ib_1","ib_1","ic_2"});
 	(*di4)({"ia_1","ib_1","ic_1","ic_2"});
-
+	(*di4a)(svec({"ia_1","ib_1"}));
+	auto ic_1 = DynamicIndex::getIndexFromMap<CI>("ic_1");
+	auto ic_2 = DynamicIndex::getIndexFromMap<CI>("ic_2");
+	
 	auto resx1 = res1;
 	auto resx2 = res1;
 	auto resx3 = res1;
+	auto resx4 = res1;
 	res1(i1,di4) = ma1(i1,di1) * exp(ma2(i1,di2));
 	resx1(i1,di4) = mkDynOp(ma1(i1,di1)) * exp(mkDynOp(ma2(i1,di2)));
         resx2(i1,di4) = mkDynOp(ma1(i1,di1) * exp(ma2(i1,di2)));
 	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(exp(mkDynOp(ma2(i1,di2)))));
+	
+	auto xx = std::make_shared<decltype(resx4)>(resx4);
+	auto mi = mkMIndex(i1,di4a);
+	
+	auto op1 = ma2(i1,di2);
+	auto op3 = ma1(i1,di1);
+	auto opr = resx4(i1,di4);
+	auto loop = mkPILoop
+	    ( [&op1,&op3,&opr,&xx,&ic_1,&ic_2,this](){
+		auto dop1 = mkDynOutOp(exp(op1), ic_1, ic_2);
+		auto op2 = *dop1.data()->mOp;
+		auto dop2 = mkDynOutOp(op3 * op2, ic_1, ic_2);
+		return mkGetExpr
+		    (dop1,mkGetExpr
+		     (dop2,mkILoop(std::make_tuple(*dop2.data()->mOp), std::make_tuple(ic_1, ic_2),
+				   std::make_tuple(xx),
+				   std::make_tuple(opr.assign( *dop2.data()->mOp, mkMIndex(ic_1, ic_2) )),
+				   std::array<size_t,1>({1}), std::array<size_t,1>({0})))); } );
+	
+        mi->pifor(1,loop)();
         
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");
@@ -313,11 +339,13 @@ namespace
 			    auto resx1v = xround(resx1.vdata()[jr]);
 			    auto resx2v = xround(resx2.vdata()[jr]);
 			    auto resx3v = xround(resx3.vdata()[jr]);
+			    auto resx4v = xround(resx4.vdata()[jr]);
 	 		    auto x12 = xround(ma1.vdata()[j1]*exp(ma2.vdata()[j2]));
 			    EXPECT_EQ( resv, x12 );
 			    EXPECT_EQ( resx1v, x12 );
 			    EXPECT_EQ( resx2v, x12 );
 			    EXPECT_EQ( resx3v, x12 );
+			    EXPECT_EQ( resx4v, x12 );
 			}
 		    }
 		}

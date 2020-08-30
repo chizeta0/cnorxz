@@ -134,6 +134,8 @@ namespace MultiArrayTools
         virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const override final;
 
         virtual std::shared_ptr<IndexWrapperBase> duplicate() const override final;
+
+	std::shared_ptr<Index> getIndex() const { return mI; }
 	
     };
     /*

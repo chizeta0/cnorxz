@@ -46,6 +46,15 @@ namespace MultiArrayTools
         DynamicIndex(const std::shared_ptr<RangeType>& range);
 
 	static void clearIMap() { sIMap.clear(); }
+
+	template <class Index>
+	static std::shared_ptr<Index> getIndexFromMap(const std::string& name)
+	{
+	    auto tmp = std::dynamic_pointer_cast<IndexWrapper<Index>>(sIMap.at(name));
+	    assert(tmp);
+	    return tmp->getIndex();
+	}
+	
         static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t totalDim() { return 1; }
 	static constexpr size_t sDim() { return 1; }
