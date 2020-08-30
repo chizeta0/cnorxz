@@ -457,7 +457,8 @@ namespace MultiArrayHelper
 	std::shared_ptr<ExpressionBase> mNext;
 
     public:
-	
+
+	typedef DExtT ExtType;
 	static constexpr size_t LAYER = 0;
 	static constexpr size_t SIZE = 0;
 

@@ -13,6 +13,7 @@
 #include "map_range.h"
 #include "dynamic_operation.h"
 //#include "expressions.h"
+#include "high_level_operation.h"
 
 #include "multi_array_header.cc.h"
 
