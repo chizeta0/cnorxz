@@ -451,11 +451,11 @@ namespace MultiArrayHelper
     class DynamicExpression : public ExpressionBase
     {
     private:
-	DynamicExpression() : mThreadId(omp_get_thread_num()) {}
 
-	size_t mThreadId;
+	size_t mThreadId = 0;
 	std::shared_ptr<ExpressionBase> mNext;
 
+	DynamicExpression() : mThreadId(omp_get_thread_num()) {}
     public:
 	
 	static constexpr size_t LAYER = 0;
