@@ -306,29 +306,18 @@ namespace
 	auto op1 = ma2(i1,di2);
 	auto op3 = ma1(i1,di1);
 	auto opr = resx4(i1,di4);
-	typedef decltype(mkDynOutOp(exp(op1), ic_1, ic_2)) DOp;
 	auto loop = mkPILoop
 	    ( [&op1,&op3,&opr,&xx,&ic_1,&ic_2,this](){
-		//auto dop1 = mkDynOutOp(exp(op1), ic_1, ic_2);
-		//auto op2 = *dop1.data()->mOp;
-		//auto dop2 = mkDynOutOp(op3 * op2, ic_1, ic_2);
-		auto dop2 = (*mkHLOBuilderRoot<DOp>( op3, ic_1, ic_2 )) * mkHLOBuilder<DOp>([&op1,this]() { return exp(op1); }, ic_1, ic_2);
-		dop2->create(ic_1,ic_2);
-		const OperationRoot<double,CI::RangeType,CI::RangeType>& yy = *dop2->get();
-		return dop2->mkGetExpr
-		    (mkILoop(std::make_tuple(dop2->dget()), std::make_tuple(ic_1, ic_2),
-			     std::make_tuple(xx),
-			     std::make_tuple(opr.assign( yy , mkMIndex(ic_1, ic_2) )),
-			     std::array<size_t,1>({1}), std::array<size_t,1>({0})));
-		/*
+		auto dop1 = mkDynOutOp(exp(op1), ic_1, ic_2);
+		auto op2 = *dop1.data()->mOp;
+		auto dop2 = mkDynOutOp(op3 * op2, ic_1, ic_2);
 		return mkGetExpr
 		    (dop1,mkGetExpr
 		     (dop2,mkILoop(std::make_tuple(*dop2.data()->mOp), std::make_tuple(ic_1, ic_2),
 				   std::make_tuple(xx),
 				   std::make_tuple(opr.assign( *dop2.data()->mOp, mkMIndex(ic_1, ic_2) )),
-				   std::array<size_t,1>({1}), std::array<size_t,1>({0}))));
-		*/
-	    } );
+				   std::array<size_t,1>({1}), std::array<size_t,1>({0})))); } );
+	
         mi->pifor(1,loop)();
         
 	auto i2_1 = imap.at("i2_1");
