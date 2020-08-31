@@ -1,6 +1,5 @@
 
-#include "test_header.h"
-#include <ctime>
+#include "op4_unit_test.h"
 
 namespace
 {
