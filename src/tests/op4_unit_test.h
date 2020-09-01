@@ -50,36 +50,80 @@ public:
 };
 
 
-template <class... Indices>
-class XHighLevelOpBase
-{
-public:
-    
-    virtual DynamicO<OpH<OperationRoot<double,typename Indices::RangeType>>>
-    create(const std::shared_ptr<Indices>&... inds) = 0;
-};
 
-class HighLevelOp
+class HighLevelOpBase
 {
-private:
-    std::shared_ptr<OpHolderBase> mOp;
+protected:
+    std::shared_ptr<HighLevelOpBase> mPrev
     
 public:
-
     
-};
+    typedef OperationRoot<double,CR,CR> OpCC;
+    typedef OperationRoot<double,CR,DR> OpCD;
+    typedef OperationRoot<double,DR> OpD;
 
+    virtual bool root() const = 0;
+    
+    virtual DynamicO<OpH<OpRR>>
+    create(const std::shared_ptr<CI> ind1,
+           const std::shared_ptr<CI> ind2) = 0;
 
-template <class Op, class... Indices>
-class XHighLevelOp : public XHighLevelOpBase
-{
-private:
-    Op mOp;
-public:
-    virtual DynamicO<OpH<OperationRoot<double,typename Indices::RangeType>>>
-    create(const std::shared_ptr<Indices>&... inds) override final
+    virtual OperationRoot<double,DR> get1() = 0;
+    virtual OperationRoot<double,CR,DR> get2() = 0;
+
+    void appendPrev(const std::shared_ptr<HighLevelOpBase>& in)
     {
-        return mkDynOutOp(mOp, inds...);
+        if(mPrev){
+            mPrev->appendPrev(in)
+        }
+        else {
+            mPrev = in;
+        }
+    }
+};
+
+class HighLevelOpRoot : public HighLevelOpBase
+{
+    
+}
+
+template <class OpF>
+class HighLevelOp2 : public HighLevelOpBase
+{
+private:
+    std::shared_ptr<HighLevelOpBase> mIn1;
+    std::shared_ptr<HighLevelOpBase> mIn2;
+
+public:
+    typedef HighLevelOpBase B;
+    typedef Operation<double,OpF,B::OpCC,B::OpCC> OxCCxCC;
+    typedef Operation<double,OpF,B::OpCD,B::OpCD> OxCDxCD;
+
+    virtual bool root() const override final
+    {
+        return false;
     }
     
+    virtual DynamicO<OpH<OperationRoot<double,CR,CR>>>
+    create(const std::shared_ptr<CI> ind1,
+           const std::shared_ptr<CI> ind2) override final
+    {
+        if(not mIn1->root()){
+            DynamicO<OpH<OperationRoot<double,CR,CR>>> dop1 = mIn1->create(ind1,ind2);
+            op1 = *dop1.data()->mOp;
+            if(not mIn2->root()){
+                DynamicO<OpH<OperationRoot<double,CR,CR>>> dop2 = mIn2->create(ind1,ind2);
+                op2 = *dop2.data()->mOp;
+                return mkDynOutOp(OxRRRR(op1,op2), ind1, ind2);
+            }
+            else {
+                OperationRoot<double,DR,CR>& op2 = mIn2->get2(ind1,ind2);
+                return mkDynOutOp(OxRRRR(op1,op2), ind1, ind2);
+            }
+        }
+        return DynamicO<OpH<OperationRoot<double,CR,CR>>>();
+    }
+
 };
+
+
