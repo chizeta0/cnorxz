@@ -374,5 +374,11 @@ namespace MultiArrayTools
         return MultiArray<T,Ranges...>(rs..., val);
     }
 
+    template <typename T, class... Ranges>
+    auto mkArrayPtr(const std::shared_ptr<Ranges>&... rs)
+        -> std::shared_ptr<MultiArray<T,Ranges...>>
+    {
+	return std::make_shared<MultiArray<T,Ranges...>>(rs...);
+    }
 
 }

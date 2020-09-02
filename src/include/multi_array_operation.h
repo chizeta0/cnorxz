@@ -98,6 +98,98 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
+    template <class Op>
+    size_t sumRootNum()
+    {
+	return typename Op::rootNum();
+    }
+    
+    template <class Op1, class Op2, class... Ops>
+    size_t sumRootNum()
+    {
+	return typename Op1::rootNum() + sumRootNum<Op2,Ops...>();
+    }
+
+    template <size_t N>
+    struct RootSumN
+    {
+	template <class Op1, class... Ops>
+	struct rs
+	{
+	    static constexpr size_t SIZE = Op1::SIZE + RootSumN<N-1>::template rs<Ops...>::SIZE;
+	};
+
+	template <class... Exprs>
+	static inline auto rootSteps(const std::tuple<Exprs...>& etp, std::intptr_t i)
+	{
+	    return RootSumN<N-1>::rootSteps(etp,i).extend( std::get<N>(etp).rootSteps(i) );
+	}
+
+	template <class ExtType, class... Exprs>
+	static inline void exec( size_t start, ExtType last, std::tuple<Exprs...>& etp)
+	{
+	    std::get<sizeof...(Exprs)-N-1>(etp)(start,last);
+	    RootSumN<N-1>::exec(start,last.next(),etp);
+	}
+
+	template <class ExtType, class... Exprs>
+	static inline size_t get( ExtType last, const std::tuple<Exprs...>& etp)
+	{
+	    std::get<sizeof...(Exprs)-N-1>(etp).get(last);
+	    return RootSumN<N-1>::get(last.next(),etp);
+	}
+
+	template <class ExtType, class... Exprs>
+	static inline void set( ExtType last, std::tuple<Exprs...>& etp)
+	{
+	    std::get<sizeof...(Exprs)-N-1>(etp).set(last);
+	    RootSumN<N-1>::set(last.next(),etp);
+	}
+    };
+
+    template <>
+    struct RootSumN<0>
+    {
+	template <class Op1>
+	struct rs
+	{
+	    static constexpr size_t SIZE = Op1::SIZE;
+	};
+
+	template <class... Exprs>
+	static inline auto rootSteps(const std::tuple<Exprs...>& etp, std::intptr_t i)
+	{
+	    return std::get<0>(etp).rootSteps(i);
+	}
+
+	template <class ExtType, class... Exprs>
+	static inline void exec( size_t start, ExtType last, std::tuple<Exprs...>& etp)
+	{
+	    std::get<sizeof...(Exprs)-1>(etp)(start,last);
+	}
+
+	template <class ExtType, class... Exprs>
+	static inline size_t get( ExtType last, const std::tuple<Exprs...>& etp)
+	{
+	    std::get<sizeof...(Exprs)-1>(etp).get(last);
+	    return 0;
+	}
+
+	template <class ExtType, class... Exprs>
+	static inline void set( ExtType last, std::tuple<Exprs...>& etp)
+	{
+	    std::get<sizeof...(Exprs)-1>(etp).set(last);
+	}
+    };
+
+    
+    template <class... Ops>
+    struct RootSum
+    {
+	static constexpr size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
+    };
+
+    
     template <typename T>
     struct SelfIdentity
     {
@@ -149,6 +241,38 @@ namespace MultiArrayTools
         inline DExt dExtension() const override final;
     };
 
+    template <typename T, class... Ops>
+    class MOp
+    {
+    private:
+	MOp() = default;
+	std::tuple<Ops...> mOps;
+
+    public:
+        static constexpr size_t LAYER = 0;
+        static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
+        typedef decltype(RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,0) ) ExtType;
+
+	MOp(const Ops&... exprs);
+	
+	MOp(const MOp& in) = default;
+	MOp(MOp&& in) = default;
+	MOp& operator=(const MOp& in) = default;
+	MOp& operator=(MOp&& in) = default;
+
+        inline size_t get(ExtType last) const;
+	inline MOp& set(ExtType last);
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+
+	template <class Expr>
+	auto loop(Expr exp) const
+	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp));
+
+	T* data() const { assert(0); return nullptr; }
+
+    };
+
+    
     template <class OpClass, class NextExpr>
     class GetExpr : public ExpressionBase
     {
@@ -176,6 +300,7 @@ namespace MultiArrayTools
 	}
 
         inline void operator()(size_t start = 0);
+        inline void get(ExtType last);
         inline void operator()(size_t start, ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
@@ -190,7 +315,13 @@ namespace MultiArrayTools
     {
         return GetExpr<OpClass,NextExpr>(op, nexpr);
     }
-    
+
+    template <typename T, class... Ops>
+    auto mkMOp(const Ops&... exprs)
+    {
+        return MOp<T,Ops...>(exprs...);
+    }
+
     //template <typename T, class OpClass>
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AddExpr : public ExpressionBase
@@ -513,44 +644,6 @@ namespace MultiArrayTools
 	T mVal;
     };
     
-    template <class Op>
-    size_t sumRootNum()
-    {
-	return typename Op::rootNum();
-    }
-    
-    template <class Op1, class Op2, class... Ops>
-    size_t sumRootNum()
-    {
-	return typename Op1::rootNum() + sumRootNum<Op2,Ops...>();
-    }
-
-    template <size_t N>
-    struct RootSumN
-    {
-	template <class Op1, class... Ops>
-	struct rs
-	{
-	    static constexpr size_t SIZE = Op1::SIZE + RootSumN<N-1>::template rs<Ops...>::SIZE;
-	};
-    };
-
-    template <>
-    struct RootSumN<0>
-    {
-	template <class Op1>
-	struct rs
-	{
-	    static constexpr size_t SIZE = Op1::SIZE;
-	};
-    };
-
-    
-    template <class... Ops>
-    struct RootSum
-    {
-	static constexpr size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
-    };
 
     
     template <typename T, class OpFunction, class... Ops>

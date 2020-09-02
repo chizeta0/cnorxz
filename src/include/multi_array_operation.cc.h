@@ -211,6 +211,39 @@ namespace MultiArrayTools
         return nullptr; //???!!!
     }
 
+    template <typename T, class... Ops>
+    MOp<T,Ops...>::MOp(const Ops&... exprs) : mOps(exprs...)
+    {
+	static_assert(SIZE == sizeof...(Ops), "size missmatch");
+    }
+
+    template <typename T, class... Ops>
+    inline size_t MOp<T,Ops...>::get(ExtType last) const
+    {
+	return RootSumN<sizeof...(Ops)-1>::get(last,mOps);
+    }
+    
+    template <typename T, class... Ops>
+    inline MOp<T,Ops...>& MOp<T,Ops...>::set(ExtType last)
+    {
+	RootSumN<sizeof...(Ops)-1>::set(last,mOps);
+	return *this;
+    }
+    
+    template <typename T, class... Ops>
+    template <class Expr>
+    auto MOp<T,Ops...>::loop(Expr exp) const
+	-> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp))
+    {
+	return PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp);
+    }
+
+    template <typename T, class... Ops>
+    auto MOp<T,Ops...>::rootSteps(std::intptr_t iPtrNum) const -> ExtType
+    {
+	return RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,iPtrNum);
+    }
+
     template <class OpClass, class NextExpr>
     GetExpr<OpClass,NextExpr>::GetExpr(const OpClass& sec, const NextExpr& nexpr) :
         mSec(sec), mNExpr(nexpr) {}
@@ -230,7 +263,13 @@ namespace MultiArrayTools
         mSec.get(last);
         mNExpr(start,last.next());
     }
-    
+
+    template <class OpClass, class NextExpr>
+    inline void GetExpr<OpClass,NextExpr>::get(ExtType last)
+    {
+	(*this)(0,last);
+    }
+
     template <class OpClass, class NextExpr>
     typename GetExpr<OpClass,NextExpr>::ExtType
     GetExpr<OpClass,NextExpr>::rootSteps(std::intptr_t iPtrNum) const

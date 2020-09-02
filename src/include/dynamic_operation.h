@@ -127,11 +127,15 @@ namespace MultiArrayTools
 	static constexpr bool CONT = true;
 	
 	DynamicO() = default;
-	DynamicO(const DynamicO& in) : mOp(in.mOp->deepCopy()) {}
-	DynamicO(DynamicO&& in) : mOp(in.mOp->deepCopy()) {}
-	DynamicO& operator=(const DynamicO& in) { mOp = in.mOp->deepCopy(); }
-	DynamicO& operator=(DynamicO&& in) { mOp = in.mOp->deepCopy(); }
+	DynamicO(const DynamicO& in) : mOp(in.mOp ? in.mOp->deepCopy() : nullptr) {}
+	DynamicO(DynamicO&& in) : mOp(in.mOp ? in.mOp->deepCopy() : nullptr) {}
+	DynamicO& operator=(const DynamicO& in)
+	{ mOp = in.mOp ? in.mOp->deepCopy() : nullptr; return *this; }
+	DynamicO& operator=(DynamicO&& in)
+	{ mOp = in.mOp ? in.mOp->deepCopy() : nullptr; return *this; }
 
+	bool init() const { return mOp != nullptr; }
+	
 	template <class Op>
 	DynamicO(const Op& op) : mOp(std::make_shared<DynamicOperation<T,Op>>(op)) {}
 
