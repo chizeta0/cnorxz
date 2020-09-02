@@ -280,10 +280,7 @@ namespace
 	auto di4 = getIndex(dr4);
 	auto di4a = getIndex(dr4a);
 	
-	//(*di1)({imap["i2_1"],imap["i2_2"],imap["i3_1"],imap["i4_1"]});
-	//(*di2)({imap["i3_1"],imap["i3_1"],imap["i4_2"]});
-	//(*di4)({imap["i2_1"],imap["i3_1"],imap["i4_1"],imap["i4_2"]});
-        (*di1)({"ia_1","ia_2","ib_1","ic_1"});
+	(*di1)({"ia_1","ia_2","ib_1","ic_1"});
 	(*di2)({"ib_1","ib_1","ic_2"});
 	(*di4)({"ia_1","ib_1","ic_1","ic_2"});
 	(*di4a)(svec({"ia_1","ib_1"}));
@@ -299,7 +296,6 @@ namespace
         resx2(i1,di4) = mkDynOp(ma1(i1,di1) * exp(ma2(i1,di2)));
 	resx3(i1,di4) = mkDynOp(mkDynOp(ma1(i1,di1)) * mkDynOp(exp(mkDynOp(ma2(i1,di2)))));
 	
-	//auto xx = std::make_shared<decltype(resx4)>(resx4);
 	auto xx = mkArrayPtr<double>(nullr());
 	auto mi = mkMIndex(i1,di4a);
 
@@ -307,20 +303,9 @@ namespace
 	auto hop3 = mkHLO(ma1(i1,di1));
 	auto hop2 = exp(hop1);
 	auto hop4 = hop3 * hop2;
-
-	auto opr = resx4(i1,di4);
-	auto loop = mkPILoop
-	    ( [&opr,&hop4,&xx,&ic_1,&ic_2,this](){
-		auto hop4x = hop4;
-		auto dop2 = hop4x.create(ic_1,ic_2);
-		auto gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop2.outer,dop2.op));
-		auto xloop = mkILoop(std::make_tuple(*dop2.op.data()->mOp), std::make_tuple(ic_1, ic_2),
-				     std::make_tuple(xx),
-				     std::make_tuple(opr.assign( *dop2.op.data()->mOp, mkMIndex(ic_1, ic_2) )),
-				     std::array<size_t,1>({1}), std::array<size_t,1>({0}));
-		return mkGetExpr(gexp, xloop); });
-        mi->pifor(1,loop)();
-        
+	auto hopr = mkHLO(resx4(i1,di4));
+	hopr.assign( hop4, mi, ic_1, ic_2 );
+	
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");
 	auto i3_1 = imap.at("i3_1");

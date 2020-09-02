@@ -13,6 +13,7 @@ DynamicO<T> mkDynOp1(const Op& op)
     return DynamicO<T>(op);
 }
 
+template <class ROP>
 class HighLevelOpBase
 {
 public:
@@ -66,65 +67,37 @@ public:
     virtual RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
 			       const std::shared_ptr<CI> ind2) = 0;
 
-    virtual const OperationRoot<double,DR>* get1() const = 0;
-    virtual const OperationRoot<double,CR,DR>* get2() const = 0;
+    //virtual const OperationRoot<double,CR,DR>* get2() const = 0;
+    virtual const ROP* get() const = 0;
 
 };
 
-template <bool SAME>
-struct Fwd
-{
-    template <class O1, class O2>
-    static inline const O1* fwd(const O2* in)
-    {
-	assert(0);
-	return nullptr;
-    }
-};
-
-template <>
-struct Fwd<true>
-{
-    template <class O1, class O2>
-    static inline const O1* fwd(const O2* in)
-    {
-	return in;
-    }
-};
-
-template <class OR>
-class HighLevelOpRoot : public HighLevelOpBase
+template <class ROP>
+class HighLevelOpRoot : public HighLevelOpBase<ROP>
 {
 private:
-    typedef OperationRoot<double,DR> OType1;
-    typedef OperationRoot<double,CR,DR> OType2;
-    typedef HighLevelOpBase B;
+    typedef HighLevelOpBase<ROP> B;
     
-    OR mOp;
+    ROP mOp;
 public:
 
-    HighLevelOpRoot(const OR& op) : mOp(op) {}
+    HighLevelOpRoot(const ROP& op) : mOp(op) {}
     
     virtual bool root() const override final
     {
 	return true;
     }
     
-    virtual B::RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
-				  const std::shared_ptr<CI> ind2) override final
+    virtual typename B::RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
+					   const std::shared_ptr<CI> ind2) override final
     {
 	assert(0);
-	return B::RetT<CI,CI>();
+	return typename B::RetT<CI,CI>();
     }
 
-    virtual const OType1* get1() const override final
+    virtual const ROP* get() const override final
     {
-	return Fwd<std::is_same<OType1,OR>::value>::template fwd<OType1>(&mOp);
-    }
-    
-    virtual const OType2* get2() const override final
-    {
-	return Fwd<std::is_same<OType2,OR>::value>::template fwd<OType2>(&mOp);
+	return &mOp;
     }
 
    
@@ -143,13 +116,13 @@ struct Create
     template <class... Indices>
     struct cx
     {
-	template <class OpF, class... OPs>
+	template <class ROP, class OpF, class... OPs>
 	struct ccx
 	{
 	    template <size_t M, class... DOPs>
 	    static inline void
-	    cccx(HighLevelOpBase::RetT<Indices...>& res,
-		 const std::array<std::shared_ptr<HighLevelOpBase>,M>& in,
+	    cccx(typename HighLevelOpBase<ROP>::RetT<Indices...>& res,
+		 const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
 		 const std::shared_ptr<Indices>&... inds,
 		 const OPs&... ops,
 		 const DOPs&... dops)
@@ -161,13 +134,13 @@ struct Create
 		    auto op = *dop.op.data()->mOp;
 		    typedef decltype(op) OP;
 		    res.appendOuter(dop);
-		    Create<N-1>::template cx<Indices...>::template ccx<OpF,OP,OPs...>::template cccx<M>
+		    Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
 			(res, in, inds..., op, ops..., dop, dops...);
 		}
 		else {
-		    auto& op = *inn->get2();
+		    auto& op = *inn->get();
 		    typedef typename std::remove_reference<decltype(op)>::type OP;
-		    Create<N-1>::template cx<Indices...>::template ccx<OpF,OP,OPs...>::template cccx<M>
+		    Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
 			(res, in, inds..., op, ops..., dops...);
 		}
 	    }
@@ -181,13 +154,13 @@ struct Create<0>
     template <class... Indices>
     struct cx
     {
-	template <class OpF, class... OPs>
+	template <class ROP, class OpF, class... OPs>
 	struct ccx
 	{
 	    template <size_t M, class... DOPs>
 	    static inline void
-	    cccx(HighLevelOpBase::RetT<Indices...>& res,
-		 const std::array<std::shared_ptr<HighLevelOpBase>,M>& in,
+	    cccx(typename HighLevelOpBase<ROP>::RetT<Indices...>& res,
+		 const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
 		 const std::shared_ptr<Indices>&... inds,
 		 const OPs&... ops,
 		 const DOPs&... dops)
@@ -201,7 +174,7 @@ struct Create<0>
 		    res.appendOuterM(dop.op,dops.op...);
 		}
 		else {
-		    auto& op = *inn->get2();
+		    auto& op = *inn->get();
 		    res.op = mkDynOutOp(mkFOp<OpF>(op,ops...), inds...);
 		    res.appendOuterM(dops.op...);
 		}
@@ -210,42 +183,41 @@ struct Create<0>
     };
 };
 
-template <class OpF, size_t N>
-class HighLevelOp : public HighLevelOpBase
+template <class ROP, class OpF, size_t N>
+class HighLevelOp : public HighLevelOpBase<ROP>
 {
 private:
-    std::array<std::shared_ptr<HighLevelOpBase>,N> mIn;
+    std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N> mIn;
     
 public:
-    typedef HighLevelOpBase B;
+    typedef HighLevelOpBase<ROP> B;
 
-    HighLevelOp(std::array<std::shared_ptr<HighLevelOpBase>,N> in) : mIn(in) {}
+    HighLevelOp(std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N> in) : mIn(in) {}
     
     virtual bool root() const override final
     {
         return false;
     }
     
-    virtual const OperationRoot<double,DR>* get1() const override final
-    { assert(0); return nullptr; }
-    virtual const OperationRoot<double,CR,DR>* get2() const override final
+    virtual const ROP* get() const override final
     { assert(0); return nullptr; }
     
-    virtual B::RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
+    virtual typename B::RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
 			   const std::shared_ptr<CI> ind2) override final
     {
-	B::RetT<CI,CI> res;
-	Create<N-1>::template cx<CI,CI>::template ccx<OpF>::template cccx<N>(res,mIn,ind1,ind2);
+	typename B::RetT<CI,CI> res;
+	Create<N-1>::template cx<CI,CI>::template ccx<ROP,OpF>::template cccx<N>(res,mIn,ind1,ind2);
         return res;
     }
 
 };
 
 
+template <class ROP>
 class HighLevelOpHolder
 {
 private:
-    std::shared_ptr<HighLevelOpBase> mOp;
+    std::shared_ptr<HighLevelOpBase<ROP>> mOp;
 
 public:
     HighLevelOpHolder() = default;
@@ -254,34 +226,104 @@ public:
     HighLevelOpHolder& operator=(const HighLevelOpHolder& in) = default;
     HighLevelOpHolder& operator=(HighLevelOpHolder&& in) = default;
     
-    HighLevelOpHolder(const std::shared_ptr<HighLevelOpBase>& op) : mOp(op) {}
+    HighLevelOpHolder(const std::shared_ptr<HighLevelOpBase<ROP>>& op) : mOp(op) {}
 
     bool root() const { return mOp->root(); }
     
     auto create(const std::shared_ptr<CI> ind1,
 		const std::shared_ptr<CI> ind2) const { return mOp->create(ind1,ind2); }
 
-    auto get1() const { return mOp->get1(); }
-    auto get2() const { return mOp->get2(); }
+    auto get() const { return mOp->get(); }
 
-    std::shared_ptr<HighLevelOpBase> op() const { return mOp; }
+    std::shared_ptr<HighLevelOpBase<ROP>> op() const { return mOp; }
     
-    HighLevelOpHolder operator*(const HighLevelOpHolder in) const
+    HighLevelOpHolder operator*(const HighLevelOpHolder& in) const
     {
-	return HighLevelOpHolder
-	    ( std::make_shared<HighLevelOp<multipliesx<double,double>,2>>
-	      ( std::array<std::shared_ptr<HighLevelOpBase>,2>({mOp, in.mOp}) ) );
+	return HighLevelOpHolder<ROP>
+	    ( std::make_shared<HighLevelOp<ROP,multipliesx<double,double>,2>>
+	      ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,2>({mOp, in.mOp}) ) );
+    }
+
+    HighLevelOpHolder operator+(const HighLevelOpHolder& in) const
+    {
+	return HighLevelOpHolder<ROP>
+	    ( std::make_shared<HighLevelOp<ROP,plusx<double,double>,2>>
+	      ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,2>({mOp, in.mOp}) ) );
+    }
+
+    HighLevelOpHolder operator-(const HighLevelOpHolder& in) const
+    {
+	return HighLevelOpHolder<ROP>
+	    ( std::make_shared<HighLevelOp<ROP,minusx<double,double>,2>>
+	      ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,2>({mOp, in.mOp}) ) );
+    }
+    
+    HighLevelOpHolder operator/(const HighLevelOpHolder& in) const
+    {
+	return HighLevelOpHolder<ROP>
+	    ( std::make_shared<HighLevelOp<ROP,dividesx<double,double>,2>>
+	      ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,2>({mOp, in.mOp}) ) );
+    }
+
+    template <class MIndex, class... Indices>
+    HighLevelOpHolder& assign(const HighLevelOpHolder& in,
+			      const std::shared_ptr<MIndex>& mi,
+			      const std::shared_ptr<Indices>&... inds)
+    {
+	auto xx = mkArrayPtr<double>(nullr());
+	auto& opr = *mOp->get();
+	auto loop = mkPILoop
+	    ( [&opr,&in,&xx,&inds...,this](){
+		auto inx = in;
+		auto dop = inx.create(inds...);
+		auto gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
+		auto xloop = mkILoop(std::make_tuple(*dop.op.data()->mOp),
+				     std::make_tuple(inds...),
+				     std::make_tuple(xx),
+				     std::make_tuple(opr.assign( *dop.op.data()->mOp,
+								 mkMIndex(inds...) )),
+				     std::array<size_t,1>({1}), std::array<size_t,1>({0}));
+		return mkGetExpr(gexp, xloop); });
+        mi->pifor(1,loop)();
+	return *this;
+    }
+
+    template <class MIndex, class... Indices>
+    HighLevelOpHolder& plus(const HighLevelOpHolder& in,
+			    const std::shared_ptr<MIndex>& mi,
+			    const std::shared_ptr<Indices>&... inds)
+    {
+	auto xx = mkArrayPtr<double>(nullr());
+	auto& opr = *mOp->get();
+	auto loop = mkPILoop
+	    ( [&opr,&in,&xx,&inds...,this](){
+		auto inx = in;
+		auto dop = inx.create(inds...);
+		auto gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
+		auto xloop = mkILoop(std::make_tuple(*dop.op.data()->mOp),
+				     std::make_tuple(inds...),
+				     std::make_tuple(xx),
+				     std::make_tuple(opr.plus( *dop.op.data()->mOp,
+							       mkMIndex(inds...) )),
+				     std::array<size_t,1>({1}), std::array<size_t,1>({0}));
+		return mkGetExpr(gexp, xloop); });
+        mi->pifor(1,loop)();
+	return *this;
     }
 };
 
-template <class OR>
-HighLevelOpHolder mkHLO(const OR& op)
+typedef OperationRoot<double,CR,DR> OpType1;
+
+template <class ROP>
+HighLevelOpHolder<ROP> mkHLO(const ROP& op)
 {
-    return HighLevelOpHolder(std::make_shared<HighLevelOpRoot<OR>>( op ) );
+    return HighLevelOpHolder<ROP>(std::make_shared<HighLevelOpRoot<ROP>>( op ) );
 }
 
-HighLevelOpHolder exp(const HighLevelOpHolder& in)
+template <class ROP>
+HighLevelOpHolder<ROP> exp(const HighLevelOpHolder<ROP>& in)
 {
-    return HighLevelOpHolder( std::make_shared<HighLevelOp<x_exp<double>,1>>
-			      ( std::array<std::shared_ptr<HighLevelOpBase>,1>( {in.op()} ) ) );
+    return HighLevelOpHolder<ROP>
+	( std::make_shared<HighLevelOp<ROP,x_exp<double>,1>>
+	  ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,1>( {in.op()} ) ) );
 }
