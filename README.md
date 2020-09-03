@@ -92,7 +92,7 @@ i5->at(<metaNum>);
 /* performs plus operation on each element in hypercube spanned by i1,i2,i4
 * and sums up resulting values by iterating over i4. i3 and i5 are fixed to the positions
 * given by the meta data above : */
-res1(i1,i2) = (ma_a(i1,i2,i4,i5) + ma_b(i4,i3)).c(i4); 
+res1(i1,i2) += (ma_a(i1,i2,i4,i5) + ma_b(i4,i3)).c(i4); 
 
 /* calculates i2.meta() + i1.meta() and divide res1 at the corresponding entry by the result */
 res2(i1,i2) = res1(i1,i2) / fma(i2,i1)
