@@ -61,10 +61,10 @@ namespace MultiArrayTools
     template <class ROP>
     auto HighLevelOpRoot<ROP>::create(const std::shared_ptr<CI> ind1,
                                       const std::shared_ptr<CI> ind2)
-        -> typename B::RetT<CI,CI>
+        -> typename B::template RetT<CI,CI>
     {
         assert(0);
-        return typename B::RetT<CI,CI>();
+        return typename B::template RetT<CI,CI>();
     }
 
     template <class ROP>
@@ -165,9 +165,9 @@ namespace MultiArrayTools
     template <class ROP, class OpF, size_t N>
     auto HighLevelOp<ROP,OpF,N>::create(const std::shared_ptr<CI> ind1,
                                                            const std::shared_ptr<CI> ind2)
-        -> typename B::RetT<CI,CI>
+        -> typename B::template RetT<CI,CI>
     {
-        typename B::RetT<CI,CI> res;
+        typename B::template RetT<CI,CI> res;
         Create<N-1>::template cx<CI,CI>::template ccx<ROP,OpF>::template cccx<N>(res,mIn,ind1,ind2);
         return res;
     }

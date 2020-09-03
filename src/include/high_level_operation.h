@@ -58,8 +58,9 @@ namespace MultiArrayTools
         
         virtual bool root() const override final;
     
-        virtual typename B::RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
-                                               const std::shared_ptr<CI> ind2) override final;
+        virtual typename B::template RetT<CI,CI>
+        create(const std::shared_ptr<CI> ind1,
+               const std::shared_ptr<CI> ind2) override final;
 
         virtual const ROP* get() const override final;
 
@@ -89,8 +90,9 @@ namespace MultiArrayTools
     
         virtual const ROP* get() const override final;
     
-        virtual typename B::RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
-                                               const std::shared_ptr<CI> ind2) override final;
+        virtual typename B::template RetT<CI,CI>
+        create(const std::shared_ptr<CI> ind1,
+               const std::shared_ptr<CI> ind2) override final;
 
     };
 
