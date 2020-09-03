@@ -86,7 +86,7 @@ namespace MultiArrayTools
                 {
                     template <size_t M, class... DOPs>
                     static inline void
-                    cccx(typename HighLevelOpBase<ROP>::RetT<Indices...>& res,
+                    cccx(typename HighLevelOpBase<ROP>::template RetT<Indices...>& res,
                          const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
                          const std::shared_ptr<Indices>&... inds,
                          const OPs&... ops,
@@ -124,7 +124,7 @@ namespace MultiArrayTools
                 {
                     template <size_t M, class... DOPs>
                     static inline void
-                    cccx(typename HighLevelOpBase<ROP>::RetT<Indices...>& res,
+                    cccx(typename HighLevelOpBase<ROP>::template RetT<Indices...>& res,
                          const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
                          const std::shared_ptr<Indices>&... inds,
                          const OPs&... ops,
