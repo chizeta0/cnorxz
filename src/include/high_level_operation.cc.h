@@ -288,6 +288,17 @@ namespace MultiArrayTools
         return HighLevelOpHolder<ROP>(std::make_shared<HighLevelOpRoot<ROP>>( op ) );
     }
 
+#define SP " "
+#define regFunc1(fff) template <class ROP> \
+    HighLevelOpHolder<ROP> hl_##fff (const HighLevelOpHolder<ROP>& in)  \
+    { return HighLevelOpHolder<ROP>( std::make_shared<HighLevelOp<ROP,x_##fff <double>,1>> \
+                                     ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,1>( {in.op()} ) ) ); } \
+       
+#include "extensions/math.h"
+#undef regFunc1
+#undef SP
+
+    /*
     template <class ROP>
     HighLevelOpHolder<ROP> exp(const HighLevelOpHolder<ROP>& in)
     {
@@ -295,5 +306,5 @@ namespace MultiArrayTools
             ( std::make_shared<HighLevelOp<ROP,x_exp<double>,1>>
               ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,1>( {in.op()} ) ) );
     }
-
+    */
 }

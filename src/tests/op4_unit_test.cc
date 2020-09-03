@@ -302,7 +302,7 @@ namespace
 
 	auto hop1 = mkHLO(ma2(i1,di2));
 	auto hop3 = mkHLO(ma1(i1,di1));
-	auto hop2 = exp(hop1);
+	auto hop2 = hl_exp(hop1);
 	auto hop4 = hop3 * hop2;
 	auto hopr = mkHLO(resx4(i1,di4));
 	hopr.assign( hop4, mi, ic_1, ic_2 );

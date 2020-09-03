@@ -139,9 +139,16 @@ namespace MultiArrayTools
     template <class ROP>
     HighLevelOpHolder<ROP> mkHLO(const ROP& op);
 
+#define SP " "
+#define regFunc1(fff) template <class ROP> \
+    HighLevelOpHolder<ROP> hl_##fff (const HighLevelOpHolder<ROP>& in);
+#include "extensions/math.h"
+#undef regFunc1
+#undef SP
+    /*
     template <class ROP>
     HighLevelOpHolder<ROP> exp(const HighLevelOpHolder<ROP>& in);
-
+    */
     
 }
 
