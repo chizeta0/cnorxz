@@ -9,5 +9,6 @@
 #include "multi_array.cc.h"
 #include "slice.cc.h"
 #include "dynamic_operation.cc.h"
+#include "high_level_operation.cc.h"
 //#include "expressions.cc.h"
 
