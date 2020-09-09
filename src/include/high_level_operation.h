@@ -38,8 +38,8 @@ namespace MultiArrayTools
     
         virtual bool root() const = 0;
     
-        virtual RetT<CI,CI> create(const std::shared_ptr<CI> ind1,
-                                   const std::shared_ptr<CI> ind2) = 0;
+        virtual RetT<CI,CI> create(const std::shared_ptr<CI>& ind1,
+                                   const std::shared_ptr<CI>& ind2) = 0;
 
         virtual const ROP* get() const = 0;
 
@@ -50,6 +50,9 @@ namespace MultiArrayTools
     {
     private:
         typedef HighLevelOpBase<ROP> B;
+
+	template <class... Inds>
+	typename B::template RetT<Inds...> xcreate(const std::shared_ptr<Inds>&... inds);
     
         ROP mOp;
     public:
@@ -59,8 +62,8 @@ namespace MultiArrayTools
         virtual bool root() const override final;
     
         virtual typename B::template RetT<CI,CI>
-        create(const std::shared_ptr<CI> ind1,
-               const std::shared_ptr<CI> ind2) override final;
+        create(const std::shared_ptr<CI>& ind1,
+               const std::shared_ptr<CI>& ind2) override final { return xcreate(ind1,ind2); }
 
         virtual const ROP* get() const override final;
 
@@ -78,12 +81,17 @@ namespace MultiArrayTools
     template <class ROP, class OpF, size_t N>
     class HighLevelOp : public HighLevelOpBase<ROP>
     {
-    private:
-        std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N> mIn;
-    
     public:
         typedef HighLevelOpBase<ROP> B;
 
+    private:
+        std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N> mIn;
+
+	template <class... Inds>
+	auto xcreate(const std::shared_ptr<Inds>&... inds)
+	    -> typename B::template RetT<Inds...>;
+	
+    public:
         HighLevelOp(std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N> in);
         
         virtual bool root() const override final;
@@ -91,9 +99,9 @@ namespace MultiArrayTools
         virtual const ROP* get() const override final;
     
         virtual typename B::template RetT<CI,CI>
-        create(const std::shared_ptr<CI> ind1,
-               const std::shared_ptr<CI> ind2) override final;
-
+        create(const std::shared_ptr<CI>& ind1,
+               const std::shared_ptr<CI>& ind2) override final { return xcreate(ind1,ind2); }
+	
     };
 
 
@@ -113,10 +121,10 @@ namespace MultiArrayTools
         HighLevelOpHolder(const std::shared_ptr<HighLevelOpBase<ROP>>& op);
 
         bool root() const;
-    
-        auto create(const std::shared_ptr<CI> ind1,
-                    const std::shared_ptr<CI> ind2) const
-            -> decltype(mOp->create(ind1,ind2));
+
+	template <class... Inds>
+        auto create(const std::shared_ptr<Inds>&... inds) const
+            -> decltype(mOp->create(inds...));
 
         auto get() const -> decltype(mOp->get());
 

@@ -59,12 +59,12 @@ namespace MultiArrayTools
     }
     
     template <class ROP>
-    auto HighLevelOpRoot<ROP>::create(const std::shared_ptr<CI> ind1,
-                                      const std::shared_ptr<CI> ind2)
-        -> typename B::template RetT<CI,CI>
+    template <class... Inds>
+    auto HighLevelOpRoot<ROP>::xcreate(const std::shared_ptr<Inds>&... inds)
+        -> typename B::template RetT<Inds...>
     {
         assert(0);
-        return typename B::template RetT<CI,CI>();
+        return typename B::template RetT<Inds...>();
     }
 
     template <class ROP>
@@ -160,15 +160,19 @@ namespace MultiArrayTools
     
     template <class ROP, class OpF, size_t N>
     const ROP* HighLevelOp<ROP,OpF,N>::get() const
-    { assert(0); return nullptr; }
-    
-    template <class ROP, class OpF, size_t N>
-    auto HighLevelOp<ROP,OpF,N>::create(const std::shared_ptr<CI> ind1,
-                                                           const std::shared_ptr<CI> ind2)
-        -> typename B::template RetT<CI,CI>
     {
-        typename B::template RetT<CI,CI> res;
-        Create<N-1>::template cx<CI,CI>::template ccx<ROP,OpF>::template cccx<N>(res,mIn,ind1,ind2);
+	assert(0);
+	return nullptr;
+    }
+
+    template <class ROP, class OpF, size_t N>
+    template <class... Inds>
+    auto HighLevelOp<ROP,OpF,N>::xcreate(const std::shared_ptr<Inds>&... inds)
+        -> typename B::template RetT<Inds...>
+    {
+        typename B::template RetT<Inds...> res;
+        Create<N-1>::template cx<Inds...>::template ccx<ROP,OpF>::template cccx<N>
+	    (res,mIn,inds...);
         return res;
     }
 
@@ -182,11 +186,11 @@ namespace MultiArrayTools
     }
     
     template <class ROP>
-    auto HighLevelOpHolder<ROP>::create(const std::shared_ptr<CI> ind1,
-                                        const std::shared_ptr<CI> ind2) const
-        -> decltype(mOp->create(ind1,ind2))
+    template <class... Inds>
+    auto HighLevelOpHolder<ROP>::create(const std::shared_ptr<Inds>&... inds) const
+        -> decltype(mOp->create(inds...))
     {
-        return mOp->create(ind1,ind2);
+        return mOp->create(inds...);
     }
 
     template <class ROP>
