@@ -145,6 +145,13 @@ namespace MultiArrayTools
     }
 
     template <class Index>
+    RegIndInfo IndexWrapper<Index>::regN() const
+    {
+	RegIndInfo out;
+	return out.set(mI);
+    }
+
+    template <class Index>
     inline std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i)
     {
 	return std::make_shared<IndexWrapper<Index>>(std::make_shared<Index>(i));

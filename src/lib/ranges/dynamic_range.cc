@@ -268,6 +268,11 @@ namespace MultiArrayTools
         return *mIVec[n].first;
     }
 
+    const std::shared_ptr<IndexW>& DynamicIndex::getP(size_t n) const
+    {
+        assert(mIvecInit);
+	return mIVec[n].first;
+    }
     
     std::shared_ptr<typename DynamicIndex::RangeType> DynamicIndex::range()
     {

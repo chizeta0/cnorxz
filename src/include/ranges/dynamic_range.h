@@ -92,6 +92,7 @@ namespace MultiArrayTools
 	bool first() const;
 
         const IndexW& get(size_t n) const;
+        const std::shared_ptr<IndexW>& getP(size_t n) const;
 
 	std::shared_ptr<RangeType> range();
 	

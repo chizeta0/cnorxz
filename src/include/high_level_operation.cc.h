@@ -302,13 +302,130 @@ namespace MultiArrayTools
 #undef regFunc1
 #undef SP
 
-    /*
-    template <class ROP>
-    HighLevelOpHolder<ROP> exp(const HighLevelOpHolder<ROP>& in)
+
+    template <size_t N>
+    template <class ITuple>
+    inline void SetLInds<N>::mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di)
     {
-        return HighLevelOpHolder<ROP>
-            ( std::make_shared<HighLevelOp<ROP,x_exp<double>,1>>
-              ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,1>( {in.op()} ) ) );
+	constexpr size_t NN = std::tuple_size<ITuple>::value-N-1;
+	const size_t nn = di->dim()-N-1;
+	typedef typename std::remove_reference<decltype(*std::get<NN>(itp))>::type T;
+	std::get<NN>(itp) =
+	    std::dynamic_pointer_cast<T>(di->get(nn))->getIndex();
+	SetLInds<N-1>::mkLIT(itp, di);
     }
-    */
+	    
+    template <size_t N>
+    template <class Tar, class ITp, typename... Args>
+    template <class... Is>
+    inline void SetLInds<N>::xx<Tar,ITp,Args...>::
+    assign(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
+    {
+	SetLInds<N-1>::template xx<ITp,Args...>::assign(tar, args..., itp, std::get<N>(itp), is...);
+    }
+
+    template <size_t N>
+    template <class Tar, class ITp, typename... Args>
+    template <class... Is>
+    inline void SetLInds<N>::xx<Tar,ITp,Args...>::
+    plus(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
+    {
+	SetLInds<N-1>::template xx<ITp,Args...>::plus(tar, args..., itp, std::get<N>(itp), is...);
+    }
+
+    //template <>
+    template <class ITuple>
+    inline void SetLInds<0>::mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di)
+    {
+	constexpr size_t NN = std::tuple_size<ITuple>::value-1;
+	const size_t nn = di->dim()-1;
+	typedef typename std::remove_reference<decltype(*std::get<NN>(itp))>::type T;
+	std::get<NN>(itp) =
+	    std::dynamic_pointer_cast<T>(di->get(nn))->getIndex();
+    }
+
+    //template <>
+    template <class Tar, class ITp, typename... Args>
+    template <class... Is>
+    inline void SetLInds<0>::xx<Tar,ITp,Args...>::
+    assign(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
+    {
+	tar.assign(args..., std::get<0>(itp), is...);
+    }
+
+    //template <>
+    template <class Tar, class ITp, typename... Args>
+    template <class... Is>
+    inline void SetLInds<0>::xx<Tar,ITp,Args...>::
+    plus(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
+    {
+	tar.plus(args..., std::get<0>(itp), is...);
+    }
+
+    template <class ROP, class... Indices>
+    size_t INDS<ROP,Indices...>::CallHLOpBase::depth() const
+    {
+	return mDepth;
+    }
+
+    std::shared_ptr<DynamicIndex> mkSubSpaceX(const std::shared_ptr<DynamicIndex>& di,
+					      size_t max)
+    {
+	auto& o = di->range()->orig();
+	vector<std::shared_ptr<RangeBase>> ox(o.begin(),o.begin()+max);
+	DynamicRangeFactory drf(ox);
+	auto dr = createExplicit(drf);
+	auto odi = getIndex(dr);
+	vector<std::shared_ptr<IndexW>> iv;
+	iv.reserve(max);
+	for(size_t i = 0; i != max; ++i){
+	    iv.push_back(di->getP(i));
+	}
+	(*odi)(iv);
+	return odi;
+    }
+    
+    template <class ROP, class... Indices>
+    template <class... LIndices>
+    void INDS<ROP,Indices...>::CallHLOp<LIndices...>::
+    assign(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
+	   const std::shared_ptr<Indices>&... is,
+	   const std::shared_ptr<DynamicIndex>& di) const
+    {
+	auto ip = di->get(di->dim() - this->depth());
+	auto iregn = ip->regN();
+	if(iregn.type >= 0 and iregn.depth > sizeof...(LIndices)){
+	    sNext[iregn.type]->assign(target, source, is..., di);
+	}
+	else {
+	    ITuple itp;
+	    SetLInds<sizeof...(LIndices)-1>::mkLIT(itp,di);
+	    auto mi = mkIndex(is...,mkSubSpaceX(di, di->dim() - this->depth()));
+	    SetLInds<sizeof...(LIndices)-1>::
+		template xx<HighLevelOpHolder<ROP>,ITuple,HighLevelOpHolder<ROP>,decltype(mi)>::
+		assign(target, source, mi, itp);
+	}
+    }
+
+    template <class ROP, class... Indices>
+    template <class... LIndices>
+    void INDS<ROP,Indices...>::CallHLOp<LIndices...>::
+    plus(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
+	 const std::shared_ptr<Indices>&... is,
+	 const std::shared_ptr<DynamicIndex>& di) const
+    {
+	auto ip = di->get(di->dim() - this->depth());
+	auto iregn = ip->regN();
+	if(iregn.type >= 0 and iregn.depth > sizeof...(LIndices)){
+	    sNext[iregn.type]->plus(target, source, is..., di);
+	}
+	else {
+	    ITuple itp;
+	    SetLInds<sizeof...(LIndices)-1>::mkLIT(itp,di);
+	    auto mi = mkIndex(is...,mkSubSpaceX(di, di->dim() - this->depth()));
+	    SetLInds<sizeof...(LIndices)-1>::
+		template xx<HighLevelOpHolder<ROP>,ITuple,HighLevelOpHolder<ROP>,decltype(mi)>::
+		plus(target, source, mi, itp);
+	}
+    }
 }

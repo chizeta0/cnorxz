@@ -174,11 +174,81 @@ namespace MultiArrayTools
 #include "extensions/math.h"
 #undef regFunc1
 #undef SP
-    /*
-    template <class ROP>
-    HighLevelOpHolder<ROP> exp(const HighLevelOpHolder<ROP>& in);
-    */
+
+    template <size_t N>
+    struct SetLInds
+    {
+	template <class ITuple>
+	static inline void mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di);
     
+	template <class Tar, class ITp, typename... Args>
+        struct xx
+        {
+            template <class... Is>
+            static inline void assign(Tar& tar, const Args&... args,
+				      const ITp& itp, const std::shared_ptr<Is>&... is);
+
+            template <class... Is>
+            static inline void plus(Tar& tar, const Args&... args,
+				    const ITp& itp, const std::shared_ptr<Is>&... is);
+        };
+    };
+
+    template <>
+    struct SetLInds<0>
+    {
+	template <class ITuple>
+	static inline void mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di);
+
+        template <class Tar, class ITp, typename... Args>
+        struct xx
+        {
+            template <class... Is>
+            static inline void assign(Tar& tar, const Args&... args,
+				      const ITp& itp, const std::shared_ptr<Is>&... is);
+
+            template <class... Is>
+            static inline void plus(Tar& tar, const Args&... args,
+				    const ITp& itp, const std::shared_ptr<Is>&... is);
+        };
+    };
+
+    template <class ROP, class... Indices>
+    struct INDS
+    {
+        class CallHLOpBase
+        {
+        private:
+            size_t mDepth;
+        public:
+	    size_t depth() const;
+	    
+            void assign(const HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
+                        const std::shared_ptr<Indices>&... is,
+                        const std::shared_ptr<DynamicIndex>& di) const = 0;
+
+            void plus(const HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
+                      const std::shared_ptr<Indices>&... is,
+                      const std::shared_ptr<DynamicIndex>& di) const = 0;
+        };
+
+        template <class... LIndices>
+        class CallHLOp
+        {
+        private:
+            typedef std::tuple<std::shared_ptr<LIndices>...> ITuple;
+            static vector<std::shared_ptr<CallHLOpBase>> sNext;
+        public:
+            void assign(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
+                        const std::shared_ptr<Indices>&... is,
+                        const std::shared_ptr<DynamicIndex>& di) const override final;
+
+            void plus(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
+                      const std::shared_ptr<Indices>&... is,
+                      const std::shared_ptr<DynamicIndex>& di) const override final;
+        };
+    };
+
 }
 
 #endif
