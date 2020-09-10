@@ -37,9 +37,19 @@ namespace MultiArrayTools
         };
     
         virtual bool root() const = 0;
-    
-        virtual RetT<CI,CI> create(const std::shared_ptr<CI>& ind1,
-                                   const std::shared_ptr<CI>& ind2) = 0;
+
+#define reg_ind1(I1) virtual RetT<I1> create \
+        (const std::shared_ptr<I1>& ind1) = 0
+#define reg_ind2(I1,I2) virtual RetT<I1,I2> create \
+        (const std::shared_ptr<I1>& ind1,const std::shared_ptr<I2>& ind2) = 0
+#define reg_ind3(I1,I2,I3) virtual RetT<I1,I2,I3> create   \
+        (const std::shared_ptr<I1>& ind1,const std::shared_ptr<I2>& ind2,const std::shared_ptr<I3>& ind3) = 0
+
+#include "hl_reg_ind.h"
+
+#undef reg_ind1
+#undef reg_ind2
+#undef reg_ind3
 
         virtual const ROP* get() const = 0;
 
@@ -61,9 +71,17 @@ namespace MultiArrayTools
         
         virtual bool root() const override final;
     
-        virtual typename B::template RetT<CI,CI>
-        create(const std::shared_ptr<CI>& ind1,
-               const std::shared_ptr<CI>& ind2) override final { return xcreate(ind1,ind2); }
+#define reg_ind1(I1) virtual typename B::template RetT<I1> create \
+        (const std::shared_ptr<I1>& ind1) \
+            override final { return xcreate(ind1); }
+#define reg_ind2(I1,I2) virtual typename B::template RetT<I1,I2> create \
+        (const std::shared_ptr<I1>& ind1, const std::shared_ptr<I2>& ind2) \
+            override final { return xcreate(ind1,ind2); }
+#define reg_ind3(I1,I2,I3) virtual typename B::template RetT<I1,I2,I3> create \
+        (const std::shared_ptr<I1>& ind1, const std::shared_ptr<I2>& ind2, const std::shared_ptr<I3>& ind3) \
+            override final { return xcreate(ind1,ind2,ind3); }
+
+#include "hl_reg_ind.h"
 
         virtual const ROP* get() const override final;
 
@@ -98,10 +116,11 @@ namespace MultiArrayTools
     
         virtual const ROP* get() const override final;
     
-        virtual typename B::template RetT<CI,CI>
-        create(const std::shared_ptr<CI>& ind1,
-               const std::shared_ptr<CI>& ind2) override final { return xcreate(ind1,ind2); }
-	
+#include "hl_reg_ind.h"
+
+#undef reg_ind1
+#undef reg_ind2
+#undef reg_ind3
     };
 
 
