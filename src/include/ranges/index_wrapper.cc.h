@@ -6,7 +6,13 @@ namespace MultiArrayTools
 {
 
     template <class Index>
-    IndexWrapper<Index>::IndexWrapper(const std::shared_ptr<Index>& i) : mI(i) {}
+    IndexWrapper<Index>::IndexWrapper(const std::shared_ptr<Index>& i) : mI(i)
+    {
+	ClassicRF crf(mI->max());
+	mCI = std::make_shared<ClassicIndex>
+	    ( std::dynamic_pointer_cast<ClassicRange>( crf.create() ) );
+	(*mCI) = mI->pos();
+    }
         
     template <class Index>
     IndexType IndexWrapper<Index>::type() const
@@ -111,7 +117,11 @@ namespace MultiArrayTools
     template <class Index>
     size_t IndexWrapper<Index>::getStepSizeComp(std::intptr_t j) const
     {
-        return MultiArrayHelper::getStepSize(*mI, j);
+        size_t out = MultiArrayHelper::getStepSize(*mI, j);
+	if(out == 0){
+	    out = MultiArrayHelper::getStepSize(*mCI, j);
+	}
+	return out;
     }
         
     template <class Index>
@@ -143,12 +153,25 @@ namespace MultiArrayTools
     {
         return std::make_shared<IndexWrapper>( std::make_shared<Index>( *mI ) );
     }
-
+    /*
     template <class Index>
     RegIndInfo IndexWrapper<Index>::regN() const
     {
 	RegIndInfo out;
 	return out.set(mI);
+    }
+    */
+    template <class Index>
+    std::shared_ptr<Index> IndexWrapper<Index>::getIndex() const
+    {
+	return mI;
+    }
+
+    template <class Index>
+    std::shared_ptr<ClassicIndex> IndexWrapper<Index>::reduced() const
+    {
+	(*mCI) = mI->pos();
+	return mCI;
     }
 
     template <class Index>
@@ -156,4 +179,5 @@ namespace MultiArrayTools
     {
 	return std::make_shared<IndexWrapper<Index>>(std::make_shared<Index>(i));
     }
+
 }
