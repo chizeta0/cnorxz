@@ -16,6 +16,8 @@ namespace MultiArrayTools
     template <typename T, class Op>
     DynamicO<T> mkDynOp1(const Op& op);
 
+    std::shared_ptr<DynamicIndex> mkSubSpaceX(const std::shared_ptr<DynamicIndex>& di, size_t max);
+
     template <class ROP>
     class HighLevelOpBase
     {
@@ -153,6 +155,11 @@ namespace MultiArrayTools
         HighLevelOpHolder operator-(const HighLevelOpHolder& in) const;
         HighLevelOpHolder operator/(const HighLevelOpHolder& in) const;
 
+        template <class... Indices>
+        HighLevelOpHolder& xassign(const HighLevelOpHolder& in,
+                                   const std::shared_ptr<DynamicIndex>& di,
+                                   const std::shared_ptr<Indices>&... is);
+        
         template <class MIndex, class... Indices>
         HighLevelOpHolder& assign(const HighLevelOpHolder& in,
                                   const std::shared_ptr<MIndex>& mi,
@@ -174,7 +181,7 @@ namespace MultiArrayTools
 #include "extensions/math.h"
 #undef regFunc1
 #undef SP
-
+    /*
     template <size_t N>
     struct SetLInds
     {
@@ -248,7 +255,7 @@ namespace MultiArrayTools
                       const std::shared_ptr<DynamicIndex>& di) const override final;
         };
     };
-
+    */
 }
 
 #endif

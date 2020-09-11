@@ -3,6 +3,7 @@
 
 namespace MultiArrayTools
 {
+
     template <typename T, class Op>
     DynamicO<T> mkDynOp1(const Op& op)
     {
@@ -239,11 +240,55 @@ namespace MultiArrayTools
     }
 
     template <class ROP>
+    template <class... Indices>
+    HighLevelOpHolder<ROP>& HighLevelOpHolder<ROP>::xassign(const HighLevelOpHolder& in,
+                                                            const std::shared_ptr<DynamicIndex>& di,
+                                                            const std::shared_ptr<Indices>&... is)
+    {
+        const size_t dim = di->dim();
+        if(dim >= 2){
+            auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
+            auto ci2 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-1));
+            assert(ci1 != nullptr);
+            assert(ci2 != nullptr);
+            auto odi = mkSubSpaceX(di, dim-2);
+            auto mi = mkMIndex(is..., odi);
+            this->assign(in, mi, ci1->getIndex(), ci2->getIndex());
+        }
+        else {
+            assert(dim == 1);
+            auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
+            assert(ci1 != nullptr);
+            auto odi = mkSubSpaceX(di, dim-1);
+            auto mi = mkMIndex(is..., odi);
+            this->assign(in, mi, ci1->getIndex());
+        }
+        //INDS<ROP,Indices...>::template CallHLOp<> call;
+        //call.assign(*this, in, is..., di);
+        return *this;
+    }
+
+    template <class Ind1, class Ind2, class... Inds>
+    std::string printInd(const std::shared_ptr<Ind1>& ind1, const std::shared_ptr<Ind2>& ind2,
+                         const std::shared_ptr<Inds>&... inds)
+    {
+        return std::to_string(reinterpret_cast<std::intptr_t>(ind1.get())) + "(" +
+            std::to_string(ind1->max()) + "), " + printInd(ind2, inds...);
+    }
+
+    template <class Ind1>
+    std::string printInd(const std::shared_ptr<Ind1>& ind1)
+    {
+        return std::to_string(reinterpret_cast<std::intptr_t>(ind1.get())) + "(" + std::to_string(ind1->max()) + ")";
+    }
+    
+    template <class ROP>
     template <class MIndex, class... Indices>
     HighLevelOpHolder<ROP>& HighLevelOpHolder<ROP>::assign(const HighLevelOpHolder& in,
                                                            const std::shared_ptr<MIndex>& mi,
                                                            const std::shared_ptr<Indices>&... inds)
     {
+        //VCHECK(printInd(inds...));
         auto xx = mkArrayPtr<double>(nullr());
         auto& opr = *mOp->get();
         auto loop = mkPILoop
@@ -302,7 +347,7 @@ namespace MultiArrayTools
 #undef regFunc1
 #undef SP
 
-
+    /*
     template <size_t N>
     template <class ITuple>
     inline void SetLInds<N>::mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di)
@@ -368,22 +413,6 @@ namespace MultiArrayTools
 	return mDepth;
     }
 
-    std::shared_ptr<DynamicIndex> mkSubSpaceX(const std::shared_ptr<DynamicIndex>& di,
-					      size_t max)
-    {
-	auto& o = di->range()->orig();
-	vector<std::shared_ptr<RangeBase>> ox(o.begin(),o.begin()+max);
-	DynamicRangeFactory drf(ox);
-	auto dr = createExplicit(drf);
-	auto odi = getIndex(dr);
-	vector<std::shared_ptr<IndexW>> iv;
-	iv.reserve(max);
-	for(size_t i = 0; i != max; ++i){
-	    iv.push_back(di->getP(i));
-	}
-	(*odi)(iv);
-	return odi;
-    }
     
     template <class ROP, class... Indices>
     template <class... LIndices>
@@ -428,4 +457,6 @@ namespace MultiArrayTools
 		plus(target, source, mi, itp);
 	}
     }
+    */
 }
+

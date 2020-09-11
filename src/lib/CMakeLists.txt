@@ -7,6 +7,7 @@ set(libmultiarray_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/type_map.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/multi_range_factory_product_map.cc
   ${CMAKE_SOURCE_DIR}/src/lib/map_range_factory_product_map.cc
+  ${CMAKE_SOURCE_DIR}/src/lib/high_level_operation.cc
   )
 
 file(GLOB cc_files "${CMAKE_SOURCE_DIR}/src/lib/ranges/range_types/*.cc")

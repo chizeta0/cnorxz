@@ -287,7 +287,9 @@ namespace
 	(*di4a)(svec({"ia_1","ib_1"}));
 	auto ic_1 = DynamicIndex::getIndexFromMap<CI>("ic_1");
 	auto ic_2 = DynamicIndex::getIndexFromMap<CI>("ic_2");
-	
+        //VCHECK(reinterpret_cast<std::intptr_t>(ic_1.get()));
+        //VCHECK(reinterpret_cast<std::intptr_t>(ic_2.get()));
+        
 	auto resx1 = res1;
 	auto resx2 = res1;
 	auto resx3 = res1;
@@ -305,7 +307,8 @@ namespace
 	auto hop2 = hl_exp(hop1);
 	auto hop4 = hop3 * hop2;
 	auto hopr = mkHLO(resx4(i1,di4));
-	hopr.assign( hop4, mi, ic_1, ic_2 );
+	//hopr.assign( hop4, mi, ic_1, ic_2 );
+	hopr.xassign( hop4, di4, i1 );
 	
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");
