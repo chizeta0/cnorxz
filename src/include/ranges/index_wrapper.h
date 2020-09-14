@@ -50,7 +50,7 @@ namespace MultiArrayTools
 
         virtual std::shared_ptr<IndexWrapperBase> duplicate() const = 0;
 
-	virtual RegIndInfo regN() const = 0;
+	//virtual RegIndInfo regN() const = 0;
         //virtual DynamicMetaT meta() const = 0;
 	//virtual const DynamicMetaT* metaPtr() const = 0;
 	//virtual AbstractIW& at(const U& metaPos) = 0;
@@ -73,6 +73,8 @@ namespace MultiArrayTools
         std::shared_ptr<IndexWrapperBase> duplicateI() const
         { return std::dynamic_pointer_cast<IndexWrapperBase>( this->duplicate() ); }
         */
+
+	virtual std::shared_ptr<ClassicIndex> reduced() const = 0;
     };
 
     typedef IndexWrapperBase IndexW;
@@ -91,6 +93,7 @@ namespace MultiArrayTools
 
     private:
         std::shared_ptr<Index> mI;
+	std::shared_ptr<ClassicIndex> mCI; // reduced;
     public:
 
         IndexWrapper(const IndexWrapper& in) = default;
@@ -136,9 +139,10 @@ namespace MultiArrayTools
         virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const override final;
 
         virtual std::shared_ptr<IndexWrapperBase> duplicate() const override final;
-	virtual RegIndInfo regN() const override final;
+	//virtual RegIndInfo regN() const override final;
 
-	std::shared_ptr<Index> getIndex() const { return mI; }
+	std::shared_ptr<Index> getIndex() const;
+	virtual std::shared_ptr<ClassicIndex> reduced() const override final;
 	
     };
     /*

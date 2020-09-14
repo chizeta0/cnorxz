@@ -256,21 +256,25 @@ namespace MultiArrayTools
     {
         const size_t dim = di->dim();
         if(dim >= 2){
-            auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
-            auto ci2 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-1));
+	    auto ci1 = di->getP(dim-2)->reduced();
+	    auto ci2 = di->getP(dim-1)->reduced();
+            //auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
+            //auto ci2 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-1));
             assert(ci1 != nullptr);
             assert(ci2 != nullptr);
             auto odi = mkSubSpaceX(di, dim-2);
             auto mi = mkMIndex(is..., odi);
-            this->assign(in, mi, ci1->getIndex(), ci2->getIndex());
+            //this->assign(in, mi, ci1->getIndex(), ci2->getIndex());
+	    this->assign(in, mi, ci1, ci2);
         }
         else {
             assert(dim == 1);
-            auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
+            //auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
+	    auto ci1 = di->getP(dim-2)->reduced();
             assert(ci1 != nullptr);
             auto odi = mkSubSpaceX(di, dim-1);
             auto mi = mkMIndex(is..., odi);
-            this->assign(in, mi, ci1->getIndex());
+            this->assign(in, mi, ci1);
         }
         //INDS<ROP,Indices...>::template CallHLOp<> call;
         //call.assign(*this, in, is..., di);
