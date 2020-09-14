@@ -239,6 +239,15 @@ namespace MultiArrayTools
               ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,2>({mOp, in.mOp}) ) );
     }
 
+    template <class F, class ROP, class... ROPs>
+    HighLevelOpHolder<ROP> mkSFunc(const HighLevelOpHolder<ROP>& a, const HighLevelOpHolder<ROPs>&... as)
+    {
+        constexpr size_t N = sizeof...(ROPs)+1;
+        return HighLevelOpHolder<ROP>
+            ( std::make_shared<HighLevelOp<ROP,F,N>>
+              ( std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N>({a.op(), as.op()...}) ) );
+    }
+
     template <class ROP>
     template <class... Indices>
     HighLevelOpHolder<ROP>& HighLevelOpHolder<ROP>::xassign(const HighLevelOpHolder& in,

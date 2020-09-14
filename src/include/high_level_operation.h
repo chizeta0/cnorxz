@@ -155,6 +155,7 @@ namespace MultiArrayTools
         HighLevelOpHolder operator-(const HighLevelOpHolder& in) const;
         HighLevelOpHolder operator/(const HighLevelOpHolder& in) const;
 
+        
         template <class... Indices>
         HighLevelOpHolder& xassign(const HighLevelOpHolder& in,
                                    const std::shared_ptr<DynamicIndex>& di,
@@ -170,6 +171,9 @@ namespace MultiArrayTools
                                 const std::shared_ptr<MIndex>& mi,
                                 const std::shared_ptr<Indices>&... inds);
     };
+
+    template <class F, class ROP, class... ROPs>
+    HighLevelOpHolder<ROP> mkSFunc(const HighLevelOpHolder<ROP>& a, const HighLevelOpHolder<ROPs>&... as);
 
 
     template <class ROP>
