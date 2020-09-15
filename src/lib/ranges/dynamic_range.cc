@@ -79,12 +79,14 @@ namespace MultiArrayTools
 	IndexInterface<DynamicIndex,MetaType>(range, 0),
 	mIVec(range->dim())
     {
-	size_t xx = 1;
-	for(size_t i = mIVec.size()-1; i != 0; --i){
-	    mIVec[i].second = xx;
-	    xx *= range->sub(i)->size();
+	if(mIVec.size() > 0){
+	    size_t xx = 1;
+	    for(size_t i = mIVec.size()-1; i != 0; --i){
+		mIVec[i].second = xx;
+		xx *= range->sub(i)->size();
+	    }
+	    mIVec[0].second = xx;
 	}
-	mIVec[0].second = xx;
     }
 
     

@@ -69,7 +69,7 @@ namespace MultiArrayTools
     }
 
     template <class ROP>
-    const ROP* HighLevelOpRoot<ROP>::get() const
+    ROP* HighLevelOpRoot<ROP>::get()
     {
         return &mOp;
     }
@@ -100,6 +100,7 @@ namespace MultiArrayTools
                             auto op = *dop.op.data()->mOp;
                             typedef decltype(op) OP;
                             res.appendOuter(dop);
+			    assert(dop.op.init());
                             Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
                                 (res, in, inds..., op, ops..., dop, dops...);
                         }
@@ -137,6 +138,7 @@ namespace MultiArrayTools
                             auto op = *dop.op.data()->mOp;
                             res.appendOuter(dop);
                             res.op = mkDynOutOp(mkFOp<OpF>(op,ops...), inds...);
+			    assert(dop.op.init());
                             res.appendOuterM(dop.op,dops.op...);
                         }
                         else {
@@ -160,7 +162,7 @@ namespace MultiArrayTools
     }
     
     template <class ROP, class OpF, size_t N>
-    const ROP* HighLevelOp<ROP,OpF,N>::get() const
+    ROP* HighLevelOp<ROP,OpF,N>::get()
     {
 	assert(0);
 	return nullptr;
@@ -174,6 +176,8 @@ namespace MultiArrayTools
         typename B::template RetT<Inds...> res;
         Create<N-1>::template cx<Inds...>::template ccx<ROP,OpF>::template cccx<N>
 	    (res,mIn,inds...);
+	//	assert(res.op.init());
+	//assert(res.outer.init());
         return res;
     }
 
@@ -195,7 +199,7 @@ namespace MultiArrayTools
     }
 
     template <class ROP>
-    auto HighLevelOpHolder<ROP>::get() const
+    auto HighLevelOpHolder<ROP>::get()
         -> decltype(mOp->get())
     {
         return mOp->get();
@@ -255,7 +259,7 @@ namespace MultiArrayTools
                                                             const std::shared_ptr<Indices>&... is)
     {
         const size_t dim = di->dim();
-        if(dim >= 2){
+        if(dim > 2){
 	    auto ci1 = di->getP(dim-2)->reduced();
 	    auto ci2 = di->getP(dim-1)->reduced();
             //auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
@@ -268,9 +272,9 @@ namespace MultiArrayTools
 	    this->assign(in, mi, ci1, ci2);
         }
         else {
-            assert(dim == 1);
+            assert(dim == 2 or dim == 1);
             //auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
-	    auto ci1 = di->getP(dim-2)->reduced();
+	    auto ci1 = di->getP(dim-1)->reduced();
             assert(ci1 != nullptr);
             auto odi = mkSubSpaceX(di, dim-1);
             auto mi = mkMIndex(is..., odi);
@@ -303,12 +307,25 @@ namespace MultiArrayTools
     {
         //VCHECK(printInd(inds...));
         auto xx = mkArrayPtr<double>(nullr());
-        auto& opr = *mOp->get();
+        ROP& opr = *mOp->get();
+	if(in.root()){
+	    auto inx = in;
+	    opr.par() = *inx.get();
+	    return *this;
+	}
         auto loop = mkPILoop
             ( [&opr,&in,&xx,&inds...,this](){
                 auto inx = in;
                 auto dop = inx.create(inds...);
-                auto gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
+		DynamicO<size_t> gexp;
+		//VCHECK(dop.outer.init());
+		//VCHECK(dop.op.init());
+		if(dop.outer.init()){
+		    gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
+		}
+		else {
+		    gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.op));
+		}
                 auto xloop = mkILoop(std::make_tuple(*dop.op.data()->mOp),
                                      std::make_tuple(inds...),
                                      std::make_tuple(xx),
@@ -327,12 +344,23 @@ namespace MultiArrayTools
                                                          const std::shared_ptr<Indices>&... inds)
     {
         auto xx = mkArrayPtr<double>(nullr());
-        auto& opr = *mOp->get();
+        ROP& opr = *mOp->get();
+	if(in.root()){
+	    auto inx = in;
+	    opr.par() += *inx.get();
+	    return *this;
+	}
         auto loop = mkPILoop
             ( [&opr,&in,&xx,&inds...,this](){
                 auto inx = in;
                 auto dop = inx.create(inds...);
-                auto gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
+		DynamicO<size_t> gexp;
+		if(dop.outer.init()){
+		    gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
+		}
+		else {
+		    gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.op));
+		}
                 auto xloop = mkILoop(std::make_tuple(*dop.op.data()->mOp),
                                      std::make_tuple(inds...),
                                      std::make_tuple(xx),

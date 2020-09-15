@@ -99,7 +99,10 @@ namespace MultiArrayTools
     template <class Expr>
     DynamicExpression DynamicIndex::ifor(size_t step, Expr ex) const
     {
-	if(mIVec.size() == 1){
+	if(mIVec.size() == 0){
+	    return ex;
+	}
+	else if(mIVec.size() == 1){
 	    return mIVec.back().first->ifor(step,ex);
 	}
 	else {
@@ -112,7 +115,10 @@ namespace MultiArrayTools
     template <class Expr>
     DynamicExpression DynamicIndex::iforh(size_t step, Expr ex) const
     {
-	if(mIVec.size() == 1){
+	if(mIVec.size() == 0){
+	    return ex;
+	}
+	else if(mIVec.size() == 1){
 	    return mIVec.back().first->iforh(step,ex);
 	}
 	else {

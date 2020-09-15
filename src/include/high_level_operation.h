@@ -53,7 +53,7 @@ namespace MultiArrayTools
 #undef reg_ind2
 #undef reg_ind3
 
-        virtual const ROP* get() const = 0;
+        virtual ROP* get() = 0;
 
     };
 
@@ -85,7 +85,7 @@ namespace MultiArrayTools
 
 #include "hl_reg_ind.h"
 
-        virtual const ROP* get() const override final;
+        virtual ROP* get() override final;
 
    
     };
@@ -116,7 +116,7 @@ namespace MultiArrayTools
         
         virtual bool root() const override final;
     
-        virtual const ROP* get() const override final;
+        virtual ROP* get() override final;
     
 #include "hl_reg_ind.h"
 
@@ -147,7 +147,7 @@ namespace MultiArrayTools
         auto create(const std::shared_ptr<Inds>&... inds) const
             -> decltype(mOp->create(inds...));
 
-        auto get() const -> decltype(mOp->get());
+        auto get() -> decltype(mOp->get());
 
         std::shared_ptr<HighLevelOpBase<ROP>> op() const;
         HighLevelOpHolder operator*(const HighLevelOpHolder& in) const;
