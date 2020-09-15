@@ -54,7 +54,17 @@ namespace MultiArrayTools
 	    assert(tmp);
 	    return tmp->getIndex();
 	}
-	
+
+	static const std::shared_ptr<IndexW>& getIndexWFromMap(const std::string& name)
+	{
+	    return sIMap.at(name);
+	}
+
+	static bool checkIndexMap(const std::string& name)
+	{
+	    return sIMap.count(name) != 0;
+	}
+
         static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t totalDim() { return 1; }
 	static constexpr size_t sDim() { return 1; }
