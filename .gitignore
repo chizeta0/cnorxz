@@ -4,3 +4,4 @@ build/
 install/
 */build/
 */install/
+src/lib/hl_ops/*.cc

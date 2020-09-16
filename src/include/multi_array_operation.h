@@ -587,10 +587,20 @@ namespace MultiArrayTools
             -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                                (mOrigDataPtr,*this,in))));
 
-        template <class OpClass>
+        template <class OpClass, class Index>
+        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
+            -> decltype(i->pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+                                          (mOrigDataPtr,*this,in))));
+
+	template <class OpClass>
         auto plus(const OpClass& in)
             -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                                (mOrigDataPtr,*this,in))));
+
+        template <class OpClass, class Index>
+        auto plus(const OpClass& in, const std::shared_ptr<Index>& i) const
+            -> decltype(i->pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+					   (mOrigDataPtr,*this,in))));
 
         template <class OpClass>
         ParallelOperationRoot& operator=(const OpClass& in);

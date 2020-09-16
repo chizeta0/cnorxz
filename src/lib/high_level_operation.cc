@@ -21,4 +21,15 @@ namespace MultiArrayTools
 	return odi;
     }
 
+    template class OperationRoot<double,CR,DynamicRange>;
+    template class OperationRoot<double,DynamicRange>;
+
+    template class HighLevelOpHolder<OpCD>;
+    template class HighLevelOpHolder<OpD>;
+
+    template class HighLevelOpBase<OpCD>;
+    template class HighLevelOpBase<OpD>;
+    template class HighLevelOpRoot<OpCD>;
+    template class HighLevelOpRoot<OpD>;
+
 }

@@ -176,8 +176,6 @@ namespace MultiArrayTools
         typename B::template RetT<Inds...> res;
         Create<N-1>::template cx<Inds...>::template ccx<ROP,OpF>::template cccx<N>
 	    (res,mIn,inds...);
-	//	assert(res.op.init());
-	//assert(res.outer.init());
         return res;
     }
 
@@ -262,26 +260,47 @@ namespace MultiArrayTools
         if(dim > 2){
 	    auto ci1 = di->getP(dim-2)->reduced();
 	    auto ci2 = di->getP(dim-1)->reduced();
-            //auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
-            //auto ci2 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-1));
             assert(ci1 != nullptr);
             assert(ci2 != nullptr);
             auto odi = mkSubSpaceX(di, dim-2);
             auto mi = mkMIndex(is..., odi);
-            //this->assign(in, mi, ci1->getIndex(), ci2->getIndex());
 	    this->assign(in, mi, ci1, ci2);
         }
         else {
             assert(dim == 2 or dim == 1);
-            //auto ci1 = std::dynamic_pointer_cast<IndexWrapper<CI>>(di->getP(dim-2));
 	    auto ci1 = di->getP(dim-1)->reduced();
             assert(ci1 != nullptr);
             auto odi = mkSubSpaceX(di, dim-1);
             auto mi = mkMIndex(is..., odi);
             this->assign(in, mi, ci1);
         }
-        //INDS<ROP,Indices...>::template CallHLOp<> call;
-        //call.assign(*this, in, is..., di);
+        return *this;
+    }
+
+    template <class ROP>
+    template <class... Indices>
+    HighLevelOpHolder<ROP>& HighLevelOpHolder<ROP>::xplus(const HighLevelOpHolder& in,
+							  const std::shared_ptr<DynamicIndex>& di,
+							  const std::shared_ptr<Indices>&... is)
+    {
+        const size_t dim = di->dim();
+        if(dim > 2){
+	    auto ci1 = di->getP(dim-2)->reduced();
+	    auto ci2 = di->getP(dim-1)->reduced();
+            assert(ci1 != nullptr);
+            assert(ci2 != nullptr);
+            auto odi = mkSubSpaceX(di, dim-2);
+            auto mi = mkMIndex(is..., odi);
+	    this->plus(in, mi, ci1, ci2);
+        }
+        else {
+            assert(dim == 2 or dim == 1);
+	    auto ci1 = di->getP(dim-1)->reduced();
+            assert(ci1 != nullptr);
+            auto odi = mkSubSpaceX(di, dim-1);
+            auto mi = mkMIndex(is..., odi);
+            this->plus(in, mi, ci1);
+        }
         return *this;
     }
 
@@ -305,12 +324,11 @@ namespace MultiArrayTools
                                                            const std::shared_ptr<MIndex>& mi,
                                                            const std::shared_ptr<Indices>&... inds)
     {
-        //VCHECK(printInd(inds...));
         auto xx = mkArrayPtr<double>(nullr());
         ROP& opr = *mOp->get();
 	if(in.root()){
 	    auto inx = in;
-	    opr.par() = *inx.get();
+	    opr.par().assign( *inx.get(), mkMIndex(mi,inds...) )();
 	    return *this;
 	}
         auto loop = mkPILoop
@@ -318,8 +336,6 @@ namespace MultiArrayTools
                 auto inx = in;
                 auto dop = inx.create(inds...);
 		DynamicO<size_t> gexp;
-		//VCHECK(dop.outer.init());
-		//VCHECK(dop.op.init());
 		if(dop.outer.init()){
 		    gexp = mkDynOp1<size_t>(mkMOp<size_t>(dop.outer,dop.op));
 		}
@@ -347,7 +363,7 @@ namespace MultiArrayTools
         ROP& opr = *mOp->get();
 	if(in.root()){
 	    auto inx = in;
-	    opr.par() += *inx.get();
+	    opr.par().plus( *inx.get(), mkMIndex(mi,inds...) )();
 	    return *this;
 	}
         auto loop = mkPILoop

@@ -1,4 +1,7 @@
 
+execute_process ( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mk_hl_op.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ )
+
 set(libmultiarray_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/range_base.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/anonymous_range.cc
@@ -11,6 +14,12 @@ set(libmultiarray_a_SOURCES
   )
 
 file(GLOB cc_files "${CMAKE_SOURCE_DIR}/src/lib/ranges/range_types/*.cc")
+foreach(ccfile ${cc_files})
+  set(libmultiarray_a_SOURCES ${libmultiarray_a_SOURCES}
+    ${ccfile})
+endforeach(ccfile)
+
+file(GLOB cc_files "${CMAKE_SOURCE_DIR}/src/lib/hl_ops/*.cc")
 foreach(ccfile ${cc_files})
   set(libmultiarray_a_SOURCES ${libmultiarray_a_SOURCES}
     ${ccfile})

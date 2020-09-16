@@ -13,6 +13,11 @@ namespace MultiArrayTools
     typedef CR::IndexType CI;
     typedef std::shared_ptr<CI> CIP;
 
+    typedef OperationRoot<double,CR,DynamicRange> OpCD;
+    typedef OperationRoot<double,DynamicRange> OpD;
+    extern template class OperationRoot<double,CR,DynamicRange>;
+    extern template class OperationRoot<double,DynamicRange>;
+    
     template <typename T, class Op>
     DynamicO<T> mkDynOp1(const Op& op);
 
@@ -90,6 +95,11 @@ namespace MultiArrayTools
    
     };
 
+    extern template class HighLevelOpBase<OpCD>;
+    extern template class HighLevelOpBase<OpD>;
+    extern template class HighLevelOpRoot<OpCD>;
+    extern template class HighLevelOpRoot<OpD>;
+    
     template <class OpF, class... Ops>
     auto mkFOp(const Ops&... ops)
     {
@@ -125,7 +135,21 @@ namespace MultiArrayTools
 #undef reg_ind3
     };
 
-
+    extern template class HighLevelOp<OpCD,plusx<double,double>,2>;
+    extern template class HighLevelOp<OpCD,minusx<double,double>,2>;
+    extern template class HighLevelOp<OpCD,multipliesx<double,double>,2>;
+    extern template class HighLevelOp<OpCD,dividesx<double,double>,2>;
+    extern template class HighLevelOp<OpD,plusx<double,double>,2>;
+    extern template class HighLevelOp<OpD,minusx<double,double>,2>;
+    extern template class HighLevelOp<OpD,multipliesx<double,double>,2>;
+    extern template class HighLevelOp<OpD,dividesx<double,double>,2>;
+    
+#define regFunc1(fff) \
+    extern template class HighLevelOp<OpCD,x_##fff<double>,1>; \
+    extern template class HighLevelOp<OpD,x_##fff<double>,1>;
+#include "extensions/math.h"
+#undef regFunc1
+    
     template <class ROP>
     class HighLevelOpHolder
     {
@@ -161,6 +185,11 @@ namespace MultiArrayTools
                                    const std::shared_ptr<DynamicIndex>& di,
                                    const std::shared_ptr<Indices>&... is);
         
+        template <class... Indices>
+        HighLevelOpHolder& xplus(const HighLevelOpHolder& in,
+				 const std::shared_ptr<DynamicIndex>& di,
+				 const std::shared_ptr<Indices>&... is);
+
         template <class MIndex, class... Indices>
         HighLevelOpHolder& assign(const HighLevelOpHolder& in,
                                   const std::shared_ptr<MIndex>& mi,
@@ -172,6 +201,9 @@ namespace MultiArrayTools
                                 const std::shared_ptr<Indices>&... inds);
     };
 
+    extern template class HighLevelOpHolder<OpCD>;
+    extern template class HighLevelOpHolder<OpD>;
+    
     template <class F, class ROP, class... ROPs>
     HighLevelOpHolder<ROP> mkSFunc(const HighLevelOpHolder<ROP>& a, const HighLevelOpHolder<ROPs>&... as);
 
@@ -179,87 +211,19 @@ namespace MultiArrayTools
     template <class ROP>
     HighLevelOpHolder<ROP> mkHLO(const ROP& op);
 
-#define SP " "
 #define regFunc1(fff) template <class ROP> \
     HighLevelOpHolder<ROP> hl_##fff (const HighLevelOpHolder<ROP>& in);
 #include "extensions/math.h"
 #undef regFunc1
-#undef SP
-    /*
-    template <size_t N>
-    struct SetLInds
-    {
-	template <class ITuple>
-	static inline void mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di);
     
-	template <class Tar, class ITp, typename... Args>
-        struct xx
-        {
-            template <class... Is>
-            static inline void assign(Tar& tar, const Args&... args,
-				      const ITp& itp, const std::shared_ptr<Is>&... is);
+#define regFunc1(fff) template <class ROP>				\
+    HighLevelOpHolder<ROP> hl_##fff (const HighLevelOpHolder<ROP>& in); \
+    extern template HighLevelOpHolder<OpCD> hl_##fff (const HighLevelOpHolder<OpCD>& in); \
+    extern template HighLevelOpHolder<OpD> hl_##fff (const HighLevelOpHolder<OpD>& in);
+#include "extensions/math.h"
+#undef regFunc1
+   
 
-            template <class... Is>
-            static inline void plus(Tar& tar, const Args&... args,
-				    const ITp& itp, const std::shared_ptr<Is>&... is);
-        };
-    };
-
-    template <>
-    struct SetLInds<0>
-    {
-	template <class ITuple>
-	static inline void mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di);
-
-        template <class Tar, class ITp, typename... Args>
-        struct xx
-        {
-            template <class... Is>
-            static inline void assign(Tar& tar, const Args&... args,
-				      const ITp& itp, const std::shared_ptr<Is>&... is);
-
-            template <class... Is>
-            static inline void plus(Tar& tar, const Args&... args,
-				    const ITp& itp, const std::shared_ptr<Is>&... is);
-        };
-    };
-
-    template <class ROP, class... Indices>
-    struct INDS
-    {
-        class CallHLOpBase
-        {
-        private:
-            size_t mDepth;
-        public:
-	    size_t depth() const;
-	    
-            void assign(const HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
-                        const std::shared_ptr<Indices>&... is,
-                        const std::shared_ptr<DynamicIndex>& di) const = 0;
-
-            void plus(const HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
-                      const std::shared_ptr<Indices>&... is,
-                      const std::shared_ptr<DynamicIndex>& di) const = 0;
-        };
-
-        template <class... LIndices>
-        class CallHLOp
-        {
-        private:
-            typedef std::tuple<std::shared_ptr<LIndices>...> ITuple;
-            static vector<std::shared_ptr<CallHLOpBase>> sNext;
-        public:
-            void assign(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
-                        const std::shared_ptr<Indices>&... is,
-                        const std::shared_ptr<DynamicIndex>& di) const override final;
-
-            void plus(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
-                      const std::shared_ptr<Indices>&... is,
-                      const std::shared_ptr<DynamicIndex>& di) const override final;
-        };
-    };
-    */
 }
 
 #endif
