@@ -23,7 +23,7 @@ done
 
 for fff in plus minus multiplies divides ; do
     file=hl_ops/${fff}.cc
-    test -f ${file} && rm -f ${fff}
+    test -f ${file} && rm -f ${file}
     echo "#include \"multi_array_header.h\"" >> ${file}
     echo "#include \"high_level_operation.h\"" >> ${file}
     echo "" >> ${file}
