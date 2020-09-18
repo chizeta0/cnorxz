@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir -p hl_ops
 for x in $(cat ../include/extensions/math.h) ; do
     test "${x}" = "#ifdef" && continue
     test "${x}" = "#endif" && continue
