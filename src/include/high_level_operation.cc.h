@@ -74,6 +74,44 @@ namespace MultiArrayTools
         return &mOp;
     }
 
+    template <class ROP>
+    auto HighLevelOpRoot<ROP>::vget()
+	-> VOP*
+    {
+        return nullptr;
+    }
+
+    template <class ROP>
+    HighLevelOpValue<ROP>::HighLevelOpValue(const VOP& op) : mOp(op) {}
+
+    template <class ROP>
+    bool HighLevelOpValue<ROP>::root() const
+    {
+        return true;
+    }
+    
+    template <class ROP>
+    template <class... Inds>
+    auto HighLevelOpValue<ROP>::xcreate(const std::shared_ptr<Inds>&... inds)
+        -> typename B::template RetT<Inds...>
+    {
+        assert(0);
+        return typename B::template RetT<Inds...>();
+    }
+
+    template <class ROP>
+    ROP* HighLevelOpValue<ROP>::get()
+    {
+        return nullptr;
+    }
+
+    template <class ROP>
+    auto HighLevelOpValue<ROP>::vget()
+	-> VOP*
+    {
+        return &mOp;
+    }
+
     namespace
     {
         template <size_t N>
@@ -105,10 +143,18 @@ namespace MultiArrayTools
                                 (res, in, inds..., op, ops..., dop, dops...);
                         }
                         else {
-                            auto& op = *inn->get();
-                            typedef typename std::remove_reference<decltype(op)>::type OP;
-                            Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
-                                (res, in, inds..., op, ops..., dops...);
+                            auto op = inn->get();
+                            auto vop = inn->vget();
+                            typedef typename std::remove_reference<decltype(*op)>::type OP;
+                            typedef typename std::remove_reference<decltype(*vop)>::type VOP;
+			    if(op != nullptr){
+				Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
+				    (res, in, inds..., *op, ops..., dops...);
+			    }
+			    else {
+				Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,VOP,OPs...>::template cccx<M>
+				    (res, in, inds..., *vop, ops..., dops...);
+			    }
                         }
                     }
                 };
@@ -142,8 +188,14 @@ namespace MultiArrayTools
                             res.appendOuterM(dop.op,dops.op...);
                         }
                         else {
-                            auto& op = *inn->get();
-                            res.op = mkDynOutOp(mkFOp<OpF>(op,ops...), inds...);
+                            auto op = inn->get();
+                            auto vop = inn->vget();
+			    if(op != nullptr){
+				res.op = mkDynOutOp(mkFOp<OpF>(*op,ops...), inds...);
+			    }
+			    else {
+				res.op = mkDynOutOp(mkFOp<OpF>(*vop,ops...), inds...);
+			    }
                             res.appendOuterM(dops.op...);
                         }
                     }
@@ -163,6 +215,14 @@ namespace MultiArrayTools
     
     template <class ROP, class OpF, size_t N>
     ROP* HighLevelOp<ROP,OpF,N>::get()
+    {
+	assert(0);
+	return nullptr;
+    }
+    
+    template <class ROP, class OpF, size_t N>
+    auto HighLevelOp<ROP,OpF,N>::vget()
+	-> VOP*
     {
 	assert(0);
 	return nullptr;
@@ -394,6 +454,14 @@ namespace MultiArrayTools
         return HighLevelOpHolder<ROP>(std::make_shared<HighLevelOpRoot<ROP>>( op ) );
     }
 
+    template <class ROP>
+    HighLevelOpHolder<ROP> mkHLOV(double val)
+    {
+        return HighLevelOpHolder<ROP>(std::make_shared<HighLevelOpValue<ROP>>
+				      ( OperationValue<double>(val) ) );
+    }
+
+
 #define SP " "
 #define regFunc1(fff) template <class ROP> \
     HighLevelOpHolder<ROP> hl_##fff (const HighLevelOpHolder<ROP>& in)  \
@@ -404,116 +472,5 @@ namespace MultiArrayTools
 #undef regFunc1
 #undef SP
 
-    /*
-    template <size_t N>
-    template <class ITuple>
-    inline void SetLInds<N>::mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di)
-    {
-	constexpr size_t NN = std::tuple_size<ITuple>::value-N-1;
-	const size_t nn = di->dim()-N-1;
-	typedef typename std::remove_reference<decltype(*std::get<NN>(itp))>::type T;
-	std::get<NN>(itp) =
-	    std::dynamic_pointer_cast<T>(di->get(nn))->getIndex();
-	SetLInds<N-1>::mkLIT(itp, di);
-    }
-	    
-    template <size_t N>
-    template <class Tar, class ITp, typename... Args>
-    template <class... Is>
-    inline void SetLInds<N>::xx<Tar,ITp,Args...>::
-    assign(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
-    {
-	SetLInds<N-1>::template xx<ITp,Args...>::assign(tar, args..., itp, std::get<N>(itp), is...);
-    }
-
-    template <size_t N>
-    template <class Tar, class ITp, typename... Args>
-    template <class... Is>
-    inline void SetLInds<N>::xx<Tar,ITp,Args...>::
-    plus(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
-    {
-	SetLInds<N-1>::template xx<ITp,Args...>::plus(tar, args..., itp, std::get<N>(itp), is...);
-    }
-
-    //template <>
-    template <class ITuple>
-    inline void SetLInds<0>::mkLIT(const ITuple& itp, const std::shared_ptr<DynamicIndex>& di)
-    {
-	constexpr size_t NN = std::tuple_size<ITuple>::value-1;
-	const size_t nn = di->dim()-1;
-	typedef typename std::remove_reference<decltype(*std::get<NN>(itp))>::type T;
-	std::get<NN>(itp) =
-	    std::dynamic_pointer_cast<T>(di->get(nn))->getIndex();
-    }
-
-    //template <>
-    template <class Tar, class ITp, typename... Args>
-    template <class... Is>
-    inline void SetLInds<0>::xx<Tar,ITp,Args...>::
-    assign(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
-    {
-	tar.assign(args..., std::get<0>(itp), is...);
-    }
-
-    //template <>
-    template <class Tar, class ITp, typename... Args>
-    template <class... Is>
-    inline void SetLInds<0>::xx<Tar,ITp,Args...>::
-    plus(Tar& tar, const Args&... args, const ITp& itp, const std::shared_ptr<Is>&... is)
-    {
-	tar.plus(args..., std::get<0>(itp), is...);
-    }
-
-    template <class ROP, class... Indices>
-    size_t INDS<ROP,Indices...>::CallHLOpBase::depth() const
-    {
-	return mDepth;
-    }
-
-    
-    template <class ROP, class... Indices>
-    template <class... LIndices>
-    void INDS<ROP,Indices...>::CallHLOp<LIndices...>::
-    assign(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
-	   const std::shared_ptr<Indices>&... is,
-	   const std::shared_ptr<DynamicIndex>& di) const
-    {
-	auto ip = di->get(di->dim() - this->depth());
-	auto iregn = ip->regN();
-	if(iregn.type >= 0 and iregn.depth > sizeof...(LIndices)){
-	    sNext[iregn.type]->assign(target, source, is..., di);
-	}
-	else {
-	    ITuple itp;
-	    SetLInds<sizeof...(LIndices)-1>::mkLIT(itp,di);
-	    auto mi = mkIndex(is...,mkSubSpaceX(di, di->dim() - this->depth()));
-	    SetLInds<sizeof...(LIndices)-1>::
-		template xx<HighLevelOpHolder<ROP>,ITuple,HighLevelOpHolder<ROP>,decltype(mi)>::
-		assign(target, source, mi, itp);
-	}
-    }
-
-    template <class ROP, class... Indices>
-    template <class... LIndices>
-    void INDS<ROP,Indices...>::CallHLOp<LIndices...>::
-    plus(HighLevelOpHolder<ROP>& target, const HighLevelOpHolder<ROP>& source,
-	 const std::shared_ptr<Indices>&... is,
-	 const std::shared_ptr<DynamicIndex>& di) const
-    {
-	auto ip = di->get(di->dim() - this->depth());
-	auto iregn = ip->regN();
-	if(iregn.type >= 0 and iregn.depth > sizeof...(LIndices)){
-	    sNext[iregn.type]->plus(target, source, is..., di);
-	}
-	else {
-	    ITuple itp;
-	    SetLInds<sizeof...(LIndices)-1>::mkLIT(itp,di);
-	    auto mi = mkIndex(is...,mkSubSpaceX(di, di->dim() - this->depth()));
-	    SetLInds<sizeof...(LIndices)-1>::
-		template xx<HighLevelOpHolder<ROP>,ITuple,HighLevelOpHolder<ROP>,decltype(mi)>::
-		plus(target, source, mi, itp);
-	}
-    }
-    */
 }
 

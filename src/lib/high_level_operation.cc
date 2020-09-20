@@ -32,4 +32,9 @@ namespace MultiArrayTools
     template class HighLevelOpRoot<OpCD>;
     template class HighLevelOpRoot<OpD>;
 
+    template HighLevelOpHolder<OpCD> mkHLO(const OpCD& op);
+    template HighLevelOpHolder<OpD> mkHLO(const OpD& op);
+    template HighLevelOpHolder<OpCD> mkHLOV(double val);
+    template HighLevelOpHolder<OpD> mkHLOV(double val);
+
 }

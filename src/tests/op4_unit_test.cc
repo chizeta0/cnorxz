@@ -307,8 +307,10 @@ namespace
 	auto hop2 = hl_exp(hop1);
 	auto hop4 = hop3 * hop2;
 	auto hopr = mkHLO(resx4(i1,di4));
+	auto hop5 = mkHLOV<OpCD>(1.);
+	auto hop6 = hop4 - hop5;
 	//hopr.assign( hop4, mi, ic_1, ic_2 );
-	hopr.xassign( hop4, di4, i1 );
+	hopr.xassign( hop6, di4, i1 );
 	
 	auto i2_1 = imap.at("i2_1");
 	auto i2_2 = imap.at("i2_2");
@@ -331,11 +333,12 @@ namespace
 			    auto resx3v = xround(resx3.vdata()[jr]);
 			    auto resx4v = xround(resx4.vdata()[jr]);
 	 		    auto x12 = xround(ma1.vdata()[j1]*exp(ma2.vdata()[j2]));
+	 		    auto x121 = xround(ma1.vdata()[j1]*exp(ma2.vdata()[j2])-1.);
 			    EXPECT_EQ( resv, x12 );
 			    EXPECT_EQ( resx1v, x12 );
 			    EXPECT_EQ( resx2v, x12 );
 			    EXPECT_EQ( resx3v, x12 );
-			    EXPECT_EQ( resx4v, x12 );
+			    EXPECT_EQ( resx4v, x121 );
 			}
 		    }
 		}

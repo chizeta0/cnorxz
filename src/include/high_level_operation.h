@@ -27,7 +27,9 @@ namespace MultiArrayTools
     class HighLevelOpBase
     {
     public:
-    
+
+	typedef OperationValue<double> VOP;
+	
         template <class... Indices>
         struct RetT
         {
@@ -59,7 +61,8 @@ namespace MultiArrayTools
 #undef reg_ind3
 
         virtual ROP* get() = 0;
-
+	virtual VOP* vget() = 0;
+	
     };
 
     template <class ROP>
@@ -67,7 +70,8 @@ namespace MultiArrayTools
     {
     private:
         typedef HighLevelOpBase<ROP> B;
-
+	typedef typename B::VOP VOP;
+	
 	template <class... Inds>
 	typename B::template RetT<Inds...> xcreate(const std::shared_ptr<Inds>&... inds);
     
@@ -91,7 +95,7 @@ namespace MultiArrayTools
 #include "hl_reg_ind.h"
 
         virtual ROP* get() override final;
-
+	virtual VOP* vget() override final;
    
     };
 
@@ -99,6 +103,30 @@ namespace MultiArrayTools
     extern template class HighLevelOpBase<OpD>;
     extern template class HighLevelOpRoot<OpCD>;
     extern template class HighLevelOpRoot<OpD>;
+
+    template <class ROP>
+    class HighLevelOpValue : public HighLevelOpBase<ROP>
+    {
+    private:
+        typedef HighLevelOpBase<ROP> B;
+	typedef typename B::VOP VOP;
+	
+	template <class... Inds>
+	typename B::template RetT<Inds...> xcreate(const std::shared_ptr<Inds>&... inds);
+    
+        VOP mOp;
+    public:
+
+        HighLevelOpValue(const VOP& vop);
+        
+        virtual bool root() const override final;
+
+#include "hl_reg_ind.h"
+    
+        virtual ROP* get() override final;
+	virtual VOP* vget() override final;
+   
+    };
     
     template <class OpF, class... Ops>
     auto mkFOp(const Ops&... ops)
@@ -113,6 +141,7 @@ namespace MultiArrayTools
     {
     public:
         typedef HighLevelOpBase<ROP> B;
+	typedef typename B::VOP VOP;
 
     private:
         std::array<std::shared_ptr<HighLevelOpBase<ROP>>,N> mIn;
@@ -127,6 +156,7 @@ namespace MultiArrayTools
         virtual bool root() const override final;
     
         virtual ROP* get() override final;
+	virtual VOP* vget() override final;
     
 #include "hl_reg_ind.h"
 
@@ -211,6 +241,14 @@ namespace MultiArrayTools
     template <class ROP>
     HighLevelOpHolder<ROP> mkHLO(const ROP& op);
 
+    template <class ROP>
+    HighLevelOpHolder<ROP> mkHLOV(double val);
+
+    extern template HighLevelOpHolder<OpCD> mkHLO(const OpCD& op);
+    extern template HighLevelOpHolder<OpD> mkHLO(const OpD& op);
+    extern template HighLevelOpHolder<OpCD> mkHLOV(double val);
+    extern template HighLevelOpHolder<OpD> mkHLOV(double val);
+    
 #define regFunc1(fff) template <class ROP> \
     HighLevelOpHolder<ROP> hl_##fff (const HighLevelOpHolder<ROP>& in);
 #include "extensions/math.h"
