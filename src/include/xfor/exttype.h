@@ -99,7 +99,7 @@ namespace MultiArrayHelper
 
     struct None
     {
-        static constexpr size_t VAL = 0;
+        size_t VAL = 0;
         None() = default;
         None(const None& in) = default;
         None(None&& in) = default;
