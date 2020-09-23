@@ -1,6 +1,7 @@
 
 #include "ranges/anonymous_range.h"
 #include "ranges/ranges_header.cc.h"
+#include "ma_assert.h"
 
 namespace MultiArrayTools
 {
@@ -199,7 +200,9 @@ namespace MultiArrayTools
 
     std::shared_ptr<AnonymousRange> AnonymousRange::sreplace(const std::shared_ptr<RangeBase> in, size_t num) const
     {
-	assert(mOrig[num]->size() == in->size());
+	MA_ASSERT(mOrig[num]->size() == in->size(),
+		  std::string("replaced range has different size than given range (")
+		  +std::to_string(mOrig[num]->size())+" vs "+std::to_string(in->size())+")");
         auto tmp = mOrig;
 	tmp[num] = in;
         AnonymousRangeFactory arf(tmp);
@@ -212,7 +215,9 @@ namespace MultiArrayTools
         for(auto& x: in){
             nsize *= x->size();
         }
-	assert(mOrig[num]->size() == nsize);
+	MA_ASSERT(mOrig[num]->size() == nsize,
+		  std::string("replaced range has different size than given range (")
+		  +std::to_string(mOrig[num]->size())+" vs "+std::to_string(nsize)+")");
         auto norig = mOrig;
         norig.resize(mOrig.size() + in.size() - 1);
         for(size_t i = 0; i != num; ++i){
@@ -240,7 +245,9 @@ namespace MultiArrayTools
                 assert(cnt++ == x);
                 rep_size *= mOrig[x]->size();
             }
-            assert(rep_size == in->size());
+	    MA_ASSERT(rep_size == in->size(),
+		      std::string("replaced range has different size than given range (")
+		      +std::to_string(rep_size)+" vs "+std::to_string(in->size())+")");
             vector<std::shared_ptr<RangeBase>> norig;
             norig.reserve(mOrig.size()-num.size()+1);
             norig.insert(norig.end(),mOrig.begin(),mOrig.begin()+num[0]);

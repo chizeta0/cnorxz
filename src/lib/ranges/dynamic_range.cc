@@ -1,6 +1,7 @@
 
 #include "ranges/dynamic_range.h"
 #include "ranges/ranges_header.cc.h"
+#include "ma_assert.h"
 
 namespace MultiArrayTools
 {
@@ -139,7 +140,7 @@ namespace MultiArrayTools
     
     DynamicIndex& DynamicIndex::sync()
     {
-        assert(mIvecInit);
+	MA_ASSERT(mIvecInit, "ivec not initialized");
 	size_t sv = 1;
 	IB::mPos = 0;
 	for(size_t i = 0; i != mIVec.size(); ++i){
@@ -163,7 +164,7 @@ namespace MultiArrayTools
     DynamicIndex& DynamicIndex::operator()(const vector<std::shared_ptr<IndexW>>& ivec)
     {
         mIvecInit = true;
-        assert(mIVec.size() == ivec.size());
+	MA_ASSERT(mIVec.size() == ivec.size(), std::string("require ")+std::to_string(mIVec.size())+" indices");
 	for(size_t i = 0; i != mIVec.size(); ++i){
 	    mIVec[i].first = ivec[i];
 	}
@@ -174,19 +175,22 @@ namespace MultiArrayTools
     DynamicIndex& DynamicIndex::operator()(const vector<std::string>& inames)
     {
         mIvecInit = true;
-        assert(mIVec.size() == inames.size());
+	MA_ASSERT(mIVec.size() == inames.size(), std::string("require ")+std::to_string(mIVec.size())+" indices");
 	for(size_t i = 0; i != mIVec.size(); ++i){
 	    const std::string& iname = inames[i];
             const std::string smeta = (iname.find_first_of("=") != std::string::npos) ? iname.substr(iname.find_first_of("=")+1) : "";
 	    if(sIMap.count(iname) != 0){
-		assert(this->range()->sub(i) == sIMap.at(iname)->range());
+		MA_ASSERT(this->range()->sub(i) == sIMap.at(iname)->range(),
+			  std::string("range of index at position ")+std::to_string(i)+
+			  " is different from range of index with name "+iname);
 	    }
 	    else {
 		sIMap[iname] = this->range()->sub(i)->aindex();
 	    }
             if(smeta != ""){
                 sIMap.at(iname)->at(smeta);
-                assert(sIMap.at(iname)->pos() != sIMap.at(iname)->max());
+		MA_ASSERT(sIMap.at(iname)->pos() != sIMap.at(iname)->max(),
+			  smeta+" is not part of range of index with name "+iname);
             }
 	    mIVec[i].first = sIMap.at(iname);
 	}
@@ -266,13 +270,13 @@ namespace MultiArrayTools
     
     const IndexW& DynamicIndex::get(size_t n) const
     {
-        assert(mIvecInit);
+	MA_ASSERT(mIvecInit, "ivec not initialized");
         return *mIVec[n].first;
     }
 
     const std::shared_ptr<IndexW>& DynamicIndex::getP(size_t n) const
     {
-        assert(mIvecInit);
+	MA_ASSERT(mIvecInit, "ivec not initialized");
 	return mIVec[n].first;
     }
     
@@ -459,7 +463,9 @@ namespace MultiArrayTools
 
     void DynamicRange::sreplace(const std::shared_ptr<RangeBase> in, size_t num)
     {
-	assert(mOrig[num]->size() == in->size());
+	MA_ASSERT(mOrig[num]->size() == in->size(),
+		  std::string("replaced range has different size than given range (")
+		  +std::to_string(mOrig[num]->size())+" vs "+std::to_string(in->size())+")");
 	mOrig[num] = in;
     }
 
