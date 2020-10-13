@@ -59,7 +59,18 @@ namespace MultiArrayTools
 	//virtual bool isMeta(const U& metaPos) const = 0;
 	inline IndexWrapperBase& at(const std::string smeta)
 	{
+	    // ignore spaces, " and ' (string identifiers)
+	    auto rem = [](unsigned char x)
+	    {
+		bool out = false;
+		if(x == ' ' or x == '"' or x == '\'') out = true;
+		return out;
+	    };
+	    std::string redmeta = smeta;
+	    redmeta.erase(std::remove_if(redmeta.begin(), redmeta.end(), rem), redmeta.end());
 	    for((*this) = 0; this->pos() != this->max(); ++(*this)){
+		std::string red = this->stringMeta();
+		red.erase(std::remove_if(red.begin(), red.end(), rem), red.end());
 		if(this->stringMeta() == smeta){
 		    break;
 		}
