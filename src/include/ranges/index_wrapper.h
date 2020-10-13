@@ -71,7 +71,7 @@ namespace MultiArrayTools
 	    for((*this) = 0; this->pos() != this->max(); ++(*this)){
 		std::string red = this->stringMeta();
 		red.erase(std::remove_if(red.begin(), red.end(), rem), red.end());
-		if(this->stringMeta() == smeta){
+		if(red == redmeta){
 		    break;
 		}
 	    }
