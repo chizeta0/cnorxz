@@ -143,6 +143,19 @@ namespace MultiArrayTools
     };
 
     template <typename T>
+    struct negate : public StaticFunctionBase<T, negate<T>, T>
+    {
+	static constexpr bool FISSTATIC = true;
+	using StaticFunctionBase<T, negate<T>, T>::apply;
+	
+	static inline T apply(T a)
+	{
+	    return -a;
+	}
+
+    };
+
+    template <typename T>
     using plus = plusx<T,T>;
 
     template <typename T>

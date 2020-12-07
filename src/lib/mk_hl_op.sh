@@ -33,3 +33,16 @@ for fff in plus minus multiplies divides ; do
     echo "    template class HighLevelOp<OpD,${fff}x<double,double>,2>;" >> ${file}
     echo "}" >> ${file}
 done
+
+for fff in negate ; do
+    file=hl_ops/${fff}.cc
+    test -f ${file} && rm -f ${file}
+    echo "#include \"multi_array_header.h\"" >> ${file}
+    echo "#include \"high_level_operation.h\"" >> ${file}
+    echo "" >> ${file}
+    echo "namespace MultiArrayTools" >> ${file}
+    echo "{" >> ${file}
+    echo "    template class HighLevelOp<OpCD,${fff}<double>,1>;" >> ${file}
+    echo "    template class HighLevelOp<OpD,${fff}<double>,1>;" >> ${file}
+    echo "}" >> ${file}
+done
