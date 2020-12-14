@@ -180,9 +180,18 @@ namespace MultiArrayTools
 	    const std::string& iname = inames[i];
             const std::string smeta = (iname.find_first_of("=") != std::string::npos) ? iname.substr(iname.find_first_of("=")+1) : "";
 	    if(sIMap.count(iname) != 0){
-		MA_ASSERT(this->range()->sub(i) == sIMap.at(iname)->range(),
-			  std::string("range of index at position ")+std::to_string(i)+
-			  " is different from range of index with name "+iname);
+                auto thisr = this->range()->sub(i);
+                auto mapr = sIMap.at(iname)->range();
+                if(thisr != mapr){
+                    MA_WARNING(std::string("range of index at position ")+std::to_string(i)+
+                               " is different from range of index with name "+iname);
+                    MA_ASSERT(thisr->size() == mapr->size(),
+                              "different size!");
+                    for(size_t jj = 0; jj != thisr->size(); ++jj){
+                        MA_ASSERT(thisr->stringMeta(jj) == mapr->stringMeta(jj),
+                                  "different meta");
+                    }
+                }
 	    }
 	    else {
 		sIMap[iname] = this->range()->sub(i)->aindex();
