@@ -138,6 +138,20 @@ namespace MultiArrayTools
         return mkGenMapRwith<SpaceType::ANY>(outr, f, ranges... );
     }
 
+    template <class Func, class... Indices>
+    auto mkMapR(const std::shared_ptr<Func>& func, const std::shared_ptr<Indices>&... is)
+	-> decltype( mkMapR( mkMapOp( func, is... ), is->range()... ) )
+    {
+	return mkMapR( mkMapOp( func, is... ), is->range()... );
+    }
+
+    template <class TarRange, class Func, class... Indices>
+    auto mkMapRwith(const std::shared_ptr<MapORType<Func,SpaceType::ANY>>& outr, const std::shared_ptr<Func>& func, const std::shared_ptr<Indices>&... is)
+	-> decltype( mkMapRwith(outr, mkMapOp( func, is... ), is->range()... ) )
+    {
+	return mkMapRwith(outr, mkMapOp( func, is... ), is->range()... );
+    }
+
     template <class Op, class MA, class... IndexTypes>
     auto mkMapI(const std::tuple<Op,MA>& f, std::shared_ptr<IndexTypes>... indices)
 	-> decltype( mkGenMapI<SpaceType::ANY>(f, indices... ) )
