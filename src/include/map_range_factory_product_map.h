@@ -14,7 +14,7 @@ namespace MultiArrayTools
     {
     public:
 
-	template <class MapF, SpaceType XSTYPE, class... Ranges>
+	template <class ORType, class MapF, SpaceType XSTYPE, class... Ranges>
 	friend class GenMapRangeFactory;
 	
     private:

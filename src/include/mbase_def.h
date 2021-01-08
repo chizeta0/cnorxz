@@ -79,15 +79,15 @@ namespace MultiArrayTools
     class ConstSliceDef;
 
     // map_range.h
-    template <class MapF, SpaceType XSTYPE, class... Indices>
+    template <class OITpye, class MapF, SpaceType XSTYPE, class... Indices>
     class GenMapIndex;
     
     // map_range.h
-    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class MapF, SpaceType XSTYPE, class... Ranges>
     class GenMapRangeFactory;
 
     // map_range.h
-    template <class MapF, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class MapF, SpaceType XSTYPE, class... Ranges>
     class GenMapRange;
 }
 

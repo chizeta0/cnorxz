@@ -87,27 +87,28 @@ namespace MultiArrayTools
 
     };
     
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    class GenMapIndex : public IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    class GenMapIndex : public IndexInterface<GenMapIndex<OIType,Op,XSTYPE,Indices...>,
                                               typename Op::value_type>
                                               //std::tuple<typename Indices::MetaType...> >
     {
     public:
 	
-	typedef IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,
+	typedef IndexInterface<GenMapIndex<OIType,Op,XSTYPE,Indices...>,
                                typename Op::value_type> IB;
 			       //std::tuple<typename Indices::MetaType...> > IB;
 	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
 	//typedef std::tuple<typename Indices::MetaType...> MetaType;
         typedef typename Op::value_type MetaType;
-	typedef GenMapRange<Op,XSTYPE,typename Indices::RangeType...> RangeType;
+	typedef GenMapRange<typename OIType::RangeType,Op,XSTYPE,typename Indices::RangeType...> RangeType;
 	typedef GenMapIndex IType;
-	typedef SingleIndex<typename Op::value_type,XSTYPE> OIType;
+	//typedef SingleIndex<typename Op::value_type,XSTYPE> OIType;
 	
 	static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
 	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
-
+	static void check_type() { static_assert( std::is_same<typename OIType::MetaType,typename Op::value_type>::value, "inconsitent value types" ); }
+	
         static constexpr SpaceType STYPE = XSTYPE;
         static constexpr bool PARALLEL = false;
         
@@ -207,12 +208,12 @@ namespace MultiArrayTools
      *************************/
 
     // NOT THREAD SAVE
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     class GenMapRangeFactory : public RangeFactoryBase
     {
     public:
-	typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
-	typedef GenMapRange<Op,XSTYPE,Ranges...> oType;
+	//typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
+	typedef GenMapRange<ORType,Op,XSTYPE,Ranges...> oType;
 	
 	GenMapRangeFactory() = delete;
 
@@ -222,14 +223,14 @@ namespace MultiArrayTools
 
         template <class MA>
         GenMapRangeFactory(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
-                           const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& st);
+                           const typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::Space& st);
 
         template <class MA>
 	GenMapRangeFactory(const std::tuple<Op,MA>& mapf, const std::shared_ptr<Ranges>&... rs);
 
         template <class MA>
 	GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
-                           const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& space);
+                           const typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::Space& space);
 
 	virtual std::shared_ptr<RangeBase> create() override;
 
@@ -243,16 +244,16 @@ namespace MultiArrayTools
      *   MapRange   *
      ******************/
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    class GenMapRange : public RangeInterface<GenMapIndex<Op,XSTYPE,typename Ranges::IndexType...> >
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    class GenMapRange : public RangeInterface<GenMapIndex<typename ORType::IndexType,Op,XSTYPE,typename Ranges::IndexType...> >
     {
     public:
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
-	typedef GenMapIndex<Op,XSTYPE,typename Ranges::IndexType...> IndexType;
-	typedef GenMapRange RangeType;
-	typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
-	typedef SingleRangeFactory<typename Op::value_type,XSTYPE> ORFType;
+	typedef GenMapIndex<typename ORType::IndexType,Op,XSTYPE,typename Ranges::IndexType...> IndexType;
+	//typedef GenMapRange RangeType;
+	//typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
+	//typedef SingleRangeFactory<typename Op::value_type,XSTYPE> ORFType;
         typedef typename Op::value_type MetaType;
 	//typedef typename RangeInterface<MapIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
@@ -326,7 +327,7 @@ namespace MultiArrayTools
 	auto cat(const std::shared_ptr<GenMapRange<ERanges...> >& erange)
 	    -> std::shared_ptr<GenMapRange<Ranges...,ERanges...> >;
         */
-	friend GenMapRangeFactory<Op,XSTYPE,Ranges...>;
+	friend GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>;
 
 	static constexpr bool HASMETACONT = false;
 	static constexpr bool defaultable = false;
@@ -335,17 +336,17 @@ namespace MultiArrayTools
     };
 
     // for legacy
-    template <class Op, class... Indices>
-    using MapIndex = GenMapIndex<Op,SpaceType::ANY,Indices...>;
+    template <class OIType, class Op, class... Indices>
+    using MapIndex = GenMapIndex<OIType,Op,SpaceType::ANY,Indices...>;
 
-    template <class Op, class... Ranges>
-    using MapRangeFactory = GenMapRangeFactory<Op,SpaceType::ANY,Ranges...>;
+    template <class ORType, class Op, class... Ranges>
+    using MapRangeFactory = GenMapRangeFactory<ORType,Op,SpaceType::ANY,Ranges...>;
 
-    template <class Op, class... Ranges>
-    using MapRange = GenMapRange<Op,SpaceType::ANY,Ranges...>;
+    template <class ORType, class Op, class... Ranges>
+    using MapRange = GenMapRange<ORType,Op,SpaceType::ANY,Ranges...>;
 
-    template <class Op, class... Indices>
-    auto mapResult/*<MapIndex<Op,Indices...> >*/(const std::shared_ptr<MapIndex<Op,Indices...> >& ind)
+    template <class OIType, class Op, class... Indices>
+    auto mapResult/*<MapIndex<Op,Indices...> >*/(const std::shared_ptr<MapIndex<OIType,Op,Indices...> >& ind)
 	-> decltype(ind->outIndex())
     {
 	return ind->outIndex();

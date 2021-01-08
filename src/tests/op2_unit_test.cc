@@ -55,7 +55,8 @@ namespace
 
         typedef std::remove_reference<decltype(*mkMapR( mkMapOp(std::make_shared<plus<size_t>>(),getIndex(sr1ptr),getIndex(sr2ptr)) , sr1ptr, sr2ptr ))>::type MpRange;
         std::shared_ptr<MpRange> mpr1ptr;
-        typedef MpRange::ORType TRange;
+        //typedef MpRange::ORType TRange;
+	typedef std::remove_reference<decltype(*mpr1ptr->outRange())>::type TRange;
         
 	MapTest()
 	{

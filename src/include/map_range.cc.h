@@ -90,10 +90,10 @@ namespace MultiArrayTools
     }
     */
     
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class MRange>
-    GenMapIndex<Op,XSTYPE,Indices...>::GenMapIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<GenMapIndex<Op,XSTYPE,Indices...>,typename Op::value_type>(range, 0)
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>::GenMapIndex(const std::shared_ptr<MRange>& range) :
+	IndexInterface<GenMapIndex<OIType,Op,XSTYPE,Indices...>,typename Op::value_type>(range, 0)
     {
 	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -103,9 +103,9 @@ namespace MultiArrayTools
 	    ( std::dynamic_pointer_cast<RangeType>( IB::mRangePtr )->outRange()->begin() );
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <size_t DIR>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::up()
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
 	IB::mPos += RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
@@ -113,9 +113,9 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <size_t DIR>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::down()
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
 	IB::mPos -= RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
@@ -123,42 +123,42 @@ namespace MultiArrayTools
 	return *this;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <size_t N>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
     {
 	return *std::get<N>(mIPack);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <size_t N>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>(mIPack);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::outIndex() const -> std::shared_ptr<OIType>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::outIndex() const -> std::shared_ptr<OIType>
     {
 	return mOutIndex;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::operator()(const std::shared_ptr<Indices>&... indices)
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator()(const std::shared_ptr<Indices>&... indices)
     {
 	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
 	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return *this;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    IndexType GenMapIndex<Op,XSTYPE,Indices...>::type() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    IndexType GenMapIndex<OIType,Op,XSTYPE,Indices...>::type() const
     {
 	return IndexType::MULTI;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::operator=(size_t pos)
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator=(size_t pos)
     {
         (*mOutIndex) = pos;
 	IB::mPos = mOutIndex->pos();
@@ -166,8 +166,8 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::operator++()
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator++()
     {
 	//RPackNum<sizeof...(Indices)-1>::pp( mIPack );
 	++(*mOutIndex);
@@ -175,8 +175,8 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::operator--()
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator--()
     {
 	//RPackNum<sizeof...(Indices)-1>::mm( mIPack );
         --(*mOutIndex);
@@ -184,8 +184,8 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    int GenMapIndex<Op,XSTYPE,Indices...>::pp(std::intptr_t idxPtrNum)
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    int GenMapIndex<OIType,Op,XSTYPE,Indices...>::pp(std::intptr_t idxPtrNum)
     {
 	//int tmp = RPackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
         mOutIndex->pp(idxPtrNum);
@@ -194,8 +194,8 @@ namespace MultiArrayTools
 	return 1;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    int GenMapIndex<Op,XSTYPE,Indices...>::mm(std::intptr_t idxPtrNum)
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    int GenMapIndex<OIType,Op,XSTYPE,Indices...>::mm(std::intptr_t idxPtrNum)
     {
 	//int tmp = RPackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
         mOutIndex->mm(idxPtrNum);
@@ -204,14 +204,14 @@ namespace MultiArrayTools
 	return 1;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    std::string GenMapIndex<Op,XSTYPE,Indices...>::stringMeta() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    std::string GenMapIndex<OIType,Op,XSTYPE,Indices...>::stringMeta() const
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr )->stringMeta(IB::mPos);
     }
     
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    typename GenMapIndex<Op,XSTYPE,Indices...>::MetaType GenMapIndex<Op,XSTYPE,Indices...>::meta() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    typename GenMapIndex<OIType,Op,XSTYPE,Indices...>::MetaType GenMapIndex<OIType,Op,XSTYPE,Indices...>::meta() const
     {
 	//MetaType metaTuple;
 	//RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
@@ -219,8 +219,8 @@ namespace MultiArrayTools
         return mOutIndex->meta();
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    GenMapIndex<Op,XSTYPE,Indices...>& GenMapIndex<Op,XSTYPE,Indices...>::at(const MetaType& metaPos)
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::at(const MetaType& metaPos)
     {
 	//RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
 	//IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
@@ -229,46 +229,46 @@ namespace MultiArrayTools
 	return *this;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    size_t GenMapIndex<Op,XSTYPE,Indices...>::posAt(const MetaType& metaPos) const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    size_t GenMapIndex<OIType,Op,XSTYPE,Indices...>::posAt(const MetaType& metaPos) const
     {
         return range()->outRange()->getMeta(metaPos);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    size_t GenMapIndex<Op,XSTYPE,Indices...>::dim() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    size_t GenMapIndex<OIType,Op,XSTYPE,Indices...>::dim() const
     {
 	return sizeof...(Indices);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    bool GenMapIndex<Op,XSTYPE,Indices...>::first() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    bool GenMapIndex<OIType,Op,XSTYPE,Indices...>::first() const
     {
 	return IB::mPos == 0;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    bool GenMapIndex<Op,XSTYPE,Indices...>::last() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    bool GenMapIndex<OIType,Op,XSTYPE,Indices...>::last() const
     {
 	return IB::mPos == IB::mMax - 1;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    std::shared_ptr<typename GenMapIndex<Op,XSTYPE,Indices...>::RangeType>
-    GenMapIndex<Op,XSTYPE,Indices...>::range() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    std::shared_ptr<typename GenMapIndex<OIType,Op,XSTYPE,Indices...>::RangeType>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>::range() const
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <size_t N>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>(mIPack);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>	
-    size_t GenMapIndex<Op,XSTYPE,Indices...>::getStepSize(size_t n) const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>	
+    size_t GenMapIndex<OIType,Op,XSTYPE,Indices...>::getStepSize(size_t n) const
     {
 	if(n >= sizeof...(Indices)){
 	    assert(0);
@@ -277,14 +277,14 @@ namespace MultiArrayTools
 	return mBlockSizes[n+1];
     }
     
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    std::string GenMapIndex<Op,XSTYPE,Indices...>::id() const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    std::string GenMapIndex<OIType,Op,XSTYPE,Indices...>::id() const
     {
 	return std::string("mul") + std::to_string(IB::mId);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
-    void GenMapIndex<Op,XSTYPE,Indices...>::print(size_t offset) const
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    void GenMapIndex<OIType,Op,XSTYPE,Indices...>::print(size_t offset) const
     {
 	if(offset == 0){
 	    std::cout << " === " << std::endl;
@@ -295,29 +295,29 @@ namespace MultiArrayTools
 	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class Exprs>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::ifor(size_t step, Exprs exs) const
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::ifor(size_t step, Exprs exs) const
 	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-		    (step, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<Op,XSTYPE,Indices...>,Exprs,XSTYPE>
+		    (step, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<OIType,Op,XSTYPE,Indices...>,Exprs,XSTYPE>
 		     ( range()->map(), this, step, exs ) ) )
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh
-	    (0, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<Op,XSTYPE,Indices...>,Exprs,XSTYPE>
+	    (0, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<OIType,Op,XSTYPE,Indices...>,Exprs,XSTYPE>
 	     ( range()->map(), this, step, exs ) );
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class Exprs>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::pifor(size_t step, Exprs exs) const
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::pifor(size_t step, Exprs exs) const
 	-> decltype(ifor(step, exs))
     {
 	return ifor(step, exs);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Indices>
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class Exprs>
-    auto GenMapIndex<Op,XSTYPE,Indices...>::iforh(size_t step, Exprs exs) const
+    auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::iforh(size_t step, Exprs exs) const
 	-> decltype(ifor(step, exs))
     {
 	return ifor(step, exs);
@@ -327,54 +327,54 @@ namespace MultiArrayTools
      *   MapRangeFactory   *
      *************************/
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::shared_ptr<ORType>& outr,
+    GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::shared_ptr<ORType>& outr,
                                                                 const std::tuple<Op,MA>& mapf,
                                                                 const std::shared_ptr<Ranges>&... rs)
     {
-	mProd = std::shared_ptr< GenMapRange<Op,XSTYPE,Ranges...> >
-            ( new GenMapRange<Op,XSTYPE,Ranges...>( outr, mapf, rs... ) );
+	mProd = std::shared_ptr< GenMapRange<ORType,Op,XSTYPE,Ranges...> >
+            ( new GenMapRange<ORType,Op,XSTYPE,Ranges...>( outr, mapf, rs... ) );
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::shared_ptr<ORType>& outr,
+    GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::shared_ptr<ORType>& outr,
                                                                 const std::tuple<Op,MA>& mapf,
-                                                                const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& st)
+                                                                const typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::Space& st)
     {
-	mProd = std::shared_ptr< GenMapRange<Op,XSTYPE,Ranges...> >
-            ( new GenMapRange<Op,XSTYPE,Ranges...>( outr, mapf, st ) );
+	mProd = std::shared_ptr< GenMapRange<ORType,Op,XSTYPE,Ranges...> >
+            ( new GenMapRange<ORType,Op,XSTYPE,Ranges...>( outr, mapf, st ) );
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
+    GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
                                                                 const std::shared_ptr<Ranges>&... rs)
     {
-	mProd = std::shared_ptr< GenMapRange<Op,XSTYPE,Ranges...> >
-            ( new GenMapRange<Op,XSTYPE,Ranges...>( mapf, rs... ) );
+	mProd = std::shared_ptr< GenMapRange<ORType,Op,XSTYPE,Ranges...> >
+            ( new GenMapRange<ORType,Op,XSTYPE,Ranges...>( mapf, rs... ) );
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRangeFactory<Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
-                                                                const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& st)
+    GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>::GenMapRangeFactory(const std::tuple<Op,MA>& mapf,
+                                                                const typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::Space& st)
     {
-	mProd = std::shared_ptr< GenMapRange<Op,XSTYPE,Ranges...> >
-            ( new GenMapRange<Op,XSTYPE,Ranges...>( mapf, st ) );
+	mProd = std::shared_ptr< GenMapRange<ORType,Op,XSTYPE,Ranges...> >
+            ( new GenMapRange<ORType,Op,XSTYPE,Ranges...>( mapf, st ) );
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    std::shared_ptr<RangeBase> GenMapRangeFactory<Op,XSTYPE,Ranges...>::create()
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    std::shared_ptr<RangeBase> GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>::create()
     {
 	mProd = checkIfCreated( std::dynamic_pointer_cast<oType>( mProd )->mSpace );
 	setSelf();
 	return mProd;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    std::shared_ptr<RangeBase> GenMapRangeFactory<Op,XSTYPE,Ranges...>::checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& ptp)
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    std::shared_ptr<RangeBase> GenMapRangeFactory<ORType,Op,XSTYPE,Ranges...>::checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& ptp)
     {
 	std::shared_ptr<RangeBase> out;
 	bool check = false;
@@ -463,9 +463,9 @@ namespace MultiArrayTools
         }
     };
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    void GenMapRange<Op,XSTYPE,Ranges...>::mkOutRange(const MA& mapf)
+    void GenMapRange<ORType,Op,XSTYPE,Ranges...>::mkOutRange(const MA& mapf)
     {
 	//FunctionalMultiArray<typename MapF::value_type,MapF,Ranges...> fma(mSpace, mMapf);
         OutRangeMaker<XSTYPE>::mk(mOutRange,mMapMult,mapf);
@@ -477,9 +477,9 @@ namespace MultiArrayTools
 
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+    GenMapRange<ORType,Op,XSTYPE,Ranges...>::GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
                                                   const std::shared_ptr<Ranges>&... rs) :
         mSpace(std::make_tuple(rs...)),
         mMapf(std::get<0>(mapf)),
@@ -495,9 +495,9 @@ namespace MultiArrayTools
         }
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
+    GenMapRange<ORType,Op,XSTYPE,Ranges...>::GenMapRange(const std::shared_ptr<ORType>& outr, const std::tuple<Op,MA>& mapf,
                                                   const Space& space) :
         mSpace(space),
         mMapf(std::get<0>(mapf)),
@@ -513,9 +513,9 @@ namespace MultiArrayTools
         }
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::tuple<Op,MA>& mapf,
+    GenMapRange<ORType,Op,XSTYPE,Ranges...>::GenMapRange(const std::tuple<Op,MA>& mapf,
                                                   const std::shared_ptr<Ranges>&... rs) :
 	mSpace(std::make_tuple(rs...)),
 	mMapf(std::get<0>(mapf))
@@ -523,76 +523,76 @@ namespace MultiArrayTools
 	mkOutRange(std::get<1>(mapf));
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class MA>
-    GenMapRange<Op,XSTYPE,Ranges...>::GenMapRange(const std::tuple<Op,MA>& mapf, const Space& space) :
+    GenMapRange<ORType,Op,XSTYPE,Ranges...>::GenMapRange(const std::tuple<Op,MA>& mapf, const Space& space) :
 	mSpace( space ),
 	mMapf(std::get<0>(mapf))
     {
 	mkOutRange(std::get<1>(mapf));
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <size_t N>
-    auto GenMapRange<Op,XSTYPE,Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
+    auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
     {
 	return *std::get<N>(mSpace);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <size_t N>
-    auto GenMapRange<Op,XSTYPE,Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
+    auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
     {
 	return std::get<N>(mSpace);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    auto GenMapRange<Op,XSTYPE,Ranges...>::outRange() const -> std::shared_ptr<ORType>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::outRange() const -> std::shared_ptr<ORType>
     {
 	return mOutRange;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    const Op& GenMapRange<Op,XSTYPE,Ranges...>::map() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    const Op& GenMapRange<ORType,Op,XSTYPE,Ranges...>::map() const
     {
 	return mMapf;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    size_t GenMapRange<Op,XSTYPE,Ranges...>::dim() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    size_t GenMapRange<ORType,Op,XSTYPE,Ranges...>::dim() const
     {
 	return sdim;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    size_t GenMapRange<Op,XSTYPE,Ranges...>::size() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    size_t GenMapRange<ORType,Op,XSTYPE,Ranges...>::size() const
     {
 	return mOutRange->size();
 	//return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    SpaceType GenMapRange<Op,XSTYPE,Ranges...>::spaceType() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    SpaceType GenMapRange<ORType,Op,XSTYPE,Ranges...>::spaceType() const
     {
 	return SpaceType::ANY;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    const typename GenMapRange<Op,XSTYPE,Ranges...>::Space& GenMapRange<Op,XSTYPE,Ranges...>::space() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    const typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::Space& GenMapRange<ORType,Op,XSTYPE,Ranges...>::space() const
     {
 	return mSpace;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    vector<size_t> GenMapRange<Op,XSTYPE,Ranges...>::typeNum() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    vector<size_t> GenMapRange<ORType,Op,XSTYPE,Ranges...>::typeNum() const
     {
         vector<size_t> o;
         RPackNum<sizeof...(Ranges)-1>::getTypeNum(o,mSpace);
         return o;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    size_t GenMapRange<Op,XSTYPE,Ranges...>::cmeta(char* target, size_t pos) const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    size_t GenMapRange<ORType,Op,XSTYPE,Ranges...>::cmeta(char* target, size_t pos) const
     {
         //MetaType* xtarget = reinterpret_cast<MetaType*>(target);
         assert(0);
@@ -600,22 +600,22 @@ namespace MultiArrayTools
         //return RPackNum<sizeof...(Ranges)-1>::getCMeta(xtarget,pos,mSpace,cmetaSize());
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    size_t GenMapRange<Op,XSTYPE,Ranges...>::cmetaSize() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    size_t GenMapRange<ORType,Op,XSTYPE,Ranges...>::cmetaSize() const
     {
         return RPackNum<sizeof...(Ranges)-1>::getCMetaSize(mSpace);
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    std::string GenMapRange<Op,XSTYPE,Ranges...>::stringMeta(size_t pos) const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    std::string GenMapRange<ORType,Op,XSTYPE,Ranges...>::stringMeta(size_t pos) const
     {
 	auto i = begin();
 	i = pos;
         return "[ " + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + " ]";
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    vector<char> GenMapRange<Op,XSTYPE,Ranges...>::data() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    vector<char> GenMapRange<ORType,Op,XSTYPE,Ranges...>::data() const
     {
 	DataHeader h = dataHeader();
 	vector<char> out;
@@ -626,8 +626,8 @@ namespace MultiArrayTools
 	return out;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    DataHeader GenMapRange<Op,XSTYPE,Ranges...>::dataHeader() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    DataHeader GenMapRange<ORType,Op,XSTYPE,Ranges...>::dataHeader() const
     {
 	DataHeader h;
 	h.spaceType = static_cast<int>( SpaceType::ANY );
@@ -636,56 +636,56 @@ namespace MultiArrayTools
         return h;
     }
     
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    typename GenMapRange<Op,XSTYPE,Ranges...>::IndexType GenMapRange<Op,XSTYPE,Ranges...>::begin() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::IndexType GenMapRange<ORType,Op,XSTYPE,Ranges...>::begin() const
     {
-	GenMapIndex<Op,XSTYPE,typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<GenMapRange<Op,XSTYPE,Ranges...> >
+	GenMapIndex<typename ORType::IndexType,Op,XSTYPE,typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<GenMapRange<ORType,Op,XSTYPE,Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    typename GenMapRange<Op,XSTYPE,Ranges...>::IndexType GenMapRange<Op,XSTYPE,Ranges...>::end() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    typename GenMapRange<ORType,Op,XSTYPE,Ranges...>::IndexType GenMapRange<ORType,Op,XSTYPE,Ranges...>::end() const
     {
-	GenMapIndex<Op,XSTYPE,typename Ranges::IndexType...>
-	    i( std::dynamic_pointer_cast<GenMapRange<Op,XSTYPE,Ranges...> >
+	GenMapIndex<typename ORType::IndexType,Op,XSTYPE,typename Ranges::IndexType...>
+	    i( std::dynamic_pointer_cast<GenMapRange<ORType,Op,XSTYPE,Ranges...> >
 	       ( std::shared_ptr<RangeBase>( RB::mThis )) );
 	i = size();
 	return i;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    auto GenMapRange<Op,XSTYPE,Ranges...>::mapMultiplicity() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::mapMultiplicity() const
 	-> const MultiArray<size_t,ORType>&
     {
 	return mMapMult;
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    auto GenMapRange<Op,XSTYPE,Ranges...>::explMapMultiplicity() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::explMapMultiplicity() const
 	-> ConstSlice<size_t,GenMapRange>
     {
         /*
         auto tmp = mMapMult;
-	return tmp.format( std::dynamic_pointer_cast<GenMapRange<Op,XSTYPE,Ranges...> >
+	return tmp.format( std::dynamic_pointer_cast<GenMapRange<ORType,Op,XSTYPE,Ranges...> >
 			   ( std::shared_ptr<RangeBase>( RB::mThis )) ); 
         */
-        return mMapMult.slformat(std::dynamic_pointer_cast<GenMapRange<Op,XSTYPE,Ranges...> >
+        return mMapMult.slformat(std::dynamic_pointer_cast<GenMapRange<ORType,Op,XSTYPE,Ranges...> >
                                  ( std::shared_ptr<RangeBase>( RB::mThis )));
     }
 
-    template <class Op, SpaceType XSTYPE, class... Ranges>
-    vector<size_t> GenMapRange<Op,XSTYPE,Ranges...>::mapPos() const
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
+    vector<size_t> GenMapRange<ORType,Op,XSTYPE,Ranges...>::mapPos() const
     {
         return mMapPos;
     }
     
     /*
-    template <class Op, SpaceType XSTYPE, class... Ranges>
+    template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     template <class... ERanges>
-    auto GenMapRange<Op,XSTYPE,Ranges...>::cat(const std::shared_ptr<MapRange<ERanges...> >& erange)
+    auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::cat(const std::shared_ptr<MapRange<ERanges...> >& erange)
 	-> std::shared_ptr<GenMapRange<Ranges...,ERanges...> >
     {
 	auto crange = std::tuple_cat(mSpace, erange->space());
