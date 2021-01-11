@@ -180,6 +180,10 @@ namespace MultiArrayHelper
 
         template <class... Ranges>
         static inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp);
+
+	template <class... Ranges>
+	static inline size_t getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
+				     const std::tuple<typename Ranges::IndexType::MetaType...>& meta);
     };
 
     
@@ -315,6 +319,9 @@ namespace MultiArrayHelper
         template <class... Ranges>
         static inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp);
 
+	template <class... Ranges>
+	static inline size_t getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
+				     const std::tuple<typename Ranges::IndexType::MetaType...>& meta);
     };
     
     template <IndexType IT>

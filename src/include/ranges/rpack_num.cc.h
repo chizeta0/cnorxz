@@ -405,6 +405,15 @@ namespace MultiArrayHelper
         RPackNum<N-1>::getTypeNum(res, stp);
     }
 
+    template <size_t N>
+    template <class... Ranges>
+    inline size_t RPackNum<N>::getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
+				       const std::tuple<typename Ranges::IndexType::MetaType...>& meta)
+    {
+	return RPackNum<N-1>::getMeta(space,meta) * std::get<N>(space)->size() +
+	    std::get<N>(space)->getMeta(std::get<N>(meta));
+    }
+
     
 
     template <class... Indices>
@@ -697,6 +706,13 @@ namespace MultiArrayHelper
         auto& r = *std::get<0>(stp);
         auto tn = r.typeNum();
         res.insert(res.begin(), tn.begin(), tn.end());
+    }
+
+    template <class... Ranges>
+    inline size_t RPackNum<0>::getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
+				       const std::tuple<typename Ranges::IndexType::MetaType...>& meta)
+    {
+	return std::get<0>(space)->getMeta(std::get<0>(meta));
     }
 
     

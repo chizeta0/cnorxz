@@ -190,6 +190,8 @@ namespace MultiArrayTools
 	template <size_t N>
 	auto get() const -> decltype( *std::get<N>( mSpace ) )&;
 
+	size_t getMeta(const MetaType& metaPos) const;
+
 	template <size_t N>
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
@@ -554,6 +556,12 @@ namespace MultiArrayTools
     auto MultiRange<Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
     {
 	return *std::get<N>(mSpace);
+    }
+
+    template <class... Ranges>
+    size_t MultiRange<Ranges...>::getMeta(const MetaType& metaPos) const
+    {
+	return RPackNum<sizeof...(Ranges)-1>::getMeta(mSpace,metaPos);
     }
 
     template <class... Ranges>
