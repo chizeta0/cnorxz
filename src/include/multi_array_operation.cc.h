@@ -222,7 +222,7 @@ namespace MultiArrayTools
     {
 	return RootSumN<sizeof...(Ops)-1>::get(last,mOps);
     }
-    
+
     template <typename T, class... Ops>
     inline MOp<T,Ops...>& MOp<T,Ops...>::set(ExtType last)
     {
@@ -391,6 +391,13 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
+    template <typename V, class ET>
+    inline const V& ConstOperationRoot<T,Ranges...>::vget(ET pos) const
+    {
+	return *reinterpret_cast<const V*>(mDataPtr+pos.val());
+    }
+
+    template <typename T, class... Ranges>
     template <class ET>
     inline ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::set(ET pos)
     {
@@ -438,6 +445,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Op>
+    template <typename V, class ET>
+    inline V StaticCast<T,Op>::vget(ET pos) const
+    {
+	assert(0); // !!!
+	return V();
+    }
+
+    template <typename T, class Op>
     template <class ET>
     inline StaticCast<T,Op>& StaticCast<T,Op>::set(ET pos)
     {
@@ -479,6 +494,15 @@ namespace MultiArrayTools
 	//VCHECK(mDataPtr);
 	//VCHECK(mDataPtr[pos.val()])
 	return (mWorkIndex = pos.val()).meta();
+    }
+
+    template <class Range>
+    template <typename V, class ET>
+    inline V
+    MetaOperationRoot<Range>::vget(ET pos) const
+    {
+	assert(0); // !!!
+	return V();
     }
 
     template <class Range>
@@ -634,6 +658,13 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
+    template <typename V, class ET>
+    inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
+    {
+	return *reinterpret_cast<V*>(mDataPtr + pos.val());
+    }
+
+    template <typename T, class... Ranges>
     template <class ET>
     inline OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::set(ET pos)
     {
@@ -774,6 +805,13 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
+    template <typename V, class ET>
+    inline V& ParallelOperationRoot<T,Ranges...>::vget(ET pos) const
+    {
+	return *reinterpret_cast<V*>(mDataPtr+pos.val());
+    }
+
+    template <typename T, class... Ranges>
     template <class ET>
     inline ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::set(ET pos)
     {
@@ -816,6 +854,13 @@ namespace MultiArrayTools
     inline const T& OperationValue<T>::get(ET pos) const
     {
 	return mVal;
+    }
+
+    template <typename T>
+    template <typename V, class ET>
+    inline V OperationValue<T>::vget(ET pos) const
+    {
+	return static_cast<V>(mVal); // implement???!!!
     }
 
     template <typename T>
@@ -869,6 +914,15 @@ namespace MultiArrayTools
     }
 
     template <typename T, class OpFunction, class... Ops>
+    template <typename V, class ET>
+    inline auto Operation<T,OpFunction,Ops...>::vget(ET pos) const
+    {
+	typedef std::tuple<Ops...> OpTuple;
+	return PackNum<sizeof...(Ops)-1>::
+	    template mkVOpExpr<SIZE,V,ET,OpTuple,OpFunction>(mF, pos, mOps); // implement!!!
+    }
+
+    template <typename T, class OpFunction, class... Ops>
     template <class ET>
     inline Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::set(ET pos)
     {
@@ -909,6 +963,14 @@ namespace MultiArrayTools
         -> decltype(mOp.template get<ET>(pos))
     {
 	return mOp.template get<ET>(pos);
+    }
+
+    template <typename T, class Op, class IndexType>
+    template <typename V, class ET>
+    inline auto Contraction<T,Op,IndexType>::vget(ET pos) const
+        -> decltype(mOp.template vget<V,ET>(pos))
+    {
+	return mOp.template vget<V,ET>(pos);
     }
 
     template <typename T, class Op, class IndexType>

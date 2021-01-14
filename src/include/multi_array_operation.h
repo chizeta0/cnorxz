@@ -203,6 +203,7 @@ namespace MultiArrayTools
                            EXTERN = 0,
                            TARGET = 1
     };
+
     
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr2 : public ExpressionBase
@@ -261,6 +262,10 @@ namespace MultiArrayTools
 	MOp& operator=(MOp&& in) = default;
 
         inline size_t get(ExtType last) const;
+
+	template <typename V>
+	inline size_t vget(ExtType last) const { return get(last); }
+	
 	inline MOp& set(ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
@@ -301,6 +306,10 @@ namespace MultiArrayTools
 
         inline void operator()(size_t start = 0);
         inline void get(ExtType last);
+
+	template <typename V>
+        inline void vget(ExtType last) { get(last); }
+	
         inline void operator()(size_t start, ExtType last);
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
@@ -388,6 +397,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline const T& get(ET pos) const;
 
+	template <typename V, class ET>
+	inline const V& vget(ET pos) const;
+	
 	template <class ET>
 	inline ConstOperationRoot& set(ET pos);
 
@@ -427,6 +439,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T get(ET pos) const;
 
+	template <typename V, class ET>
+	inline V vget(ET pos) const;
+
 	template <class ET>
 	inline StaticCast& set(ET pos);
 
@@ -461,6 +476,9 @@ namespace MultiArrayTools
 
 	template <class ET>
 	inline value_type get(ET pos) const;
+
+	template <typename V, class ET>
+	inline V vget(ET pos) const;
 
 	template <class ET>
 	inline MetaOperationRoot& set(ET pos);
@@ -541,6 +559,9 @@ namespace MultiArrayTools
 	template <class ET>
 	inline T& get(ET pos) const;
 
+	template <typename V, class ET>
+	inline V& vget(ET pos) const;
+	
 	template <class ET>
 	inline OperationRoot& set(ET pos);
 
@@ -612,6 +633,9 @@ namespace MultiArrayTools
         
 	template <class ET>
 	inline T& get(ET pos) const;
+	 
+	template <typename V, class ET>
+	inline V& vget(ET pos) const;
 
 	template <class ET>
 	inline ParallelOperationRoot& set(ET pos);
@@ -641,6 +665,9 @@ namespace MultiArrayTools
 
 	template <class ET>
 	inline const T& get(ET pos) const;
+
+	template <typename V, class ET>
+	inline V vget(ET pos) const;
 
 	template <class ET>
 	inline OperationValue& set(ET pos);
@@ -681,6 +708,9 @@ namespace MultiArrayTools
 	
 	template <class ET>
 	inline auto get(ET pos) const;
+
+	template <typename V, class ET>
+	inline auto vget(ET pos) const;
 
 	template <class ET>
 	inline Operation& set(ET pos);
@@ -753,6 +783,10 @@ namespace MultiArrayTools
 	template <class ET>
 	inline auto get(ET pos) const
             -> decltype(mOp.template get<ET>(pos));
+
+	template <typename V, class ET>
+	inline auto vget(ET pos) const
+            -> decltype(mOp.template vget<V,ET>(pos));
 
 	template <class ET>
 	inline Contraction& set(ET pos);

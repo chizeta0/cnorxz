@@ -81,6 +81,17 @@ namespace MultiArrayHelper
 		( f, pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
 	}
 
+	template <size_t LAST, typename V, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	static inline auto mkVOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
+	{
+	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
+	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
+	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    typedef decltype(std::get<N>(ops).template vget<V>(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
+	    return PackNum<N-1>::template mkVOpExpr<NEXT,ETuple,OpTuple,OpFunction,ArgT,Args...>
+		( f, pos, ops, std::get<N>(ops).template vget<V>(Getter<NEXT>::template getX<ETuple>( pos )), args...);
+	}
+
 	template <class OpTuple, class Expr>
 	static auto mkLoop( const OpTuple& ot, Expr exp )
 	    -> decltype(std::get<N>(ot).loop( PackNum<N-1>::mkLoop(ot,exp) ))
@@ -166,6 +177,16 @@ namespace MultiArrayHelper
 	    typedef decltype(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos ))) ArgT;
 	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
 	    //return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
+	}
+
+	template <size_t LAST, typename V, class ETuple, class OpTuple, class OpFunction, typename... Args>
+	static inline auto mkVOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, const Args&... args)
+	{
+	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
+	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
+	    static_assert(NEXT == 0, "inconsistent array positions");
+	    typedef decltype(std::get<0>(ops).template vget<V>(Getter<0>::template getX<ETuple>( pos ))) ArgT;
+	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).template vget<V>(Getter<0>::template getX<ETuple>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
