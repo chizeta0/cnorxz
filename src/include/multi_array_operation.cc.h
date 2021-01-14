@@ -401,7 +401,7 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline const V& ConstOperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	return *reinterpret_cast<const V*>(mDataPtr+pos.val());
+	return *(reinterpret_cast<const V*>(mDataPtr)+pos.val());
     }
 
     template <typename T, class... Ranges>
@@ -668,7 +668,7 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	return *reinterpret_cast<V*>(mDataPtr + pos.val());
+	return *(reinterpret_cast<const V*>(mDataPtr)+pos.val());
     }
 
     template <typename T, class... Ranges>
@@ -815,7 +815,7 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline V& ParallelOperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	return *reinterpret_cast<V*>(mDataPtr+pos.val());
+	return *(reinterpret_cast<const V*>(mDataPtr)+pos.val());
     }
 
     template <typename T, class... Ranges>

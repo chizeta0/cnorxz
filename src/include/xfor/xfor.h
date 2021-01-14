@@ -173,6 +173,8 @@ namespace MultiArrayHelper
 	ExpressionBase& operator=(const ExpressionBase& in) = default;
 	ExpressionBase& operator=(ExpressionBase&& in) = default;
 
+	virtual std::intptr_t vec(size_t vs) { return 0; }
+	
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const = 0;
 	
 	virtual void operator()(size_t mlast, DExt last) = 0;
@@ -377,6 +379,15 @@ namespace MultiArrayHelper
 	    return std::make_shared<For<IndexClass,Expr,FT>>(*this);
 	}
 
+	virtual std::intptr_t vec(size_t vs) override final
+	{
+	    if(mStep == 1 and mMax % vs == 0){
+		mMax /= vs;
+		return reinterpret_cast<std::intptr_t>(mIndPtr);
+	    }
+	    return mExpr.vec(vs);
+	}
+
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;
@@ -424,6 +435,15 @@ namespace MultiArrayHelper
 
 	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
+
+	virtual std::intptr_t vec(size_t vs) override final
+	{
+	    if(mStep == 1 and mMax % vs == 0){
+		mMax /= vs;
+		return reinterpret_cast<std::intptr_t>(mIndPtr);
+	    }
+	    return mExpr.vec(vs);
+	}
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
 	{
