@@ -16,8 +16,8 @@
 #include "pack_num.h"
 
 #include "arith.h"
-
 #include "xfor/xfor.h"
+#include "type_operations.h"
 
 namespace MultiArrayTools
 {
@@ -217,10 +217,10 @@ namespace MultiArrayTools
     template <typename V>
     struct IVAssign
     {
-	template <typename T1, typename T2>
-	static inline void f(T1& a, const T2& b)
+	template <typename T, typename Op, class ExtType>
+	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
-	    *reinterpret_cast<V*>(&a) = b;
+	    reinterpret_cast<V*>(t)[pos] = op.template vget<V>(e);
 	}
     };
 
@@ -236,13 +236,26 @@ namespace MultiArrayTools
     template <typename V>
     struct IVPlus
     {
-	template <typename T1, typename T2>
-	static inline void f(T1& a, const T2& b)
+	template <typename T, typename Op, class ExtType>
+	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
-	    *reinterpret_cast<V*>(&a) += b;
+	    reinterpret_cast<V*>(t)[pos] += op.template vget<V>(e);
 	}
     };
 
+    template <class T>
+    struct VType
+    {
+	typedef T type;
+	static constexpr size_t MULT = sizeof(type)/sizeof(T);
+    };
+
+    template <>
+    struct VType<double>
+    {
+	typedef v256 type;
+	static constexpr size_t MULT = sizeof(type)/sizeof(double);
+    };
     
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr : public ExpressionBase
@@ -376,49 +389,6 @@ namespace MultiArrayTools
         return MOp<T,Ops...>(exprs...);
     }
 
-    //template <typename T, class OpClass>
-    /*
-    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
-    class AddExpr : public ExpressionBase
-    {
-    private:
-        AddExpr() = default;
-	    	    
-        Target mTar;
-        OpClass mSec;
-        T* mDataPtr;
-            
-    public:
-
-        static constexpr size_t LAYER = 0;
-        static constexpr size_t SIZE = Target::SIZE + OpClass::SIZE;
-        typedef decltype(mTar.rootSteps(0).extend( mSec.rootSteps(0) )) ExtType;
-        //        static constexpr size_t LAYER = 0;
-        //static constexpr size_t SIZE = OpClass::SIZE;
-        //typedef decltype(mSec.rootSteps()) ExtType;
-	    
-        //AddExpr(T* dataPtr, const OpClass& sec);
-        AddExpr(T* dataPtr, const Target& tar, const OpClass& sec);
-        AddExpr(const AddExpr& in) = default;
-        AddExpr(AddExpr&& in) = default;
-        AddExpr& operator=(const AddExpr& in) = default;
-        AddExpr& operator=(AddExpr&& in) = default;
-	    
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
-	{
-	    return std::make_shared<AddExpr<T,Target,OpClass,OIA>>(*this);
-	}
-
-        inline void operator()(size_t start = 0); 
-        inline void operator()(size_t start, ExtType last);
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-
-        inline void operator()(size_t mlast, DExt last) override final;
-
-        inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
-        inline DExt dExtension() const override final;
-    };
-    */
     template <typename T, class... Ranges>
     class ConstOperationRoot : public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
     {
