@@ -174,15 +174,18 @@ namespace MultiArrayTools
     {
         ExtType last = rootSteps();
 	last.zero();
-        mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
-        //mDataPtr[last.val()] = mSec.get(last.next());
+        //mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
+	IAssign::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
+
+	//mDataPtr[last.val()] = mSec.get(last.next());
     }
 
     template <typename T, class Target, class OpClass, OpIndexAff OIA>
     inline void AssignmentExpr2<T,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
         //CHECK;
-        mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
+        //mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
+	IAssign::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
     }
     
     template <typename T, class Target, class OpClass, OpIndexAff OIA>
@@ -303,7 +306,9 @@ namespace MultiArrayTools
     template <typename T, class Target, class OpClass, OpIndexAff OIA>
     inline void AddExpr<T,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
-        mDataPtr[OpIndexResolve<OIA>::get(start,last)] += mSec.get(last.next());
+	//IPlus::f(mDataPtr[OpIndexResolve<OIA>::get(start,last)],mSec.get(last.next()));
+	IPlus::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
+        //mDataPtr[OpIndexResolve<OIA>::get(start,last)] += mSec.get(last.next());
         //mDataPtr[start] += mSec.get(last.next());
         //mDataPtr[start] += mSec.template get<ExtType>(last);
     }
@@ -313,7 +318,9 @@ namespace MultiArrayTools
     {
         ExtType last = rootSteps();
 	last.zero();
-        mDataPtr[OpIndexResolve<OIA>::get(start,last)] += mSec.get(last.next());
+        //mDataPtr[OpIndexResolve<OIA>::get(start,last)] += mSec.get(last.next());
+	//IPlus::f(mDataPtr[OpIndexResolve<OIA>::get(start,last)],mSec.get(last.next()));
+	IPlus::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
     }
     
     template <typename T, class Target, class OpClass, OpIndexAff OIA>

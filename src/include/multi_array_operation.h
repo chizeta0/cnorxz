@@ -204,6 +204,45 @@ namespace MultiArrayTools
                            TARGET = 1
     };
 
+    struct IAssign
+    {
+	template <typename T, typename Op, class ExtType>
+	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
+	{
+	    //a = b;
+	    t[pos] = op.get(e);
+	}
+    };
+
+    template <typename V>
+    struct IVAssign
+    {
+	template <typename T1, typename T2>
+	static inline void f(T1& a, const T2& b)
+	{
+	    *reinterpret_cast<V*>(&a) = b;
+	}
+    };
+
+    struct IPlus
+    {
+	template <typename T, typename Op, class ExtType>
+	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
+	{
+	    t[pos] += op.get(e);
+	}
+    };
+
+    template <typename V>
+    struct IVPlus
+    {
+	template <typename T1, typename T2>
+	static inline void f(T1& a, const T2& b)
+	{
+	    *reinterpret_cast<V*>(&a) += b;
+	}
+    };
+
     
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr2 : public ExpressionBase
