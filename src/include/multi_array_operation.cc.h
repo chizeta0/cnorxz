@@ -165,50 +165,50 @@ namespace MultiArrayTools
     };
 
     
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    AssignmentExpr2<T,Target,OpClass,OIA>::AssignmentExpr2(T* dataPtr, const Target& tar, const OpClass& sec) :
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    AssignmentExpr<T,IOp,Target,OpClass,OIA>::AssignmentExpr(T* dataPtr, const Target& tar, const OpClass& sec) :
         mTar(tar), mSec(sec), mDataPtr(dataPtr) {}
     
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    inline void AssignmentExpr2<T,Target,OpClass,OIA>::operator()(size_t start)
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    inline void AssignmentExpr<T,IOp,Target,OpClass,OIA>::operator()(size_t start)
     {
         ExtType last = rootSteps();
 	last.zero();
         //mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
-	IAssign::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
+	IOp::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
 
 	//mDataPtr[last.val()] = mSec.get(last.next());
     }
 
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    inline void AssignmentExpr2<T,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    inline void AssignmentExpr<T,IOp,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
         //CHECK;
         //mDataPtr[OpIndexResolve<OIA>::get(start,last)] = mSec.get(last.next());
-	IAssign::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
+	IOp::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
     }
     
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    typename AssignmentExpr2<T,Target,OpClass,OIA>::ExtType
-    AssignmentExpr2<T,Target,OpClass,OIA>::rootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    typename AssignmentExpr<T,IOp,Target,OpClass,OIA>::ExtType
+    AssignmentExpr<T,IOp,Target,OpClass,OIA>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mTar.rootSteps(iPtrNum).extend( mSec.rootSteps(iPtrNum) );
     }
 
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    inline void AssignmentExpr2<T,Target,OpClass,OIA>::operator()(size_t mlast, DExt last)
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    inline void AssignmentExpr<T,IOp,Target,OpClass,OIA>::operator()(size_t mlast, DExt last)
     {
         (*this)(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
     }
 
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    inline DExt AssignmentExpr2<T,Target,OpClass,OIA>::dRootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    inline DExt AssignmentExpr<T,IOp,Target,OpClass,OIA>::dRootSteps(std::intptr_t iPtrNum) const
     {
         return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
     }
 
-    template <typename T, class Target, class OpClass, OpIndexAff OIA>
-    inline DExt AssignmentExpr2<T,Target,OpClass,OIA>::dExtension() const
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
+    inline DExt AssignmentExpr<T,IOp,Target,OpClass,OIA>::dExtension() const
     {
         CHECK;
         return nullptr; //???!!!
@@ -298,7 +298,7 @@ namespace MultiArrayTools
         CHECK;
         return nullptr; //???!!!
     }
-
+    /*
     template <typename T, class Target, class OpClass, OpIndexAff OIA>
     AddExpr<T,Target,OpClass,OIA>::AddExpr(T* dataPtr, const Target& tar, const OpClass& sec) :
         mTar(tar), mSec(sec), mDataPtr(dataPtr) {}
@@ -348,7 +348,7 @@ namespace MultiArrayTools
         CHECK;
         return nullptr; //???!!!
     }
-
+    */
     /****************************
      *   ConstOperationRoot     *
      ****************************/

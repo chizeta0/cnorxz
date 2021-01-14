@@ -244,11 +244,11 @@ namespace MultiArrayTools
     };
 
     
-    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
-    class AssignmentExpr2 : public ExpressionBase
+    template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
+    class AssignmentExpr : public ExpressionBase
     {
     private:
-        AssignmentExpr2() = default;
+        AssignmentExpr() = default;
 
         Target mTar;
         OpClass mSec;
@@ -260,15 +260,15 @@ namespace MultiArrayTools
         static constexpr size_t SIZE = Target::SIZE + OpClass::SIZE;
         typedef decltype(mTar.rootSteps(0).extend( mSec.rootSteps(0) )) ExtType;
 	    
-        AssignmentExpr2(T* dataPtr, const Target& tar, const OpClass& sec);
-        AssignmentExpr2(const AssignmentExpr2& in) = default;
-        AssignmentExpr2(AssignmentExpr2&& in) = default;
-        AssignmentExpr2& operator=(const AssignmentExpr2& in) = default;
-        AssignmentExpr2& operator=(AssignmentExpr2&& in) = default;
+        AssignmentExpr(T* dataPtr, const Target& tar, const OpClass& sec);
+        AssignmentExpr(const AssignmentExpr& in) = default;
+        AssignmentExpr(AssignmentExpr&& in) = default;
+        AssignmentExpr& operator=(const AssignmentExpr& in) = default;
+        AssignmentExpr& operator=(AssignmentExpr&& in) = default;
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
 	{
-	    return std::make_shared<AssignmentExpr2<T,Target,OpClass,OIA>>(*this);
+	    return std::make_shared<AssignmentExpr<T,IOp,Target,OpClass,OIA>>(*this);
 	}
 	
         inline void operator()(size_t start = 0); 
@@ -280,6 +280,12 @@ namespace MultiArrayTools
         inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         inline DExt dExtension() const override final;
     };
+
+    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
+    using AssignmentExpr2 = AssignmentExpr<T,IAssign,Target,OpClass,OIA>;
+
+    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
+    using AddExpr = AssignmentExpr<T,IPlus,Target,OpClass,OIA>;
 
     template <typename T, class... Ops>
     class MOp
@@ -371,6 +377,7 @@ namespace MultiArrayTools
     }
 
     //template <typename T, class OpClass>
+    /*
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AddExpr : public ExpressionBase
     {
@@ -411,7 +418,7 @@ namespace MultiArrayTools
         inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         inline DExt dExtension() const override final;
     };
-
+    */
     template <typename T, class... Ranges>
     class ConstOperationRoot : public OperationTemplate<T,ConstOperationRoot<T,Ranges...> >
     {

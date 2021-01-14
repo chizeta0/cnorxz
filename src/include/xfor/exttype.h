@@ -85,7 +85,17 @@ namespace MultiArrayHelper
         inline auto nn() const
             -> decltype(Getter<N>::getX(*this))
         { return Getter<N>::getX(*this); }
-        
+
+	inline bool operator==(const MExt& in) const
+	{
+	    return mExt == in.mExt and mNext == in.mNext;
+	}
+
+	inline bool operator==(size_t in) const
+	{
+	    return mExt == in and mNext == in;
+	}
+
 	inline MExt operator+(const MExt& in) const;
 	inline MExt operator+(const None& in) const;
 	inline MExt operator*(size_t in) const;
@@ -110,7 +120,17 @@ namespace MultiArrayHelper
         None(const Y& y) {}
         
         static constexpr size_t SIZE = 0;
-        
+
+	inline bool operator==(const None& in) const
+	{
+	    return true;
+	}
+
+	inline bool operator==(size_t in) const
+	{
+	    return true; // CHECK!!!
+	}
+
         inline None operator+(const None& in) const { return None(); }
 	inline None operator*(size_t in) const { return None(); }
 
@@ -157,7 +177,17 @@ namespace MultiArrayHelper
 
         template <class Y>
         inline MExt(const MExt<Y>& y);
-        
+
+	inline bool operator==(const MExt& in) const
+	{
+	    return mExt == in.mExt;
+	}
+
+	inline bool operator==(size_t in) const
+	{
+	    return mExt == in;
+	}
+
 	inline const size_t& val() const;
 	inline None next() const { return None(); }
 
