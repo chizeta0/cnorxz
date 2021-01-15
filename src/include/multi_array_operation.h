@@ -538,29 +538,39 @@ namespace MultiArrayTools
 
 	OperationRoot(T* data, const IndexType& ind);
 
-        template <class OpClass>
-        auto assign(const OpClass& in) const
-            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
+        template <class IOp, class OpClass>
+        auto asx(const OpClass& in) const
+            -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
                                               (mOrigDataPtr,*this,in))));
 
-        template <class OpClass>
-        auto assignExpr(const OpClass& in) const
-            -> decltype(in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>(mOrigDataPtr,*this,in)));
+        template <class IOp, class OpClass>
+        auto asxExpr(const OpClass& in) const
+            -> decltype(in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass>(mOrigDataPtr,*this,in)));
             
-        template <class OpClass, class Index>
-        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
-            -> decltype(i->ifor(1,in.loop(AssignmentExpr2<T,OperationRoot<T,Ranges...>,OpClass>
+        template <class IOp, class OpClass, class Index>
+        auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const
+            -> decltype(i->ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass>
                                           (mOrigDataPtr,*this,in))));
             
         template <class OpClass>
+        auto assign(const OpClass& in) const
+	    -> decltype(this->template asx<IAssign>(in));
+
+	template <class OpClass>
+        auto assignExpr(const OpClass& in) const
+	    -> decltype(this->template asxExpr<IAssign>(in));
+	    
+        template <class OpClass, class Index>
+        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
+	    -> decltype(this->template asx<IAssign>(in,i));
+	
+	template <class OpClass>
         auto plus(const OpClass& in) const
-            -> decltype(mIndex.ifor(1,in.loop(AddExpr<T,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                              (mOrigDataPtr,*this,in))));
+	    -> decltype(this->template asx<IPlus>(in));
 
         template <class OpClass, class Index>
         auto plus(const OpClass& in, const std::shared_ptr<Index>& i) const
-            -> decltype(i->ifor(1,in.loop(AddExpr<T,OperationRoot<T,Ranges...>,OpClass>
-                                          (mOrigDataPtr,*this,in))));
+	    -> decltype(this->template asx<IPlus>(in,i));
             
         template <class OpClass>
         OperationRoot& operator=(const OpClass& in);

@@ -35,6 +35,9 @@ namespace MultiArrayHelper
 	virtual size_t size() const = 0;
 	virtual const size_t& val() const = 0;
 	//virtual size_t rootSteps() const = 0;
+	virtual bool operator==(const ExtBase& in) const = 0;
+	virtual bool operator==(size_t in) const = 0;
+	    
 	virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
 	virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
 	virtual void zero() = 0;
@@ -74,6 +77,12 @@ namespace MultiArrayHelper
 	const ExtType& ext() const { return mExt; }
 	virtual const size_t& val() const override final { return mExt.val(); }
 	virtual void zero() override final { mExt.zero(); }
+
+	virtual bool operator==(const ExtBase& in) const override final
+	{ return mExt == dynamic_cast<const ExtT<ExtType>&>(in).mExt; }
+	
+	virtual bool operator==(size_t in) const override final
+	{ return mExt == in; }
 
 	virtual DExt operator+(const ExtBase& in) const override final
 	{ return std::make_shared<ExtT<ExtType>>( mExt + dynamic_cast<const ExtT<ExtType>&>(in).mExt ); }
@@ -122,6 +131,11 @@ namespace MultiArrayHelper
 	template <class Y>
 	DExtTX(const Y& y) : mDExt(std::make_shared<ExtT<Y>>(y)) {}
         */
+	bool operator==(const DExtTX& in) const
+	{ return *mDExt == *in.mDExt and mNext == in.mNext; }
+	
+	bool operator==(size_t in) const
+	{ return *mDExt == in and mNext == in; }
 
         template <class Y>
         DExtTX(const DExtTX<Y>& in) : mDExt(in.mDExt), mNext(in.mNext) {}

@@ -88,7 +88,7 @@ namespace MultiArrayHelper
 	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    typedef decltype(std::get<N>(ops).template vget<V>(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
-	    return PackNum<N-1>::template mkVOpExpr<NEXT,ETuple,OpTuple,OpFunction,ArgT,Args...>
+	    return PackNum<N-1>::template mkVOpExpr<NEXT,V,ETuple,OpTuple,OpFunction,ArgT,Args...>
 		( f, pos, ops, std::get<N>(ops).template vget<V>(Getter<NEXT>::template getX<ETuple>( pos )), args...);
 	}
 
