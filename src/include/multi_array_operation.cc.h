@@ -555,55 +555,78 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::assign(const OpClass& in) const
-        -> decltype(this->template asx<IAssign>(in))
+        -> decltype(this->template asx<IAssign<T>>(in))
     {
-        return this->template asx<IAssign>(in);
+        return this->template asx<IAssign<T>>(in);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::assignExpr(const OpClass& in) const
-        -> decltype(this->template asxExpr<IAssign>(in))
+        -> decltype(this->template asxExpr<IAssign<T>>(in))
     {
-        return this->template asxExpr<IAssign>(in);
+        return this->template asxExpr<IAssign<T>>(in);
     }
     
     template <typename T, class... Ranges>
     template <class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::assign(const OpClass& in, const std::shared_ptr<Index>& i) const
-        -> decltype(this->template asx<IAssign>(in,i))
+        -> decltype(this->template asx<IAssign<T>>(in,i))
     {
-        return this->template asx<IAssign>(in,i);
+        return this->template asx<IAssign<T>>(in,i);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in) const
-        -> decltype(this->template asx<IPlus>(in))
+        -> decltype(this->template asx<IPlus<T>>(in))
     {
-        return this->template asx<IPlus>(in);
+        return this->template asx<IPlus<T>>(in);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in, const std::shared_ptr<Index>& i) const
-        -> decltype(this->template asx<IPlus>(in,i))
+        -> decltype(this->template asx<IPlus<T>>(in,i))
     {
-        return this->template asx<IPlus>(in,i);
+        return this->template asx<IPlus<T>>(in,i);
     }
-    
+
+    template <bool VABLE = false>
+    struct VExec
+    {
+	template <typename TarOp, class OpClass>
+	static inline void exec(TarOp& th, const OpClass& in)
+	{
+	    th.assign(in)();
+	}
+    };
+
+    template <>
+    struct VExec<true>
+    {
+	template <typename TarOp, class OpClass>
+	static inline void exec(TarOp& th, const OpClass& in)
+	{
+	    CHECK;
+	    typedef typename TarOp::value_type T;
+	    auto x = th.template asx<IVAssign<typename VType<T>::type,T>>(in);
+	    const size_t inum = x.vec(VType<T>::MULT);
+	    if(x.rootSteps(inum) == 1){
+		CHECK;
+		x();
+	    }
+	    else {
+		th.assign(in)();
+	    }
+	}
+    };
+
     template <typename T, class... Ranges>
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-        auto x = this->template asx<IVAssign<typename VType<T>::type>>(in);
-	const size_t inum = x.vec(VType<T>::MULT);
-	if(x.rootSteps(inum) == 1){
-	    x();
-	}
-	else {
-	    assign(in)();
-	}
+	VExec<OpClass::VABLE>::exec(*this,in);
         return *this;
     }
 
@@ -896,7 +919,7 @@ namespace MultiArrayTools
     {
 	typedef std::tuple<Ops...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
-	    template mkVOpExpr<SIZE,V,ET,OpTuple,OpFunction>(mF, pos, mOps); // implement!!!
+	    template mkVOpExpr<SIZE,V,ET,OpTuple,VFunc<OpFunction>>(mkVFuncPtr(mF), pos, mOps); // implement!!!
     }
 
     template <typename T, class OpFunction, class... Ops>

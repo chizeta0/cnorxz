@@ -48,7 +48,8 @@ namespace MultiArrayTools
     {
 	static constexpr bool FISSTATIC = true;
 	typedef T value_type;
-	
+	typedef F function;
+
 	template <class... Ops>
 	static auto mk(const Ops&... ops)
 	    -> Operation<T,F,Ops...>
@@ -73,6 +74,11 @@ namespace MultiArrayTools
 	static inline T apply(T a)
 	{
 	    return a;
+	}
+
+	static inline T selfApply(T& a1, const T& a2)
+	{
+	    return a1 = a2;
 	}
     };
 

@@ -204,12 +204,74 @@ namespace MultiArrayTools
                            TARGET = 1
     };
 
+    template <class T>
+    struct VType
+    {
+	typedef T type;
+	static constexpr size_t MULT = sizeof(type)/sizeof(T);
+    };
+
+    template <>
+    struct VType<double>
+    {
+	typedef v256 type;
+	static constexpr size_t MULT = sizeof(type)/sizeof(double);
+    };
+
+    template <template <typename...> class F,typename... Ts>
+    inline auto mkVFuncPtr(const std::shared_ptr<F<Ts...>>& f)
+    {
+	return std::shared_ptr<F<typename VType<Ts>::type...>>();
+	// empty, implement corresponding constructors...!!!
+    }
+
+    template <template <typename...> class F,typename... Ts>
+    inline auto mkVFunc(const F<Ts...>& f)
+    {
+	return F<typename VType<Ts>::type...>();
+	// empty, implement corresponding constructors...!!!
+    }
+
+    template <class F>
+    using VFunc = decltype(mkVFunc(std::declval<F>()));
+
+    template <class F>
+    struct IAccess
+    {
+	template <typename T, typename Op, class ExtType>
+	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
+	{
+	    F::selfApply(t[pos],op.get(e));
+	}
+    };
+
+    template <typename V, class F>
+    struct IVAccess
+    {
+	template <typename T, typename Op, class ExtType>
+	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
+	{
+	    VFunc<F>::selfApply(reinterpret_cast<V*>(t)[pos],op.template vget<V>(e));
+	}
+    };
+
+    template <typename T>
+    using IAssign = IAccess<identity<T>>;
+
+    template <typename T>
+    using IPlus = IAccess<plus<T>>;
+
+    template <typename V, typename T>
+    using IVAssign = IVAccess<V,identity<T>>;
+
+    template <typename V, typename T>
+    using IVPlus = IVAccess<V,plus<T>>;
+    /*
     struct IAssign
     {
 	template <typename T, typename Op, class ExtType>
 	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
-	    //a = b;
 	    t[pos] = op.get(e);
 	}
     };
@@ -223,7 +285,7 @@ namespace MultiArrayTools
 	    reinterpret_cast<V*>(t)[pos] = op.template vget<V>(e);
 	}
     };
-
+    
     struct IPlus
     {
 	template <typename T, typename Op, class ExtType>
@@ -242,20 +304,8 @@ namespace MultiArrayTools
 	    reinterpret_cast<V*>(t)[pos] += op.template vget<V>(e);
 	}
     };
+    */
 
-    template <class T>
-    struct VType
-    {
-	typedef T type;
-	static constexpr size_t MULT = sizeof(type)/sizeof(T);
-    };
-
-    template <>
-    struct VType<double>
-    {
-	typedef v256 type;
-	static constexpr size_t MULT = sizeof(type)/sizeof(double);
-    };
     
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr : public ExpressionBase
@@ -295,10 +345,10 @@ namespace MultiArrayTools
     };
 
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
-    using AssignmentExpr2 = AssignmentExpr<T,IAssign,Target,OpClass,OIA>;
+    using AssignmentExpr2 = AssignmentExpr<T,IAssign<T>,Target,OpClass,OIA>;
 
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
-    using AddExpr = AssignmentExpr<T,IPlus,Target,OpClass,OIA>;
+    using AddExpr = AssignmentExpr<T,IPlus<T>,Target,OpClass,OIA>;
 
     template <typename T, class... Ops>
     class MOp
@@ -401,6 +451,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
+        static constexpr bool VABLE = true;
 	
 	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
@@ -449,6 +500,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = Op::SIZE;
         static constexpr bool CONT = false;
+        static constexpr bool VABLE = false;
 	
 	StaticCast(const Op& op);
 
@@ -487,6 +539,7 @@ namespace MultiArrayTools
 	
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = false;
+        static constexpr bool VABLE = false;
         
 	MetaOperationRoot(const std::shared_ptr<IndexType>& ind);
 
@@ -522,6 +575,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
+        static constexpr bool VABLE = true;
 
     private:
 
@@ -554,23 +608,23 @@ namespace MultiArrayTools
             
         template <class OpClass>
         auto assign(const OpClass& in) const
-	    -> decltype(this->template asx<IAssign>(in));
+	    -> decltype(this->template asx<IAssign<T>>(in));
 
 	template <class OpClass>
         auto assignExpr(const OpClass& in) const
-	    -> decltype(this->template asxExpr<IAssign>(in));
+	    -> decltype(this->template asxExpr<IAssign<T>>(in));
 	    
         template <class OpClass, class Index>
         auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
-	    -> decltype(this->template asx<IAssign>(in,i));
+	    -> decltype(this->template asx<IAssign<T>>(in,i));
 	
 	template <class OpClass>
         auto plus(const OpClass& in) const
-	    -> decltype(this->template asx<IPlus>(in));
+	    -> decltype(this->template asx<IPlus<T>>(in));
 
         template <class OpClass, class Index>
         auto plus(const OpClass& in, const std::shared_ptr<Index>& i) const
-	    -> decltype(this->template asx<IPlus>(in,i));
+	    -> decltype(this->template asx<IPlus<T>>(in,i));
             
         template <class OpClass>
         OperationRoot& operator=(const OpClass& in);
@@ -616,6 +670,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
+        static constexpr bool VABLE = true;
 
     private:
 
@@ -686,6 +741,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = 0;
         static constexpr bool CONT = true;
+        static constexpr bool VABLE = false;
 
 	OperationValue(const T& val);
 
@@ -706,8 +762,18 @@ namespace MultiArrayTools
     private:
 	T mVal;
     };
-    
 
+    template <class Op> 
+    inline constexpr bool isVAble()
+    {
+	return Op::VABLE;
+    }
+
+    template <class Op1, class Op2, class... Ops>
+    inline constexpr bool isVAble()
+    {
+	return Op1::VABLE and isVAble<Op2,Ops...>();
+    }
     
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
@@ -721,6 +787,7 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
 	static constexpr bool FISSTATIC = OpFunction::FISSTATIC;
         static constexpr bool CONT = false;
+        static constexpr bool VABLE = isVAble<Ops...>();
 
     private:
 	std::tuple<Ops...> mOps;
@@ -795,6 +862,7 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = Op::SIZE;
         static constexpr bool CONT = Op::CONT;
+        static constexpr bool VABLE = Op::VABLE;
         
     private:
 
@@ -839,7 +907,8 @@ namespace MultiArrayTools
 
 	static constexpr size_t SIZE = Op::SIZE;
         static constexpr bool CONT = false;
-        
+	static constexpr bool VABLE = false;
+
     private:
 
 	mutable Op mOp;
