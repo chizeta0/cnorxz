@@ -396,7 +396,9 @@ namespace MultiArrayHelper
 	virtual std::intptr_t vec(size_t vs) override final
 	{
 	    if(mStep == 1 and mMax % vs == 0){
+		VCHECK(vs);
 		mMax /= vs;
+		VCHECK(mMax);
 		return reinterpret_cast<std::intptr_t>(mIndPtr);
 	    }
 	    return mExpr.vec(vs);
@@ -450,10 +452,14 @@ namespace MultiArrayHelper
 	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
-	virtual std::intptr_t vec(size_t vs) override final
+	template <size_t VS>
+	auto vec() const
 	{
+	    // statically distinguish!!!
 	    if(mStep == 1 and mMax % vs == 0){
+		VCHECK(vs);
 		mMax /= vs;
+		VCHECK(mMax);
 		return reinterpret_cast<std::intptr_t>(mIndPtr);
 	    }
 	    return mExpr.vec(vs);

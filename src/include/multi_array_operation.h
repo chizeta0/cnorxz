@@ -251,10 +251,14 @@ namespace MultiArrayTools
 	template <typename T, typename Op, class ExtType>
 	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
+	    VCHECK(pos);
 	    VFunc<F>::selfApply(reinterpret_cast<V*>(t)[pos],op.template vget<V>(e));
 	}
     };
 
+    template <typename T>
+    using xxxplus = plus<T>;
+    
     template <typename T>
     using IAssign = IAccess<identity<T>>;
 
@@ -684,25 +688,39 @@ namespace MultiArrayTools
 
 	ParallelOperationRoot(T* data, const IndexType& ind);
 
-        template <class OpClass>
-        auto assign(const OpClass& in)
-            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                               (mOrigDataPtr,*this,in))));
+        template <class IOp, class OpClass>
+        auto asx(const OpClass& in) const
+            -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
+                                              (mOrigDataPtr,*this,in))));
 
-        template <class OpClass, class Index>
-        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
-            -> decltype(i->pifor(1,in.loop(AssignmentExpr2<T,ParallelOperationRoot<T,Ranges...>,OpClass>
+        template <class IOp, class OpClass>
+        auto asxExpr(const OpClass& in) const
+            -> decltype(in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass>(mOrigDataPtr,*this,in)));
+            
+        template <class IOp, class OpClass, class Index>
+        auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const
+            -> decltype(i->pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass>
                                           (mOrigDataPtr,*this,in))));
+            
+        template <class OpClass>
+        auto assign(const OpClass& in) const
+	    -> decltype(this->template asx<IAssign<T>>(in));
 
 	template <class OpClass>
-        auto plus(const OpClass& in)
-            -> decltype(mIndex.pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                               (mOrigDataPtr,*this,in))));
+        auto assignExpr(const OpClass& in) const
+	    -> decltype(this->template asxExpr<IAssign<T>>(in));
+	    
+        template <class OpClass, class Index>
+        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const
+	    -> decltype(this->template asx<IAssign<T>>(in,i));
+	
+	template <class OpClass>
+        auto plus(const OpClass& in) const
+	    -> decltype(this->template asx<IPlus<T>>(in));
 
         template <class OpClass, class Index>
         auto plus(const OpClass& in, const std::shared_ptr<Index>& i) const
-            -> decltype(i->pifor(1,in.loop(AddExpr<T,ParallelOperationRoot<T,Ranges...>,OpClass>
-					   (mOrigDataPtr,*this,in))));
+	    -> decltype(this->template asx<IPlus<T>>(in,i));
 
         template <class OpClass>
         ParallelOperationRoot& operator=(const OpClass& in);
