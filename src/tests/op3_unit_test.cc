@@ -45,6 +45,7 @@ namespace
 
 	std::clock_t begin = std::clock();
 	res1(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+	//res1(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap);
 	std::clock_t end = std::clock();
 	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;

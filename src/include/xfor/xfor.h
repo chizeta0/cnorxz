@@ -187,8 +187,9 @@ namespace MultiArrayHelper
 	ExpressionBase& operator=(const ExpressionBase& in) = default;
 	ExpressionBase& operator=(ExpressionBase&& in) = default;
 
-	virtual size_t divResid() const { return 0; }
-
+	//virtual size_t divResid() const { return 1; }
+	virtual std::intptr_t vI() const { return 0; }
+	
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const = 0;
 	
 	virtual void operator()(size_t mlast, DExt last) = 0;
@@ -450,7 +451,16 @@ namespace MultiArrayHelper
 	    return std::make_shared<For<IndexClass,Expr,FT,DIV>>(*this);
 	}
 
-	virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
+	//virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
+
+	virtual std::intptr_t vI() const override final
+	{
+	    if(mStep == 1 and LAYER == 1 and mMax % DIV == 0){
+		VCHECK(LAYER);
+		return reinterpret_cast<std::intptr_t>(mIndPtr);
+	    }
+	    return mExpr.vI();
+	}
 
 	template <size_t VS>
 	auto vec() const
@@ -511,7 +521,15 @@ namespace MultiArrayHelper
 	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
-	virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
+	//virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
+	virtual std::intptr_t vI() const override final
+	{
+	    if(mStep == 1 and LAYER == 1 and mMax % DIV == 0){
+		VCHECK(LAYER);
+		return reinterpret_cast<std::intptr_t>(mIndPtr);
+	    }
+	    return mExpr.vI();
+	}
 
 	template <size_t VS>
 	auto vec() const
@@ -692,7 +710,9 @@ namespace MultiArrayHelper
 	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
-	assert(mMax % DIV == 0);
+	//VCHECK(mMax);
+	//VCHECK(DIV);
+	//assert(mMax % DIV == 0);
 	assert(mIndPtr != nullptr);
     }
 
@@ -777,7 +797,7 @@ namespace MultiArrayHelper
 	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
-	assert(mMax % DIV == 0);
+	//assert(mMax % DIV == 0);
 	assert(mIndPtr != nullptr);
     }
 

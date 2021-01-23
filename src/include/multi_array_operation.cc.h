@@ -347,7 +347,7 @@ namespace MultiArrayTools
     inline const V& ConstOperationRoot<T,Ranges...>::vget(ET pos) const
     {
 	VCHECK(pos.val());
-	return *(reinterpret_cast<const V*>(mDataPtr)+pos.val());
+	return *(reinterpret_cast<const V*>(mDataPtr+pos.val()));
     }
 
     template <typename T, class... Ranges>
@@ -614,7 +614,8 @@ namespace MultiArrayTools
 	    CHECK;
 	    typedef typename TarOp::value_type T;
 	    auto x = th.template asx<IVAccess<T,F<T>>>(in);
-	    if(x.divResid() == 0){
+	    if(x.rootSteps(x.vI()) == 1){
+	    //if(0){
 		CHECK;
 		x();
 	    }
@@ -665,7 +666,7 @@ namespace MultiArrayTools
     inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
     {
 	VCHECK(pos.val());
-	return *(reinterpret_cast<V*>(mDataPtr)+pos.val());
+	return *(reinterpret_cast<V*>(mDataPtr+pos.val()));
     }
 
     template <typename T, class... Ranges>
@@ -843,7 +844,7 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline V& ParallelOperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	return *(reinterpret_cast<const V*>(mDataPtr)+pos.val());
+	return *(reinterpret_cast<V*>(mDataPtr+pos.val()));
     }
 
     template <typename T, class... Ranges>

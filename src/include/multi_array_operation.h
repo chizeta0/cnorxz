@@ -260,7 +260,7 @@ namespace MultiArrayTools
 	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
 	    VCHECK(pos);
-	    VFunc<F>::selfApply(reinterpret_cast<value_type*>(t)[pos],op.template vget<value_type>(e));
+	    VFunc<F>::selfApply(*reinterpret_cast<value_type*>(t+pos),op.template vget<value_type>(e));
 	}
     };
 
