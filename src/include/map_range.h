@@ -81,6 +81,9 @@ namespace MultiArrayTools
         OpExpr(const Op& mapf, const Index* ind, size_t step, Expr ex);
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final;
+
+	template <size_t VS>
+	inline auto vec() const { return *this; }
 	
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last);

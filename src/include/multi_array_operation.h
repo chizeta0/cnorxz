@@ -235,24 +235,32 @@ namespace MultiArrayTools
     template <class F>
     using VFunc = decltype(mkVFunc(std::declval<F>()));
 
-    template <class F>
+    template <typename T, class F>
     struct IAccess
     {
-	template <typename T, typename Op, class ExtType>
+	typedef T value_type;
+	typedef T in_type;
+	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
+
+	template <typename Op, class ExtType>
 	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
 	    F::selfApply(t[pos],op.get(e));
 	}
     };
 
-    template <typename V, class F>
+    template <typename T, class F>
     struct IVAccess
     {
-	template <typename T, typename Op, class ExtType>
+	typedef typename VType<T>::type value_type;
+	typedef T in_type;
+	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
+
+	template <typename Op, class ExtType>
 	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
 	    VCHECK(pos);
-	    VFunc<F>::selfApply(reinterpret_cast<V*>(t)[pos],op.template vget<V>(e));
+	    VFunc<F>::selfApply(reinterpret_cast<value_type*>(t)[pos],op.template vget<value_type>(e));
 	}
     };
 
@@ -260,16 +268,16 @@ namespace MultiArrayTools
     using xxxplus = plus<T>;
     
     template <typename T>
-    using IAssign = IAccess<identity<T>>;
+    using IAssign = IAccess<T,identity<T>>;
 
     template <typename T>
-    using IPlus = IAccess<plus<T>>;
+    using IPlus = IAccess<T,plus<T>>;
 
-    template <typename V, typename T>
-    using IVAssign = IVAccess<V,identity<T>>;
+    template <typename T>
+    using IVAssign = IVAccess<T,identity<T>>;
 
-    template <typename V, typename T>
-    using IVPlus = IVAccess<V,plus<T>>;
+    template <typename T>
+    using IVPlus = IVAccess<T,plus<T>>;
     /*
     struct IAssign
     {
@@ -599,7 +607,7 @@ namespace MultiArrayTools
         template <class IOp, class OpClass>
         auto asx(const OpClass& in) const
             -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                              (mOrigDataPtr,*this,in))));
+                                              (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>());
 
         template <class IOp, class OpClass>
         auto asxExpr(const OpClass& in) const
@@ -608,7 +616,7 @@ namespace MultiArrayTools
         template <class IOp, class OpClass, class Index>
         auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const
             -> decltype(i->ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass>
-                                          (mOrigDataPtr,*this,in))));
+                                          (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>());
             
         template <class OpClass>
         auto assign(const OpClass& in) const

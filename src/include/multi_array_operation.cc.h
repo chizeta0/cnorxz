@@ -523,12 +523,12 @@ namespace MultiArrayTools
     template <class IOp, class OpClass>
     auto OperationRoot<T,Ranges...>::asx(const OpClass& in) const
         -> decltype(mIndex.ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                          (mOrigDataPtr,*this,in))))
+                                          (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>())
 
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return mIndex.ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                     (mOrigDataPtr,*this,in)));
+                                     (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>();
     }
 
     template <typename T, class... Ranges>
@@ -546,11 +546,11 @@ namespace MultiArrayTools
     template <class IOp, class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::asx(const OpClass& in, const std::shared_ptr<Index>& i) const
         -> decltype(i->ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass>
-                                      (mOrigDataPtr,*this,in))))
+                                      (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>())
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return i->ifor(1,in.loop(AssignmentExpr<T,IOp,OperationRoot<T,Ranges...>,OpClass>
-                                 (mOrigDataPtr,*this,in)));
+                                 (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>();
     }
 
     template <typename T, class... Ranges>
@@ -600,7 +600,8 @@ namespace MultiArrayTools
 	static inline void exec(TarOp& th, const OpClass& in)
 	{
 	    typedef typename TarOp::value_type T;
-	    th.template asx<IAccess<F<T>>>(in)();
+	    IAccess<T,F<T>> tmp;
+	    th.template asx<decltype(tmp)>(in)();
 	}
     };
 
@@ -612,14 +613,13 @@ namespace MultiArrayTools
 	{
 	    CHECK;
 	    typedef typename TarOp::value_type T;
-	    auto x = th.template asx<IVAccess<typename VType<T>::type,F<T>>>(in);
-	    const size_t inum = x.vec(VType<T>::MULT);
-	    if(x.rootSteps(inum) == 1){
+	    auto x = th.template asx<IVAccess<T,F<T>>>(in);
+	    if(x.divResid() == 0){
 		CHECK;
 		x();
 	    }
 	    else {
-		th.template asx<IAccess<F<T>>>(in)();
+		th.template asx<IAccess<T,F<T>>>(in)();
 	    }
 	}
     };

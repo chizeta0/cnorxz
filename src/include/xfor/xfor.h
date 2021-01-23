@@ -187,8 +187,8 @@ namespace MultiArrayHelper
 	ExpressionBase& operator=(const ExpressionBase& in) = default;
 	ExpressionBase& operator=(ExpressionBase&& in) = default;
 
-	virtual std::intptr_t vec(size_t vs) { return 0; }
-	
+	virtual size_t divResid() const { return 0; }
+
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const = 0;
 	
 	virtual void operator()(size_t mlast, DExt last) = 0;
@@ -231,20 +231,20 @@ namespace MultiArrayHelper
     template <size_t ISSTATIC>
     struct ForBound
     {
-	template <size_t BOUND>
+	template <size_t BOUND, size_t DIV = 1>
 	static inline size_t bound(size_t bound)
 	{
-	    return bound;
+	    return bound / DIV;
 	}
     };
 
     template <>
     struct ForBound<1>
     {
-	template <size_t BOUND>
+	template <size_t BOUND, size_t DIV = 1>
 	static constexpr size_t bound(size_t bound)
 	{
-	    return BOUND;
+	    return BOUND / DIV;
 	}
     };
 
@@ -286,6 +286,9 @@ namespace MultiArrayHelper
 	{
 	    return std::make_shared<SingleExpression<IndexClass,Expr>>(*this);
 	}
+
+	template <size_t VS>
+	inline auto vec() const { return *this; }
 
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last);
@@ -340,6 +343,9 @@ namespace MultiArrayHelper
 	    return std::make_shared<SubExpr<IndexClass,Expr>>(*this);
 	}
 
+	template <size_t VS>
+	inline auto vec() const { return *this; }
+
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;
@@ -351,15 +357,65 @@ namespace MultiArrayHelper
 	auto extension() const -> ExtType;
     };
 
-    template <class IndexClass, class Expr>
-    class PFor;
-    
-    template <class IndexClass, class Expr, ForType FT>
+    template <size_t LAYER, bool ISV>
+    struct MkVFor
+    {
+	template <size_t DIV, class IndexClass, class Expr>
+	using ptype = PFor<IndexClass,Expr,1>;
+
+	template <size_t DIV, class IndexClass, class Expr, ForType FT>
+	using type = For<IndexClass,Expr,FT,1>;
+    };
+
+    template <>
+    struct MkVFor<1,true>
+    {
+	template <size_t DIV, class IndexClass, class Expr>
+	using ptype = PFor<IndexClass,Expr,DIV>;
+
+	template <size_t DIV, class IndexClass, class Expr, ForType FT>
+	using type = For<IndexClass,Expr,FT,DIV>;
+    };
+
+    template <size_t LAYER>
+    struct MkVExpr
+    {
+	template <size_t VS, class Expr>
+	static auto mk(const Expr& e)
+	{
+	    return e.template vec<VS>();
+	}
+
+	template <class Expr>
+	static inline size_t divResid(const Expr& e)
+	{
+	    return e.divResid();
+	}
+    };
+
+    template <>
+    struct MkVExpr<1>
+    {
+	template <size_t VS, class Expr>
+	static auto mk(const Expr& e)
+	{
+	    return e; // terminate
+	}
+
+	template <class Expr>
+	static inline size_t divResid(const Expr& e)
+	{
+	    return 0;
+	}
+    };
+
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
     class For : public ExpressionBase
     {
     private:
 	For() = default;
 		
+	typedef typename IndexClass::RangeType RangeType;
 	const IndexClass* mIndPtr;
 	size_t mSPos;
 	size_t mMax;
@@ -376,6 +432,7 @@ namespace MultiArrayHelper
 	
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
+	static constexpr size_t MAX = RangeType::SIZE / DIV;
 
 	For(const For& in) = default;
 	For& operator=(const For& in) = default;
@@ -390,25 +447,24 @@ namespace MultiArrayHelper
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
 	{
-	    return std::make_shared<For<IndexClass,Expr,FT>>(*this);
+	    return std::make_shared<For<IndexClass,Expr,FT,DIV>>(*this);
 	}
 
-	virtual std::intptr_t vec(size_t vs) override final
+	virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
+
+	template <size_t VS>
+	auto vec() const
 	{
-	    if(mStep == 1 and mMax % vs == 0){
-		VCHECK(vs);
-		mMax /= vs;
-		VCHECK(mMax);
-		return reinterpret_cast<std::intptr_t>(mIndPtr);
-	    }
-	    return mExpr.vec(vs);
+	    typedef typename MkVFor<LAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
+		template type<VS,IndexClass,decltype(MkVExpr<LAYER>::template mk<VS>(mExpr)),FT> oType;
+	    return oType(mIndPtr,mStep,MkVExpr<LAYER>::template mk<VS>(mExpr));
 	}
 
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;
 
-        PFor<IndexClass,Expr> parallel() const;
+        PFor<IndexClass,Expr,DIV> parallel() const;
         
         DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         DExt dExtension() const override final;
@@ -418,12 +474,14 @@ namespace MultiArrayHelper
 
     };
 
-    template <class IndexClass, class Expr>
+   
+    template <class IndexClass, class Expr, size_t DIV>
     class PFor : public ExpressionBase
     {
     private:
 	PFor() = default;
 		
+	typedef typename IndexClass::RangeType RangeType;
 	const IndexClass* mIndPtr;
 	size_t mSPos;
 	size_t mMax;
@@ -440,29 +498,27 @@ namespace MultiArrayHelper
 	
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
+	static constexpr size_t MAX = RangeType::SIZE / DIV;
 
 	PFor(const PFor& in) = default;
 	PFor& operator=(const PFor& in) = default;
 	PFor(PFor&& in) = default;
 	PFor& operator=(PFor&& in) = default;
-       
+
 	PFor(const std::shared_ptr<IndexClass>& indPtr,
 	    size_t step, Expr expr);
 
 	PFor(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
+	virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
+
 	template <size_t VS>
 	auto vec() const
 	{
-	    // statically distinguish!!!
-	    if(mStep == 1 and mMax % vs == 0){
-		VCHECK(vs);
-		mMax /= vs;
-		VCHECK(mMax);
-		return reinterpret_cast<std::intptr_t>(mIndPtr);
-	    }
-	    return mExpr.vec(vs);
+	    typedef typename MkVFor<LAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
+		template ptype<VS,IndexClass,decltype(MkVExpr<LAYER>::template mk<VS>(mExpr))> oType;
+	    return oType(mIndPtr,mStep,MkVExpr<LAYER>::template mk<VS>(mExpr));
 	}
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
@@ -542,6 +598,9 @@ namespace MultiArrayHelper
 	    return std::make_shared<DynamicExpression>(*this);
 	}
 
+	template <size_t VS>
+	inline auto vec() const { return *this; }
+
 	inline void operator()(size_t mlast, DExt last) override final;
         inline void operator()(size_t mlast, DExtT last) { (*this)(mlast,last.get()); }
 	inline void operator()(size_t mlast = 0) override final;
@@ -617,50 +676,52 @@ namespace MultiArrayHelper
      *     F o r     *
      *****************/
     
-    template <class IndexClass, class Expr, ForType FT>
-    For<IndexClass,Expr,FT>::For(const std::shared_ptr<IndexClass>& indPtr,
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    For<IndexClass,Expr,FT,DIV>::For(const std::shared_ptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
 	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
+	assert(mMax % DIV == 0);
 	assert(mIndPtr != nullptr);
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    For<IndexClass,Expr,FT>::For(const IndexClass* indPtr,
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    For<IndexClass,Expr,FT,DIV>::For(const IndexClass* indPtr,
 				 size_t step, Expr expr) :
 	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
+	assert(mMax % DIV == 0);
 	assert(mIndPtr != nullptr);
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast, DExt last)
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    inline void For<IndexClass,Expr,FT,DIV>::operator()(size_t mlast, DExt last)
     {
         operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
         //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
-    template <class IndexClass, class Expr, ForType FT>
-    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast,
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    inline void For<IndexClass,Expr,FT,DIV>::operator()(size_t mlast,
 						    ExtType last)
     {
 	typedef typename IndexClass::RangeType RangeType;
-	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
+	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE,DIV>(mMax); ++pos){
 	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
 	}
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    inline void For<IndexClass,Expr,FT>::operator()(size_t mlast)
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    inline void For<IndexClass,Expr,FT,DIV>::operator()(size_t mlast)
     {
 	typedef typename IndexClass::RangeType RangeType;
 	ExtType last = rootSteps();
 	last.zero();
-	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax); ++pos){
+	for(size_t pos = 0u; pos != ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE,DIV>(mMax); ++pos){
 	    const size_t mnpos = PosForward<FT>::valuex(mlast, mStep, pos);
 	    const ExtType npos = last + mExt*pos;
 	    mExpr(mnpos, npos);
@@ -668,22 +729,22 @@ namespace MultiArrayHelper
     }
     
     
-    template <class IndexClass, class Expr, ForType FT>
-    auto For<IndexClass,Expr,FT>::rootSteps(std::intptr_t iPtrNum) const
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    auto For<IndexClass,Expr,FT,DIV>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
 	return mExpr.rootSteps(iPtrNum);
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    auto For<IndexClass,Expr,FT>::extension() const
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    auto For<IndexClass,Expr,FT,DIV>::extension() const
 	-> ExtType
     {
 	return mExt;
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    DExt For<IndexClass,Expr,FT>::dRootSteps(std::intptr_t iPtrNum) const
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    DExt For<IndexClass,Expr,FT,DIV>::dRootSteps(std::intptr_t iPtrNum) const
     {
         return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
         //mRootSteps = rootSteps(iPtrNum);
@@ -691,52 +752,54 @@ namespace MultiArrayHelper
 	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    DExt For<IndexClass,Expr,FT>::dExtension() const
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    DExt For<IndexClass,Expr,FT,DIV>::dExtension() const
     {
         return std::make_shared<ExtT<ExtType>>(mExt);
         //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
 	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
-    template <class IndexClass, class Expr, ForType FT>
-    PFor<IndexClass,Expr> For<IndexClass,Expr,FT>::parallel() const
+    template <class IndexClass, class Expr, ForType FT, size_t DIV>
+    PFor<IndexClass,Expr,DIV> For<IndexClass,Expr,FT,DIV>::parallel() const
     {
         static_assert(FT == ForType::DEFAULT, "hidden for not parallelizable");
-        return PFor<IndexClass,Expr>(mIndPtr, mStep, mExpr);
+        return PFor<IndexClass,Expr,DIV>(mIndPtr, mStep, mExpr);
     }
     
     /******************
      *    P F o r     *
      ******************/
     
-    template <class IndexClass, class Expr>
-    PFor<IndexClass,Expr>::PFor(const std::shared_ptr<IndexClass>& indPtr,
+    template <class IndexClass, class Expr, size_t DIV>
+    PFor<IndexClass,Expr,DIV>::PFor(const std::shared_ptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
 	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
+	assert(mMax % DIV == 0);
 	assert(mIndPtr != nullptr);
     }
 
-    template <class IndexClass, class Expr>
-    PFor<IndexClass,Expr>::PFor(const IndexClass* indPtr,
+    template <class IndexClass, class Expr, size_t DIV>
+    PFor<IndexClass,Expr,DIV>::PFor(const IndexClass* indPtr,
 				 size_t step, Expr expr) :
 	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
     {
+	assert(mMax % DIV == 0);
 	assert(mIndPtr != nullptr);
     }
 
-    template <class IndexClass, class Expr>
-    inline void PFor<IndexClass,Expr>::operator()(size_t mlast, DExt last)
+    template <class IndexClass, class Expr, size_t DIV>
+    inline void PFor<IndexClass,Expr,DIV>::operator()(size_t mlast, DExt last)
     {
         operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
         //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
     }
     
-    template <class IndexClass, class Expr>
-    inline void PFor<IndexClass,Expr>::operator()(size_t mlast,
+    template <class IndexClass, class Expr, size_t DIV>
+    inline void PFor<IndexClass,Expr,DIV>::operator()(size_t mlast,
 						    ExtType last)
     {
         CHECK;
@@ -748,7 +811,7 @@ namespace MultiArrayHelper
         {
             auto expr = mExpr;
 #pragma omp for nowait
-            for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
+            for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE,DIV>(mMax)); pos++){
                 mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
                 npos = last + mExt*static_cast<size_t>(pos);
                 expr(mnpos, npos);
@@ -756,11 +819,10 @@ namespace MultiArrayHelper
         }
     }
 
-    template <class IndexClass, class Expr>
-    inline void PFor<IndexClass,Expr>::operator()(size_t mlast)
+    template <class IndexClass, class Expr, size_t DIV>
+    inline void PFor<IndexClass,Expr,DIV>::operator()(size_t mlast)
     {
         CHECK;
-	typedef typename IndexClass::RangeType RangeType;
 	ExtType last = rootSteps();
 	last.zero();
         int pos = 0;
@@ -771,7 +833,7 @@ namespace MultiArrayHelper
         {
             auto expr = mExpr;
 #pragma omp for nowait
-            for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE>(mMax)); pos++){
+            for(pos = 0; pos < static_cast<int>(ForBound<RangeType::ISSTATIC>::template bound<RangeType::SIZE,DIV>(mMax)); pos++){
                 mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
                 npos = last + mExt*static_cast<size_t>(pos);
                 expr(mnpos, npos);
@@ -780,22 +842,22 @@ namespace MultiArrayHelper
     }
     
     
-    template <class IndexClass, class Expr>
-    auto PFor<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
+    template <class IndexClass, class Expr, size_t DIV>
+    auto PFor<IndexClass,Expr,DIV>::rootSteps(std::intptr_t iPtrNum) const
 	-> ExtType
     {
 	return mExpr.rootSteps(iPtrNum);
     }
 
-    template <class IndexClass, class Expr>
-    auto PFor<IndexClass,Expr>::extension() const
+    template <class IndexClass, class Expr, size_t DIV>
+    auto PFor<IndexClass,Expr,DIV>::extension() const
 	-> ExtType
     {
 	return mExt;
     }
 
-    template <class IndexClass, class Expr>
-    DExt PFor<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
+    template <class IndexClass, class Expr, size_t DIV>
+    DExt PFor<IndexClass,Expr,DIV>::dRootSteps(std::intptr_t iPtrNum) const
     {
         return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
         //mRootSteps = rootSteps(iPtrNum);
@@ -803,8 +865,8 @@ namespace MultiArrayHelper
 	//					    sizeof(ExtType)/sizeof(size_t));
     }
 
-    template <class IndexClass, class Expr>
-    DExt PFor<IndexClass,Expr>::dExtension() const
+    template <class IndexClass, class Expr, size_t DIV>
+    DExt PFor<IndexClass,Expr,DIV>::dExtension() const
     {
         return std::make_shared<ExtT<ExtType>>(mExt);
         //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
