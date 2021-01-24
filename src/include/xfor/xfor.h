@@ -271,6 +271,7 @@ namespace MultiArrayHelper
 	
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
+	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 
 	SingleExpression(const SingleExpression& in) = default;
 	SingleExpression& operator=(const SingleExpression& in) = default;
@@ -326,6 +327,7 @@ namespace MultiArrayHelper
 	
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE + 1;
+	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 
 	SubExpr(const SubExpr& in) = default;
 	SubExpr& operator=(const SubExpr& in) = default;
@@ -410,6 +412,36 @@ namespace MultiArrayHelper
 	}
     };
 
+    template <ForType FT, size_t LAYER>
+    struct NHLayer
+    {
+	template <class Expr>
+	static constexpr size_t get()
+	{
+	    return Expr::NHLAYER + 1;
+	}
+    };
+
+    template <size_t LAYER>
+    struct NHLayer<ForType::HIDDEN,LAYER>
+    {
+	template <class Expr>
+	static constexpr size_t get()
+	{
+	    return 0;
+	}
+    };
+
+    template <>
+    struct NHLayer<ForType::DEFAULT,1>
+    {
+	template <class Expr>
+	static constexpr size_t get()
+	{
+	    return Expr::LAYER;
+	}
+    };
+
     template <class IndexClass, class Expr, ForType FT, size_t DIV>
     class For : public ExpressionBase
     {
@@ -430,11 +462,12 @@ namespace MultiArrayHelper
         
     public:
 	typedef ExpressionBase EB;
-	
+
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
 	static constexpr size_t MAX = RangeType::SIZE / DIV;
-
+	static constexpr size_t NHLAYER = (FT == ForType::HIDDEN) ? 0 : Expr::NHLAYER + 1;
+	
 	For(const For& in) = default;
 	For& operator=(const For& in) = default;
 	For(For&& in) = default;
@@ -455,8 +488,10 @@ namespace MultiArrayHelper
 
 	virtual std::intptr_t vI() const override final
 	{
-	    if(mStep == 1 and LAYER == 1 and mMax % DIV == 0){
-		VCHECK(LAYER);
+	    if(mStep == 1 and NHLAYER == 1 and mMax % DIV == 0){
+	    //if(mStep == 1 and mMax % DIV == 0){
+		//VCHECK(LAYER);
+		//VCHECK(NHLAYER);
 		return reinterpret_cast<std::intptr_t>(mIndPtr);
 	    }
 	    return mExpr.vI();
@@ -465,9 +500,9 @@ namespace MultiArrayHelper
 	template <size_t VS>
 	auto vec() const
 	{
-	    typedef typename MkVFor<LAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
-		template type<VS,IndexClass,decltype(MkVExpr<LAYER>::template mk<VS>(mExpr)),FT> oType;
-	    return oType(mIndPtr,mStep,MkVExpr<LAYER>::template mk<VS>(mExpr));
+	    typedef typename MkVFor<NHLAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
+		template type<VS,IndexClass,decltype(MkVExpr<NHLAYER>::template mk<VS>(mExpr)),FT> oType;
+	    return oType(mIndPtr,mStep,MkVExpr<NHLAYER>::template mk<VS>(mExpr));
 	}
 
 	inline void operator()(size_t mlast, DExt last) override final;
@@ -509,6 +544,7 @@ namespace MultiArrayHelper
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
 	static constexpr size_t MAX = RangeType::SIZE / DIV;
+	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 
 	PFor(const PFor& in) = default;
 	PFor& operator=(const PFor& in) = default;
@@ -524,8 +560,10 @@ namespace MultiArrayHelper
 	//virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
 	virtual std::intptr_t vI() const override final
 	{
-	    if(mStep == 1 and LAYER == 1 and mMax % DIV == 0){
-		VCHECK(LAYER);
+	    if(mStep == 1 and NHLAYER == 1 and mMax % DIV == 0){
+	    //if(mStep == 1 and mMax % DIV == 0){
+		//VCHECK(LAYER);
+		//VCHECK(LAYER);
 		return reinterpret_cast<std::intptr_t>(mIndPtr);
 	    }
 	    return mExpr.vI();
@@ -534,9 +572,9 @@ namespace MultiArrayHelper
 	template <size_t VS>
 	auto vec() const
 	{
-	    typedef typename MkVFor<LAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
-		template ptype<VS,IndexClass,decltype(MkVExpr<LAYER>::template mk<VS>(mExpr))> oType;
-	    return oType(mIndPtr,mStep,MkVExpr<LAYER>::template mk<VS>(mExpr));
+	    typedef typename MkVFor<NHLAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
+		template ptype<VS,IndexClass,decltype(MkVExpr<NHLAYER>::template mk<VS>(mExpr))> oType;
+	    return oType(mIndPtr,mStep,MkVExpr<NHLAYER>::template mk<VS>(mExpr));
 	}
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
@@ -574,6 +612,7 @@ namespace MultiArrayHelper
 	
 	static constexpr size_t LAYER = 0;
 	static constexpr size_t SIZE = 0;
+	static constexpr size_t NHLAYER = 0;
 
 	DynamicExpression(const DynamicExpression& in) :
 	    mThreadId(omp_get_thread_num()),
@@ -649,6 +688,7 @@ namespace MultiArrayHelper
 	
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE;
+	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 
 	ExpressionHolder(const ExpressionHolder& in) = default;
 	ExpressionHolder(ExpressionHolder&& in) = default;

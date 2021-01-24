@@ -346,7 +346,7 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline const V& ConstOperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	VCHECK(pos.val());
+	//VCHECK(pos.val());
 	return *(reinterpret_cast<const V*>(mDataPtr+pos.val()));
     }
 
@@ -665,7 +665,7 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	VCHECK(pos.val());
+	//VCHECK(pos.val());
 	return *(reinterpret_cast<V*>(mDataPtr+pos.val()));
     }
 
@@ -740,12 +740,12 @@ namespace MultiArrayTools
     template <class IOp, class OpClass>
     auto ParallelOperationRoot<T,Ranges...>::asx(const OpClass& in) const
         -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                          (mOrigDataPtr,*this,in))))
+                                          (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>())
 
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return mIndex.pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                     (mOrigDataPtr,*this,in)));
+                                     (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>();
     }
 
     template <typename T, class... Ranges>
@@ -763,11 +763,11 @@ namespace MultiArrayTools
     template <class IOp, class OpClass, class Index>
     auto ParallelOperationRoot<T,Ranges...>::asx(const OpClass& in, const std::shared_ptr<Index>& i) const
         -> decltype(i->pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass>
-                                      (mOrigDataPtr,*this,in))))
+                                      (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>())
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
         return i->pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass>
-                                 (mOrigDataPtr,*this,in)));
+                                 (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>();
     }
 
     template <typename T, class... Ranges>
@@ -814,7 +814,7 @@ namespace MultiArrayTools
     template <class OpClass>
     ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-        assign(in)();
+	VExec<OpClass::VABLE>::template exec<identity>(*this,in);
         return *this;
     }
 
@@ -822,7 +822,7 @@ namespace MultiArrayTools
     template <class OpClass>
     ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-        plus(in)();
+	VExec<OpClass::VABLE>::template exec<xxxplus>(*this,in);
         return *this;
     }
 

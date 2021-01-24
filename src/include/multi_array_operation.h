@@ -259,7 +259,7 @@ namespace MultiArrayTools
 	template <typename Op, class ExtType>
 	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
 	{
-	    VCHECK(pos);
+	    //VCHECK(pos);
 	    VFunc<F>::selfApply(*reinterpret_cast<value_type*>(t+pos),op.template vget<value_type>(e));
 	}
     };
@@ -332,6 +332,7 @@ namespace MultiArrayTools
     public:
 
         static constexpr size_t LAYER = 0;
+        static constexpr size_t NHLAYER = 0;
         static constexpr size_t SIZE = Target::SIZE + OpClass::SIZE;
         typedef decltype(mTar.rootSteps(0).extend( mSec.rootSteps(0) )) ExtType;
 	    
@@ -371,7 +372,8 @@ namespace MultiArrayTools
 
     public:
         static constexpr size_t LAYER = 0;
-        static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
+	static constexpr size_t NHLAYER = 0;
+	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
         typedef decltype(RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,0) ) ExtType;
 
 	MOp(const Ops&... exprs);
@@ -410,6 +412,7 @@ namespace MultiArrayTools
     public:
 
         static constexpr size_t LAYER = 0;
+	static constexpr size_t NHLAYER = 0;
         static constexpr size_t SIZE = OpClass::SIZE + NextExpr::SIZE;
         typedef decltype(mSec.rootSteps(0).extend( mNExpr.rootSteps(0) ) ) ExtType;
 	    
@@ -699,7 +702,7 @@ namespace MultiArrayTools
         template <class IOp, class OpClass>
         auto asx(const OpClass& in) const
             -> decltype(mIndex.pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                              (mOrigDataPtr,*this,in))));
+                                              (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>());
 
         template <class IOp, class OpClass>
         auto asxExpr(const OpClass& in) const
@@ -708,7 +711,7 @@ namespace MultiArrayTools
         template <class IOp, class OpClass, class Index>
         auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const
             -> decltype(i->pifor(1,in.loop(AssignmentExpr<T,IOp,ParallelOperationRoot<T,Ranges...>,OpClass>
-                                          (mOrigDataPtr,*this,in))));
+                                          (mOrigDataPtr,*this,in))).template vec<IOp::VSIZE>());
             
         template <class OpClass>
         auto assign(const OpClass& in) const

@@ -57,6 +57,7 @@ namespace MultiArrayTools
 	//typedef SingleIndex<typename Op::value_type,STYPE> OIType;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE + Op::SIZE;
+	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 	
     private:
 	OpExpr() = default;
