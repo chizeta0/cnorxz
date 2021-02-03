@@ -500,6 +500,20 @@ namespace MultiArrayTools
 	return out;
     }
 
+    inline double xsqrt(const double& a)
+    {
+	return sqrt(a);
+    }
+
+    inline v256 sqrt(const v256& a)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xsqrt(a._x[i]);
+	}
+	return out;
+    }
+
 } // namespace MultiArrayTools
 
 #endif

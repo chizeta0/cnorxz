@@ -8,6 +8,7 @@
 #include <cmath>
 #include <map>
 #include <utility>
+#include <type_traits>
 
 #include "base_def.h"
 #include "mbase_def.h"
@@ -792,16 +793,16 @@ namespace MultiArrayTools
 	T mVal;
     };
 
-    template <class Op> 
+    template <typename T, class Op> 
     inline constexpr bool isVAble()
     {
-	return Op::VABLE;
+	return Op::VABLE and std::is_same<T,typename Op::value_type>::value;
     }
 
-    template <class Op1, class Op2, class... Ops>
+    template <typename T, class Op1, class Op2, class... Ops>
     inline constexpr bool isVAble()
     {
-	return Op1::VABLE and isVAble<Op2,Ops...>();
+	return Op1::VABLE and std::is_same<T,typename Op1::value_type>::value and isVAble<T,Op2,Ops...>();
     }
     
     template <typename T, class OpFunction, class... Ops>
@@ -816,7 +817,7 @@ namespace MultiArrayTools
 	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
 	static constexpr bool FISSTATIC = OpFunction::FISSTATIC;
         static constexpr bool CONT = false;
-        static constexpr bool VABLE = isVAble<Ops...>();
+        static constexpr bool VABLE = isVAble<T,Ops...>();
 
     private:
 	std::tuple<Ops...> mOps;

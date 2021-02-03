@@ -116,6 +116,7 @@ namespace MultiArrayHelper
             
     public:
         //static constexpr size_t SIZE = NN<LTpSize-1>::lsize(std::declval<LTp>());
+	static constexpr size_t NHLAYER = 10; // some large value
         static constexpr size_t SIZE = NN<LTpSize-1>::template LSIZE<LTp>();
         static constexpr bool CONT = false;
         typedef decltype(NN<LTpSize-1>::rootSteps(mLTp)) ExtType;
@@ -248,6 +249,8 @@ namespace MultiArrayHelper
         static constexpr size_t VarTpSize = LType::VarTpSize;
             
     public:
+
+	static constexpr size_t NHLAYER = 10; // some large value
         static constexpr size_t SIZE = LType::SIZE;
         static constexpr bool CONT = LType::CONT;
         typedef typename LType::ExtType ExtType;
