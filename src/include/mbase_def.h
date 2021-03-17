@@ -52,6 +52,10 @@ namespace MultiArrayTools
     class ConstOperationRoot;
 
     // multi_array_operation.h
+    template <typename T, class Op>
+    class OperationPointer;
+
+    // multi_array_operation.h
     template <typename T, class OpFunction, class... Ops>
     class Operation;
 

@@ -134,6 +134,14 @@ namespace MultiArrayTools
         return Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>(ll, THIS(), args...);
     }
 
+    template <typename T, class OperationClass>
+    auto OperationBase<T,OperationClass>::ptr() const
+	-> OperationPointer<T,OperationClass>
+    {
+	return OperationPointer<T,OperationClass>(THIS());
+    }
+
+    
     /************************
      *   AssignmentExpr     *
      ************************/
@@ -839,6 +847,40 @@ namespace MultiArrayTools
     }
 
     
+    /**************************
+     *   OperationPointer     *
+     **************************/
+
+    template <typename T, class Op>
+    template <class ET>
+    inline const T* OperationPointer<T,Op>::get(ET pos) const
+    {
+	return &mOp.get(pos);
+    }
+
+    template <typename T, class Op>
+    template <class ET>
+    inline OperationPointer<T,Op>& OperationPointer<T,Op>::set(ET pos)
+    {
+	mOp.set(pos);
+	return *this;
+    }
+
+    template <typename T, class Op>
+    auto OperationPointer<T,Op>::rootSteps(std::intptr_t iPtrNum) const
+	-> decltype(mOp.rootSteps(0))
+    {
+	return mOp.rootSteps(iPtrNum);
+    }
+
+    template <typename T, class Op>
+    template <class Expr>
+    auto OperationPointer<T,Op>::loop(Expr exp) const
+	-> decltype(mOp.loop(exp))
+    {
+	return mOp.loop(exp);
+    }
+
     /*******************
      *   Operation     *
      *******************/

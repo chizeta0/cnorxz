@@ -82,7 +82,10 @@ namespace MultiArrayTools
         template <typename R, class... Args> // Args = Operation Classes
         auto a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll, const Args&... args) const
             -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>;
-        
+
+	auto ptr() const
+	    -> OperationPointer<T,OperationClass>;
+	
     private:		
 	friend OperationClass;
 	friend OperationTemplate<T,OperationClass>;
@@ -654,7 +657,43 @@ namespace MultiArrayTools
 	T mVal;
     };
     
+    template <typename T, class Op>
+    class OperationPointer : public OperationTemplate<const T*,OperationPointer<T,Op>>
+    {
+    public:
 
+	typedef T value_type;
+	typedef OperationTemplate<const T*,OperationPointer<T,Op>> OT;
+	
+	static constexpr size_t SIZE = Op::SIZE;
+        static constexpr bool CONT = false;
+
+    private:
+	Op mOp;
+
+    public:
+
+	OperationPointer(const Op& op) : mOp(op)
+	{
+	    static_assert(Op::CONT,
+			  "OperationPointer can only be applied to containing operations");
+	}
+	
+	template <class ET>
+	inline const T* get(ET pos) const;
+
+	template <class ET>
+	inline OperationPointer& set(ET pos);
+
+	auto rootSteps(std::intptr_t iPtrNum = 0) const // nullptr for simple usage with decltype
+	    -> decltype(mOp.rootSteps(0));
+
+	template <class Expr>
+	auto loop(Expr exp) const
+	    -> decltype(mOp.loop(exp));
+
+	T const** data() const { assert(0); return nullptr; }
+    };
     
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
