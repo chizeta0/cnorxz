@@ -17,6 +17,7 @@ namespace MultiArrayTools
 	
 	static constexpr size_t SIZE = 1;
 	static constexpr bool CONT = true;
+	static constexpr bool VABLE = false;
 	
 	DynamicOperationBase() = default;
 	DynamicOperationBase(const DynamicOperationBase& in) = default;
@@ -125,6 +126,7 @@ namespace MultiArrayTools
 	
 	static constexpr size_t SIZE = 1;
 	static constexpr bool CONT = true;
+	static constexpr bool VABLE = false;
 	
 	DynamicO() = default;
 	DynamicO(const DynamicO& in) : mOp(in.mOp ? in.mOp->deepCopy() : nullptr) {}
@@ -144,6 +146,11 @@ namespace MultiArrayTools
 	
         template <class X>
 	inline T get(const DExtTX<X>& pos) const { return mOp->get(pos.reduce()); }
+
+	template <typename V,class X>
+	inline auto vget(const DExtTX<X>& pos) const
+	{ return mOp->template vget<V>(pos.reduce()); }
+	
         template <class X>
 	inline DynamicO& set(const DExtTX<X>& pos) { mOp->set(pos.reduce()); return *this; }
 	inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return mOp->rootSteps(iPtrNum); }

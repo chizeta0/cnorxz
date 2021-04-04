@@ -10,6 +10,7 @@
 #include "mbase_def.h"
 
 #include "pack_num.h"
+#include <cmath>
 
 namespace MultiArrayTools
 {
@@ -470,7 +471,49 @@ namespace MultiArrayTools
         xsdiv<4>( o._x, a._x );
 	return o;
     }
-   
+
+    inline double xpow(const double& b, const double& e)
+    {
+	return pow(b,e);
+    }
+
+    inline v256 pow(const v256& b, const v256& e)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xpow(b._x[i],e._x[i]);
+	}
+	return out;
+    }
+
+    inline double xexp(const double& a)
+    {
+	return exp(a);
+    }
+
+    inline v256 exp(const v256& a)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xexp(a._x[i]);
+	}
+	return out;
+    }
+
+    inline double xsqrt(const double& a)
+    {
+	return sqrt(a);
+    }
+
+    inline v256 sqrt(const v256& a)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xsqrt(a._x[i]);
+	}
+	return out;
+    }
+
 } // namespace MultiArrayTools
 
 #endif

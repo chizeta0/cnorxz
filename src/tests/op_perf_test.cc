@@ -174,8 +174,8 @@ namespace {
 	auto beta = MAT::getIndex<SR>();
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
-	//auto deltap = MAT::getIndex<SR>();
-	auto deltap = MAT::getIndex<GenSingleRange<size_t,SpaceType::NONE,1>>();
+	auto deltap = MAT::getIndex<SR>();
+	//auto deltap = MAT::getIndex<GenSingleRange<size_t,SpaceType::NONE,1>>();
 	
 	auto mix = MAT::mkMIndex( jj, alpha, beta, gamma );
 
@@ -217,8 +217,8 @@ namespace {
         
         auto begin = std::chrono::system_clock::now();
 	//for(size_t i = 0; i != os; ++i){
-        //res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
-        tcast<v256>(res1)(ii ,delta, deltap).par() += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        res1(ii ,delta, deltap).par() += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        //tcast<v256>(res1)(ii ,delta, deltap).par() += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	//}
         auto end = std::chrono::system_clock::now();
 	std::cout << "MultiArray time: " << std::chrono::duration<double>(end-begin).count()

@@ -28,6 +28,18 @@ namespace MultiArrayTools
     }
 
     template <class Op, class Index, class Expr, SpaceType STYPE>
+    std::shared_ptr<ExpressionBase> OpExpr<Op,Index,Expr,STYPE>::deepCopy() const
+    {
+	return std::make_shared<OpExpr<Op,Index,Expr,STYPE>>(*this);
+    }
+    
+    template <class Op, class Index, class Expr, SpaceType STYPE>
+    inline void OpExpr<Op,Index,Expr,STYPE>::operator()(size_t mlast, DExt last)
+    {
+	operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
+    }
+
+    template <class Op, class Index, class Expr, SpaceType STYPE>
     inline void OpExpr<Op,Index,Expr,STYPE>::operator()(size_t mlast,
                                                             ExtType last)
     {
@@ -63,7 +75,18 @@ namespace MultiArrayTools
 	//return mExpr.rootSteps(iPtrNum).extend( mOp.rootSteps(iPtrNum) );
     }
 
+    template <class Op, class Index, class Expr, SpaceType STYPE>
+    DExt OpExpr<Op,Index,Expr,STYPE>::dRootSteps(std::intptr_t iPtrNum) const
+    {
+	return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
+    }
     
+    template <class Op, class Index, class Expr, SpaceType STYPE>
+    DExt OpExpr<Op,Index,Expr,STYPE>::dExtension() const
+    {
+	return std::make_shared<ExtT<ExtType>>(mExt);
+    }
+
     // -> define in range_base.cc
     //std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
     

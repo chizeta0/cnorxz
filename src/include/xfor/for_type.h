@@ -10,8 +10,11 @@ namespace MultiArrayHelper
 	HIDDEN = 1	
     };
 
-    template <class IndexClass, class Expr, ForType FT = ForType::DEFAULT>
+    template <class IndexClass, class Expr, ForType FT = ForType::DEFAULT, size_t DIV = 1>
     class For;
+
+    template <class IndexClass, class Expr, size_t DIV = 1>
+    class PFor;
 
     
 } // end namespace MultiArrayHelper

@@ -50,13 +50,14 @@ namespace MultiArrayTools
     
     template <class Op, class Index, class Expr, SpaceType STYPE = SpaceType::ANY>
     //template <class MapF, class IndexPack, class Expr, SpaceType STYPE = SpaceType::ANY>
-    class OpExpr
+    class OpExpr : public ExpressionBase
     {
     public:
         //typedef typename Index::OIType OIType;
 	//typedef SingleIndex<typename Op::value_type,STYPE> OIType;
 	static constexpr size_t LAYER = Expr::LAYER + 1;
 	static constexpr size_t SIZE = Expr::SIZE + Op::SIZE;
+	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 	
     private:
 	OpExpr() = default;
@@ -80,11 +81,20 @@ namespace MultiArrayTools
 
         OpExpr(const Op& mapf, const Index* ind, size_t step, Expr ex);
 
+	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final;
+
+	template <size_t VS>
+	inline auto vec() const { return *this; }
+	
+	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last);
-	inline void operator()(size_t mlast = 0);
+	inline void operator()(size_t mlast = 0) override final;
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
+	virtual DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
+	virtual DExt dExtension() const override final;
+	
     };
     
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
