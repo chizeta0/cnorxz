@@ -102,18 +102,6 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-    template <class Op>
-    size_t sumRootNum()
-    {
-	return typename Op::rootNum();
-    }
-    
-    template <class Op1, class Op2, class... Ops>
-    size_t sumRootNum()
-    {
-	return typename Op1::rootNum() + sumRootNum<Op2,Ops...>();
-    }
-
     template <size_t N>
     struct RootSumN
     {
@@ -190,6 +178,7 @@ namespace MultiArrayTools
     template <class... Ops>
     struct RootSum
     {
+	//static constexpr size_t SIZE = (... + Ops::SIZE);
 	static constexpr size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
     };
 
