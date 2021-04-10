@@ -245,9 +245,10 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ops>
-    auto MOp<T,Ops...>::rootSteps(std::intptr_t iPtrNum) const -> ExtType
+    auto MOp<T,Ops...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,iPtrNum);
+	return MA_SCFOR(i,0,sizeof...(Ops),i+1,std::get<i>(mOps).rootSteps(iPtrNum),extend);
+	//return RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,iPtrNum);
     }
 
     template <class OpClass, class NextExpr>
@@ -1011,17 +1012,15 @@ namespace MultiArrayTools
 
     template <typename T, class OpFunction, class... Ops>
     auto Operation<T,OpFunction,Ops...>::rootSteps(std::intptr_t iPtrNum) const
-	-> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps))
     {
-	return PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps);
+	return MA_SCFOR(i,0,sizeof...(Ops),i+1,std::get<i>(mOps).rootSteps(iPtrNum),extend);
     }
 
     template <typename T, class OpFunction, class... Ops>
     template <class Expr>
     auto Operation<T,OpFunction,Ops...>::loop(Expr exp) const
-	-> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp ))
     {
-	return PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp );
+	return MA_SCRAFOR(i,sizeof...(Ops),0,i-1,std::get<i>(mOps),loop,exp);
     }
 
     

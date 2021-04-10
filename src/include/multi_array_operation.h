@@ -20,6 +20,8 @@
 #include "xfor/xfor.h"
 #include "type_operations.h"
 
+#include "statics/static_for.h"
+
 namespace MultiArrayTools
 {
 
@@ -105,11 +107,6 @@ namespace MultiArrayTools
     template <size_t N>
     struct RootSumN
     {
-	template <class Op1, class... Ops>
-	struct rs
-	{
-	    static constexpr size_t SIZE = Op1::SIZE + RootSumN<N-1>::template rs<Ops...>::SIZE;
-	};
 
 	template <class... Exprs>
 	static inline auto rootSteps(const std::tuple<Exprs...>& etp, std::intptr_t i)
@@ -142,11 +139,6 @@ namespace MultiArrayTools
     template <>
     struct RootSumN<0>
     {
-	template <class Op1>
-	struct rs
-	{
-	    static constexpr size_t SIZE = Op1::SIZE;
-	};
 
 	template <class... Exprs>
 	static inline auto rootSteps(const std::tuple<Exprs...>& etp, std::intptr_t i)
@@ -172,14 +164,6 @@ namespace MultiArrayTools
 	{
 	    std::get<sizeof...(Exprs)-1>(etp).set(last);
 	}
-    };
-
-    
-    template <class... Ops>
-    struct RootSum
-    {
-	//static constexpr size_t SIZE = (... + Ops::SIZE);
-	static constexpr size_t SIZE = RootSumN<sizeof...(Ops)-1>::template rs<Ops...>::SIZE;
     };
 
     
@@ -271,46 +255,6 @@ namespace MultiArrayTools
 
     template <typename T>
     using IVPlus = IVAccess<T,plus<T>>;
-    /*
-    struct IAssign
-    {
-	template <typename T, typename Op, class ExtType>
-	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
-	{
-	    t[pos] = op.get(e);
-	}
-    };
-
-    template <typename V>
-    struct IVAssign
-    {
-	template <typename T, typename Op, class ExtType>
-	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
-	{
-	    reinterpret_cast<V*>(t)[pos] = op.template vget<V>(e);
-	}
-    };
-    
-    struct IPlus
-    {
-	template <typename T, typename Op, class ExtType>
-	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
-	{
-	    t[pos] += op.get(e);
-	}
-    };
-
-    template <typename V>
-    struct IVPlus
-    {
-	template <typename T, typename Op, class ExtType>
-	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
-	{
-	    reinterpret_cast<V*>(t)[pos] += op.template vget<V>(e);
-	}
-    };
-    */
-
     
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr : public ExpressionBase
@@ -366,7 +310,7 @@ namespace MultiArrayTools
     public:
         static constexpr size_t LAYER = 0;
 	static constexpr size_t NHLAYER = 0;
-	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
+	static constexpr size_t SIZE = (... + Ops::SIZE);
         typedef decltype(RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,0) ) ExtType;
 
 	MOp(const Ops&... exprs);
@@ -382,7 +326,7 @@ namespace MultiArrayTools
 	inline size_t vget(ExtType last) const { return get(last); }
 	
 	inline MOp& set(ExtType last);
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
+        auto rootSteps(std::intptr_t iPtrNum = 0) const;
 
 	template <class Expr>
 	auto loop(Expr exp) const
@@ -821,18 +765,6 @@ namespace MultiArrayTools
 
 	T const** data() const { assert(0); return nullptr; }
     };
-
-    template <typename T, class Op> 
-    inline constexpr bool isVAble()
-    {
-	return Op::VABLE and std::is_same<T,typename Op::value_type>::value;
-    }
-
-    template <typename T, class Op1, class Op2, class... Ops>
-    inline constexpr bool isVAble()
-    {
-	return Op1::VABLE and std::is_same<T,typename Op1::value_type>::value and isVAble<T,Op2,Ops...>();
-    }
     
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
@@ -843,17 +775,17 @@ namespace MultiArrayTools
 	typedef OperationBase<T,Operation<T,OpFunction,Ops...> > OT;
 	typedef OpFunction F;
 	
-	static constexpr size_t SIZE = RootSum<Ops...>::SIZE;
+	static constexpr size_t SIZE = (... + Ops::SIZE);
 	static constexpr bool FISSTATIC = OpFunction::FISSTATIC;
         static constexpr bool CONT = false;
-        static constexpr bool VABLE = isVAble<T,Ops...>();
+	static constexpr bool VABLE =
+	    (... and (Ops::VABLE and std::is_same<T,typename Ops::value_type>::value));
 
     private:
 	std::tuple<Ops...> mOps;
 	std::shared_ptr<OpFunction> mF; // only if non-static
 	
     public:
-	typedef decltype(PackNum<sizeof...(Ops)-1>::template mkSteps<Ops...>(0, mOps)) ETuple;
 		
 	Operation(const Ops&... ops);
 	Operation(std::shared_ptr<OpFunction> ff, const Ops&... ops);
@@ -867,49 +799,25 @@ namespace MultiArrayTools
 	template <class ET>
 	inline Operation& set(ET pos);
 
-	auto rootSteps(std::intptr_t iPtrNum = 0) const // nullptr for simple usage with decltype
-	    -> decltype(PackNum<sizeof...(Ops)-1>::mkSteps(iPtrNum, mOps));
+	auto rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
 
 	template <class Expr>
-	auto loop(Expr exp) const
-	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp));
+	auto loop(Expr exp) const;
 
 	T* data() const { assert(0); return nullptr; }
     };
-
-    namespace
-    {
-	template <bool FISSTATIC>
-	struct OpMaker
-	{
-	    template <class OpFunction, class... Ops>
-	    static inline auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
-		-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
-	    {
-		return Operation<typename OpFunction::value_type,OpFunction,Ops...>(f,ops...);
-	    }
-	};
-
-	template <>
-	struct OpMaker<true>
-	{
-	    template <class OpFunction, class... Ops>
-	    static inline auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
-		-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
-	    {
-		return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
-	    }
-	};
-
-    }
     
     template <class OpFunction, class... Ops>
     auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
 	-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
     {
-	return OpMaker<OpFunction::FISSTATIC>::mkOperation(f, ops...);
+	if constexpr(OpFunction::FISSTATIC){
+	    return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
+	}
+	else {
+	    return Operation<typename OpFunction::value_type,OpFunction,Ops...>(f,ops...);
+	}
     }
-
     
     template <typename T, class Op, class IndexType>
     class Contraction : public OperationTemplate<T,Contraction<T,Op,IndexType> >
