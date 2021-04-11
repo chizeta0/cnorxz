@@ -226,29 +226,27 @@ namespace MultiArrayTools
     template <typename T, class... Ops>
     inline size_t MOp<T,Ops...>::get(ExtType last) const
     {
-	return RootSumN<sizeof...(Ops)-1>::get(last,mOps);
+	return RootSumN<sizeof...(Ops)-1>::get(last,mOps.mOps);
     }
 
     template <typename T, class... Ops>
     inline MOp<T,Ops...>& MOp<T,Ops...>::set(ExtType last)
     {
-	RootSumN<sizeof...(Ops)-1>::set(last,mOps);
+	RootSumN<sizeof...(Ops)-1>::set(last,mOps.mOps);
 	return *this;
     }
     
     template <typename T, class... Ops>
     template <class Expr>
     auto MOp<T,Ops...>::loop(Expr exp) const
-	-> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp))
     {
-	return PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp);
+	return MA_SCRAFOR(i,sizeof...(Ops),0,i-1,std::get<i>(mOps.mOps),loop,exp);
     }
 
     template <typename T, class... Ops>
-    auto MOp<T,Ops...>::rootSteps(std::intptr_t iPtrNum) const
+    auto MOp<T,Ops...>::rootSteps(std::intptr_t iPtrNum) const -> ExtType
     {
-	return MA_SCFOR(i,0,sizeof...(Ops),i+1,std::get<i>(mOps).rootSteps(iPtrNum),extend);
-	//return RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,iPtrNum);
+	return mOps.rootSteps(iPtrNum);
     }
 
     template <class OpClass, class NextExpr>
@@ -989,7 +987,7 @@ namespace MultiArrayTools
     {
 	typedef std::tuple<Ops...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
-	    template mkOpExpr<SIZE,ET,OpTuple,OpFunction>(mF, pos, mOps);
+	    template mkOpExpr<SIZE,ET,OpTuple,OpFunction>(mF, pos, mOps.mOps);
     }
 
     template <typename T, class OpFunction, class... Ops>
@@ -998,7 +996,7 @@ namespace MultiArrayTools
     {
 	typedef std::tuple<Ops...> OpTuple;
 	return PackNum<sizeof...(Ops)-1>::
-	    template mkVOpExpr<SIZE,V,ET,OpTuple,VFunc<OpFunction>>(mkVFuncPtr(mF), pos, mOps); // implement!!!
+	    template mkVOpExpr<SIZE,V,ET,OpTuple,VFunc<OpFunction>>(mkVFuncPtr(mF), pos, mOps.mOps); // implement!!!
     }
 
     template <typename T, class OpFunction, class... Ops>
@@ -1006,21 +1004,22 @@ namespace MultiArrayTools
     inline Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::set(ET pos)
     {
 	typedef std::tuple<Ops...> OpTuple;
-	PackNum<sizeof...(Ops)-1>::template setOpPos<SIZE,OpTuple,ET>(mOps,pos);
+	PackNum<sizeof...(Ops)-1>::template setOpPos<SIZE,OpTuple,ET>(mOps.mOps,pos);
 	return *this;
     }
 
     template <typename T, class OpFunction, class... Ops>
     auto Operation<T,OpFunction,Ops...>::rootSteps(std::intptr_t iPtrNum) const
+	-> ExtType
     {
-	return MA_SCFOR(i,0,sizeof...(Ops),i+1,std::get<i>(mOps).rootSteps(iPtrNum),extend);
+	return mOps.rootSteps(iPtrNum);
     }
 
     template <typename T, class OpFunction, class... Ops>
     template <class Expr>
     auto Operation<T,OpFunction,Ops...>::loop(Expr exp) const
     {
-	return MA_SCRAFOR(i,sizeof...(Ops),0,i-1,std::get<i>(mOps),loop,exp);
+	return MA_SCRAFOR(i,sizeof...(Ops),0,i-1,std::get<i>(mOps.mOps),loop,exp);
     }
 
     

@@ -23,159 +23,7 @@ namespace MultiArrayHelper
 
     //typedef std::pair<size_t const*,size_t> DExt;
 
-    class ExtBase
-    {
-    public:
-	ExtBase() = default;
-	ExtBase(const ExtBase& in) = default;
-	ExtBase(ExtBase&& in) = default;
-	ExtBase& operator=(const ExtBase& in) = default;
-	ExtBase& operator=(ExtBase&& in) = default;
-        
-	virtual size_t size() const = 0;
-	virtual const size_t& val() const = 0;
-	//virtual size_t rootSteps() const = 0;
-	virtual bool operator==(const ExtBase& in) const = 0;
-	virtual bool operator==(size_t in) const = 0;
-	    
-	virtual std::shared_ptr<ExtBase> operator+(const ExtBase& in) const = 0;
-	virtual std::shared_ptr<ExtBase> operator*(size_t in) const = 0;
-	virtual void zero() = 0;
 
-	virtual std::shared_ptr<ExtBase> deepCopy() const = 0;
-	
-	template <class ExtType>
-	const ExtType& expl() const;
-
-        virtual std::string stype() const = 0;
-    };
-
-    typedef std::shared_ptr<ExtBase> DExt;
-
-    template <class ExtType>
-    class ExtT : public ExtBase
-    {
-    private:
-	ExtType mExt;
-    public:
-	static constexpr size_t SIZE = ExtType::SIZE;
-	static constexpr size_t NUM = ExtType::NUM;
-	
-	ExtT() = default;
-	ExtT(const ExtT& in) = default;
-	ExtT(ExtT&& in) = default;
-	ExtT& operator=(const ExtT& in) = default;
-	ExtT& operator=(ExtT&& in) = default;
-
-	ExtT(const ExtType& in) : mExt(in) {}
-
-	virtual std::shared_ptr<ExtBase> deepCopy() const override final { return std::make_shared<ExtT<ExtType>>(mExt); }
-
-	virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
-	//virtual size_t size() const override final { return ExtType::MExtSize(); }
-	//virtual size_t rootSteps() const override final;
-	const ExtType& ext() const { return mExt; }
-	virtual const size_t& val() const override final { return mExt.val(); }
-	virtual void zero() override final { mExt.zero(); }
-
-	virtual bool operator==(const ExtBase& in) const override final
-	{ return mExt == dynamic_cast<const ExtT<ExtType>&>(in).mExt; }
-	
-	virtual bool operator==(size_t in) const override final
-	{ return mExt == in; }
-
-	virtual DExt operator+(const ExtBase& in) const override final
-	{ return std::make_shared<ExtT<ExtType>>( mExt + dynamic_cast<const ExtT<ExtType>&>(in).mExt ); }
-	virtual DExt operator*(size_t in) const override final
-	{ return std::make_shared<ExtT<ExtType>>( mExt * in ); }
-
-        virtual std::string stype() const override final { return std::string("T[") + mExt.stype() + "]"; }
-    };
-    //class DExtT;
-
-    template <class ExtType>
-    DExt mkDExt(const ExtT<ExtType>& in)
-    {
-        return std::make_shared<ExtT<ExtType>>(in);
-    }
-
-    template <class ExtType>
-    ExtT<ExtType> mkExtT(const ExtType& in)
-    {
-        return ExtT<ExtType>(in);
-    }
-    
-    template <class X>
-    class DExtTX
-    {
-    private:
-	mutable DExt mDExt = nullptr;
-	X mNext;
-
-        template <class Y>
-        friend class DExtTX;
-    public:
-	static constexpr size_t NUM = X::SIZE;
-	static constexpr size_t SIZE = NUM + 1;
-	
-        DExtTX() { mDExt = std::make_shared<ExtT<None>>(); }
-        DExtTX(const DExtTX& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
-        DExtTX(DExtTX&& in) : mDExt(in.mDExt->deepCopy()), mNext(in.mNext) {}
-        DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); return *this; }
-        DExtTX& operator=(DExtTX&& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); return *this; }
-        explicit DExtTX(const DExt& in) : mDExt(in) {}
-        /*
-	template <class Y>
-	DExtTX& operator=(const Y& y) { mDExt = std::make_shared<ExtT<Y>>(y); return *this; }
-
-	template <class Y>
-	DExtTX(const Y& y) : mDExt(std::make_shared<ExtT<Y>>(y)) {}
-        */
-	bool operator==(const DExtTX& in) const
-	{ return *mDExt == *in.mDExt and mNext == in.mNext; }
-	
-	bool operator==(size_t in) const
-	{ return *mDExt == in and mNext == in; }
-
-        template <class Y>
-        DExtTX(const DExtTX<Y>& in) : mDExt(in.mDExt), mNext(in.mNext) {}
-        
-	DExtTX(const DExt& y, const X& x) : mDExt(y->deepCopy()),
-                                            mNext(x) {}
-
-        virtual size_t size() const { return mDExt->size(); }
-        inline const DExt& get() const { return mDExt; }
-
-        inline DExtTX<None> reduce() const { return DExtTX<None>(mDExt,None(0)); }
-        
-        inline DExtTX operator+(const DExtTX& in) const
-        { if (not mDExt) return in; else return DExtTX( (*mDExt) + (*in.mDExt), mNext + in.mNext ); }
-        inline DExtTX operator*(size_t in) const
-        { if (not mDExt) return *this; else return DExtTX((*mDExt) * in, mNext * in); }
-
-	template <class ExtType>
-	inline const ExtType& expl() const
-	{ if(mDExt == nullptr) mDExt = std::make_shared<ExtT<ExtType>>(); assert(mDExt != nullptr); return mDExt->expl<ExtType>(); }
-
-	template <class Y>
-	inline auto extend(const Y& y) const -> DExtTX<decltype(mNext.extend(y))>
-	{ return DExtTX<decltype(mNext.extend(y))>(mDExt, mNext.extend(y)); }
-
-	inline const size_t& val() const { return mDExt->val(); }
-	inline const X& next() const { return mNext; }
-
-	inline void zero() { mDExt->zero(); }
-	
-	template <size_t N>
-	inline auto nn() const -> decltype(Getter<N>::getX(*this))
-	    { return Getter<N>::getX(*this); }
-
-        std::string stype() const { return std::string("D[") + mDExt->stype() + "," + mNext.stype() + "]"; }
-    };
-
-    typedef DExtTX<None> DExtT;
-    
-    inline MExt<None> mkExt(size_t s) { return MExt<None>(s); }
     
     class ExpressionBase
     {
@@ -1061,7 +909,7 @@ namespace MultiArrayHelper
         const size_t pos = (*mSubSet)[last.val()];
         const size_t mnpos = mlast;
         const ExtType npos = last + mExt*pos;
-        mExpr(mnpos, Getter<1>::template getX<ExtType>( npos ));
+        mExpr(mnpos, getX<1>( npos ));
     }
 
     template <class IndexClass, class Expr>
@@ -1072,7 +920,7 @@ namespace MultiArrayHelper
         const size_t pos = (*mSubSet)[last.val()];
         const size_t mnpos = mlast;
         const ExtType npos = last + mExt*pos;
-        mExpr(mnpos, Getter<1>::template getX<ExtType>( npos ));
+        mExpr(mnpos, getX<1>( npos ));
     }
     
     

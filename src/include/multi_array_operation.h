@@ -300,19 +300,33 @@ namespace MultiArrayTools
     template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     using AddExpr = AssignmentExpr<T,IPlus<T>,Target,OpClass,OIA>;
 
+    template <class... Ops>
+    struct OperationTuple
+    {
+	OperationTuple(const Ops&... ops) : mOps(ops...) {}
+	std::tuple<Ops...> mOps;
+	auto rootSteps(std::intptr_t iPtrNum) const;
+    };
+
+    template <class... Ops>
+    auto OperationTuple<Ops...>::rootSteps(std::intptr_t iPtrNum) const
+    {
+	return MA_SCFOR(i,0,sizeof...(Ops),i+1,std::get<i>(mOps).rootSteps(iPtrNum),extend);
+    }
+    
     template <typename T, class... Ops>
     class MOp
     {
     private:
 	MOp() = default;
-	std::tuple<Ops...> mOps;
-
+	OperationTuple<Ops...> mOps;
+	
     public:
         static constexpr size_t LAYER = 0;
 	static constexpr size_t NHLAYER = 0;
 	static constexpr size_t SIZE = (... + Ops::SIZE);
-        typedef decltype(RootSumN<sizeof...(Ops)-1>::rootSteps(mOps,0) ) ExtType;
-
+	typedef decltype(mOps.rootSteps(0)) ExtType;
+	
 	MOp(const Ops&... exprs);
 	
 	MOp(const MOp& in) = default;
@@ -326,11 +340,10 @@ namespace MultiArrayTools
 	inline size_t vget(ExtType last) const { return get(last); }
 	
 	inline MOp& set(ExtType last);
-        auto rootSteps(std::intptr_t iPtrNum = 0) const;
+        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 
 	template <class Expr>
-	auto loop(Expr exp) const
-	    -> decltype(PackNum<sizeof...(Ops)-1>::mkLoop( mOps, exp));
+	auto loop(Expr exp) const;
 
 	T* data() const { assert(0); return nullptr; }
 
@@ -782,8 +795,9 @@ namespace MultiArrayTools
 	    (... and (Ops::VABLE and std::is_same<T,typename Ops::value_type>::value));
 
     private:
-	std::tuple<Ops...> mOps;
+	OperationTuple<Ops...> mOps;
 	std::shared_ptr<OpFunction> mF; // only if non-static
+	typedef decltype(mOps.rootSteps(0)) ExtType;
 	
     public:
 		
@@ -798,8 +812,9 @@ namespace MultiArrayTools
 
 	template <class ET>
 	inline Operation& set(ET pos);
-
-	auto rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
+	
+	auto rootSteps(std::intptr_t iPtrNum = 0) const
+	    -> ExtType; // nullptr for simple usage with decltype
 
 	template <class Expr>
 	auto loop(Expr exp) const;

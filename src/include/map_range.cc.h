@@ -49,7 +49,7 @@ namespace MultiArrayTools
         if(pos != mIndPtr->max()){
             const ExtType npos = last + mExt*pos;
             const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
-            mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ) );
+            mExpr(mnpos, getX<NEXT>( npos ) );
         }
     }
 
@@ -63,7 +63,7 @@ namespace MultiArrayTools
         if(pos != mIndPtr->max()){
             const ExtType npos = last + mExt*pos;
             const size_t mnpos = PosForward<ForType::DEFAULT>::valuex(mlast, mStep, pos);
-            mExpr(mnpos, Getter<NEXT>::template getX<ExtType>( npos ));
+            mExpr(mnpos, getX<NEXT>( npos ));
         }
     }
     

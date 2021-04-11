@@ -76,9 +76,9 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
-	    typedef decltype(std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
+	    typedef decltype(std::get<N>(ops).get(getX<NEXT>( pos ))) ArgT;
 	    return PackNum<N-1>::template mkOpExpr<NEXT,ETuple,OpTuple,OpFunction,ArgT,Args...>
-		( f, pos, ops, std::get<N>(ops).get(Getter<NEXT>::template getX<ETuple>( pos )), args...);
+		( f, pos, ops, std::get<N>(ops).get(getX<NEXT>( pos )), args...);
 	}
 
 	template <size_t LAST, typename V, class ETuple, class OpTuple, class OpFunction, typename... Args>
@@ -87,9 +87,9 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<N>(ops))>::type NextOpType;
 	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
-	    typedef decltype(std::get<N>(ops).template vget<V>(Getter<NEXT>::template getX<ETuple>( pos ))) ArgT;
+	    typedef decltype(std::get<N>(ops).template vget<V>(getX<NEXT>( pos ))) ArgT;
 	    return PackNum<N-1>::template mkVOpExpr<NEXT,V,ETuple,OpTuple,OpFunction,ArgT,Args...>
-		( f, pos, ops, std::get<N>(ops).template vget<V>(Getter<NEXT>::template getX<ETuple>( pos )), args...);
+		( f, pos, ops, std::get<N>(ops).template vget<V>(getX<NEXT>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
@@ -132,7 +132,7 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<N>(ot))>::type NextOpType;
 	    static_assert(LAST >= NextOpType::SIZE, "inconsistent array positions");
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
-	    std::get<N>( ot ).set( Getter<NEXT>::template getX<ETuple>( et ) );
+	    std::get<N>( ot ).set( getX<NEXT>( et ) );
 	    PackNum<N-1>::template setOpPos<NEXT,OpTuple,ETuple>(ot, et);
 	}
     };
@@ -174,9 +174,8 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    typedef decltype(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos ))) ArgT;
-	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
-	    //return OpFunction::apply(std::get<0>(ops).get(Getter<0>::template getX<ETuple>( pos )), args...);
+	    typedef decltype(std::get<0>(ops).get(getX<0>( pos ))) ArgT;
+	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).get(getX<0>( pos )), args...);
 	}
 
 	template <size_t LAST, typename V, class ETuple, class OpTuple, class OpFunction, typename... Args>
@@ -185,8 +184,8 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    typedef decltype(std::get<0>(ops).template vget<V>(Getter<0>::template getX<ETuple>( pos ))) ArgT;
-	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).template vget<V>(Getter<0>::template getX<ETuple>( pos )), args...);
+	    typedef decltype(std::get<0>(ops).template vget<V>(getX<0>( pos ))) ArgT;
+	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).template vget<V>(getX<0>( pos )), args...);
 	}
 
 	template <class OpTuple, class Expr>
@@ -229,7 +228,7 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<0>(ot))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    std::get<0>( ot ).set( Getter<NEXT>::template getX<ETuple>( et ) );
+	    std::get<0>( ot ).set( getX<NEXT>( et ) );
 	}
 
     };

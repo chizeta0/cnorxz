@@ -50,23 +50,12 @@ namespace MultiArrayTools
 	    //static_assert(abs(idx.value - END) >= abs(incr(idx) - END),
 	    //		  "this turns out to be a static endless loop");
 	    auto tmp = f(idxm);
-	    return sfor<incr(idx),END,OFF>::unpack(incr, f, create, args..., tmp);
-	}
-    };
-
-    template <size_t END, int OFF>
-    struct sfor<END,END,OFF>
-    {
-	template <typename Incr, typename F, typename Conc>
-	static inline auto exec(Incr incr, F f, Conc conc)
-	{
-	    return 0;
-	}
-
-	template <typename Incr, typename F, typename Create, typename... Args>
-	static inline auto unpack(Incr incr, F f, Create create, const Args&... args)
-	{
-	    return create(args...);
+	    if constexpr(BEG == END){
+		return create(args...);
+	    }
+	    else {
+		return sfor<incr(idx),END,OFF>::unpack(incr, f, create, args..., tmp);
+	    }
 	}
     };
 }
@@ -77,5 +66,7 @@ namespace MultiArrayTools
 #define MA_SCRFOR(i,beg,end,decr,expr,conc) sfor<beg,end,-1>::exec([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); })
 #define MA_SCRAFOR(i,beg,end,decr,expr,conc,arg) sfor<beg,end,-1>::exec([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); }, arg)
 #define MA_CFOR(i,beg,end,incr,expr,cre) sfor<beg,end,0>::unpack([&](auto i) constexpr { return incr; }, [&](auto i){ expr }, [&](auto... args) { return cre(args...); })
+
+#define MA_SCFOR_X(i,beg,end,incr,expr,conc) sfor<beg,end,0>::exec([](auto i) constexpr { return incr; }, [](auto i){ return expr; }, [](auto f, auto next) { return f.conc(next); })
 
 #endif
