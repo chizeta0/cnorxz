@@ -1,5 +1,7 @@
 
 #include "multi_array_operation.h"
+#include "xfor/exttype.h"
+
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
@@ -978,16 +980,38 @@ namespace MultiArrayTools
 	mOps(ops...),
 	mF(ff)
     {
-	static_assert( not FISSTATIC, "using instance of function supposed to be static" );
+	static_assert( not FISSTATIC, "using instance of static function" );
     }
 
+    template <typename T, class OpFunction, class... Ops>
+    template <size_t I, size_t J, class ET>
+    inline auto Operation<T,OpFunction,Ops...>::getSubX(ET pos) const
+    {
+	// somehow get rid of the second condition (should NOT be needed if everything is correct)
+	if constexpr(I == J or sizeof...(Ops)-1 == I){
+	    return std::get<J>(mOps.mOps).get(pos);
+	}
+	else {
+	    typedef typename std::remove_reference<decltype(std::get<I>(mOps.mOps))>::type
+		NextOpType;
+	    return getSubX<I+1,J>(getX<NextOpType::SIZE>(pos));
+	}
+    } 
+    
     template <typename T, class OpFunction, class... Ops>
     template <class ET>
     inline auto Operation<T,OpFunction,Ops...>::get(ET pos) const
     {
-	typedef std::tuple<Ops...> OpTuple;
-	return PackNum<sizeof...(Ops)-1>::
-	    template mkOpExpr<SIZE,ET,OpTuple,OpFunction>(mF, pos, mOps.mOps);
+	auto cre = [&](auto... args)
+	{
+	    if constexpr(OpFunction::FISSTATIC){
+		return OpFunction::apply(args...);
+	    }
+	    else {
+		return (*mF)(args...);
+	    }
+	};
+	return MA_CFOR2(i,0,sizeof...(Ops),i+1,return getSub<i>(pos);,cre);
     }
 
     template <typename T, class OpFunction, class... Ops>

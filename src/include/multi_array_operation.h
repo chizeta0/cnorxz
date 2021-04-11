@@ -803,6 +803,12 @@ namespace MultiArrayTools
 		
 	Operation(const Ops&... ops);
 	Operation(std::shared_ptr<OpFunction> ff, const Ops&... ops);
+
+	template <size_t I, size_t J, class ET>
+	inline auto getSubX(ET pos) const;
+
+	template <size_t J, class ET>
+	inline auto getSub(ET pos) const { return getSubX<0,J>(pos); }
 	
 	template <class ET>
 	inline auto get(ET pos) const;
