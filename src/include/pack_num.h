@@ -13,29 +13,6 @@
 
 namespace MultiArrayHelper
 {
-    template <bool ISSTATIC>
-    struct Application
-    {
-	template <class OpFunction, typename... Ts>
-	static inline auto apply(std::shared_ptr<OpFunction> f, Ts... as)
-	    -> decltype((*f)(as...))
-	{
-	    return (*f)(as...);
-	}
-    };
-
-    template <>
-    struct Application<true>
-    {
-	template <class OpFunction, typename... Ts>
-	static inline auto apply(std::shared_ptr<OpFunction> f, Ts... as)
-	    -> decltype(OpFunction::apply(as...))
-	{
-	    return OpFunction::apply(as...);
-	}
-    };
-    
-    
     template <size_t N>
     struct PackNum
     {
@@ -174,8 +151,12 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    typedef decltype(std::get<0>(ops).get(getX<0>( pos ))) ArgT;
-	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).get(getX<0>( pos )), args...);
+	    if constexpr(OpFunction::FISSTATIC){
+		return OpFunction::apply(std::get<0>(ops).get(getX<0>( pos )), args...);
+	    }
+	    else {
+		return (*f)(std::get<0>(ops).get(getX<0>( pos )), args...);
+	    }
 	}
 
 	template <size_t LAST, typename V, class ETuple, class OpTuple, class OpFunction, typename... Args>
@@ -184,8 +165,12 @@ namespace MultiArrayHelper
 	    typedef typename std::remove_reference<decltype(std::get<0>(ops))>::type NextOpType;
 	    static constexpr size_t NEXT = LAST - NextOpType::SIZE;
 	    static_assert(NEXT == 0, "inconsistent array positions");
-	    typedef decltype(std::get<0>(ops).template vget<V>(getX<0>( pos ))) ArgT;
-	    return Application<OpFunction::FISSTATIC>::template apply<OpFunction,ArgT,Args...>(f, std::get<0>(ops).template vget<V>(getX<0>( pos )), args...);
+	    if constexpr(OpFunction::FISSTATIC){
+		return OpFunction::apply(std::get<0>(ops).template vget<V>(getX<0>( pos )), args...);
+	    }
+	    else {
+		return (*f)(std::get<0>(ops).template vget<V>(getX<0>( pos )), args...);
+	    }
 	}
 
 	template <class OpTuple, class Expr>

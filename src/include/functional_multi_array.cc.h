@@ -9,26 +9,6 @@ namespace MultiArrayTools
      *   FunctionalMultiArray   *	     
      ****************************/
 
-    template <bool FISSTATIC>
-    struct Application
-    {
-	template <typename T, class Function, typename Meta>
-	static inline T apply(const std::shared_ptr<Function>& f, const Meta& m)
-	{
-	    return (*f)(m);
-	}
-    };
-
-    template <>
-    struct Application<true>
-    {
-	template <typename T, class Function, typename Meta>
-	static inline T apply(const std::shared_ptr<Function>& f, const Meta& m)
-	{
-	    return Function::apply(m);
-	}
-    };
-	
     template <typename T, class Function, class... SRanges>
     FunctionalMultiArray<T,Function,SRanges...>::FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges,
 								      const std::shared_ptr<Function>& func) :
@@ -51,14 +31,24 @@ namespace MultiArrayTools
     template <typename T, class Function, class... SRanges>
     const T& FunctionalMultiArray<T,Function,SRanges...>::operator[](const IndexType& i) const
     {
-	mVal = Application<Function::FISSTATIC>::template apply<T,Function,typename IndexType::MetaType>(mFunc, i.meta());
+	if constexpr(Function::FISSTATIC){
+	    mVal = Function::apply(i.meta());
+	}
+	else {
+	    mVal = (*mFunc)(i.meta());
+	}
 	return mVal;
     }
 
     template <typename T, class Function, class... SRanges>
     const T& FunctionalMultiArray<T,Function,SRanges...>::at(const typename CRange::IndexType::MetaType& meta) const
     {
-	mVal = Application<Function::FISSTATIC>::template apply<T,Function,typename IndexType::MetaType>(mFunc,meta);
+	if constexpr(Function::FISSTATIC){
+	    mVal = Function::apply(meta);
+	}
+	else {
+	    mVal = (*mFunc)(meta);
+	}
 	return mVal;
     }
 
