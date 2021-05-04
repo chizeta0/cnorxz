@@ -983,52 +983,74 @@ namespace MultiArrayTools
 	static_assert( not FISSTATIC, "using instance of static function" );
     }
 
-    template <typename T, class OpFunction, class... Ops>
-    template <size_t I, size_t J, class ET>
-    inline auto Operation<T,OpFunction,Ops...>::getSubX(ET pos) const
+    template <size_t I, class OpFunction, class ETuple, class OpTuple, typename... Args>
+    inline auto
+    mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
     {
-	// somehow get rid of the second condition (should NOT be needed if everything is correct)
-	if constexpr(I == J or sizeof...(Ops)-1 == I){
-	    return std::get<J>(mOps.mOps).get(pos);
-	}
-	else {
-	    typedef typename std::remove_reference<decltype(std::get<I>(mOps.mOps))>::type
-		NextOpType;
-	    return getSubX<I+1,J>(getX<NextOpType::SIZE>(pos));
-	}
-    } 
-    
-    template <typename T, class OpFunction, class... Ops>
-    template <class ET>
-    inline auto Operation<T,OpFunction,Ops...>::get(ET pos) const
-    {
-	auto cre = [&](auto... args)
-	{
+	if constexpr(I == std::tuple_size<OpTuple>{}){
 	    if constexpr(OpFunction::FISSTATIC){
 		return OpFunction::apply(args...);
 	    }
 	    else {
-		return (*mF)(args...);
+		(*f)(args...);
 	    }
-	};
-	return MA_CFOR2(i,0,sizeof...(Ops),i+1,return getSub<i>(pos);,cre);
+	}
+	else {
+	    typedef typename std::remove_reference<decltype(std::get<I>(ops))>::type NextOpType;
+	    return mkOpExpr<I+1>
+		( f, getX<NextOpType::SIZE>(pos), ops, args..., std::get<I>(ops).get(pos));
+	}
+    }
+
+    template <size_t I, typename V, class OpFunction, class ETuple, class OpTuple, typename... Args>
+    inline auto
+    mkVOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
+    {
+	if constexpr(I == std::tuple_size<OpTuple>{}){
+	    if constexpr(OpFunction::FISSTATIC){
+		return VFunc<OpFunction>::apply(args...);
+	    }
+	    else {
+		auto vf = mkVFuncPtr(f);
+		(*vf)(args...);
+	    }
+	}
+	else {
+	    typedef typename std::remove_reference<decltype(std::get<I>(ops))>::type NextOpType;
+	    return mkVOpExpr<I+1,V>( f, getX<NextOpType::SIZE>(pos), ops, args...,
+				     std::get<I>(ops).template vget<V>(pos));
+	}
+    }
+
+    template <typename T, class OpFunction, class... Ops>
+    template <class ET>
+    inline auto Operation<T,OpFunction,Ops...>::get(ET pos) const
+    {
+	return mkOpExpr<0>(mF, pos, mOps.mOps);
     }
 
     template <typename T, class OpFunction, class... Ops>
     template <typename V, class ET>
     inline auto Operation<T,OpFunction,Ops...>::vget(ET pos) const
     {
-	typedef std::tuple<Ops...> OpTuple;
-	return PackNum<sizeof...(Ops)-1>::
-	    template mkVOpExpr<SIZE,V,ET,OpTuple,VFunc<OpFunction>>(mkVFuncPtr(mF), pos, mOps.mOps); // implement!!!
+	return mkVOpExpr<0,V>(mF, pos, mOps.mOps);
     }
 
+    template <size_t I, class OpTuple, class ETuple>
+    static inline void setOpPos(OpTuple& ot, const ETuple& et)
+    {
+	if constexpr(I != std::tuple_size<OpTuple>{}){
+	    typedef typename std::remove_reference<decltype(std::get<I>(ot))>::type NextOpType;
+	    std::get<I>( ot ).set( et );
+	    setOpPos<I+1>(ot, getX<NextOpType::SIZE>(et));
+	}
+    }
+    
     template <typename T, class OpFunction, class... Ops>
     template <class ET>
     inline Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::set(ET pos)
     {
-	typedef std::tuple<Ops...> OpTuple;
-	PackNum<sizeof...(Ops)-1>::template setOpPos<SIZE,OpTuple,ET>(mOps.mOps,pos);
+	setOpPos<0>(mOps.mOps,pos);
 	return *this;
     }
 

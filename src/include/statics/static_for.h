@@ -53,7 +53,6 @@ namespace MultiArrayTools
 	    return unpack<incr(idx),END,OFF>(incr, f, create, args..., tmp);
 	}
     }
-
     
 }
 
@@ -63,7 +62,6 @@ namespace MultiArrayTools
 #define MA_SCRFOR(i,beg,end,decr,expr,conc) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); })
 #define MA_SCRAFOR(i,beg,end,decr,expr,conc,arg) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); }, arg)
 #define MA_CFOR(i,beg,end,incr,expr,cre) unpack<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ expr }, [&](auto... args) { return cre(args...); })
-#define MA_CFOR2(i,beg,end,incr,expr,cre) unpack<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ expr }, cre)
 
 #define MA_SCFOR_X(i,beg,end,incr,expr,conc) sfor<beg,end,0>([](auto i) constexpr { return incr; }, [](auto i){ return expr; }, [](auto f, auto next) { return f.conc(next); })
 

@@ -778,7 +778,43 @@ namespace MultiArrayTools
 
 	T const** data() const { assert(0); return nullptr; }
     };
-    
+
+    /*
+    template <typename T>
+    struct TFold
+    {
+	TFold() = default;
+	TFold(const TFold& in) = default;
+	TFold& operator=(const TFold& in) = default;
+	TFold(TFold&& in) = default;
+	TFold& operator=(TFold&& in) = default;
+	explicit TFold(const T v) : val(v) {}
+	
+	T val;
+	inline T& operator*() { return val; }
+	inline const T& operator*() const { return val; }
+    };
+
+    template <typename T1, typename T2>
+    inline std::tuple<TFold<T1>,TFold<T2>> operator,(const TFold<T1>& a1, const TFold<T2>& a2)
+    {
+	return std::make_tuple(a1,a2);
+    }
+
+    template <typename T1, typename T2...>
+    inline std::tuple<TFold<T1>,TFold<T2>> operator,(const TFold<T1>& a1,
+						     const std::tuple<TFold<T2>...>& a2)
+    {
+	return std::tuple_cat(std::make_tuple(a1),a2);
+    }
+
+    template <typename T2, typename T1...>
+    inline std::tuple<TFold<T1>,TFold<T2>> operator,(const std::tuple<TFold<T1>...>& a1,
+						     const TFold<T2>& a2)
+    {
+	return std::tuple_cat(a1,std::make_tuple(a2));
+    }
+    */
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
     {
@@ -804,12 +840,6 @@ namespace MultiArrayTools
 	Operation(const Ops&... ops);
 	Operation(std::shared_ptr<OpFunction> ff, const Ops&... ops);
 
-	template <size_t I, size_t J, class ET>
-	inline auto getSubX(ET pos) const;
-
-	template <size_t J, class ET>
-	inline auto getSub(ET pos) const { return getSubX<0,J>(pos); }
-	
 	template <class ET>
 	inline auto get(ET pos) const;
 
