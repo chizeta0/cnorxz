@@ -108,13 +108,13 @@ namespace MultiArrayTools
 
 	template <class Op>
 	static Slice<T,SRanges...> mkSlice( const typename Slice<T,SRanges...>::IndexType& ind,
-						 const Op& op )
+					    const Op& op )
 	{
 	    Slice<T,SRanges...> out(ind->range()->space(), &*ind);
 	    std::array<size_t,sizeof...(SRanges)+1> ff;
-	    for(size_t i = 0; i != sizeof...(SRanges)+1; ++i){
-		PackNum<sizeof...(SRanges)-1>::mkSliceBlocks(ff, ind, op);
-	    }
+	    MA_SFOR(i,0,sizeof...(SRanges),i+1,
+		std::get<i+1>(ff) = op.rootSteps(reinterpret_cast<std::intptr_t>
+						 ( ind.template getPtr<i>().get())).val(););
 	    out.format(ff);
 	    return out;
 	}
@@ -145,9 +145,9 @@ namespace MultiArrayTools
 	{
 	    ConstSlice<T,SRanges...> out(ind->range()->space(), &*ind);
 	    std::array<size_t,sizeof...(SRanges)+1> ff;
-	    for(size_t i = 0; i != sizeof...(SRanges)+1; ++i){
-		PackNum<sizeof...(SRanges)-1>::mkSliceBlocks(ff, ind, op);
-	    }
+	    MA_SFOR(i,0,sizeof...(SRanges),i+1,
+		std::get<i+1>(ff) = op.rootSteps(reinterpret_cast<std::intptr_t>
+						 ( ind.template getPtr<i>().get())).val(););
 	    out.format(ff);
 	    return out;
 	}

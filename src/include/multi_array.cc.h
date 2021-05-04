@@ -1,5 +1,6 @@
 
 #include "multi_array.h"
+#include "statics/static_for.h"
 
 namespace MultiArrayTools
 {
@@ -246,11 +247,12 @@ namespace MultiArrayTools
 	    (*this) = in;
 	}
 	else {
-	    assert( PackNum<sizeof...(SRanges)-1>::checkIfSameInstance( MAB::mRange->space(), in.mRange->space() ) );
+	    MA_SCFOR2(i,0,sizeof...(SRanges),i+1,
+		      std::get<i>(MAB::mRange->space()).get() == std::get<i>(in.mRange->space()).get(),
+		      operator&&);
             for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] += in.mCont[i];
             }
-	    //std::transform(mCont.begin(), mCont.end(), in.mCont.begin(), mCont.begin(), std::plus<T>());
 	}
 	return *this;
     }
@@ -262,7 +264,9 @@ namespace MultiArrayTools
 	    (*this) = in;
 	}
 	else {
-	    assert( PackNum<sizeof...(SRanges)-1>::checkIfSameInstance( MAB::mRange->space(), in.mRange->space() ) );
+	    MA_SCFOR2(i,0,sizeof...(SRanges),i+1,
+		      std::get<i>(MAB::mRange->space()).get() == std::get<i>(in.mRange->space()).get(),
+		      operator&&);
             for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] -= in.mCont[i];
             }

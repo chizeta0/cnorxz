@@ -14,7 +14,6 @@
 #include "mbase_def.h"
 
 #include "ranges/rheader.h"
-#include "pack_num.h"
 
 #include "arith.h"
 #include "xfor/xfor.h"

@@ -9,7 +9,8 @@
 #include "base_def.h"
 #include "mbase_def.h"
 
-#include "pack_num.h"
+#include "statics/static_for.h"
+
 #include <cmath>
 
 namespace MultiArrayTools
@@ -32,7 +33,7 @@ namespace MultiArrayTools
 	inline auto apply(const MultiArray<T,Ranges...>& ma)
 	    -> OperationRoot<T,Ranges...>
 	{
-	    return PackNum<sizeof...(Ranges)-1>::mkElemOperation(ma, ituple);
+	    return MA_CFOR(i,0,sizeof...(Ranges),i+1,return std::get<i>(ituple);,ma);
 	}
 
     private:

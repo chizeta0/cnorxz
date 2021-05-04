@@ -14,7 +14,7 @@ namespace MultiArrayTools
 	//static_assert(abs(idx.value - END) >= abs(incr(idx) - END),
 	//		  "this turns out to be a static endless loop");
 	auto tmp = f(idxm);
-	if constexpr(incr(idx) == END){
+	if constexpr(incr(idx) >= END){
 	    return tmp;
 	}
 	else {
@@ -30,7 +30,7 @@ namespace MultiArrayTools
 	//static_assert(abs(idx.value - END) >= abs(incr(idx) - END),
 	//		  "this turns out to be a static endless loop");
 	auto tmp = f(idxm);
-	if constexpr(incr(idx) == END){
+	if constexpr(incr(idx) >= END){
 	    return conc(tmp, arg);
 	}
 	else {
@@ -45,7 +45,7 @@ namespace MultiArrayTools
 	constexpr auto idxm = std::integral_constant<size_t, BEG+OFF>{};
 	//static_assert(abs(idx.value - END) >= abs(incr(idx) - END),
 	//		  "this turns out to be a static endless loop");
-	if constexpr(BEG == END){
+	if constexpr(BEG >= END){
 	    return create(args...);
 	}
 	else {
@@ -58,6 +58,7 @@ namespace MultiArrayTools
 
 #define MA_SFOR(i,beg,end,incr,expr) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ expr return 0; }, [&](auto f, auto next) { return 0; })
 #define MA_SCFOR(i,beg,end,incr,expr,conc) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); })
+#define MA_SCFOR2(i,beg,end,incr,expr,conc) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ return expr; }, [&](auto a, auto b) { return conc(a,b); })
 #define MA_SRFOR(i,beg,end,decr,expr) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ expr return 0; }, [&](auto f, auto next) { return 0; })
 #define MA_SCRFOR(i,beg,end,decr,expr,conc) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); })
 #define MA_SCRAFOR(i,beg,end,decr,expr,conc,arg) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); }, arg)

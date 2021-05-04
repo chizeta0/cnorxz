@@ -6,7 +6,8 @@ namespace MultiArrayTools
     template <typename... T>
     std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)
     {
-	PackNum<sizeof...(T)-1>::printTuple(out, tp);
+	MA_SFOR(i,0,sizeof...(T)-1,i+1, out << std::get<i>(tp) << ", ";);
+	out << std::get<sizeof...(T)-1>(tp);
 	return out;
     }
     
