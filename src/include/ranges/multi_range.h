@@ -17,6 +17,8 @@
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
+#include "statics/static_for.h"
+
 namespace MultiArrayTools
 {
     namespace
@@ -279,10 +281,30 @@ namespace MultiArrayTools
     MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
 	IndexInterface<MultiIndex<Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
     {
-	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
-	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
+	sfor<sizeof...(Indices),0,-1>
+	    ( [&](auto i) constexpr { return i-1; } ,
+	      [&](auto i) {
+		  auto r = range->template getPtr<i>();
+		  std::get<i>(mIPack) = r->beginPtr();
+		  *std::get<i>(mIPack) = 0;
+		  
+		  std::get<i>(mBlockSizes) = sfor<i,sizeof...(Indices),0>
+		      ( [&](auto j) { return j+1; } ,
+			[&](auto j) { return std::get<j>(mIPack)->max(); } ,
+			[&](auto a, auto b) { return a * b; }
+			);
+		  
+		  return 0;
+	      },
+	      [&](auto a, auto b) { return 0; }
+	     );
+	
+	IB::mPos = sfor<0,sizeof...(Indices),0>
+	    ( [&](auto i) {return i+1;},
+	      [&](auto i) {return std::get<i>(mIPack);},
+	      [&](auto a, auto b) {return a->pos() + b*a->max();},
+	      0 );
     }
 
     template <class... Indices>

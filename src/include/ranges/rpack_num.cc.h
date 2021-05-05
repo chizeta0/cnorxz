@@ -174,6 +174,7 @@ namespace MultiArrayHelper
 	    
         std::get<N>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<N>() ) );
         *std::get<N>(ip) = 0;
+	//VCHECK(std::get<N>(ip)->max());
         RPackNum<N-1>::construct(ip, range);
     }
 
