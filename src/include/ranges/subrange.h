@@ -71,9 +71,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 	
-	std::string id() const;
-	void print(size_t offset);
-
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
 	    -> For<SubIndex<Index>,SubExpr<Index,Expr>>;
@@ -300,23 +297,6 @@ namespace MultiArrayTools
     size_t SubIndex<Index>::getStepSize(size_t n)
     {
         return 1;
-    }
-
-    template <class Index>
-    std::string SubIndex<Index>::id() const
-    {
-        return std::string("sub") + std::to_string(IB::mId);
-    }
-
-    template <class Index>
-    void SubIndex<Index>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
     template <class Index>

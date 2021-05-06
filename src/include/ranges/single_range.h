@@ -78,9 +78,6 @@ namespace MultiArrayTools
 	void getPtr();
 
 	size_t getStepSize(size_t n);
-	
-	std::string id() const;
-	void print(size_t offset);
 
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
@@ -490,23 +487,6 @@ namespace MultiArrayTools
     size_t GenSingleIndex<U,TYPE,S>::getStepSize(size_t n)
     {
 	return 1;
-    }
-
-    template <typename U, SpaceType TYPE, size_t S>
-    std::string GenSingleIndex<U,TYPE,S>::id() const
-    {
-	return std::string("sin") + std::to_string(IB::mId);
-    }
-
-    template <typename U, SpaceType TYPE, size_t S>
-    void GenSingleIndex<U,TYPE,S>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
     template <typename U, SpaceType TYPE, size_t S>

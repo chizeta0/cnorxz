@@ -111,9 +111,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n) const;
         
-	std::string id() const;
-	void print(size_t offset);
-
 	template <class Expr>
 	DynamicExpression ifor(size_t step, Expr ex) const;
 

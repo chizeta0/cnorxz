@@ -43,78 +43,6 @@ namespace MultiArrayHelper
     }
 	
     template <size_t N>
-    template <class... Indices>
-    inline void RPackNum<N>::pp(std::tuple<std::shared_ptr<Indices>...>& ip)
-    {
-        auto& si = *std::get<N>(ip);
-        if(si.last()){
-            si = 0;
-            RPackNum<N-1>::pp(ip);
-        }
-        else {
-            ++si;
-        }
-    }
-	
-    template <size_t N>
-    template <class... Indices>
-    inline int RPackNum<N>::pp(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                      std::array<size_t,sizeof...(Indices)+1>& bs,
-                                      std::intptr_t idxPtrNum)
-    {
-        auto& siPtr = std::get<N>(ip);
-        if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
-            return RPackNum<N-1>::pp(ip, bs, idxPtrNum);
-        }
-        else {
-            int tmp = siPtr->pp(idxPtrNum);
-            if(siPtr->pos() == siPtr->max()){
-                (*siPtr) = 0;
-                return RPackNum<N-1>::pp(ip, bs, idxPtrNum) - siPtr->max() + 1;
-            }
-            else {
-                return tmp * std::get<N+1>(bs);
-            }
-        }
-    }
-
-    template <size_t N>
-    template <class... Indices>
-    inline void RPackNum<N>::mm(std::tuple<std::shared_ptr<Indices>...>& ip)
-    {
-        auto& si = *std::get<N>(ip);
-        if(si.first()){
-            si = si.max() - 1;
-            RPackNum<N-1>::mm(ip);
-        }
-        else {
-            --si;
-        }
-    }
-	
-    // !!!!
-    template <size_t N>
-    template <class... Indices>
-    inline int RPackNum<N>::mm(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                      std::array<size_t,sizeof...(Indices)+1>& bs,
-                                      std::intptr_t idxPtrNum)
-    {
-        auto& siPtr = std::get<N>(ip);
-        if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
-            return std::get<N>(bs) + RPackNum<N-1>::mm(ip, bs, idxPtrNum);
-        }
-        else {
-            if(siPtr->first()){
-                (*siPtr) = siPtr->max() - 1;
-                return RPackNum<N-1>::mm(ip, bs, idxPtrNum) - siPtr->max() + 1;
-            }
-            else {
-                return siPtr->mm(idxPtrNum);
-            }
-        }
-    }
-	
-    template <size_t N>
     template <class RangeTuple>
     size_t RPackNum<N>::getSize(const RangeTuple& rt)
     {
@@ -254,14 +182,6 @@ namespace MultiArrayHelper
     {
         v[N] = reinterpret_cast<std::intptr_t>( std::get<N>(rst).get() );
         RPackNum<N-1>::RangesToVec(rst, v);
-    }
-
-    template <size_t N>
-    template <class... Indices>
-    void RPackNum<N>::printIndex(const std::tuple<std::shared_ptr<Indices>...>& ip, size_t offset)
-    {
-        std::get<N>(ip)->print(offset);
-        RPackNum<N-1>::printIndex(ip, offset);
     }
 
     template <size_t N>
@@ -423,50 +343,6 @@ namespace MultiArrayHelper
     {
         std::get<0>(bs) = RPackNum<sizeof...(Indices)>::blockSize(ip);
     }
-
-    template <class... Indices>
-    inline void RPackNum<0>::pp(std::tuple<std::shared_ptr<Indices>...>& ip)
-    {
-        auto& si = *std::get<0>(ip);
-        ++si;
-    }
-	
-    template <class... Indices>
-    inline int RPackNum<0>::pp(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                      std::array<size_t,sizeof...(Indices)+1>& bs,
-                                      std::intptr_t idxPtrNum)
-    {
-        auto& siPtr = std::get<0>(ip);
-        if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
-            return std::get<0>(bs);
-        }
-        else {
-            int tmp = siPtr->pp(idxPtrNum);
-            return tmp * std::get<1>(bs);
-        }
-    }
-
-    template <class... Indices>
-    inline void RPackNum<0>::mm(std::tuple<std::shared_ptr<Indices>...>& ip)
-    {
-        auto& si = *std::get<0>(ip);
-        --si;
-    }
-	
-    template <class... Indices>
-    inline int RPackNum<0>::mm(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                      std::array<size_t,sizeof...(Indices)+1>& bs,
-                                      std::intptr_t idxPtrNum)
-    {
-        auto& siPtr = std::get<0>(ip);
-        if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
-            return std::get<0>(bs);
-            //return 1;
-        }
-        else {
-            return siPtr->mm(idxPtrNum);
-        }
-    }
 	
     template <class RangeTuple>
     size_t RPackNum<0>::getSize(const RangeTuple& rt)
@@ -580,12 +456,6 @@ namespace MultiArrayHelper
                                                 vector<std::shared_ptr<RangeBase> >& v)
     {
         setRangeToVec(v, std::get<0>(rst));
-    }
-
-    template <class... Indices>
-    void RPackNum<0>::printIndex(const std::tuple<std::shared_ptr<Indices>...>& ip, size_t offset)
-    {
-        std::get<0>(ip)->print(offset);
     }
 
     template <class Range>

@@ -69,9 +69,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 	
-	std::string id() const;
-	void print(size_t offset);
-
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
 	    -> For<ValueIndex<U>,Expr>;
@@ -273,23 +270,6 @@ namespace MultiArrayTools
     size_t ValueIndex<U>::getStepSize(size_t n)
     {
 	return 1;
-    }
-
-    template <typename U>
-    std::string ValueIndex<U>::id() const
-    {
-	return std::string("val") + std::to_string(IB::mId);
-    }
-
-    template <typename U>
-    void ValueIndex<U>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
     template <typename U>

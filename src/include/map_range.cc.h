@@ -131,8 +131,16 @@ namespace MultiArrayTools
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	IB::mPos += RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	RPackNum<DIR>::pp( mIPack );
+	IB::mPos += sfor_p<DIR,sizeof...(Indices)>
+	    ( [&](auto i) { return std::get<i>(mIPack)->max(); },
+	      [&](auto a, auto b) { return a * b; } );
+	sfor_m<DIR+1,0>
+	    ( [&](auto i) {
+		auto& si = *std::get<i>( mIPack );
+		if(si.last() and i != 0) { si = 0; return true; }
+		else { ++si; return false; }
+		return false;
+	    } );
 	return *this;
     }
 
@@ -141,8 +149,16 @@ namespace MultiArrayTools
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	IB::mPos -= RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	RPackNum<DIR>::mm( mIPack );
+	IB::mPos -= sfor_p<DIR,sizeof...(Indices)>
+	    ( [&](auto i) { return std::get<i>(mIPack)->max(); },
+	      [&](auto a, auto b) { return a * b; } );
+	sfor_m<DIR+1,0>
+	    ( [&](auto i) {
+		auto& si = *std::get<i>( mIPack );
+		if(si.first() and i != 0) { si = si.max()-1; return true; }
+		else { --si; return false; }
+		return false;
+	    } );
 	return *this;
     }
     
@@ -185,14 +201,12 @@ namespace MultiArrayTools
     {
         (*mOutIndex) = pos;
 	IB::mPos = mOutIndex->pos();
-	//RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
 	return *this;
     }
 
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator++()
     {
-	//RPackNum<sizeof...(Indices)-1>::pp( mIPack );
 	++(*mOutIndex);
         IB::mPos = mOutIndex->pos();
 	return *this;
@@ -201,7 +215,6 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator--()
     {
-	//RPackNum<sizeof...(Indices)-1>::mm( mIPack );
         --(*mOutIndex);
         IB::mPos = mOutIndex->pos();
 	return *this;
@@ -210,20 +223,16 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     int GenMapIndex<OIType,Op,XSTYPE,Indices...>::pp(std::intptr_t idxPtrNum)
     {
-	//int tmp = RPackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
         mOutIndex->pp(idxPtrNum);
         IB::mPos = mOutIndex->pos();
-	//IB::mPos += tmp;
 	return 1;
     }
 
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     int GenMapIndex<OIType,Op,XSTYPE,Indices...>::mm(std::intptr_t idxPtrNum)
     {
-	//int tmp = RPackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
         mOutIndex->mm(idxPtrNum);
         IB::mPos = mOutIndex->pos();
-	//IB::mPos -= tmp;
 	return 1;
     }
 

@@ -13,6 +13,57 @@ namespace MultiArrayHelper
 {
     using namespace MultiArrayTools;
 
+    template <size_t I, class... Indices>
+    int ppx(std::tuple<std::shared_ptr<Indices>...>& ip,
+	    std::array<size_t,sizeof...(Indices)+1>& bs,
+	    std::intptr_t idxPtrNum)
+    {
+	auto& siPtr = std::get<I>(ip);
+	if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
+	    if constexpr(I != 0){
+		return ppx<I-1>(ip, bs, idxPtrNum);
+	    }
+	    else {
+		return std::get<0>(bs);
+	    }
+	}
+	else {
+	    const int tmp = siPtr->pp(idxPtrNum);
+	    if constexpr(I != 0){
+		if(siPtr->pos() == siPtr->max()){
+		    (*siPtr) = 0;
+		    return ppx<I-1>(ip, bs, idxPtrNum) - siPtr->max() + 1;
+		}
+	    }
+	    return tmp * std::get<I+1>(bs);
+	}
+    }
+
+    template <size_t I, class... Indices>
+    int mmx(std::tuple<std::shared_ptr<Indices>...>& ip,
+	    std::array<size_t,sizeof...(Indices)+1>& bs,
+	    std::intptr_t idxPtrNum)
+    {
+	auto& siPtr = std::get<I>(ip);
+	if(reinterpret_cast<std::intptr_t>(siPtr.get()) == idxPtrNum){
+	    if constexpr(I != 0){
+		return mmx<I-1>(ip, bs, idxPtrNum);
+	    }
+	    else {
+		return std::get<0>(bs);
+	    }
+	}
+	else {
+	    const int tmp = siPtr->mm(idxPtrNum);
+	    if constexpr(I != 0){
+		if(siPtr->pos() == siPtr->max()){
+		    (*siPtr) = siPtr->max() - 1;
+		    return mmx<I-1>(ip, bs, idxPtrNum) - siPtr->max() + 1;
+		}
+	    }
+	    return tmp * std::get<I+1>(bs);
+	}
+    }
     
     template <class Index1>
     size_t mkTotalDim();
@@ -53,23 +104,6 @@ namespace MultiArrayHelper
 	template <class... Indices>
 	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
 				   std::tuple<std::shared_ptr<Indices>...>& ip);
-	
-	template <class... Indices>
-	static inline void pp(std::tuple<std::shared_ptr<Indices>...>& ip);
-	
-	template <class... Indices>
-	static inline int pp(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     std::intptr_t idxPtrNum);
-
-	template <class... Indices>
-	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip);
-	
-	// !!!!
-	template <class... Indices>
-	static inline int mm(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     std::intptr_t idxPtrNum);
 	
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt);
@@ -124,9 +158,6 @@ namespace MultiArrayHelper
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       vector<std::intptr_t>& v);
-
-	template <class... Indices>
-	static void printIndex(const std::tuple<std::shared_ptr<Indices>...>& ip, size_t offset);
 
 	template <class Range, class... Ranges>
 	static void checkDefaultable();
@@ -195,22 +226,6 @@ namespace MultiArrayHelper
 	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
 				   std::tuple<std::shared_ptr<Indices>...>& ip);
 
-	template <class... Indices>
-	static inline void pp(std::tuple<std::shared_ptr<Indices>...>& ip);
-	
-	template <class... Indices>
-	static inline int pp(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     std::intptr_t idxPtrNum);
-
-	template <class... Indices>
-	static inline void mm(std::tuple<std::shared_ptr<Indices>...>& ip);
-	
-	template <class... Indices>
-	static inline int mm(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     std::array<size_t,sizeof...(Indices)+1>& bs,
-			     std::intptr_t idxPtrNum);
-	
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt);
 	
@@ -262,9 +277,6 @@ namespace MultiArrayHelper
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       vector<std::shared_ptr<RangeBase> >& v);
-
-	template <class... Indices>
-	static void printIndex(const std::tuple<std::shared_ptr<Indices>...>& ip, size_t offset);
 
 	template <class Range>
 	static void checkDefaultable();
