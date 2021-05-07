@@ -247,7 +247,7 @@ namespace MultiArrayTools
     {	
 	sfor_p<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = ci.template getPtr<i>(); return true; } );
-	IB::mPos = sfor_p<0,sizeof...(Indices)>
+	IB::mPos = sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) { return std::get<i>(mIPack); },
 	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	return *this;
@@ -271,7 +271,7 @@ namespace MultiArrayTools
 		  return 0;
 	      });
 	
-	IB::mPos = sfor_p<0,sizeof...(Indices)>
+	IB::mPos = sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) { return std::get<i>(mIPack); },
 	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
     }
@@ -329,15 +329,14 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
-	return *this;
+	return (*this)(std::make_tuple(indices...));
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& indices)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
 	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return *this;
     }
@@ -411,18 +410,19 @@ namespace MultiArrayTools
     typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::meta() const
     {
 	MetaType metaTuple;
-	RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(metaTuple) = std::get<i>(mIPack)->meta(); return 0; } );
 	return metaTuple;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::at(const MetaType& metaPos)
     {
-	RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack)->at( std::get<i>(metaPos) ); return 0; } );
 	IB::mPos = sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) { return std::get<i>(mIPack); },
 	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
-	//IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	return *this;
     }
 

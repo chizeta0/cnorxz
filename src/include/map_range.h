@@ -164,6 +164,7 @@ namespace MultiArrayTools
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MapIndex instances
 	GenMapIndex& operator()(const std::shared_ptr<Indices>&... indices);
+	GenMapIndex& operator()(const std::tuple<std::shared_ptr<Indices>...>& indices);
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
@@ -192,23 +193,14 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n) const;
 
-	std::string id() const;
-	void print(size_t offset) const;
-
 	template <class Exprs>
-	auto ifor(size_t step, Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-			(step, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex,Exprs,XSTYPE>( range()->map(), this, step, exs ) ) );
-	// first step arg not used!
+	auto ifor(size_t step, Exprs exs) const; // first step arg not used!
 
         template <class Exprs>
-	auto pifor(size_t step, Exprs exs) const
-	    -> decltype(ifor(step, exs)); // NO MULTITHREADING
-
+	auto pifor(size_t step, Exprs exs) const; // NO MULTITHREADING
 	
 	template <class Exprs>
-	auto iforh(size_t step, Exprs exs) const
-	    -> decltype(ifor(step, exs));
+	auto iforh(size_t step, Exprs exs) const;
 	
     };
 
@@ -261,11 +253,7 @@ namespace MultiArrayTools
 	typedef RangeBase RB;
 	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
 	typedef GenMapIndex<typename ORType::IndexType,Op,XSTYPE,typename Ranges::IndexType...> IndexType;
-	//typedef GenMapRange RangeType;
-	//typedef SingleRange<typename Op::value_type,XSTYPE> ORType;
-	//typedef SingleRangeFactory<typename Op::value_type,XSTYPE> ORFType;
         typedef typename Op::value_type MetaType;
-	//typedef typename RangeInterface<MapIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:
 	GenMapRange() = delete;

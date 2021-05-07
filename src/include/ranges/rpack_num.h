@@ -101,30 +101,16 @@ namespace MultiArrayHelper
     template <size_t N>
     struct RPackNum
     {
-	template <class... Indices>
-	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
-				   std::tuple<std::shared_ptr<Indices>...>& ip);
 	
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt);
 	
-	template <class IndexPack, class MetaType>
-	static void getMetaPos(MetaType& target,
-			       const IndexPack& source);
-
-	template <class IndexPack, typename MetaType>
-	static void setMeta(IndexPack& target, const MetaType& source);
-
 	template <class SpaceClass>
 	inline static std::shared_ptr<RangeBase> getSub(const SpaceClass& space, size_t num);
 
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos);
 	
-	template <class MRange, class... Indices>
-	static void construct(std::tuple<std::shared_ptr<Indices>...>& ip,
-			      const MRange& range);
-
 	template <class IndexType, class... Indices>
 	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
 			     const IndexType& ind);
@@ -132,9 +118,6 @@ namespace MultiArrayHelper
 	template <class IndexType, class... Indices>
 	static void copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
 			      const IndexType& ind);
-
-	template <class... Indices>
-	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup);
 
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
@@ -222,30 +205,15 @@ namespace MultiArrayHelper
     struct RPackNum<0>
     {
 
-	template <class... Indices>
-	static void initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
-				   std::tuple<std::shared_ptr<Indices>...>& ip);
-
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt);
 	
-	template <class IndexPack, class MetaType>
-	static void getMetaPos(MetaType& target,
-			       const IndexPack& source);
-            
-	template <class IndexPack, typename MetaType>
-	static void setMeta(IndexPack& target, const MetaType& source);
-
 	template <class SpaceClass>
 	inline static std::shared_ptr<RangeBase> getSub(const SpaceClass& space, size_t num);
 
 	template <class IndexPack>
 	static void setIndexPack(IndexPack& iPack, size_t pos);
 	
-	template <class MRange, class... Indices>
-	static void construct(std::tuple<std::shared_ptr<Indices>...>& ip,
-			      const MRange& range);
-
 	template <class IndexType, class... Indices>
 	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
 			     const IndexType& ind);
@@ -253,9 +221,6 @@ namespace MultiArrayHelper
 	template <class IndexType, class... Indices>
 	static void copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
 			      const IndexType& ind);
-
-	template <class... Indices>
-	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup);
 
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,

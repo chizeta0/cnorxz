@@ -208,10 +208,22 @@ namespace MultiArrayTools
 	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0),
 	mObjPtrNum(objPtrNum)
     {
-	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
-	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	sfor_mn<sizeof...(Indices),0>
+	    ( [&](auto i) {
+		  auto r = range->template getPtr<i>();
+		  std::get<i>(mIPack) = r->beginPtr();
+		  *std::get<i>(mIPack) = 0;
+		  
+		  std::get<i>(mBlockSizes) = sfor_p<i,sizeof...(Indices)>
+		      ( [&](auto j) { return std::get<j>(mIPack)->max(); } ,
+			[&](auto a, auto b) { return a * b; });
+		  return 0;
+	      });
+	
+	IB::mPos = sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) { return std::get<i>(mIPack); },
+	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
     }
 
@@ -223,9 +235,16 @@ namespace MultiArrayTools
 	IndexInterface<ContainerIndex<T,Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0),
 	mObjPtrNum(objPtrNum)
     {
-	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	mBlockSizes = blockSizes;
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	sfor_mn<sizeof...(Indices),0>
+	    ( [&](auto i) {
+		  auto r = range->template getPtr<i>();
+		  std::get<i>(mIPack) = r->beginPtr();
+		  *std::get<i>(mIPack) = 0;
+		  return 0;
+	      });
+	IB::mPos = sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) { return std::get<i>(mIPack); },
+	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	mNonTrivialBlocks = true;
     }
@@ -244,7 +263,9 @@ namespace MultiArrayTools
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::sync()
     {
 	if(mExternControl){
-	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    IB::mPos = sfor_m<sizeof...(Indices),0>
+		( [&](auto i) { return std::get<i>(mIPack); },
+		  [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	    mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	}
 	return *this;
@@ -267,15 +288,14 @@ namespace MultiArrayTools
     template <typename T, class... Indices>
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator()(const std::shared_ptr<Indices>&... inds)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds...);
-	mExternControl = true;
-	return sync();
+	return (*this)(std::make_tuple(inds...));
     }    
 
     template <typename T, class... Indices>
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& inds)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, inds);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(inds); return 0; } );
 	mExternControl = true;
 	return sync();
     }    
@@ -293,7 +313,9 @@ namespace MultiArrayTools
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator++()
     {
 	if(mExternControl){
-	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    IB::mPos = sfor_m<sizeof...(Indices),0>
+		( [&](auto i) { return std::get<i>(mIPack); },
+		  [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	}
 	sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) {
@@ -311,7 +333,9 @@ namespace MultiArrayTools
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator--()
     {
 	if(mExternControl){
-	    IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	    IB::mPos = sfor_m<sizeof...(Indices),0>
+		( [&](auto i) { return std::get<i>(mIPack); },
+		  [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	}
 	sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) {
@@ -361,14 +385,16 @@ namespace MultiArrayTools
     typename ContainerIndex<T,Indices...>::MetaType ContainerIndex<T,Indices...>::meta() const
     {
 	MetaType metaTuple;
-	RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(metaTuple) = std::get<i>(mIPack)->meta(); return 0; } );
 	return metaTuple;
     }
 
     template <typename T, class... Indices>
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::at(const MetaType& metaPos)
     {
-	RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack)->at( std::get<i>(metaPos) ); return 0; } );
 	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	return *this;
     }

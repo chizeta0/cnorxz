@@ -34,38 +34,12 @@ namespace MultiArrayHelper
     }
     
     template <size_t N>
-    template <class... Indices>
-    void RPackNum<N>::initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
-                                            std::tuple<std::shared_ptr<Indices>...>& ip)
-    {
-        std::get<N>(bs) = RPackNum<sizeof...(Indices)-N>::blockSize(ip);
-        RPackNum<N-1>::initBlockSizes(bs, ip);
-    }
-	
-    template <size_t N>
     template <class RangeTuple>
     size_t RPackNum<N>::getSize(const RangeTuple& rt)
     {
         return std::get<N>(rt)->size() * RPackNum<N-1>::getSize(rt);
     }
 	
-    template <size_t N>
-    template <class IndexPack, class MetaType>
-    void RPackNum<N>::getMetaPos(MetaType& target,
-                                        const IndexPack& source)
-    {
-        std::get<N>(target) = std::get<N>(source)->meta();
-        RPackNum<N-1>::getMetaPos(target, source);
-    }
-
-    template <size_t N>
-    template <class IndexPack, typename MetaType>
-    void RPackNum<N>::setMeta(IndexPack& target, const MetaType& source)
-    {
-        std::get<N>(target)->at( std::get<N>(source) );
-        RPackNum<N-1>::setMeta(target, source);
-    }
-
     template <size_t N>
     template <class SpaceClass>
     inline std::shared_ptr<RangeBase> RPackNum<N>::getSub(const SpaceClass& space, size_t num)
@@ -89,24 +63,6 @@ namespace MultiArrayHelper
     }
 	
     template <size_t N>
-    template <class MRange, class... Indices>
-    void RPackNum<N>::construct(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                       const MRange& range)
-    {
-        typedef typename std::remove_reference<decltype(range.template get<N>())>::type SubRangeType;
-        typedef typename SubRangeType::IndexType SubIndexType;
-        typedef typename std::remove_reference<decltype(*std::get<N>(ip).get())>::type TypeFromIndexPack;
-	    
-        static_assert(std::is_same<SubIndexType,TypeFromIndexPack>::value,
-                      "inconsistent types");
-	    
-        std::get<N>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<N>() ) );
-        *std::get<N>(ip) = 0;
-	//VCHECK(std::get<N>(ip)->max());
-        RPackNum<N-1>::construct(ip, range);
-    }
-
-    template <size_t N>
     template <class IndexType, class... Indices>
     void RPackNum<N>::copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
                                       const IndexType& ind)
@@ -123,14 +79,6 @@ namespace MultiArrayHelper
         typedef typename std::remove_reference<decltype(*std::get<N>(ip))>::type SubType;
         std::get<N>(ip) = std::make_shared<SubType>( ind.template get<N>() ) ;
         RPackNum<N-1>::copyIndex(ip, ind);
-    }
-
-    template <size_t N>
-    template <class... Indices>
-    inline size_t RPackNum<N>::makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
-    {
-        //const auto& idx = *std::get<N>(iPtrTup);
-        return std::get<N>(iPtrTup)->pos() + RPackNum<N-1>::makePos(iPtrTup) * std::get<N>(iPtrTup)->max();
     }
 
     template <size_t N>
@@ -337,32 +285,12 @@ namespace MultiArrayHelper
 
     
 
-    template <class... Indices>
-    void RPackNum<0>::initBlockSizes(std::array<size_t,sizeof...(Indices)+1>& bs,
-                                            std::tuple<std::shared_ptr<Indices>...>& ip)
-    {
-        std::get<0>(bs) = RPackNum<sizeof...(Indices)>::blockSize(ip);
-    }
-	
     template <class RangeTuple>
     size_t RPackNum<0>::getSize(const RangeTuple& rt)
     {
         return std::get<0>(rt)->size();
     }
 	
-    template <class IndexPack, class MetaType>
-    void RPackNum<0>::getMetaPos(MetaType& target,
-                                        const IndexPack& source)
-    {
-        std::get<0>(target) = std::get<0>(source)->meta();
-    }
-	
-    template <class IndexPack, typename MetaType>
-    void RPackNum<0>::setMeta(IndexPack& target, const MetaType& source)
-    {
-        std::get<0>(target)->at( std::get<0>( source ) );
-    }
-
     template <class SpaceClass>
     inline std::shared_ptr<RangeBase> RPackNum<0>::getSub(const SpaceClass& space, size_t num)
     {
@@ -383,21 +311,6 @@ namespace MultiArrayHelper
         i = ownPos;
     }
 	
-    template <class MRange, class... Indices>
-    void RPackNum<0>::construct(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                       const MRange& range)
-    {
-        typedef typename std::remove_reference<decltype(range.template get<0>())>::type SubRangeType;
-        typedef typename SubRangeType::IndexType SubIndexType;
-        typedef typename std::remove_reference<decltype(*std::get<0>(ip).get())>::type TypeFromIndexPack;
-	    
-        static_assert(std::is_same<SubIndexType,TypeFromIndexPack>::value,
-                      "inconsistent types");
-	    
-        std::get<0>(ip) = std::shared_ptr<SubIndexType>( new SubIndexType( range.template getPtr<0>() ) );
-        *std::get<0>(ip) = 0;
-    }
-
     template <class IndexType, class... Indices>
     void RPackNum<0>::copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
                                       const IndexType& ind)
@@ -411,12 +324,6 @@ namespace MultiArrayHelper
     {
         typedef typename std::remove_reference<decltype(*std::get<0>(ip))>::type SubType;
         std::get<0>(ip) = std::make_shared<SubType>( ind.template get<0>() ) ;
-    }
-
-    template <class... Indices>
-    inline size_t RPackNum<0>::makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup)
-    {
-        return std::get<0>(iPtrTup)->pos();
     }
 
     template <class... Indices>

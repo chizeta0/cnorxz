@@ -87,41 +87,31 @@ namespace MultiArrayTools
 	return std::make_shared<ExtT<ExtType>>(mExt);
     }
 
-    // -> define in range_base.cc
-    //std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
-    
     /******************
      *   MapIndex   *
      ******************/
-
-    /*
-    template <class MapF, class... Indices>
-    MapIndex<MapF,Indices...>::MapIndex(const MapIndex<MapF,Indices...>& in) :
-	IndexInterface<std::tuple<typename Indices::MetaType...> >(in)
-    {
-	RPackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
-    }
-	
-    template <class MapF, class... Indices>
-    MapIndex<MapF,Indices...>& MapIndex<MapF,Indices...>::operator=(const MapIndex<MapF,Indices...>& in)
-    {
-	IndexI::operator=(in);
-	RPackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
-	return *this;
-    }
-    */
     
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class MRange>
     GenMapIndex<OIType,Op,XSTYPE,Indices...>::GenMapIndex(const std::shared_ptr<MRange>& range) :
 	IndexInterface<GenMapIndex<OIType,Op,XSTYPE,Indices...>,typename Op::value_type>(range, 0)
     {
-	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
-	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
+	sfor_mn<sizeof...(Indices),0>
+	    ( [&](auto i) {
+		  auto r = range->template getPtr<i>();
+		  std::get<i>(mIPack) = r->beginPtr();
+		  *std::get<i>(mIPack) = 0;
+		  
+		  std::get<i>(mBlockSizes) = sfor_p<i,sizeof...(Indices)>
+		      ( [&](auto j) { return std::get<j>(mIPack)->max(); } ,
+			[&](auto a, auto b) { return a * b; });
+		  return 0;
+	      });
+	
+	IB::mPos = sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) { return std::get<i>(mIPack); },
+	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	mOutIndex = std::make_shared<OIType>
 	    ( std::dynamic_pointer_cast<RangeType>( IB::mRangePtr )->outRange()->begin() );
     }
@@ -185,7 +175,18 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator()(const std::shared_ptr<Indices>&... indices)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
+	//RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
+	//RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	return (*this)(std::make_tuple(indices...));
+	//return *this;
+    }
+
+    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
+    GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& indices)
+    {
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
+	//RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
 	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return *this;
     }
@@ -245,17 +246,12 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     typename GenMapIndex<OIType,Op,XSTYPE,Indices...>::MetaType GenMapIndex<OIType,Op,XSTYPE,Indices...>::meta() const
     {
-	//MetaType metaTuple;
-	//RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
-        //assert(0);
         return mOutIndex->meta();
     }
 
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::at(const MetaType& metaPos)
     {
-	//RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
-	//IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
         mOutIndex->at(metaPos);
         IB::mPos = mOutIndex->pos();
 	return *this;
@@ -310,29 +306,8 @@ namespace MultiArrayTools
     }
     
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
-    std::string GenMapIndex<OIType,Op,XSTYPE,Indices...>::id() const
-    {
-	return std::string("mul") + std::to_string(IB::mId);
-    }
-
-    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
-    void GenMapIndex<OIType,Op,XSTYPE,Indices...>::print(size_t offset) const
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "]" << "(" << IB::mRangePtr << "): " << meta() << std::endl;
-	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
-    }
-
-    template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class Exprs>
     auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::ifor(size_t step, Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh
-		    (step, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<OIType,Op,XSTYPE,Indices...>,Exprs,XSTYPE>
-		     ( range()->map(), this, step, exs ) ) )
     {
 	return RPackNum<sizeof...(Indices)-1>::mkForh
 	    (0, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<OIType,Op,XSTYPE,Indices...>,Exprs,XSTYPE>
@@ -342,7 +317,6 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class Exprs>
     auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::pifor(size_t step, Exprs exs) const
-	-> decltype(ifor(step, exs))
     {
 	return ifor(step, exs);
     }
@@ -350,7 +324,6 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     template <class Exprs>
     auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::iforh(size_t step, Exprs exs) const
-	-> decltype(ifor(step, exs))
     {
 	return ifor(step, exs);
     }
@@ -600,7 +573,6 @@ namespace MultiArrayTools
     size_t GenMapRange<ORType,Op,XSTYPE,Ranges...>::size() const
     {
 	return mOutRange->size();
-	//return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
     template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
@@ -629,7 +601,6 @@ namespace MultiArrayTools
         //MetaType* xtarget = reinterpret_cast<MetaType*>(target);
         assert(0);
         return 0;
-        //return RPackNum<sizeof...(Ranges)-1>::getCMeta(xtarget,pos,mSpace,cmetaSize());
     }
 
     template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
