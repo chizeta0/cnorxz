@@ -187,7 +187,7 @@ namespace MultiArrayTools
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
 	//RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, IB::mPos);
 	return *this;
     }
 

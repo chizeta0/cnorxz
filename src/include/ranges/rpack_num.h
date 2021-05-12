@@ -105,20 +105,6 @@ namespace MultiArrayHelper
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt);
 	
-	template <class SpaceClass>
-	inline static std::shared_ptr<RangeBase> getSub(const SpaceClass& space, size_t num);
-
-	template <class IndexPack>
-	static void setIndexPack(IndexPack& iPack, size_t pos);
-	
-	template <class IndexType, class... Indices>
-	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     const IndexType& ind);
-
-	template <class IndexType, class... Indices>
-	static void copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
-			      const IndexType& ind);
-
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize);
@@ -141,9 +127,6 @@ namespace MultiArrayHelper
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       vector<std::intptr_t>& v);
-
-	template <class Range, class... Ranges>
-	static void checkDefaultable();
 
 	template <class IndexPack, class BlockArray, class Exprs>
 	static auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
@@ -208,20 +191,6 @@ namespace MultiArrayHelper
 	template <class RangeTuple>
 	static size_t getSize(const RangeTuple& rt);
 	
-	template <class SpaceClass>
-	inline static std::shared_ptr<RangeBase> getSub(const SpaceClass& space, size_t num);
-
-	template <class IndexPack>
-	static void setIndexPack(IndexPack& iPack, size_t pos);
-	
-	template <class IndexType, class... Indices>
-	static void copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
-			     const IndexType& ind);
-
-	template <class IndexType, class... Indices>
-	static void copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
-			      const IndexType& ind);
-
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize);
@@ -242,9 +211,6 @@ namespace MultiArrayHelper
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       vector<std::shared_ptr<RangeBase> >& v);
-
-	template <class Range>
-	static void checkDefaultable();
 
 	template <class IndexPack, class BlockArray, class Exprs>
 	static auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)

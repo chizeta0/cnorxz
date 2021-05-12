@@ -68,7 +68,14 @@ namespace MultiArrayTools
 	    mCPos(in.mCPos),
 	    mObjPtrNum(in.mObjPtrNum)
 	{
-	    RPackNum<sizeof...(Indices)-1>::copyIndex(mIPack, in);
+	    sfor_pn<0,sizeof...(Indices)>
+		( [&](auto i)
+		{
+		    typedef typename std::remove_reference<decltype(*std::get<i>(mIPack))>::type
+			SubType;
+		    std::get<i>(mIPack) = std::make_shared<SubType>( in.template get<i>() ) ;
+		    return true;
+		});
 	}
 	
 	ContainerIndex& copy(const ContainerIndex& in)
@@ -80,7 +87,14 @@ namespace MultiArrayTools
 	    mData = in.mData;
 	    mCPos = in.mCPos;
 	    mObjPtrNum = in.mObjPtrNum;
-	    RPackNum<sizeof...(Indices)-1>::copyIndex(mIPack, in);
+	    sfor_pn<0,sizeof...(Indices)>
+		( [&](auto i)
+		{
+		    typedef typename std::remove_reference<decltype(*std::get<i>(mIPack))>::type
+			SubType;
+		    std::get<i>(mIPack) = std::make_shared<SubType>( in.template get<i>() ) ;
+		    return true;
+		});
 	    return *this;
 	}
 	
@@ -354,7 +368,7 @@ namespace MultiArrayTools
     ContainerIndex<T,Indices...>& ContainerIndex<T,Indices...>::operator=(size_t pos)
     {
 	IB::mPos = pos;
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, pos);
 	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
 	return *this;
     }

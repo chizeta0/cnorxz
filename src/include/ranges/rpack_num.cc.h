@@ -41,47 +41,6 @@ namespace MultiArrayHelper
     }
 	
     template <size_t N>
-    template <class SpaceClass>
-    inline std::shared_ptr<RangeBase> RPackNum<N>::getSub(const SpaceClass& space, size_t num)
-    {
-        if(num == N){
-            return std::get<N>(space);
-        }
-        else {
-            return RPackNum<N-1>::getSub(space, num);
-        }
-    }
-
-    template <size_t N>
-    template <class IndexPack>
-    void RPackNum<N>::setIndexPack(IndexPack& iPack, size_t pos)
-    {
-        auto& i = *std::get<N>(iPack).get();
-        const size_t ownPos = pos % i.max(); 
-        i = ownPos;
-        RPackNum<N-1>::setIndexPack(iPack, (pos - ownPos) / i.max() );
-    }
-	
-    template <size_t N>
-    template <class IndexType, class... Indices>
-    void RPackNum<N>::copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                      const IndexType& ind)
-    {
-        std::get<N>(ip) = ind.template getPtr<N>() ;
-        RPackNum<N-1>::copyInst(ip, ind);
-    }
-
-    template <size_t N>
-    template <class IndexType, class... Indices>
-    void RPackNum<N>::copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                       const IndexType& ind)
-    {
-        typedef typename std::remove_reference<decltype(*std::get<N>(ip))>::type SubType;
-        std::get<N>(ip) = std::make_shared<SubType>( ind.template get<N>() ) ;
-        RPackNum<N-1>::copyIndex(ip, ind);
-    }
-
-    template <size_t N>
     template <class... Indices>
     inline size_t RPackNum<N>::makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
                                               const std::array<size_t,sizeof...(Indices)+1>& blockSize)
@@ -130,14 +89,6 @@ namespace MultiArrayHelper
     {
         v[N] = reinterpret_cast<std::intptr_t>( std::get<N>(rst).get() );
         RPackNum<N-1>::RangesToVec(rst, v);
-    }
-
-    template <size_t N>
-    template <class Range, class... Ranges>
-    void RPackNum<N>::checkDefaultable()
-    {
-        static_assert( Range::defaultable, "not defaultable" );
-        RPackNum<N-1>::template checkDefaultable<Ranges...>();
     }
 
     template <size_t N>
@@ -291,41 +242,6 @@ namespace MultiArrayHelper
         return std::get<0>(rt)->size();
     }
 	
-    template <class SpaceClass>
-    inline std::shared_ptr<RangeBase> RPackNum<0>::getSub(const SpaceClass& space, size_t num)
-    {
-        if(num == 0){
-            return std::get<0>(space);
-        }
-        else {
-            assert(0);
-            return std::shared_ptr<RangeBase>();
-        }
-    }
-
-    template <class IndexPack>
-    void RPackNum<0>::setIndexPack(IndexPack& iPack, size_t pos)
-    {
-        auto& i = *std::get<0>(iPack);
-        const size_t ownPos = pos % i.max(); 
-        i = ownPos;
-    }
-	
-    template <class IndexType, class... Indices>
-    void RPackNum<0>::copyInst(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                      const IndexType& ind)
-    {
-        std::get<0>(ip) = ind.template getPtr<0>();
-    }
-
-    template <class IndexType, class... Indices>
-    void RPackNum<0>::copyIndex(std::tuple<std::shared_ptr<Indices>...>& ip,
-                                       const IndexType& ind)
-    {
-        typedef typename std::remove_reference<decltype(*std::get<0>(ip))>::type SubType;
-        std::get<0>(ip) = std::make_shared<SubType>( ind.template get<0>() ) ;
-    }
-
     template <class... Indices>
     inline size_t RPackNum<0>::makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
                                               const std::array<size_t,sizeof...(Indices)+1>& blockSize)
@@ -363,12 +279,6 @@ namespace MultiArrayHelper
                                                 vector<std::shared_ptr<RangeBase> >& v)
     {
         setRangeToVec(v, std::get<0>(rst));
-    }
-
-    template <class Range>
-    void RPackNum<0>::checkDefaultable()
-    {
-        static_assert( Range::defaultable, "not defaultable" );
     }
 
     template <class IndexPack, class BlockArray, class Exprs>

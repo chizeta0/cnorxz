@@ -19,7 +19,26 @@ namespace MultiArrayTools
 	    }
 	}
     }
-    
+
+    template <size_t BEG, size_t END, int OFF, typename Incr, typename F, typename Cond>
+    inline auto sforx(Incr incr, F f, Cond cond)
+    {
+	constexpr auto idx = std::integral_constant<size_t, BEG>{};
+	constexpr auto idxm = std::integral_constant<size_t, BEG+OFF>{};
+
+	if constexpr(incr(idx) != END){
+	    if(cond(idx)){
+		return sforx<incr(idx),END,OFF>(incr,f,cond);
+	    }
+	    else {
+		return f(idxm);
+	    }
+	}
+	else {
+	    return f(idxm);
+	}
+    }
+
     template <size_t BEG, size_t END, int OFF, typename Incr, typename F, typename Conc>
     inline auto sfor(Incr incr, F f, Conc conc)
     {
@@ -86,6 +105,18 @@ namespace MultiArrayTools
     inline auto sfor_m(F f)
     {
 	return sfor<BEG,END,-1>(MA_DEC,f);
+    }
+
+    template <size_t BEG, size_t END, typename F, typename Cond>
+    inline auto sforx_p(F f, Cond cond)
+    {
+	return sforx<BEG,END,0>(MA_INC,f,cond);
+    }
+
+    template <size_t BEG, size_t END, typename F, typename Cond>
+    inline auto sforx_m(F f, Cond cond)
+    {
+	return sforx<BEG,END,-1>(MA_DEC,f,cond);
     }
 
     template <size_t BEG, size_t END, typename F, typename Conc>

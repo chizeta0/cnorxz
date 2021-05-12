@@ -13,6 +13,7 @@
 #include "ranges/index_base.h"
 
 #include "ranges/rpack_num.h"
+#include "ranges/range_helper.h"
 #include "ranges/multi_range_factory_product_map.h"
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
@@ -337,7 +338,7 @@ namespace MultiArrayTools
     {
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, IB::mPos);
 	return *this;
     }
 
@@ -351,7 +352,7 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IB::mPos = pos;
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, pos);
 	return *this;
     }
 
@@ -576,7 +577,11 @@ namespace MultiArrayTools
     template <class... Indices>
     std::shared_ptr<RangeBase> MultiRange<Indices...>::sub(size_t num) const
     {
-	return RPackNum<sizeof...(Indices)-1>::getSub(mSpace, num);
+	assert(num < sizeof...(Indices));
+	return sforx_p<0,sizeof...(Indices)>
+	    ( [&](auto i) { return std::dynamic_pointer_cast<RangeBase>(std::get<i>(mSpace)); },
+	      [&](auto i) { return num != i;} );
+	//return RPackNum<sizeof...(Indices)-1>::getSub(mSpace, num);
     }
 
     template <class... Ranges>
