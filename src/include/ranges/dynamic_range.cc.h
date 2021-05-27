@@ -144,7 +144,9 @@ namespace MultiArrayTools
 	RangeInterface<DynamicIndex>()
     {
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
-	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
+	mSize = sfor_p<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { return std::get<i>(origs)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
 	}
@@ -157,7 +159,9 @@ namespace MultiArrayTools
     {
 	auto rst = std::make_tuple(origs...);
 	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
-	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
+	mSize = sfor_p<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { return std::get<i>(rst)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
 	}

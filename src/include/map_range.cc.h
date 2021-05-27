@@ -591,7 +591,7 @@ namespace MultiArrayTools
     vector<size_t> GenMapRange<ORType,Op,XSTYPE,Ranges...>::typeNum() const
     {
         vector<size_t> o;
-        RPackNum<sizeof...(Ranges)-1>::getTypeNum(o,mSpace);
+	RangeHelper::getTypeNum<sizeof...(Ranges)-1>(o,mSpace);
         return o;
     }
 

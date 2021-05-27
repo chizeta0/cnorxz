@@ -34,13 +34,6 @@ namespace MultiArrayHelper
     }
     
     template <size_t N>
-    template <class RangeTuple>
-    size_t RPackNum<N>::getSize(const RangeTuple& rt)
-    {
-        return std::get<N>(rt)->size() * RPackNum<N-1>::getSize(rt);
-    }
-	
-    template <size_t N>
     template <class... Indices>
     inline size_t RPackNum<N>::makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
                                               const std::array<size_t,sizeof...(Indices)+1>& blockSize)
@@ -215,33 +208,7 @@ namespace MultiArrayHelper
         return r.cmetaSize() + RPackNum<N-1>::getCMetaSize(stp);
     }
 
-    template <size_t N>
-    template <class... Ranges>
-    inline void RPackNum<N>::getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp)
-    {
-        auto& r = *std::get<N>(stp);
-        auto tn = r.typeNum();
-        res.insert(res.begin(), tn.begin(), tn.end());
-        RPackNum<N-1>::getTypeNum(res, stp);
-    }
 
-    template <size_t N>
-    template <class... Ranges>
-    inline size_t RPackNum<N>::getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
-				       const std::tuple<typename Ranges::IndexType::MetaType...>& meta)
-    {
-	return RPackNum<N-1>::getMeta(space,meta) * std::get<N>(space)->size() +
-	    std::get<N>(space)->getMeta(std::get<N>(meta));
-    }
-
-    
-
-    template <class RangeTuple>
-    size_t RPackNum<0>::getSize(const RangeTuple& rt)
-    {
-        return std::get<0>(rt)->size();
-    }
-	
     template <class... Indices>
     inline size_t RPackNum<0>::makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
                                               const std::array<size_t,sizeof...(Indices)+1>& blockSize)
@@ -388,20 +355,6 @@ namespace MultiArrayHelper
         return r.cmetaSize();
     }
 
-    template <class... Ranges>
-    inline void RPackNum<0>::getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp)
-    {
-        auto& r = *std::get<0>(stp);
-        auto tn = r.typeNum();
-        res.insert(res.begin(), tn.begin(), tn.end());
-    }
-
-    template <class... Ranges>
-    inline size_t RPackNum<0>::getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
-				       const std::tuple<typename Ranges::IndexType::MetaType...>& meta)
-    {
-	return std::get<0>(space)->getMeta(std::get<0>(meta));
-    }
 
     
     template <IndexType IT>

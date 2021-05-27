@@ -16,6 +16,30 @@ namespace MultiArrayTools
 		setIndexPack<N-1>(iPack, (pos - ownPos) / i.max() );
 	    }
 	}
+
+	template <size_t N, class... Ranges>
+	inline size_t getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
+			      const std::tuple<typename Ranges::IndexType::MetaType...>& meta)
+	{
+	    if constexpr(N != 0){
+		return getMeta<N-1>(space,meta) * std::get<N>(space)->size() +
+		    std::get<N>(space)->getMeta(std::get<N>(meta));
+	    }
+	    else {
+		return std::get<0>(space)->getMeta(std::get<0>(meta));
+	    }
+	}
+
+	template <size_t N, class... Ranges>
+	inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp)
+	{
+	    auto& r = *std::get<N>(stp);
+	    auto tn = r.typeNum();
+	    res.insert(res.begin(), tn.begin(), tn.end());
+	    if constexpr(N != 0){
+		getTypeNum<N-1>(res, stp);
+	    }
+	}
 	
     } // namespace RangeHelper
 } // namespace MultiArrayTools

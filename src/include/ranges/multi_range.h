@@ -564,7 +564,7 @@ namespace MultiArrayTools
     template <class... Ranges>
     size_t MultiRange<Ranges...>::getMeta(const MetaType& metaPos) const
     {
-	return RPackNum<sizeof...(Ranges)-1>::getMeta(mSpace,metaPos);
+	return RangeHelper::getMeta<sizeof...(Ranges)-1>(mSpace,metaPos);
     }
 
     template <class... Ranges>
@@ -593,7 +593,10 @@ namespace MultiArrayTools
     template <class... Ranges>
     size_t MultiRange<Ranges...>::size() const
     {
-	return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
+	return sfor_p<0,sizeof...(Ranges)>
+	    ( [&](auto i) { return std::get<i>(mSpace)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
+	//return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
     template <class... Ranges>
@@ -612,7 +615,7 @@ namespace MultiArrayTools
     vector<size_t> MultiRange<Ranges...>::typeNum() const
     {
         vector<size_t> o;
-        RPackNum<sizeof...(Ranges)-1>::getTypeNum(o,mSpace);
+	RangeHelper::getTypeNum<sizeof...(Ranges)-1>(o,mSpace);
         return o;
     }
 

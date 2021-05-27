@@ -102,9 +102,6 @@ namespace MultiArrayHelper
     struct RPackNum
     {
 	
-	template <class RangeTuple>
-	static size_t getSize(const RangeTuple& rt);
-	
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize);
@@ -175,12 +172,6 @@ namespace MultiArrayHelper
         template <class... Ranges>
         static inline size_t getCMetaSize(const std::tuple<std::shared_ptr<Ranges>...>& stp);
 
-        template <class... Ranges>
-        static inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp);
-
-	template <class... Ranges>
-	static inline size_t getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
-				     const std::tuple<typename Ranges::IndexType::MetaType...>& meta);
     };
 
     
@@ -188,9 +179,6 @@ namespace MultiArrayHelper
     struct RPackNum<0>
     {
 
-	template <class RangeTuple>
-	static size_t getSize(const RangeTuple& rt);
-	
 	template <class... Indices>
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize);
@@ -259,12 +247,6 @@ namespace MultiArrayHelper
         template <class... Ranges>
         static inline size_t getCMetaSize(const std::tuple<std::shared_ptr<Ranges>...>& stp);
 
-        template <class... Ranges>
-        static inline void getTypeNum(vector<size_t>& res, const std::tuple<std::shared_ptr<Ranges>...>& stp);
-
-	template <class... Ranges>
-	static inline size_t getMeta(const std::tuple<std::shared_ptr<Ranges>...>& space,
-				     const std::tuple<typename Ranges::IndexType::MetaType...>& meta);
     };
     
     template <IndexType IT>
