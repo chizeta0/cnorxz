@@ -473,21 +473,21 @@ namespace MultiArrayTools
     template <class Exprs>
     auto MultiIndex<Indices...>::ifor(size_t step, Exprs exs) const
     {
-	return RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs);
+	return RangeHelper::mkFor<0>(step, mIPack, mBlockSizes, exs);
     }
 
     template <class... Indices>
     template <class Exprs>
     auto MultiIndex<Indices...>::iforh(size_t step, Exprs exs) const
     {
-	return RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs);
+	return RangeHelper::mkForh<0>(step, mIPack, mBlockSizes, exs);
     }
 
     template <class... Indices>
     template <class Exprs>
     auto MultiIndex<Indices...>::pifor(size_t step, Exprs exs) const
     {
-	return RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs);
+	return RangeHelper::mkPFor<0>(step, mIPack, mBlockSizes, exs);
     }
 
     /*************************
@@ -581,7 +581,6 @@ namespace MultiArrayTools
 	return sforx_p<0,sizeof...(Indices)>
 	    ( [&](auto i) { return std::dynamic_pointer_cast<RangeBase>(std::get<i>(mSpace)); },
 	      [&](auto i) { return num != i;} );
-	//return RPackNum<sizeof...(Indices)-1>::getSub(mSpace, num);
     }
 
     template <class... Ranges>
@@ -596,7 +595,6 @@ namespace MultiArrayTools
 	return sfor_p<0,sizeof...(Ranges)>
 	    ( [&](auto i) { return std::get<i>(mSpace)->size(); },
 	      [&](auto a, auto b) { return a * b; } );
-	//return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
     }
 
     template <class... Ranges>

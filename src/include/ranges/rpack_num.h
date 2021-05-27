@@ -125,21 +125,6 @@ namespace MultiArrayHelper
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       vector<std::intptr_t>& v);
 
-	template <class IndexPack, class BlockArray, class Exprs>
-	static auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-			->ifor( 0, RPackNum<N-1>::mkFor(step, ipack, ba, exs) ) );
-
-	template <class IndexPack, class BlockArray, class Exprs>
-	static auto mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-			->iforh( 0, RPackNum<N-1>::mkForh(step, ipack, ba, exs) ) );
-
-        template <class IndexPack, class BlockArray, class Exprs>
-	static auto mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-			->pifor( 0, RPackNum<N-1>::mkFor(step, ipack, ba, exs) ) );
-
 	template <class Index>
 	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx);
 
@@ -199,21 +184,6 @@ namespace MultiArrayHelper
 	template <class... Ranges>
 	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
 				       vector<std::shared_ptr<RangeBase> >& v);
-
-	template <class IndexPack, class BlockArray, class Exprs>
-	static auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-			->ifor(0,exs) );
-
-	template <class IndexPack, class BlockArray, class Exprs>
-	static auto mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-			->iforh(0,exs) );
-
-        template <class IndexPack, class BlockArray, class Exprs>
-	static auto mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-	    -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-			->pifor(0,exs) );
 
 	template <class Index>
 	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx);

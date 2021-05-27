@@ -84,39 +84,6 @@ namespace MultiArrayHelper
         RPackNum<N-1>::RangesToVec(rst, v);
     }
 
-    template <size_t N>
-    template <class IndexPack, class BlockArray, class Exprs>
-    auto RPackNum<N>::mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-        -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-                    ->ifor( 0, RPackNum<N-1>::mkFor(step, ipack, ba, exs) ) )
-    {
-        constexpr size_t NN = std::tuple_size<IndexPack>::value-N-1;
-        return std::get<NN>(ipack)
-            ->ifor( step*std::get<NN+1>(ba), RPackNum<N-1>::mkFor(step, ipack, ba, exs) );
-    }
-
-    template <size_t N>
-    template <class IndexPack, class BlockArray, class Exprs>
-    auto RPackNum<N>::mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-        -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-                    ->iforh( 0, RPackNum<N-1>::mkForh(step, ipack, ba, exs) ) )
-    {
-        constexpr size_t NN = std::tuple_size<IndexPack>::value-N-1;
-        return std::get<NN>(ipack)
-            ->iforh( step*std::get<NN+1>(ba), RPackNum<N-1>::mkForh(step, ipack, ba, exs) );
-    }
-
-    template <size_t N>
-    template <class IndexPack, class BlockArray, class Exprs>
-    auto RPackNum<N>::mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-        -> decltype(std::get<std::tuple_size<IndexPack>::value-N-1>(ipack)
-                    ->pifor( 0, RPackNum<N-1>::mkFor(step, ipack, ba, exs) ) )
-    {
-        constexpr size_t NN = std::tuple_size<IndexPack>::value-N-1;
-        return std::get<NN>(ipack)
-            ->pifor( step*std::get<NN+1>(ba), RPackNum<N-1>::mkFor(step, ipack, ba, exs) );
-        // mkFor is correct here, because we want to multithread only the FIRST index!!
-    }
 
     template <size_t N>
     template <class Index>
@@ -246,36 +213,6 @@ namespace MultiArrayHelper
                                                 vector<std::shared_ptr<RangeBase> >& v)
     {
         setRangeToVec(v, std::get<0>(rst));
-    }
-
-    template <class IndexPack, class BlockArray, class Exprs>
-    auto RPackNum<0>::mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-        -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-                    ->ifor(0,exs) )
-    {
-        constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
-        return std::get<NN>(ipack)
-            ->ifor( step*std::get<NN+1>(ba), exs);
-    }
-
-    template <class IndexPack, class BlockArray, class Exprs>
-    auto RPackNum<0>::mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-        -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-                    ->iforh(0,exs) )
-    {
-        constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
-        return std::get<NN>(ipack)
-            ->iforh( step*std::get<NN+1>(ba), exs);
-    }
-
-    template <class IndexPack, class BlockArray, class Exprs>
-    auto RPackNum<0>::mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
-        -> decltype(std::get<std::tuple_size<IndexPack>::value-1>(ipack)
-                    ->pifor(0,exs) )
-    {
-        constexpr size_t NN = std::tuple_size<IndexPack>::value-1;
-        return std::get<NN>(ipack)
-            ->pifor( step*std::get<NN+1>(ba), exs);
     }
 
     template <class Index>

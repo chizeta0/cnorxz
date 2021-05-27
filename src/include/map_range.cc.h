@@ -309,9 +309,10 @@ namespace MultiArrayTools
     template <class Exprs>
     auto GenMapIndex<OIType,Op,XSTYPE,Indices...>::ifor(size_t step, Exprs exs) const
     {
-	return RPackNum<sizeof...(Indices)-1>::mkForh
-	    (0, mIPack, mBlockSizes, OpExpr<Op,GenMapIndex<OIType,Op,XSTYPE,Indices...>,Exprs,XSTYPE>
-	     ( range()->map(), this, step, exs ) );
+	return RangeHelper::mkFor<0>
+	    (0, mIPack, mBlockSizes,
+	     OpExpr<Op,GenMapIndex<OIType,Op,XSTYPE,Indices...>,Exprs,XSTYPE>
+	     ( range()->map(), this, step, exs ));
     }
 
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>

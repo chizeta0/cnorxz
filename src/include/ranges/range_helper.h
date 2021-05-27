@@ -40,6 +40,46 @@ namespace MultiArrayTools
 		getTypeNum<N-1>(res, stp);
 	    }
 	}
+
+	template <size_t N, class IndexPack, class BlockArray, class Exprs>
+	auto mkFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
+	{
+	    constexpr size_t S = std::tuple_size<IndexPack>::value;
+	    if constexpr(N < S-1){
+		return std::get<N>(ipack)
+		    ->ifor( step*std::get<N+1>(ba), mkFor<N+1>(step, ipack, ba, exs) );
+	    }
+	    else {
+		return std::get<N>(ipack)->ifor( step*std::get<N+1>(ba), exs);
+	    }
+	}
+
+	template <size_t N, class IndexPack, class BlockArray, class Exprs>
+	auto mkForh(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
+	{
+	    constexpr size_t S = std::tuple_size<IndexPack>::value;
+	    if constexpr(N < S-1){
+		return std::get<N>(ipack)
+		    ->iforh( step*std::get<N+1>(ba), mkForh<N+1>(step, ipack, ba, exs) );
+	    }
+	    else {
+		return std::get<N>(ipack)->iforh( step*std::get<N+1>(ba), exs);
+	    }
+	}
+
+	template <size_t N, class IndexPack, class BlockArray, class Exprs>
+	auto mkPFor(size_t step, const IndexPack& ipack, const BlockArray& ba, Exprs exs)
+	{
+	    constexpr size_t S = std::tuple_size<IndexPack>::value;
+	    if constexpr(N < S-1){
+		return std::get<N>(ipack)
+		    ->pifor( step*std::get<N+1>(ba), mkFor<N+1>(step, ipack, ba, exs) );
+		// mkFor is correct here, because we want to multithread only the FIRST index!!
+	    }
+	    else {
+		return std::get<N>(ipack)->pifor( step*std::get<N+1>(ba), exs);
+	    }
+	}
 	
     } // namespace RangeHelper
 } // namespace MultiArrayTools
