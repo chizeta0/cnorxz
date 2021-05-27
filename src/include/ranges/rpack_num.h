@@ -106,42 +106,15 @@ namespace MultiArrayHelper
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize);
 
-	template <class Pack, class IndexType, class... Indices>
-	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind,
-				const std::shared_ptr<Indices>&... ninds);
-
-        template <class Pack, class... Indices>
-	static void swapIndices(Pack& ipack, const std::tuple<std::shared_ptr<Indices>...>& ninds);
-
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack);
 
 
-	template <class... Ranges>
-	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-				       vector<std::shared_ptr<RangeBase> >& v);
-
-	template <class... Ranges>
-	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-				       vector<std::intptr_t>& v);
-
 	template <class Index>
 	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx);
 
-	template <class RangeTuple, typename... SIZET>
-	static inline void resolveRangeType(const vector<std::shared_ptr<RangeBase> >& orig,
-					    RangeTuple& rtp, size_t off, size_t size, SIZET... sizes);
-
-	template <class... Ranges>
-	static inline bool checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& p,
-					  const vector<std::intptr_t>& a);
-
 	template <class MIndex>
 	static inline std::string getStringMeta(const MIndex& mi);
-
-	template <class... Ranges>
-	static inline void fillRangeDataVec(vector<char>& out,
-					    const std::tuple<std::shared_ptr<Ranges>...>& tp);
 
 	template <size_t SIZE, class Range, class... Ranges>
 	static inline bool compareSpaceTypes(const vector<std::shared_ptr<RangeBase> >& rbvec);
@@ -168,40 +141,14 @@ namespace MultiArrayHelper
 	static inline size_t makePos(const std::tuple<std::shared_ptr<Indices>...>& iPtrTup,
 				     const std::array<size_t,sizeof...(Indices)+1>& blockSize);
 
-	template <class Pack, class IndexType>
-	static void swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind);
-
-        template <class Pack, class... Indices>
-	static void swapIndices(Pack& ipack, const std::tuple<std::shared_ptr<Indices>...>& ninds);
-
 	template <class... Indices>
 	static size_t blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack);
-
-	template <class... Ranges>
-	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-				       vector<std::intptr_t>& v);
-	
-	template <class... Ranges>
-	static inline void RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-				       vector<std::shared_ptr<RangeBase> >& v);
 
 	template <class Index>
 	static inline void getStepSizeX(const Index& ii, std::intptr_t j, size_t& ss, size_t& sx);
 
-	template <class RangeTuple, typename... SIZET>
-	static inline void resolveRangeType(const vector<std::shared_ptr<RangeBase> >& orig,
-					    RangeTuple& rtp, size_t off, size_t size);
-
-	template <class... Ranges>
-	static inline bool checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& p,
-					  const vector<std::intptr_t>& a);
-
         template <class MIndex>
 	static inline std::string getStringMeta(const MIndex& mi);
-
-	template <class... Ranges>
-	static inline void fillRangeDataVec(vector<char>& out,
-					    const std::tuple<std::shared_ptr<Ranges>...>& tp);
 
 	template <size_t SIZE, class Range>
 	static inline bool compareSpaceTypes(const vector<std::shared_ptr<RangeBase> >& rbvec);

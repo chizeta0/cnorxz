@@ -1,5 +1,6 @@
 
 #include "rpack_num.h"
+
 namespace MultiArrayHelper
 {
     using namespace MultiArrayTools;
@@ -17,7 +18,7 @@ namespace MultiArrayHelper
     }
 
 
-    
+    /*
     template <class Range>
     inline void resolveSetRange(std::shared_ptr<Range>& rp, const vector<std::shared_ptr<RangeBase> >& orig,
 				size_t origpos, size_t size)
@@ -25,6 +26,7 @@ namespace MultiArrayHelper
 	assert(size == 1);
 	rp = std::dynamic_pointer_cast<Range>( orig[origpos] ); // catch bad cast here!!
     }
+    */
 
     template <class Range>
     inline void setRangeToVec(vector<std::shared_ptr<RangeBase> >& v,
@@ -42,48 +44,11 @@ namespace MultiArrayHelper
     }
 
     template <size_t N>
-    template <class Pack, class IndexType, class... Indices>
-    void RPackNum<N>::swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind,
-                                         const std::shared_ptr<Indices>&... ninds)
-    {
-        std::get<std::tuple_size<Pack>::value-N-1>(ipack) = nind;
-        RPackNum<N-1>::swapIndices(ipack, ninds...);
-    }
-
-    template <size_t N>
-    template <class Pack, class... Indices>
-    void RPackNum<N>::swapIndices(Pack& ipack, const std::tuple<std::shared_ptr<Indices>...>& ninds)
-    {
-        std::get<N>(ipack) = std::get<N>(ninds);
-        RPackNum<N-1>::swapIndices(ipack, ninds);
-    }
-
-    template <size_t N>
     template <class... Indices>
     size_t RPackNum<N>::blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
     {
         return std::get<sizeof...(Indices)-N>(pack)->max() * RPackNum<N-1>::blockSize(pack);
     }
-
-
-    template <size_t N>
-    template <class... Ranges>
-    inline void RPackNum<N>::RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-                                                vector<std::shared_ptr<RangeBase> >& v)
-    {
-        setRangeToVec(v, std::get<N>(rst));
-        RPackNum<N-1>::RangesToVec(rst, v);
-    }
-
-    template <size_t N>
-    template <class... Ranges>
-    inline void RPackNum<N>::RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-                                                vector<std::intptr_t>& v)
-    {
-        v[N] = reinterpret_cast<std::intptr_t>( std::get<N>(rst).get() );
-        RPackNum<N-1>::RangesToVec(rst, v);
-    }
-
 
     template <size_t N>
     template <class Index>
@@ -100,39 +65,10 @@ namespace MultiArrayHelper
     }
 
     template <size_t N>
-    template <class RangeTuple, typename... SIZET>
-    inline void RPackNum<N>::resolveRangeType(const vector<std::shared_ptr<RangeBase> >& orig,
-                                                     RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
-    {
-        constexpr size_t tps = std::tuple_size<RangeTuple>::value;
-        resolveSetRange(std::get<tps-N-1>(rtp), orig, off, size);
-        RPackNum<N-1>::resolveRangeType(orig, rtp, off+size, sizes...);
-    }
-
-    template <size_t N>
-    template <class... Ranges>
-    inline bool RPackNum<N>::checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& p,
-                                                   const vector<std::intptr_t>& a)
-    {
-        return reinterpret_cast<std::intptr_t>( std::get<N>(p).get() ) == a[N] and
-            RPackNum<N-1>::checkIfCreated(p,a);
-    }
-
-    template <size_t N>
     template <class MIndex>
     inline std::string RPackNum<N>::getStringMeta(const MIndex& mi)
     {
         return RPackNum<N-1>::getStringMeta(mi) + "," + mi.template getPtr<N>()->stringMeta();
-    }
-
-    template <size_t N>
-    template <class... Ranges>
-    inline void RPackNum<N>::fillRangeDataVec(vector<char>& out,
-                                                     const std::tuple<std::shared_ptr<Ranges>...>& tp)
-    {
-        vector<char> part = std::get<sizeof...(Ranges)-N-1>(tp)->data();
-        out.insert(out.end(), part.begin(), part.end());
-        RPackNum<N-1>::fillRangeDataVec(out, tp);
     }
 
     template <size_t N>
@@ -183,36 +119,10 @@ namespace MultiArrayHelper
         return std::get<0>(iPtrTup)->pos() * std::get<1>(blockSize);
     }
 
-    template <class Pack, class IndexType>
-    void RPackNum<0>::swapIndices(Pack& ipack, const std::shared_ptr<IndexType>& nind)
-    {
-        std::get<std::tuple_size<Pack>::value-1>(ipack) = nind;
-    }
-
-    template <class Pack, class... Indices>
-    void RPackNum<0>::swapIndices(Pack& ipack, const std::tuple<std::shared_ptr<Indices>...>& ninds)
-    {
-        std::get<0>(ipack) = std::get<0>(ninds);
-    }
-
     template <class... Indices>
     size_t RPackNum<0>::blockSize(const std::tuple<std::shared_ptr<Indices>...>& pack)
     {
         return 1;
-    }
-
-    template <class... Ranges>
-    inline void RPackNum<0>::RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-                                                vector<std::intptr_t>& v)
-    {
-        v[0] = reinterpret_cast<std::intptr_t>( std::get<0>(rst).get() );;
-    }
-	
-    template <class... Ranges>
-    inline void RPackNum<0>::RangesToVec(const std::tuple<std::shared_ptr<Ranges>...>& rst,
-                                                vector<std::shared_ptr<RangeBase> >& v)
-    {
-        setRangeToVec(v, std::get<0>(rst));
     }
 
     template <class Index>
@@ -227,33 +137,10 @@ namespace MultiArrayHelper
         sx *= max;
     }
 
-    template <class RangeTuple, typename... SIZET>
-    inline void RPackNum<0>::resolveRangeType(const vector<std::shared_ptr<RangeBase> >& orig,
-                                                     RangeTuple& rtp, size_t off, size_t size)
-    {
-        constexpr size_t tps = std::tuple_size<RangeTuple>::value;
-        resolveSetRange(std::get<tps-1>(rtp), orig, off, size);
-    }
-
-    template <class... Ranges>
-    inline bool RPackNum<0>::checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& p,
-                                                   const vector<std::intptr_t>& a)
-    {
-        return reinterpret_cast<std::intptr_t>( std::get<0>(p).get() ) == a[0];
-    }
-
     template <class MIndex>
     inline std::string RPackNum<0>::getStringMeta(const MIndex& mi)
     {
         return mi.template getPtr<0>()->stringMeta();
-    }
-
-    template <class... Ranges>
-    inline void RPackNum<0>::fillRangeDataVec(vector<char>& out,
-                                                     const std::tuple<std::shared_ptr<Ranges>...>& tp)
-    {
-        vector<char> part = std::get<sizeof...(Ranges)-1>(tp)->data();
-        out.insert(out.end(), part.begin(), part.end());
     }
 
     template <size_t SIZE, class Range>

@@ -154,9 +154,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 
-	std::string id() const;
-	void print(size_t offset);
-	
 	template <class Exprs>
 	auto ifor(size_t step, Exprs exs) const;
 
@@ -456,24 +453,6 @@ namespace MultiArrayTools
 	    // throw !!
 	}
 	return mBlockSizes[n+1];
-    }
-    
-    template <typename T, class... Indices>
-    std::string ContainerIndex<T,Indices...>::id() const
-    {
-	return std::string("con") + std::to_string(IB::mId);
-    }
-
-    template <typename T, class... Indices>
-    void ContainerIndex<T,Indices...>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this) << "]"
-		  << "(" << IB::mRangePtr << "): " << meta() << std::endl;
-	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
     }
 
     template <typename T, class... Indices>

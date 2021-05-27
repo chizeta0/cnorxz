@@ -6,6 +6,14 @@ namespace MultiArrayTools
 {
     namespace RangeHelper
     {
+	template <class Range>
+	inline void resolveSetRange(std::shared_ptr<Range>& rp, const vector<std::shared_ptr<RangeBase> >& orig,
+				    size_t origpos, size_t size)
+	{
+	    assert(size == 1);
+	    rp = std::dynamic_pointer_cast<Range>( orig[origpos] ); // catch bad cast here!!
+	}
+
 	template <size_t N, class IndexPack>
 	void setIndexPack(IndexPack& iPack, size_t pos)
 	{
@@ -80,6 +88,26 @@ namespace MultiArrayTools
 		return std::get<N>(ipack)->pifor( step*std::get<N+1>(ba), exs);
 	    }
 	}
+
+	template <size_t N, class RangeTuple, typename... SIZET>
+	inline void resolveRangeType(const vector<std::shared_ptr<RangeBase> >& orig,
+				     RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
+	{
+	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
+	    ::MultiArrayTools::RangeHelper::resolveSetRange(std::get<N>(rtp), orig, off, size);
+	    if constexpr(N < tps-1){
+		resolveRangeType<N+1>(orig, rtp, off+size, sizes...);
+	    }
+	}
+
+	template <size_t N, class RangeTuple>
+	inline void resolveRangeType(const vector<std::shared_ptr<RangeBase> >& orig,
+				     RangeTuple& rtp, size_t off, size_t size)
+	{
+	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
+	    ::MultiArrayTools::RangeHelper::resolveSetRange(std::get<N>(rtp), orig, off, size);
+	}
+
 	
     } // namespace RangeHelper
 } // namespace MultiArrayTools

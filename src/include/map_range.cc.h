@@ -175,10 +175,7 @@ namespace MultiArrayTools
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
     GenMapIndex<OIType,Op,XSTYPE,Indices...>& GenMapIndex<OIType,Op,XSTYPE,Indices...>::operator()(const std::shared_ptr<Indices>&... indices)
     {
-	//RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
-	//RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
 	return (*this)(std::make_tuple(indices...));
-	//return *this;
     }
 
     template <class OIType, class Op, SpaceType XSTYPE, class... Indices>
@@ -186,7 +183,6 @@ namespace MultiArrayTools
     {
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
-	//RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
 	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, IB::mPos);
 	return *this;
     }
@@ -386,7 +382,9 @@ namespace MultiArrayTools
 	bool check = false;
 	for(auto& x: MapRangeFactoryProductMap::mAleadyCreated){
 	    if(x.second.size() == sizeof...(Ranges)){
-		check = RPackNum<sizeof...(Ranges)-1>::checkIfCreated(ptp, x.second);
+		check = sfor_p<0,sizeof...(Ranges)>
+		    ( [&](auto i) { return reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ) == x.second[i]; },
+		      [&](auto a, auto b) { return a and b; } );
 		if(check){
 		    out = x.first;
 		    break;
@@ -395,7 +393,8 @@ namespace MultiArrayTools
 	}
 	if(not check){
 	    vector<std::intptr_t> pv(sizeof...(Ranges));
-	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
+	    sfor_pn<0,sizeof...(Ranges)>
+		( [&](auto i) { pv[i] = reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ); return 0; } );
 	    pv.push_back( reinterpret_cast<std::intptr_t>
 			  ( &std::dynamic_pointer_cast<oType>( mProd )->mMapf ) );
 	    MapRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
@@ -626,7 +625,13 @@ namespace MultiArrayTools
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
-	RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
+	sfor_pn<0,sizeof...(Ranges)>
+	    ( [&](auto i) {
+		vector<char> part = std::get<i>(mSpace)->data();
+		out.insert(out.end(), part.begin(), part.end());
+		return 0;
+	    } );
+	//RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
 	return out;
     }
 

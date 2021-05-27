@@ -171,23 +171,28 @@ namespace MultiArrayTools
 
     std::shared_ptr<AnonymousRange> defaultRange(size_t size = 0);
 }
-
+namespace MultiArrayTools
+{
+    namespace RangeHelper
+    {
+	template <>
+	inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange>& rp,
+						    const vector<std::shared_ptr<RangeBase> >& orig,
+						    size_t origpos, size_t size)
+	{
+	    AnonymousRangeFactory arf;
+	    for(size_t op = origpos; op != origpos + size; ++op){
+		//VCHECK(op);
+		arf.append(orig[op]);
+	    }
+	    rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
+	}
+    }
+}
 namespace MultiArrayHelper
 {
     using namespace MultiArrayTools;
 
-    template <>
-    inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange>& rp,
-						const vector<std::shared_ptr<RangeBase> >& orig,
-						size_t origpos, size_t size)
-    {
-    	AnonymousRangeFactory arf;
-	for(size_t op = origpos; op != origpos + size; ++op){
-	    //VCHECK(op);
-	    arf.append(orig[op]);
-	}
-    	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
-    }
 
     template <>
     inline void setRangeToVec<AnonymousRange>(vector<std::shared_ptr<RangeBase> >& v,
@@ -212,7 +217,9 @@ namespace MultiArrayTools
     GenSingleRange<size_t,SpaceType::ANON,MUI>::GenSingleRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<AnonymousIndex>()
     {
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(origs); return 0; } );
 	mSize = sfor_p<0,sizeof...(RangeTypes)>
 	    ( [&](auto i) { return std::get<i>(origs)->size(); },
 	      [&](auto a, auto b) { return a * b; } );
@@ -226,7 +233,9 @@ namespace MultiArrayTools
 	RangeInterface<AnonymousIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(rst); return 0; } );
 	mSize = sfor_p<0,sizeof...(RangeTypes)>
 	    ( [&](auto i) { return std::get<i>(rst)->size(); },
 	      [&](auto a, auto b) { return a * b; } );
@@ -245,7 +254,8 @@ namespace MultiArrayTools
     std::shared_ptr<MultiRange<Ranges...> > GenSingleRange<size_t,SpaceType::ANON,MUI>::scast(SIZET<Ranges>... sizes) const
     {
 	std::tuple<std::shared_ptr<Ranges>...> rtp;
-	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
+	RangeHelper::resolveRangeType<0>(mOrig, rtp, 0, sizes...);
+	//RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }

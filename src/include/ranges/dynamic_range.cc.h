@@ -143,7 +143,9 @@ namespace MultiArrayTools
     DynamicRange::DynamicRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<DynamicIndex>()
     {
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(origs); return 0; } );
 	mSize = sfor_p<0,sizeof...(RangeTypes)>
 	    ( [&](auto i) { return std::get<i>(origs)->size(); },
 	      [&](auto a, auto b) { return a * b; } );
@@ -158,7 +160,9 @@ namespace MultiArrayTools
 	RangeInterface<DynamicIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(rst); return 0; } );
 	mSize = sfor_p<0,sizeof...(RangeTypes)>
 	    ( [&](auto i) { return std::get<i>(rst)->size(); },
 	      [&](auto a, auto b) { return a * b; } );
@@ -179,7 +183,8 @@ namespace MultiArrayTools
     std::shared_ptr<MultiRange<Ranges...> > DynamicRange::scast(SIZET<Ranges>... sizes) const
     {
 	std::tuple<std::shared_ptr<Ranges>...> rtp;
-	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
+	RangeHelper::resolveRangeType<0>(mOrig, rtp, 0, sizes...);
+	//RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }
@@ -187,25 +192,33 @@ namespace MultiArrayTools
     
 } // end namespace MultiArrayTools
 
+namespace MultiArrayTools
+{
+    namespace RangeHelper
+    {
+	template <>
+	inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
+						  const vector<std::shared_ptr<RangeBase> >& orig,
+						  size_t origpos, size_t size)
+	{
+	    DynamicRangeFactory arf;
+	    for(size_t op = origpos; op != origpos + size; ++op){
+		//VCHECK(op);
+		arf.append(orig[op]);
+	    }
+	    rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
+	}
+	
+    }
+}
+
 namespace MultiArrayHelper
 {
     namespace
     {
         using namespace MultiArrayTools;
     }
-
-    template <>
-    inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
-                                              const vector<std::shared_ptr<RangeBase> >& orig,
-                                              size_t origpos, size_t size)
-    {
-    	DynamicRangeFactory arf;
-	for(size_t op = origpos; op != origpos + size; ++op){
-	    //VCHECK(op);
-	    arf.append(orig[op]);
-	}
-    	rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
-    }
+    
 
     template <>
     inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,

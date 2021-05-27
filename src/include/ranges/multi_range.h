@@ -528,7 +528,9 @@ namespace MultiArrayTools
 	bool check = false;
 	for(auto& x: MultiRangeFactoryProductMap::mAleadyCreated){
 	    if(x.second.size() == sizeof...(Ranges)){
-		check = RPackNum<sizeof...(Ranges)-1>::checkIfCreated(ptp, x.second);
+		check = sfor_p<0,sizeof...(Ranges)>
+		    ( [&](auto i) { return reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ) == x.second[i]; },
+		      [&](auto a, auto b) { return a and b; } );
 		if(check){
 		    out = x.first;
 		    break;
@@ -537,7 +539,8 @@ namespace MultiArrayTools
 	}
 	if(not check){
 	    vector<std::intptr_t> pv(sizeof...(Ranges));
-	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
+	    sfor_pn<0,sizeof...(Ranges)>
+		( [&](auto i) { pv[i] = reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ); return 0; } );
 	    MultiRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
 	    out = mProd;
 	}
@@ -647,7 +650,13 @@ namespace MultiArrayTools
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
-	RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
+	sfor_pn<0,sizeof...(Ranges)>
+	    ( [&](auto i) {
+		vector<char> part = std::get<i>(mSpace)->data();
+		out.insert(out.end(), part.begin(), part.end());
+		return 0;
+	    } );
+	//RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
 	return out;
     }
 
