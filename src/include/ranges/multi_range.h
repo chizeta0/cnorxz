@@ -8,11 +8,9 @@
 #include <memory>
 #include <map>
 
-//#include "base_def.h"
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
-#include "ranges/rpack_num.h"
 #include "ranges/range_helper.h"
 #include "ranges/multi_range_factory_product_map.h"
 #include "ranges/x_to_string.h"
@@ -42,7 +40,7 @@ namespace MultiArrayTools
 
 	static constexpr IndexType sType() { return IndexType::MULTI; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
-	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
+	static constexpr size_t totalDim() { return (... * Indices::totalDim()); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
         static constexpr bool PARALLEL = std::tuple_element<0,std::tuple<Indices...>>::type::PARALLEL;
@@ -217,8 +215,8 @@ namespace MultiArrayTools
 
 	static constexpr bool HASMETACONT = false;
 	static constexpr bool defaultable = false;
-	static constexpr size_t ISSTATIC = SubProp<Ranges...>::ISSTATIC;
-	static constexpr size_t SIZE = SubProp<Ranges...>::SIZE;
+	static constexpr size_t ISSTATIC = (... & Ranges::ISSTATIC);
+	static constexpr size_t SIZE = (... * Ranges::SIZE);
     };
     
 }
@@ -388,7 +386,7 @@ namespace MultiArrayTools
     template <class... Indices>
     int MultiIndex<Indices...>::pp(std::intptr_t idxPtrNum)
     {
-	const int tmp = ppx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
+	const int tmp = RangeHelper::ppx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos += tmp;
 	return tmp;
     }
@@ -396,7 +394,7 @@ namespace MultiArrayTools
     template <class... Indices>
     int MultiIndex<Indices...>::mm(std::intptr_t idxPtrNum)
     {
-	const int tmp = mmx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
+	const int tmp = RangeHelper::mmx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos -= tmp;
 	return tmp;
     }
@@ -625,13 +623,13 @@ namespace MultiArrayTools
     {
         const size_t off = cmetaSize();
         MetaType* xtarget = reinterpret_cast<MetaType*>(target);
-        return RPackNum<sizeof...(Ranges)-1>::getCMeta(xtarget,pos,mSpace,off);
+        return RangeHelper::getCMeta<sizeof...(Ranges)-1>(xtarget,pos,mSpace,off);
     }
 
     template <class... Ranges>
     size_t MultiRange<Ranges...>::cmetaSize() const
     {
-        return RPackNum<sizeof...(Ranges)-1>::getCMetaSize(mSpace);
+        return RangeHelper::getCMetaSize<0>(mSpace);
     }
 
     template <class... Ranges>
@@ -639,7 +637,7 @@ namespace MultiArrayTools
     {
 	auto i = begin();
 	i = pos;
-	return "[" + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + "]";
+	return "[" + RangeHelper::getStringMeta<0>(i) + "]";
     }
 
     template <class... Ranges>
@@ -656,7 +654,6 @@ namespace MultiArrayTools
 		out.insert(out.end(), part.begin(), part.end());
 		return 0;
 	    } );
-	//RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
 	return out;
     }
 

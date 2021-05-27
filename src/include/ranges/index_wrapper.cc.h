@@ -1,6 +1,6 @@
 
 #include "index_wrapper.h"
-#include "rpack_num.h"
+#include "range_helper.h"
 
 namespace MultiArrayTools
 {
@@ -117,9 +117,9 @@ namespace MultiArrayTools
     template <class Index>
     size_t IndexWrapper<Index>::getStepSizeComp(std::intptr_t j) const
     {
-        size_t out = MultiArrayHelper::getStepSize(*mI, j);
+        size_t out = RangeHelper::getStepSize(*mI, j);
 	if(out == 0){
-	    out = MultiArrayHelper::getStepSize(*mCI, j);
+	    out = RangeHelper::getStepSize(*mCI, j);
 	}
 	return out;
     }

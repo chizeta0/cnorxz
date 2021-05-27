@@ -606,7 +606,7 @@ namespace MultiArrayTools
     template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     size_t GenMapRange<ORType,Op,XSTYPE,Ranges...>::cmetaSize() const
     {
-        return RPackNum<sizeof...(Ranges)-1>::getCMetaSize(mSpace);
+        return RangeHelper::getCMetaSize<0>(mSpace);
     }
 
     template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
@@ -614,7 +614,7 @@ namespace MultiArrayTools
     {
 	auto i = begin();
 	i = pos;
-        return "[ " + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + " ]";
+        return "[ " + RangeHelper::getStringMeta<0>(i) + " ]";
     }
 
     template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
@@ -631,7 +631,6 @@ namespace MultiArrayTools
 		out.insert(out.end(), part.begin(), part.end());
 		return 0;
 	    } );
-	//RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
 	return out;
     }
 

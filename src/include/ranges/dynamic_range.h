@@ -11,13 +11,11 @@
 
 #include "xfor/xfor.h"
 
-//#include "ranges/rpheader.h"
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 #include "ranges/dynamic_meta.h"
 
 #include "index_wrapper.h"
-#include "rpack_num.h"
 
 namespace MultiArrayTools
 {
@@ -228,25 +226,23 @@ namespace MultiArrayTools
 } // namespace MultiArrayTools
 
 
-namespace MultiArrayHelper
+namespace MultiArrayTools
 {
-    namespace
+    namespace RangeHelper
     {
-        using namespace MultiArrayTools;
+
+	template <>
+	inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
+						  const vector<std::shared_ptr<RangeBase> >& orig,
+						  size_t origpos, size_t size);
+
+	template <>
+	inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
+						std::shared_ptr<DynamicRange> r);
+
+	template <>
+	inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j);
     }
-
-    template <>
-    inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
-                                              const vector<std::shared_ptr<RangeBase> >& orig,
-                                              size_t origpos, size_t size);
-
-    template <>
-    inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
-                                            std::shared_ptr<DynamicRange> r);
-
-    template <>
-    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j);
-
 }
 
 //#include "dynamic_range.cc.h"

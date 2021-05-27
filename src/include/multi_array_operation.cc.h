@@ -1,6 +1,7 @@
 
 #include "multi_array_operation.h"
 #include "xfor/exttype.h"
+#include "ranges/range_helper.h"
 
 
 /* ========================= *
@@ -380,8 +381,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<None> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<None>(getStepSize( mIndex, iPtrNum ));
-	//return MExt<None>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<None>(RangeHelper::getStepSize( mIndex, iPtrNum ));
     }
 
 
@@ -478,8 +478,7 @@ namespace MultiArrayTools
     template <class Range>
     MExt<None> MetaOperationRoot<Range>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<None>(getStepSize( *mIndex, iPtrNum ));
-	//return MExt<None>(getStepSize( getRootIndices( mIndex->info() ), iPtrNum ));
+	return MExt<None>(RangeHelper::getStepSize( *mIndex, iPtrNum ));
     }
 
 
@@ -691,7 +690,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<None> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<None>(getStepSize( mIndex, iPtrNum ));
+	return MExt<None>(RangeHelper::getStepSize( mIndex, iPtrNum ));
     }
 
     template <typename T, class... Ranges>
@@ -868,8 +867,7 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     MExt<None> ParallelOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MExt<None>(getStepSize( mIndex, iPtrNum ));
-	//return MExt<None>(getStepSize( mIndex.info(), iPtrNum ));
+	return MExt<None>(RangeHelper::getStepSize( mIndex, iPtrNum ));
     }
 
     template <typename T, class... Ranges>

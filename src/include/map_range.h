@@ -12,7 +12,6 @@
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
-#include "ranges/rpack_num.h"
 #include "map_range_factory_product_map.h"
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
@@ -116,7 +115,7 @@ namespace MultiArrayTools
 	
 	static constexpr IndexType sType() { return IndexType::SINGLE; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
-	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
+	static constexpr size_t totalDim() { return (... * Indices::totalDim()); }
 	static void check_type() { static_assert( std::is_same<typename OIType::MetaType,typename Op::value_type>::value, "inconsitent value types" ); }
 	
         static constexpr SpaceType STYPE = XSTYPE;
@@ -329,8 +328,8 @@ namespace MultiArrayTools
 
 	static constexpr bool HASMETACONT = false;
 	static constexpr bool defaultable = false;
-	static constexpr size_t ISSTATIC = SubProp<Op,Ranges...>::ISSTATIC;
-	static constexpr size_t SIZE = SubProp<Op,Ranges...>::SIZE;
+	static constexpr size_t ISSTATIC = Op::ISSTATIC & (... & Ranges::ISSTATIC);
+	static constexpr size_t SIZE = Op::SIZE * (... * Ranges::SIZE);
     };
 
     // for legacy

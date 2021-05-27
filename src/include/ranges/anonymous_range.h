@@ -187,24 +187,19 @@ namespace MultiArrayTools
 	    }
 	    rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
 	}
-    }
-}
-namespace MultiArrayHelper
-{
-    using namespace MultiArrayTools;
 
 
-    template <>
-    inline void setRangeToVec<AnonymousRange>(vector<std::shared_ptr<RangeBase> >& v,
-					      std::shared_ptr<AnonymousRange> r)
-    {
-	if(not r->isEmpty()){
-	    for(size_t i = r->anonymousDim(); i != 0; --i){
-		v.insert(v.begin(), r->sub(i-1));
+	template <>
+	inline void setRangeToVec<AnonymousRange>(vector<std::shared_ptr<RangeBase> >& v,
+						  std::shared_ptr<AnonymousRange> r)
+	{
+	    if(not r->isEmpty()){
+		for(size_t i = r->anonymousDim(); i != 0; --i){
+		    v.insert(v.begin(), r->sub(i-1));
+		}
 	    }
 	}
     }
-
 }
 
 namespace MultiArrayTools
@@ -255,7 +250,6 @@ namespace MultiArrayTools
     {
 	std::tuple<std::shared_ptr<Ranges>...> rtp;
 	RangeHelper::resolveRangeType<0>(mOrig, rtp, 0, sizes...);
-	//RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }

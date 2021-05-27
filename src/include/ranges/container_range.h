@@ -10,8 +10,6 @@
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
-#include "rpack_num.h"
-
 namespace MultiArrayTools
 {
     
@@ -30,7 +28,7 @@ namespace MultiArrayTools
 
 	static constexpr IndexType sType() { return IndexType::CONT; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
-	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
+	static constexpr size_t totalDim() { return (... * Indices::totalDim()); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
         static constexpr bool PARALLEL = std::tuple_element<0,std::tuple<Indices...>>::type::PARALLEL;
@@ -232,7 +230,7 @@ namespace MultiArrayTools
 	IB::mPos = sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) { return std::get<i>(mIPack); },
 	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
-	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	mCPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
     }
 
     template <typename T, class... Indices>
@@ -253,7 +251,7 @@ namespace MultiArrayTools
 	IB::mPos = sfor_m<sizeof...(Indices),0>
 	    ( [&](auto i) { return std::get<i>(mIPack); },
 	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
-	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	mCPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
 	mNonTrivialBlocks = true;
     }
 
@@ -274,7 +272,7 @@ namespace MultiArrayTools
 	    IB::mPos = sfor_m<sizeof...(Indices),0>
 		( [&](auto i) { return std::get<i>(mIPack); },
 		  [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
-	    mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	    	mCPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
 	}
 	return *this;
     }
@@ -332,7 +330,7 @@ namespace MultiArrayTools
 		else { ++si; return false; }
 		return false;
 	    } );
-	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	mCPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
 	++IB::mPos;
 	return *this;
     }
@@ -352,7 +350,7 @@ namespace MultiArrayTools
 		else { --si; return false; }
 		return false;
 	    } );
-	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	mCPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
 	--IB::mPos;
 	return *this;
 
@@ -363,14 +361,14 @@ namespace MultiArrayTools
     {
 	IB::mPos = pos;
 	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, pos);
-	mCPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	mCPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
 	return *this;
     }
 
     template <typename T, class... Indices>
     int ContainerIndex<T,Indices...>::pp(std::intptr_t idxPtrNum)
     {
-	const int tmp = ppx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
+	const int tmp = RangeHelper::ppx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos += tmp;
 	return tmp;
     }
@@ -378,7 +376,7 @@ namespace MultiArrayTools
     template <typename T, class... Indices>
     int ContainerIndex<T,Indices...>::mm(std::intptr_t idxPtrNum)
     {
-	const int tmp = mmx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
+	const int tmp = RangeHelper::mmx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos -= tmp;
 	return tmp;
     }
@@ -403,7 +401,7 @@ namespace MultiArrayTools
     {
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack)->at( std::get<i>(metaPos) ); return 0; } );
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack, mBlockSizes);
+	IB::mPos = RangeHelper::makePos<sizeof...(Indices)-1>(mIPack, mBlockSizes);
 	return *this;
     }
 

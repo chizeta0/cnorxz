@@ -1,8 +1,5 @@
 
 #include "ranges/dynamic_range.h"
-//#include "ranges/dynamic_meta.h"
-
-//#include "rpack_num.h"
 
 namespace MultiArrayTools
 {
@@ -184,7 +181,6 @@ namespace MultiArrayTools
     {
 	std::tuple<std::shared_ptr<Ranges>...> rtp;
 	RangeHelper::resolveRangeType<0>(mOrig, rtp, 0, sizes...);
-	//RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }
@@ -208,44 +204,35 @@ namespace MultiArrayTools
 	    }
 	    rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
 	}
-	
-    }
-}
-
-namespace MultiArrayHelper
-{
-    namespace
-    {
-        using namespace MultiArrayTools;
-    }
     
 
-    template <>
-    inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
-                                            std::shared_ptr<DynamicRange> r)
-    {
-	if(not r->isEmpty()){
-	    for(size_t i = r->dim(); i != 0; --i){
-		v.insert(v.begin(), r->sub(i-1));
+	template <>
+	inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
+						std::shared_ptr<DynamicRange> r)
+	{
+	    if(not r->isEmpty()){
+		for(size_t i = r->dim(); i != 0; --i){
+		    v.insert(v.begin(), r->sub(i-1));
+		}
 	    }
 	}
-    }
 
-    template <>
-    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j)
-    {
-        size_t ss = 0;
-        size_t sx = 1;
-        for(size_t k = ii.dim(); k != 0; --k){
-	    const size_t i = k-1;
-            const auto& ni = ii.get(i);
-            const size_t max = ni.max();
-            const size_t tmp = ni.getStepSizeComp(j);
-            ss += tmp * ii.getStepSize(i);
-            sx *= max;
-        }
-        return ss;
+	template <>
+	inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j)
+	{
+	    size_t ss = 0;
+	    size_t sx = 1;
+	    for(size_t k = ii.dim(); k != 0; --k){
+		const size_t i = k-1;
+		const auto& ni = ii.get(i);
+		const size_t max = ni.max();
+		const size_t tmp = ni.getStepSizeComp(j);
+		ss += tmp * ii.getStepSize(i);
+		sx *= max;
+	    }
+	    return ss;
+	
+	}
     }
-
 }
 
