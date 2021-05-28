@@ -1,6 +1,7 @@
 
 #include "ranges/ranges_header.cc.h"
 
+#include "container_index.cc.h"
 #include "multi_array_operation.cc.h"
 #include "functional_multi_array.cc.h"
 #include "helper_tools.cc.h"
