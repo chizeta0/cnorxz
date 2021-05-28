@@ -95,36 +95,6 @@ namespace MultiArrayTools
 	MAB::mInit = true;
         ama.mInit = false;
     }
-    
-    /*
-    template <typename T, class... SRanges>
-    template <class Range2, class Range3>
-    MultiArray<T,SRanges...>::MultiArray(const MultiArray<MultiArray<T,Range2>,Range3> in) :
-	MutableMultiArrayBase<T,SRanges...>(merge(in.range(), in[ in.beginIndex() ].range()))
-	// assert that Range2 has always same extension
-    {
-	MAB::mInit = true;
-	mCont.clear();
-	for(auto i = in.beginIndex(); i != in.endIndex(); ++i){
-	    mCont.insert(mCont.end(), in[i].mCont.begin(), in[i].mCont.end());
-	}
-	assert(mCont.size() == MAB::mRange->size());
-    }
-    */
-    /*
-    template <typename T, class... SRanges>
-    template <class Range2, class Range3>
-    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator=(const MultiArray<MultiArray<T,Range2>,Range3> in)
-    {
-	MAB::mRange.reset(new Range(merge(in.range(), in[ in.beginIndex() ].range())));
-	// assert that Range2 has always same extension
-	mCont.clear();
-	for(auto i = in.beginIndex(); i != in.endIndex(); ++i){
-	    mCont.insert(mCont.end(), in[i].mCont.begin(), in[i].mCont.end());
-	}
-	assert(mCont.size() == MAB::mRange->size());
-	return *this;
-	} */   
 
     template <typename T, class... SRanges>
     T& MultiArray<T,SRanges...>::operator[](const IndexType& i)
@@ -141,13 +111,13 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     T& MultiArray<T,SRanges...>::at(const typename IndexType::MetaType& meta)
     {
-	return mCont[ MAB::beginIndex().at(meta).pos() ];
+	return mCont[ MAB::cbegin().at(meta).pos() ];
     }
 
     template <typename T, class... SRanges>
     const T& MultiArray<T,SRanges...>::at(const typename IndexType::MetaType& meta) const
     {
-	return mCont[ MAB::beginIndex().at(meta).pos() ];
+	return mCont[ MAB::cbegin().at(meta).pos() ];
     }
 	
     template <typename T, class... SRanges>
@@ -220,17 +190,6 @@ namespace MultiArrayTools
 	}
     }
 
-    /*
-    template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymousMove()
-    {
-	AnonymousRangeFactory arf(MAB::mRange->space());
-	MAB::mInit = false;
-	return std::make_shared<MultiArray<T,AnonymousRange> >
-	    ( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
-	      std::move(mCont) );
-    }	
-    */
     template <typename T, class... SRanges>
     MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator=(const T& in)
     {
@@ -270,7 +229,6 @@ namespace MultiArrayTools
             for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] -= in.mCont[i];
             }
-//std::transform(mCont.begin(), mCont.end(), in.mCont.begin(), mCont.begin(), std::minus<T>());
 	}
 	return *this;
     }

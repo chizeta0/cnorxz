@@ -11,8 +11,8 @@ namespace MultiArrayTools
 	mExternControl(false),
 	mBlockSizes(in.mBlockSizes),
 	mData(in.mData),
-	mCPos(in.mCPos),
-	mObjPtrNum(in.mObjPtrNum)
+	mObjPtrNum(in.mObjPtrNum),
+	mCPos(in.mCPos)
     {
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i)
@@ -32,8 +32,8 @@ namespace MultiArrayTools
 	mExternControl = false;
 	mBlockSizes = in.mBlockSizes;
 	mData = in.mData;
-	mCPos = in.mCPos;
 	mObjPtrNum = in.mObjPtrNum;
+	mCPos = in.mCPos;
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i)
 	    {
@@ -117,14 +117,14 @@ namespace MultiArrayTools
     
     template <typename T, class... Indices>
     template <size_t N>
-    auto ConstContainerIndex<T,Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
+    auto& ConstContainerIndex<T,Indices...>::get() const
     {
 	return *std::get<N>( mIPack );
     }
 
     template <typename T, class... Indices>
     template <size_t N>
-    auto ConstContainerIndex<T,Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
+    auto ConstContainerIndex<T,Indices...>::getPtr() const
     {
 	return std::get<N>( mIPack );
     }
@@ -272,13 +272,6 @@ namespace MultiArrayTools
     ConstContainerIndex<T,Indices...>::range()
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
-    }
-
-    template <typename T, class... Indices>
-    template <size_t N>
-    auto ConstContainerIndex<T,Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
-    {
-	return std::get<N>( mIPack );
     }
 
     template <typename T, class... Indices>

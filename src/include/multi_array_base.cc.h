@@ -91,38 +91,30 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::begin() const
+    typename MultiArrayBase<T,SRanges...>::CIndexType MultiArrayBase<T,SRanges...>::begin() const
     {
-	IndexType i(*mProtoI,true);
-	i = 0;
-	return i.setData(data());
+	return cbegin();
     }
     
     template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::end() const
+    typename MultiArrayBase<T,SRanges...>::CIndexType MultiArrayBase<T,SRanges...>::end() const
     {
-	IndexType i(*mProtoI,true);
-	i = i.max();
-	//i = mRange->size();
-	return i.setData(data());
-    }
-    
-    template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType
-    MultiArrayBase<T,SRanges...>::beginIndex() const
-    {
-	IndexType i(*mProtoI,true);
-	i = 0;
-	return i.setData(data());
+	return end();
     }
 
     template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType
-    MultiArrayBase<T,SRanges...>::endIndex() const
+    typename MultiArrayBase<T,SRanges...>::CIndexType MultiArrayBase<T,SRanges...>::cbegin() const
     {
-	IndexType i(*mProtoI,true);
+	CIndexType i(*mProtoI,true);
+	i = 0;
+	return i.setData(data());
+    }
+    
+    template <typename T, class... SRanges>
+    typename MultiArrayBase<T,SRanges...>::CIndexType MultiArrayBase<T,SRanges...>::cend() const
+    {
+	CIndexType i(*mProtoI,true);
 	i = i.max();
-	//i = mRange->size();
 	return i.setData(data());
     }
 
@@ -148,7 +140,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind) const
+    MultiArrayBase<T,SRanges...>::op(const std::shared_ptr<CIndexType>& ind) const
     {
 	return ConstOperationRoot<T,SRanges...>(data(), *ind);
     }
@@ -189,21 +181,6 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     MutableMultiArrayBase<T,SRanges...>::MutableMultiArrayBase(const typename CRange::Space& space) :
 	MultiArrayBase<T,SRanges...>(space) {}
-    /*
-    template <typename T, class... SRanges>
-    typename MutableMultiArrayBase<T,SRanges...>::IndexType MutableMultiArrayBase<T,SRanges...>::begin()
-    {
-	auto i = mRange->begin();
-	return i.setData(data());
-    }
-
-    template <typename T, class... SRanges>
-    typename MutableMultiArrayBase<T,SRanges...>::IndexType MutableMultiArrayBase<T,SRanges...>::end()
-    {
-	auto i = mRange->end();
-	return i.setData(data());
-    }
-    */
 
     template <typename T, class... SRanges>
     template <typename X>
@@ -217,9 +194,25 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     T& MutableMultiArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is)
     {
-	IndexType ii(*MAB::mProtoI);
+	IndexType ii(*MAB::mProtoI,this->data());
 	ii(is);
 	return (*this)[ii];
+    }
+
+    template <typename T, class... SRanges>
+    typename MutableMultiArrayBase<T,SRanges...>::IndexType MutableMultiArrayBase<T,SRanges...>::begin()
+    {
+	IndexType i(*MAB::mProtoI,this->data(),true);
+	i = 0;
+	return i.setData(data());
+    }
+    
+    template <typename T, class... SRanges>
+    typename MutableMultiArrayBase<T,SRanges...>::IndexType MutableMultiArrayBase<T,SRanges...>::end()
+    {
+	IndexType i(*MAB::mProtoI,this->data(),true);
+	i = i.max();
+	return i.setData(data());
     }
 
     
@@ -238,7 +231,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     OperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind)
+    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<CIndexType>& ind)
     {
 	return OperationRoot<T,SRanges...>(data(), *ind);
     }
@@ -252,7 +245,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind) const
+    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<CIndexType>& ind) const
     {
 	return ConstOperationRoot<T,SRanges...>(data(), *ind);
     }
