@@ -94,7 +94,7 @@ namespace MultiArrayTools
     
     // container_range.h
     template <typename T, class... Indices>
-    class ContainerIndex;
+    class ConstContainerIndex;
 
     // anonymous_range.h
     class AnonymousRangeFactory;

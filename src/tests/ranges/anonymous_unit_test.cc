@@ -52,7 +52,7 @@ namespace {
 
 	typedef ContainerRangeFactory<double,M3Range,SRange> CRF;
 	typedef CRF::oType CRange;
-	typedef ContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
+	typedef ConstContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
 
 	AnonymousTest()
 	{

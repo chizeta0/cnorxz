@@ -69,7 +69,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     template <typename X>
-    const T& MultiArrayBase<T,SRanges...>::operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i)
+    const T& MultiArrayBase<T,SRanges...>::operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i)
     {
 	IndexType ii(*mProtoI);
 	ii = i;
@@ -207,7 +207,7 @@ namespace MultiArrayTools
 
     template <typename T, class... SRanges>
     template <typename X>
-    T& MutableMultiArrayBase<T,SRanges...>::operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i)
+    T& MutableMultiArrayBase<T,SRanges...>::operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i)
     {
 	IndexType ii(*MAB::mProtoI);
 	ii = i;

@@ -411,7 +411,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationBase<T,ConstOperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<T,Ranges...> CRange;
-	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
@@ -535,7 +535,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationBase<T,OperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<T,Ranges...> CRange;
-	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
@@ -630,7 +630,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationBase<T,ParallelOperationRoot<T,Ranges...> > OT;
 	typedef ContainerRange<T,Ranges...> CRange;
-	typedef ContainerIndex<T,typename Ranges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename Ranges::IndexType...> IndexType;
 
 	static constexpr size_t SIZE = 1;
         static constexpr bool CONT = true;
@@ -715,7 +715,7 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef OperationBase<T,OperationValue<T> > OT;
 	typedef ContainerRange<T,NullRange> CRange;
-	typedef ContainerIndex<T,NullIndex> IndexType;
+	typedef ConstContainerIndex<T,NullIndex> IndexType;
 
 	static constexpr size_t SIZE = 0;
         static constexpr bool CONT = true;

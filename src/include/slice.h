@@ -14,7 +14,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IType;
 
 	using MultiArrayBase<T,SRanges...>::operator();
         using MultiArrayBase<T,SRanges...>::operator[];
@@ -57,7 +57,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IType;
 
 	using MultiArrayBase<T,SRanges...>::operator();
 	using MutableMultiArrayBase<T,SRanges...>::operator();
@@ -104,7 +104,7 @@ namespace MultiArrayTools
     class SliceDef
     {
     public:
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IType;
 
 	template <class Op>
 	static Slice<T,SRanges...> mkSlice( const typename Slice<T,SRanges...>::IndexType& ind,
@@ -137,7 +137,7 @@ namespace MultiArrayTools
     class ConstSliceDef
     {
     public:
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IType;
 
 	template <class Op>
 	static ConstSlice<T,SRanges...> mkSlice( const typename ConstSlice<T,SRanges...>::IndexType& ind,

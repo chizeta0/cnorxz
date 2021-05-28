@@ -81,7 +81,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	typedef MultiArray<T,SRanges...> MAType;
 	typedef T value_type;
 	

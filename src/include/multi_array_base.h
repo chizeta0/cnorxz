@@ -57,7 +57,7 @@ namespace MultiArrayTools
 
 	typedef T value_type;
 	typedef ContainerRange<T,SRanges...> CRange;
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IndexType;
 
     protected:
 	bool mInit = false;
@@ -79,7 +79,7 @@ namespace MultiArrayTools
 	virtual ~MultiArrayBase() = default;
 
 	template <typename X>
-	const T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
+	const T& operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i);
         const T& operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is) const;
         
 	virtual const T& operator[](const IndexType& i) const = 0;
@@ -127,7 +127,7 @@ namespace MultiArrayTools
 
 	typedef ContainerRange<T,SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
-	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	
 	using MultiArrayBase<T,SRanges...>::operator[];
 	using MultiArrayBase<T,SRanges...>::at;
@@ -140,7 +140,7 @@ namespace MultiArrayTools
 	MutableMultiArrayBase(const typename CRange::Space& space);
 
 	template <typename X>
-	T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
+	T& operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i);
         T& operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is);
         
 	virtual T& operator[](const IndexType& i) = 0;

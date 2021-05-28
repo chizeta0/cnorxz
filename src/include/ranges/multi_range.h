@@ -61,7 +61,7 @@ namespace MultiArrayTools
 	//MultiIndex(const MultiIndex& in);
 	//MultiIndex& operator=(const MultiIndex& in);
 	template <typename T>
-	MultiIndex& operator=(ContainerIndex<T,Indices...>& ci);
+	MultiIndex& operator=(ConstContainerIndex<T,Indices...>& ci);
 
 	template <class MRange>
 	MultiIndex(const std::shared_ptr<MRange>& range);
@@ -81,7 +81,7 @@ namespace MultiArrayTools
 	template <size_t N>
 	size_t getBlockSize() const { return std::get<N>(mBlockSizes); }
 	
-	// raplace instances (in contrast to its analogon in ContainerIndex
+	// raplace instances (in contrast to its analogon in ConstContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MultiIndex instances
@@ -242,7 +242,7 @@ namespace MultiArrayTools
 
     template <class... Indices>
     template <typename T>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<T,Indices...>& ci)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ConstContainerIndex<T,Indices...>& ci)
     {	
 	sfor_p<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = ci.template getPtr<i>(); return true; } );

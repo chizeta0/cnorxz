@@ -158,7 +158,7 @@ namespace MultiArrayTools
 	
 	std::shared_ptr<OIType> outIndex() const;
 	
-	// raplace instances (in contrast to its analogon in ContainerIndex
+	// raplace instances (in contrast to its analogon in ConstContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MapIndex instances
