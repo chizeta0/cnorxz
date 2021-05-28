@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __container_range_h__
-#define __container_range_h__
+#ifndef __container_index_h__
+#define __container_index_h__
 
 #include <cstdlib>
 #include <tuple>
@@ -9,6 +9,9 @@
 
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
+#include "mbase_def.h"
+#include "statics/static_for.h"
+#include "ranges/range_helper.h"
 
 namespace MultiArrayTools
 {

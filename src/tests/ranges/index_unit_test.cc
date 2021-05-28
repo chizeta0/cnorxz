@@ -4,11 +4,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "ranges/rheader.h"
-//#include "expressions.h"
-//#include "ranges/dynamic_range.cc.h"
-//#include "multi_array_header.h"
-#include "ranges/ranges_header.cc.h"
+#include "multi_array_header.h"
 
 namespace MAT = MultiArrayTools;
 

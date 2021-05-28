@@ -11,6 +11,16 @@ namespace MultiArrayTools
      *  Provided Types     *
      ***********************/
     
+    template <class... Ranges>
+    using ContainerRangeFactory = MultiRangeFactory<Ranges...>;
+
+    template <class... Ranges>
+    using ContainerRange = MultiRange<Ranges...>;
+    
+    // container_index.h
+    template <typename T, class... Indices>
+    class ConstContainerIndex;
+
     // multi_array.h
     template <typename T, class... SRanges>
     class MultiArrayBase;
@@ -26,10 +36,6 @@ namespace MultiArrayTools
     // multi_array_operation.h
     template <typename T, class OperationClass>
     class OperationBase;
-
-    // multi_array_operation.h
-    //template <typename T>
-    //class MutableOperationBase;
 
     // multi_array_operation.h
     template <typename T, class OperationClass>

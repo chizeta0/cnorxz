@@ -4,6 +4,7 @@
 #define __multi_array_header_h__
 
 #include <cstdlib>
+#include "container_index.h"
 #include "multi_array_operation.h"
 #include "multi_array_base.h"
 #include "multi_array.h"
@@ -13,7 +14,6 @@
 #include "map_range.h"
 #include "dynamic_operation.h"
 #include "high_level_operation.h"
-//#include "expressions.h"
 
 #include "multi_array_header.cc.h"
 
