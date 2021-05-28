@@ -54,16 +54,16 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     MultiArrayBase<T,SRanges...>::MultiArrayBase(const std::shared_ptr<SRanges>&... ranges)
     {
-	ContainerRangeFactory<T,SRanges...> crf(ranges...);
-	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
+	ContainerRangeFactory<SRanges...> crf(ranges...);
+	mRange = std::dynamic_pointer_cast<ContainerRange<SRanges...> >( crf.create() );
 	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
 
     template <typename T, class... SRanges>
     MultiArrayBase<T,SRanges...>::MultiArrayBase(const typename CRange::Space& space)
     {
-	ContainerRangeFactory<T,SRanges...> crf(space);
-	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
+	ContainerRangeFactory<SRanges...> crf(space);
+	mRange = std::dynamic_pointer_cast<ContainerRange<SRanges...> >( crf.create() );
 	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
 

@@ -140,8 +140,8 @@ namespace MultiArrayTools
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	MultiRangeFactory(const typename MultiRange<Ranges...>::Space& space);
 
-	template <typename T>
-	MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr);
+	//template <typename T>
+	//MultiRangeFactory(const std::shared_ptr<ContainerRange<Ranges...> >& cr);
 	
 	virtual std::shared_ptr<RangeBase> create() override;
 
@@ -504,12 +504,14 @@ namespace MultiArrayTools
 	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( st ) );
     }
 
+    /*
     template <class... Ranges>
     template <typename T>
-    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr)
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<ContainerRange<Ranges...> >& cr)
     {
 	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( cr->space() ) );
     }
+    */
     
     template <class... Ranges>
     std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::create()

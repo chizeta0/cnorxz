@@ -56,7 +56,7 @@ namespace MultiArrayTools
     public:
 
 	typedef T value_type;
-	typedef ContainerRange<T,SRanges...> CRange;
+	typedef ContainerRange<SRanges...> CRange;
 	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IndexType;
 
     protected:
@@ -125,7 +125,7 @@ namespace MultiArrayTools
     {
     public:
 
-	typedef ContainerRange<T,SRanges...> CRange;
+	typedef ContainerRange<SRanges...> CRange;
 	typedef MultiArrayBase<T,SRanges...> MAB;
 	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	

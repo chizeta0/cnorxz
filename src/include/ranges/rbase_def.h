@@ -81,15 +81,11 @@ namespace MultiArrayTools
     class MultiIndex;
 
     // container_range.h
-    //template <typename T, class... Ranges>
-    //class ContainerRangeFactory;
-    template <typename T, class... Ranges>
+    template <class... Ranges>
     using ContainerRangeFactory = MultiRangeFactory<Ranges...>;
 
     // container_range.h
-    //template <typename T, class... Ranges>
-    //class ContainerRange;
-    template <typename T, class... Ranges>
+    template <class... Ranges>
     using ContainerRange = MultiRange<Ranges...>;
     
     // container_range.h
@@ -98,9 +94,6 @@ namespace MultiArrayTools
 
     // anonymous_range.h
     class AnonymousRangeFactory;
-
-    // anonymous_range.h
-    //class AnonymousRange;
 
     // dynamic_range.h
     class IndexWrapperBase;

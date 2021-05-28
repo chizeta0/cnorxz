@@ -88,7 +88,7 @@ namespace {
 	typedef MultiRangeFactory<SRange,M3Range,SRange> MasterRF;
 	typedef MasterRF::oType MasterRange;
 
-	typedef ContainerRangeFactory<double,M3Range,SRange> CRF;
+	typedef ContainerRangeFactory<M3Range,SRange> CRF;
 	typedef CRF::oType CRange;
 	typedef ConstContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
 
