@@ -7,7 +7,7 @@
 namespace MultiArrayTools
 {
     template <size_t BEG, size_t END, int OFF, typename Incr, typename F>
-    inline void sfor(Incr incr, F f)
+    inline auto sfor(Incr incr, F f)
     {
 	constexpr auto idx = std::integral_constant<size_t, BEG>{};
 	constexpr auto idxm = std::integral_constant<size_t, BEG+OFF>{};
@@ -18,6 +18,7 @@ namespace MultiArrayTools
 		sfor<incr(idx),END,OFF>(incr,f);
 	    }
 	}
+	return cond;
     }
 
     template <size_t BEG, size_t END, int OFF, typename Incr, typename F, typename Cond>
