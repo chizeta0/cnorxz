@@ -216,7 +216,6 @@ namespace MultiArrayTools
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
     inline DExt AssignmentExpr<T,IOp,Target,OpClass,OIA>::dExtension() const
     {
-        CHECK;
         return nullptr; //???!!!
     }
 
@@ -243,7 +242,10 @@ namespace MultiArrayTools
     template <class Expr>
     auto MOp<T,Ops...>::loop(Expr exp) const
     {
-	return MA_SCRAFOR(i,sizeof...(Ops),0,i-1,std::get<i>(mOps.mOps),loop,exp);
+	return sfor_m<sizeof...(Ops),0>
+	    ( [&](auto i){ return std::get<i>(mOps.mOps); },
+	      [&](auto f, auto next) { return f.loop(next); },
+	      exp );
     }
 
     template <typename T, class... Ops>
@@ -331,7 +333,6 @@ namespace MultiArrayTools
     {
 	mIndex(indices...);
         mDataPtr = mOrigDataPtr + mIndex.pos();
-	//mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
@@ -342,21 +343,19 @@ namespace MultiArrayTools
 	mIndex( ind )
     {
         mDataPtr = mOrigDataPtr + mIndex.pos();
-	//mOff = mIndex.pos();
     }
 
     template <typename T, class... Ranges>
     template <class ET>
     inline const T& ConstOperationRoot<T,Ranges...>::get(ET pos) const
     {
-	return mDataPtr[pos.val()/*+mOff*/];
+	return mDataPtr[pos.val()];
     }
 
     template <typename T, class... Ranges>
     template <typename V, class ET>
     inline const V& ConstOperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	//VCHECK(pos.val());
 	return *(reinterpret_cast<const V*>(mDataPtr+pos.val()));
     }
 
@@ -364,8 +363,6 @@ namespace MultiArrayTools
     template <class ET>
     inline ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::set(ET pos)
     {
-	//mIndex = pos.val();
-	//mDataPtr = mOrigDataPtr + mIndex.pos();
         mDataPtr = mOrigDataPtr + pos.val();
 	return *this;
     }
@@ -373,8 +370,6 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     const T* ConstOperationRoot<T,Ranges...>::data() const
     {
-        //auto i = mIndex;
-	//return mOrigDataPtr/* + i().pos()*/;
         return mDataPtr;
     }
     
@@ -452,9 +447,6 @@ namespace MultiArrayTools
     inline typename MetaOperationRoot<Range>::value_type
     MetaOperationRoot<Range>::get(ET pos) const
     {
-	//VCHECK(pos.val());
-	//VCHECK(mDataPtr);
-	//VCHECK(mDataPtr[pos.val()])
 	return (mWorkIndex = pos.val()).meta();
     }
 
@@ -471,7 +463,6 @@ namespace MultiArrayTools
     template <class ET>
     inline MetaOperationRoot<Range>& MetaOperationRoot<Range>::set(ET pos)
     {
-	//(*mIndex) = pos.val();
 	return *this;
     }
 
@@ -646,7 +637,6 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
 	VExec<OpClass::VABLE>::template exec<xxxplus>(*this,in);
-        //plus(in)();
         return *this;
     }
 
@@ -673,7 +663,6 @@ namespace MultiArrayTools
     template <typename V, class ET>
     inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	//VCHECK(pos.val());
 	return *(reinterpret_cast<V*>(mDataPtr+pos.val()));
     }
 
@@ -681,8 +670,6 @@ namespace MultiArrayTools
     template <class ET>
     inline OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::set(ET pos)
     {
-	//mIndex = pos.val();
-	//mDataPtr = mOrigDataPtr + mIndex.pos();
         mDataPtr = mOrigDataPtr + pos.val();
 	return *this;
     }
@@ -703,8 +690,6 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     T* OperationRoot<T,Ranges...>::data() const
     {
-        //auto i = mIndex;
-	//return mOrigDataPtr/* + i().pos()*/;
         return mDataPtr;
     }
 
@@ -1063,7 +1048,10 @@ namespace MultiArrayTools
     template <class Expr>
     auto Operation<T,OpFunction,Ops...>::loop(Expr exp) const
     {
-	return MA_SCRAFOR(i,sizeof...(Ops),0,i-1,std::get<i>(mOps.mOps),loop,exp);
+	return sfor_m<sizeof...(Ops),0>
+	    ( [&](auto i){ return std::get<i>(mOps.mOps); },
+	      [&](auto f, auto next) { return f.loop(next); },
+	      exp );
     }
 
     

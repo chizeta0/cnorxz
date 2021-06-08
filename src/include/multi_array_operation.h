@@ -310,7 +310,9 @@ namespace MultiArrayTools
     template <class... Ops>
     auto OperationTuple<Ops...>::rootSteps(std::intptr_t iPtrNum) const
     {
-	return MA_SCFOR(i,0,sizeof...(Ops),i+1,std::get<i>(mOps).rootSteps(iPtrNum),extend);
+	return sfor_p<0,sizeof...(Ops)>
+	    ( [&](auto i){ return std::get<i>(mOps).rootSteps(iPtrNum); },
+	      [&](auto f, auto next) { return f.extend(next); } );
     }
     
     template <typename T, class... Ops>
@@ -778,42 +780,6 @@ namespace MultiArrayTools
 	T const** data() const { assert(0); return nullptr; }
     };
 
-    /*
-    template <typename T>
-    struct TFold
-    {
-	TFold() = default;
-	TFold(const TFold& in) = default;
-	TFold& operator=(const TFold& in) = default;
-	TFold(TFold&& in) = default;
-	TFold& operator=(TFold&& in) = default;
-	explicit TFold(const T v) : val(v) {}
-	
-	T val;
-	inline T& operator*() { return val; }
-	inline const T& operator*() const { return val; }
-    };
-
-    template <typename T1, typename T2>
-    inline std::tuple<TFold<T1>,TFold<T2>> operator,(const TFold<T1>& a1, const TFold<T2>& a2)
-    {
-	return std::make_tuple(a1,a2);
-    }
-
-    template <typename T1, typename T2...>
-    inline std::tuple<TFold<T1>,TFold<T2>> operator,(const TFold<T1>& a1,
-						     const std::tuple<TFold<T2>...>& a2)
-    {
-	return std::tuple_cat(std::make_tuple(a1),a2);
-    }
-
-    template <typename T2, typename T1...>
-    inline std::tuple<TFold<T1>,TFold<T2>> operator,(const std::tuple<TFold<T1>...>& a1,
-						     const TFold<T2>& a2)
-    {
-	return std::tuple_cat(a1,std::make_tuple(a2));
-    }
-    */
     template <typename T, class OpFunction, class... Ops>
     class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
     {

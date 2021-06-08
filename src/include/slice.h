@@ -112,9 +112,12 @@ namespace MultiArrayTools
 	{
 	    Slice<T,SRanges...> out(ind->range()->space(), &*ind);
 	    std::array<size_t,sizeof...(SRanges)+1> ff;
-	    MA_SFOR(i,0,sizeof...(SRanges),i+1,
-		std::get<i+1>(ff) = op.rootSteps(reinterpret_cast<std::intptr_t>
-						 ( ind.template getPtr<i>().get())).val(););
+	    sfor_pn<0,sizeof...(SRanges)>
+		( [&](auto i) {
+		    std::get<i+1>(ff) =
+			op.rootSteps(reinterpret_cast<std::intptr_t>
+				     ( ind.template getPtr<i>().get())).val();
+		    return 0; } );
 	    out.format(ff);
 	    return out;
 	}
@@ -145,9 +148,12 @@ namespace MultiArrayTools
 	{
 	    ConstSlice<T,SRanges...> out(ind->range()->space(), &*ind);
 	    std::array<size_t,sizeof...(SRanges)+1> ff;
-	    MA_SFOR(i,0,sizeof...(SRanges),i+1,
-		std::get<i+1>(ff) = op.rootSteps(reinterpret_cast<std::intptr_t>
-						 ( ind.template getPtr<i>().get())).val(););
+	    sfor_pn<0,sizeof...(SRanges)>
+		( [&](auto i) {
+		    std::get<i+1>(ff) =
+			op.rootSteps(reinterpret_cast<std::intptr_t>
+				     ( ind.template getPtr<i>().get())).val();
+		    return 0; } );
 	    out.format(ff);
 	    return out;
 	}

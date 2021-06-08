@@ -6,7 +6,7 @@ namespace MultiArrayTools
     template <typename... T>
     std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)
     {
-	MA_SFOR(i,0,sizeof...(T)-1,i+1, out << std::get<i>(tp) << ", ";);
+	sfor_pn<0,sizeof...(T)-1>( [&](auto i){ out << std::get<i>(tp) << ", "; return 0; } );
 	out << std::get<sizeof...(T)-1>(tp);
 	return out;
     }
@@ -22,8 +22,7 @@ namespace MultiArrayTools
     auto getIndex()
 	-> std::shared_ptr<typename RangeType::IndexType>
     {
-	static_assert( RangeType::defaultable,
-		       /*typeid(typename RangeType).name() + */" is not defaultable" );
+	static_assert( RangeType::defaultable, "Range not defaultable" );
 	static auto f = RangeType::factory();
 	static auto r = std::dynamic_pointer_cast<RangeType>( f.create() );
 	return std::make_shared<typename RangeType::IndexType>(r);

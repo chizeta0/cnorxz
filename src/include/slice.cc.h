@@ -243,9 +243,12 @@ namespace MultiArrayTools
     SliceDef<T,SRanges...>& SliceDef<T,SRanges...>::operator=(const OperationRoot<T,ORanges...>& op)
     {
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
-	MA_SFOR(i,0,sizeof...(SRanges),i+1,
-		std::get<i+1>(blocks) = op.rootSteps(reinterpret_cast<std::intptr_t>
-						   ( mIndex.template getPtr<i>().get())).val(););
+	sfor_pn<0,sizeof...(SRanges)>
+	    ( [&](auto i) {
+		std::get<i+1>(blocks) =
+		    op.rootSteps(reinterpret_cast<std::intptr_t>
+				 ( mIndex.template getPtr<i>().get())).val();
+		return 0; } );
 	mSl.format(blocks);
 	mSl.mData = op.data();
 	return *this;
@@ -265,9 +268,12 @@ namespace MultiArrayTools
     ConstSliceDef<T,SRanges...>& ConstSliceDef<T,SRanges...>::operator=(const ConstOperationRoot<T,ORanges...>& op)
     {
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
-	MA_SFOR(i,0,sizeof...(SRanges),i+1,
-		std::get<i+1>(blocks) = op.rootSteps(reinterpret_cast<std::intptr_t>
-						   ( mIndex.template getPtr<i>().get())).val(););
+	sfor_pn<0,sizeof...(SRanges)>
+	    ( [&](auto i) {
+		std::get<i+1>(blocks) =
+		    op.rootSteps(reinterpret_cast<std::intptr_t>
+				 ( mIndex.template getPtr<i>().get())).val();
+		return 0; } );
 	mSl.format(blocks);
 	mSl.mData = op.data();
 	return *this;
@@ -278,9 +284,12 @@ namespace MultiArrayTools
     ConstSliceDef<T,SRanges...>& ConstSliceDef<T,SRanges...>::operator=(const OperationRoot<T,ORanges...>& op)
     {
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
-	MA_SFOR(i,0,sizeof...(SRanges),i+1,
-		std::get<i+1>(blocks) = op.rootSteps(reinterpret_cast<std::intptr_t>
-						   ( mIndex.template getPtr<i>().get())).val(););
+	sfor_pn<0,sizeof...(SRanges)>
+	    ( [&](auto i) {
+		std::get<i+1>(blocks) =
+		    op.rootSteps(reinterpret_cast<std::intptr_t>
+				 ( mIndex.template getPtr<i>().get())).val();
+		return 0; } );
 	mSl.format(blocks);
 	mSl.mData = op.data();
 	return *this;

@@ -169,15 +169,4 @@ namespace MultiArrayTools
 
 }
 
-#define MA_SFOR(i,beg,end,incr,expr) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ expr return 0; }, [&](auto f, auto next) { return 0; })
-#define MA_SCFOR(i,beg,end,incr,expr,conc) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); })
-#define MA_SCFOR2(i,beg,end,incr,expr,conc) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ return expr; }, [&](auto a, auto b) { return conc(a,b); })
-#define MA_SCFOR3(i,beg,end,incr,expr,conc) sfor<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ return expr; }, conc)
-#define MA_SRFOR(i,beg,end,decr,expr) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ expr return 0; }, [&](auto f, auto next) { return 0; })
-#define MA_SCRFOR(i,beg,end,decr,expr,conc) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); })
-#define MA_SCRAFOR(i,beg,end,decr,expr,conc,arg) sfor<beg,end,-1>([&](auto i) constexpr { return decr; }, [&](auto i){ return expr; }, [&](auto f, auto next) { return f.conc(next); }, arg)
-#define MA_CFOR(i,beg,end,incr,expr,cre) unpack<beg,end,0>([&](auto i) constexpr { return incr; }, [&](auto i){ expr }, [&](auto... args) { return cre(args...); })
-
-#define MA_SCFOR_X(i,beg,end,incr,expr,conc) sfor<beg,end,0>([](auto i) constexpr { return incr; }, [](auto i){ return expr; }, [](auto f, auto next) { return f.conc(next); })
-
 #endif

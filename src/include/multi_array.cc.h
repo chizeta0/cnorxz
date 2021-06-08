@@ -206,9 +206,9 @@ namespace MultiArrayTools
 	    (*this) = in;
 	}
 	else {
-	    MA_SCFOR2(i,0,sizeof...(SRanges),i+1,
-		      std::get<i>(MAB::mRange->space()).get() == std::get<i>(in.mRange->space()).get(),
-		      operator&&);
+	    sfor_p<0,sizeof...(SRanges),0>
+		( [&](auto i) { return std::get<i>(MAB::mRange->space()).get() == std::get<i>(in.mRange->space()).get(); },
+		  [&](auto a, auto b) { return a and b; });
             for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] += in.mCont[i];
             }
@@ -223,9 +223,9 @@ namespace MultiArrayTools
 	    (*this) = in;
 	}
 	else {
-	    MA_SCFOR2(i,0,sizeof...(SRanges),i+1,
-		      std::get<i>(MAB::mRange->space()).get() == std::get<i>(in.mRange->space()).get(),
-		      operator&&);
+	    sfor_p<0,sizeof...(SRanges),0>
+		( [&](auto i) { return std::get<i>(MAB::mRange->space()).get() == std::get<i>(in.mRange->space()).get(); },
+		  [&](auto a, auto b) { return a and b; });
             for(size_t i = 0; i != mCont.size(); ++i){
                 mCont[i] -= in.mCont[i];
             }

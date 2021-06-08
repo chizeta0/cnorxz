@@ -33,7 +33,10 @@ namespace MultiArrayTools
 	inline auto apply(const MultiArray<T,Ranges...>& ma)
 	    -> OperationRoot<T,Ranges...>
 	{
-	    return MA_CFOR(i,0,sizeof...(Ranges),i+1,return std::get<i>(ituple);,ma);
+	    return unpack<0,sizeof...(Ranges),0>
+		( [&](auto i) constexpr { return i+1; },
+		  [&](auto i){ return std::get<i>(ituple); },
+		  [&](auto... args) { return ma(args...); });
 	}
 
     private:
