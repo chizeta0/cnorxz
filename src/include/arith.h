@@ -7,70 +7,33 @@
 namespace MultiArrayTools
 {
 
-    template <size_t N>
-    struct ArgPack
-    {
-	template <class F, class Tuple, typename... As>
-	static inline auto mk(const Tuple& tp, As... as)
-	    -> decltype(ArgPack<N-1>::template mk<F,Tuple,decltype(std::get<N>(tp)),As...>(tp, std::get<N>(tp), as...))
-	{
-	    return ArgPack<N-1>::template mk<F,Tuple,decltype(std::get<N>(tp)),As...>(tp, std::get<N>(tp), as...);
-	}
-        
-	template <class F, class Tuple, typename... As>
-	static inline auto mkd(const F& ff, const Tuple& tp, As... as)
-	    -> decltype(ArgPack<N-1>::template mkd<F,Tuple,decltype(std::get<N>(tp)),As...>(ff, tp, std::get<N>(tp), as...))
-    	{
-	    return ArgPack<N-1>::template mkd<F,Tuple,decltype(std::get<N>(tp)),As...>(ff, tp, std::get<N>(tp), as...);
-	}
-    };
-
-    template <>
-    struct ArgPack<0>
-    {
-	template <class F, class Tuple, typename... As>
-	static inline auto mk(const Tuple& tp, As... as)
-	    -> decltype(F::apply(std::get<0>(tp), as...))
-	{
-	    return F::apply(std::get<0>(tp), as...);
-	}
-
-    	template <class F, class Tuple, typename... As>
-	static inline auto mkd(const F& ff, const Tuple& tp, As... as)
-	    -> decltype(ff(std::get<0>(tp), as...))
-	{
-	    return ff(std::get<0>(tp), as...);
-	}
-    };
-
-    template <typename T, class F, typename... As>
+    //template <typename T, class F, typename... As>
+    template <class F>
     struct StaticFunctionBase
     {
 	static constexpr bool FISSTATIC = true;
-	typedef T value_type;
 	typedef F function;
+	//typedef typename F::value_type value_type;
 
 	template <class... Ops>
-	static auto mk(const Ops&... ops)
-	    -> Operation<T,F,Ops...>
-	{
-	    return Operation<T,F,Ops...>(ops...);
-	}
+	static auto mk(const Ops&... ops);
 
-	static inline T apply(const std::tuple<As...>& arg)
-	{
-	    return ArgPack<sizeof...(As)-1>::template mk<F,std::tuple<As...> >(arg);
-	}
+        template <size_t N, class Tuple, typename... As>
+        static inline auto xapply(const Tuple& tp, As... as);
+
+        template <typename... As>
+	static inline auto apply(const std::tuple<As...>& arg);
     };
 
 
     // OPERATIONS (STATIC)
     template <typename T>
-    struct identity : public StaticFunctionBase<T, identity<T>, T>
+    struct identity : public StaticFunctionBase<identity<T>>
     {
 	//static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<T, identity<T>, T>::apply;
-	
+	using StaticFunctionBase<identity<T>>::apply;
+        typedef T value_type;
+        
 	static inline T apply(T a)
 	{
 	    return a;
@@ -95,12 +58,13 @@ namespace MultiArrayTools
     using dividesv = decltype(std::declval<T>()/std::declval<U>());
 
     template <typename T, typename U>
-    struct plusx : public StaticFunctionBase<plusv<T,U>, plusx<T,U>, T, U>
+    struct plusx : public StaticFunctionBase<plusx<T,U>>
     {
 	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<plusv<T,U>, plusx<T,U>, T, U>::apply;
-	
-	static inline plusv<T,U> apply(T a1, U a2)
+	using StaticFunctionBase<plusx<T,U>>::apply;
+        typedef plusv<T,U> value_type;
+        
+	static inline value_type apply(T a1, U a2)
 	{
 	    return a1 + a2;
 	}
@@ -112,36 +76,39 @@ namespace MultiArrayTools
     };
 
     template <typename T, typename U>
-    struct minusx : public StaticFunctionBase<minusv<T,U>, minusx<T,U>, T, U>
+    struct minusx : public StaticFunctionBase<minusx<T,U>>
     {
 	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<minusv<T,U>, minusx<T,U>, T, U>::apply;
+	using StaticFunctionBase<minusx<T,U>>::apply;
+        typedef minusv<T,U> value_type;
 	
-	static inline plusv<T,U> apply(T a1, U a2)
+	static inline value_type apply(T a1, U a2)
 	{
 	    return a1 - a2;
 	}
     };
 
     template <typename T, typename U>
-    struct multipliesx : public StaticFunctionBase<multipliesv<T,U>, multipliesx<T,U>, T, U>
+    struct multipliesx : public StaticFunctionBase<multipliesx<T,U>>
     {
 	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<multipliesv<T,U>, multipliesx<T,U>, T, U>::apply;
+	using StaticFunctionBase<multipliesx<T,U>>::apply;
+        typedef multipliesv<T,U> value_type;
 	
-	static inline multipliesv<T,U> apply(T a1, U a2)
+	static inline value_type apply(T a1, U a2)
 	{
 	    return a1 * a2;
 	}
     };
 
     template <typename T, typename U>
-    struct dividesx : public StaticFunctionBase<dividesv<T,U>, dividesx<T,U>, T, U>
+    struct dividesx : public StaticFunctionBase<dividesx<T,U>>
     {
 	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<dividesv<T,U>, dividesx<T,U>, T, U>::apply;
+	using StaticFunctionBase<dividesx<T,U>>::apply;
+        typedef dividesv<T,U> value_type;
 	
-	static inline dividesv<T,U> apply(T a1, U a2)
+	static inline value_type apply(T a1, U a2)
 	{
 	    return a1 / a2;
 	}
@@ -149,11 +116,12 @@ namespace MultiArrayTools
     };
 
     template <typename T>
-    struct negate : public StaticFunctionBase<T, negate<T>, T>
+    struct negate : public StaticFunctionBase<negate<T>>
     {
 	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<T, negate<T>, T>::apply;
-	
+	using StaticFunctionBase<negate<T>>::apply;
+        typedef T value_type;
+        
 	static inline T apply(T a)
 	{
 	    return -a;
@@ -173,60 +141,6 @@ namespace MultiArrayTools
     template <typename T>
     using divides = dividesx<T,T>;
 
-    /*
-    template <typename T>
-    struct plus : public StaticFunctionBase<T, plus<T>, T, T>
-    {
-	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<T, plus<T>, T, T>::apply;
-	
-	static inline T apply(T a1, T a2)
-	{
-	    return a1 + a2;
-	}
-
-    	static inline T& selfApply(T& a1, const T& a2)
-	{
-	    return a1 += a2;
-	}
-    };
-
-    template <typename T>
-    struct minus : public StaticFunctionBase<T, minus<T>, T, T>
-    {
-	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<T, minus<T>, T, T>::apply;
-	
-	static inline T apply(T a1, T a2)
-	{
-	    return a1 - a2;
-	}
-    };
-
-    template <typename T>
-    struct multiplies : public StaticFunctionBase<T, multiplies<T>, T, T>
-    {
-	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<T, multiplies<T>, T, T>::apply;
-	
-	static inline T apply(T a1, T a2)
-	{
-	    return a1 * a2;
-	}
-    };
-
-    template <typename T>
-    struct divides : public StaticFunctionBase<T, divides<T>, T, T>
-    {
-	static constexpr bool FISSTATIC = true;
-	using StaticFunctionBase<T, divides<T>, T, T>::apply;
-	
-	static inline T apply(T a1, T a2)
-	{
-	    return a1 / a2;
-	}
-    };
-    */
     //  OPERATIONS (STATIC)
     template <typename R, typename... Args>
     class function
@@ -247,16 +161,28 @@ namespace MultiArrayTools
             return mF(args...);
         }
 
+        template <size_t N, class Tuple, typename... As>
+        static inline auto xapply(const std::function<R(Args...)>& ff, const Tuple& tp, As... as)
+        {
+            if constexpr(N > 0){
+                return xapply<N-1>(ff, tp, std::get<N>(tp), as...);
+            }
+            else {
+                return ff(std::get<0>(tp), as...);
+            }
+        }
+
         inline R operator()(const std::tuple<Args...>& args)
         {
-            return ArgPack<sizeof...(Args)-1>::template mkd<std::function<R(Args...)>,std::tuple<Args...>>>(mF, args);
+            return xapply<sizeof...(Args)-1>(mF, args);
         }
 };
     
 #include <cmath>
 #define regFunc1(fff) template <typename T>\
-    struct x_##fff : public StaticFunctionBase<T, x_##fff<T>, T> {\
+    struct x_##fff : public StaticFunctionBase<x_##fff<T>> {\
     static constexpr bool FISSTATIC = true;\
+    typedef T value_type; \
     static inline T apply(T a){\
 	return fff(a); } };
 
@@ -271,35 +197,17 @@ namespace MultiArrayTools
 	template <typename T>
 	static inline T apply(T a)
 	{
-	    return a * x_ipow<N-1>::apply(a);
+            if constexpr(N > 0){
+                return a * x_ipow<N-1>::apply(a);
+            }
+            else {
+                return a;
+            }
 	}
     };
 
-    template <>
-    struct x_ipow<0>
-    {
-	static constexpr bool FISSTATIC = true;
-
-	template <typename T>
-	static inline T apply(T a)
-	{
-	    return a;
-	}
-    };
-	
-    /*
-    template <typename T, class Func>
-    struct dynamic_function
-    {
-	static constexpr bool FISSTATIC = false;
-	
-	template <typename... Us>
-	inline T apply(Us... args)
-	{
-	    return f(args...);
-	}
-    };
-    */
 } // end namespace MultiArrayHelper
-    
+
+#include "arith.cc.h"
+
 #endif
