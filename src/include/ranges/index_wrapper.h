@@ -4,7 +4,7 @@
 
 #include "ranges/rbase_def.h"
 #include "xfor/xfor.h"
-#include "hl_reg_ind.h"
+#include "ranges/rheader.h"
 
 namespace MultiArrayTools
 {
@@ -50,13 +50,6 @@ namespace MultiArrayTools
 
         virtual std::shared_ptr<IndexWrapperBase> duplicate() const = 0;
 
-	//virtual RegIndInfo regN() const = 0;
-        //virtual DynamicMetaT meta() const = 0;
-	//virtual const DynamicMetaT* metaPtr() const = 0;
-	//virtual AbstractIW& at(const U& metaPos) = 0;
-	//virtual size_t posAt(const U& metaPos) const = 0;
-
-	//virtual bool isMeta(const U& metaPos) const = 0;
 	inline IndexWrapperBase& at(const std::string smeta)
 	{
 	    // ignore spaces, " and ' (string identifiers)
@@ -150,7 +143,6 @@ namespace MultiArrayTools
         virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const override final;
 
         virtual std::shared_ptr<IndexWrapperBase> duplicate() const override final;
-	//virtual RegIndInfo regN() const override final;
 
 	std::shared_ptr<Index> getIndex() const;
 	virtual std::shared_ptr<ClassicIndex> reduced() const override final;
