@@ -10,7 +10,7 @@ for x in $(cat ../include/extensions/math.h) ; do
     file=hl_ops/${fff}.cc
     test -f ${file} && rm -f ${file}
     echo "#include \"multi_array_header.h\"" >> ${file}
-    echo "#include \"high_level_operation.h\"" >> ${file}
+    echo "#include \"hl_multi_array_header.h\"" >> ${file}
     echo "" >> ${file}
     echo "namespace MultiArrayTools" >> ${file}
     echo "{" >> ${file}
@@ -25,7 +25,7 @@ for fff in plus minus multiplies divides ; do
     file=hl_ops/${fff}.cc
     test -f ${file} && rm -f ${file}
     echo "#include \"multi_array_header.h\"" >> ${file}
-    echo "#include \"high_level_operation.h\"" >> ${file}
+    echo "#include \"hl_multi_array_header.h\"" >> ${file}
     echo "" >> ${file}
     echo "namespace MultiArrayTools" >> ${file}
     echo "{" >> ${file}
@@ -38,7 +38,7 @@ for fff in negate ; do
     file=hl_ops/${fff}.cc
     test -f ${file} && rm -f ${file}
     echo "#include \"multi_array_header.h\"" >> ${file}
-    echo "#include \"high_level_operation.h\"" >> ${file}
+    echo "#include \"hl_multi_array_header.h\"" >> ${file}
     echo "" >> ${file}
     echo "namespace MultiArrayTools" >> ${file}
     echo "{" >> ${file}

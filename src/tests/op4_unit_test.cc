@@ -1,5 +1,6 @@
 
 #include "test_header.h"
+#include "hl_multi_array_header.h"
 #include <ctime>
 
 namespace

@@ -32,8 +32,8 @@ target_link_libraries(op3utest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
 add_test(NAME op3utest COMMAND op3utest)
 
 add_executable(op4utest op4_unit_test.cc)
-add_dependencies(op4utest multiarray)
-target_link_libraries(op4utest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} multiarray)
+add_dependencies(op4utest multiarray hlmultiarray)
+target_link_libraries(op4utest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} multiarray hlmultiarray)
 add_test(NAME op4utest COMMAND op4utest)
 
 add_executable(opptest op_perf_test.cc)
