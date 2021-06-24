@@ -54,7 +54,10 @@ namespace MultiArrayTools
 #define reg_ind3(I1,I2,I3) virtual RetT<I1,I2,I3> create   \
         (const std::shared_ptr<I1>& ind1,const std::shared_ptr<I2>& ind2,const std::shared_ptr<I3>& ind3) = 0
 
-#include "hl_reg_ind.h"
+        //#include "hl_reg_ind.h"
+        reg_ind1(ClassicRange::IndexType);
+        reg_ind2(ClassicRange::IndexType,ClassicRange::IndexType);
+        reg_ind3(ClassicRange::IndexType,ClassicRange::IndexType,ClassicRange::IndexType);
 
 #undef reg_ind1
 #undef reg_ind2
@@ -92,7 +95,10 @@ namespace MultiArrayTools
         (const std::shared_ptr<I1>& ind1, const std::shared_ptr<I2>& ind2, const std::shared_ptr<I3>& ind3) \
             override final { return xcreate(ind1,ind2,ind3); }
 
-#include "hl_reg_ind.h"
+        //#include "hl_reg_ind.h"
+        reg_ind1(ClassicRange::IndexType);
+        reg_ind2(ClassicRange::IndexType,ClassicRange::IndexType);
+        reg_ind3(ClassicRange::IndexType,ClassicRange::IndexType,ClassicRange::IndexType);
 
         virtual ROP* get() override final;
 	virtual VOP* vget() override final;
@@ -121,7 +127,10 @@ namespace MultiArrayTools
         
         virtual bool root() const override final;
 
-#include "hl_reg_ind.h"
+        //#include "hl_reg_ind.h"
+        reg_ind1(ClassicRange::IndexType);
+        reg_ind2(ClassicRange::IndexType,ClassicRange::IndexType);
+        reg_ind3(ClassicRange::IndexType,ClassicRange::IndexType,ClassicRange::IndexType);
     
         virtual ROP* get() override final;
 	virtual VOP* vget() override final;
@@ -158,7 +167,10 @@ namespace MultiArrayTools
         virtual ROP* get() override final;
 	virtual VOP* vget() override final;
     
-#include "hl_reg_ind.h"
+        //#include "hl_reg_ind.h"
+        reg_ind1(ClassicRange::IndexType);
+        reg_ind2(ClassicRange::IndexType,ClassicRange::IndexType);
+        reg_ind3(ClassicRange::IndexType,ClassicRange::IndexType,ClassicRange::IndexType);
 
 #undef reg_ind1
 #undef reg_ind2
