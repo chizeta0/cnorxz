@@ -58,10 +58,6 @@ namespace MultiArrayTools
 	    -> ConstSlice<T,typename Indices::RangeType...>;
 
 	template <class... Indices>
-	auto slc(const std::shared_ptr<Indices>&... inds) const
-	    -> SliceContraction<T,OperationClass,Indices...>;
-
-	template <class... Indices>
 	auto p(const std::shared_ptr<Indices>&... inds) const
 	    -> ConstOperationRoot<T,typename Indices::RangeType...>;
 
@@ -878,44 +874,47 @@ namespace MultiArrayTools
 	    -> decltype(mInd->iforh(1,mOp.loop(exp)));
     };
 
-    template <typename T, class Op, class... Indices>
-    //    class SliceContraction : public OperationTemplate
-    //<MultiArray<T,typename Indices::RangeType...>,
-    //SliceContraction<MultiArray<T,typename Indices::RangeType...>,Op,Indices...> >
-    class SliceContraction : public OperationTemplate<T,SliceContraction<T,Op,Indices...> >
+    // for SliceArray
+    template <typename T, class Op>
+    class HyperOperation : public OperationTemplate<T,HyperOperation<T,Op> >
     {
     public:
-	typedef MultiArray<T,typename Indices::RangeType...> value_type;
-	typedef OperationTemplate<T,SliceContraction<T,Op,Indices...> > OT;
+
+	typedef Op value_type;
+	typedef OperationTemplate<T,HyperOperation<T,Op> > OT;
 
 	static constexpr size_t SIZE = Op::SIZE;
         static constexpr bool CONT = false;
-	static constexpr bool VABLE = false;
-
+        static constexpr bool VABLE = false;
+        
     private:
 
-	mutable Op mOp;
-	mutable std::shared_ptr<MultiArray<T,typename Indices::RangeType...> > mCont;
-	mutable OperationRoot<T,typename Indices::RangeType...> mTarOp;
-		
+	Op mOp; // proto
+
     public:
-	typedef decltype(mOp.rootSteps(0)) ETuple;
-	
-	SliceContraction(const Op& op, std::shared_ptr<Indices>... ind);
+	//typedef decltype(mOp.rootSteps(0)) ETuple;
 	
 	template <class ET>
-	inline const value_type& get(ET pos) const;
+	// include ALL indices (external/internal!!!)
+	inline auto get(ET pos) const
+            -> decltype(mOp.template get<ET>(pos));
+
+	template <typename V, class ET>
+	inline auto vget(ET pos) const
+            -> decltype(mOp.template vget<V,ET>(pos));
 
 	template <class ET>
-	inline SliceContraction& set(ET pos);
+	inline HyperOperation& set(ET pos);
+
+	T* data() const { assert(0); return nullptr; }
 
 	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
 	    -> decltype(mOp.rootSteps(iPtrNum));
 
 	template <class Expr>
-	auto loop(Expr exp) const -> decltype(mOp.loop(exp)); // no loop
-	
-    };	
+	auto loop(Expr exp) const
+	    -> decltype(mInd->iforh(1,mOp.loop(exp)));
+    };
 }
 
 

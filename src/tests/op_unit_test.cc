@@ -318,9 +318,6 @@ namespace
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'A')) ), xround(2.911 + 0.373 + 1.470) );
 	EXPECT_EQ( xround( res.at(mkt(mkt('3','b'),'B')) ), xround(2.911 + 0.373 + 2.210) );
 
-	MultiArray<MultiArray<double,SRange,SRange>,SRange,SRange> ma7(sr2ptr,sr4ptr);
-	ma7(si1,si3) = ma4(si0,si1,si2,si3).slc(si0,si2);
-
 	si1->at('1');
 	si0->at('x');
 	(*si2) = 0;
@@ -335,34 +332,6 @@ namespace
 
 	EXPECT_EQ( xround( ma8.at(mkt('a','A')) ), xround( sl.at(mkt('A','a')) ) );
 	EXPECT_EQ( xround( ma8.at(mkt('b','A')) ), xround( sl.at(mkt('A','b')) ) );
-	
-	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('x','a')) ),
-		   xround( ma4.at(mkt('x','1','a','A')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('x','a')) ),
-		   xround( ma4.at(mkt('x','2','a','A')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('3','A')).at(mkt('x','a')) ),
-		   xround( ma4.at(mkt('x','3','a','A')) ) );
-
-    	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('x','b')) ),
-		   xround( ma4.at(mkt('x','1','b','A')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('x','b')) ),
-		   xround( ma4.at(mkt('x','2','b','A')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('3','A')).at(mkt('x','b')) ),
-		   xround( ma4.at(mkt('x','3','b','A')) ) );
-
-    	EXPECT_EQ( xround( ma7.at(mkt('1','A')).at(mkt('l','b')) ),
-		   xround( ma4.at(mkt('l','1','b','A')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('2','A')).at(mkt('l','b')) ),
-		   xround( ma4.at(mkt('l','2','b','A')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('3','A')).at(mkt('l','b')) ),
-		   xround( ma4.at(mkt('l','3','b','A')) ) );
-
-    	EXPECT_EQ( xround( ma7.at(mkt('1','B')).at(mkt('l','b')) ),
-		   xround( ma4.at(mkt('l','1','b','B')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('2','B')).at(mkt('l','b')) ),
-		   xround( ma4.at(mkt('l','2','b','B')) ) );
-	EXPECT_EQ( xround( ma7.at(mkt('3','B')).at(mkt('l','b')) ),
-		   xround( ma4.at(mkt('l','3','b','B')) ) );
     }
     
 } // anonymous namspace
