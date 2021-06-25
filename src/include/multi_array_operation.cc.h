@@ -588,43 +588,34 @@ namespace MultiArrayTools
         return this->template asx<IPlus<T>>(in,i);
     }
 
-    template <bool VABLE = false>
-    struct VExec
+    template <bool VABLE, template <typename> class F, typename TarOp, class OpClass>
+    inline void vexec(TarOp& th, const OpClass& in)
     {
-	template <template <typename> class F, typename TarOp, class OpClass>
-	static inline void exec(TarOp& th, const OpClass& in)
-	{
-	    typedef typename TarOp::value_type T;
-	    IAccess<T,F<T>> tmp;
-	    th.template asx<decltype(tmp)>(in)();
-	}
-    };
-
-    template <>
-    struct VExec<true>
-    {
-	template <template <typename> class F, typename TarOp, class OpClass>
-	static inline void exec(TarOp& th, const OpClass& in)
-	{
-	    CHECK;
-	    typedef typename TarOp::value_type T;
-	    auto x = th.template asx<IVAccess<T,F<T>>>(in);
-	    if(x.rootSteps(x.vI()) == 1){
-	    //if(0){
-		CHECK;
-		x();
-	    }
-	    else {
-		th.template asx<IAccess<T,F<T>>>(in)();
-	    }
-	}
-    };
+        if constexpr(VABLE){
+            CHECK;
+            typedef typename TarOp::value_type T;
+            auto x = th.template asx<IVAccess<T,F<T>>>(in);
+            if(x.rootSteps(x.vI()) == 1){
+                //if(0){
+                CHECK;
+                x();
+            }
+            else {
+                th.template asx<IAccess<T,F<T>>>(in)();
+            }
+        }
+        else {
+            typedef typename TarOp::value_type T;
+            IAccess<T,F<T>> tmp;
+            th.template asx<decltype(tmp)>(in)();
+        }
+    }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	VExec<OpClass::VABLE>::template exec<identity>(*this,in);
+	vexec<OpClass::VABLE,identity>(*this,in);
         return *this;
     }
 
@@ -632,7 +623,7 @@ namespace MultiArrayTools
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-	VExec<OpClass::VABLE>::template exec<xxxplus>(*this,in);
+	vexec<OpClass::VABLE,xxxplus>(*this,in);
         return *this;
     }
 
@@ -803,7 +794,7 @@ namespace MultiArrayTools
     template <class OpClass>
     ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	VExec<OpClass::VABLE>::template exec<identity>(*this,in);
+	vexec<OpClass::VABLE,identity>(*this,in);
         return *this;
     }
 
@@ -811,7 +802,7 @@ namespace MultiArrayTools
     template <class OpClass>
     ParallelOperationRoot<T,Ranges...>& ParallelOperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-	VExec<OpClass::VABLE>::template exec<xxxplus>(*this,in);
+	vexec<OpClass::VABLE,xxxplus>(*this,in);
         return *this;
     }
 
