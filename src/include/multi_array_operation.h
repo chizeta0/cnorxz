@@ -99,68 +99,6 @@ namespace MultiArrayTools
 	friend OperationClass;
     };
 
-    template <size_t N>
-    struct RootSumN
-    {
-
-	template <class... Exprs>
-	static inline auto rootSteps(const std::tuple<Exprs...>& etp, std::intptr_t i)
-	{
-	    return RootSumN<N-1>::rootSteps(etp,i).extend( std::get<N>(etp).rootSteps(i) );
-	}
-
-	template <class ExtType, class... Exprs>
-	static inline void exec( size_t start, ExtType last, std::tuple<Exprs...>& etp)
-	{
-	    std::get<sizeof...(Exprs)-N-1>(etp)(start,last);
-	    RootSumN<N-1>::exec(start,last.next(),etp);
-	}
-
-	template <class ExtType, class... Exprs>
-	static inline size_t get( ExtType last, const std::tuple<Exprs...>& etp)
-	{
-	    std::get<sizeof...(Exprs)-N-1>(etp).get(last);
-	    return RootSumN<N-1>::get(last.next(),etp);
-	}
-
-	template <class ExtType, class... Exprs>
-	static inline void set( ExtType last, std::tuple<Exprs...>& etp)
-	{
-	    std::get<sizeof...(Exprs)-N-1>(etp).set(last);
-	    RootSumN<N-1>::set(last.next(),etp);
-	}
-    };
-
-    template <>
-    struct RootSumN<0>
-    {
-
-	template <class... Exprs>
-	static inline auto rootSteps(const std::tuple<Exprs...>& etp, std::intptr_t i)
-	{
-	    return std::get<0>(etp).rootSteps(i);
-	}
-
-	template <class ExtType, class... Exprs>
-	static inline void exec( size_t start, ExtType last, std::tuple<Exprs...>& etp)
-	{
-	    std::get<sizeof...(Exprs)-1>(etp)(start,last);
-	}
-
-	template <class ExtType, class... Exprs>
-	static inline size_t get( ExtType last, const std::tuple<Exprs...>& etp)
-	{
-	    std::get<sizeof...(Exprs)-1>(etp).get(last);
-	    return 0;
-	}
-
-	template <class ExtType, class... Exprs>
-	static inline void set( ExtType last, std::tuple<Exprs...>& etp)
-	{
-	    std::get<sizeof...(Exprs)-1>(etp).set(last);
-	}
-    };
-
     
     template <typename T>
     struct SelfIdentity
@@ -875,6 +813,7 @@ namespace MultiArrayTools
     };
 
     // for SliceArray
+    /*
     template <typename T, class Op>
     class HyperOperation : public OperationTemplate<T,HyperOperation<T,Op> >
     {
@@ -915,6 +854,7 @@ namespace MultiArrayTools
 	auto loop(Expr exp) const
 	    -> decltype(mInd->iforh(1,mOp.loop(exp)));
     };
+    */
 }
 
 

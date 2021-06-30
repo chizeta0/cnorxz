@@ -134,7 +134,8 @@ namespace MultiArrayTools
     {
 	return OperationPointer<T,OperationClass>(THIS());
     }
-
+    
+    /*
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::ho(const std::shared_ptr<Indices>& inds...) const
@@ -142,6 +143,7 @@ namespace MultiArrayTools
         typedef XX SubOp;
 	return HyperOperation<T,SubOp,Indices...>()
     }
+    */
     
     /************************
      *   AssignmentExpr     *
@@ -208,16 +210,41 @@ namespace MultiArrayTools
 	static_assert(SIZE == sizeof...(Ops), "size missmatch");
     }
 
+    template <size_t N, class ExtType, class... Exprs>
+    inline size_t MOpGetX( ExtType last, const std::tuple<Exprs...>& etp)
+    {
+	if constexpr(N > 0){
+	    std::get<sizeof...(Exprs)-N-1>(etp).get(last);
+	    return MOpGetX<N-1>(last.next(),etp);
+	}
+	else {
+	    std::get<sizeof...(Exprs)-1>(etp).get(last);
+	    return 0;
+	}
+    }
+
+    template <size_t N, class ExtType, class... Exprs>
+    inline void MOpSetX( ExtType last, std::tuple<Exprs...>& etp)
+    {
+	if constexpr(N > 0){
+	    std::get<sizeof...(Exprs)-N-1>(etp).set(last);
+	    MOpSetX<N-1>(last.next(),etp);
+	}
+	else {
+	    std::get<sizeof...(Exprs)-1>(etp).set(last);
+	}
+    }
+
     template <typename T, class... Ops>
     inline size_t MOp<T,Ops...>::get(ExtType last) const
     {
-	return RootSumN<sizeof...(Ops)-1>::get(last,mOps.mOps);
+	return MOpGetX<sizeof...(Ops)-1>(last,mOps.mOps);
     }
 
     template <typename T, class... Ops>
     inline MOp<T,Ops...>& MOp<T,Ops...>::set(ExtType last)
     {
-	RootSumN<sizeof...(Ops)-1>::set(last,mOps.mOps);
+	MOpSetX<sizeof...(Ops)-1>(last,mOps.mOps);
 	return *this;
     }
     
