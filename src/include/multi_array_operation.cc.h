@@ -135,9 +135,11 @@ namespace MultiArrayTools
 	return OperationPointer<T,OperationClass>(THIS());
     }
 
+    template <typename T, class OperationClass>
     template <class... Indices>
-    HyperOperation ho(const std::shared_ptr<Indices>& inds...) const
+    auto OperationBase<T,OperationClass>::ho(const std::shared_ptr<Indices>& inds...) const
     {
+        typedef XX SubOp;
 	return HyperOperation<T,SubOp,Indices...>()
     }
     
@@ -145,32 +147,17 @@ namespace MultiArrayTools
      *   AssignmentExpr     *
      ************************/
 
-    template <OpIndexAff OIA>
-    struct OpIndexResolve
-    {};
-    
-    template <>
-    struct OpIndexResolve<OpIndexAff::EXTERN>
+    template <OpIndexAff OIA, class ExtType>
+    inline size_t opIndexResolve(size_t start, ExtType last)
     {
-        
-        template <class ExtType>
-        static inline size_t get(size_t start, ExtType last)
-        {
+        if constexpr(OIA == OpIndexAff::EXTERN){
             return last.val();
         }
-        
-    };
-
-    template <>
-    struct OpIndexResolve<OpIndexAff::TARGET>
-    {
-        template <class ExtType>
-        static inline size_t get(size_t start, ExtType last)
-        {
+        if constexpr(OIA == OpIndexAff::TARGET){
             return start;
         }
-    };
-
+        return 0;
+    }
     
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
     AssignmentExpr<T,IOp,Target,OpClass,OIA>::AssignmentExpr(T* dataPtr, const Target& tar, const OpClass& sec) :
@@ -181,13 +168,13 @@ namespace MultiArrayTools
     {
         ExtType last = rootSteps();
 	last.zero();
-	IOp::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
+	IOp::f(mDataPtr,opIndexResolve<OIA>(start,last),mSec,last.next());
     }
 
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
     inline void AssignmentExpr<T,IOp,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
-	IOp::f(mDataPtr,OpIndexResolve<OIA>::get(start,last),mSec,last.next());
+	IOp::f(mDataPtr,opIndexResolve<OIA>(start,last),mSec,last.next());
     }
     
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA>
