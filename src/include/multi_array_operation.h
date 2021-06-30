@@ -145,9 +145,32 @@ namespace MultiArrayTools
     template <class F>
     using VFunc = decltype(mkVFunc(std::declval<F>()));
 
+    
+    template <typename T, class F, class... Indices>
+    class OpAccess
+    {
+    private:
+	std::tuple<std::shared_ptr<Indices>...> mInds;
+	
+    public:
+	static constexpr bool ISSTATIC = false;
+	
+	template <typename Op, class ExtType>
+	inline void operator()(T*& t, size_t pos, const Op& op, ExtType e)
+	{
+	    F::selfApply(t[pos](mInds), op.get(e)); // s.th. like that
+	    // TODO for classes related to the r.h.s.:
+	    // forward get(e) to elements returned by get(e) until basic types are reached
+	    // (also same for rootSteps etc...) !!!!
+	    // introduce traits !!!!
+	    // !!!!
+	}
+    };
+    
     template <typename T, class F>
     struct IAccess
     {
+	static constexpr bool ISSTATIC = true;
 	typedef T value_type;
 	typedef T in_type;
 	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
@@ -162,6 +185,7 @@ namespace MultiArrayTools
     template <typename T, class F>
     struct IVAccess
     {
+	static constexpr bool ISSTATIC = true;
 	typedef typename VType<T>::type value_type;
 	typedef T in_type;
 	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);

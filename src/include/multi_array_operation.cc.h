@@ -170,6 +170,7 @@ namespace MultiArrayTools
     {
         ExtType last = rootSteps();
 	last.zero();
+	// TODO: ask MA container for data (ptr)!!!
 	IOp::f(mDataPtr,opIndexResolve<OIA>(start,last),mSec,last.next());
     }
 
