@@ -51,7 +51,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class IndexType>
     auto OperationBase<T,OperationClass>::c(const std::shared_ptr<IndexType>& ind) const
-	-> Contraction<T,OperationClass,IndexType>
     {
 	return Contraction<T,OperationClass,IndexType>(THIS(), ind);
     }
@@ -59,7 +58,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::sl(const std::shared_ptr<Indices>&... inds) const
-	-> ConstSlice<T,typename Indices::RangeType...>
     {
 	ConstSlice<T,typename Indices::RangeType...> out(inds->range()...);
 	out.define(inds...) = THIS();
@@ -69,7 +67,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::p(const std::shared_ptr<Indices>&... inds) const
-	-> ConstOperationRoot<T,typename Indices::RangeType...>
     {
 	auto ma = std::make_shared<MultiArray<T,typename Indices::RangeType...>>
 	    (inds->range()... , static_cast<T>(0));
@@ -80,7 +77,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::to(const std::shared_ptr<Indices>&... inds) const
-	-> MultiArray<T,typename Indices::RangeType...>
     {
 	MultiArray<T,typename Indices::RangeType...> out(inds->range()...);
 	out(inds...) = THIS();
@@ -90,7 +86,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::addto(const std::shared_ptr<Indices>&... inds) const
-	-> MultiArray<T,typename Indices::RangeType...>
     {
 	MultiArray<T,typename Indices::RangeType...> out(inds->range()...,
                                                          static_cast<T>(0));
@@ -101,7 +96,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::pto(const std::shared_ptr<Indices>&... inds) const
-	-> MultiArray<T,typename Indices::RangeType...>
     {
 	MultiArray<T,typename Indices::RangeType...> out(inds->range()...);
 	out(inds...).par() = THIS();
@@ -111,7 +105,6 @@ namespace MultiArrayTools
     template <typename T, class OperationClass>
     template <class... Indices>
     auto OperationBase<T,OperationClass>::paddto(const std::shared_ptr<Indices>&... inds) const
-	-> MultiArray<T,typename Indices::RangeType...>
     {
 	MultiArray<T,typename Indices::RangeType...> out(inds->range()...,
                                                          static_cast<T>(0));
@@ -123,14 +116,12 @@ namespace MultiArrayTools
     template <typename R, class... Args>
     auto OperationBase<T,OperationClass>::a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll,
                                             const Args&... args) const
-        -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>
     {
         return Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>(ll, THIS(), args...);
     }
 
     template <typename T, class OperationClass>
     auto OperationBase<T,OperationClass>::ptr() const
-	-> OperationPointer<T,OperationClass>
     {
 	return OperationPointer<T,OperationClass>(THIS());
     }
@@ -144,7 +135,30 @@ namespace MultiArrayTools
 	return HyperOperation<T,SubOp,Indices...>()
     }
     */
-    
+
+    /************************
+     *   AccessTemplate     *
+     ************************/
+
+    template <class AccessClass>
+    auto AccessTemplate<AccessClass>::get(size_t pos)
+    {
+        return THIS().get(pos);
+    }
+
+    template <class AccessClass>
+    auto AccessTemplate<AccessClass>::get(size_t pos) const
+    {
+        return THIS().get(pos);
+    }
+
+    template <class AccessClass>
+    template <class F, typename Op, class ExtType>
+    void AccessTemplate<AccessClass>::exec(size_t pos, const Op& op, ExtType e) const
+    {
+        return THIS().template exec<F>(pos,op,e);
+    }
+
     /************************
      *   AssignmentExpr     *
      ************************/

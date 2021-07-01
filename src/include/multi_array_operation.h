@@ -50,39 +50,30 @@ namespace MultiArrayTools
 	auto operator/(const OperationBase<U,Second>& in) const;
 
 	template <class IndexType>
-	auto c(const std::shared_ptr<IndexType>& ind) const
-	    -> Contraction<T,OperationClass,IndexType>;
+	auto c(const std::shared_ptr<IndexType>& ind) const;
 
 	template <class... Indices>
-	auto sl(const std::shared_ptr<Indices>&... inds) const
-	    -> ConstSlice<T,typename Indices::RangeType...>;
+	auto sl(const std::shared_ptr<Indices>&... inds) const;
 
 	template <class... Indices>
-	auto p(const std::shared_ptr<Indices>&... inds) const
-	    -> ConstOperationRoot<T,typename Indices::RangeType...>;
+	auto p(const std::shared_ptr<Indices>&... inds) const;
 
 	template <class... Indices>
-	auto to(const std::shared_ptr<Indices>&... inds) const
-	    -> MultiArray<T,typename Indices::RangeType...>;
+	auto to(const std::shared_ptr<Indices>&... inds) const;
 
         template <class... Indices>
-	auto addto(const std::shared_ptr<Indices>&... inds) const
-	    -> MultiArray<T,typename Indices::RangeType...>;
+	auto addto(const std::shared_ptr<Indices>&... inds) const;
 
         template <class... Indices>
-	auto pto(const std::shared_ptr<Indices>&... inds) const
-	    -> MultiArray<T,typename Indices::RangeType...>;
+	auto pto(const std::shared_ptr<Indices>&... inds) const;
 
         template <class... Indices>
-	auto paddto(const std::shared_ptr<Indices>&... inds) const
-	    -> MultiArray<T,typename Indices::RangeType...>;
+	auto paddto(const std::shared_ptr<Indices>&... inds) const;
 
         template <typename R, class... Args> // Args = Operation Classes
-        auto a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll, const Args&... args) const
-            -> Operation<R,function<R,T,typename Args::value_type...>,OperationClass, Args...>;
+        auto a(const std::shared_ptr<function<R,T,typename Args::value_type...>>& ll, const Args&... args) const;
 
-	auto ptr() const
-	    -> OperationPointer<T,OperationClass>;
+	auto ptr() const;
 	
     private:		
 	friend OperationClass;
@@ -212,7 +203,65 @@ namespace MultiArrayTools
 
     template <typename T>
     using IVPlus = IVAccess<T,plus<T>>;
-    
+
+    // static polymorphism
+    template <class AccessClass>
+    class AccessTemplate
+    {
+    public:
+        typedef AccessClass AC;
+        
+        AccessClass& THIS() { return static_cast<AccessClass&>(*this); }
+        const AccessClass& THIS() const { return static_cast<const AccessClass&>(*this); }
+
+        inline auto get(size_t pos);
+        inline auto get(size_t pos) const;
+
+	template <class F, typename Op, class ExtType>
+	inline void exec(size_t pos, const Op& op, ExtType e) const;
+    };
+
+    template <typename T>
+    class PointerAccess : public AccessTemplate<PointerAccess<T>>
+    {
+    public:
+	typedef T value_type;
+	typedef T in_type;
+    private:
+        T* mPtr;
+        
+    public:
+        PointerAccess(T* ptr) : mPtr(ptr) {}
+        
+        T* get(size_t pos) { return mPtr; }
+        T* get(size_t pos) const { return mPtr; }
+
+	template <class F, typename Op, class ExtType>
+	inline void exec(size_t pos, const Op& op, ExtType e) const
+        {
+	    F::selfApply(*get(pos),op.get(e));
+        }
+    };
+
+    template <typename T>
+    class ConstPointerAccess : public AccessTemplate<ConstPointerAccess<T>>
+    {
+    public:
+	typedef T value_type;
+	typedef T in_type;
+    private:
+        const T* mPtr;
+        
+    public:
+        ConstPointerAccess(T* ptr) : mPtr(ptr) {}
+        
+        const T* get(size_t pos) { return mPtr; }
+        const T* get(size_t pos) const { return mPtr; }
+
+	template <class F, typename Op, class ExtType>
+	inline void exec(size_t pos, const Op& op, ExtType e) const { assert(0); }
+    };
+
     template <typename T, class IOp, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr : public ExpressionBase
     {
