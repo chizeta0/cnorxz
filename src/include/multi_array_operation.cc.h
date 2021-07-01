@@ -513,34 +513,38 @@ namespace MultiArrayTools
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mDataPtr(ma.data()),
-        mOrigDataPtr(ma.data()),
+	//mDataPtr(ma.data()),
+        //mOrigDataPtr(ma.data()),
+        mDataAcc( ma.data(), ma.data() ),
 	mIndex( ma.begin() )
     {
 	mIndex(indices...);
-        mDataPtr = mOrigDataPtr + mIndex.pos();
+        mDataAcc.set( mIndex.pos() );
+        //mDataPtr = mOrigDataPtr + mIndex.pos();
     }
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
     OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
 		  const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices) :
-	mDataPtr(ma.data()),
-        mOrigDataPtr(ma.data()),
+	//mDataPtr(ma.data()),
+        //mOrigDataPtr(ma.data()),
 	mIndex( ma.begin() )
     {
 	mIndex(indices);
-        mDataPtr = mOrigDataPtr + mIndex.pos();
+        mDataAcc.set( mIndex.pos() );
+        //mDataPtr = mOrigDataPtr + mIndex.pos();
     }
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
     OperationRoot(T* data, const IndexType& ind) :
-	mDataPtr(data),
-        mOrigDataPtr(data),
+	//mDataPtr(data),
+        //mOrigDataPtr(data),
 	mIndex( ind )
     {
-        mDataPtr = mOrigDataPtr + mIndex.pos();
+        mDataAcc.set( mIndex.pos() );
+        //mDataPtr = mOrigDataPtr + mIndex.pos();
     }
 
     template <typename T, class... Ranges>
@@ -672,21 +676,24 @@ namespace MultiArrayTools
     template <class ET>
     inline T& OperationRoot<T,Ranges...>::get(ET pos) const
     {
-	return mDataPtr[pos.val()];
+        return *mDataAcc.get(pos.val());
+	//return mDataPtr[pos.val()];
     }
 
     template <typename T, class... Ranges>
     template <typename V, class ET>
     inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
     {
-	return *(reinterpret_cast<V*>(mDataPtr+pos.val()));
+        return *(reinterpret_cast<V*>(mDataAcc.get(pos.val())));
+	//return *(reinterpret_cast<V*>(mDataPtr+pos.val()));
     }
 
     template <typename T, class... Ranges>
     template <class ET>
     inline OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::set(ET pos)
     {
-        mDataPtr = mOrigDataPtr + pos.val();
+        mDataAcc.set(pos.val());
+        //mDataPtr = mOrigDataPtr + pos.val();
 	return *this;
     }
 
@@ -706,7 +713,8 @@ namespace MultiArrayTools
     template <typename T, class... Ranges>
     T* OperationRoot<T,Ranges...>::data() const
     {
-        return mDataPtr;
+        return mDataAcc.get(0);
+        //return mDataPtr;
     }
 
     template <typename T, class... Ranges>

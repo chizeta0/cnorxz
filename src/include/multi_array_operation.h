@@ -229,12 +229,14 @@ namespace MultiArrayTools
 	typedef T in_type;
     private:
         T* mPtr;
+        T* mOrigPtr;
         
     public:
-        PointerAccess(T* ptr) : mPtr(ptr) {}
+        PointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr) {}
         
-        T* get(size_t pos) { return mPtr; }
-        T* get(size_t pos) const { return mPtr; }
+        T* get(size_t pos) { return mPtr+pos; }
+        T* get(size_t pos) const { return mPtr+pos; }
+        PointerAccess<T>& set(size_t pos) { mPtr = mOrigPtr + pos; return *this; }
 
 	template <class F, typename Op, class ExtType>
 	inline void exec(size_t pos, const Op& op, ExtType e) const
@@ -255,8 +257,8 @@ namespace MultiArrayTools
     public:
         ConstPointerAccess(T* ptr) : mPtr(ptr) {}
         
-        const T* get(size_t pos) { return mPtr; }
-        const T* get(size_t pos) const { return mPtr; }
+        const T* get(size_t pos) { return mPtr+pos; }
+        const T* get(size_t pos) const { return mPtr+pos; }
 
 	template <class F, typename Op, class ExtType>
 	inline void exec(size_t pos, const Op& op, ExtType e) const { assert(0); }
@@ -552,8 +554,9 @@ namespace MultiArrayTools
 
     private:
 
-	T* mDataPtr;
-        T* mOrigDataPtr;
+	//T* mDataPtr;
+        //T* mOrigDataPtr;
+        PointerAccess<T> mDataAcc;
 	IndexType mIndex;
 
     public:
