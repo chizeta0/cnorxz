@@ -187,7 +187,7 @@ namespace MultiArrayTools
     */
     template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
     AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::AssignmentExpr(T* dataPtr, const AccessTemplate<AT>& dataAcc, const Target& tar, const OpClass& sec) :
-        mTar(tar), mSec(sec), mDataAcc(dataAcc), mDataPtr(dataPtr) {}
+        mTar(tar), mSec(sec), mDataAcc(static_cast<const AT&>(dataAcc)), mDataPtr(dataPtr) {}
 
     template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
     inline void AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::operator()(size_t start)
@@ -195,25 +195,13 @@ namespace MultiArrayTools
         ExtType last = rootSteps();
 	last.zero();
 	// TODO: ask MA container for data (ptr)!!!
-	//mDataAcc.template exec<typename IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
-	assert(mDataAcc.get(0) != nullptr);
-	assert(mDataAcc.oget(0) != nullptr);
-	assert(mDataPtr == mDataAcc.oget(0));
-	IOp::f(mDataAcc.oget(0),opIndexResolve<OIA>(start,last),mSec,last.next());
-	//IOp::f(mDataPtr,opIndexResolve<OIA>(start,last),mSec,last.next());
+	mDataAcc.template exec<typename IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
     }
 
     template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
     inline void AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
-	//PointerAccess<T> pa(mDataPtr, mDataPtr);
-	//pa.template exec<IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
-	//mDataAcc.template exec<typename IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
-	assert(mDataAcc.get(0) != nullptr);
-	assert(mDataAcc.oget(0) != nullptr);
-	assert(mDataPtr == mDataAcc.oget(0));
-	IOp::f(mDataAcc.oget(0),opIndexResolve<OIA>(start,last),mSec,last.next());
-	//IOp::f(mDataPtr,opIndexResolve<OIA>(start,last),mSec,last.next());
+	mDataAcc.template exec<typename IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
     }
     
     template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>

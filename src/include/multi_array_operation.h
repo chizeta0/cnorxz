@@ -219,7 +219,12 @@ namespace MultiArrayTools
     {
     public:
         typedef AccessClass AC;
-        
+
+	AccessTemplate(const AccessTemplate& in) = default;
+	AccessTemplate(AccessTemplate&& in) = default;
+	AccessTemplate& operator=(const AccessTemplate& in) = default;
+	AccessTemplate& operator=(AccessTemplate&& in) = default;
+
         AccessClass& THIS() { return static_cast<AccessClass&>(*this); }
         const AccessClass& THIS() const { return static_cast<const AccessClass&>(*this); }
 
@@ -240,6 +245,8 @@ namespace MultiArrayTools
     public:
 	typedef T value_type;
 	typedef T in_type;
+
+	friend class AccessTemplate<PointerAccess<T>>;
     private:
 	PointerAccess() = default;
 	
@@ -247,12 +254,13 @@ namespace MultiArrayTools
         T* mOrigPtr = nullptr;
         
     public:
-        PointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr) {}
+        PointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr)
+	{ assert(mPtr != nullptr); assert(mOrigPtr != nullptr); }
 	PointerAccess(const PointerAccess& in) = default;
 	PointerAccess(PointerAccess&& in) = default;
 	PointerAccess& operator=(const PointerAccess& in) = default;
 	PointerAccess& operator=(PointerAccess&& in) = default;
-        
+
         T* get(size_t pos) { return mPtr+pos; }
         T* get(size_t pos) const { return mPtr+pos; }
         PointerAccess<T>& set(size_t pos) { mPtr = mOrigPtr + pos; return *this; }
@@ -292,7 +300,7 @@ namespace MultiArrayTools
 
         Target mTar;
         OpClass mSec;
-	AccessTemplate<AT> mDataAcc;
+	AT mDataAcc;
         T* mDataPtr;
             
     public:
