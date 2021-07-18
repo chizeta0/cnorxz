@@ -254,8 +254,8 @@ namespace MultiArrayTools
         T* mOrigPtr = nullptr;
         
     public:
-        PointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr)
-	{ assert(mPtr != nullptr); assert(mOrigPtr != nullptr); }
+        PointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr) {}
+	
 	PointerAccess(const PointerAccess& in) = default;
 	PointerAccess(PointerAccess&& in) = default;
 	PointerAccess& operator=(const PointerAccess& in) = default;
@@ -273,24 +273,6 @@ namespace MultiArrayTools
         }
     };
 
-    template <typename T>
-    class ConstPointerAccess : public AccessTemplate<ConstPointerAccess<T>>
-    {
-    public:
-	typedef T value_type;
-	typedef T in_type;
-    private:
-        const T* mPtr;
-        
-    public:
-        ConstPointerAccess(T* ptr) : mPtr(ptr) {}
-        
-        const T* get(size_t pos) { return mPtr+pos; }
-        const T* get(size_t pos) const { return mPtr+pos; }
-
-	template <class F, typename Op, class ExtType>
-	inline void exec(size_t pos, const Op& op, ExtType e) const { assert(0); }
-    };
 
     template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr : public ExpressionBase
@@ -301,7 +283,6 @@ namespace MultiArrayTools
         Target mTar;
         OpClass mSec;
 	AT mDataAcc;
-        T* mDataPtr;
             
     public:
 
@@ -310,8 +291,7 @@ namespace MultiArrayTools
         static constexpr size_t SIZE = Target::SIZE + OpClass::SIZE;
         typedef decltype(mTar.rootSteps(0).extend( mSec.rootSteps(0) )) ExtType;
 	    
-        //AssignmentExpr(T* dataPtr, const Target& tar, const OpClass& sec);
-	AssignmentExpr(T* dataPtr, const AccessTemplate<AT>& dataAcc, const Target& tar, const OpClass& sec);
+	AssignmentExpr(const AccessTemplate<AT>& dataAcc, const Target& tar, const OpClass& sec);
         AssignmentExpr(const AssignmentExpr& in) = default;
         AssignmentExpr(AssignmentExpr&& in) = default;
         AssignmentExpr& operator=(const AssignmentExpr& in) = default;
