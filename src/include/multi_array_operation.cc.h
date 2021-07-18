@@ -181,46 +181,46 @@ namespace MultiArrayTools
         return 0;
     }
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::AssignmentExpr(const AccessTemplate<AT>& dataAcc, const Target& tar, const OpClass& sec) :
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::AssignmentExpr(const AccessTemplate<AT>& dataAcc, const Target& tar, const OpClass& sec) :
         mTar(tar), mSec(sec), mDataAcc(static_cast<const AT&>(dataAcc)) {}
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    inline void AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::operator()(size_t start)
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    inline void AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::operator()(size_t start)
     {
         ExtType last = rootSteps();
 	last.zero();
 	// TODO: ask MA container for data (ptr)!!!
-	mDataAcc.template exec<typename IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
+	mDataAcc.template exec<Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
     }
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    inline void AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    inline void AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::operator()(size_t start, ExtType last)
     {
-	mDataAcc.template exec<typename IOp::Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
+	mDataAcc.template exec<Func>(opIndexResolve<OIA>(start,last),mSec,last.next());
     }
     
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    typename AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::ExtType
-    AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::rootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    typename AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::ExtType
+    AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::rootSteps(std::intptr_t iPtrNum) const
     {
 	return mTar.rootSteps(iPtrNum).extend( mSec.rootSteps(iPtrNum) );
     }
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    inline void AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::operator()(size_t mlast, DExt last)
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    inline void AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::operator()(size_t mlast, DExt last)
     {
         (*this)(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
     }
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    inline DExt AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::dRootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    inline DExt AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::dRootSteps(std::intptr_t iPtrNum) const
     {
         return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
     }
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA>
-    inline DExt AssignmentExpr<T,IOp,AT,Target,OpClass,OIA>::dExtension() const
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA>
+    inline DExt AssignmentExpr<T,Func,AT,Target,OpClass,OIA>::dExtension() const
     {
         return nullptr; //???!!!
     }
@@ -556,95 +556,96 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    template <class IOp, class OpClass>
+    template <class Func, class Access, class OpClass>
     auto OperationRoot<T,Ranges...>::asx(const OpClass& in) const
     {
-        static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return mIndex.ifor(1,in.loop(AssignmentExpr<T,IOp,PointerAccess<T>,OperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-                                     (mDataAcc,*this,in))).template vec<IOp::VSIZE>();
+	static_assert(Access::VSIZE > 0, "Access::VSIZE failed");
+	return mIndex.ifor(1,this->template asxExpr<Func,Access>(in)).template vec<Access::VSIZE>();
     }
 
     template <typename T, class... Ranges>
-    template <class IOp, class OpClass>
+    template <class Func, class Access, class OpClass>
     auto OperationRoot<T,Ranges...>::asxExpr(const OpClass& in) const
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return in.loop(AssignmentExpr<T,IOp,PointerAccess<T>,OperationRoot<T,Ranges...>,OpClass>
+        return in.loop(AssignmentExpr<T,Func,PointerAccess<T>,OperationRoot<T,Ranges...>,OpClass>
                        (mDataAcc,*this,in));
     }
     
     template <typename T, class... Ranges>
-    template <class IOp, class OpClass, class Index>
+    template <class Func, class Access, class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::asx(const OpClass& in, const std::shared_ptr<Index>& i) const
     {
-        static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return i->ifor(1,in.loop(AssignmentExpr<T,IOp,PointerAccess<T>,OperationRoot<T,Ranges...>,OpClass>
-                                 (mDataAcc,*this,in))).template vec<IOp::VSIZE>();
+	static_assert(Access::VSIZE > 0, "Access::VSIZE failed");
+        return i->ifor(1,this->template asxExpr<Func,Access>(in)).template vec<Access::VSIZE>();
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::assign(const OpClass& in) const
     {
-        return this->template asx<IAssign<T>>(in);
+        return this->template asx<identity<T>,PointerAccess<T>>(in);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::assignExpr(const OpClass& in) const
     {
-        return this->template asxExpr<IAssign<T>>(in);
+        return this->template asxExpr<identity<T>,PointerAccess<T>>(in);
     }
     
     template <typename T, class... Ranges>
     template <class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::assign(const OpClass& in, const std::shared_ptr<Index>& i) const
     {
-        return this->template asx<IAssign<T>>(in,i);
+        return this->template asx<identity<T>,PointerAccess<T>>(in,i);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in) const
     {
-        return this->template asx<IPlus<T>>(in);
+        return this->template asx<xxxplus<T>,PointerAccess<T>>(in);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in, const std::shared_ptr<Index>& i) const
     {
-        return this->template asx<IPlus<T>>(in,i);
+        return this->template asx<xxxplus<T>,PointerAccess<T>>(in,i);
     }
-
-    template <bool VABLE, template <typename> class F, typename TarOp, class OpClass>
+    
+    template <bool VABLE, class Func, typename TarOp, class OpClass>
     inline void vexec(TarOp& th, const OpClass& in)
     {
+	// VECTORIZATION!!!
+	// PARALLEL!!!
         if constexpr(VABLE){
             CHECK;
             typedef typename TarOp::value_type T;
-            auto x = th.template asx<IVAccess<T,F<T>>>(in);
-            if(x.rootSteps(x.vI()) == 1){
-                //if(0){
+            auto x = th.template asx<Func,VPointerAccess<T>>(in);
+            //if(x.rootSteps(x.vI()) == 1){
+	    if(0){
                 CHECK;
                 x();
             }
             else {
-                th.template asx<IAccess<T,F<T>>>(in)();
+                th.template asx<Func,PointerAccess<T>>(in)();
             }
         }
         else {
             typedef typename TarOp::value_type T;
-            IAccess<T,F<T>> tmp;
-            th.template asx<decltype(tmp)>(in)();
+            //IAccess<T,F<T>> tmp;
+            th.template asx<Func,PointerAccess<T>>(in)();
         }
     }
-
+    
     template <typename T, class... Ranges>
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	vexec<OpClass::VABLE,identity>(*this,in);
+	//asx<identity<T>>(in)();
+	vexec<OpClass::VABLE,identity<T>>(*this,in);
         return *this;
     }
 
@@ -652,7 +653,8 @@ namespace MultiArrayTools
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-	vexec<OpClass::VABLE,xxxplus>(*this,in);
+	//asx<xxxplus<T>>(in)();
+	vexec<OpClass::VABLE,xxxplus<T>>(*this,in);
         return *this;
     }
 
@@ -661,13 +663,13 @@ namespace MultiArrayTools
     {
 	return operator=<OperationRoot<T,Ranges...> >(in);
     }
-
+    /*
     template <typename T, class... Ranges>
     ParallelOperationRoot<T,Ranges...> OperationRoot<T,Ranges...>::par()
     {
         return ParallelOperationRoot<T,Ranges...>(mOrigDataPtr, mIndex);
     }
-    
+    */
     template <typename T, class... Ranges>
     template <class ET>
     inline T& OperationRoot<T,Ranges...>::get(ET pos) const
@@ -722,7 +724,7 @@ namespace MultiArrayTools
 
     /*******************************
      *   ParallelOperationRoot     *
-     *******************************/
+     ******************************
     
     template <typename T, class... Ranges>
     ParallelOperationRoot<T,Ranges...>::
@@ -749,30 +751,30 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... Ranges>
-    template <class IOp, class OpClass>
+    template <class Func, class OpClass>
     auto ParallelOperationRoot<T,Ranges...>::asx(const OpClass& in) const
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return mIndex.pifor(1,in.loop(AssignmentExpr<T,IOp,PointerAccess<T>,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
-				      (mDataAcc,*this,in))).template vec<IOp::VSIZE>();
+        return mIndex.pifor(1,in.loop(AssignmentExpr<T,Func,PointerAccess<T>,ParallelOperationRoot<T,Ranges...>,OpClass,OpIndexAff::TARGET>
+				      (mDataAcc,*this,in))).template vec<Access::VSIZE>();
     }
 
     template <typename T, class... Ranges>
-    template <class IOp, class OpClass>
+    template <class Func, class OpClass>
     auto ParallelOperationRoot<T,Ranges...>::asxExpr(const OpClass& in) const
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return in.loop(AssignmentExpr<T,IOp,PointerAccess<T>,ParallelOperationRoot<T,Ranges...>,OpClass>
+        return in.loop(AssignmentExpr<T,Func,PointerAccess<T>,ParallelOperationRoot<T,Ranges...>,OpClass>
                        (mDataAcc,*this,in));
     }
     
     template <typename T, class... Ranges>
-    template <class IOp, class OpClass, class Index>
+    template <class Func, class OpClass, class Index>
     auto ParallelOperationRoot<T,Ranges...>::asx(const OpClass& in, const std::shared_ptr<Index>& i) const
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return i->pifor(1,in.loop(AssignmentExpr<T,IOp,PointerAccess<T>,ParallelOperationRoot<T,Ranges...>,OpClass>
-                                 (mDataAcc,*this,in))).template vec<IOp::VSIZE>();
+        return i->pifor(1,in.loop(AssignmentExpr<T,Func,PointerAccess<T>,ParallelOperationRoot<T,Ranges...>,OpClass>
+                                 (mDataAcc,*this,in))).template vec<Access::VSIZE>();
     }
 
     template <typename T, class... Ranges>
@@ -837,7 +839,7 @@ namespace MultiArrayTools
     template <class ET>
     inline T& ParallelOperationRoot<T,Ranges...>::get(ET pos) const
     {
-	return mDataPtr[pos.val()/*+mOff*/];
+	return mDataPtr[pos.val()+mOff];
     }
 
     template <typename T, class... Ranges>
@@ -875,7 +877,7 @@ namespace MultiArrayTools
         auto i = mIndex;
 	return mOrigDataPtr + i().pos();
     }
-
+    */
 
     /************************
      *   OperationValue     *

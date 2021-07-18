@@ -133,12 +133,12 @@ namespace MultiArrayTools
 	// empty, implement corresponding constructors...!!!
     }
 
-    /*
+    
     template <class F>
     using VFunc = decltype(mkVFunc(std::declval<F>()));
-    */
-    template <class F>
-    using VFunc = F;
+    
+    //template <class F>
+    //using VFunc = F;
     
     template <typename T, class F, class... Indices>
     class OpAccess
@@ -177,9 +177,9 @@ namespace MultiArrayTools
 	}
     };
 
-    template <typename T, class F>
-    using IVAccess = IAccess<T,F>;
-    /*
+    //template <typename T, class F>
+    //using IVAccess = IAccess<T,F>;
+    
     template <typename T, class F>
     struct IVAccess
     {
@@ -196,7 +196,7 @@ namespace MultiArrayTools
 	    VFunc<F>::selfApply(*reinterpret_cast<value_type*>(t+pos),op.template vget<value_type>(e));
 	}
     };
-    */
+    
 
     template <typename T>
     using xxxplus = plus<T>;
@@ -246,6 +246,8 @@ namespace MultiArrayTools
 	typedef T value_type;
 	typedef T in_type;
 
+	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
+	
 	friend class AccessTemplate<PointerAccess<T>>;
     private:
 	PointerAccess() = default;
@@ -273,8 +275,45 @@ namespace MultiArrayTools
         }
     };
 
+    template <typename T>
+    class VPointerAccess : public AccessTemplate<VPointerAccess<T>>
+    {
+    public:
+	typedef typename VType<T>::type value_type;
+	typedef T in_type;
 
-    template <typename T, class IOp, class AT, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
+	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
+
+	friend class AccessTemplate<VPointerAccess<T>>;
+    private:
+	VPointerAccess() = default;
+	
+        T* mPtr = nullptr;
+        T* mOrigPtr = nullptr;
+        
+    public:
+        VPointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr) {}
+	
+	VPointerAccess(const VPointerAccess& in) = default;
+	VPointerAccess(VPointerAccess&& in) = default;
+	VPointerAccess& operator=(const VPointerAccess& in) = default;
+	VPointerAccess& operator=(VPointerAccess&& in) = default;
+
+        VType<T>* get(size_t pos) { return reinterpret_cast<VType<T>*>(mPtr+pos); }
+        VType<T>* get(size_t pos) const { return reinterpret_cast<VType<T>*>(mPtr+pos); }
+        VPointerAccess<T>& set(size_t pos) { mPtr = mOrigPtr + pos; return *this; }
+        VType<T>* oget(size_t pos) const { return reinterpret_cast<VType<T>*>(mOrigPtr+pos); }
+
+	template <class F, typename Op, class ExtType>
+	inline void exec(size_t pos, const Op& op, ExtType e) const
+        {
+	    CHECK;
+	    F::selfApply(*get(pos),op.vget(e));
+        }
+    };
+
+
+    template <typename T, class Func, class AT, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
     class AssignmentExpr : public ExpressionBase
     {
     private:
@@ -299,7 +338,7 @@ namespace MultiArrayTools
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
 	{
-	    return std::make_shared<AssignmentExpr<T,IOp,PointerAccess<T>,Target,OpClass,OIA>>(*this);
+	    return std::make_shared<AssignmentExpr<T,Func,PointerAccess<T>,Target,OpClass,OIA>>(*this);
 	}
 	
         inline void operator()(size_t start = 0); 
@@ -578,13 +617,13 @@ namespace MultiArrayTools
 
 	OperationRoot(T* data, const IndexType& ind);
 
-        template <class IOp, class OpClass>
+        template <class Func, class Access, class OpClass>
         auto asx(const OpClass& in) const;
 
-        template <class IOp, class OpClass>
+        template <class Func, class Access, class OpClass>
         auto asxExpr(const OpClass& in) const;
             
-        template <class IOp, class OpClass, class Index>
+        template <class Func, class Access, class OpClass, class Index>
         auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const;
             
         template <class OpClass>
@@ -610,7 +649,7 @@ namespace MultiArrayTools
 
         OperationRoot& operator=(const OperationRoot& in);
         
-        ParallelOperationRoot<T,Ranges...> par();
+	auto par() { return *this; }
         
 	template <class ET>
 	inline T& get(ET pos) const;
@@ -633,7 +672,7 @@ namespace MultiArrayTools
 	    -> Slice<T,typename Indices::RangeType...>;
 
     };
-
+    /*
     template <typename T, class... Ranges>
     class ParallelOperationRoot : public OperationTemplate<T,ParallelOperationRoot<T,Ranges...> >
     {
@@ -661,13 +700,13 @@ namespace MultiArrayTools
 
 	ParallelOperationRoot(T* data, const IndexType& ind);
 
-        template <class IOp, class OpClass>
+        template <class Func, class OpClass>
         auto asx(const OpClass& in) const;
 
-        template <class IOp, class OpClass>
+        template <class Func, class OpClass>
         auto asxExpr(const OpClass& in) const;
             
-        template <class IOp, class OpClass, class Index>
+        template <class Func, class OpClass, class Index>
         auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const;
             
         template <class OpClass>
@@ -710,7 +749,7 @@ namespace MultiArrayTools
 	T* data() const;
 
     };
-
+    */
     template <typename T>
     class OperationValue : public OperationTemplate<T,OperationValue<T> >
     {
