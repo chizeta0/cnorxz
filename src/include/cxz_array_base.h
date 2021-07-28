@@ -1,6 +1,6 @@
 
-#ifndef __multi_array_base_h__
-#define __multi_array_base_h__
+#ifndef __cxz_array_base_h__
+#define __cxz_array_base_h__
 
 #include <cstdlib>
 #include <vector>

@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "multi_array_header.h"
+#include "cnorxz.h"
 
 namespace MAT = MultiArrayTools;
 

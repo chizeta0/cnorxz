@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __multi_array_operation_h__
-#define __multi_array_operation_h__
+#ifndef __cxz_operation_h__
+#define __cxz_operation_h__
 
 #include <cstdlib>
 #include <tuple>

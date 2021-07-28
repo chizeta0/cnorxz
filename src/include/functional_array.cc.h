@@ -1,5 +1,5 @@
 
-#include "functional_multi_array.h"
+#include "functional_array.h"
 
 namespace MultiArrayTools
 {

@@ -3,7 +3,7 @@
 #define __dynamic_operation_h__
 
 #include "base_def.h"
-#include "multi_array_operation.h"
+#include "cxz_operation.h"
 
 namespace MultiArrayTools
 {

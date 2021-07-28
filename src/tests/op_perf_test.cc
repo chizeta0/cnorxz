@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "multi_array_header.h"
+#include "cnorxz.h"
 #include "conversions.h"
 
 #include <ctime>

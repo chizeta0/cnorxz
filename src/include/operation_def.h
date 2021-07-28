@@ -2,7 +2,7 @@
 #ifndef __operation_def_h__
 #define __operation_def_h__
 
-#include "multi_array_operation.h"
+#include "cxz_operation.h"
 
 namespace MultiArrayTools
 {

@@ -2,7 +2,7 @@
 #ifndef __ma_conversions_h__
 #define __ma_conversions_h__
 
-#include "multi_array.h"
+#include "cxz_array.h"
 #include "slice.h"
 
 namespace MultiArrayTools

@@ -1,8 +1,8 @@
 
-#ifndef __functional_multi_array__
-#define __functional_multi_array__
+#ifndef __functional_array__
+#define __functional_array__
 
-#include "multi_array_base.h"
+#include "cxz_array_base.h"
 #include "slice.h"
 
 namespace MultiArrayTools

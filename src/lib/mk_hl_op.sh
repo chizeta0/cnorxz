@@ -9,8 +9,8 @@ for x in $(cat ../include/extensions/math.h) ; do
     fff=${xx%\)}
     file=hl_ops/${fff}.cc
     test -f ${file} && rm -f ${file}
-    echo "#include \"multi_array_header.h\"" >> ${file}
-    echo "#include \"hl_multi_array_header.h\"" >> ${file}
+    echo "#include \"cnorxz.h\"" >> ${file}
+    echo "#include \"hl_cnorxz.h\"" >> ${file}
     echo "" >> ${file}
     echo "namespace MultiArrayTools" >> ${file}
     echo "{" >> ${file}
@@ -24,8 +24,8 @@ done
 for fff in plus minus multiplies divides ; do
     file=hl_ops/${fff}.cc
     test -f ${file} && rm -f ${file}
-    echo "#include \"multi_array_header.h\"" >> ${file}
-    echo "#include \"hl_multi_array_header.h\"" >> ${file}
+    echo "#include \"cnorxz.h\"" >> ${file}
+    echo "#include \"hl_cnorxz.h\"" >> ${file}
     echo "" >> ${file}
     echo "namespace MultiArrayTools" >> ${file}
     echo "{" >> ${file}
@@ -37,8 +37,8 @@ done
 for fff in negate ; do
     file=hl_ops/${fff}.cc
     test -f ${file} && rm -f ${file}
-    echo "#include \"multi_array_header.h\"" >> ${file}
-    echo "#include \"hl_multi_array_header.h\"" >> ${file}
+    echo "#include \"cnorxz.h\"" >> ${file}
+    echo "#include \"hl_cnorxz.h\"" >> ${file}
     echo "" >> ${file}
     echo "namespace MultiArrayTools" >> ${file}
     echo "{" >> ${file}

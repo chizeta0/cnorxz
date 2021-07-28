@@ -1,5 +1,5 @@
 
-#include "multi_array.h"
+#include "cxz_array.h"
 #include "statics/static_for.h"
 
 namespace MultiArrayTools

@@ -1,6 +1,6 @@
 
-#include "multi_array_header.h"
-#include "hl_multi_array_header.h"
+#include "cnorxz.h"
+#include "hl_cnorxz.h"
 
 namespace MultiArrayTools
 {

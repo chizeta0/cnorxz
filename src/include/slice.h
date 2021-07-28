@@ -2,8 +2,8 @@
 #ifndef __slice_h__
 #define __slice_h__
 
-#include "multi_array_base.h"
-#include "multi_array_operation.h"
+#include "cxz_array_base.h"
+#include "cxz_operation.h"
 
 namespace MultiArrayTools
 {

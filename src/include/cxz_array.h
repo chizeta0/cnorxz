@@ -1,11 +1,11 @@
 // -*- C++ -*-
 
-#ifndef __multi_array_h__
-#define __multi_array_h__
+#ifndef __cxz_array_h__
+#define __cxz_array_h__
 
 #include <algorithm>
 
-#include "multi_array_base.h"
+#include "cxz_array_base.h"
 #include "ranges/anonymous_range.h"
 
 namespace MultiArrayTools

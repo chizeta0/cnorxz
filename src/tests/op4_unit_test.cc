@@ -1,6 +1,6 @@
 
 #include "test_header.h"
-#include "hl_multi_array_header.h"
+#include "hl_cnorxz.h"
 #include <ctime>
 
 namespace
