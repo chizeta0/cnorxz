@@ -119,7 +119,7 @@ namespace
 
     TEST_F(MapTest, Exec1)
     {
-	MultiArray<double,SRange,SRange> ma1(sr1ptr,sr2ptr,v1);
+	Array<double,SRange,SRange> ma1(sr1ptr,sr2ptr,v1);
 
 
 	auto ii1 = getIndex( rptr<0>( ma1 ) );
@@ -127,8 +127,8 @@ namespace
         
         auto mr = mkMapR( mkMapOp(std::make_shared<plus<size_t>>(),ii1,ii2) , sr1ptr, sr2ptr );
 	//auto mr = mkMapR(std::make_shared<plus<size_t>>(),sr1ptr,sr2ptr);
-	MultiArray<double,MpRange> res(mr);
-	MultiArray<double,MpRange> res2(mr);
+	Array<double,MpRange> res(mr);
+	Array<double,MpRange> res2(mr);
 	auto jj = getIndex( mr );
 	(*jj)(ii1,ii2);
 	///auto jj = mkMapI( std::make_shared<plus<size_t> >(), ii1, ii1 );
@@ -137,8 +137,8 @@ namespace
 	auto mult = mr->explMapMultiplicity();
         res2(jj) += ma1(ii1,ii2) / staticcast<double>( mult(jj) );
 
-	MultiArray<double,TRange> form = res.format(mpr1ptr->outRange());
-	MultiArray<double,TRange> form2 = res2.format(mpr1ptr->outRange());
+	Array<double,TRange> form = res.format(mpr1ptr->outRange());
+	Array<double,TRange> form2 = res2.format(mpr1ptr->outRange());
 	
 	EXPECT_EQ( jj->range()->outRange()->size(), static_cast<size_t>( 10 ) );
  	EXPECT_EQ( jj->range()->mapMultiplicity().at(9), static_cast<size_t>( 3 ) );
@@ -169,7 +169,7 @@ namespace
     
     TEST_F(MetaOp_Test, SimpleCall)
     {
-	FunctionalMultiArray<double,Pow<double>,SR,SR> fma(sr1ptr, sr2ptr);
+	FunctionalArray<double,Pow<double>,SR,SR> fma(sr1ptr, sr2ptr);
 
 	auto i = fma.begin();
 	
@@ -178,8 +178,8 @@ namespace
 
     TEST_F(MetaOp_Test, Operation)
     {
-	FunctionalMultiArray<double,Pow<double>,SR,SR> fma(sr1ptr, sr2ptr);
-	MultiArray<double,SR> res( sr1ptr );
+	FunctionalArray<double,Pow<double>,SR,SR> fma(sr1ptr, sr2ptr);
+	Array<double,SR> res( sr1ptr );
 
 	auto i1 = MAT::getIndex(sr1ptr);
 	auto i2 = MAT::getIndex(sr2ptr);
@@ -203,14 +203,14 @@ namespace
 
     TEST_F(OpTest_Sub, Exec)
     {
-        MultiArray<double,SRange,SRange,SRange> ma1(sr1ptr, sr2ptr, sr3ptr, v1);
-        MultiArray<double,SRange,SRange> ma2(sr3ptr, sr2ptr, v2);
+        Array<double,SRange,SRange,SRange> ma1(sr1ptr, sr2ptr, sr3ptr, v1);
+        Array<double,SRange,SRange> ma2(sr3ptr, sr2ptr, v2);
 
         SubRangeFactory<SRange> subf(sr2ptr, vector<size_t>({0,2}));
         auto subptr = MAT::createExplicit(subf);
         
-        MultiArray<double,SRange,SRange> res(sr3ptr,sr1ptr,0.);
-	MultiArray<double,SRange,SubRange<SRange>,SRange> res2(sr3ptr,subptr,sr1ptr,0.);
+        Array<double,SRange,SRange> res(sr3ptr,sr1ptr,0.);
+	Array<double,SRange,SubRange<SRange>,SRange> res2(sr3ptr,subptr,sr1ptr,0.);
 
         auto i1 = MAT::getIndex( sr1ptr );
         auto i2 = MAT::getIndex( sr2ptr );

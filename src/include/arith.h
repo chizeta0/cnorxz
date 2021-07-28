@@ -1,6 +1,6 @@
 
-#ifndef __arith_h__
-#define __arith_h__
+#ifndef __cxz_arith_h__
+#define __cxz_arith_h__
 
 #include <functional>
 

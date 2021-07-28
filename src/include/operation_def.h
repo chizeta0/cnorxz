@@ -1,6 +1,6 @@
 
-#ifndef __operation_def_h__
-#define __operation_def_h__
+#ifndef __cxz_operation_def_h__
+#define __cxz_operation_def_h__
 
 #include "cxz_operation.h"
 

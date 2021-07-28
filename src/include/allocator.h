@@ -1,6 +1,6 @@
 
-#ifndef __ma_allocator__
-#define __ma_allocator__
+#ifndef __cxz_allocator__
+#define __cxz_allocator__
 
 #include <cstdlib>
 #include <new>

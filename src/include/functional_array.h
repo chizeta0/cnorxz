@@ -1,6 +1,6 @@
 
-#ifndef __functional_array__
-#define __functional_array__
+#ifndef __cxz_functional_array__
+#define __cxz_functional_array__
 
 #include "cxz_array_base.h"
 #include "slice.h"
@@ -9,14 +9,14 @@ namespace CNORXZ
 {
     
     template <typename T, class Function, class... SRanges>
-    class FunctionalMultiArray : public MultiArrayBase<T,SRanges...>
+    class FunctionalArray : public ArrayBase<T,SRanges...>
     {
     public:
 
 	typedef ContainerRange<SRanges...> CRange;
-	typedef MultiArrayBase<T,SRanges...> MAB;
+	typedef ArrayBase<T,SRanges...> MAB;
 	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IndexType;
-	typedef MultiArray<T,SRanges...> MAType;
+	typedef Array<T,SRanges...> MAType;
 	typedef T value_type;
 	
     private:
@@ -27,11 +27,11 @@ namespace CNORXZ
 
     public:
 	
-	DEFAULT_MEMBERS(FunctionalMultiArray);
-	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges, const std::shared_ptr<Function>& func);
-	FunctionalMultiArray(const std::shared_ptr<SRanges>&... ranges);
-	FunctionalMultiArray(const typename CRange::Space& space);
-	FunctionalMultiArray(const typename CRange::Space& space, const std::shared_ptr<Function>& func);
+	DEFAULT_MEMBERS(FunctionalArray);
+	FunctionalArray(const std::shared_ptr<SRanges>&... ranges, const std::shared_ptr<Function>& func);
+	FunctionalArray(const std::shared_ptr<SRanges>&... ranges);
+	FunctionalArray(const typename CRange::Space& space);
+	FunctionalArray(const typename CRange::Space& space, const std::shared_ptr<Function>& func);
 	
 	virtual const T& operator[](const IndexType& i) const override;
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const override;
@@ -40,7 +40,7 @@ namespace CNORXZ
 	virtual bool isConst() const override;	
 	virtual bool isSlice() const override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
+	virtual std::shared_ptr<ArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 
 	auto exec(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
             -> Operation<T,Function,MetaOperationRoot<SRanges>...>;

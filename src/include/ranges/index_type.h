@@ -1,6 +1,6 @@
 
-#ifndef __index_type_h__
-#define __index_type_h__
+#ifndef __cxz_index_type_h__
+#define __cxz_index_type_h__
 
 namespace CNORXZ
 {

@@ -1,6 +1,6 @@
 
-#ifndef __exttype_h__
-#define __exttype_h__
+#ifndef __cxz_exttype_h__
+#define __cxz_exttype_h__
 
 #include <array>
 

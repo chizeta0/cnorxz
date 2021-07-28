@@ -51,7 +51,7 @@ namespace CNORXZ
 
     // Explicitely specify subranges in template argument !!!
     template <typename T, class... SRanges>
-    class MultiArrayBase
+    class ArrayBase
     {
     public:
 
@@ -67,17 +67,17 @@ namespace CNORXZ
 
     public:
 
-	//DEFAULT_MEMBERS(MultiArrayBase);
-	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
-	MultiArrayBase(const typename CRange::Space& space);
+	//DEFAULT_MEMBERS(ArrayBase);
+	ArrayBase(const std::shared_ptr<SRanges>&... ranges);
+	ArrayBase(const typename CRange::Space& space);
 
-	MultiArrayBase() = default;
-	MultiArrayBase(const MultiArrayBase& in);
-	MultiArrayBase(MultiArrayBase&& in);
-	MultiArrayBase& operator=(const MultiArrayBase& in);
-	MultiArrayBase& operator=(MultiArrayBase&& in);
+	ArrayBase() = default;
+	ArrayBase(const ArrayBase& in);
+	ArrayBase(ArrayBase&& in);
+	ArrayBase& operator=(const ArrayBase& in);
+	ArrayBase& operator=(ArrayBase&& in);
 	
-	virtual ~MultiArrayBase() = default;
+	virtual ~ArrayBase() = default;
 
 	template <typename X>
 	const T& operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i);
@@ -100,7 +100,7 @@ namespace CNORXZ
 
 	virtual bool isConst() const;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const = 0;
+	virtual std::shared_ptr<ArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const = 0;
 
 	virtual ConstOperationRoot<T,SRanges...>
 	op(const std::shared_ptr<CIndexType>& ind) const;
@@ -121,26 +121,26 @@ namespace CNORXZ
     };
 
     template <typename T, class... SRanges>
-    class MutableMultiArrayBase : public MultiArrayBase<T,SRanges...>
+    class MutableArrayBase : public ArrayBase<T,SRanges...>
     {
     public:
 
 	typedef ContainerRange<SRanges...> CRange;
-	typedef MultiArrayBase<T,SRanges...> MAB;
+	typedef ArrayBase<T,SRanges...> MAB;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 	typedef ConstContainerIndex<T,typename SRanges::IndexType...> CIndexType;
 	
-	using MultiArrayBase<T,SRanges...>::operator[];
-	using MultiArrayBase<T,SRanges...>::at;
-	using MultiArrayBase<T,SRanges...>::data;
-	using MultiArrayBase<T,SRanges...>::begin;
-	using MultiArrayBase<T,SRanges...>::end;
-	using MultiArrayBase<T,SRanges...>::cbegin;
-	using MultiArrayBase<T,SRanges...>::cend;
+	using ArrayBase<T,SRanges...>::operator[];
+	using ArrayBase<T,SRanges...>::at;
+	using ArrayBase<T,SRanges...>::data;
+	using ArrayBase<T,SRanges...>::begin;
+	using ArrayBase<T,SRanges...>::end;
+	using ArrayBase<T,SRanges...>::cbegin;
+	using ArrayBase<T,SRanges...>::cend;
 	
-	DEFAULT_MEMBERS(MutableMultiArrayBase);
-	MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
-	MutableMultiArrayBase(const typename CRange::Space& space);
+	DEFAULT_MEMBERS(MutableArrayBase);
+	MutableArrayBase(const std::shared_ptr<SRanges>&... ranges);
+	MutableArrayBase(const typename CRange::Space& space);
 
 	template <typename X>
 	T& operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i);

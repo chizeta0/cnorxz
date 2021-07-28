@@ -1,6 +1,6 @@
 
-#ifndef __slice_h__
-#define __slice_h__
+#ifndef __cxz_slice_h__
+#define __cxz_slice_h__
 
 #include "cxz_array_base.h"
 #include "cxz_operation.h"
@@ -8,23 +8,23 @@
 namespace CNORXZ
 {
     template <typename T, class... SRanges>
-    class ConstSlice : public MultiArrayBase<T,SRanges...>
+    class ConstSlice : public ArrayBase<T,SRanges...>
     {
     public:
 
 	typedef ContainerRange<SRanges...> CRange;
-	typedef MultiArrayBase<T,SRanges...> MAB;
+	typedef ArrayBase<T,SRanges...> MAB;
 	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IType;
 
-	using MultiArrayBase<T,SRanges...>::operator();
-        using MultiArrayBase<T,SRanges...>::operator[];
+	using ArrayBase<T,SRanges...>::operator();
+        using ArrayBase<T,SRanges...>::operator[];
 	
 	DEFAULT_MEMBERS(ConstSlice);
 
 	ConstSlice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
 		   const T* data = nullptr);
 	ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data = nullptr);
-	ConstSlice(const MultiArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
+	ConstSlice(const ArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes);
 
 	virtual const T& operator[](const IType& i) const final;
 	virtual const T& at(const typename IType::MetaType& meta) const override;
@@ -36,7 +36,7 @@ namespace CNORXZ
 	virtual auto begin() const -> IType override;
 	virtual auto end() const -> IType override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
+	virtual std::shared_ptr<ArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
 	
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	    -> ConstSliceDef<T,SRanges...>;
@@ -51,18 +51,18 @@ namespace CNORXZ
 
     
     template <typename T, class... SRanges>
-    class Slice : public MutableMultiArrayBase<T,SRanges...>
+    class Slice : public MutableArrayBase<T,SRanges...>
     {
     public:
 
 	typedef ContainerRange<SRanges...> CRange;
-	typedef MultiArrayBase<T,SRanges...> MAB;
+	typedef ArrayBase<T,SRanges...> MAB;
 	typedef ConstContainerIndex<T,typename SRanges::IndexType...> IType;
 
-	using MultiArrayBase<T,SRanges...>::operator();
-	using MutableMultiArrayBase<T,SRanges...>::operator();
-        using MultiArrayBase<T,SRanges...>::operator[];
-	using MutableMultiArrayBase<T,SRanges...>::operator[];
+	using ArrayBase<T,SRanges...>::operator();
+	using MutableArrayBase<T,SRanges...>::operator();
+        using ArrayBase<T,SRanges...>::operator[];
+	using MutableArrayBase<T,SRanges...>::operator[];
 
 	DEFAULT_MEMBERS(Slice);
 
@@ -85,8 +85,8 @@ namespace CNORXZ
 	virtual auto begin() const -> IType override;
 	virtual auto end() const -> IType override;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
-	//virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() override;
+	virtual std::shared_ptr<ArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const override;
+	//virtual std::shared_ptr<ArrayBase<T,AnonymousRange> > anonymousMove() override;
 
 	auto define(const std::shared_ptr<typename SRanges::IndexType>&... inds)
 	    -> SliceDef<T,SRanges...>;

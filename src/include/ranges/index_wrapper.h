@@ -1,6 +1,6 @@
 
-#ifndef __index_wrapper_h__
-#define __index_wrapper_h__
+#ifndef __cxz_index_wrapper_h__
+#define __cxz_index_wrapper_h__
 
 #include "ranges/rbase_def.h"
 #include "xfor/xfor.h"

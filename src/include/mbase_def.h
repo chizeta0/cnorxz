@@ -1,6 +1,6 @@
 
-#ifndef __mbase_def_h__
-#define __mbase_def_h__
+#ifndef __cxz_mbase_def_h__
+#define __cxz_mbase_def_h__
 
 #include "ranges/rbase_def.h"
 #include "allocator.h"
@@ -23,15 +23,15 @@ namespace CNORXZ
 
     // cxz_array.h
     template <typename T, class... SRanges>
-    class MultiArrayBase;
+    class ArrayBase;
 
     // cxz_array.h
     template <typename T, class... SRanges>
-    class MutableMultiArrayBase;
+    class MutableArrayBase;
     
     // cxz_array.h
     template <typename T, class... SRanges>
-    class MultiArray;
+    class Array;
    
     // cxz_operation.h
     template <typename T, class OperationClass>

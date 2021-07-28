@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __single_range_h__
-#define __single_range_h__
+#ifndef __cxz_single_range_h__
+#define __cxz_single_range_h__
 
 #include <cstdlib>
 #include <vector>

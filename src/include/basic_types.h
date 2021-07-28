@@ -1,5 +1,5 @@
-#ifndef __basic_types_h__
-#define __basic_types_h__
+#ifndef __cxz_basic_types_h__
+#define __cxz_basic_types_h__
 
 #include <string>
 

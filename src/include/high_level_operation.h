@@ -1,6 +1,6 @@
 
-#ifndef __high_level_operation_h__
-#define __high_level_operation_h__
+#ifndef __cxz_high_level_operation_h__
+#define __cxz_high_level_operation_h__
 
 #include "base_def.h"
 #include "ranges/rheader.h"

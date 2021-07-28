@@ -1,6 +1,6 @@
 
-//#ifndef __rpheader_h__
-//#define __rpheader_h__
+//#ifndef __cxz_rpheader_h__
+//#define __cxz_rpheader_h__
 
 #include "single_range.h"
 #include "multi_range.h"

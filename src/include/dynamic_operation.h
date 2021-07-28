@@ -1,6 +1,6 @@
 
-#ifndef __dynamic_operation_h__
-#define __dynamic_operation_h__
+#ifndef __cxz_dynamic_operation_h__
+#define __cxz_dynamic_operation_h__
 
 #include "base_def.h"
 #include "cxz_operation.h"
@@ -77,13 +77,13 @@ namespace CNORXZ
 	Operation mOp;
         //OperationRoot<T,Ranges...> mProto;
 	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> mIndices;
-	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
+	std::shared_ptr<Array<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
 
 	
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
 		      std::tuple<std::shared_ptr<typename Ranges::IndexType>...>,
-		      std::tuple<std::shared_ptr<MultiArray<T,Ranges...>>>,
+		      std::tuple<std::shared_ptr<Array<T,Ranges...>>>,
             std::tuple<decltype(mProto.mOp->assign( mOp, mkMIndex(std::shared_ptr<typename Ranges::IndexType>()...) ))>> LoopT;
 	
 	

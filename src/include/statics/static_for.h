@@ -1,6 +1,6 @@
 
-#ifndef __static_for_h__
-#define __static_for_h__
+#ifndef __cxz_static_for_h__
+#define __cxz_static_for_h__
 
 #include <cstdlib>
 

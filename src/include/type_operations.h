@@ -1,6 +1,6 @@
 
-#ifndef __type_operations_h__
-#define __type_operations_h__
+#ifndef __cxz_type_operations_h__
+#define __cxz_type_operations_h__
 
 #include <cstdlib>
 #include <vector>
@@ -20,7 +20,7 @@ namespace CNORXZ
 	using namespace CNORXZInternal;
     }
 
-    // MultiArray
+    // Array
     
     template <typename T, class... Ranges>
     class operate
@@ -30,7 +30,7 @@ namespace CNORXZ
 
 	operate(const std::shared_ptr<typename Ranges::IndexType>&... inds) : ituple(inds...) {}
 	
-	inline auto apply(const MultiArray<T,Ranges...>& ma)
+	inline auto apply(const Array<T,Ranges...>& ma)
 	    -> OperationRoot<T,Ranges...>
 	{
 	    return unpack<0,sizeof...(Ranges),0>
@@ -46,9 +46,9 @@ namespace CNORXZ
     };
 
     template <class OperationClass, typename T, class... Ranges>
-    class OperationTemplate<MultiArray<T,Ranges...>,OperationClass> : public OperationBase<MultiArray<T,Ranges...>,OperationClass>
+    class OperationTemplate<Array<T,Ranges...>,OperationClass> : public OperationBase<Array<T,Ranges...>,OperationClass>
     {
-	typedef OperationBase<MultiArray<T,Ranges...>,OperationClass> OB;
+	typedef OperationBase<Array<T,Ranges...>,OperationClass> OB;
 	
 	auto operator()(const std::shared_ptr<typename Ranges::IndexType>&... indices)
 	    -> Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __base_def_h__
-#define __base_def_h__
+#ifndef __cxz_base_def_h__
+#define __cxz_base_def_h__
 
 #include <cassert>
 

@@ -1,6 +1,6 @@
 
-#ifndef __dynamic_range_h__
-#define __dynamic_range_h__
+#ifndef __cxz_dynamic_range_h__
+#define __cxz_dynamic_range_h__
 
 #include <cassert>
 #include <map>

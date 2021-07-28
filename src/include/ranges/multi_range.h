@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __multi_range_h__
-#define __multi_range_h__
+#ifndef __cxz_multi_range_h__
+#define __cxz_multi_range_h__
 
 #include <cstdlib>
 #include <tuple>

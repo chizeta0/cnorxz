@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __index_base_h__
-#define __index_base_h__
+#ifndef __cxz_index_base_h__
+#define __cxz_index_base_h__
 
 #include <cstdlib>
 #include <string>

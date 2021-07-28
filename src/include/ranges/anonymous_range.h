@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __anonymous_range_h__
-#define __anonymous_range_h__
+#ifndef __cxz_anonymous_range_h__
+#define __cxz_anonymous_range_h__
 
 #include <cstdlib>
 #include <map>

@@ -477,10 +477,10 @@ namespace CNORXZ
         static constexpr bool CONT = true;
         static constexpr bool VABLE = true;
 	
-	ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
+	ConstOperationRoot(const ArrayBase<T,Ranges...>& ma,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
-	ConstOperationRoot(std::shared_ptr<MultiArrayBase<T,Ranges...> > maptr,
+	ConstOperationRoot(std::shared_ptr<ArrayBase<T,Ranges...> > maptr,
 			   const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	ConstOperationRoot(const T* data, const IndexType& ind);
@@ -506,7 +506,7 @@ namespace CNORXZ
 	const T* mDataPtr;
         const T* mOrigDataPtr;
 	IndexType mIndex;
-	std::shared_ptr<MultiArrayBase<T,Ranges...> > mMaPtr; // never remove this ptr, otherwise we lose temporary container instances!
+	std::shared_ptr<ArrayBase<T,Ranges...> > mMaPtr; // never remove this ptr, otherwise we lose temporary container instances!
     };
 
     template <typename T, class Op>
@@ -609,10 +609,10 @@ namespace CNORXZ
 	IndexType mIndex;
 
     public:
-	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+	OperationRoot(MutableArrayBase<T,Ranges...>& ma,
 		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
-	OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+	OperationRoot(MutableArrayBase<T,Ranges...>& ma,
 		      const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices);
 
 	OperationRoot(T* data, const IndexType& ind);
@@ -695,7 +695,7 @@ namespace CNORXZ
 	IndexType mIndex;
 
     public:
-	ParallelOperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+	ParallelOperationRoot(MutableArrayBase<T,Ranges...>& ma,
                               const std::shared_ptr<typename Ranges::IndexType>&... indices);
 
 	ParallelOperationRoot(T* data, const IndexType& ind);

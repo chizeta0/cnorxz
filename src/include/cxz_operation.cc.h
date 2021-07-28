@@ -68,7 +68,7 @@ namespace CNORXZ
     template <class... Indices>
     auto OperationBase<T,OperationClass>::p(const std::shared_ptr<Indices>&... inds) const
     {
-	auto ma = std::make_shared<MultiArray<T,typename Indices::RangeType...>>
+	auto ma = std::make_shared<Array<T,typename Indices::RangeType...>>
 	    (inds->range()... , static_cast<T>(0));
 	(*ma)(inds...) = THIS();
 	return ConstOperationRoot<T,typename Indices::RangeType...>(ma, inds...);
@@ -78,7 +78,7 @@ namespace CNORXZ
     template <class... Indices>
     auto OperationBase<T,OperationClass>::to(const std::shared_ptr<Indices>&... inds) const
     {
-	MultiArray<T,typename Indices::RangeType...> out(inds->range()...);
+	Array<T,typename Indices::RangeType...> out(inds->range()...);
 	out(inds...) = THIS();
 	return out;
     }
@@ -87,7 +87,7 @@ namespace CNORXZ
     template <class... Indices>
     auto OperationBase<T,OperationClass>::addto(const std::shared_ptr<Indices>&... inds) const
     {
-	MultiArray<T,typename Indices::RangeType...> out(inds->range()...,
+	Array<T,typename Indices::RangeType...> out(inds->range()...,
                                                          static_cast<T>(0));
         out(inds...) += THIS();
 	return out;
@@ -97,7 +97,7 @@ namespace CNORXZ
     template <class... Indices>
     auto OperationBase<T,OperationClass>::pto(const std::shared_ptr<Indices>&... inds) const
     {
-	MultiArray<T,typename Indices::RangeType...> out(inds->range()...);
+	Array<T,typename Indices::RangeType...> out(inds->range()...);
 	out(inds...).par() = THIS();
 	return out;
     }
@@ -106,7 +106,7 @@ namespace CNORXZ
     template <class... Indices>
     auto OperationBase<T,OperationClass>::paddto(const std::shared_ptr<Indices>&... inds) const
     {
-	MultiArray<T,typename Indices::RangeType...> out(inds->range()...,
+	Array<T,typename Indices::RangeType...> out(inds->range()...,
                                                          static_cast<T>(0));
         out(inds...).par() += THIS();
 	return out;
@@ -343,7 +343,7 @@ namespace CNORXZ
 
     template <typename T, class... Ranges>
     ConstOperationRoot<T,Ranges...>::
-    ConstOperationRoot(const MultiArrayBase<T,Ranges...>& ma,
+    ConstOperationRoot(const ArrayBase<T,Ranges...>& ma,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mDataPtr(ma.data()),
         mOrigDataPtr(ma.data()),
@@ -355,7 +355,7 @@ namespace CNORXZ
 
     template <typename T, class... Ranges>
     ConstOperationRoot<T,Ranges...>::
-    ConstOperationRoot(std::shared_ptr<MultiArrayBase<T,Ranges...> > maptr,
+    ConstOperationRoot(std::shared_ptr<ArrayBase<T,Ranges...> > maptr,
 		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mDataPtr(maptr->data()),
         mOrigDataPtr(maptr->data()),
@@ -517,7 +517,7 @@ namespace CNORXZ
     
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
-    OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+    OperationRoot(MutableArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mDataPtr(ma.data()),
         mOrigDataPtr(ma.data()),
@@ -531,7 +531,7 @@ namespace CNORXZ
 
     template <typename T, class... Ranges>
     OperationRoot<T,Ranges...>::
-    OperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+    OperationRoot(MutableArrayBase<T,Ranges...>& ma,
 		  const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices) :
 	mDataPtr(ma.data()),
         mOrigDataPtr(ma.data()),
@@ -728,7 +728,7 @@ namespace CNORXZ
     
     template <typename T, class... Ranges>
     ParallelOperationRoot<T,Ranges...>::
-    ParallelOperationRoot(MutableMultiArrayBase<T,Ranges...>& ma,
+    ParallelOperationRoot(MutableArrayBase<T,Ranges...>& ma,
 		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
 	mDataPtr(ma.data()),
         mOrigDataPtr(ma.data()),

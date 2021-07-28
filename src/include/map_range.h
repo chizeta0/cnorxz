@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __map_range_h__
-#define __map_range_h__
+#ifndef __cxz_map_range_h__
+#define __cxz_map_range_h__
 
 #include <cstdlib>
 #include <tuple>
@@ -29,12 +29,12 @@ namespace CNORXZ
     template <class Func, class... Indices>
     auto mkMapOp(const std::shared_ptr<Func>& func,
 		 const std::shared_ptr<Indices>&... is)
-	-> decltype(std::make_tuple(FunctionalMultiArray<typename Func::value_type,Func,
+	-> decltype(std::make_tuple(FunctionalArray<typename Func::value_type,Func,
                                     typename Indices::RangeType...>().exec(is...),
-                                    FunctionalMultiArray<typename Func::value_type,Func,
+                                    FunctionalArray<typename Func::value_type,Func,
                                     typename Indices::RangeType...>()))
     {
-        typedef FunctionalMultiArray<typename Func::value_type,Func,typename Indices::RangeType...> FMA;
+        typedef FunctionalArray<typename Func::value_type,Func,typename Indices::RangeType...> FMA;
         if(Func::FISSTATIC){
             FMA fma(is->range()...);
             return std::make_tuple(fma.exec(is...),fma);
@@ -277,7 +277,7 @@ namespace CNORXZ
         Op mMapf;
 	//Op mMapf;
 	std::shared_ptr<ORType> mOutRange;
-	MultiArray<size_t,ORType> mMapMult;
+	Array<size_t,ORType> mMapMult;
         vector<size_t> mMapPos;
         
     private:
@@ -314,7 +314,7 @@ namespace CNORXZ
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 
-	const MultiArray<size_t,ORType>& mapMultiplicity() const;
+	const Array<size_t,ORType>& mapMultiplicity() const;
 	ConstSlice<size_t,GenMapRange> explMapMultiplicity() const;
 
         vector<size_t> mapPos() const;

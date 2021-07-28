@@ -31,9 +31,9 @@ namespace
 
     TEST_F(OpTest_Spin, Contract)
     {
-	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(sr, sr, sr, sr, sr, sr, sr, sr, data);
-	MultiArray<double,SR,SR> res1( sr, sr );
-	MultiArray<double,SR,SR> res2( sr, sr );
+	Array<double,SR,SR,SR,SR,SR,SR,SR,SR> ma(sr, sr, sr, sr, sr, sr, sr, sr, data);
+	Array<double,SR,SR> res1( sr, sr );
+	Array<double,SR,SR> res2( sr, sr );
 	
 	auto alpha = MAT::getIndex<SR>();
 	auto beta = MAT::getIndex<SR>();
@@ -47,7 +47,7 @@ namespace
 	res1(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	//res1(delta, deltap) += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap);
 	std::clock_t end = std::clock();
-	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
+	std::cout << "Array time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 
 	res2(delta, deltap).par() += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(alpha).c(beta).c(gamma);

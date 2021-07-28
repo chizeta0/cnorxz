@@ -415,7 +415,7 @@ namespace CNORXZ
     struct OutRangeMaker<SpaceType::ANY>
     {
         template <class MapF, class ORType>
-        static void mk(std::shared_ptr<ORType>& outRange, MultiArray<size_t,ORType>& mapMult, const MapF& mapf)
+        static void mk(std::shared_ptr<ORType>& outRange, Array<size_t,ORType>& mapMult, const MapF& mapf)
         {
             std::map<typename MapF::value_type,size_t> mult;
             for(auto ii = mapf.begin(); ii.max() != ii.pos(); ++ii) {
@@ -434,7 +434,7 @@ namespace CNORXZ
 
             typename ORType::FType orf(outmeta);
             outRange = std::dynamic_pointer_cast<ORType>( orf.create() );
-            mapMult = MultiArray<size_t,ORType>( outRange, outmult );
+            mapMult = Array<size_t,ORType>( outRange, outmult );
         }
     };
 
@@ -442,7 +442,7 @@ namespace CNORXZ
     struct OutRangeMaker<SpaceType::NONE>
     {
         template <class MapF, class ORType>
-        static void mk(std::shared_ptr<ORType>& outRange, MultiArray<size_t,ORType>& mapMult, const MapF& mapf)
+        static void mk(std::shared_ptr<ORType>& outRange, Array<size_t,ORType>& mapMult, const MapF& mapf)
         {
             static_assert( std::is_same<size_t,typename MapF::value_type>::value,
                            "out range value type for NONE must be size_t" );
@@ -464,7 +464,7 @@ namespace CNORXZ
 
             typename ORType::FType orf(max);
             outRange = std::dynamic_pointer_cast<ORType>( orf.create() );
-            mapMult = MultiArray<size_t,ORType>( outRange, outmult );
+            mapMult = Array<size_t,ORType>( outRange, outmult );
         }
     };
 
@@ -472,7 +472,7 @@ namespace CNORXZ
     template <class MA>
     void GenMapRange<ORType,Op,XSTYPE,Ranges...>::mkOutRange(const MA& mapf)
     {
-	//FunctionalMultiArray<typename MapF::value_type,MapF,Ranges...> fma(mSpace, mMapf);
+	//FunctionalArray<typename MapF::value_type,MapF,Ranges...> fma(mSpace, mMapf);
         OutRangeMaker<XSTYPE>::mk(mOutRange,mMapMult,mapf);
         auto i = mapf.begin();
         mMapPos.resize(i.max());
@@ -666,7 +666,7 @@ namespace CNORXZ
 
     template <class ORType, class Op, SpaceType XSTYPE, class... Ranges>
     auto GenMapRange<ORType,Op,XSTYPE,Ranges...>::mapMultiplicity() const
-	-> const MultiArray<size_t,ORType>&
+	-> const Array<size_t,ORType>&
     {
 	return mMapMult;
     }

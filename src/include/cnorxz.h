@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __cnorxz_h__
-#define __cnorxz_h__
+#ifndef __cxz_cnorxz_h__
+#define __cxz_cnorxz_h__
 
 #include <cstdlib>
 #include "container_index.h"

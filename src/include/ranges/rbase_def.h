@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __ranges_base_def_h__
-#define __ranges_base_def_h__
+#ifndef __cxz_ranges_base_def_h__
+#define __cxz_ranges_base_def_h__
 
 #include <cstdlib>
 

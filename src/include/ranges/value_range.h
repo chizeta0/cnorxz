@@ -1,6 +1,6 @@
 
-#ifndef __value_range_h__
-#define __value_range_h__
+#ifndef __cxz_value_range_h__
+#define __cxz_value_range_h__
 
 #include <cstdlib>
 #include <vector>

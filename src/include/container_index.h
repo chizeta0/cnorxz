@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __container_index_h__
-#define __container_index_h__
+#ifndef __cxz_container_index_h__
+#define __cxz_container_index_h__
 
 #include <cstdlib>
 #include <tuple>

@@ -1,6 +1,6 @@
 
-#ifndef __helper_tools_h__
-#define __helper_tools_h__
+#ifndef __cxz_helper_tools_h__
+#define __cxz_helper_tools_h__
 
 #include "base_def.h"
 #include "slice.h"
@@ -119,35 +119,35 @@ namespace CNORXZ
     
     template <class MArray>
     auto dynamic(const MArray& ma, bool slice = false)
-	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange>>;
+	-> std::shared_ptr<ArrayBase<typename MArray::value_type,DynamicRange>>;
 
     template <class MArray>
     auto mdynamic(MArray& ma, bool slice)
-	-> std::shared_ptr<MutableMultiArrayBase<typename MArray::value_type,DynamicRange>>;
+	-> std::shared_ptr<MutableArrayBase<typename MArray::value_type,DynamicRange>>;
     
     template <typename T, class Range1, class... RangeTypes>
-    auto anonToDynView(const MultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
+    auto anonToDynView(const ArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange>;
 
     template <typename T, class Range1, class... RangeTypes>
-    auto anonToDynView(MutableMultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
+    auto anonToDynView(MutableArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> Slice<T,Range1,RangeTypes...,DynamicRange>;
 
     template <typename T, class Range1, class... RangeTypes>
-    auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange>&& ma)
-	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>;
+    auto dynToAnonMove(Array<T,Range1,RangeTypes...,DynamicRange>&& ma)
+	-> Array<T,Range1,RangeTypes...,AnonymousRange>;
 
     template <typename T>
-    auto anonToDynView(const MultiArrayBase<T,AnonymousRange>& ma)
+    auto anonToDynView(const ArrayBase<T,AnonymousRange>& ma)
 	-> ConstSlice<T,DynamicRange>;
 
     template <typename T>
-    auto anonToDynView(MutableMultiArrayBase<T,AnonymousRange>& ma)
+    auto anonToDynView(MutableArrayBase<T,AnonymousRange>& ma)
 	-> Slice<T,DynamicRange>;
 
     template <typename T>
-    auto dynToAnonMove(MultiArray<T,DynamicRange>&& ma)
-	-> MultiArray<T,AnonymousRange>;
+    auto dynToAnonMove(Array<T,DynamicRange>&& ma)
+	-> Array<T,AnonymousRange>;
 
     template <class Range>
     auto metaSlice(const std::shared_ptr<Range>& r)
@@ -159,15 +159,15 @@ namespace CNORXZ
 
     template <typename T, class... Ranges>
     auto mkArray(const std::shared_ptr<Ranges>&... rs)
-        -> MultiArray<T,Ranges...>;
+        -> Array<T,Ranges...>;
 
     template <typename T, class... Ranges>
     auto mkArrayPtr(const std::shared_ptr<Ranges>&... rs)
-        -> std::shared_ptr<MultiArray<T,Ranges...>>;
+        -> std::shared_ptr<Array<T,Ranges...>>;
 
     template <typename T, class... Ranges>
     auto mkArray(const std::shared_ptr<Ranges>&... rs, const T& val)
-        -> MultiArray<T,Ranges...>;
+        -> Array<T,Ranges...>;
 
     template <class OpTp, class IndTp, class VarTp, class LTp>
     auto mkILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
@@ -214,11 +214,11 @@ namespace CNORXZ
 
     template <class Index>
     inline auto mkOp(const std::shared_ptr<Index>& i)
-	-> decltype(std::declval<FunctionalMultiArray<typename Index::MetaType,
+	-> decltype(std::declval<FunctionalArray<typename Index::MetaType,
 		    identity<typename Index::MetaType>,typename Index::RangeType> >
 		    ().exec(i))
     {
-	FunctionalMultiArray<typename Index::MetaType,
+	FunctionalArray<typename Index::MetaType,
 			     identity<typename Index::MetaType>,
 			     typename Index::RangeType> fma(i->range());
 	return fma.exec(i);

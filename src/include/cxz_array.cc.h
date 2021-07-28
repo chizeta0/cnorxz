@@ -12,21 +12,21 @@ namespace CNORXZ
     }
     
     /*******************
-     *  MultiArray     *	     
+     *  Array     *	     
      *******************/
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const typename CRange::Space& space) :
-	MutableMultiArrayBase<T,SRanges...>(space),
+    Array<T,SRanges...>::Array(const typename CRange::Space& space) :
+	MutableArrayBase<T,SRanges...>(space),
 	mCont(MAB::mRange->size())
     {
 	MAB::mInit = true;
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const typename CRange::Space& space,
+    Array<T,SRanges...>::Array(const typename CRange::Space& space,
 					 const vector<T>& vec) :
-	MutableMultiArrayBase<T,SRanges...>(space),
+	MutableArrayBase<T,SRanges...>(space),
 	mCont(vec)
     {
 	MAB::mInit = true;
@@ -37,24 +37,24 @@ namespace CNORXZ
 
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges) :
-	MutableMultiArrayBase<T,SRanges...>(ranges...),
+    Array<T,SRanges...>::Array(const std::shared_ptr<SRanges>&... ranges) :
+	MutableArrayBase<T,SRanges...>(ranges...),
 	mCont(MAB::mRange->size())
     {
 	MAB::mInit = true;
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, const T& val) : 
-	MutableMultiArrayBase<T,SRanges...>(ranges...),
+    Array<T,SRanges...>::Array(const std::shared_ptr<SRanges>&... ranges, const T& val) : 
+	MutableArrayBase<T,SRanges...>(ranges...),
 	mCont(MAB::mRange->size(), val)
     {
 	MAB::mInit = true;
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, const vector<T>& vec) :
-	MutableMultiArrayBase<T,SRanges...>(ranges...),
+    Array<T,SRanges...>::Array(const std::shared_ptr<SRanges>&... ranges, const vector<T>& vec) :
+	MutableArrayBase<T,SRanges...>(ranges...),
 	mCont(vec)
     {
 	MAB::mInit = true;
@@ -64,8 +64,8 @@ namespace CNORXZ
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, vector<T>&& vec) :
-	MutableMultiArrayBase<T,SRanges...>(ranges...),
+    Array<T,SRanges...>::Array(const std::shared_ptr<SRanges>&... ranges, vector<T>&& vec) :
+	MutableArrayBase<T,SRanges...>(ranges...),
 	mCont(std::forward<vector<T>>(vec))
     {
 	MAB::mInit = true;
@@ -76,8 +76,8 @@ namespace CNORXZ
 
     template <typename T, class... SRanges>
     template <class... Ranges>
-    MultiArray<T,SRanges...>::MultiArray(const std::shared_ptr<SRanges>&... ranges, MultiArray<T,Ranges...>&& in) :
-	MutableMultiArrayBase<T,SRanges...>(ranges...),
+    Array<T,SRanges...>::Array(const std::shared_ptr<SRanges>&... ranges, Array<T,Ranges...>&& in) :
+	MutableArrayBase<T,SRanges...>(ranges...),
         mCont( std::move( in.mCont ) )
     {
         // maybe some checks here in the future...
@@ -87,8 +87,8 @@ namespace CNORXZ
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::MultiArray(MultiArray<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes) :
-	MutableMultiArrayBase<T,SRanges...>
+    Array<T,SRanges...>::Array(Array<T,AnonymousRange>&& ama, SIZET<SRanges>... sizes) :
+	MutableArrayBase<T,SRanges...>
 	( ama.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mCont( std::move( ama.mCont ) )
     {
@@ -97,85 +97,85 @@ namespace CNORXZ
     }
 
     template <typename T, class... SRanges>
-    T& MultiArray<T,SRanges...>::operator[](const IndexType& i)
+    T& Array<T,SRanges...>::operator[](const IndexType& i)
     {
 	return mCont[ i.pos() ];
     }
 
     template <typename T, class... SRanges>
-    const T& MultiArray<T,SRanges...>::operator[](const IndexType& i) const
+    const T& Array<T,SRanges...>::operator[](const IndexType& i) const
     {
 	return mCont[ i.pos() ];
     }
 
     template <typename T, class... SRanges>
-    T& MultiArray<T,SRanges...>::at(const typename IndexType::MetaType& meta)
+    T& Array<T,SRanges...>::at(const typename IndexType::MetaType& meta)
     {
 	return mCont[ MAB::cbegin().at(meta).pos() ];
     }
 
     template <typename T, class... SRanges>
-    const T& MultiArray<T,SRanges...>::at(const typename IndexType::MetaType& meta) const
+    const T& Array<T,SRanges...>::at(const typename IndexType::MetaType& meta) const
     {
 	return mCont[ MAB::cbegin().at(meta).pos() ];
     }
 	
     template <typename T, class... SRanges>
-    bool MultiArray<T,SRanges...>::isConst() const
+    bool Array<T,SRanges...>::isConst() const
     {
 	return false;
     }
     
     template <typename T, class... SRanges>
-    bool MultiArray<T,SRanges...>::isSlice() const
+    bool Array<T,SRanges...>::isSlice() const
     {
 	return false;
     }
 
     template <typename T, class... SRanges>
     template <class... SRanges2>
-    MultiArray<T,SRanges2...> MultiArray<T,SRanges...>::format(const std::shared_ptr<SRanges2>&... nrs)
+    Array<T,SRanges2...> Array<T,SRanges...>::format(const std::shared_ptr<SRanges2>&... nrs)
     {
 	//MAB::mInit = false;
-	return MultiArray<T,SRanges2...>( nrs... , mCont );
+	return Array<T,SRanges2...>( nrs... , mCont );
     }
 
     template <typename T, class... SRanges>
     template <class... SRanges2>
-    MultiArray<T,SRanges2...> MultiArray<T,SRanges...>::format(const std::tuple<std::shared_ptr<SRanges2>...>& nrs)
+    Array<T,SRanges2...> Array<T,SRanges...>::format(const std::tuple<std::shared_ptr<SRanges2>...>& nrs)
     {
 	//MAB::mInit = false;
-	return MultiArray<T,SRanges2...>( nrs , mCont );
+	return Array<T,SRanges2...>( nrs , mCont );
     }
 
     template <typename T, class... SRanges>
     template <class... SRanges2>
-    Slice<T,SRanges2...> MultiArray<T,SRanges...>::slformat(const std::shared_ptr<SRanges2>&... nrs)
+    Slice<T,SRanges2...> Array<T,SRanges...>::slformat(const std::shared_ptr<SRanges2>&... nrs)
     {
         return Slice<T,SRanges2...>( nrs..., mCont.data() );
     }
 
     template <typename T, class... SRanges>
     template <class... SRanges2>
-    ConstSlice<T,SRanges2...> MultiArray<T,SRanges...>::slformat(const std::shared_ptr<SRanges2>&... nrs) const
+    ConstSlice<T,SRanges2...> Array<T,SRanges...>::slformat(const std::shared_ptr<SRanges2>&... nrs) const
     {
         return ConstSlice<T,SRanges2...>( nrs..., mCont.data() );
     }
     
     template <typename T, class... SRanges>
-    const T* MultiArray<T,SRanges...>::data() const
+    const T* Array<T,SRanges...>::data() const
     {
 	return mCont.data();
     }
 
     template <typename T, class... SRanges>
-    T* MultiArray<T,SRanges...>::data()
+    T* Array<T,SRanges...>::data()
     {
 	return mCont.data();
     }
 
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > MultiArray<T,SRanges...>::anonymous(bool slice) const
+    std::shared_ptr<ArrayBase<T,AnonymousRange> > Array<T,SRanges...>::anonymous(bool slice) const
     {
 	AnonymousRangeFactory arf(MAB::mRange->space());
 	if(slice){
@@ -184,14 +184,14 @@ namespace CNORXZ
 		  data() );
 	}
 	else {
-	    return std::make_shared<MultiArray<T,AnonymousRange> >
+	    return std::make_shared<Array<T,AnonymousRange> >
 		( std::dynamic_pointer_cast<AnonymousRange>( arf.create() ),
 		  mCont );
 	}
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator=(const T& in)
+    Array<T,SRanges...>& Array<T,SRanges...>::operator=(const T& in)
     {
 	for(auto& x: mCont){
 	    x = in;
@@ -200,7 +200,7 @@ namespace CNORXZ
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator+=(const MultiArray& in)
+    Array<T,SRanges...>& Array<T,SRanges...>::operator+=(const Array& in)
     {
 	if(not MAB::mInit){ // not initialized by default constructor !!
 	    (*this) = in;
@@ -217,7 +217,7 @@ namespace CNORXZ
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator-=(const MultiArray& in)
+    Array<T,SRanges...>& Array<T,SRanges...>::operator-=(const Array& in)
     {
 	if(not MAB::mInit){ // not initialized by default constructor !!
 	    (*this) = in;
@@ -234,7 +234,7 @@ namespace CNORXZ
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator*=(const T& in)
+    Array<T,SRanges...>& Array<T,SRanges...>::operator*=(const T& in)
     {
 	for(auto& x: mCont){
 	    x *= in;
@@ -243,7 +243,7 @@ namespace CNORXZ
     }
 
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>& MultiArray<T,SRanges...>::operator/=(const T& in)
+    Array<T,SRanges...>& Array<T,SRanges...>::operator/=(const T& in)
     {
 	for(auto& x: mCont){
 	    x /= in;
@@ -252,7 +252,7 @@ namespace CNORXZ
     }
     
     template <typename T, class... SRanges>
-    MultiArray<T,SRanges...>::operator T() const
+    Array<T,SRanges...>::operator T() const
     {
 	//static_assert( sizeof...(SRanges) == 1, "try to cast non-scalar type into scalar" );
 	// TODO: check that SIZE is statically = 1 !!!
@@ -260,7 +260,7 @@ namespace CNORXZ
     }
 
     template <typename T, class... SRanges>
-    auto MultiArray<T,SRanges...>::cat() const
+    auto Array<T,SRanges...>::cat() const
 	-> decltype(ArrayCatter<T>::cat(*this))
     {
 	return ArrayCatter<T>::cat(*this);

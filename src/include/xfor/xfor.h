@@ -1,6 +1,6 @@
 
-#ifndef __xfor_h__
-#define __xfor_h__
+#ifndef __cxz_xfor_h__
+#define __cxz_xfor_h__
 
 #include <cstdlib>
 #include <memory>

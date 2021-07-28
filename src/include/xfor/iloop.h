@@ -1,6 +1,6 @@
 
-#ifndef __ma_iloop_h__
-#define __ma_iloop_h__
+#ifndef __cxz_iloop_h__
+#define __cxz_iloop_h__
 
 #include <cstdlib>
 #include <memory>

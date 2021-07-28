@@ -1,6 +1,6 @@
 
-#ifndef __for_utils_h__
-#define __for_utils_h__
+#ifndef __cxz_for_utils_h__
+#define __cxz_for_utils_h__
 
 //#include "ranges/rheader.h"
 #include <array>

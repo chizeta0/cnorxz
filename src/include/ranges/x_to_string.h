@@ -1,6 +1,6 @@
 
-#ifndef __x_to_string_h__
-#define __x_to_string_h__
+#ifndef __cxz_x_to_string_h__
+#define __cxz_x_to_string_h__
 
 #include <string>
 #include <vector>

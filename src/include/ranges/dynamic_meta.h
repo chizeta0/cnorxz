@@ -1,6 +1,6 @@
 
-#ifndef __dynamic_meta_h__
-#define __dynamic_meta_h__
+#ifndef __cxz_dynamic_meta_h__
+#define __cxz_dynamic_meta_h__
 
 #include <cstdlib>
 #include <utility>
