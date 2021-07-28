@@ -1,11 +1,11 @@
 
 #include "ranges/dynamic_range.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-        using namespace MultiArrayHelper;
+        using namespace CNORXZInternal;
     }
 
 
@@ -186,9 +186,9 @@ namespace MultiArrayTools
     }
 
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace RangeHelper
     {

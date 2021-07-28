@@ -9,12 +9,12 @@
 
 #include "rbase_def.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     class RangeBase;
 }
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     size_t indexId();

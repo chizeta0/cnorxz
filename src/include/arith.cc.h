@@ -1,7 +1,7 @@
 
 #include "arith.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <class F>

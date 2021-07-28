@@ -9,7 +9,7 @@
 #include <ctime>
 #include <cmath>
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 double xround(double arg)
 {

@@ -16,11 +16,11 @@
 
 #include "xfor/for_type.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     
@@ -327,7 +327,7 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /******************
      *  GenSingleIndex   *	     

@@ -21,12 +21,12 @@
 
 #include "statics/static_for.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     template <typename T, class OperationClass>

@@ -2,7 +2,7 @@
 #include "index_wrapper.h"
 #include "range_helper.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <class Index>

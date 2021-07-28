@@ -1,7 +1,7 @@
 
 #include "cxz_array_base.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
         
     /**********************
@@ -270,5 +270,5 @@ namespace MultiArrayTools
 	return ConstOperationRoot<T,MappedRanges...>(*this, inds...);
     }
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 

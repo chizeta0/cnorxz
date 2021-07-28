@@ -12,7 +12,7 @@
 #define MIB_SIZE 1024*1024 // 1MiB
 #define WARN_SIZE MIB_SIZE*100 // 100 MiB
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
 
     template <typename T>
@@ -65,12 +65,12 @@ namespace MultiArrayHelper
     }
 
     
-} // namespace MultiArrayHelper
+} // namespace CNORXZInternal
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename T>
-    using vector = std::vector<T,MultiArrayHelper::Allocator<T>>;
+    using vector = std::vector<T,CNORXZInternal::Allocator<T>>;
 
     template <typename T>
     inline std::vector<T> toStdVec(const vector<T>& v)
@@ -84,6 +84,6 @@ namespace MultiArrayTools
         return vector<T>(v.begin(), v.end());
     }
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

@@ -17,11 +17,11 @@
 
 #include "index_wrapper.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     class DynamicIndex : public IndexInterface<DynamicIndex,vector<char>>
@@ -223,10 +223,10 @@ namespace MultiArrayTools
 
     };
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace RangeHelper
     {

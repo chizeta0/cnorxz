@@ -10,7 +10,7 @@ include_range_type(SPIN,2)
 #ifndef __range_type_spin_def__
 #define __range_type_spin_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     typedef GenSingleIndex<size_t,SpaceType::SPIN,4> SpinIndex;
 

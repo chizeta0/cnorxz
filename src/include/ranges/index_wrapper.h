@@ -6,11 +6,11 @@
 #include "xfor/xfor.h"
 #include "ranges/rheader.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     class IndexWrapperBase

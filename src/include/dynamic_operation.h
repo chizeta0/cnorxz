@@ -5,7 +5,7 @@
 #include "base_def.h"
 #include "cxz_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <typename T>
@@ -204,6 +204,6 @@ namespace MultiArrayTools
 
     };
     */
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

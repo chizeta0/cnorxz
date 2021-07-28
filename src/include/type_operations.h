@@ -13,11 +13,11 @@
 
 #include <cmath>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     // MultiArray
@@ -518,6 +518,6 @@ namespace MultiArrayTools
 	return out;
     }
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

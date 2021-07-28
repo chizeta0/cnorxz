@@ -9,7 +9,7 @@
 #include <functional>
 #include "xfor/iloop.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     template <typename... T>
@@ -173,16 +173,16 @@ namespace MultiArrayTools
     auto mkILoop(const OpTp& opTp, const IndTp& indTp, const VarTp& varTp, const LTp& lTp,
                  const std::array<size_t,std::tuple_size<LTp>::value>& umpos,
                  const std::array<size_t,std::tuple_size<VarTp>::value>& setzero)
-        -> MultiArrayHelper::ILoop<OpTp,IndTp,VarTp,LTp>
+        -> CNORXZInternal::ILoop<OpTp,IndTp,VarTp,LTp>
     {
-        return MultiArrayHelper::ILoop<OpTp,IndTp,VarTp,LTp>(opTp, indTp, varTp, lTp, umpos, setzero);
+        return CNORXZInternal::ILoop<OpTp,IndTp,VarTp,LTp>(opTp, indTp, varTp, lTp, umpos, setzero);
     }
 
     template <class CF>
     auto mkPILoop(const CF& cf)
-        -> MultiArrayHelper::PILoop<CF>
+        -> CNORXZInternal::PILoop<CF>
     {
-        return MultiArrayHelper::PILoop<CF>(cf);
+        return CNORXZInternal::PILoop<CF>(cf);
     }
 
     template <class IndexType>

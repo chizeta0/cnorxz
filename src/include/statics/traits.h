@@ -1,7 +1,7 @@
 
 #include "base_def.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <typename T>

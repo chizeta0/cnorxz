@@ -17,12 +17,12 @@
 
 #include "xfor/for_type.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
     
     template <typename U>
@@ -138,13 +138,13 @@ namespace MultiArrayTools
 	ValueRange() = default;
     };
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /*****************
      *  ValueIndex   *	     
@@ -410,6 +410,6 @@ namespace MultiArrayTools
     }
 
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

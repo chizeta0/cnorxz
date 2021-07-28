@@ -8,7 +8,7 @@
 #include "cnorxz.h"
 //#include "ranges/ranges_header.cc.h"
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 namespace {
 

@@ -13,7 +13,7 @@
 
 #define ONLY_SPIN
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 namespace {
 

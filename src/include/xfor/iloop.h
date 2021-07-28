@@ -9,7 +9,7 @@
 #include <omp.h>
 #include "xfor.h"
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
     template <size_t N>
     struct NN

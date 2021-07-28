@@ -10,7 +10,7 @@
 #ifndef __range_type_classic_def__
 #define __range_type_classic_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     typedef GenSingleIndex<size_t,SpaceType::NONE,MUI> ClassicIndex;
 

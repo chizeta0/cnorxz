@@ -2,7 +2,7 @@
 #include "dynamic_operation.h"
 #include "helper_tools.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename T, class Operation>
     T DynamicOperation<T,Operation>::get(const DExtT& pos) const
@@ -195,4 +195,4 @@ namespace MultiArrayTools
         return std::make_shared<DynamicOuterOp<T,Operation,Ranges...>>(*this);
     }
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ

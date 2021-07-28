@@ -13,7 +13,7 @@
 
 #include "xfor/xfor.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     template <class I, typename MetaType>
@@ -106,7 +106,7 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /**********************
      *   IndexInterface   *

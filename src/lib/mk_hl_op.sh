@@ -12,7 +12,7 @@ for x in $(cat ../include/extensions/math.h) ; do
     echo "#include \"cnorxz.h\"" >> ${file}
     echo "#include \"hl_cnorxz.h\"" >> ${file}
     echo "" >> ${file}
-    echo "namespace MultiArrayTools" >> ${file}
+    echo "namespace CNORXZ" >> ${file}
     echo "{" >> ${file}
     echo "    template class HighLevelOp<OpCD,x_${fff}<double>,1>;" >> ${file}
     echo "    template class HighLevelOp<OpD,x_${fff}<double>,1>;" >> ${file}
@@ -27,7 +27,7 @@ for fff in plus minus multiplies divides ; do
     echo "#include \"cnorxz.h\"" >> ${file}
     echo "#include \"hl_cnorxz.h\"" >> ${file}
     echo "" >> ${file}
-    echo "namespace MultiArrayTools" >> ${file}
+    echo "namespace CNORXZ" >> ${file}
     echo "{" >> ${file}
     echo "    template class HighLevelOp<OpCD,${fff}x<double,double>,2>;" >> ${file}
     echo "    template class HighLevelOp<OpD,${fff}x<double,double>,2>;" >> ${file}
@@ -40,7 +40,7 @@ for fff in negate ; do
     echo "#include \"cnorxz.h\"" >> ${file}
     echo "#include \"hl_cnorxz.h\"" >> ${file}
     echo "" >> ${file}
-    echo "namespace MultiArrayTools" >> ${file}
+    echo "namespace CNORXZ" >> ${file}
     echo "{" >> ${file}
     echo "    template class HighLevelOp<OpCD,${fff}<double>,1>;" >> ${file}
     echo "    template class HighLevelOp<OpD,${fff}<double>,1>;" >> ${file}

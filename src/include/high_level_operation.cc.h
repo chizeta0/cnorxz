@@ -1,7 +1,7 @@
 
 #include "high_level_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <typename T, class Op>

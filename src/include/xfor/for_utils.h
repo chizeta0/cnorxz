@@ -6,7 +6,7 @@
 #include <array>
 #include <tuple>
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
     namespace {
         template <class Op>
@@ -34,6 +34,6 @@ namespace MultiArrayHelper
 
     };
     
-} // end namespace MultiArrayHelper
+} // end namespace CNORXZInternal
 
 #endif

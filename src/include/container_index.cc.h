@@ -1,7 +1,7 @@
 
 #include "container_index.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     template <typename T, class... Indices>
@@ -437,4 +437,4 @@ namespace MultiArrayTools
 	return IB::mPos >= it.pos();
     }
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ

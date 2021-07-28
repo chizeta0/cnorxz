@@ -15,9 +15,9 @@
 #define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
     << " in " << __func__ << ": " << #a << " = " << a << std::endl; 
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
-    using namespace MultiArrayTools;
+    using namespace CNORXZ;
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
 
@@ -562,7 +562,7 @@ namespace MultiArrayHelper
 
     };
 
-} // namespace MultiArrayHelper
+} // namespace CNORXZInternal
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
@@ -570,7 +570,7 @@ namespace MultiArrayHelper
 
 #include <iostream>
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
     template <class ExtType>
     const ExtType& ExtBase::expl() const
@@ -1035,6 +1035,6 @@ namespace MultiArrayHelper
 
 
     
-} // namespace MultiArrayHelper
+} // namespace CNORXZInternal
 
 #endif

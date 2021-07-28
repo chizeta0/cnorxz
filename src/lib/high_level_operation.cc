@@ -2,7 +2,7 @@
 #include "cnorxz.h"
 #include "hl_cnorxz.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     std::shared_ptr<DynamicIndex> mkSubSpaceX(const std::shared_ptr<DynamicIndex>& di,
 					      size_t max)

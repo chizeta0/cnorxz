@@ -7,7 +7,7 @@
 
 #include "allocator.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     typedef std::pair<const char*,size_t> DynamicMetaElem;
@@ -66,6 +66,6 @@ namespace MultiArrayTools
     };
 
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

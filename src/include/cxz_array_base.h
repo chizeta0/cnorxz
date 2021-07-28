@@ -13,7 +13,7 @@
 
 #include "ranges/rheader.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <class IndexType>
@@ -178,7 +178,7 @@ namespace MultiArrayTools
     };
 
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *

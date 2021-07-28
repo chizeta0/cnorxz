@@ -11,10 +11,10 @@
 
 #include <algorithm>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
-    //using namespace MultiArrayHelpers;
+    //using namespace CNORXZInternals;
 
     template <class... Ranges>
     using STP = std::tuple<std::shared_ptr<Ranges>...>;
@@ -215,4 +215,4 @@ namespace MultiArrayTools
         return reinterpret_cast<std::intptr_t>(this);
     }
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ

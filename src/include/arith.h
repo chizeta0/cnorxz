@@ -4,7 +4,7 @@
 
 #include <functional>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     //template <typename T, class F, typename... As>
@@ -206,7 +206,7 @@ namespace MultiArrayTools
 	}
     };
 
-} // end namespace MultiArrayHelper
+} // end namespace CNORXZInternal
 
 #include "arith.cc.h"
 

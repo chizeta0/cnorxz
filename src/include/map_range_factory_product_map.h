@@ -8,7 +8,7 @@
 #include "ranges/rbase_def.h"
 #include "mbase_def.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     class MapRangeFactoryProductMap
     {

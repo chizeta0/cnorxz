@@ -8,7 +8,7 @@
 #include "cxz_array_base.h"
 #include "ranges/anonymous_range.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename T>
     struct ArrayCatter;

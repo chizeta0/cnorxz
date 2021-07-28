@@ -1,7 +1,7 @@
 
 #include "slice.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     /*******************
@@ -296,5 +296,5 @@ namespace MultiArrayTools
     }
 
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 

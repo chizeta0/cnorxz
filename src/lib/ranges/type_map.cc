@@ -2,7 +2,7 @@
 #include "ranges/type_map.h"
 #include "ranges/ranges_header.cc.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 #define XCOMMAX() ,
 #define include_type(t,n) template struct TypeMap<n>; \

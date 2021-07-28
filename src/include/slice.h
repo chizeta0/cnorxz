@@ -5,7 +5,7 @@
 #include "cxz_array_base.h"
 #include "cxz_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename T, class... SRanges>
     class ConstSlice : public MultiArrayBase<T,SRanges...>
@@ -188,7 +188,7 @@ namespace MultiArrayTools
 	return SliceDef<T,Ranges...>::mkSlice(ind, op);
     }
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *

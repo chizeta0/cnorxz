@@ -18,11 +18,11 @@
 
 #include "xfor/xfor.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
 

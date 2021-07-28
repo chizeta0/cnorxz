@@ -4,7 +4,7 @@
 
 #include <cstdlib>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <size_t BEG, size_t END, int OFF, typename Incr, typename F>
     inline auto sfor(Incr incr, F f)
@@ -94,7 +94,7 @@ namespace MultiArrayTools
 #define MA_DEC [&](auto i) constexpr { return i-1; }
 #define MA_ZCONC [&](auto a, auto b) { return 0; }
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <size_t BEG, size_t END, typename F>
     inline auto sfor_p(F f)

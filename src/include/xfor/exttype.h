@@ -4,7 +4,7 @@
 
 #include <array>
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
     
     struct None;
@@ -375,13 +375,13 @@ namespace MultiArrayHelper
 	return getX<I>(et).get();
     }
 
-} // end namespace MultiArrayHelper
+} // end namespace CNORXZInternal
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
 
     template <class X>
@@ -517,7 +517,7 @@ namespace MultiArrayHelper
 	return getX<N>(*this);
     }
 
-} // end namespace MultiArrayHelper
+} // end namespace CNORXZInternal
 
 
 #endif

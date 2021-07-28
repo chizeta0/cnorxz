@@ -5,7 +5,7 @@
 #include "cxz_array_base.h"
 #include "slice.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     template <typename T, class Function, class... SRanges>
@@ -51,7 +51,7 @@ namespace MultiArrayTools
     };
 
   
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *

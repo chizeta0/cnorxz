@@ -1,7 +1,7 @@
 
 #include "functional_array.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
 
@@ -96,4 +96,4 @@ namespace MultiArrayTools
         return mkOperation( mFunc, MetaOperationRoot<SRanges>( inds ) ... );
     }
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ

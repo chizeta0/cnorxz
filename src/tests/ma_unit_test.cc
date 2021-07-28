@@ -6,7 +6,7 @@
 
 #include "cnorxz.h"
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 namespace {
 

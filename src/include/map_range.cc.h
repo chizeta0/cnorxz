@@ -2,12 +2,12 @@
 #include "map_range.h"
 #include <type_traits>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     /**************

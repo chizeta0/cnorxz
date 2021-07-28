@@ -6,7 +6,7 @@
 #include "ranges/rheader.h"
 #include "dynamic_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     typedef ClassicRange CR;

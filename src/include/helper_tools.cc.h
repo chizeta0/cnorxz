@@ -1,7 +1,7 @@
 
 #include "helper_tools.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename... T>
     std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)

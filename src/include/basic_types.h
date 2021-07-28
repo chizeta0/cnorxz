@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     // just to fix this forever:

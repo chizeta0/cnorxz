@@ -2,7 +2,7 @@
 #ifndef __for_type_h__
 #define __for_type_h__
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
     
     enum class ForType {
@@ -17,7 +17,7 @@ namespace MultiArrayHelper
     class PFor;
 
     
-} // end namespace MultiArrayHelper
+} // end namespace CNORXZInternal
 
 
 #endif

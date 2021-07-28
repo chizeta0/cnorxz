@@ -4,7 +4,7 @@
 #include "ranges/dynamic_meta.h"
 #include "ranges/ranges_header.cc.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     /*********************
@@ -45,4 +45,4 @@ namespace MultiArrayTools
 
 
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ

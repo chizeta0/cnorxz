@@ -5,7 +5,7 @@
 #include "ranges/rbase_def.h"
 #include "allocator.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /***********************
      *  Provided Types     *

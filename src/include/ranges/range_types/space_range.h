@@ -8,7 +8,7 @@ include_range_type(PSPACE,3) // Periodic 1dim space
 #ifndef __range_type_space_def__
 #define __range_type_space_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
      // Periodic 1dim space
     typedef GenSingleIndex<int,SpaceType::PSPACE,MUI> XSpaceIndex;

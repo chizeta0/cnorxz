@@ -2,7 +2,7 @@
 #ifndef __range_helper_h__
 #define __range_helper_h__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace RangeHelper
     {
@@ -167,7 +167,7 @@ namespace MultiArrayTools
 				     RangeTuple& rtp, size_t off, size_t size, SIZET... sizes)
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
-	    ::MultiArrayTools::RangeHelper::resolveSetRange(std::get<N>(rtp), orig, off, size);
+	    ::CNORXZ::RangeHelper::resolveSetRange(std::get<N>(rtp), orig, off, size);
 	    if constexpr(N < tps-1){
 		resolveRangeType<N+1>(orig, rtp, off+size, sizes...);
 	    }
@@ -178,7 +178,7 @@ namespace MultiArrayTools
 				     RangeTuple& rtp, size_t off, size_t size)
 	{
 	    constexpr size_t tps = std::tuple_size<RangeTuple>::value;
-	    ::MultiArrayTools::RangeHelper::resolveSetRange(std::get<N>(rtp), orig, off, size);
+	    ::CNORXZ::RangeHelper::resolveSetRange(std::get<N>(rtp), orig, off, size);
 	}
 
 	template <size_t N, class MetaType, class... Ranges>
@@ -280,6 +280,6 @@ namespace MultiArrayTools
 	}
 
     } // namespace RangeHelper
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

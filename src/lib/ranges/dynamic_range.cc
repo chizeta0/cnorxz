@@ -3,11 +3,11 @@
 #include "ranges/ranges_header.cc.h"
 #include "ma_assert.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-        using namespace MultiArrayHelper;
+        using namespace CNORXZInternal;
     }
 
 
@@ -484,5 +484,5 @@ namespace MultiArrayTools
         return mOrig;
     }
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 

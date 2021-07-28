@@ -5,7 +5,7 @@
 #include "cxz_array.h"
 #include "slice.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace ConversionSizes

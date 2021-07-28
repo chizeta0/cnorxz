@@ -10,7 +10,7 @@
 
 #include "allocator.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <size_t N>

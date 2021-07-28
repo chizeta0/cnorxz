@@ -2,7 +2,7 @@
 #include "cxz_array.h"
 #include "statics/static_for.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename T>
     Scalar<T> scalar(const T& in)

@@ -13,7 +13,7 @@
 #include "statics/static_for.h"
 #include "ranges/range_helper.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     template <typename T, class... Indices>
@@ -302,6 +302,6 @@ namespace MultiArrayTools
 	
     };
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 
 #endif

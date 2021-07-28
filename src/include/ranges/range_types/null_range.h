@@ -10,7 +10,7 @@ include_range_type(NUL,-2)
 #ifndef __range_type_null_def__
 #define __range_type_null_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {   
     typedef GenSingleIndex<size_t,SpaceType::NUL,0> NullIndex;
 

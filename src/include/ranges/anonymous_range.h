@@ -11,7 +11,7 @@
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     typedef GenSingleIndex<size_t,SpaceType::ANON,MUI> AnonymousIndex;
@@ -133,7 +133,7 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     /***********************
@@ -171,7 +171,7 @@ namespace MultiArrayTools
 
     std::shared_ptr<AnonymousRange> defaultRange(size_t size = 0);
 }
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace RangeHelper
     {
@@ -202,7 +202,7 @@ namespace MultiArrayTools
     }
 }
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /***********************
      *   AnonymousRange    *

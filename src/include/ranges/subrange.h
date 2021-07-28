@@ -15,11 +15,11 @@
 
 #include "xfor/for_type.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     template <class Index>
@@ -154,9 +154,9 @@ namespace MultiArrayTools
         
     };
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     /*****************
