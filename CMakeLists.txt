@@ -10,7 +10,7 @@ else()
   message(WARNING "compiler ${CMAKE_CXX_COMPILER_ID} officially not supported")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++14 -Wpedantic -Ofast -march=native -faligned-new -funroll-loops -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++17 -Wpedantic -Ofast -march=native -faligned-new -funroll-loops -fopenmp")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++14 -g -Wpedantic -Ofast -march=native -faligned-new -funroll-loops -fopenmp -ftemplate-backtrace-limit=0")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++14 -g -Wpedantic -O0 -march=native -faligned-new -funroll-loops -fopenmp")
 

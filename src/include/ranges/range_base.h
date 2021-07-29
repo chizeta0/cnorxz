@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __range_base_h__
-#define __range_base_h__
+#ifndef __cxz_range_base_h__
+#define __cxz_range_base_h__
 
 #include <cstdlib>
 #include <vector>
@@ -9,12 +9,12 @@
 
 #include "rbase_def.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     class RangeBase;
 }
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     size_t indexId();
@@ -116,6 +116,8 @@ namespace MultiArrayTools
 	
 	virtual Index begin() const = 0;
 	virtual Index end() const = 0;
+	std::shared_ptr<Index> beginPtr() const { return std::make_shared<Index>(this->begin()); }
+	std::shared_ptr<Index> endPtr() const { return std::make_shared<Index>(this->end()); }
 	virtual std::shared_ptr<IndexWrapperBase> aindex() const override final
         { return mkIndexWrapper(this->begin()); }
 	//{ auto i = std::make_shared<Index>(this->begin()); return std::make_shared<IndexWrapper<Index>>(i); } //!!!

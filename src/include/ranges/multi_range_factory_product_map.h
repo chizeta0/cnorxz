@@ -1,13 +1,13 @@
 
-#ifndef __multi_range_factory_product_map_h__
-#define __multi_range_factory_product_map_h__
+#ifndef __cxz_multi_range_factory_product_map_h__
+#define __cxz_multi_range_factory_product_map_h__
 
 #include <memory>
 #include <vector>
 #include <map>
 #include "ranges/rbase_def.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     class MultiRangeFactoryProductMap
     {

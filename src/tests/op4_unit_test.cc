@@ -1,5 +1,6 @@
 
 #include "test_header.h"
+#include "hl_cnorxz.h"
 #include <ctime>
 
 namespace
@@ -42,13 +43,13 @@ namespace
     {
     protected:
 
-	MultiArray<double,CR,DR> ma1;
-	MultiArray<double,CR,DR> ma2;
-	MultiArray<double,DR> ma3;
-	MultiArray<double,DR> ma5;
+	Array<double,CR,DR> ma1;
+	Array<double,CR,DR> ma2;
+	Array<double,DR> ma3;
+	Array<double,DR> ma5;
 
-	MultiArray<double,CR,DR> res1;
-	MultiArray<double,CR,DR> res2;
+	Array<double,CR,DR> res1;
+	Array<double,CR,DR> res2;
 
 	std::map<std::string,std::shared_ptr<IndexW>> imap;
 

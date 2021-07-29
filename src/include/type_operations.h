@@ -1,6 +1,6 @@
 
-#ifndef __type_operations_h__
-#define __type_operations_h__
+#ifndef __cxz_type_operations_h__
+#define __cxz_type_operations_h__
 
 #include <cstdlib>
 #include <vector>
@@ -9,16 +9,18 @@
 #include "base_def.h"
 #include "mbase_def.h"
 
-#include "pack_num.h"
+#include "statics/static_for.h"
 
-namespace MultiArrayTools
+#include <cmath>
+
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
-    // MultiArray
+    // Array
     
     template <typename T, class... Ranges>
     class operate
@@ -28,10 +30,13 @@ namespace MultiArrayTools
 
 	operate(const std::shared_ptr<typename Ranges::IndexType>&... inds) : ituple(inds...) {}
 	
-	inline auto apply(const MultiArray<T,Ranges...>& ma)
+	inline auto apply(const Array<T,Ranges...>& ma)
 	    -> OperationRoot<T,Ranges...>
 	{
-	    return PackNum<sizeof...(Ranges)-1>::mkElemOperation(ma, ituple);
+	    return unpack<0,sizeof...(Ranges),0>
+		( [&](auto i) constexpr { return i+1; },
+		  [&](auto i){ return std::get<i>(ituple); },
+		  [&](auto... args) { return ma(args...); });
 	}
 
     private:
@@ -41,9 +46,9 @@ namespace MultiArrayTools
     };
 
     template <class OperationClass, typename T, class... Ranges>
-    class OperationTemplate<MultiArray<T,Ranges...>,OperationClass> : public OperationBase<MultiArray<T,Ranges...>,OperationClass>
+    class OperationTemplate<Array<T,Ranges...>,OperationClass> : public OperationBase<Array<T,Ranges...>,OperationClass>
     {
-	typedef OperationBase<MultiArray<T,Ranges...>,OperationClass> OB;
+	typedef OperationBase<Array<T,Ranges...>,OperationClass> OB;
 	
 	auto operator()(const std::shared_ptr<typename Ranges::IndexType>&... indices)
 	    -> Operation<OperationRoot<T,Ranges...>,operate<T,Ranges...>,OperationClass>
@@ -470,7 +475,49 @@ namespace MultiArrayTools
         xsdiv<4>( o._x, a._x );
 	return o;
     }
-   
-} // namespace MultiArrayTools
+
+    inline double xpow(const double& b, const double& e)
+    {
+	return pow(b,e);
+    }
+
+    inline v256 pow(const v256& b, const v256& e)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xpow(b._x[i],e._x[i]);
+	}
+	return out;
+    }
+
+    inline double xexp(const double& a)
+    {
+	return exp(a);
+    }
+
+    inline v256 exp(const v256& a)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xexp(a._x[i]);
+	}
+	return out;
+    }
+
+    inline double xsqrt(const double& a)
+    {
+	return sqrt(a);
+    }
+
+    inline v256 sqrt(const v256& a)
+    {
+	v256 out;
+	for(int i = 0; i < 4; i++){
+	    out._x[i] = xsqrt(a._x[i]);
+	}
+	return out;
+    }
+
+} // namespace CNORXZ
 
 #endif

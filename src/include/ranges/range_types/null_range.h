@@ -4,13 +4,13 @@
 include_range_type(NUL,-2)
 #else
 
-#ifdef __ranges_header__
+#ifdef __cxz_ranges_header__
 // assert, that this is only used within range_types/header.h
 
-#ifndef __range_type_null_def__
-#define __range_type_null_def__
+#ifndef __cxz_range_type_null_def__
+#define __cxz_range_type_null_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {   
     typedef GenSingleIndex<size_t,SpaceType::NUL,0> NullIndex;
 
@@ -89,8 +89,8 @@ namespace MultiArrayTools
 }
 
 
-#endif // #ifndef __range_type_null_def__
+#endif // #ifndef __cxz_range_type_null_def__
 
-#endif // #ifdef __ranges_header__
+#endif // #ifdef __cxz_ranges_header__
 
 #endif // #ifdef include_range_type

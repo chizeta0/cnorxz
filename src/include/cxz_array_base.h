@@ -1,6 +1,6 @@
 
-#ifndef __multi_array_base_h__
-#define __multi_array_base_h__
+#ifndef __cxz_array_base_h__
+#define __cxz_array_base_h__
 
 #include <cstdlib>
 #include <vector>
@@ -13,7 +13,7 @@
 
 #include "ranges/rheader.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <class IndexType>
@@ -51,38 +51,39 @@ namespace MultiArrayTools
 
     // Explicitely specify subranges in template argument !!!
     template <typename T, class... SRanges>
-    class MultiArrayBase
+    class ArrayBase
     {
     public:
 
 	typedef T value_type;
-	typedef ContainerRange<T,SRanges...> CRange;
+	typedef ContainerRange<SRanges...> CRange;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> CIndexType;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
 
     protected:
 	bool mInit = false;
 	std::shared_ptr<CRange> mRange;
-	std::shared_ptr<IndexType> mProtoI;
+	std::shared_ptr<CIndexType> mProtoI;
 
     public:
 
-	//DEFAULT_MEMBERS(MultiArrayBase);
-	MultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
-	MultiArrayBase(const typename CRange::Space& space);
+	//DEFAULT_MEMBERS(ArrayBase);
+	ArrayBase(const std::shared_ptr<SRanges>&... ranges);
+	ArrayBase(const typename CRange::Space& space);
 
-	MultiArrayBase() = default;
-	MultiArrayBase(const MultiArrayBase& in);
-	MultiArrayBase(MultiArrayBase&& in);
-	MultiArrayBase& operator=(const MultiArrayBase& in);
-	MultiArrayBase& operator=(MultiArrayBase&& in);
+	ArrayBase() = default;
+	ArrayBase(const ArrayBase& in);
+	ArrayBase(ArrayBase&& in);
+	ArrayBase& operator=(const ArrayBase& in);
+	ArrayBase& operator=(ArrayBase&& in);
 	
-	virtual ~MultiArrayBase() = default;
+	virtual ~ArrayBase() = default;
 
 	template <typename X>
-	const T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
+	const T& operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i);
         const T& operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is) const;
         
-	virtual const T& operator[](const IndexType& i) const = 0;
+	virtual const T& operator[](const CIndexType& i) const = 0;
 	virtual const T& at(const typename CRange::IndexType::MetaType& meta) const = 0;
 
 	virtual const T* data() const = 0;
@@ -90,20 +91,19 @@ namespace MultiArrayTools
 	virtual size_t size() const; 
 	virtual bool isSlice() const = 0;
 
-	virtual IndexType begin() const;
-	virtual IndexType end() const;
+	virtual CIndexType begin() const;
+	virtual CIndexType end() const;
+	virtual CIndexType cbegin() const;
+	virtual CIndexType cend() const;
 	
-	virtual IndexType beginIndex() const;
-	virtual IndexType endIndex() const;
-
 	virtual const std::shared_ptr<CRange>& range() const;
 
 	virtual bool isConst() const;
 
-	virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const = 0;
+	virtual std::shared_ptr<ArrayBase<T,AnonymousRange> > anonymous(bool slice = false) const = 0;
 
 	virtual ConstOperationRoot<T,SRanges...>
-	op(const std::shared_ptr<IndexType>& ind) const;
+	op(const std::shared_ptr<CIndexType>& ind) const;
 	
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const;
@@ -121,48 +121,49 @@ namespace MultiArrayTools
     };
 
     template <typename T, class... SRanges>
-    class MutableMultiArrayBase : public MultiArrayBase<T,SRanges...>
+    class MutableArrayBase : public ArrayBase<T,SRanges...>
     {
     public:
 
-	typedef ContainerRange<T,SRanges...> CRange;
-	typedef MultiArrayBase<T,SRanges...> MAB;
+	typedef ContainerRange<SRanges...> CRange;
+	typedef ArrayBase<T,SRanges...> MAB;
 	typedef ContainerIndex<T,typename SRanges::IndexType...> IndexType;
+	typedef ConstContainerIndex<T,typename SRanges::IndexType...> CIndexType;
 	
-	using MultiArrayBase<T,SRanges...>::operator[];
-	using MultiArrayBase<T,SRanges...>::at;
-	using MultiArrayBase<T,SRanges...>::data;
-	using MultiArrayBase<T,SRanges...>::begin;
-	using MultiArrayBase<T,SRanges...>::end;
+	using ArrayBase<T,SRanges...>::operator[];
+	using ArrayBase<T,SRanges...>::at;
+	using ArrayBase<T,SRanges...>::data;
+	using ArrayBase<T,SRanges...>::begin;
+	using ArrayBase<T,SRanges...>::end;
+	using ArrayBase<T,SRanges...>::cbegin;
+	using ArrayBase<T,SRanges...>::cend;
 	
-	DEFAULT_MEMBERS(MutableMultiArrayBase);
-	MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges);
-	MutableMultiArrayBase(const typename CRange::Space& space);
+	DEFAULT_MEMBERS(MutableArrayBase);
+	MutableArrayBase(const std::shared_ptr<SRanges>&... ranges);
+	MutableArrayBase(const typename CRange::Space& space);
 
 	template <typename X>
-	T& operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i);
+	T& operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i);
         T& operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is);
         
-	virtual T& operator[](const IndexType& i) = 0;
+	virtual T& operator[](const CIndexType& i) = 0;
 	virtual T& at(const typename CRange::IndexType::MetaType& meta) = 0;
 	
 	virtual T* data() = 0;
 	
-	//virtual IndexType begin();
-	//virtual IndexType end();
+	virtual IndexType begin();
+	virtual IndexType end();
 
 	virtual bool isConst() const override;
 
-	//virtual std::shared_ptr<MultiArrayBase<T,AnonymousRange> > anonymousMove() = 0;
-	
 	virtual ConstOperationRoot<T,SRanges...>
-	op(const std::shared_ptr<IndexType>& ind) const override;
+	op(const std::shared_ptr<CIndexType>& ind) const override;
 
 	virtual ConstOperationRoot<T,SRanges...>
 	operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const override;
 
 	virtual OperationRoot<T,SRanges...>
-	op(const std::shared_ptr<IndexType>& ind);
+	op(const std::shared_ptr<CIndexType>& ind);
 
 	virtual OperationRoot<T,SRanges...> operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds);
 
@@ -177,7 +178,7 @@ namespace MultiArrayTools
     };
 
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *

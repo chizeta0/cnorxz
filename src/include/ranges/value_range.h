@@ -1,6 +1,6 @@
 
-#ifndef __value_range_h__
-#define __value_range_h__
+#ifndef __cxz_value_range_h__
+#define __cxz_value_range_h__
 
 #include <cstdlib>
 #include <vector>
@@ -17,12 +17,12 @@
 
 #include "xfor/for_type.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
     
     template <typename U>
@@ -69,9 +69,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 	
-	std::string id() const;
-	void print(size_t offset);
-
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
 	    -> For<ValueIndex<U>,Expr>;
@@ -141,13 +138,13 @@ namespace MultiArrayTools
 	ValueRange() = default;
     };
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /*****************
      *  ValueIndex   *	     
@@ -273,23 +270,6 @@ namespace MultiArrayTools
     size_t ValueIndex<U>::getStepSize(size_t n)
     {
 	return 1;
-    }
-
-    template <typename U>
-    std::string ValueIndex<U>::id() const
-    {
-	return std::string("val") + std::to_string(IB::mId);
-    }
-
-    template <typename U>
-    void ValueIndex<U>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
     template <typename U>
@@ -430,6 +410,6 @@ namespace MultiArrayTools
     }
 
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

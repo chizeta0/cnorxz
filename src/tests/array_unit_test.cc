@@ -4,9 +4,9 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "multi_array_header.h"
+#include "cnorxz.h"
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 namespace {
 
@@ -98,12 +98,12 @@ namespace {
 
     TEST_F(MATest_1Dim, SimpleCall)
     {
-	MultiArray<double,MATest_1Dim::SRange> ma(srptr, vv);
+	Array<double,MATest_1Dim::SRange> ma(srptr, vv);
 	EXPECT_EQ( ma.size(), 5u);
 	EXPECT_EQ( ma.isConst(), false);
 	EXPECT_EQ( ma.isSlice(), false);	
 	
-	auto i = ma.beginIndex();
+	auto i = ma.cbegin();
 	EXPECT_EQ( ma[ i.at('x') ], 3.141);
 	EXPECT_EQ( ma[ i.at('y') ], 2.718);
 	EXPECT_EQ( ma[ i.at('l') ], 1.618);
@@ -115,7 +115,7 @@ namespace {
     TEST_F(MATest_1Dim, ForLoop)
     {
 	vector<double> v2 = { 0.693 , 2.718, 3.141, 1.618, 9.98 };
-	MultiArray<double,MATest_1Dim::SRange> ma(srptr, std::move( v2 ) );
+	Array<double,MATest_1Dim::SRange> ma(srptr, std::move( v2 ) );
 	size_t cnt = 0;
 	for(auto el: ma){
 
@@ -142,12 +142,12 @@ namespace {
 	swapFactory<SRF>( rfbptr, { 'a', 'c', 'e', 'g', 'i' } );
 	std::shared_ptr<SRange> sr2 = std::dynamic_pointer_cast<SRange>( rfbptr->create() );
 	
-	MultiArray<double,MATest_1Dim::SRange> ma(srptr, vv);
-	auto i = ma.beginIndex();
+	Array<double,MATest_1Dim::SRange> ma(srptr, vv);
+	auto i = ma.cbegin();
 	EXPECT_EQ( ma[ i.at('x') ], 3.141);
 
 	auto ma2 = ma.format( sr2 );
-	auto j = ma2.beginIndex();
+	auto j = ma2.cbegin();
 	
 	EXPECT_EQ( ma[ j.at('a') ], 3.141);
 	EXPECT_EQ( ma[ j.at('c') ], 2.718);
@@ -158,11 +158,11 @@ namespace {
 
     TEST_F(MATest_MDim, SimpleCall)
     {
-	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
+	Array<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
 	EXPECT_EQ( ma.size(), 24u );
 	EXPECT_EQ( ma.range()->dim(), 2u );
 
-	auto i = ma.beginIndex();
+	auto i = ma.cbegin();
 	EXPECT_EQ( ma[ i.at( mkt( mkt('x', 'a'), '1' ) ) ], 2.917);
 	EXPECT_EQ( ma[ i.at( mkt( mkt('x', 'a'), '2' ) ) ], 9.436);
 
@@ -175,10 +175,10 @@ namespace {
     
     TEST_F(MATest_MDim, ReFormat)
     {
-	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
+	Array<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
 
 	auto ma2 = ma.format( sr4ptr );
-	auto i = ma2.beginIndex();
+	auto i = ma2.cbegin();
 	EXPECT_EQ( ma2.at('A') , 2.917 );
 	EXPECT_EQ( ma2[ i.at('G') ], 4.892 );
 	EXPECT_EQ( ma2.at('J') , 4.790 );
@@ -188,7 +188,7 @@ namespace {
 
     TEST_F(MATest_MDim, SliceTest1)
     {
-	MultiArray<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
+	Array<double,MATest_MDim::MRange,MATest_MDim::SRange> ma(mrptr, sr3ptr, vv);
 	Slice<double,MATest_MDim::SRange> sl(sr3ptr);
 
 	auto i = MAT::getIndex(sr3ptr);

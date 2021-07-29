@@ -1,15 +1,15 @@
 
-#include "multi_array_base.h"
+#include "cxz_array_base.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
         
     /**********************
-     *  MultiArrayBase    *	     
+     *  ArrayBase    *	     
      **********************/
 
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>::MultiArrayBase(const MultiArrayBase& in) :
+    ArrayBase<T,SRanges...>::ArrayBase(const ArrayBase& in) :
 	mInit(in.mInit),
 	mRange(in.mRange)
     {
@@ -20,7 +20,7 @@ namespace MultiArrayTools
 	
 
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>::MultiArrayBase(MultiArrayBase&& in) :
+    ArrayBase<T,SRanges...>::ArrayBase(ArrayBase&& in) :
 	mInit(in.mInit),
 	mRange(in.mRange)
     {
@@ -30,7 +30,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>& MultiArrayBase<T,SRanges...>::operator=(const MultiArrayBase& in)
+    ArrayBase<T,SRanges...>& ArrayBase<T,SRanges...>::operator=(const ArrayBase& in)
     {
 	mInit = in.mInit;
 	mRange = in.mRange;
@@ -41,7 +41,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>& MultiArrayBase<T,SRanges...>::operator=(MultiArrayBase&& in)
+    ArrayBase<T,SRanges...>& ArrayBase<T,SRanges...>::operator=(ArrayBase&& in)
     {
 	mInit = in.mInit;
 	mRange = in.mRange;
@@ -52,24 +52,24 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>::MultiArrayBase(const std::shared_ptr<SRanges>&... ranges)
+    ArrayBase<T,SRanges...>::ArrayBase(const std::shared_ptr<SRanges>&... ranges)
     {
-	ContainerRangeFactory<T,SRanges...> crf(ranges...);
-	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
+	ContainerRangeFactory<SRanges...> crf(ranges...);
+	mRange = std::dynamic_pointer_cast<ContainerRange<SRanges...> >( crf.create() );
 	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
 
     template <typename T, class... SRanges>
-    MultiArrayBase<T,SRanges...>::MultiArrayBase(const typename CRange::Space& space)
+    ArrayBase<T,SRanges...>::ArrayBase(const typename CRange::Space& space)
     {
-	ContainerRangeFactory<T,SRanges...> crf(space);
-	mRange = std::dynamic_pointer_cast<ContainerRange<T,SRanges...> >( crf.create() );
+	ContainerRangeFactory<SRanges...> crf(space);
+	mRange = std::dynamic_pointer_cast<ContainerRange<SRanges...> >( crf.create() );
 	mProtoI = std::make_shared<IndexType>( mRange, reinterpret_cast<std::intptr_t>(this) );
     }
 
     template <typename T, class... SRanges>
     template <typename X>
-    const T& MultiArrayBase<T,SRanges...>::operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i)
+    const T& ArrayBase<T,SRanges...>::operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i)
     {
 	IndexType ii(*mProtoI);
 	ii = i;
@@ -77,7 +77,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    const T& MultiArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is) const
+    const T& ArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is) const
     {
 	IndexType ii(*mProtoI);
 	ii(is);
@@ -85,70 +85,62 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... SRanges>
-    size_t MultiArrayBase<T,SRanges...>::size() const
+    size_t ArrayBase<T,SRanges...>::size() const
     {
 	return mRange->size();
     }
 
     template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::begin() const
+    typename ArrayBase<T,SRanges...>::CIndexType ArrayBase<T,SRanges...>::begin() const
     {
-	IndexType i(*mProtoI,true);
+	return cbegin();
+    }
+    
+    template <typename T, class... SRanges>
+    typename ArrayBase<T,SRanges...>::CIndexType ArrayBase<T,SRanges...>::end() const
+    {
+	return end();
+    }
+
+    template <typename T, class... SRanges>
+    typename ArrayBase<T,SRanges...>::CIndexType ArrayBase<T,SRanges...>::cbegin() const
+    {
+	CIndexType i(*mProtoI,true);
 	i = 0;
 	return i.setData(data());
     }
     
     template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType MultiArrayBase<T,SRanges...>::end() const
+    typename ArrayBase<T,SRanges...>::CIndexType ArrayBase<T,SRanges...>::cend() const
     {
-	IndexType i(*mProtoI,true);
+	CIndexType i(*mProtoI,true);
 	i = i.max();
-	//i = mRange->size();
-	return i.setData(data());
-    }
-    
-    template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType
-    MultiArrayBase<T,SRanges...>::beginIndex() const
-    {
-	IndexType i(*mProtoI,true);
-	i = 0;
 	return i.setData(data());
     }
 
     template <typename T, class... SRanges>
-    typename MultiArrayBase<T,SRanges...>::IndexType
-    MultiArrayBase<T,SRanges...>::endIndex() const
-    {
-	IndexType i(*mProtoI,true);
-	i = i.max();
-	//i = mRange->size();
-	return i.setData(data());
-    }
-
-    template <typename T, class... SRanges>
-    const std::shared_ptr<typename MultiArrayBase<T,SRanges...>::CRange>&
-    MultiArrayBase<T,SRanges...>::range() const
+    const std::shared_ptr<typename ArrayBase<T,SRanges...>::CRange>&
+    ArrayBase<T,SRanges...>::range() const
     {
 	return mRange;
     }
 
     template <typename T, class... SRanges>
-    bool MultiArrayBase<T,SRanges...>::isConst() const
+    bool ArrayBase<T,SRanges...>::isConst() const
     {
 	return true;
     }
     
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    ArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
     }
 
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind) const
+    ArrayBase<T,SRanges...>::op(const std::shared_ptr<CIndexType>& ind) const
     {
 	return ConstOperationRoot<T,SRanges...>(data(), *ind);
     }
@@ -156,7 +148,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     template <class... MappedRanges>
     ConstOperationRoot<T,MappedRanges...>
-    MultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
+    ArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
     {
 	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
 		      "number of mapped ranges must be equal to number of original ranges");
@@ -164,14 +156,14 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... SRanges>
-    bool MultiArrayBase<T,SRanges...>::isInit() const
+    bool ArrayBase<T,SRanges...>::isInit() const
     {
 	return mInit;
     }
     
     template <typename T, class... SRanges>
     template <size_t N>
-    auto MultiArrayBase<T,SRanges...>::getRangePtr() const
+    auto ArrayBase<T,SRanges...>::getRangePtr() const
 	-> decltype(mRange->template getPtr<N>())
     {
 	return mRange->template getPtr<N>();
@@ -179,35 +171,20 @@ namespace MultiArrayTools
 
     
     /******************************
-     *  MutableMultiArrayBase     *	     
+     *  MutableArrayBase     *	     
      ******************************/
 
     template <typename T, class... SRanges>
-    MutableMultiArrayBase<T,SRanges...>::MutableMultiArrayBase(const std::shared_ptr<SRanges>&... ranges) :
-	MultiArrayBase<T,SRanges...>(ranges...) {}
+    MutableArrayBase<T,SRanges...>::MutableArrayBase(const std::shared_ptr<SRanges>&... ranges) :
+	ArrayBase<T,SRanges...>(ranges...) {}
 
     template <typename T, class... SRanges>
-    MutableMultiArrayBase<T,SRanges...>::MutableMultiArrayBase(const typename CRange::Space& space) :
-	MultiArrayBase<T,SRanges...>(space) {}
-    /*
-    template <typename T, class... SRanges>
-    typename MutableMultiArrayBase<T,SRanges...>::IndexType MutableMultiArrayBase<T,SRanges...>::begin()
-    {
-	auto i = mRange->begin();
-	return i.setData(data());
-    }
-
-    template <typename T, class... SRanges>
-    typename MutableMultiArrayBase<T,SRanges...>::IndexType MutableMultiArrayBase<T,SRanges...>::end()
-    {
-	auto i = mRange->end();
-	return i.setData(data());
-    }
-    */
+    MutableArrayBase<T,SRanges...>::MutableArrayBase(const typename CRange::Space& space) :
+	ArrayBase<T,SRanges...>(space) {}
 
     template <typename T, class... SRanges>
     template <typename X>
-    T& MutableMultiArrayBase<T,SRanges...>::operator[](const ContainerIndex<X,typename SRanges::IndexType...>& i)
+    T& MutableArrayBase<T,SRanges...>::operator[](const ConstContainerIndex<X,typename SRanges::IndexType...>& i)
     {
 	IndexType ii(*MAB::mProtoI);
 	ii = i;
@@ -215,44 +192,60 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    T& MutableMultiArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is)
+    T& MutableArrayBase<T,SRanges...>::operator[](const std::tuple<IPTR<typename SRanges::IndexType>...>& is)
     {
-	IndexType ii(*MAB::mProtoI);
+	IndexType ii(*MAB::mProtoI,this->data());
 	ii(is);
 	return (*this)[ii];
     }
 
+    template <typename T, class... SRanges>
+    typename MutableArrayBase<T,SRanges...>::IndexType MutableArrayBase<T,SRanges...>::begin()
+    {
+	IndexType i(*MAB::mProtoI,this->data(),true);
+	i = 0;
+	return i.setData(data());
+    }
     
     template <typename T, class... SRanges>
-    bool MutableMultiArrayBase<T,SRanges...>::isConst() const
+    typename MutableArrayBase<T,SRanges...>::IndexType MutableArrayBase<T,SRanges...>::end()
+    {
+	IndexType i(*MAB::mProtoI,this->data(),true);
+	i = i.max();
+	return i.setData(data());
+    }
+
+    
+    template <typename T, class... SRanges>
+    bool MutableArrayBase<T,SRanges...>::isConst() const
     {
 	return false;
     }
 
     template <typename T, class... SRanges>
     OperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds)
+    MutableArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds)
     {
 	return OperationRoot<T,SRanges...>(*this, inds...);
     }
 
     template <typename T, class... SRanges>
     OperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind)
+    MutableArrayBase<T,SRanges...>::op(const std::shared_ptr<CIndexType>& ind)
     {
 	return OperationRoot<T,SRanges...>(data(), *ind);
     }
     
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
+    MutableArrayBase<T,SRanges...>::operator()(const std::shared_ptr<typename SRanges::IndexType>&... inds) const
     {
 	return ConstOperationRoot<T,SRanges...>(*this, inds...);
     }
 
     template <typename T, class... SRanges>
     ConstOperationRoot<T,SRanges...>
-    MutableMultiArrayBase<T,SRanges...>::op(const std::shared_ptr<IndexType>& ind) const
+    MutableArrayBase<T,SRanges...>::op(const std::shared_ptr<CIndexType>& ind) const
     {
 	return ConstOperationRoot<T,SRanges...>(data(), *ind);
     }
@@ -260,7 +253,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     template <class... MappedRanges>
     OperationRoot<T,MappedRanges...>
-    MutableMultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds)
+    MutableArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds)
     {
 	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
 		      "number of mapped ranges must be equal to number of original ranges");
@@ -270,12 +263,12 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     template <class... MappedRanges>
     ConstOperationRoot<T,MappedRanges...>
-    MutableMultiArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
+    MutableArrayBase<T,SRanges...>::m(const std::shared_ptr<typename MappedRanges::IndexType>&... inds) const
     {
 	static_assert(sizeof...(SRanges) == sizeof...(MappedRanges),
 		      "number of mapped ranges must be equal to number of original ranges");
 	return ConstOperationRoot<T,MappedRanges...>(*this, inds...);
     }
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 

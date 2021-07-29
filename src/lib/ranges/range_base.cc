@@ -7,13 +7,14 @@
 
 #include "ranges/range_base.h"
 #include "ranges/ranges_header.cc.h"
+#include "ranges/range_helper.h"
 
 #include <algorithm>
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
-    //using namespace MultiArrayHelpers;
+    //using namespace CNORXZInternals;
 
     template <class... Ranges>
     using STP = std::tuple<std::shared_ptr<Ranges>...>;
@@ -23,8 +24,7 @@ namespace MultiArrayTools
     template <class... Ranges>
     inline bool compareSpaceTypes(const RVEC& rvec)
     {
-	return RPackNum<sizeof...(Ranges)-1>::
-	    template compareSpaceTypes<sizeof...(Ranges),Ranges...>(rvec);
+	return RangeHelper::compareSpaceTypes<sizeof...(Ranges)-1,sizeof...(Ranges),Ranges...>(rvec);
     }
 
     template <class... Ranges>
@@ -32,7 +32,7 @@ namespace MultiArrayTools
     {
 	if(compareSpaceTypes<Ranges...>(rvec)) {
 	    STP<Ranges...> stp;
-	    RPackNum<sizeof...(Ranges)-1>::setSpace(rvec, stp);
+	    RangeHelper::setSpace<sizeof...(Ranges)-1>(rvec, stp);
 	    fptr = std::make_shared<MultiRangeFactory<Ranges...> >(stp);
 	    return true;
 	}
@@ -215,4 +215,4 @@ namespace MultiArrayTools
         return reinterpret_cast<std::intptr_t>(this);
     }
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ

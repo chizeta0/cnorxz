@@ -1,13 +1,13 @@
 
 #include "ranges/dynamic_range.h"
 #include "ranges/ranges_header.cc.h"
-#include "ma_assert.h"
+#include "cxz_assert.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-        using namespace MultiArrayHelper;
+        using namespace CNORXZInternal;
     }
 
 
@@ -303,23 +303,6 @@ namespace MultiArrayTools
 	return mIVec[n].second;
     }
 
-    
-    std::string DynamicIndex::id() const
-    {
-	return std::string("dyn") + std::to_string(IB::mId);
-    }
-
-        
-    void DynamicIndex::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " /*<< meta().first*/ << std::endl;
-    }
-
 
     /***********************
      *   DynamicRange    *
@@ -501,5 +484,5 @@ namespace MultiArrayTools
         return mOrig;
     }
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 

@@ -1,27 +1,28 @@
 // -*- C++ -*-
 
-#ifndef __multi_range_h__
-#define __multi_range_h__
+#ifndef __cxz_multi_range_h__
+#define __cxz_multi_range_h__
 
 #include <cstdlib>
 #include <tuple>
 #include <memory>
 #include <map>
 
-//#include "base_def.h"
 #include "ranges/range_base.h"
 #include "ranges/index_base.h"
 
-#include "ranges/rpack_num.h"
+#include "ranges/range_helper.h"
 #include "ranges/multi_range_factory_product_map.h"
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
-namespace MultiArrayTools
+#include "statics/static_for.h"
+
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
     
     template <class... Indices>
@@ -39,7 +40,7 @@ namespace MultiArrayTools
 
 	static constexpr IndexType sType() { return IndexType::MULTI; }
 	static constexpr size_t sDim() { return sizeof...(Indices); }
-	static constexpr size_t totalDim() { return mkTotalDim<Indices...>(); }
+	static constexpr size_t totalDim() { return (... * Indices::totalDim()); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
         static constexpr bool PARALLEL = std::tuple_element<0,std::tuple<Indices...>>::type::PARALLEL;
@@ -57,10 +58,6 @@ namespace MultiArrayTools
 	
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
-	//MultiIndex(const MultiIndex& in);
-	//MultiIndex& operator=(const MultiIndex& in);
-	template <typename T>
-	MultiIndex& operator=(ContainerIndex<T,Indices...>& ci);
 
 	template <class MRange>
 	MultiIndex(const std::shared_ptr<MRange>& range);
@@ -80,7 +77,7 @@ namespace MultiArrayTools
 	template <size_t N>
 	size_t getBlockSize() const { return std::get<N>(mBlockSizes); }
 	
-	// raplace instances (in contrast to its analogon in ContainerIndex
+	// raplace instances (in contrast to its analogon in ConstContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MultiIndex instances
@@ -113,21 +110,14 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 
-	std::string id() const;
-	void print(size_t offset);
+	template <class Exprs>
+	auto ifor(size_t step, Exprs exs) const;
 
 	template <class Exprs>
-	auto ifor(size_t step, Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs));
-
-	template <class Exprs>
-	auto iforh(size_t step, Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs));
+	auto iforh(size_t step, Exprs exs) const;
 
         template <class Exprs>
-	auto pifor(size_t step, Exprs exs) const
-	    -> decltype(RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs));
-
+	auto pifor(size_t step, Exprs exs) const;
 
     };
 
@@ -146,9 +136,6 @@ namespace MultiArrayTools
 	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
 	MultiRangeFactory(const typename MultiRange<Ranges...>::Space& space);
 
-	template <typename T>
-	MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr);
-	
 	virtual std::shared_ptr<RangeBase> create() override;
 
     private:
@@ -171,7 +158,6 @@ namespace MultiArrayTools
         typedef std::tuple<typename Ranges::IndexType::MetaType...> MetaType;
 	typedef MultiRange RangeType;
 	typedef MultiRangeFactory<Ranges...> FType;
-	//typedef typename RangeInterface<MultiIndex<typename Ranges::IndexType...> >::IndexType IndexType;
 
     protected:
 	MultiRange() = delete;
@@ -222,8 +208,8 @@ namespace MultiArrayTools
 
 	static constexpr bool HASMETACONT = false;
 	static constexpr bool defaultable = false;
-	static constexpr size_t ISSTATIC = SubProp<Ranges...>::ISSTATIC;
-	static constexpr size_t SIZE = SubProp<Ranges...>::SIZE;
+	static constexpr size_t ISSTATIC = (... & Ranges::ISSTATIC);
+	static constexpr size_t SIZE = (... * Ranges::SIZE);
     };
     
 }
@@ -232,12 +218,12 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     // -> define in range_base.cc
@@ -246,43 +232,28 @@ namespace MultiArrayTools
     /******************
      *   MultiIndex   *
      ******************/
-
-    /*
-    template <class... Indices>
-    MultiIndex<Indices...>::MultiIndex(const MultiIndex<Indices...>& in) :
-	IndexInterface<std::tuple<typename Indices::MetaType...> >(in)
-    {
-	RPackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
-    }
-	
-    template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(const MultiIndex<Indices...>& in)
-    {
-	IndexI::operator=(in);
-	RPackNum<sizeof...(Indices)-1>::copy(mIPack, in);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
-	return *this;
-    }
-    */
-    template <class... Indices>
-    template <typename T>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(ContainerIndex<T,Indices...>& ci)
-    {	
-	RPackNum<sizeof...(Indices)-1>::copyInst(mIPack, ci);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
-	return *this;
-    }
     
     template <class... Indices>
     template <class MRange>
     MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
 	IndexInterface<MultiIndex<Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
     {
-	RPackNum<sizeof...(Indices)-1>::construct(mIPack, *range);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
-	RPackNum<sizeof...(Indices)-1>::initBlockSizes(mBlockSizes, mIPack); // has one more element!
+	sfor_mn<sizeof...(Indices),0>
+	    ( [&](auto i) {
+		  auto r = range->template getPtr<i>();
+		  std::get<i>(mIPack) = r->beginPtr();
+		  *std::get<i>(mIPack) = 0;
+		  
+		  std::get<i>(mBlockSizes) = sfor_p<i,sizeof...(Indices)>
+		      ( [&](auto j) { return std::get<j>(mIPack)->max(); } ,
+			[&](auto a, auto b) { return a * b; });
+		  return 0;
+	      });
+	
+	IB::mPos = sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) { return std::get<i>(mIPack); },
+	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
     }
 
     template <class... Indices>
@@ -290,8 +261,16 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	IB::mPos += RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	RPackNum<DIR>::pp( mIPack );
+	IB::mPos += sfor_p<DIR,sizeof...(Indices)>
+	    ( [&](auto i) { return std::get<i>(mIPack)->max(); },
+	      [&](auto a, auto b) { return a * b; } );
+	sfor_m<DIR+1,0>
+	    ( [&](auto i) {
+		auto& si = *std::get<i>( mIPack );
+		if(si.last() and i != 0) { si = 0; return true; }
+		else { ++si; return false; }
+		return false;
+	    } );
 	return *this;
     }
 
@@ -300,8 +279,16 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
-	IB::mPos -= RPackNum<sizeof...(Indices)-DIR-1>::blockSize( mIPack );
-	RPackNum<DIR>::mm( mIPack );
+	IB::mPos -= sfor_p<DIR,sizeof...(Indices)>
+	    ( [&](auto i) { return std::get<i>(mIPack)->max(); },
+	      [&](auto a, auto b) { return a * b; } );
+	sfor_m<DIR+1,0>
+	    ( [&](auto i) {
+		auto& si = *std::get<i>( mIPack );
+		if(si.first() and i != 0) { si = si.max()-1; return true; }
+		else { --si; return false; }
+		return false;
+	    } );
 	return *this;
     }
     
@@ -322,16 +309,15 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices...);
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
-	return *this;
+	return (*this)(std::make_tuple(indices...));
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& indices)
     {
-	RPackNum<sizeof...(Indices)-1>::swapIndices(mIPack, indices);
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, IB::mPos);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
+	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, IB::mPos);
 	return *this;
     }
 
@@ -345,14 +331,20 @@ namespace MultiArrayTools
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
     {
 	IB::mPos = pos;
-	RPackNum<sizeof...(Indices)-1>::setIndexPack(mIPack, pos);
+	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, pos);
 	return *this;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator++()
     {
-	RPackNum<sizeof...(Indices)-1>::pp( mIPack );
+	sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) {
+		auto& si = *std::get<i>( mIPack );
+		if(si.last() and i != 0) { si = 0; return true; }
+		else { ++si; return false; }
+		return false;
+	    } );
 	++IB::mPos;
 	return *this;
     }
@@ -360,15 +352,22 @@ namespace MultiArrayTools
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::operator--()
     {
-	RPackNum<sizeof...(Indices)-1>::mm( mIPack );
+	sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) {
+		auto& si = *std::get<i>( mIPack );
+		if(si.first() and i != 0) { si = si.max()-1; return true; }
+		else { --si; return false; }
+		return false;
+	    } );
 	--IB::mPos;
 	return *this;
     }
 
+
     template <class... Indices>
     int MultiIndex<Indices...>::pp(std::intptr_t idxPtrNum)
     {
-	int tmp = RPackNum<sizeof...(Indices)-1>::pp(mIPack, mBlockSizes, idxPtrNum);
+	const int tmp = RangeHelper::ppx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos += tmp;
 	return tmp;
     }
@@ -376,7 +375,7 @@ namespace MultiArrayTools
     template <class... Indices>
     int MultiIndex<Indices...>::mm(std::intptr_t idxPtrNum)
     {
-	int tmp = RPackNum<sizeof...(Indices)-1>::mm(mIPack, mBlockSizes, idxPtrNum);
+	const int tmp = RangeHelper::mmx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos -= tmp;
 	return tmp;
     }
@@ -391,15 +390,19 @@ namespace MultiArrayTools
     typename MultiIndex<Indices...>::MetaType MultiIndex<Indices...>::meta() const
     {
 	MetaType metaTuple;
-	RPackNum<sizeof...(Indices)-1>::getMetaPos(metaTuple, mIPack);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(metaTuple) = std::get<i>(mIPack)->meta(); return 0; } );
 	return metaTuple;
     }
 
     template <class... Indices>
     MultiIndex<Indices...>& MultiIndex<Indices...>::at(const MetaType& metaPos)
     {
-	RPackNum<sizeof...(Indices)-1>::setMeta(mIPack, metaPos);
-	IB::mPos = RPackNum<sizeof...(Indices)-1>::makePos(mIPack);
+	sfor_pn<0,sizeof...(Indices)>
+	    ( [&](auto i) { std::get<i>(mIPack)->at( std::get<i>(metaPos) ); return 0; } );
+	IB::mPos = sfor_m<sizeof...(Indices),0>
+	    ( [&](auto i) { return std::get<i>(mIPack); },
+	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
 	return *this;
     }
 
@@ -444,47 +447,26 @@ namespace MultiArrayTools
 	}
 	return mBlockSizes[n+1];
     }
-    
-    template <class... Indices>
-    std::string MultiIndex<Indices...>::id() const
-    {
-	return std::string("mul") + std::to_string(IB::mId);
-    }
-
-    template <class... Indices>
-    void MultiIndex<Indices...>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "]" << "(" << IB::mRangePtr << "): " << meta() << std::endl;
-	RPackNum<sizeof...(Indices)-1>::printIndex(mIPack, offset+1);
-    }
 
     template <class... Indices>
     template <class Exprs>
     auto MultiIndex<Indices...>::ifor(size_t step, Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs))
     {
-	return RPackNum<sizeof...(Indices)-1>::mkFor(step, mIPack, mBlockSizes, exs);
+	return RangeHelper::mkFor<0>(step, mIPack, mBlockSizes, exs);
     }
 
     template <class... Indices>
     template <class Exprs>
     auto MultiIndex<Indices...>::iforh(size_t step, Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs))
     {
-	return RPackNum<sizeof...(Indices)-1>::mkForh(step, mIPack, mBlockSizes, exs);
+	return RangeHelper::mkForh<0>(step, mIPack, mBlockSizes, exs);
     }
 
     template <class... Indices>
     template <class Exprs>
     auto MultiIndex<Indices...>::pifor(size_t step, Exprs exs) const
-	-> decltype(RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs))
     {
-	return RPackNum<sizeof...(Indices)-1>::mkPFor(step, mIPack, mBlockSizes, exs);
+	return RangeHelper::mkPFor<0>(step, mIPack, mBlockSizes, exs);
     }
 
     /*************************
@@ -504,13 +486,6 @@ namespace MultiArrayTools
     }
 
     template <class... Ranges>
-    template <typename T>
-    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<ContainerRange<T,Ranges...> >& cr)
-    {
-	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( cr->space() ) );
-    }
-    
-    template <class... Ranges>
     std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::create()
     {
 	mProd = checkIfCreated( std::dynamic_pointer_cast<oType>( mProd )->mSpace );
@@ -525,7 +500,9 @@ namespace MultiArrayTools
 	bool check = false;
 	for(auto& x: MultiRangeFactoryProductMap::mAleadyCreated){
 	    if(x.second.size() == sizeof...(Ranges)){
-		check = RPackNum<sizeof...(Ranges)-1>::checkIfCreated(ptp, x.second);
+		check = sfor_p<0,sizeof...(Ranges)>
+		    ( [&](auto i) { return reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ) == x.second[i]; },
+		      [&](auto a, auto b) { return a and b; } );
 		if(check){
 		    out = x.first;
 		    break;
@@ -534,7 +511,8 @@ namespace MultiArrayTools
 	}
 	if(not check){
 	    vector<std::intptr_t> pv(sizeof...(Ranges));
-	    RPackNum<sizeof...(Ranges)-1>::RangesToVec(ptp, pv);
+	    sfor_pn<0,sizeof...(Ranges)>
+		( [&](auto i) { pv[i] = reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ); return 0; } );
 	    MultiRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
 	    out = mProd;
 	}
@@ -561,7 +539,7 @@ namespace MultiArrayTools
     template <class... Ranges>
     size_t MultiRange<Ranges...>::getMeta(const MetaType& metaPos) const
     {
-	return RPackNum<sizeof...(Ranges)-1>::getMeta(mSpace,metaPos);
+	return RangeHelper::getMeta<sizeof...(Ranges)-1>(mSpace,metaPos);
     }
 
     template <class... Ranges>
@@ -574,7 +552,10 @@ namespace MultiArrayTools
     template <class... Indices>
     std::shared_ptr<RangeBase> MultiRange<Indices...>::sub(size_t num) const
     {
-	return RPackNum<sizeof...(Indices)-1>::getSub(mSpace, num);
+	assert(num < sizeof...(Indices));
+	return sforx_p<0,sizeof...(Indices)>
+	    ( [&](auto i) { return std::dynamic_pointer_cast<RangeBase>(std::get<i>(mSpace)); },
+	      [&](auto i) { return num != i;} );
     }
 
     template <class... Ranges>
@@ -586,7 +567,9 @@ namespace MultiArrayTools
     template <class... Ranges>
     size_t MultiRange<Ranges...>::size() const
     {
-	return RPackNum<sizeof...(Ranges)-1>::getSize(mSpace);
+	return sfor_p<0,sizeof...(Ranges)>
+	    ( [&](auto i) { return std::get<i>(mSpace)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
     }
 
     template <class... Ranges>
@@ -605,7 +588,7 @@ namespace MultiArrayTools
     vector<size_t> MultiRange<Ranges...>::typeNum() const
     {
         vector<size_t> o;
-        RPackNum<sizeof...(Ranges)-1>::getTypeNum(o,mSpace);
+	RangeHelper::getTypeNum<sizeof...(Ranges)-1>(o,mSpace);
         return o;
     }
 
@@ -614,13 +597,13 @@ namespace MultiArrayTools
     {
         const size_t off = cmetaSize();
         MetaType* xtarget = reinterpret_cast<MetaType*>(target);
-        return RPackNum<sizeof...(Ranges)-1>::getCMeta(xtarget,pos,mSpace,off);
+        return RangeHelper::getCMeta<sizeof...(Ranges)-1>(xtarget,pos,mSpace,off);
     }
 
     template <class... Ranges>
     size_t MultiRange<Ranges...>::cmetaSize() const
     {
-        return RPackNum<sizeof...(Ranges)-1>::getCMetaSize(mSpace);
+        return RangeHelper::getCMetaSize<0>(mSpace);
     }
 
     template <class... Ranges>
@@ -628,7 +611,7 @@ namespace MultiArrayTools
     {
 	auto i = begin();
 	i = pos;
-	return "[" + RPackNum<sizeof...(Ranges)-1>::getStringMeta(i) + "]";
+	return "[" + RangeHelper::getStringMeta<0>(i) + "]";
     }
 
     template <class... Ranges>
@@ -639,7 +622,12 @@ namespace MultiArrayTools
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
-	RPackNum<sizeof...(Ranges)-1>::fillRangeDataVec(out, mSpace);
+	sfor_pn<0,sizeof...(Ranges)>
+	    ( [&](auto i) {
+		vector<char> part = std::get<i>(mSpace)->data();
+		out.insert(out.end(), part.begin(), part.end());
+		return 0;
+	    } );
 	return out;
     }
 

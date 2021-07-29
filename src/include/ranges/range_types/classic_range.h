@@ -4,13 +4,13 @@
 //#else
 
 #ifndef include_range_type
-#ifdef __ranges_header__
+#ifdef __cxz_ranges_header__
 // assert, that this is only used within range_types/header.h
 
-#ifndef __range_type_classic_def__
-#define __range_type_classic_def__
+#ifndef __cxz_range_type_classic_def__
+#define __cxz_range_type_classic_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     typedef GenSingleIndex<size_t,SpaceType::NONE,MUI> ClassicIndex;
 
@@ -80,8 +80,8 @@ namespace MultiArrayTools
 }
 
 
-#endif // #ifndef __range_type_classic_def__
+#endif // #ifndef __cxz_range_type_classic_def__
 
-#endif // #ifdef __ranges_header__
+#endif // #ifdef __cxz_ranges_header__
 
 #endif // #ifdef include_range_type

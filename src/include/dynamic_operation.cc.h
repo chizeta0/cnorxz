@@ -2,7 +2,7 @@
 #include "dynamic_operation.h"
 #include "helper_tools.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename T, class Operation>
     T DynamicOperation<T,Operation>::get(const DExtT& pos) const
@@ -45,7 +45,7 @@ namespace MultiArrayTools
     DynamicOuterOp<T,Operation,Ranges...>::DynamicOuterOp(const DynamicOuterOp& in) :
 	mThreadId(omp_get_thread_num()), mOp(in.mOp),
 	mIndices(in.mIndices),
-	mMa((mThreadId != in.mThreadId) ? std::make_shared<MultiArray<T,Ranges...>>(*in.mMa) : in.mMa),
+	mMa((mThreadId != in.mThreadId) ? std::make_shared<Array<T,Ranges...>>(*in.mMa) : in.mMa),
 	mProto((mThreadId != in.mThreadId) ? OperationRoot<T,Ranges...>(*mMa,mIndices) : in.mProto),
 	mL((mThreadId != in.mThreadId) ?
 	   mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
@@ -60,7 +60,7 @@ namespace MultiArrayTools
     DynamicOuterOp<T,Operation,Ranges...>::DynamicOuterOp(DynamicOuterOp&& in) :
 	mThreadId(omp_get_thread_num()), mOp(in.mOp),
 	mIndices(in.mIndices),
-	mMa((mThreadId != in.mThreadId) ? std::make_shared<MultiArray<T,Ranges...>>(*in.mMa) : in.mMa),
+	mMa((mThreadId != in.mThreadId) ? std::make_shared<Array<T,Ranges...>>(*in.mMa) : in.mMa),
 	mProto((mThreadId != in.mThreadId) ? OperationRoot<T,Ranges...>(*mMa,mIndices) : in.mProto),
 	mL((mThreadId != in.mThreadId) ?
 	   mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
@@ -79,7 +79,7 @@ namespace MultiArrayTools
 	mOp = in.mOp;
 	mIndices = in.mIndices;
 	if(mThreadId != in.mThreadId){
-	    mMa = std::make_shared<MultiArray<T,Ranges...>>(in.mMa);
+	    mMa = std::make_shared<Array<T,Ranges...>>(in.mMa);
 	    mProto = OperationRoot<T,Ranges...>(*mMa,mIndices);
 	    mL = mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
 			 std::make_tuple(mMa),
@@ -103,7 +103,7 @@ namespace MultiArrayTools
 	mOp = in.mOp;
 	mIndices = in.mIndices;
 	if(mThreadId != in.mThreadId){
-	    mMa = std::make_shared<MultiArray<T,Ranges...>>(in.mMa);
+	    mMa = std::make_shared<Array<T,Ranges...>>(in.mMa);
 	    mProto = OperationRoot<T,Ranges...>(*mMa,mIndices);
 	    mL = mkILoop(std::make_tuple(*mProto.mOp,mOp), mIndices,
 			 std::make_tuple(mMa),
@@ -124,7 +124,7 @@ namespace MultiArrayTools
                                                           const std::shared_ptr<typename Ranges::IndexType>&... inds)
         : mThreadId(omp_get_thread_num()), mOp(op),
 	  mIndices(inds...),
-	  mMa(std::make_shared<MultiArray<T,Ranges...>>(mkArray<T>(inds->range()...))),
+	  mMa(std::make_shared<Array<T,Ranges...>>(mkArray<T>(inds->range()...))),
 	  mProto(OperationRoot<T,Ranges...>(*mMa,inds...)),
           mL(std::make_tuple(*mProto.mOp,mOp), std::make_tuple(inds...),
              std::make_tuple(mMa), std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(inds...) )),
@@ -137,7 +137,7 @@ namespace MultiArrayTools
 	: mThreadId(omp_get_thread_num()),
 	  //mDyn(dyn),
 	  mOp(op), mIndices(inds...),
-	  mMa(std::make_shared<MultiArray<T,Ranges...>>(mkArray<T>(inds->range()...))),
+	  mMa(std::make_shared<Array<T,Ranges...>>(mkArray<T>(inds->range()...))),
 	  mProto(OperationRoot<T,Ranges...>(*mMa,inds...)),
           mL(std::make_tuple(*mProto.mOp,mOp), std::make_tuple(inds...),
              std::make_tuple(mMa), std::make_tuple(mProto.mOp->assign( mOp, mkMIndex(inds...) )),
@@ -195,4 +195,4 @@ namespace MultiArrayTools
         return std::make_shared<DynamicOuterOp<T,Operation,Ranges...>>(*this);
     }
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ

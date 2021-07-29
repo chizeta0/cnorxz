@@ -1,11 +1,11 @@
 
-#ifndef __ma_conversions_h__
-#define __ma_conversions_h__
+#ifndef __cxz_conversions_h__
+#define __cxz_conversions_h__
 
-#include "multi_array.h"
+#include "cxz_array.h"
 #include "slice.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     namespace ConversionSizes
@@ -94,7 +94,7 @@ namespace MultiArrayTools
     }
 
     template <typename C, typename T, class... Ranges>
-    auto tcast(MultiArray<T,Ranges...>& ma)
+    auto tcast(Array<T,Ranges...>& ma)
 	-> decltype(rangeTpToSlice
 	    ( rtcast<C,T>( ma.range()->space() ),
 	      reinterpret_cast<C*>( ma.data() ) ))
@@ -107,7 +107,7 @@ namespace MultiArrayTools
     }
     
     template <typename C, typename T, class... Ranges>
-    auto tcast(const MultiArray<T,Ranges...>& ma)
+    auto tcast(const Array<T,Ranges...>& ma)
 	-> decltype(rangeTpToSlice
 	    ( rtcast<C,T>( ma.range()->space() ),
 	      reinterpret_cast<const C*>( ma.data() ) ))

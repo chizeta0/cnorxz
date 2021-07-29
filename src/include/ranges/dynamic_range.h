@@ -1,6 +1,6 @@
 
-#ifndef __dynamic_range_h__
-#define __dynamic_range_h__
+#ifndef __cxz_dynamic_range_h__
+#define __cxz_dynamic_range_h__
 
 #include <cassert>
 #include <map>
@@ -11,19 +11,17 @@
 
 #include "xfor/xfor.h"
 
-//#include "ranges/rpheader.h"
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 #include "ranges/dynamic_meta.h"
 
 #include "index_wrapper.h"
-#include "rpack_num.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     class DynamicIndex : public IndexInterface<DynamicIndex,vector<char>>
@@ -111,9 +109,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n) const;
         
-	std::string id() const;
-	void print(size_t offset);
-
 	template <class Expr>
 	DynamicExpression ifor(size_t step, Expr ex) const;
 
@@ -228,28 +223,26 @@ namespace MultiArrayTools
 
     };
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 
-namespace MultiArrayHelper
+namespace CNORXZ
 {
-    namespace
+    namespace RangeHelper
     {
-        using namespace MultiArrayTools;
+
+	template <>
+	inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
+						  const vector<std::shared_ptr<RangeBase> >& orig,
+						  size_t origpos, size_t size);
+
+	template <>
+	inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
+						std::shared_ptr<DynamicRange> r);
+
+	template <>
+	inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j);
     }
-
-    template <>
-    inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
-                                              const vector<std::shared_ptr<RangeBase> >& orig,
-                                              size_t origpos, size_t size);
-
-    template <>
-    inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
-                                            std::shared_ptr<DynamicRange> r);
-
-    template <>
-    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j);
-
 }
 
 //#include "dynamic_range.cc.h"

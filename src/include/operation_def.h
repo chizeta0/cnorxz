@@ -1,10 +1,10 @@
 
-#ifndef __operation_def_h__
-#define __operation_def_h__
+#ifndef __cxz_operation_def_h__
+#define __cxz_operation_def_h__
 
-#include "multi_array_operation.h"
+#include "cxz_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <typename T, class OperationClass>

@@ -1,69 +1,75 @@
 
-#ifndef __mbase_def_h__
-#define __mbase_def_h__
+#ifndef __cxz_mbase_def_h__
+#define __cxz_mbase_def_h__
 
 #include "ranges/rbase_def.h"
 #include "allocator.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /***********************
      *  Provided Types     *
      ***********************/
     
-    // multi_array.h
-    template <typename T, class... SRanges>
-    class MultiArrayBase;
+    template <class... Ranges>
+    using ContainerRangeFactory = MultiRangeFactory<Ranges...>;
 
-    // multi_array.h
-    template <typename T, class... SRanges>
-    class MutableMultiArrayBase;
+    template <class... Ranges>
+    using ContainerRange = MultiRange<Ranges...>;
     
-    // multi_array.h
+    // container_index.h
+    template <typename T, class... Indices>
+    class ConstContainerIndex;
+
+    // cxz_array.h
     template <typename T, class... SRanges>
-    class MultiArray;
+    class ArrayBase;
+
+    // cxz_array.h
+    template <typename T, class... SRanges>
+    class MutableArrayBase;
+    
+    // cxz_array.h
+    template <typename T, class... SRanges>
+    class Array;
    
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class OperationClass>
     class OperationBase;
 
-    // multi_array_operation.h
-    //template <typename T>
-    //class MutableOperationBase;
-
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class OperationClass>
     class OperationTemplate;
     
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class... Ranges>
     class OperationRoot;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class... Ranges>
     class ParallelOperationRoot;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T>
     class OperationValue;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class... Ranges>
     class ConstOperationRoot;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class Op>
     class OperationPointer;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class OpFunction, class... Ops>
     class Operation;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class Op, class IndexType>
     class Contraction;
 
-    // multi_array_operation.h
+    // cxz_operation.h
     template <typename T, class Op, class... Indices>
     class SliceContraction;
 

@@ -3,12 +3,12 @@
 include_range_type(PSPACE,3) // Periodic 1dim space
 #else
 
-#ifdef __ranges_header__
+#ifdef __cxz_ranges_header__
 
-#ifndef __range_type_space_def__
-#define __range_type_space_def__
+#ifndef __cxz_range_type_space_def__
+#define __cxz_range_type_space_def__
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
      // Periodic 1dim space
     typedef GenSingleIndex<int,SpaceType::PSPACE,MUI> XSpaceIndex;
@@ -128,8 +128,8 @@ namespace MultiArrayTools
     using MSpaceRF = decltype(CreateNDimSpaceRange<N>::template mkf<SpaceRange>());
 }
 
-#endif // #ifndef __range_type_space_def__
+#endif // #ifndef __cxz_range_type_space_def__
 
-#endif // #ifdef __ranges_header__
+#endif // #ifdef __cxz_ranges_header__
 
 #endif // #ifdef include_range_type

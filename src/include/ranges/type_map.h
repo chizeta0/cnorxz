@@ -1,6 +1,6 @@
 
-#ifndef __ma_type_map_h__
-#define __ma_type_map_h__
+#ifndef __cxz_type_map_h__
+#define __cxz_type_map_h__
 
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@
 
 #include "allocator.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <size_t N>

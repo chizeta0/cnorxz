@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "multi_array_header.h"
+#include "cnorxz.h"
 #include "conversions.h"
 
 #include <ctime>
@@ -13,7 +13,7 @@
 
 #define ONLY_SPIN
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 namespace {
 
@@ -165,8 +165,8 @@ namespace {
 
     void OpTest_Spin::contract()
     {
-	MultiArray<double,SR,SR,SR,SR,SR,SR,SR,SR> ma( sr, sr, sr, sr, sr, sr, sr, sr, data);
-	MultiArray<double,CR,SR,SR> res1( cr, sr, sr );
+	Array<double,SR,SR,SR,SR,SR,SR,SR,SR> ma( sr, sr, sr, sr, sr, sr, sr, sr, data);
+	Array<double,CR,SR,SR> res1( cr, sr, sr );
 
         auto ii = MAT::getIndex<CR>(cr);
         auto jj = MAT::getIndex<CR>(cr);
@@ -174,8 +174,8 @@ namespace {
 	auto beta = MAT::getIndex<SR>();
 	auto gamma = MAT::getIndex<SR>();
 	auto delta = MAT::getIndex<SR>();
-	//auto deltap = MAT::getIndex<SR>();
-	auto deltap = MAT::getIndex<GenSingleRange<size_t,SpaceType::NONE,1>>();
+	auto deltap = MAT::getIndex<SR>();
+	//auto deltap = MAT::getIndex<GenSingleRange<size_t,SpaceType::NONE,1>>();
 	
 	auto mix = MAT::mkMIndex( jj, alpha, beta, gamma );
 
@@ -217,11 +217,11 @@ namespace {
         
         auto begin = std::chrono::system_clock::now();
 	//for(size_t i = 0; i != os; ++i){
-        //res1(ii ,delta, deltap).par() += ma(ii, delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
-        tcast<v256>(res1)(ii ,delta, deltap).par() += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        res1(ii ,delta, deltap).par() += ma(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
+        //tcast<v256>(res1)(ii ,delta, deltap).par() += tcast<v256>(ma)(delta, alpha, alpha, beta, beta, gamma, gamma, deltap).c(mix);
 	//}
         auto end = std::chrono::system_clock::now();
-	std::cout << "MultiArray time: " << std::chrono::duration<double>(end-begin).count()
+	std::cout << "Array time: " << std::chrono::duration<double>(end-begin).count()
 		  << std::endl;
 	
 	assert( xround(res1.at(mkts(0,0,0))) == xround(vres[0]) );
@@ -251,9 +251,9 @@ namespace {
 #ifndef ONLY_SPIN    
     void OpTest_Performance::PCheck()
     {
-	MultiArray<double,MRange> ma2(mrptr, cv2);
-	MultiArray<double,SRange> ma1(sr1ptr, cv1);
-	MultiArray<double,MRange> res(mrptr);
+	Array<double,MRange> ma2(mrptr, cv2);
+	Array<double,SRange> ma1(sr1ptr, cv1);
+	Array<double,MRange> res(mrptr);
 
 	auto si1 = MAT::getIndex(sr1ptr);
 	auto si2 = MAT::getIndex(sr2ptr);
@@ -265,7 +265,7 @@ namespace {
 	res(mi) = ma2(mi) * ma1(si1);
 
 	std::clock_t end = std::clock();
-	std::cout << "MultiArray time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
+	std::cout << "Array time: " << static_cast<double>( end - begin ) / CLOCKS_PER_SEC
 		  << std::endl;
 
 	vector<double> res2(vs1*vs2);

@@ -1,7 +1,7 @@
 
 #include "high_level_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <typename T, class Op>
@@ -114,82 +114,53 @@ namespace MultiArrayTools
 
     namespace
     {
-        template <size_t N>
+        template <size_t N, class... Indices>
         struct Create
         {
-            template <class... Indices>
-            struct cx
-            {
-                template <class ROP, class OpF, class... OPs>
-                struct ccx
-                {
-                    template <size_t M, class... DOPs>
-                    static inline void
-                    cccx(typename HighLevelOpBase<ROP>::template RetT<Indices...>& res,
-                         const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
-                         const std::shared_ptr<Indices>&... inds,
-                         const OPs&... ops,
-                         const DOPs&... dops)
-                    {
-                        static_assert(N > 0, "N > 0 failed");
-                        auto& inn = std::get<N>(in);
-                        if(not inn->root()){
-                            auto dop = inn->create(inds...);
-                            auto op = *dop.op.data()->mOp;
-                            typedef decltype(op) OP;
-                            res.appendOuter(dop);
-			    assert(dop.op.init());
-                            Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
-                                (res, in, inds..., op, ops..., dop, dops...);
-                        }
-                        else {
-                            auto op = inn->get();
-                            auto vop = inn->vget();
-                            typedef typename std::remove_reference<decltype(*op)>::type OP;
-                            typedef typename std::remove_reference<decltype(*vop)>::type VOP;
+	    template <class ROP, class OpF, class... OPs>
+	    struct ccx
+	    {
+		template <size_t M, class... DOPs>
+		static inline void
+		cccx(typename HighLevelOpBase<ROP>::template RetT<Indices...>& res,
+		     const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
+		     const std::shared_ptr<Indices>&... inds,
+		     const OPs&... ops,
+		     const DOPs&... dops)
+		{
+		    //static_assert(N > 0, "N > 0 failed");
+		    auto& inn = std::get<N>(in);
+		    if(not inn->root()){
+			auto dop = inn->create(inds...);
+			auto op = *dop.op.data()->mOp;
+			res.appendOuter(dop);
+			assert(dop.op.init());
+			if constexpr(N > 0){
+			    typedef decltype(op) OP;
+			    Create<N-1,Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
+				(res, in, inds..., op, ops..., dop, dops...);
+			}
+			else {
+                            res.op = mkDynOutOp(mkFOp<OpF>(op,ops...), inds...);
+                            res.appendOuterM(dop.op,dops.op...);
+			}
+		    }
+		    else {
+			auto op = inn->get();
+			auto vop = inn->vget();
+			if constexpr(N > 0){
+			    typedef typename std::remove_reference<decltype(*op)>::type OP;
+			    typedef typename std::remove_reference<decltype(*vop)>::type VOP;
 			    if(op != nullptr){
-				Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
+				Create<N-1,Indices...>::template ccx<ROP,OpF,OP,OPs...>::template cccx<M>
 				    (res, in, inds..., *op, ops..., dops...);
 			    }
 			    else {
-				Create<N-1>::template cx<Indices...>::template ccx<ROP,OpF,VOP,OPs...>::template cccx<M>
+				Create<N-1,Indices...>::template ccx<ROP,OpF,VOP,OPs...>::template cccx<M>
 				    (res, in, inds..., *vop, ops..., dops...);
 			    }
-                        }
-                    }
-                };
-            };
-        };
-
-        template <>
-        struct Create<0>
-        {
-            template <class... Indices>
-            struct cx
-            {
-                template <class ROP, class OpF, class... OPs>
-                struct ccx
-                {
-                    template <size_t M, class... DOPs>
-                    static inline void
-                    cccx(typename HighLevelOpBase<ROP>::template RetT<Indices...>& res,
-                         const std::array<std::shared_ptr<HighLevelOpBase<ROP>>,M>& in,
-                         const std::shared_ptr<Indices>&... inds,
-                         const OPs&... ops,
-                         const DOPs&... dops)
-                    {
-                        auto& inn = std::get<0>(in);
-                        if(not inn->root()){
-                            auto dop = inn->create(inds...);
-                            auto op = *dop.op.data()->mOp;
-                            res.appendOuter(dop);
-                            res.op = mkDynOutOp(mkFOp<OpF>(op,ops...), inds...);
-			    assert(dop.op.init());
-                            res.appendOuterM(dop.op,dops.op...);
-                        }
-                        else {
-                            auto op = inn->get();
-                            auto vop = inn->vget();
+			}
+			else {
 			    if(op != nullptr){
 				res.op = mkDynOutOp(mkFOp<OpF>(*op,ops...), inds...);
 			    }
@@ -197,11 +168,12 @@ namespace MultiArrayTools
 				res.op = mkDynOutOp(mkFOp<OpF>(*vop,ops...), inds...);
 			    }
                             res.appendOuterM(dops.op...);
-                        }
-                    }
-                };
-            };
+			}
+		    }
+		}
+	    };
         };
+
     }
 
     template <class ROP, class OpF, size_t N>
@@ -234,7 +206,7 @@ namespace MultiArrayTools
         -> typename B::template RetT<Inds...>
     {
         typename B::template RetT<Inds...> res;
-        Create<N-1>::template cx<Inds...>::template ccx<ROP,OpF>::template cccx<N>
+        Create<N-1,Inds...>::template ccx<ROP,OpF>::template cccx<N>
 	    (res,mIn,inds...);
         return res;
     }

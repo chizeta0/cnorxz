@@ -1,14 +1,11 @@
 
 #include "ranges/dynamic_range.h"
-//#include "ranges/dynamic_meta.h"
 
-//#include "rpack_num.h"
-
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-        using namespace MultiArrayHelper;
+        using namespace CNORXZInternal;
     }
 
 
@@ -143,8 +140,12 @@ namespace MultiArrayTools
     DynamicRange::DynamicRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<DynamicIndex>()
     {
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
-	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(origs); return 0; } );
+	mSize = sfor_p<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { return std::get<i>(origs)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
 	}
@@ -156,8 +157,12 @@ namespace MultiArrayTools
 	RangeInterface<DynamicIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
-	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(rst); return 0; } );
+	mSize = sfor_p<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { return std::get<i>(rst)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
 	}
@@ -175,60 +180,59 @@ namespace MultiArrayTools
     std::shared_ptr<MultiRange<Ranges...> > DynamicRange::scast(SIZET<Ranges>... sizes) const
     {
 	std::tuple<std::shared_ptr<Ranges>...> rtp;
-	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
+	RangeHelper::resolveRangeType<0>(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }
 
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 
-namespace MultiArrayHelper
+namespace CNORXZ
 {
-    namespace
+    namespace RangeHelper
     {
-        using namespace MultiArrayTools;
-    }
-
-    template <>
-    inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
-                                              const vector<std::shared_ptr<RangeBase> >& orig,
-                                              size_t origpos, size_t size)
-    {
-    	DynamicRangeFactory arf;
-	for(size_t op = origpos; op != origpos + size; ++op){
-	    //VCHECK(op);
-	    arf.append(orig[op]);
+	template <>
+	inline void resolveSetRange<DynamicRange>(std::shared_ptr<DynamicRange>& rp,
+						  const vector<std::shared_ptr<RangeBase> >& orig,
+						  size_t origpos, size_t size)
+	{
+	    DynamicRangeFactory arf;
+	    for(size_t op = origpos; op != origpos + size; ++op){
+		//VCHECK(op);
+		arf.append(orig[op]);
+	    }
+	    rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
 	}
-    	rp = std::dynamic_pointer_cast<DynamicRange>( arf.create() );
-    }
+    
 
-    template <>
-    inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
-                                            std::shared_ptr<DynamicRange> r)
-    {
-	if(not r->isEmpty()){
-	    for(size_t i = r->dim(); i != 0; --i){
-		v.insert(v.begin(), r->sub(i-1));
+	template <>
+	inline void setRangeToVec<DynamicRange>(vector<std::shared_ptr<RangeBase> >& v,
+						std::shared_ptr<DynamicRange> r)
+	{
+	    if(not r->isEmpty()){
+		for(size_t i = r->dim(); i != 0; --i){
+		    v.insert(v.begin(), r->sub(i-1));
+		}
 	    }
 	}
-    }
 
-    template <>
-    inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j)
-    {
-        size_t ss = 0;
-        size_t sx = 1;
-        for(size_t k = ii.dim(); k != 0; --k){
-	    const size_t i = k-1;
-            const auto& ni = ii.get(i);
-            const size_t max = ni.max();
-            const size_t tmp = ni.getStepSizeComp(j);
-            ss += tmp * ii.getStepSize(i);
-            sx *= max;
-        }
-        return ss;
+	template <>
+	inline size_t getStepSize<DynamicIndex>(const DynamicIndex& ii, std::intptr_t j)
+	{
+	    size_t ss = 0;
+	    size_t sx = 1;
+	    for(size_t k = ii.dim(); k != 0; --k){
+		const size_t i = k-1;
+		const auto& ni = ii.get(i);
+		const size_t max = ni.max();
+		const size_t tmp = ni.getStepSizeComp(j);
+		ss += tmp * ii.getStepSize(i);
+		sx *= max;
+	    }
+	    return ss;
+	
+	}
     }
-
 }
 

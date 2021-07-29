@@ -4,13 +4,9 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "ranges/rheader.h"
-//#include "expressions.h"
-//#include "ranges/dynamic_range.cc.h"
-//#include "multi_array_header.h"
-#include "ranges/ranges_header.cc.h"
+#include "cnorxz.h"
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 namespace {
 
@@ -88,9 +84,9 @@ namespace {
 	typedef MultiRangeFactory<SRange,M3Range,SRange> MasterRF;
 	typedef MasterRF::oType MasterRange;
 
-	typedef ContainerRangeFactory<double,M3Range,SRange> CRF;
+	typedef ContainerRangeFactory<M3Range,SRange> CRF;
 	typedef CRF::oType CRange;
-	typedef ContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
+	typedef ConstContainerIndex<double,M3Range::IndexType,SRange::IndexType> CIndex;
 
 	IndexTest()
 	{

@@ -1,8 +1,8 @@
 
 #include "index_wrapper.h"
-#include "rpack_num.h"
+#include "range_helper.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <class Index>
@@ -117,9 +117,9 @@ namespace MultiArrayTools
     template <class Index>
     size_t IndexWrapper<Index>::getStepSizeComp(std::intptr_t j) const
     {
-        size_t out = MultiArrayHelper::getStepSize(*mI, j);
+        size_t out = RangeHelper::getStepSize(*mI, j);
 	if(out == 0){
-	    out = MultiArrayHelper::getStepSize(*mCI, j);
+	    out = RangeHelper::getStepSize(*mCI, j);
 	}
 	return out;
     }
@@ -153,14 +153,7 @@ namespace MultiArrayTools
     {
         return std::make_shared<IndexWrapper>( std::make_shared<Index>( *mI ) );
     }
-    /*
-    template <class Index>
-    RegIndInfo IndexWrapper<Index>::regN() const
-    {
-	RegIndInfo out;
-	return out.set(mI);
-    }
-    */
+
     template <class Index>
     std::shared_ptr<Index> IndexWrapper<Index>::getIndex() const
     {

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __single_range_h__
-#define __single_range_h__
+#ifndef __cxz_single_range_h__
+#define __cxz_single_range_h__
 
 #include <cstdlib>
 #include <vector>
@@ -9,22 +9,18 @@
 #include <map>
 
 #include "base_def.h"
-//#include "ranges/rpack_num.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
 #include "xfor/for_type.h"
-//#include "xfor/xfor.h"
 
-
-
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     
@@ -78,9 +74,6 @@ namespace MultiArrayTools
 	void getPtr();
 
 	size_t getStepSize(size_t n);
-	
-	std::string id() const;
-	void print(size_t offset);
 
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
@@ -334,7 +327,7 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /******************
      *  GenSingleIndex   *	     
@@ -490,23 +483,6 @@ namespace MultiArrayTools
     size_t GenSingleIndex<U,TYPE,S>::getStepSize(size_t n)
     {
 	return 1;
-    }
-
-    template <typename U, SpaceType TYPE, size_t S>
-    std::string GenSingleIndex<U,TYPE,S>::id() const
-    {
-	return std::string("sin") + std::to_string(IB::mId);
-    }
-
-    template <typename U, SpaceType TYPE, size_t S>
-    void GenSingleIndex<U,TYPE,S>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
     template <typename U, SpaceType TYPE, size_t S>

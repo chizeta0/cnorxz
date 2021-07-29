@@ -1,6 +1,6 @@
 
-#ifndef __x_to_string_h__
-#define __x_to_string_h__
+#ifndef __cxz_x_to_string_h__
+#define __cxz_x_to_string_h__
 
 #include <string>
 #include <vector>
@@ -10,7 +10,7 @@
 
 #include "ranges/dynamic_meta.h"
 
-namespace MultiArrayHelper
+namespace CNORXZInternal
 {
     template <typename T>
     inline std::string xToString(const T& x);
@@ -22,7 +22,7 @@ namespace MultiArrayHelper
     template <>
     inline std::string xToString<std::string>(const std::string& x);
 
-    using MultiArrayTools::DynamicMetaT;
+    using CNORXZ::DynamicMetaT;
     
     template <>
     inline std::string xToString<DynamicMetaT>(const DynamicMetaT& x);

@@ -1,12 +1,13 @@
 
 #include "helper_tools.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     template <typename... T>
     std::ostream& operator<<(std::ostream& out, const std::tuple<T...>& tp)
     {
-	PackNum<sizeof...(T)-1>::printTuple(out, tp);
+	sfor_pn<0,sizeof...(T)-1>( [&](auto i){ out << std::get<i>(tp) << ", "; return 0; } );
+	out << std::get<sizeof...(T)-1>(tp);
 	return out;
     }
     
@@ -21,8 +22,7 @@ namespace MultiArrayTools
     auto getIndex()
 	-> std::shared_ptr<typename RangeType::IndexType>
     {
-	static_assert( RangeType::defaultable,
-		       /*typeid(typename RangeType).name() + */" is not defaultable" );
+	static_assert( RangeType::defaultable, "Range not defaultable" );
 	static auto f = RangeType::factory();
 	static auto r = std::dynamic_pointer_cast<RangeType>( f.create() );
 	return std::make_shared<typename RangeType::IndexType>(r);
@@ -237,7 +237,7 @@ namespace MultiArrayTools
 
     template <class MArray>
     auto dynamic(const MArray& ma, bool slice)
-	-> std::shared_ptr<MultiArrayBase<typename MArray::value_type,DynamicRange>>
+	-> std::shared_ptr<ArrayBase<typename MArray::value_type,DynamicRange>>
     {
 	DynamicRangeFactory drf(ma.range()->space());
 	if(slice){
@@ -246,7 +246,7 @@ namespace MultiArrayTools
 		  ma.data() );
 	}
 	else {
-	    return std::make_shared<MultiArray<typename MArray::value_type,DynamicRange>>
+	    return std::make_shared<Array<typename MArray::value_type,DynamicRange>>
 		( std::dynamic_pointer_cast<DynamicRange>( drf.create() ),
 		  ma.vdata() );
 	}
@@ -254,7 +254,7 @@ namespace MultiArrayTools
 
     template <class MArray>
     auto mdynamic(MArray& ma, bool slice)
-	-> std::shared_ptr<MutableMultiArrayBase<typename MArray::value_type,DynamicRange>>
+	-> std::shared_ptr<MutableArrayBase<typename MArray::value_type,DynamicRange>>
     {
 	DynamicRangeFactory drf(ma.range()->space());
 	if(slice){
@@ -263,7 +263,7 @@ namespace MultiArrayTools
 		  ma.data() );
 	}
 	else {
-	    return std::make_shared<MultiArray<typename MArray::value_type,DynamicRange>>
+	    return std::make_shared<Array<typename MArray::value_type,DynamicRange>>
 		( std::dynamic_pointer_cast<DynamicRange>( drf.create() ),
 		  ma.vdata() );
 	}
@@ -294,7 +294,7 @@ namespace MultiArrayTools
     }
     
     template <typename T, class Range1, class... RangeTypes>
-    auto anonToDynView(const MultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
+    auto anonToDynView(const ArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> ConstSlice<T,Range1,RangeTypes...,DynamicRange>
     {
 	constexpr size_t LAST = sizeof...(RangeTypes)+1;
@@ -307,7 +307,7 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range1, class... RangeTypes>
-    auto anonToDynView(MutableMultiArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
+    auto anonToDynView(MutableArrayBase<T,Range1,RangeTypes...,AnonymousRange>& ma)
 	-> Slice<T,Range1,RangeTypes...,DynamicRange>
     {
 	constexpr size_t LAST = sizeof...(RangeTypes)+1;
@@ -320,8 +320,8 @@ namespace MultiArrayTools
     }
 
     template <typename T, class Range1, class... RangeTypes>
-    auto dynToAnonMove(MultiArray<T,Range1,RangeTypes...,DynamicRange>&& ma)
-	-> MultiArray<T,Range1,RangeTypes...,AnonymousRange>
+    auto dynToAnonMove(Array<T,Range1,RangeTypes...,DynamicRange>&& ma)
+	-> Array<T,Range1,RangeTypes...,AnonymousRange>
     {
 	constexpr size_t LAST = sizeof...(RangeTypes)+1;
 	AnonymousRangeFactory arf(rptr<LAST>(ma)->orig());
@@ -333,7 +333,7 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    auto anonToDynView(const MultiArrayBase<T,AnonymousRange>& ma)
+    auto anonToDynView(const ArrayBase<T,AnonymousRange>& ma)
 	-> ConstSlice<T,DynamicRange>
     {
 	DynamicRangeFactory drf(rptr<0>(ma)->orig());
@@ -342,7 +342,7 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    auto anonToDynView(MutableMultiArrayBase<T,AnonymousRange>& ma)
+    auto anonToDynView(MutableArrayBase<T,AnonymousRange>& ma)
 	-> Slice<T,DynamicRange>
     {
 	DynamicRangeFactory drf(rptr<0>(ma)->orig());
@@ -351,8 +351,8 @@ namespace MultiArrayTools
     }
 
     template <typename T>
-    auto dynToAnonMove(MultiArray<T,DynamicRange>&& ma)
-	-> MultiArray<T,AnonymousRange>
+    auto dynToAnonMove(Array<T,DynamicRange>&& ma)
+	-> Array<T,AnonymousRange>
     {
 	AnonymousRangeFactory arf(rptr<0>(ma)->orig());
 	auto mNSpace = std::make_tuple( createExplicit( arf ) );
@@ -376,23 +376,23 @@ namespace MultiArrayTools
 
     template <typename T, class... Ranges>
     auto mkArray(const std::shared_ptr<Ranges>&... rs)
-        -> MultiArray<T,Ranges...>
+        -> Array<T,Ranges...>
     {
-        return MultiArray<T,Ranges...>(rs...);
+        return Array<T,Ranges...>(rs...);
     }
 
     template <typename T, class... Ranges>
     auto mkArray(const std::shared_ptr<Ranges>&... rs, const T& val)
-        -> MultiArray<T,Ranges...>
+        -> Array<T,Ranges...>
     {
-        return MultiArray<T,Ranges...>(rs..., val);
+        return Array<T,Ranges...>(rs..., val);
     }
 
     template <typename T, class... Ranges>
     auto mkArrayPtr(const std::shared_ptr<Ranges>&... rs)
-        -> std::shared_ptr<MultiArray<T,Ranges...>>
+        -> std::shared_ptr<Array<T,Ranges...>>
     {
-	return std::make_shared<MultiArray<T,Ranges...>>(rs...);
+	return std::make_shared<Array<T,Ranges...>>(rs...);
     }
 
 }

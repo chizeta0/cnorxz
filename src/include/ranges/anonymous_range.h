@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __anonymous_range_h__
-#define __anonymous_range_h__
+#ifndef __cxz_anonymous_range_h__
+#define __cxz_anonymous_range_h__
 
 #include <cstdlib>
 #include <map>
@@ -11,7 +11,7 @@
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     typedef GenSingleIndex<size_t,SpaceType::ANON,MUI> AnonymousIndex;
@@ -133,7 +133,7 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     /***********************
@@ -171,38 +171,38 @@ namespace MultiArrayTools
 
     std::shared_ptr<AnonymousRange> defaultRange(size_t size = 0);
 }
-
-namespace MultiArrayHelper
+namespace CNORXZ
 {
-    using namespace MultiArrayTools;
-
-    template <>
-    inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange>& rp,
-						const vector<std::shared_ptr<RangeBase> >& orig,
-						size_t origpos, size_t size)
+    namespace RangeHelper
     {
-    	AnonymousRangeFactory arf;
-	for(size_t op = origpos; op != origpos + size; ++op){
-	    //VCHECK(op);
-	    arf.append(orig[op]);
+	template <>
+	inline void resolveSetRange<AnonymousRange>(std::shared_ptr<AnonymousRange>& rp,
+						    const vector<std::shared_ptr<RangeBase> >& orig,
+						    size_t origpos, size_t size)
+	{
+	    AnonymousRangeFactory arf;
+	    for(size_t op = origpos; op != origpos + size; ++op){
+		//VCHECK(op);
+		arf.append(orig[op]);
+	    }
+	    rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
 	}
-    	rp = std::dynamic_pointer_cast<AnonymousRange>( arf.create() );
-    }
 
-    template <>
-    inline void setRangeToVec<AnonymousRange>(vector<std::shared_ptr<RangeBase> >& v,
-					      std::shared_ptr<AnonymousRange> r)
-    {
-	if(not r->isEmpty()){
-	    for(size_t i = r->anonymousDim(); i != 0; --i){
-		v.insert(v.begin(), r->sub(i-1));
+
+	template <>
+	inline void setRangeToVec<AnonymousRange>(vector<std::shared_ptr<RangeBase> >& v,
+						  std::shared_ptr<AnonymousRange> r)
+	{
+	    if(not r->isEmpty()){
+		for(size_t i = r->anonymousDim(); i != 0; --i){
+		    v.insert(v.begin(), r->sub(i-1));
+		}
 	    }
 	}
     }
-
 }
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /***********************
      *   AnonymousRange    *
@@ -212,8 +212,12 @@ namespace MultiArrayTools
     GenSingleRange<size_t,SpaceType::ANON,MUI>::GenSingleRange(const std::tuple<std::shared_ptr<RangeTypes>...>& origs) :
 	RangeInterface<AnonymousIndex>()
     {
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( origs, mOrig );
-	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( origs );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(origs); return 0; } );
+	mSize = sfor_p<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { return std::get<i>(origs)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
 	}
@@ -224,8 +228,12 @@ namespace MultiArrayTools
 	RangeInterface<AnonymousIndex>()
     {
 	auto rst = std::make_tuple(origs...);
-	RPackNum<sizeof...(RangeTypes)-1>::RangesToVec( rst, mOrig );
-	mSize = RPackNum<sizeof...(RangeTypes)-1>::getSize( rst );
+	mOrig.resize(sizeof...(RangeTypes));
+	sfor_pn<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { mOrig[i] = std::get<i>(rst); return 0; } );
+	mSize = sfor_p<0,sizeof...(RangeTypes)>
+	    ( [&](auto i) { return std::get<i>(rst)->size(); },
+	      [&](auto a, auto b) { return a * b; } );
 	if(sizeof...(RangeTypes)){
 	    mEmpty = false;
 	}
@@ -241,7 +249,7 @@ namespace MultiArrayTools
     std::shared_ptr<MultiRange<Ranges...> > GenSingleRange<size_t,SpaceType::ANON,MUI>::scast(SIZET<Ranges>... sizes) const
     {
 	std::tuple<std::shared_ptr<Ranges>...> rtp;
-	RPackNum<sizeof...(Ranges)-1>::resolveRangeType(mOrig, rtp, 0, sizes...);
+	RangeHelper::resolveRangeType<0>(mOrig, rtp, 0, sizes...);
 	MultiRangeFactory<Ranges...> mrf(rtp);
 	return std::dynamic_pointer_cast<MultiRange<Ranges...> >( mrf.create() );
     }

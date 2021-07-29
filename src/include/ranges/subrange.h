@@ -1,6 +1,6 @@
 
-#ifndef __subrange_h__
-#define __subrange_h__
+#ifndef __cxz_subrange_h__
+#define __cxz_subrange_h__
 
 #include <cstdlib>
 #include <vector>
@@ -8,7 +8,6 @@
 #include <map>
 
 #include "base_def.h"
-//#include "ranges/rpack_num.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
 #include "ranges/x_to_string.h"
@@ -16,11 +15,11 @@
 
 #include "xfor/for_type.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     namespace
     {
-	using namespace MultiArrayHelper;
+	using namespace CNORXZInternal;
     }
 
     template <class Index>
@@ -71,9 +70,6 @@ namespace MultiArrayTools
 
 	size_t getStepSize(size_t n);
 	
-	std::string id() const;
-	void print(size_t offset);
-
 	template <class Expr>
 	auto ifor(size_t step, Expr ex) const
 	    -> For<SubIndex<Index>,SubExpr<Index,Expr>>;
@@ -158,9 +154,9 @@ namespace MultiArrayTools
         
     };
     
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     /*****************
@@ -300,23 +296,6 @@ namespace MultiArrayTools
     size_t SubIndex<Index>::getStepSize(size_t n)
     {
         return 1;
-    }
-
-    template <class Index>
-    std::string SubIndex<Index>::id() const
-    {
-        return std::string("sub") + std::to_string(IB::mId);
-    }
-
-    template <class Index>
-    void SubIndex<Index>::print(size_t offset)
-    {
-	if(offset == 0){
-	    std::cout << " === " << std::endl;
-	}
-	for(size_t j = 0; j != offset; ++j) { std::cout << "\t"; }
-	std::cout << id() << "[" << reinterpret_cast<std::intptr_t>(this)
-		  << "](" << IB::mRangePtr << "): " << meta() << std::endl;
     }
 
     template <class Index>

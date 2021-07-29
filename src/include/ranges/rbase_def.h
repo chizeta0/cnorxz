@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __ranges_base_def_h__
-#define __ranges_base_def_h__
+#ifndef __cxz_ranges_base_def_h__
+#define __cxz_ranges_base_def_h__
 
 #include <cstdlib>
 
@@ -17,7 +17,7 @@
 #include "allocator.h"
 #define MUI static_cast<size_t>(-1)
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <class R>
@@ -80,27 +80,8 @@ namespace MultiArrayTools
     template <class... Indices>
     class MultiIndex;
 
-    // container_range.h
-    //template <typename T, class... Ranges>
-    //class ContainerRangeFactory;
-    template <typename T, class... Ranges>
-    using ContainerRangeFactory = MultiRangeFactory<Ranges...>;
-
-    // container_range.h
-    //template <typename T, class... Ranges>
-    //class ContainerRange;
-    template <typename T, class... Ranges>
-    using ContainerRange = MultiRange<Ranges...>;
-    
-    // container_range.h
-    template <typename T, class... Indices>
-    class ContainerIndex;
-
     // anonymous_range.h
     class AnonymousRangeFactory;
-
-    // anonymous_range.h
-    //class AnonymousRange;
 
     // dynamic_range.h
     class IndexWrapperBase;
@@ -110,15 +91,12 @@ namespace MultiArrayTools
     class IndexWrapper;
 
     // dynamic_range.h
-    //template <class EC>
     class DynamicIndex;
     
     // dynamic_range.h
-    //template <class EC>
     class DynamicRangeFactory;
     
     // dynamic_range.h
-    //template <class EC>
     class DynamicRange;
 
     // value_range.h

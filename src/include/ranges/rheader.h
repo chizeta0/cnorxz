@@ -1,6 +1,6 @@
 
-//#ifndef __rheader_h__
-//#define __rheader_h__
+//#ifndef __cxz_rheader_h__
+//#define __cxz_rheader_h__
 
 #include "dynamic_range.h"
 #include "rpheader.h"

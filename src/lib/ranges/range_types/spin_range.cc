@@ -3,7 +3,7 @@
 #include "ranges/x_to_string.h"
 #include "ranges/ranges_header.cc.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     std::shared_ptr<SpinRF> mkSPIN(const char* dp, size_t size)
     {

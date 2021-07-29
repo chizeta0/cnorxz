@@ -1,7 +1,7 @@
 
 #include "slice.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     /*******************
@@ -17,7 +17,7 @@ namespace MultiArrayTools
     template <typename T, class... SRanges>
     ConstSlice<T,SRanges...>::ConstSlice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
 					 const T* data) :
-	MultiArrayBase<T,SRanges...>(ranges),
+	ArrayBase<T,SRanges...>(ranges),
 	mData(data)
     {
 	MAB::mInit = true;
@@ -25,15 +25,15 @@ namespace MultiArrayTools
     
     template <typename T, class... SRanges>
     ConstSlice<T,SRanges...>::ConstSlice(const std::shared_ptr<SRanges>&... ranges, const T* data) :
-	MultiArrayBase<T,SRanges...>(ranges...),
+	ArrayBase<T,SRanges...>(ranges...),
 	mData(data)
     {
 	MAB::mInit = true;
     }
 
     template <typename T, class... SRanges>
-    ConstSlice<T,SRanges...>::ConstSlice(const MultiArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes) :
-	MultiArrayBase<T,SRanges...>
+    ConstSlice<T,SRanges...>::ConstSlice(const ArrayBase<T,AnonymousRange>& ma, SIZET<SRanges>... sizes) :
+	ArrayBase<T,SRanges...>
 	( ma.range()->template get<0>().template scast<SRanges...>(sizes...)->space() ),
 	mData( ma.data() )
     {
@@ -87,7 +87,7 @@ namespace MultiArrayTools
     }
     
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous(bool slice) const
+    std::shared_ptr<ArrayBase<T,AnonymousRange> > ConstSlice<T,SRanges...>::anonymous(bool slice) const
     {
         assert(slice);
         assert(not MAB::mProtoI->sliceMode()); // only originally ordered slices!
@@ -118,13 +118,13 @@ namespace MultiArrayTools
     
     template <typename T, class... SRanges>
     Slice<T,SRanges...>::Slice(const std::shared_ptr<SRanges>&... ranges, T* data) :
-	MutableMultiArrayBase<T,SRanges...>(ranges...),
+	MutableArrayBase<T,SRanges...>(ranges...),
 	mData(data) {}
 
     template <typename T, class... SRanges>
     Slice<T,SRanges...>::Slice(const std::tuple<std::shared_ptr<SRanges>...>& ranges,
 			       T* data) :
-	MutableMultiArrayBase<T,SRanges...>(ranges),
+	MutableArrayBase<T,SRanges...>(ranges),
 	mData(data)
     {
 	MAB::mInit = true;
@@ -208,14 +208,14 @@ namespace MultiArrayTools
     }
 
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymous(bool slice) const
+    std::shared_ptr<ArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymous(bool slice) const
     {
 	assert(0); // think about carefully!!!!
 	return nullptr;
     }
     /*
     template <typename T, class... SRanges>
-    std::shared_ptr<MultiArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymousMove()
+    std::shared_ptr<ArrayBase<T,AnonymousRange> > Slice<T,SRanges...>::anonymousMove()
     {
 	assert(0); // think about carefully!!!!
 	return nullptr;
@@ -243,8 +243,12 @@ namespace MultiArrayTools
     SliceDef<T,SRanges...>& SliceDef<T,SRanges...>::operator=(const OperationRoot<T,ORanges...>& op)
     {
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
-	PackNum<sizeof...(SRanges)-1>::
-	    template mkSliceBlocks<T,OperationRoot<T,ORanges...>,SRanges...>(blocks, mIndex, op);
+	sfor_pn<0,sizeof...(SRanges)>
+	    ( [&](auto i) {
+		std::get<i+1>(blocks) =
+		    op.rootSteps(reinterpret_cast<std::intptr_t>
+				 ( mIndex.template getPtr<i>().get())).val();
+		return 0; } );
 	mSl.format(blocks);
 	mSl.mData = op.data();
 	return *this;
@@ -264,8 +268,12 @@ namespace MultiArrayTools
     ConstSliceDef<T,SRanges...>& ConstSliceDef<T,SRanges...>::operator=(const ConstOperationRoot<T,ORanges...>& op)
     {
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
-	PackNum<sizeof...(SRanges)-1>::
-	    template mkSliceBlocks<T,ConstOperationRoot<T,ORanges...>,SRanges...>(blocks, mIndex, op);
+	sfor_pn<0,sizeof...(SRanges)>
+	    ( [&](auto i) {
+		std::get<i+1>(blocks) =
+		    op.rootSteps(reinterpret_cast<std::intptr_t>
+				 ( mIndex.template getPtr<i>().get())).val();
+		return 0; } );
 	mSl.format(blocks);
 	mSl.mData = op.data();
 	return *this;
@@ -276,13 +284,17 @@ namespace MultiArrayTools
     ConstSliceDef<T,SRanges...>& ConstSliceDef<T,SRanges...>::operator=(const OperationRoot<T,ORanges...>& op)
     {
 	std::array<size_t,sizeof...(SRanges)+1> blocks;
-	PackNum<sizeof...(SRanges)-1>::
-	    template mkSliceBlocks<T,OperationRoot<T,ORanges...>,SRanges...>(blocks, mIndex, op);
+	sfor_pn<0,sizeof...(SRanges)>
+	    ( [&](auto i) {
+		std::get<i+1>(blocks) =
+		    op.rootSteps(reinterpret_cast<std::intptr_t>
+				 ( mIndex.template getPtr<i>().get())).val();
+		return 0; } );
 	mSl.format(blocks);
 	mSl.mData = op.data();
 	return *this;
     }
 
 
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
 

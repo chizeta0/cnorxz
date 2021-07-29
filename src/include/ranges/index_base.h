@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#ifndef __index_base_h__
-#define __index_base_h__
+#ifndef __cxz_index_base_h__
+#define __cxz_index_base_h__
 
 #include <cstdlib>
 #include <string>
@@ -13,7 +13,7 @@
 
 #include "xfor/xfor.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     
     template <class I, typename MetaType>
@@ -57,14 +57,10 @@ namespace MultiArrayTools
 	
 	operator size_t() const;
 
-	std::string id() const { return THIS().id(); }
-
 	std::string stringMeta() const { return THIS().stringMeta(); }
 	MetaType meta() const { return THIS().meta(); }
 	MetaType metaPtr() const { return THIS().metaPtr(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
-
-	void print(size_t offset = 0) const { THIS().print(offset); }
 
 	// CHECK / IMPLEMENT !!!!!!
 	template <class Expr>
@@ -93,7 +89,6 @@ namespace MultiArrayTools
 	
 	std::shared_ptr<RangeBase> mRangePtr;
 	size_t mPos = 0;
-	size_t mId;
 	size_t mMax = 0;
 
 	std::intptr_t mPtrNum;
@@ -111,14 +106,14 @@ namespace MultiArrayTools
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /**********************
      *   IndexInterface   *
      **********************/
 
     template <class I, typename MetaType>
-    IndexInterface<I,MetaType>::IndexInterface() : mId(indexId())
+    IndexInterface<I,MetaType>::IndexInterface()
     {
 	mPtrNum = reinterpret_cast<std::intptr_t>(this);
     }
@@ -128,7 +123,6 @@ namespace MultiArrayTools
 									   mPos(in.mPos),
 									   mMax(in.mMax)
     {
-	mId = indexId();
 	mPtrNum = reinterpret_cast<std::intptr_t>(this);
     }
 
@@ -137,7 +131,6 @@ namespace MultiArrayTools
 								      mPos(in.mPos),
 								      mMax(in.mMax)
     {
-	mId = indexId();
 	mPtrNum = reinterpret_cast<std::intptr_t>(this);
     }
 
@@ -165,7 +158,6 @@ namespace MultiArrayTools
 							     mPos(pos),
 							     mMax(mRangePtr->size())
     {
-	mId = indexId();
 	mPtrNum = reinterpret_cast<std::intptr_t>(this);
     }
 

@@ -4,12 +4,12 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "multi_array_header.h"
+#include "cnorxz.h"
 
 #include <ctime>
 #include <cmath>
 
-namespace MAT = MultiArrayTools;
+namespace MAT = CNORXZ;
 
 double xround(double arg)
 {

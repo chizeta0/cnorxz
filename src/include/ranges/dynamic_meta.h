@@ -1,13 +1,13 @@
 
-#ifndef __dynamic_meta_h__
-#define __dynamic_meta_h__
+#ifndef __cxz_dynamic_meta_h__
+#define __cxz_dynamic_meta_h__
 
 #include <cstdlib>
 #include <utility>
 
 #include "allocator.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     typedef std::pair<const char*,size_t> DynamicMetaElem;
@@ -66,6 +66,6 @@ namespace MultiArrayTools
     };
 
 
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

@@ -1,11 +1,11 @@
 
-#ifndef __dynamic_operation_h__
-#define __dynamic_operation_h__
+#ifndef __cxz_dynamic_operation_h__
+#define __cxz_dynamic_operation_h__
 
 #include "base_def.h"
-#include "multi_array_operation.h"
+#include "cxz_operation.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
 
     template <typename T>
@@ -17,6 +17,7 @@ namespace MultiArrayTools
 	
 	static constexpr size_t SIZE = 1;
 	static constexpr bool CONT = true;
+	static constexpr bool VABLE = false;
 	
 	DynamicOperationBase() = default;
 	DynamicOperationBase(const DynamicOperationBase& in) = default;
@@ -76,13 +77,13 @@ namespace MultiArrayTools
 	Operation mOp;
         //OperationRoot<T,Ranges...> mProto;
 	std::tuple<std::shared_ptr<typename Ranges::IndexType>...> mIndices;
-	std::shared_ptr<MultiArray<T,Ranges...>> mMa;
+	std::shared_ptr<Array<T,Ranges...>> mMa;
         OpH<OperationRoot<T,Ranges...>> mProto;
 
 	
 	typedef ILoop<std::tuple<OperationRoot<T,Ranges...>,Operation>,
 		      std::tuple<std::shared_ptr<typename Ranges::IndexType>...>,
-		      std::tuple<std::shared_ptr<MultiArray<T,Ranges...>>>,
+		      std::tuple<std::shared_ptr<Array<T,Ranges...>>>,
             std::tuple<decltype(mProto.mOp->assign( mOp, mkMIndex(std::shared_ptr<typename Ranges::IndexType>()...) ))>> LoopT;
 	
 	
@@ -125,6 +126,7 @@ namespace MultiArrayTools
 	
 	static constexpr size_t SIZE = 1;
 	static constexpr bool CONT = true;
+	static constexpr bool VABLE = false;
 	
 	DynamicO() = default;
 	DynamicO(const DynamicO& in) : mOp(in.mOp ? in.mOp->deepCopy() : nullptr) {}
@@ -144,6 +146,11 @@ namespace MultiArrayTools
 	
         template <class X>
 	inline T get(const DExtTX<X>& pos) const { return mOp->get(pos.reduce()); }
+
+	template <typename V,class X>
+	inline auto vget(const DExtTX<X>& pos) const
+	{ return mOp->template vget<V>(pos.reduce()); }
+	
         template <class X>
 	inline DynamicO& set(const DExtTX<X>& pos) { mOp->set(pos.reduce()); return *this; }
 	inline DExtT rootSteps(std::intptr_t iPtrNum = 0) const { return mOp->rootSteps(iPtrNum); }
@@ -197,6 +204,6 @@ namespace MultiArrayTools
 
     };
     */
-} // namespace MultiArrayTools
+} // namespace CNORXZ
 
 #endif

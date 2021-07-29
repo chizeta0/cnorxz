@@ -1,9 +1,9 @@
 
 #include "ranges/anonymous_range.h"
 #include "ranges/ranges_header.cc.h"
-#include "ma_assert.h"
+#include "cxz_assert.h"
 
-namespace MultiArrayTools
+namespace CNORXZ
 {
     /******************************
      *   AnonymousRangeFactory    *
@@ -294,4 +294,4 @@ namespace MultiArrayTools
 
 
     
-} // end namespace MultiArrayTools
+} // end namespace CNORXZ
