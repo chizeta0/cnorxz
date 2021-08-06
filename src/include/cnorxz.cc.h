@@ -10,6 +10,8 @@
 #include "cxz_array.cc.h"
 #include "slice.cc.h"
 #include "dynamic_operation.cc.h"
+#include "access.cc.h"
+#include "op_expressions.cc.h"
 //#include "high_level_operation.cc.h"
 //#include "expressions.cc.h"
 
