@@ -601,18 +601,21 @@ namespace CNORXZ
         return this->template asx<identity<T>,PointerAccess<T>>(in,i);
     }
 
+    template <typename T>
+    using xplus = plus<T>;
+
     template <typename T, class... Ranges>
     template <class OpClass>
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in) const
     {
-        return this->template asx<xxxplus<T>,PointerAccess<T>>(in);
+        return this->template asx<xplus<T>,PointerAccess<T>>(in);
     }
 
     template <typename T, class... Ranges>
     template <class OpClass, class Index>
     auto OperationRoot<T,Ranges...>::plus(const OpClass& in, const std::shared_ptr<Index>& i) const
     {
-        return this->template asx<xxxplus<T>,PointerAccess<T>>(in,i);
+        return this->template asx<xplus<T>,PointerAccess<T>>(in,i);
     }
     
     template <bool VABLE, class Func, typename TarOp, class OpClass>
@@ -644,7 +647,6 @@ namespace CNORXZ
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
     {
-	//asx<identity<T>>(in)();
 	vexec<OpClass::VABLE,identity<T>>(*this,in);
         return *this;
     }
@@ -653,8 +655,7 @@ namespace CNORXZ
     template <class OpClass>
     OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
     {
-	//asx<xxxplus<T>>(in)();
-	vexec<OpClass::VABLE,xxxplus<T>>(*this,in);
+	vexec<OpClass::VABLE,xplus<T>>(*this,in);
         return *this;
     }
 

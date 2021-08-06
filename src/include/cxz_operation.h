@@ -160,29 +160,6 @@ namespace CNORXZ
 	    // !!!!
 	}
     };
-    
-    
-    template <typename T, class F>
-    struct IVAccess
-    {
-	static constexpr bool ISSTATIC = true;
-	typedef typename VType<T>::type value_type;
-	typedef T in_type;
-	typedef VFunc<F> Func;
-	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
-
-	template <typename Op, class ExtType>
-	static inline void f(T*& t, size_t pos, const Op& op, ExtType e)
-	{
-	    //VCHECK(pos);
-	    VFunc<F>::selfApply(*reinterpret_cast<value_type*>(t+pos),op.template vget<value_type>(e));
-	}
-    };
-    
-
-    template <typename T>
-    using xxxplus = plus<T>;
-    
 
     // static polymorphism
     template <class AccessClass>
