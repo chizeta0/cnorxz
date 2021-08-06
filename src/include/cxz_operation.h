@@ -161,24 +161,6 @@ namespace CNORXZ
 	}
     };
     
-    template <typename T, class F>
-    struct IAccess
-    {
-	static constexpr bool ISSTATIC = true;
-	typedef T value_type;
-	typedef T in_type;
-	typedef F Func;
-	static constexpr size_t VSIZE = sizeof(value_type) / sizeof(in_type);
-
-	template <typename Op, class ExtType>
-	static inline void f(T* t, size_t pos, const Op& op, ExtType e)
-	{
-	    F::selfApply(t[pos],op.get(e));
-	}
-    };
-
-    //template <typename T, class F>
-    //using IVAccess = IAccess<T,F>;
     
     template <typename T, class F>
     struct IVAccess
@@ -201,17 +183,6 @@ namespace CNORXZ
     template <typename T>
     using xxxplus = plus<T>;
     
-    template <typename T>
-    using IAssign = IAccess<T,identity<T>>;
-
-    template <typename T>
-    using IPlus = IAccess<T,plus<T>>;
-
-    template <typename T>
-    using IVAssign = IVAccess<T,identity<T>>;
-
-    template <typename T>
-    using IVPlus = IVAccess<T,plus<T>>;
 
     // static polymorphism
     template <class AccessClass>
@@ -338,7 +309,7 @@ namespace CNORXZ
 
 	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
 	{
-	    return std::make_shared<AssignmentExpr<T,Func,PointerAccess<T>,Target,OpClass,OIA>>(*this);
+	    return std::make_shared<AssignmentExpr<T,Func,AT,Target,OpClass,OIA>>(*this);
 	}
 	
         inline void operator()(size_t start = 0); 
@@ -350,12 +321,6 @@ namespace CNORXZ
         inline DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         inline DExt dExtension() const override final;
     };
-
-    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
-    using AssignmentExpr2 = AssignmentExpr<T,IAssign<T>,PointerAccess<T>,Target,OpClass,OIA>;
-
-    template <typename T, class Target, class OpClass, OpIndexAff OIA=OpIndexAff::EXTERN>
-    using AddExpr = AssignmentExpr<T,IPlus<T>,PointerAccess<T>,Target,OpClass,OIA>;
 
     template <class... Ops>
     struct OperationTuple
