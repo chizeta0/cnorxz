@@ -483,8 +483,8 @@ namespace CNORXZ
     auto OperationRoot<T,Ranges...>::asxExpr(const OpClass& in) const
     {
         static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return in.loop(AssignmentExpr<T,Func,PointerAccess<T>,OperationRoot<T,Ranges...>,OpClass>
-                       (mDataAcc,*this,in));
+        return in.loop(AssignmentExpr<T,Func,Access,OperationRoot<T,Ranges...>,OpClass>
+                       (Access(mDataAcc),*this,in));
     }
     
     template <typename T, class... Ranges>
@@ -541,9 +541,9 @@ namespace CNORXZ
         if constexpr(VABLE){
             CHECK;
             typedef typename TarOp::value_type T;
-            auto x = th.template asx<Func,VPointerAccess<T>>(in);
-            //if(x.rootSteps(x.vI()) == 1){
-	    if(0){
+            auto x = th.template asx<VFunc<Func>,VPointerAccess<T>>(in);
+            if(x.rootSteps(x.vI()) == 1){
+		//if(0){
                 CHECK;
                 x();
             }

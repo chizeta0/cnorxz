@@ -90,6 +90,7 @@ namespace CNORXZ
 
     protected:
 	AccessTemplate() = default;
+
     };
 
     template <typename T>
@@ -146,22 +147,23 @@ namespace CNORXZ
         
     public:
         VPointerAccess(T* ptr, T* origPtr) : mPtr(ptr), mOrigPtr(origPtr) {}
+
+	VPointerAccess(const PointerAccess<T>& in) : mPtr(in.get(0)), mOrigPtr(in.oget(0)) {} 
 	
 	VPointerAccess(const VPointerAccess& in) = default;
 	VPointerAccess(VPointerAccess&& in) = default;
 	VPointerAccess& operator=(const VPointerAccess& in) = default;
 	VPointerAccess& operator=(VPointerAccess&& in) = default;
 
-        VType<T>* get(size_t pos) { return reinterpret_cast<VType<T>*>(mPtr+pos); }
-        VType<T>* get(size_t pos) const { return reinterpret_cast<VType<T>*>(mPtr+pos); }
+        value_type* get(size_t pos) { return reinterpret_cast<value_type*>(mPtr+pos); }
+        value_type* get(size_t pos) const { return reinterpret_cast<value_type*>(mPtr+pos); }
         VPointerAccess<T>& set(size_t pos) { mPtr = mOrigPtr + pos; return *this; }
-        VType<T>* oget(size_t pos) const { return reinterpret_cast<VType<T>*>(mOrigPtr+pos); }
+        value_type* oget(size_t pos) const { return reinterpret_cast<value_type*>(mOrigPtr+pos); }
 
 	template <class F, typename Op, class ExtType>
 	inline void exec(size_t pos, const Op& op, ExtType e) const
         {
-	    CHECK;
-	    F::selfApply(*get(pos),op.vget(e));
+	    F::selfApply(*get(pos),op.template vget<value_type>(e));
         }
     };
 
