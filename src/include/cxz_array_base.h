@@ -5,7 +5,6 @@
 #include <cstdlib>
 #include <vector>
 #include <memory>
-#include <iterator>
 #include <algorithm>
 
 #include "base_def.h"

@@ -18,8 +18,7 @@ namespace CNORXZ
     
     template <typename T, class... Indices>
     class ConstContainerIndex : public IndexInterface<ConstContainerIndex<T,Indices...>,
-						      std::tuple<typename Indices::MetaType...> >,
-				public std::iterator<std::random_access_iterator_tag,T>
+						      std::tuple<typename Indices::MetaType...> >
     {
     public:
 
