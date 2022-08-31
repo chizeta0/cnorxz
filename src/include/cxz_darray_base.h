@@ -19,7 +19,7 @@ namespace CNORXZ
     {
     public:
 	typedef T value_type;
-	typedef ConstContainerIndex const_iterator;
+	typedef DConstContainerIndex<value_type> const_iterator;
 
     protected:
 	RangePtr mRange;
@@ -65,7 +65,7 @@ namespace CNORXZ
 	typedef DArrayBase<T> DAB;
 	typedef DAB::value_type value_type;
 	typedef DAB::const_iterator const_iterator;
-	typedef DContainerIndex iterator;
+	typedef DContainerIndex<value_type> iterator;
 
 	using DAB::operator[];
 	using DAB::at;
