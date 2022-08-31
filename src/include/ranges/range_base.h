@@ -126,7 +126,10 @@ namespace CNORXZ
     protected:
 	RangeInterface() = default;
     };
-    
+
+    typedef std::shared_ptr<RangeBase> RangePtr;
+
+    RangePtr operator*(const RangePtr& a, const RangePtr& b); // -> Ptr to MultiRange
 }
 
 #endif
