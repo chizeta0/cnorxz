@@ -4,8 +4,10 @@
 
 #include <cstdlib>
 #include <utility>
+#include <memory>
 
 #include "allocator.h"
+#include "rbase_def.h"
 
 namespace CNORXZ
 {
@@ -143,8 +145,8 @@ namespace CNORXZ
 	const std::vector<T>* mD;
 
     public:
-	TypeWrapper(const std::vector<T>* d) : mD(d) {}
-	DEFAULT_MEMBERS(TypeWrapper);
+	TypeRefWrapper(const std::vector<T>* d) : mD(d) {}
+	DEFAULT_MEMBERS(TypeRefWrapper);
 	
 	virtual std::string str() const { return to_string(*mD); /* overload before!!! */ }
 	virtual bool operator==(const DType& in) const { return this->str() == in.str(); }

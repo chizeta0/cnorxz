@@ -100,8 +100,8 @@ namespace CNORXZ
 	return iptr;
     }
 
-    template <class Index>
-    using IndexPtr = std::shared_ptr<IndexInterface<Index>>
+    template <class Index, typename MetaType>
+    using IndexPtr = std::shared_ptr<IndexInterface<Index,MetaType>>;
     
 }
 

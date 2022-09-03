@@ -14,6 +14,8 @@
   << " in " << __func__ << ": " << #a << " = " << a << std::endl;
 #endif
 
+#include "base_def.h"
+
 #include "allocator.h"
 #define MUI static_cast<size_t>(-1)
 

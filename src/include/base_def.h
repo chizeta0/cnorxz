@@ -24,16 +24,15 @@
 
 #endif
 
-#define DEFAULT_MEMBERS(__class_name__) __class_name__() = default; \
-    __class_name__(const __class_name__& in) = default; \
-    __class_name__& operator=(const __class_name__& in) = default; \
-    __class_name__(__class_name__&& in) = default; \
-    __class_name__& operator=(__class_name__&& in) = default
+#define DEFAULT_C(__class_name__) __class_name__() = default
+#define DEFAULT_COPY_C(__class_name__) __class_name__(const __class_name__& a) = default
+#define DEFAULT_COPY_A(__class_name__) __class_name__& operator=(const __class_name__& a) = default
+#define DEFAULT_MOVE_C(__class_name__) __class_name__(__class_name__&& a) = default
+#define DEFAULT_MOVE_A(__class_name__) __class_name__& operator=(__class_name__&& a) = default
+#define DEFAULT_COPY(__class_name__) DEFAULT_COPY_C(__class_name__); DEFAULT_COPY_A(__class_name__)
+#define DEFAULT_MOVE(__class_name__) DEFAULT_MOVE_C(__class_name__); DEFAULT_MOVE_A(__class_name__)
 
-#define DEFAULT_MEMBERS_X(__class_name__) __class_name__(const __class_name__& in) = default; \
-    __class_name__& operator=(const __class_name__& in) = default; \
-    __class_name__(__class_name__&& in) = default; \
-    __class_name__& operator=(__class_name__&& in) = default
-
+#define DEFAULT_MEMBERS_X(__class_name__) DEFAULT_COPY(__class_name__); DEFAULT_MOVE(__class_name__)
+#define DEFAULT_MEMBERS(__class_name__) DEFAULT_C(__class_name__); DEFAULT_MEMBERS_X(__class_name__)
 
 #endif
