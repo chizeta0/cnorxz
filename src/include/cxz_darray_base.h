@@ -18,12 +18,10 @@ namespace CNORXZ
     class DArrayBase
     {
     public:
-	typedef T value_type;
-	typedef DConstContainerIndex<value_type> const_iterator;
+	typedef DConstContainerIndex<T> const_iterator;
 
     protected:
 	RangePtr mRange;
-	const_iterator mIt;
 	bool mInit = false;
 	
     public:
@@ -33,14 +31,14 @@ namespace CNORXZ
 
 	virtual ~DArrayBase() = default;
 
-	template <typename I>
-	const value_type& operator[](const IndexInterface<I>& i) const;
+	template <typename I, typename M>
+	const T& operator[](const IndexInterface<I,M>& i) const;
 
-	template <typename I>
-	const value_type& at(const IndexInterface<I>& i) const;
+	template <typename I, typename M>
+	const T& at(const IndexInterface<I,M>& i) const;
 
-	template <typename I>
-	DArrayBase sl(const IndexInterface<I>& i) const;
+	template <typename I, typename M>
+	DArrayBase sl(const IndexInterface<I,M>& i) const;
 	
 	virtual const T* data() const = 0;
 	virtual size_t size() const;
@@ -54,8 +52,8 @@ namespace CNORXZ
 	virtual bool isView() const = 0;
 	virtual bool isInit() const;
 
-	template <typename I>
-	ConstOperationRoot<T,I> operator()(const IndexPtr<I>& i) const;
+	template <typename I, typename M>
+	ConstOperationRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
     };
 
     template <typename T>
@@ -63,9 +61,8 @@ namespace CNORXZ
     {
     public:
 	typedef DArrayBase<T> DAB;
-	typedef DAB::value_type value_type;
-	typedef DAB::const_iterator const_iterator;
-	typedef DContainerIndex<value_type> iterator;
+	typedef typename DAB::const_iterator const_iterator;
+	typedef DContainerIndex<T> iterator;
 
 	using DAB::operator[];
 	using DAB::at;
@@ -79,22 +76,22 @@ namespace CNORXZ
 	MDArrayBase(const RangePtr& range);
 	DEFAULT_MEMBERS(MDArrayBase);
 
-	template <typename I>
-	value_type& operator[](const IndexInterface<I>& i);
+	template <typename I, typename M>
+	T& operator[](const IndexInterface<I,M>& i);
 
-	template <typename I>
-	value_type& at(const IndexInterface<I>& i);
+	template <typename I, typename M>
+	T& at(const IndexInterface<I,M>& i);
 
-	template <typename I>
-	DArrayBase sl(const IndexInterface<I>& i);
+	template <typename I, typename M>
+	std::shared_ptr<DArrayBase<T>> sl(const IndexInterface<I,M>& i);
 
 	virtual T* data() = 0;
 	
 	virtual iterator begin();
 	virtual iterator end();
 
-	template <typename I>
-	OperationRoot<T,I> operator()(const IndexPtr<I>& i);
+	template <typename I, typename M>
+	OperationRoot<T,I> operator()(const IndexPtr<I,M>& i);
     };
 }
 

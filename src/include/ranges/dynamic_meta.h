@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <utility>
 #include <memory>
+#include <any>
+#include <functional>
 
 #include "allocator.h"
 #include "rbase_def.h"
@@ -69,93 +71,38 @@ namespace CNORXZ
         const DynamicMetaElem& operator[](size_t pos) const;
     };
 
-    // NEW:
-    // Type Eraser:
     class DType
     {
+    private:
+	std::any mD;
+	std::function<std::string()> mToStr;
+	std::function<int(std::any)> mComp;
+
+	template <typename T>
+	void _mkToStr();
+
+	template <typename T>
+	void _mkComp();
+	
     public:
 	DEFAULT_MEMBERS(DType);
 
-	virtual std::string str() const = 0;
-	virtual bool operator==(const DType& in) const = 0;
-	virtual bool operator!=(const DType& in) const = 0;
-	virtual size_t size() const = 0;
-	virtual std::shared_ptr<DType> operator[](size_t pos) const = 0;
-    };
-
-    // NEW:
-    template <typename T>
-    class TypeWrapper : public DType
-    {
-    private:
-	T mD;
-
-    public:
-	TypeWrapper(const T& d) : mD(d) {}
-	DEFAULT_MEMBERS(TypeWrapper);
+	template <typename T>
+	DType(const T& d);
 	
-	virtual std::string str() const { return std::to_string(mD); /*wrapper*/ }
-	virtual bool operator==(const DType& in) const { return this->str() == in.str(); }
-	virtual bool operator!=(const DType& in) const { return this->str() != in.str(); }
-	virtual size_t size() const { return 1; }
-	virtual std::shared_ptr<DType> operator[](size_t pos) const { return nullptr; }
+	template <typename T>
+	DType& operator=(const T& d);
+
+	std::string str() const { return mToStr(); }
+	const std::any& get() const { return mD; }
+
+	bool operator==(const DType& a) const { return mComp(a.mD) == 0; }
+	bool operator!=(const DType& a) const { return mComp(a.mD) != 0; }
+	bool operator<(const DType& a) const { return mComp(a.mD) == -1; }
+	bool operator>(const DType& a) const { return mComp(a.mD) == 1; }
+	bool operator<=(const DType& a) const { auto c = mComp(a.mD); return c <= 0; }
+	bool operator>=(const DType& a) const { auto c = mComp(a.mD); return c == 1 or c == 0; }
     };
-
-    // NEW:
-    template <typename T>
-    class TypeRefWrapper : public DType
-    {
-    private:
-	const T* mD;
-
-    public:
-	TypeRefWrapper(const T* d) : mD(d) {}
-	DEFAULT_MEMBERS(TypeRefWrapper);
-
-	virtual std::string str() const { return to_string(*mD); /*wrapper*/ }
-	virtual bool operator==(const DType& in) const { return this->str() == in.str(); }
-	virtual bool operator!=(const DType& in) const { return this->str() != in.str(); }
-	virtual size_t size() const { return 1; }
-	virtual std::shared_ptr<DType> operator[](size_t pos) const { return nullptr; }
-    };
-
-    // NEW:
-    template <typename T>
-    class TypeWrapper<std::vector<T>> : public DType
-    {
-    private:
-	std::vector<T> mD;
-
-    public:
-	TypeWrapper(const std::vector<T>& d) : mD(d) {}
-	DEFAULT_MEMBERS(TypeWrapper);
-	
-	virtual std::string str() const { return to_string(mD); /* overload before!!! */ }
-	virtual bool operator==(const DType& in) const { return this->str() == in.str(); }
-	virtual bool operator!=(const DType& in) const { return this->str() != in.str(); }
-	virtual size_t size() const { return mD.size(); }
-	virtual std::shared_ptr<DType> operator[](size_t pos) const { return std::make_shared<TypeRefWrapper>(&mD[pos]); }
-    };
-
-    // NEW:
-    template <typename T>
-    class TypeRefWrapper<std::vector<T>> : public DType
-    {
-    private:
-	const std::vector<T>* mD;
-
-    public:
-	TypeRefWrapper(const std::vector<T>* d) : mD(d) {}
-	DEFAULT_MEMBERS(TypeRefWrapper);
-	
-	virtual std::string str() const { return to_string(*mD); /* overload before!!! */ }
-	virtual bool operator==(const DType& in) const { return this->str() == in.str(); }
-	virtual bool operator!=(const DType& in) const { return this->str() != in.str(); }
-	virtual size_t size() const { return mD->size(); }
-	virtual std::shared_ptr<DType> operator[](size_t pos) const { return std::make_shared<TypeRefWrapper>(&(*mD)[pos]); }
-    };
-
-    // SPECIALIZE: for std::array<T,N> and std::tuple<T...>
     
 } // namespace CNORXZ
 

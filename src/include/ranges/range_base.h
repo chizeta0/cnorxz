@@ -64,12 +64,10 @@ namespace CNORXZ
 
     std::shared_ptr<RangeFactoryBase> createRangeFactory(const char** dp);
     std::shared_ptr<RangeFactoryBase> createSingleRangeFactory(const vector<char>*& d, int metaType, size_t size);
-    
+
     class RangeBase
     {
     public:
-	
-	static constexpr bool ISINDEX = false;
 	
 	virtual ~RangeBase() = default;
 	    
@@ -81,6 +79,9 @@ namespace CNORXZ
 
         std::intptr_t id() const;
 
+	XIndexPtr beginX() const;
+	XIndexPtr endX() const;
+	
         virtual vector<size_t> typeNum() const = 0;
         virtual size_t cmeta(char* target, size_t pos) const = 0;
         virtual size_t cmetaSize() const = 0;

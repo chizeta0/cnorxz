@@ -16,11 +16,17 @@ namespace CNORXZInternal
 {
 
     template <typename T>
-    struct Allocator
+    class Allocator
     {
+    private:
+	static size_t sMemUsage;
+	
+    public:
+	static size_t memUsage() { return sMemUsage; }
+	
 	typedef T value_type;
 	static constexpr size_t type_size = sizeof(value_type);	
-	static constexpr size_t N = 32;
+	static constexpr size_t N = 32; // get from environment!!!
 
         struct VX
         {
@@ -35,6 +41,7 @@ namespace CNORXZInternal
 	T* allocate(size_t n)
 	{
 	    const size_t nn = n*type_size;
+	    sMemUsage += nn;
             if(nn >= WARN_SIZE){
                 std::cout << __func__ << ": WARNING: allocating " << nn/(MIB_SIZE) << " MiB" << std::endl;
             }
@@ -47,6 +54,8 @@ namespace CNORXZInternal
 
 	void deallocate(T* p, size_t n)
 	{
+	    const size_t nn = n*type_size;
+	    sMemUsage -= nn;
             VX* vx = reinterpret_cast<VX*>(p);
             delete [] vx;
 	}
@@ -64,11 +73,20 @@ namespace CNORXZInternal
 	return false;
     }
 
+    template <typename T>
+    size_t Allocator<T>::sMemUsage = 0;
     
 } // namespace CNORXZInternal
 
 namespace CNORXZ
 {
+    
+    template <typename T>
+    inline size_t memUsage()
+    {
+	return CNORXZInternal::Allocator<T>::memUsage();
+    }
+    
     template <typename T>
     using vector = std::vector<T,CNORXZInternal::Allocator<T>>;
 

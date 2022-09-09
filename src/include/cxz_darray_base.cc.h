@@ -8,23 +8,20 @@ namespace CNORXZ
      ***************/
 
     template <typename T>
-    DArrayBase<T>::DArrayBase(const RangePtr& range) : mRange(range), mInit(true)
-    {
-	mIt = this->begin();
-    }
+    DArrayBase<T>::DArrayBase(const RangePtr& range) : mRange(range), mInit(true) {}
 
     template <typename T>
-    template <typename I>
-    const value_type& DArrayBase<T>::operator[](const IndexInterface<I>& i) const
+    template <typename I, typename M>
+    const T& DArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
-	return *mIt(i);
+	return *(this->begin()+i);
     }
     
     template <typename T>
-    template <typename I>
-    const value_type& DArrayBase<T>::at(const IndexInterface<I>& i) const
+    template <typename I, typename M>
+    const T& DArrayBase<T>::at(const IndexInterface<I,M>& i) const
     {
-	return *mIt.at(i);
+	return *this->begin().plus(i);
     }
 
     template <typename T>
@@ -40,26 +37,26 @@ namespace CNORXZ
     }
 
     template <typename T>
-    DArrayBase<T>::const_iterator DArrayBase<T>::begin() const
+    typename DArrayBase<T>::const_iterator DArrayBase<T>::begin() const
     {
 	return this->cbegin();
     }
     
     template <typename T>
-    DArrayBase<T>::const_iterator DArrayBase<T>::end() const
+    typename DArrayBase<T>::const_iterator DArrayBase<T>::end() const
     {
 	return this->cend();
     }
     
     template <typename T>
-    virtual bool DArrayBase<T>::isInit() const
+    bool DArrayBase<T>::isInit() const
     {
 	return mInit;
     }
 
     template <typename T>
-    template <typename I>
-    ConstOperationRoot<T,I> DArrayBase<T>::operator()(const IndexPtr<I>& i) const
+    template <typename I, typename M>
+    ConstOperationRoot<T,I> DArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
 	return ConstOperationRoot<T,I>(/**/);
     }
@@ -70,37 +67,37 @@ namespace CNORXZ
      ****************/
 
     template <typename T>
-    MDArrayBase<T>::MDArrayBase(const RangePtr& range) : DArrayBase(range) {}
+    MDArrayBase<T>::MDArrayBase(const RangePtr& range) : DArrayBase<T>(range) {}
 
     template <typename T>
-    template <typename I>
-    value_type& MDArrayBase<T>::operator[](const IndexInterface<I>& i)
+    template <typename I, typename M>
+    T& MDArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
-	return *mIt(i);
+	return *(this->begin()+i);
     }
 
     template <typename T>
-    template <typename I>
-    value_type& MDArrayBase<T>::at(const IndexInterface<I>& i)
+    template <typename I, typename M>
+    T& MDArrayBase<T>::at(const IndexInterface<I,M>& i)
     {
-	return *mIt.at(i);
+	return *this->begin().plus(i);
     }
 
     template <typename T>
-    MDArrayBase<T>::iterator MDArrayBase<T>::begin()
+    typename MDArrayBase<T>::iterator MDArrayBase<T>::begin()
     {
 	return iterator(this->data(), this->cbegin());
     }
 
     template <typename T>
-    MDArrayBase<T>::iterator MDArrayBase<T>::end()
+    typename MDArrayBase<T>::iterator MDArrayBase<T>::end()
     {
 	return iterator(this->data(), this->cend());
     }
 
     template <typename T>
-    template <typename I>
-    OperationRoot<T,I> MDArrayBase<T>::operator()(const IndexPtr<I>& i)
+    template <typename I, typename M>
+    OperationRoot<T,I> MDArrayBase<T>::operator()(const IndexPtr<I,M>& i)
     {
 	return OperationRoot<T,I>(/**/);
     }

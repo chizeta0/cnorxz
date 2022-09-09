@@ -27,8 +27,6 @@ namespace CNORXZ
 	I& THIS() { return static_cast<I&>(*this); }
 	I const& THIS() const { return static_cast<I const&>(*this); }
 
-	static constexpr bool ISINDEX = true;
-
 	~IndexInterface() = default; 
 
 	constexpr IndexType type() const { return THIS().type(); }
@@ -46,20 +44,16 @@ namespace CNORXZ
 	size_t dim() const { return THIS().dim(); }
 	size_t pos() const;
 	size_t max() const;
-
+	
 	bool last() const { return THIS().last(); }
 	bool first() const { return THIS().first(); }
-
 	
-	std::shared_ptr<RangeBase> vrange() const { return mRangePtr; }
+	std::shared_ptr<RangeBase> range() const { return mRangePtr; }
 	
 	size_t getStepSize(size_t n) const { return THIS().getStepSize(n); }
 	
-	operator size_t() const;
-
 	std::string stringMeta() const { return THIS().stringMeta(); }
 	MetaType meta() const { return THIS().meta(); }
-	MetaType metaPtr() const { return THIS().metaPtr(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 
 	// CHECK / IMPLEMENT !!!!!!
@@ -186,12 +180,6 @@ namespace CNORXZ
     size_t IndexInterface<I,MetaType>::max() const
     {
 	return mMax;
-    }
-
-    template <class I, typename MetaType>
-    IndexInterface<I,MetaType>::operator size_t() const
-    {
-	return pos();
     }
 
     template <class I, typename MetaType>

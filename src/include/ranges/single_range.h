@@ -34,8 +34,6 @@ namespace CNORXZ
 	typedef GenSingleRange<U,TYPE,S> RangeType;
 	typedef GenSingleIndex IType;
 
-	//DEFAULT_MEMBERS_X(GenSingleIndex);
-	
 	GenSingleIndex(const std::shared_ptr<GenSingleRange<U,TYPE,S> >& range);
 
 	static constexpr IndexType sType() { return IndexType::SINGLE; }
@@ -117,7 +115,6 @@ namespace CNORXZ
 	MetaMap& operator=(const MetaMap& in) = default;
 	MetaMap& operator=(MetaMap&& in) = default;
 
-	//MetaMap(const std::map<U,size_t>& in) : mMap(in) {}
 	MetaMap(const vector<U>& in)
 	{
 	    for(size_t i = 0; i != in.size(); ++i){
@@ -137,58 +134,7 @@ namespace CNORXZ
         }
 	size_t count(const U& in) const { return mMap.count(in); }
     };
-    /*
-    template <>
-    class MetaMap<std::array<int,2> >
-    {
-    private:
-	vector<size_t> mMap;
-	int min1;
-	int min2;
-	int max1;
-	int max2;
-	size_t s1;
-	size_t s2;
-    public:
-	typedef std::array<int,2> U;
-	
-	MetaMap() = default;
-	MetaMap(const MetaMap& in) = default;
-	MetaMap(MetaMap&& in) = default;
-	MetaMap& operator=(const MetaMap& in) = default;
-	MetaMap& operator=(MetaMap&& in) = default;
 
-	MetaMap(const vector<U>& in) : min1(in[0][0]),
-					    min2(in[0][1]),
-					    max1(in[0][0]),
-					    max2(in[0][1])
-	{
-	    for(auto& x: in){
-		if(min1 > x[0]) min1 = x[0];
-		if(min2 > x[1]) min2 = x[1];
-		if(max1 < x[0]+1) max1 = x[0]+1;
-		if(max2 < x[1]+1) max2 = x[1]+1;
-	    }
-	    s1 = max1 - min1;
-	    s2 = max2 - min2;
-	    mMap.resize(s1*s2,-1);
-	    for(size_t i = 0; i != in.size(); ++i){
-		const size_t mpos = (in[i][0] - min1) * s2 + (in[i][1] - min2);
-		mMap[ mpos ] = i;
-	    }
-	}
-
-	size_t at(const U& in) const
-	{
-	    //CHECK;
-	    const size_t mpos = (in[0] - min1) * s2 + (in[1] - min2);
-	    assert(mpos < mMap.size());
-	    assert(mMap[ mpos ] != static_cast<size_t>( -1 ) );
-	    return mMap[ mpos ];
-	}
-	
-    };
-    */
     template <size_t S>
     struct CheckStatic
     {
@@ -263,7 +209,6 @@ namespace CNORXZ
 	typedef GenSingleRange RangeType;
 	typedef U MetaType;
 	typedef GenSingleRangeFactory<U,TYPE,S> FType; 
-	//typedef typename RangeInterface<GenSingleIndex<U,TYPE,S> >::IndexType IndexType;
 	
 	virtual size_t size() const final;
 	virtual size_t dim() const final;
@@ -308,7 +253,6 @@ namespace CNORXZ
         GenSingleRange(vector<U>&& space);
 
 	vector<U> mSpace;
-	//std::map<U,size_t> mMSpace;
 	MetaMap<U> mMSpace;
     };
 
@@ -490,7 +434,6 @@ namespace CNORXZ
     auto GenSingleIndex<U,TYPE,S>::ifor(size_t step, Expr ex) const
 	-> For<GenSingleIndex<U,TYPE,S>,Expr>
     {
-	//static const size_t LAYER = typename Expr::LAYER; 
 	return For<GenSingleIndex<U,TYPE,S>,Expr>(this, step, ex);
     }
 
@@ -499,7 +442,6 @@ namespace CNORXZ
     auto GenSingleIndex<U,TYPE,S>::iforh(size_t step, Expr ex) const
 	-> For<GenSingleIndex<U,TYPE,S>,Expr,ForType::HIDDEN>
     {
-	//static const size_t LAYER = typename Expr::LAYER; 
 	return For<GenSingleIndex<U,TYPE,S>,Expr,ForType::HIDDEN>(this, step, ex);
     }
 
@@ -508,7 +450,6 @@ namespace CNORXZ
     auto GenSingleIndex<U,TYPE,S>::pifor(size_t step, Expr ex) const
 	-> PFor<GenSingleIndex<U,TYPE,S>,Expr>
     {
-	//static const size_t LAYER = typename Expr::LAYER; 
 	return PFor<GenSingleIndex<U,TYPE,S>,Expr>(this, step, ex);
     }
 
@@ -613,8 +554,6 @@ namespace CNORXZ
     template <typename U, SpaceType TYPE, size_t S>
     size_t GenSingleRange<U,TYPE,S>::cmeta(char* target, size_t pos) const
     {
-        //*reinterpret_cast<U*>(target) = mSpace[pos];
-        //return sizeof(U);
         return ToCMeta<U>::apply(target, mSpace[pos]);
     }
 
@@ -639,8 +578,6 @@ namespace CNORXZ
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	stringCat(out, mSpace);
-	//const char* scp = reinterpret_cast<const char*>(mSpace.data());
-	//out.insert(out.end(), scp, scp + h.metaSize);
 	return out;
     }
     
