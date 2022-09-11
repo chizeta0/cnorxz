@@ -3,121 +3,112 @@
 #ifndef __cxz_multi_range_h__
 #define __cxz_multi_range_h__
 
-#include <cstdlib>
-#include <tuple>
-#include <memory>
+#include "base/base.h"
 #include <map>
 
-#include "ranges/range_base.h"
-#include "ranges/index_base.h"
+#include "range_base.h"
+#include "index_base.h"
 
-#include "ranges/range_helper.h"
-#include "ranges/multi_range_factory_product_map.h"
-#include "ranges/x_to_string.h"
-#include "ranges/type_map.h"
+#include "range_helper.h"
+#include "multi_range_factory_product_map.h"
 
 #include "statics/static_for.h"
 
 namespace CNORXZ
 {
-    namespace
-    {
-	using namespace CNORXZInternal;
-    }
     
     template <class... Indices>
     class MultiIndex : public IndexInterface<MultiIndex<Indices...>,
-					     std::tuple<typename Indices::MetaType...> >
+					     Tuple<typename Indices::MetaType...> >
     {
     public:
 	
 	typedef IndexInterface<MultiIndex<Indices...>,
-			       std::tuple<typename Indices::MetaType...> > IB;
-	typedef std::tuple<std::shared_ptr<Indices>...> IndexPack;
-	typedef std::tuple<typename Indices::MetaType...> MetaType;
+			       Tuple<typename Indices::MetaType...> > IB;
+	typedef Tuple<Sptr<Indices>...> IndexPack;
+	typedef Tuple<typename Indices::MetaType...> MetaType;
 	typedef MultiRange<typename Indices::RangeType...> RangeType;
 	typedef MultiIndex IType;
 
 	static constexpr IndexType sType() { return IndexType::MULTI; }
-	static constexpr size_t sDim() { return sizeof...(Indices); }
-	static constexpr size_t totalDim() { return (... * Indices::totalDim()); }
+	static constexpr SizeT sDim() { return sizeof...(Indices); }
+	static constexpr SizeT totalDim() { return (... * Indices::totalDim()); }
 
 	static constexpr SpaceType STYPE = SpaceType::ANY;
-        static constexpr bool PARALLEL = std::tuple_element<0,std::tuple<Indices...>>::type::PARALLEL;
+        static constexpr bool PARALLEL = TupleElem<0,Tuple<Indices...>>::type::PARALLEL;
         
     private:
 	
 	IndexPack mIPack;
-	std::array<size_t,sizeof...(Indices)+1> mBlockSizes;
+	Arr<SizeT,sizeof...(Indices)+1> mBlockSizes;
+	MultiIndex() = default;
 
     public:
 
 	const IndexPack& pack() const { return mIPack; }
 	
-	MultiIndex() = delete;
-	
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
 
 	template <class MRange>
-	MultiIndex(const std::shared_ptr<MRange>& range);
+	MultiIndex(const Sptr<MRange>& range);
 
-	template <size_t DIR>
+	template <SizeT DIR>
 	MultiIndex& up();
 
-	template <size_t DIR>
+	template <SizeT DIR>
 	MultiIndex& down();
 
-	template <size_t N>
+	template <SizeT N>
 	auto get() const -> decltype( *std::get<N>( mIPack ) )&;
 
-	template <size_t N>
+	template <SizeT N>
 	auto getPtr() const -> decltype( std::get<N>( mIPack ) )&;
 
-	template <size_t N>
-	size_t getBlockSize() const { return std::get<N>(mBlockSizes); }
+	template <SizeT N>
+	SizeT getBlockSize() const { return std::get<N>(mBlockSizes); }
 	
 	// raplace instances (in contrast to its analogon in ConstContainerIndex
 	// MultiIndices CANNOT be influences be its subindices, so there is
 	// NO foreign/external controll)
 	// Do NOT share index instances between two or more MultiIndex instances
-	MultiIndex& operator()(std::shared_ptr<Indices>&... indices);
-	MultiIndex& operator()(const std::tuple<std::shared_ptr<Indices>...>& indices);
+	MultiIndex& operator()(Sptr<Indices>&... indices);
+	MultiIndex& operator()(const Tuple<Sptr<Indices>...>& indices);
 
 	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
 	
 	IndexType type() const;
 
-	MultiIndex& operator=(size_t pos);
+	MultiIndex& operator=(SizeT pos);
 
 	MultiIndex& operator++();
 	MultiIndex& operator--();
 
-	int pp(std::intptr_t idxPtrNum);
-	int mm(std::intptr_t idxPtrNum);
+	int pp(PtrId idxPtrNum);
+	int mm(PtrId idxPtrNum);
 
 	std::string stringMeta() const;
 	MetaType meta() const;
 	MultiIndex& at(const MetaType& metaPos);
 	
-	size_t dim();
+	SizeT dim();
 	bool first();
 	bool last();
-	std::shared_ptr<RangeType> range();
+	Sptr<RangeType> range();
 
-	template <size_t N>
+	template <SizeT N>
 	auto getPtr() -> decltype( std::get<N>( mIPack ) )&;
 
-	size_t getStepSize(size_t n);
+	SizeT getStepSize(SizeT n);
 
 	template <class Exprs>
-	auto ifor(size_t step, Exprs exs) const;
+	auto ifor(SizeT step, Exprs exs) const;
 
 	template <class Exprs>
-	auto iforh(size_t step, Exprs exs) const;
+	auto iforh(SizeT step, Exprs exs) const;
 
         template <class Exprs>
-	auto pifor(size_t step, Exprs exs) const;
+	auto pifor(SizeT step, Exprs exs) const;
 
     };
 
@@ -133,14 +124,14 @@ namespace CNORXZ
 	typedef MultiRange<Ranges...> oType;
 	
 	MultiRangeFactory() = delete;
-	MultiRangeFactory(const std::shared_ptr<Ranges>&... rs);
+	MultiRangeFactory(const Sptr<Ranges>&... rs);
 	MultiRangeFactory(const typename MultiRange<Ranges...>::Space& space);
 
-	virtual std::shared_ptr<RangeBase> create() override;
+	virtual Sptr<RangeBase> create() override;
 
     private:
 	
-	std::shared_ptr<RangeBase> checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& ptp);
+	Sptr<RangeBase> checkIfCreated(const Tuple<Sptr<Ranges>...>& ptp);
 	
     };
     
@@ -153,9 +144,9 @@ namespace CNORXZ
     {
     public:
 	typedef RangeBase RB;
-	typedef std::tuple<std::shared_ptr<Ranges>...> Space;
+	typedef Tuple<Sptr<Ranges>...> Space;
 	typedef MultiIndex<typename Ranges::IndexType...> IndexType;
-        typedef std::tuple<typename Ranges::IndexType::MetaType...> MetaType;
+        typedef Tuple<typename Ranges::IndexType::MetaType...> MetaType;
 	typedef MultiRange RangeType;
 	typedef MultiRangeFactory<Ranges...> FType;
 
@@ -164,36 +155,36 @@ namespace CNORXZ
 	MultiRange(const MultiRange& in) = delete;
 	MultiRange& operator=(const MultiRange& in) = delete;
 	
-	MultiRange(const std::shared_ptr<Ranges>&... rs);
+	MultiRange(const Sptr<Ranges>&... rs);
 	MultiRange(const Space& space);
 	
 	Space mSpace;
 
     public:
 	
-	static const size_t sdim = sizeof...(Ranges);
+	static const SizeT sdim = sizeof...(Ranges);
 
-	template <size_t N>
+	template <SizeT N>
 	auto get() const -> decltype( *std::get<N>( mSpace ) )&;
 
-	size_t getMeta(const MetaType& metaPos) const;
+	SizeT getMeta(const MetaType& metaPos) const;
 
-	template <size_t N>
+	template <SizeT N>
 	auto getPtr() const -> decltype( std::get<N>( mSpace ) )&;
 
-	virtual std::shared_ptr<RangeBase> sub(size_t num) const override;
+	virtual Sptr<RangeBase> sub(SizeT num) const override;
 	
-	virtual size_t dim() const final;
-	virtual size_t size() const final;
+	virtual SizeT dim() const final;
+	virtual SizeT size() const final;
 
 	virtual SpaceType spaceType() const final;
         virtual DataHeader dataHeader() const final;
         
-        virtual vector<size_t> typeNum() const final;
-        virtual size_t cmeta(char* target, size_t pos) const final;
-        virtual size_t cmetaSize() const final;
-	virtual std::string stringMeta(size_t pos) const final;
-	virtual vector<char> data() const final;
+        virtual Vector<SizeT> typeNum() const final;
+        virtual SizeT cmeta(char* target, SizeT pos) const final;
+        virtual SizeT cmetaSize() const final;
+	virtual std::string stringMeta(SizeT pos) const final;
+	virtual Vector<char> data() const final;
 	
 	const Space& space() const;
 	
@@ -201,15 +192,15 @@ namespace CNORXZ
 	virtual IndexType end() const final;
 
 	template <class... ERanges>
-	auto cat(const std::shared_ptr<MultiRange<ERanges...> >& erange)
-	    -> std::shared_ptr<MultiRange<Ranges...,ERanges...> >;
+	auto cat(const Sptr<MultiRange<ERanges...> >& erange)
+	    -> Sptr<MultiRange<Ranges...,ERanges...> >;
 	
 	friend MultiRangeFactory<Ranges...>;
 
 	static constexpr bool HASMETACONT = false;
 	static constexpr bool defaultable = false;
-	static constexpr size_t ISSTATIC = (... & Ranges::ISSTATIC);
-	static constexpr size_t SIZE = (... * Ranges::SIZE);
+	static constexpr SizeT ISSTATIC = (... & Ranges::ISSTATIC);
+	static constexpr SizeT SIZE = (... * Ranges::SIZE);
     };
     
 }
@@ -227,7 +218,7 @@ namespace CNORXZ
     }
 
     // -> define in range_base.cc
-    std::shared_ptr<RangeFactoryBase> mkMULTI(const char** dp);
+    Sptr<RangeFactoryBase> mkMULTI(const char** dp);
     
     /******************
      *   MultiIndex   *
@@ -235,8 +226,8 @@ namespace CNORXZ
     
     template <class... Indices>
     template <class MRange>
-    MultiIndex<Indices...>::MultiIndex(const std::shared_ptr<MRange>& range) :
-	IndexInterface<MultiIndex<Indices...>,std::tuple<typename Indices::MetaType...> >(range, 0)
+    MultiIndex<Indices...>::MultiIndex(const Sptr<MRange>& range) :
+	IndexInterface<MultiIndex<Indices...>,Tuple<typename Indices::MetaType...> >(range, 0)
     {
 	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
 	sfor_mn<sizeof...(Indices),0>
@@ -257,7 +248,7 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    template <size_t DIR>
+    template <SizeT DIR>
     MultiIndex<Indices...>& MultiIndex<Indices...>::up()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
@@ -275,7 +266,7 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    template <size_t DIR>
+    template <SizeT DIR>
     MultiIndex<Indices...>& MultiIndex<Indices...>::down()
     {
 	static_assert(DIR < sizeof...(Indices), "DIR exceeds number of sub-indices");
@@ -293,27 +284,27 @@ namespace CNORXZ
     }
     
     template <class... Indices>
-    template <size_t N>
+    template <SizeT N>
     auto MultiIndex<Indices...>::get() const -> decltype( *std::get<N>( mIPack ) )&
     {
 	return *std::get<N>(mIPack);
     }
 
     template <class... Indices>
-    template <size_t N>
+    template <SizeT N>
     auto MultiIndex<Indices...>::getPtr() const -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>(mIPack);
     }
 
     template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(std::shared_ptr<Indices>&... indices)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(Sptr<Indices>&... indices)
     {
 	return (*this)(std::make_tuple(indices...));
     }
 
     template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const std::tuple<std::shared_ptr<Indices>...>& indices)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator()(const Tuple<Sptr<Indices>...>& indices)
     {
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
@@ -328,7 +319,7 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(size_t pos)
+    MultiIndex<Indices...>& MultiIndex<Indices...>::operator=(SizeT pos)
     {
 	IB::mPos = pos;
 	RangeHelper::setIndexPack<sizeof...(Indices)-1>(mIPack, pos);
@@ -365,7 +356,7 @@ namespace CNORXZ
 
 
     template <class... Indices>
-    int MultiIndex<Indices...>::pp(std::intptr_t idxPtrNum)
+    int MultiIndex<Indices...>::pp(PtrId idxPtrNum)
     {
 	const int tmp = RangeHelper::ppx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos += tmp;
@@ -373,7 +364,7 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    int MultiIndex<Indices...>::mm(std::intptr_t idxPtrNum)
+    int MultiIndex<Indices...>::mm(PtrId idxPtrNum)
     {
 	const int tmp = RangeHelper::mmx<sizeof...(Indices)-1>(mIPack, mBlockSizes, idxPtrNum);
 	IB::mPos -= tmp;
@@ -407,7 +398,7 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    size_t MultiIndex<Indices...>::dim()
+    SizeT MultiIndex<Indices...>::dim()
     {
 	return sizeof...(Indices);
     }
@@ -425,21 +416,21 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    std::shared_ptr<typename MultiIndex<Indices...>::RangeType>
+    Sptr<typename MultiIndex<Indices...>::RangeType>
     MultiIndex<Indices...>::range()
     {
 	return std::dynamic_pointer_cast<RangeType>( IB::mRangePtr );
     }
 
     template <class... Indices>
-    template <size_t N>
+    template <SizeT N>
     auto MultiIndex<Indices...>::getPtr() -> decltype( std::get<N>( mIPack ) )&
     {
 	return std::get<N>(mIPack);
     }
 
     template <class... Indices>	
-    size_t MultiIndex<Indices...>::getStepSize(size_t n)
+    SizeT MultiIndex<Indices...>::getStepSize(SizeT n)
     {
 	if(n >= sizeof...(Indices)){
 	    assert(0);
@@ -450,21 +441,21 @@ namespace CNORXZ
 
     template <class... Indices>
     template <class Exprs>
-    auto MultiIndex<Indices...>::ifor(size_t step, Exprs exs) const
+    auto MultiIndex<Indices...>::ifor(SizeT step, Exprs exs) const
     {
 	return RangeHelper::mkFor<0>(step, mIPack, mBlockSizes, exs);
     }
 
     template <class... Indices>
     template <class Exprs>
-    auto MultiIndex<Indices...>::iforh(size_t step, Exprs exs) const
+    auto MultiIndex<Indices...>::iforh(SizeT step, Exprs exs) const
     {
 	return RangeHelper::mkForh<0>(step, mIPack, mBlockSizes, exs);
     }
 
     template <class... Indices>
     template <class Exprs>
-    auto MultiIndex<Indices...>::pifor(size_t step, Exprs exs) const
+    auto MultiIndex<Indices...>::pifor(SizeT step, Exprs exs) const
     {
 	return RangeHelper::mkPFor<0>(step, mIPack, mBlockSizes, exs);
     }
@@ -474,19 +465,19 @@ namespace CNORXZ
      *************************/
 
     template <class... Ranges>
-    MultiRangeFactory<Ranges...>::MultiRangeFactory(const std::shared_ptr<Ranges>&... rs)
+    MultiRangeFactory<Ranges...>::MultiRangeFactory(const Sptr<Ranges>&... rs)
     {
-	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( rs... ) );
+	mProd = Sptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( rs... ) );
     }
     
     template <class... Ranges>
     MultiRangeFactory<Ranges...>::MultiRangeFactory(const typename MultiRange<Ranges...>::Space& st)
     {
-	mProd = std::shared_ptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( st ) );
+	mProd = Sptr< MultiRange<Ranges...> >( new MultiRange<Ranges...>( st ) );
     }
 
     template <class... Ranges>
-    std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::create()
+    Sptr<RangeBase> MultiRangeFactory<Ranges...>::create()
     {
 	mProd = checkIfCreated( std::dynamic_pointer_cast<oType>( mProd )->mSpace );
 	setSelf();
@@ -494,14 +485,14 @@ namespace CNORXZ
     }
 
     template <class... Ranges>
-    std::shared_ptr<RangeBase> MultiRangeFactory<Ranges...>::checkIfCreated(const std::tuple<std::shared_ptr<Ranges>...>& ptp)
+    Sptr<RangeBase> MultiRangeFactory<Ranges...>::checkIfCreated(const Tuple<Sptr<Ranges>...>& ptp)
     {
-	std::shared_ptr<RangeBase> out;
+	Sptr<RangeBase> out;
 	bool check = false;
 	for(auto& x: MultiRangeFactoryProductMap::mAleadyCreated){
 	    if(x.second.size() == sizeof...(Ranges)){
 		check = sfor_p<0,sizeof...(Ranges)>
-		    ( [&](auto i) { return reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ) == x.second[i]; },
+		    ( [&](auto i) { return reinterpret_cast<PtrId>( std::get<i>(ptp).get() ) == x.second[i]; },
 		      [&](auto a, auto b) { return a and b; } );
 		if(check){
 		    out = x.first;
@@ -510,9 +501,9 @@ namespace CNORXZ
 	    }
 	}
 	if(not check){
-	    vector<std::intptr_t> pv(sizeof...(Ranges));
+	    Vector<PtrId> pv(sizeof...(Ranges));
 	    sfor_pn<0,sizeof...(Ranges)>
-		( [&](auto i) { pv[i] = reinterpret_cast<std::intptr_t>( std::get<i>(ptp).get() ); return 0; } );
+		( [&](auto i) { pv[i] = reinterpret_cast<PtrId>( std::get<i>(ptp).get() ); return 0; } );
 	    MultiRangeFactoryProductMap::mAleadyCreated[mProd] = pv;
 	    out = mProd;
 	}
@@ -524,33 +515,33 @@ namespace CNORXZ
      ******************/
 
     template <class... Ranges>
-    MultiRange<Ranges...>::MultiRange(const std::shared_ptr<Ranges>&... rs) : mSpace(std::make_tuple(rs...)) {}
+    MultiRange<Ranges...>::MultiRange(const Sptr<Ranges>&... rs) : mSpace(std::make_tuple(rs...)) {}
 
     template <class... Ranges>
     MultiRange<Ranges...>::MultiRange(const Space& space) : mSpace( space ) {}
 
     template <class... Ranges>
-    template <size_t N>
+    template <SizeT N>
     auto MultiRange<Ranges...>::get() const -> decltype( *std::get<N>( mSpace ) )&
     {
 	return *std::get<N>(mSpace);
     }
 
     template <class... Ranges>
-    size_t MultiRange<Ranges...>::getMeta(const MetaType& metaPos) const
+    SizeT MultiRange<Ranges...>::getMeta(const MetaType& metaPos) const
     {
 	return RangeHelper::getMeta<sizeof...(Ranges)-1>(mSpace,metaPos);
     }
 
     template <class... Ranges>
-    template <size_t N>
+    template <SizeT N>
     auto MultiRange<Ranges...>::getPtr() const -> decltype( std::get<N>( mSpace ) )&
     {
 	return std::get<N>(mSpace);
     }
 
     template <class... Indices>
-    std::shared_ptr<RangeBase> MultiRange<Indices...>::sub(size_t num) const
+    Sptr<RangeBase> MultiRange<Indices...>::sub(SizeT num) const
     {
 	assert(num < sizeof...(Indices));
 	return sforx_p<0,sizeof...(Indices)>
@@ -559,13 +550,13 @@ namespace CNORXZ
     }
 
     template <class... Ranges>
-    size_t MultiRange<Ranges...>::dim() const
+    SizeT MultiRange<Ranges...>::dim() const
     {
 	return sdim;
     }
     
     template <class... Ranges>
-    size_t MultiRange<Ranges...>::size() const
+    SizeT MultiRange<Ranges...>::size() const
     {
 	return sfor_p<0,sizeof...(Ranges)>
 	    ( [&](auto i) { return std::get<i>(mSpace)->size(); },
@@ -585,29 +576,29 @@ namespace CNORXZ
     }
 
     template <class... Ranges>
-    vector<size_t> MultiRange<Ranges...>::typeNum() const
+    Vector<SizeT> MultiRange<Ranges...>::typeNum() const
     {
-        vector<size_t> o;
+        Vector<SizeT> o;
 	RangeHelper::getTypeNum<sizeof...(Ranges)-1>(o,mSpace);
         return o;
     }
 
     template <class... Ranges>
-    size_t MultiRange<Ranges...>::cmeta(char* target, size_t pos) const
+    SizeT MultiRange<Ranges...>::cmeta(char* target, SizeT pos) const
     {
-        const size_t off = cmetaSize();
+        const SizeT off = cmetaSize();
         MetaType* xtarget = reinterpret_cast<MetaType*>(target);
         return RangeHelper::getCMeta<sizeof...(Ranges)-1>(xtarget,pos,mSpace,off);
     }
 
     template <class... Ranges>
-    size_t MultiRange<Ranges...>::cmetaSize() const
+    SizeT MultiRange<Ranges...>::cmetaSize() const
     {
         return RangeHelper::getCMetaSize<0>(mSpace);
     }
 
     template <class... Ranges>
-    std::string MultiRange<Ranges...>::stringMeta(size_t pos) const
+    std::string MultiRange<Ranges...>::stringMeta(SizeT pos) const
     {
 	auto i = begin();
 	i = pos;
@@ -615,16 +606,16 @@ namespace CNORXZ
     }
 
     template <class... Ranges>
-    vector<char> MultiRange<Ranges...>::data() const
+    Vector<char> MultiRange<Ranges...>::data() const
     {
 	DataHeader h = dataHeader();
-	vector<char> out;
+	Vector<char> out;
 	//out.reserve(h.metaSize + sizeof(DataHeader));
 	char* hcp = reinterpret_cast<char*>(&h);
 	out.insert(out.end(), hcp, hcp + sizeof(DataHeader));
 	sfor_pn<0,sizeof...(Ranges)>
 	    ( [&](auto i) {
-		vector<char> part = std::get<i>(mSpace)->data();
+		Vector<char> part = std::get<i>(mSpace)->data();
 		out.insert(out.end(), part.begin(), part.end());
 		return 0;
 	    } );
@@ -646,7 +637,7 @@ namespace CNORXZ
     {
 	MultiIndex<typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >
-	       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+	       ( Sptr<RangeBase>( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
@@ -656,15 +647,15 @@ namespace CNORXZ
     {
 	MultiIndex<typename Ranges::IndexType...>
 	    i( std::dynamic_pointer_cast<MultiRange<Ranges...> >
-	       ( std::shared_ptr<RangeBase>( RB::mThis )) );
+	       ( Sptr<RangeBase>( RB::mThis )) );
 	i = size();
 	return i;
     }
 
     template <class... Ranges>
     template <class... ERanges>
-    auto MultiRange<Ranges...>::cat(const std::shared_ptr<MultiRange<ERanges...> >& erange)
-	-> std::shared_ptr<MultiRange<Ranges...,ERanges...> >
+    auto MultiRange<Ranges...>::cat(const Sptr<MultiRange<ERanges...> >& erange)
+	-> Sptr<MultiRange<Ranges...,ERanges...> >
     {
 	auto crange = std::tuple_cat(mSpace, erange->space());
 	MultiRangeFactory<Ranges...,ERanges...> rf(crange);

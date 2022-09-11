@@ -14,12 +14,12 @@ namespace CNORXZ
         static constexpr bool VALUE = true; \
     }
 
-    add_array_trait(ArrayBase);
-    add_array_trait(MutableArrayBase);
-    add_array_trait(Array);
-    add_array_trait(FunctionalArray);
-    add_array_trait(Slice);
-    add_array_trait(ConstSlice);
+    add_array_trait(DArrayBase);
+    add_array_trait(MDArrayBase);
+    add_array_trait(DArray);
+    //add_array_trait(FunctionalArray);
+    //add_array_trait(Slice);
+    //add_array_trait(ConstSlice);
 
 #undef add_array_trait
 

@@ -3,21 +3,12 @@
 #ifndef __cxz_range_base_h__
 #define __cxz_range_base_h__
 
-#include <cstdlib>
-#include <vector>
-#include <memory>
-
-#include "rbase_def.h"
-
-namespace CNORXZ
-{
-    class RangeBase;
-}
+#include "base/base.h"
 
 namespace CNORXZ
 {
 
-    size_t indexId();
+    SizeT indexId();
     
     enum class SpaceType
 	{
@@ -33,17 +24,19 @@ namespace CNORXZ
     struct DataHeader
     {
     public:
-	static constexpr size_t VERSION = 1; // fixed by version of this repository !
+	static constexpr SizeT VERSION = 1; // fixed by version of this repository !
     private:
-	size_t version = VERSION;
+	SizeT version = VERSION;
     public:
 	int spaceType = static_cast<int>( SpaceType::NONE );
-	size_t metaSize = 0; // size of meta data
+	SizeT metaSize = 0; // size of meta data
 	int multiple = 0; // = 1 if multi range
 	int metaType = 0; // type of meta data
-	inline size_t v() const { return version; } 
+	inline SizeT v() const { return version; } 
     };
-    
+
+    typedef Sptr<RangeBase> RangePtr;
+
     class RangeFactoryBase
     {
     public:
@@ -51,19 +44,25 @@ namespace CNORXZ
 	RangeFactoryBase() = default;
 	virtual ~RangeFactoryBase() = default;
 
-	// should return mProd !!
-	virtual std::shared_ptr<RangeBase> create() = 0;
+	RangePtr create();
 	
     protected:
 
-	std::shared_ptr<RangeBase> mProd;
+	virtual void make() = 0;
+
+	RangePtr fromCreated(const TypeInfo& info, const Vector<PtrId>& rids) const;
+	void addToCreated(const TypeInfo& info, const Vector<PtrId>& rids, const RangePtr& r);
+
+	RangePtr mProd;
+
+    private:
+	// also add single ranges here (PtrId -> own)
+	static Map<TypeInfo,Map<Vector<PtrId>,RangePtr>> sCreated;
 	
-	// call this function before returning product !!
-	void setSelf();
     };
 
-    std::shared_ptr<RangeFactoryBase> createRangeFactory(const char** dp);
-    std::shared_ptr<RangeFactoryBase> createSingleRangeFactory(const vector<char>*& d, int metaType, size_t size);
+    Sptr<RangeFactoryBase> createRangeFactory(const char** dp);
+    Sptr<RangeFactoryBase> createSingleRangeFactory(const Vector<char>*& d, int metaType, SizeT size);
 
     class RangeBase
     {
@@ -71,28 +70,28 @@ namespace CNORXZ
 	
 	virtual ~RangeBase() = default;
 	    
-	virtual size_t size() const = 0;
-	virtual size_t dim() const = 0;
+	virtual SizeT size() const = 0;
+	virtual SizeT dim() const = 0;
 	
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
 
-        std::intptr_t id() const;
+	virtual TypeInfo type() const = 0;
+        PtrId id() const;
 
 	XIndexPtr beginX() const;
 	XIndexPtr endX() const;
 	
-        virtual vector<size_t> typeNum() const = 0;
-        virtual size_t cmeta(char* target, size_t pos) const = 0;
-        virtual size_t cmetaSize() const = 0;
-        virtual std::string stringMeta(size_t pos) const = 0;
-	virtual vector<char> data() const = 0; // usefull when writing to files, etc...
+        virtual Vector<SizeT> typeNum() const = 0;
+        virtual SizeT cmeta(char* target, SizeT pos) const = 0;
+        virtual SizeT cmetaSize() const = 0;
+        virtual String stringMeta(SizeT pos) const = 0;
+	virtual Vector<char> data() const = 0; // usefull when writing to files, etc...
 
 	virtual SpaceType spaceType() const = 0;
         virtual DataHeader dataHeader() const = 0;
 
-	virtual std::shared_ptr<RangeBase> sub(size_t num) const { return std::shared_ptr<RangeBase>(); }
-	virtual std::shared_ptr<IndexWrapperBase> aindex() const = 0;
+	virtual RangePtr sub(SizeT num) const { return RangePtr(); }
 	
 	friend RangeFactoryBase;
 	
@@ -103,7 +102,7 @@ namespace CNORXZ
     };
 
     template <class Index>
-    inline std::shared_ptr<IndexWrapperBase> mkIndexWrapper(const Index& i);
+    inline Sptr<IndexWrapperBase> mkIndexWrapper(const Index& i);
     
     template <class Index>
     class RangeInterface : public RangeBase
@@ -117,18 +116,15 @@ namespace CNORXZ
 	
 	virtual Index begin() const = 0;
 	virtual Index end() const = 0;
-	std::shared_ptr<Index> beginPtr() const { return std::make_shared<Index>(this->begin()); }
-	std::shared_ptr<Index> endPtr() const { return std::make_shared<Index>(this->end()); }
-	virtual std::shared_ptr<IndexWrapperBase> aindex() const override final
+	Sptr<Index> beginPtr() const { return std::make_shared<Index>(this->begin()); }
+	Sptr<Index> endPtr() const { return std::make_shared<Index>(this->end()); }
+	virtual Sptr<IndexWrapperBase> aindex() const override final
         { return mkIndexWrapper(this->begin()); }
-	//{ auto i = std::make_shared<Index>(this->begin()); return std::make_shared<IndexWrapper<Index>>(i); } //!!!
-	//{ auto i = std::make_shared<Index>(this->begin()); return nullptr; } //!!!
 
     protected:
 	RangeInterface() = default;
     };
 
-    typedef std::shared_ptr<RangeBase> RangePtr;
 
     RangePtr operator*(const RangePtr& a, const RangePtr& b); // -> Ptr to MultiRange
 }

@@ -3,18 +3,7 @@
 #ifndef __cxz_ranges_base_def_h__
 #define __cxz_ranges_base_def_h__
 
-#include <cstdlib>
-
-#include <iostream>
-#ifndef CHECK
-#define CHECK std::cout << __FILE__ << ": @" << __LINE__ << " in " << __func__ << std::endl;
-#endif
-#ifndef VCHECK
-#define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
-  << " in " << __func__ << ": " << #a << " = " << a << std::endl;
-#endif
-
-#include "base_def.h"
+#include "base/base.h"
 
 #include "allocator.h"
 #define MUI static_cast<size_t>(-1)
