@@ -64,6 +64,12 @@ namespace CNORXZ
 
     template <class I, typename MetaType>
     using IndexPtr = Sptr<IndexInterface<I,MetaType>>;
+
+    // definition: ranges/nrange.h
+    class NRange; // null-range (range over none)
+
+    // definition: ranges/nrange.h
+    class NIndex;
     
     // definition: ranges/urange.h
     template <typename Meta>
