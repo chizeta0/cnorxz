@@ -31,6 +31,12 @@ namespace CNORXZ
     template <typename T>
     using Sptr = std::shared_ptr<T>;
 
+    template <typename T>
+    using Wptr = std::weak_ptr<T>;
+
+    template <typename T>
+    using Uptr = std::unique_ptr<T>;
+
     template <typename... T>
     using Tuple = std::tuple<T...>;
 
@@ -49,6 +55,10 @@ namespace CNORXZ
     // definition: base/dtype.h
     class DType;
 
+    // definition: base/obj_handle.h
+    template <typename T>
+    class ObjHandle;
+    
     // definition: memory/allocator.h
     template <typename T>
     class Allocator;

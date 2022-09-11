@@ -1,87 +1,106 @@
 
-//#ifdef include_range_type
-//include_range_type(NONE,0)
-//#else
-
-#ifndef include_range_type
-#ifdef __cxz_ranges_header__
-// assert, that this is only used within range_types/header.h
-
 #ifndef __cxz_range_type_classic_def__
 #define __cxz_range_type_classic_def__
 
+#include "base/base.h"
+#include "ranges/index_base.h"
+#include "ranges/range_base.h"
+#include "xfor/for_type.h"
+
 namespace CNORXZ
 {
-    typedef GenSingleIndex<size_t,SpaceType::NONE,MUI> ClassicIndex;
-
-    template <>
-    class GenSingleRangeFactory<size_t,SpaceType::NONE,MUI> : public RangeFactoryBase
+    class CIndex : public IndexInterface<CIndex<MetaType>,SizeT>
     {
     public:
-	
-	typedef GenSingleRange<size_t,SpaceType::NONE,MUI> oType;
 
-	GenSingleRangeFactory(size_t size = 0);
-	std::shared_ptr<RangeBase> create();
+	typedef IndexInterface<CIndex<SizeT>,SizeT> IB;
+	typedef CRange RangeType;
+
+	CIndex(const RangePtr& range);
 	
+	CIndex& operator=(SizeT pos);
+	CIndex& operator++();
+	CIndex& operator--();
+	CIndex operator+(Int n) const;
+	CIndex operator-(Int n) const;
+	CIndex& operator+=(Int n);
+	CIndex& operator-=(Int n);
+
+	SizeT operator*() const;
+	SizeT operator->() const;
+	
+	Int pp(PtrId idxPtrNum);
+	Int mm(PtrId idxPtrNum);
+
+	SizeT dim() const; // = 1
+	Sptr<RangeType> range() const;
+	SizeT getStepSize(SizeT n) const;
+
+	String stringMeta() const;
+	SizeT meta() const;
+	CIndex& at(const SizeT& metaPos);
+
+	template <class Expr>
+	auto ifor(SizeT step, Expr ex) const
+	    -> For<CIndex<SizeT>,Expr>;
+
+	template <class Expr>
+	auto iforh(SizeT step, Expr ex) const
+	    -> For<CIndex<SizeT>,Expr,ForType::HIDDEN>;
+
+        template <class Expr>
+	auto pifor(SizeT step, Expr ex) const
+	    -> PFor<CIndex<SizeT>,Expr>;
+        
+    private:
+	Sptr<RangeType> mRangePtr;
     };
 
-    template <>
-    class GenSingleRange<size_t,SpaceType::NONE,MUI> : public RangeInterface<ClassicIndex>
+
+    class CRangeFactory : public RangeFactoryBase
+    {
+    public:
+	typedef CRange oType;
+
+	CRangeFactory(SizeT size);
+	CRangeFactory(SizeT size, RangePtr ref);
+
+    protected:
+	virtual void make() override;
+
+    private:
+	RangePtr mRef;
+    };
+
+    class CRange : public RangeInterface<CIndex>
     {
     public:
 	typedef RangeBase RB;
-	typedef typename RangeInterface<GenSingleIndex<size_t,SpaceType::NONE,MUI> >::IndexType IndexType;
-	typedef GenSingleRange<size_t,SpaceType::NONE,MUI> RangeType;
-	typedef size_t MetaType;
-        typedef GenSingleRangeFactory<size_t,SpaceType::NONE,MUI> FType; 
+	typedef CIndex IndexType;
+        typedef CRangeFactory FType; 
         
-	virtual size_t size() const final;
-	virtual size_t dim() const final;
+	friend CRangeFactory;
 
-	virtual SpaceType spaceType() const final;
-        virtual DataHeader dataHeader() const final;
-        
-        virtual vector<size_t> typeNum() const final;
-        virtual size_t cmeta(char* target, size_t pos) const final;
-        virtual size_t cmetaSize() const final;
-	virtual std::string stringMeta(size_t pos) const final;
-	virtual vector<char> data() const final;
-	
-	size_t get(size_t pos) const;
-	size_t getMeta(size_t metaPos) const;
-	
+	virtual SizeT size() const final;
+	virtual SizeT dim() const final;
+	virtual String stringMeta(SizeT pos) const final;
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
-	//virtual std::shared_ptr<VIWB> index() const final;
-	
-	friend GenSingleRangeFactory<size_t,SpaceType::NONE,MUI>;
 
-	static constexpr bool defaultable = true;
-	static constexpr size_t ISSTATIC = 0;
-	static constexpr size_t SIZE = MUI;
-	static constexpr bool HASMETACONT = false;
-	
-	static GenSingleRangeFactory<size_t,SpaceType::NONE,MUI> factory(size_t size = 0)
-	{ return GenSingleRangeFactory<size_t,SpaceType::NONE,MUI>(size); }
-	
+	SizeT get(SizeT pos) const;
+	SizeT getMeta(SizeT metaPos) const;
+
     protected:
 
-	size_t mSize = 0; 
-	
-	GenSingleRange() = default;
-	GenSingleRange(const GenSingleRange& in) = delete;
+	CRange() = default;
+	CRange(const CRange& in) = delete;
+	CRange(SizeT size);
 
-	GenSingleRange(size_t size);
+	SizeT mSize = 0; 
     };
 
-    typedef GenSingleRange<size_t,SpaceType::NONE,MUI> ClassicRange;
-    typedef GenSingleRangeFactory<size_t,SpaceType::NONE,MUI> ClassicRF;
+    template <>
+    Sptr<CRange> rangeCast<CRange>(const RangePtr& r);
 }
 
-
-#endif // #ifndef __cxz_range_type_classic_def__
-
-#endif // #ifdef __cxz_ranges_header__
-
-#endif // #ifdef include_range_type
+#endif

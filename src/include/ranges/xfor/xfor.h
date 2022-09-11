@@ -2,50 +2,49 @@
 #ifndef __cxz_xfor_h__
 #define __cxz_xfor_h__
 
-#include <cstdlib>
-#include <memory>
-#include <tuple>
-#include "xfor/for_type.h"
-#include "xfor/for_utils.h"
-#include "xfor/exttype.h"
-
-#include "allocator.h"
 #include <omp.h>
 
-#define VCHECK(a) std::cout << __FILE__ << ": @" << __LINE__ \
-    << " in " << __func__ << ": " << #a << " = " << a << std::endl; 
+#include "base/base.h"
+#include "for_type.h"
+#include "for_utils.h"
+#include "exttype.h"
 
-namespace CNORXZInternal
+namespace CNORXZ
 {
-    using namespace CNORXZ;
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
 
-    //typedef std::pair<size_t const*,size_t> DExt;
+    template <class Expr, class Pos>
+    class ExpressionInterface
+    {
+    public:
+	DEFAULT_MEMBERS(ExpressionInterface);
 
+	Expr& THIS() { return static_cast<Expr&>(*this); }
+	const Expr& THIS() const { return static_cast<const Expr&>(*this); }
 
-    
-    class ExpressionBase
+	Sptr<Expr> copy() const { THIS().copy(); }
+	
+	void operator(SizeT mlast, Pos last) { THIS()(mlast, last); }
+	void operator(SizeT mlast = 0) { THIS()(mlast); }
+
+	Pos rootSteps(PtrId ptrId = 0) const { return THIS().rootSteps(ptrId); }
+	Pos extension() const { return THIS().extenrion(); }
+    };
+
+    class XprBase : public ExpressionInterface<XprBase,Dext>
     {
     public:
 
-	ExpressionBase() = default;
-	ExpressionBase(const ExpressionBase& in) = default;
-	ExpressionBase(ExpressionBase&& in) = default;
-	ExpressionBase& operator=(const ExpressionBase& in) = default;
-	ExpressionBase& operator=(ExpressionBase&& in) = default;
+	DEFAULT_MEMBERS(XprBase);
 
-	//virtual size_t divResid() const { return 1; }
-	virtual std::intptr_t vI() const { return 0; }
+	virtual Sptr<XprBase> copy() const = 0;
 	
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const = 0;
-	
-	virtual void operator()(size_t mlast, DExt last) = 0;
-	virtual void operator()(size_t mlast = 0) = 0;
+	virtual void operator()(SizeT mlast, DExt last) = 0;
+	virtual void operator()(SizeT mlast) = 0;
 
-        virtual DExt dRootSteps(std::intptr_t iPtrNum = 0) const = 0;
-        virtual DExt dExtension() const = 0;
-        
+        virtual DExt rootSteps(PtrId iPtrNum = 0) const = 0;
+        virtual DExt extension() const = 0;
     };
 
     
@@ -77,80 +76,6 @@ namespace CNORXZInternal
 	}
     };
 
-    template <size_t ISSTATIC>
-    struct ForBound
-    {
-	template <size_t BOUND, size_t DIV = 1>
-	static inline size_t bound(size_t bound)
-	{
-	    return bound / DIV;
-	}
-    };
-
-    template <>
-    struct ForBound<1>
-    {
-	template <size_t BOUND, size_t DIV = 1>
-	static constexpr size_t bound(size_t bound)
-	{
-	    return BOUND / DIV;
-	}
-    };
-
-    
-    template <class IndexClass, class Expr>
-    class SingleExpression : public ExpressionBase
-    {
-    private:
-	SingleExpression() = default;
-
-	const IndexClass* mIndPtr;
-	size_t mSPos;
-	size_t mMax;
-
-        Expr mExpr;
-	typedef decltype(mExpr.rootSteps()) ExtType;
-	ExtType mExt;
-
-        mutable ExtType mRootSteps;
-
-    public:
-	typedef ExpressionBase EB;
-	
-	static constexpr size_t LAYER = Expr::LAYER + 1;
-	static constexpr size_t SIZE = Expr::SIZE;
-	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
-
-	SingleExpression(const SingleExpression& in) = default;
-	SingleExpression& operator=(const SingleExpression& in) = default;
-	SingleExpression(SingleExpression&& in) = default;
-	SingleExpression& operator=(SingleExpression&& in) = default;
-	
-	SingleExpression(const std::shared_ptr<IndexClass>& indPtr,
-			 Expr expr);
-
-	SingleExpression(const IndexClass* indPtr,
-			 Expr expr);
-
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
-	{
-	    return std::make_shared<SingleExpression<IndexClass,Expr>>(*this);
-	}
-
-	template <size_t VS>
-	inline auto vec() const { return *this; }
-
-	inline void operator()(size_t mlast, DExt last) override final;
-	inline void operator()(size_t mlast, ExtType last);
-	inline void operator()(size_t mlast = 0) override final;
-
-        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
-        DExt dExtension() const override final;
-
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-	auto extension() const -> ExtType;
-    };
-
     template <class IndexClass, class Expr>
     class SubExpr : public ExpressionBase
     {
@@ -177,25 +102,14 @@ namespace CNORXZInternal
 	static constexpr size_t SIZE = Expr::SIZE + 1;
 	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
 
-	SubExpr(const SubExpr& in) = default;
-	SubExpr& operator=(const SubExpr& in) = default;
-	SubExpr(SubExpr&& in) = default;
-	SubExpr& operator=(SubExpr&& in) = default;
+	DEFAULT_MEMBERS_X(SubExpr);
 	
-	SubExpr(const std::shared_ptr<IndexClass>& indPtr,
+	SubExpr(const Sptr<IndexClass>& indPtr,
 		std::intptr_t siptr,
                 const vector<size_t>* subset, Expr expr);
 
 	SubExpr(const IndexClass* indPtr, std::intptr_t siptr,
                 const vector<size_t>* subset, Expr expr);
-
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
-	{
-	    return std::make_shared<SubExpr<IndexClass,Expr>>(*this);
-	}
-
-	template <size_t VS>
-	inline auto vec() const { return *this; }
 
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
@@ -206,58 +120,6 @@ namespace CNORXZInternal
 
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 	auto extension() const -> ExtType;
-    };
-
-    template <size_t LAYER, bool ISV>
-    struct MkVFor
-    {
-	template <size_t DIV, class IndexClass, class Expr>
-	using ptype = PFor<IndexClass,Expr,1>;
-
-	template <size_t DIV, class IndexClass, class Expr, ForType FT>
-	using type = For<IndexClass,Expr,FT,1>;
-    };
-
-    template <>
-    struct MkVFor<1,true>
-    {
-	template <size_t DIV, class IndexClass, class Expr>
-	using ptype = PFor<IndexClass,Expr,DIV>;
-
-	template <size_t DIV, class IndexClass, class Expr, ForType FT>
-	using type = For<IndexClass,Expr,FT,DIV>;
-    };
-
-    template <size_t LAYER>
-    struct MkVExpr
-    {
-	template <size_t VS, class Expr>
-	static auto mk(const Expr& e)
-	{
-	    return e.template vec<VS>();
-	}
-
-	template <class Expr>
-	static inline size_t divResid(const Expr& e)
-	{
-	    return e.divResid();
-	}
-    };
-
-    template <>
-    struct MkVExpr<1>
-    {
-	template <size_t VS, class Expr>
-	static auto mk(const Expr& e)
-	{
-	    return e; // terminate
-	}
-
-	template <class Expr>
-	static inline size_t divResid(const Expr& e)
-	{
-	    return 0;
-	}
     };
 
     template <ForType FT, size_t LAYER>
@@ -315,49 +177,20 @@ namespace CNORXZInternal
 	static constexpr size_t SIZE = Expr::SIZE;
 	static constexpr size_t MAX = RangeType::SIZE / DIV;
 	static constexpr size_t NHLAYER = (FT == ForType::HIDDEN) ? 0 : Expr::NHLAYER + 1;
+
+	DEFAULT_MEMBERS(For);
 	
-	For(const For& in) = default;
-	For& operator=(const For& in) = default;
-	For(For&& in) = default;
-	For& operator=(For&& in) = default;
-	
-	For(const std::shared_ptr<IndexClass>& indPtr,
+	For(const Sptr<IndexClass>& indPtr,
 	    size_t step, Expr expr);
 
 	For(const IndexClass* indPtr,
 	    size_t step, Expr expr);
 
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
-	{
-	    return std::make_shared<For<IndexClass,Expr,FT,DIV>>(*this);
-	}
-
-	//virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
-
-	virtual std::intptr_t vI() const override final
-	{
-	    if(mStep == 1 and NHLAYER == 1 and mMax % DIV == 0){
-	    //if(mStep == 1 and mMax % DIV == 0){
-		//VCHECK(LAYER);
-		//VCHECK(NHLAYER);
-		return reinterpret_cast<std::intptr_t>(mIndPtr);
-	    }
-	    return mExpr.vI();
-	}
-
-	template <size_t VS>
-	auto vec() const
-	{
-	    typedef typename MkVFor<NHLAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
-		template type<VS,IndexClass,decltype(MkVExpr<NHLAYER>::template mk<VS>(mExpr)),FT> oType;
-	    return oType(mIndPtr,mStep,MkVExpr<NHLAYER>::template mk<VS>(mExpr));
-	}
-
 	inline void operator()(size_t mlast, DExt last) override final;
 	inline void operator()(size_t mlast, ExtType last) ;
 	inline void operator()(size_t mlast = 0) override final;
 
-        PFor<IndexClass,Expr,DIV> parallel() const;
+        PFor<IndexClass,Expr> parallel() const;
         
         DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
         DExt dExtension() const override final;
@@ -366,94 +199,13 @@ namespace CNORXZInternal
 	auto extension() const -> ExtType;
 
     };
-
-   
-    template <class IndexClass, class Expr, size_t DIV>
-    class PFor : public ExpressionBase
-    {
-    private:
-	PFor() = default;
-		
-	typedef typename IndexClass::RangeType RangeType;
-	const IndexClass* mIndPtr;
-	size_t mSPos;
-	size_t mMax;
-	size_t mStep;
-
-	Expr mExpr;
-	typedef decltype(mExpr.rootSteps()) ExtType;
-	ExtType mExt;
-
-        mutable ExtType mRootSteps;
-        
-    public:
-	typedef ExpressionBase EB;
-	
-	static constexpr size_t LAYER = Expr::LAYER + 1;
-	static constexpr size_t SIZE = Expr::SIZE;
-	static constexpr size_t MAX = RangeType::SIZE / DIV;
-	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
-
-	PFor(const PFor& in) = default;
-	PFor& operator=(const PFor& in) = default;
-	PFor(PFor&& in) = default;
-	PFor& operator=(PFor&& in) = default;
-
-	PFor(const std::shared_ptr<IndexClass>& indPtr,
-	    size_t step, Expr expr);
-
-	PFor(const IndexClass* indPtr,
-	    size_t step, Expr expr);
-
-	//virtual size_t divResid() const override final { return mMax % DIV + MkVExpr<LAYER>::divResid(mExpr); }
-	virtual std::intptr_t vI() const override final
-	{
-	    if(mStep == 1 and NHLAYER == 1 and mMax % DIV == 0){
-	    //if(mStep == 1 and mMax % DIV == 0){
-		//VCHECK(LAYER);
-		//VCHECK(LAYER);
-		return reinterpret_cast<std::intptr_t>(mIndPtr);
-	    }
-	    return mExpr.vI();
-	}
-
-	template <size_t VS>
-	auto vec() const
-	{
-	    typedef typename MkVFor<NHLAYER,RangeType::SIZE % DIV == 0 or RangeType::SIZE == static_cast<size_t>(-1)>::
-		template ptype<VS,IndexClass,decltype(MkVExpr<NHLAYER>::template mk<VS>(mExpr))> oType;
-	    return oType(mIndPtr,mStep,MkVExpr<NHLAYER>::template mk<VS>(mExpr));
-	}
-
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
-	{
-	    return std::make_shared<PFor<IndexClass,Expr>>(*this);
-	}
-
-	inline void operator()(size_t mlast, DExt last) override final;
-	inline void operator()(size_t mlast, ExtType last) ;
-	inline void operator()(size_t mlast = 0) override final;
-
-        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
-        DExt dExtension() const override final;
-
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-	auto extension() const -> ExtType;
-
-    };
-
-    template <size_t N>
-    inline size_t exceptMax(size_t max) { return max; }
-
-    template <>
-    inline size_t exceptMax<1>(size_t max) { return 1; }
 
     class DynamicExpression : public ExpressionBase
     {
     private:
 
 	size_t mThreadId = 0;
-	std::shared_ptr<ExpressionBase> mNext;
+	Sptr<ExpressionBase> mNext;
 
 	DynamicExpression() : mThreadId(omp_get_thread_num()) {}
     public:
@@ -486,7 +238,7 @@ namespace CNORXZInternal
 	    return *this;
 	}
 	
-	DynamicExpression(const std::shared_ptr<ExpressionBase>& next) :
+	DynamicExpression(const Sptr<ExpressionBase>& next) :
 	    mNext(next)
 	{}
 
@@ -498,13 +250,10 @@ namespace CNORXZInternal
         template <class Expr>
         DynamicExpression(Expr ex) : mNext( std::make_shared<Expr>(ex) ) {}
         
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
+	virtual Sptr<ExpressionBase> deepCopy() const override final
 	{
 	    return std::make_shared<DynamicExpression>(*this);
 	}
-
-	template <size_t VS>
-	inline auto vec() const { return *this; }
 
 	inline void operator()(size_t mlast, DExt last) override final;
         inline void operator()(size_t mlast, DExtT last) { (*this)(mlast,last.get()); }
@@ -518,51 +267,7 @@ namespace CNORXZInternal
 
     };
 
-
-    template <class Expr>
-    class ExpressionHolder : public ExpressionBase
-    {
-    private:
-	ExpressionHolder() = default;
-	
-        DynamicExpression mExpr;
-	typedef decltype(std::declval<Expr>().rootSteps()) ExtType;
-	ExtType mExt;
-
-        mutable ExtType mRootSteps;
-
-    public:
-	typedef ExpressionBase EB;
-	
-	static constexpr size_t LAYER = Expr::LAYER + 1;
-	static constexpr size_t SIZE = Expr::SIZE;
-	static constexpr size_t NHLAYER = Expr::NHLAYER + 1;
-
-	ExpressionHolder(const ExpressionHolder& in) = default;
-	ExpressionHolder(ExpressionHolder&& in) = default;
-	ExpressionHolder& operator=(const ExpressionHolder& in) = default;
-	ExpressionHolder& operator=(ExpressionHolder&& in) = default;
-
-	ExpressionHolder(DynamicExpression expr);
-	
-	virtual std::shared_ptr<ExpressionBase> deepCopy() const override final
-	{
-	    return std::make_shared<ExpressionHolder<Expr>>(*this);
-	}
-
-	inline void operator()(size_t mlast, DExt last) override final;
-	inline void operator()(size_t mlast, ExtType last) ;
-	inline void operator()(size_t mlast = 0) override final;
-
-        DExt dRootSteps(std::intptr_t iPtrNum = 0) const override final;
-        DExt dExtension() const override final;
-
-        auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
-	auto extension() const -> ExtType;
-
-    };
-
-} // namespace CNORXZInternal
+} 
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
@@ -583,7 +288,7 @@ namespace CNORXZInternal
      *****************/
     
     template <class IndexClass, class Expr, ForType FT, size_t DIV>
-    For<IndexClass,Expr,FT,DIV>::For(const std::shared_ptr<IndexClass>& indPtr,
+    For<IndexClass,Expr,FT,DIV>::For(const Sptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
 	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
@@ -680,7 +385,7 @@ namespace CNORXZInternal
      ******************/
     
     template <class IndexClass, class Expr, size_t DIV>
-    PFor<IndexClass,Expr,DIV>::PFor(const std::shared_ptr<IndexClass>& indPtr,
+    PFor<IndexClass,Expr,DIV>::PFor(const Sptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
 	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()), mStep(step),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
@@ -786,7 +491,7 @@ namespace CNORXZInternal
      ************************/
     
     template <class IndexClass, class Expr>
-    SingleExpression<IndexClass,Expr>::SingleExpression(const std::shared_ptr<IndexClass>& indPtr,
+    SingleExpression<IndexClass,Expr>::SingleExpression(const Sptr<IndexClass>& indPtr,
 							Expr expr) :
 	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
         mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
@@ -873,7 +578,7 @@ namespace CNORXZInternal
      ****************/
 
     template <class IndexClass, class Expr>
-    SubExpr<IndexClass,Expr>::SubExpr(const std::shared_ptr<IndexClass>& indPtr,
+    SubExpr<IndexClass,Expr>::SubExpr(const Sptr<IndexClass>& indPtr,
 				      std::intptr_t siptr,
                                       const vector<size_t>* subset, Expr expr) :
 	mIndPtr(indPtr.get()), mSIPtr(siptr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),

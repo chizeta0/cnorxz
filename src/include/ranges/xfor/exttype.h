@@ -6,6 +6,9 @@
 
 namespace CNORXZInternal
 {
+
+    // Dynamic Ext: ObjHandl<ExtBase>
+    // In For Expr: try to resolve until some upper limit
     
     struct None;
     
@@ -20,7 +23,6 @@ namespace CNORXZInternal
         
 	virtual size_t size() const = 0;
 	virtual const size_t& val() const = 0;
-	//virtual size_t rootSteps() const = 0;
 	virtual bool operator==(const ExtBase& in) const = 0;
 	virtual bool operator==(size_t in) const = 0;
 	    
@@ -33,7 +35,6 @@ namespace CNORXZInternal
 	template <class ExtType>
 	const ExtType& expl() const;
 
-        virtual std::string stype() const = 0;
     };
 
     typedef std::shared_ptr<ExtBase> DExt;
@@ -58,8 +59,6 @@ namespace CNORXZInternal
 	virtual std::shared_ptr<ExtBase> deepCopy() const override final { return std::make_shared<ExtT<ExtType>>(mExt); }
 
 	virtual size_t size() const override final { return sizeof(ExtType)/sizeof(size_t); }
-	//virtual size_t size() const override final { return ExtType::MExtSize(); }
-	//virtual size_t rootSteps() const override final;
 	const ExtType& ext() const { return mExt; }
 	virtual const size_t& val() const override final { return mExt.val(); }
 	virtual void zero() override final { mExt.zero(); }
@@ -75,9 +74,7 @@ namespace CNORXZInternal
 	virtual DExt operator*(size_t in) const override final
 	{ return std::make_shared<ExtT<ExtType>>( mExt * in ); }
 
-        virtual std::string stype() const override final { return std::string("T[") + mExt.stype() + "]"; }
     };
-    //class DExtT;
 
     template <class ExtType>
     DExt mkDExt(const ExtT<ExtType>& in)
@@ -275,13 +272,7 @@ namespace CNORXZInternal
         DExtTX& operator=(const DExtTX& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); return *this; }
         DExtTX& operator=(DExtTX&& in) { mNext = in.mNext; mDExt = in.mDExt->deepCopy(); return *this; }
         explicit DExtTX(const DExt& in) : mDExt(in) {}
-        /*
-	template <class Y>
-	DExtTX& operator=(const Y& y) { mDExt = std::make_shared<ExtT<Y>>(y); return *this; }
 
-	template <class Y>
-	DExtTX(const Y& y) : mDExt(std::make_shared<ExtT<Y>>(y)) {}
-        */
 	bool operator==(const DExtTX& in) const
 	{ return *mDExt == *in.mDExt and mNext == in.mNext; }
 	
@@ -320,7 +311,6 @@ namespace CNORXZInternal
 	template <size_t N>
 	inline auto nn() const;
 
-        std::string stype() const { return std::string("D[") + mDExt->stype() + "," + mNext.stype() + "]"; }
     };
 
     typedef DExtTX<None> DExtT;

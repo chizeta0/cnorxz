@@ -18,14 +18,14 @@ namespace CNORXZ
 
     template <class I, typename MetaType>
     IndexInterface<I,MetaType>::IndexInterface(const IndexInterface& in) :
-	mRangePtr(in.mRangePtr), mPos(in.mPos), mMax(in.mMax)
+	mPos(in.mPos)
     {
 	mPtrNum = reinterpret_cast<PtrId>(this);
     }
 
     template <class I, typename MetaType>
     IndexInterface<I,MetaType>::IndexInterface(IndexInterface&& in) :
-	mRangePtr(in.mRangePtr), mPos(in.mPos), mMax(in.mMax)
+	mPos(in.mPos)
     {
 	mPtrNum = reinterpret_cast<PtrId>(this);
     }
@@ -35,7 +35,6 @@ namespace CNORXZ
     {
 	mRangePtr = in.mRangePtr;
 	mPos = in.mPos;
-	mMax = in.mMax;
 	return *this;
     }
 
@@ -44,13 +43,12 @@ namespace CNORXZ
     {
 	mRangePtr = in.mRangePtr;
 	mPos = in.mPos;
-	mMax = in.mMax;
 	return *this;
     }
     
     template <class I, typename MetaType>
-    IndexInterface<I,MetaType>::IndexInterface(const RangePtr& range, SizeT pos) :
-	mRangePtr(range), mPos(pos), mMax(mRangePtr->size())
+    IndexInterface<I,MetaType>::IndexInterface(SizeT pos) :
+	mPos(pos)
     {
 	mPtrNum = reinterpret_cast<PtrId>(this);
     }
@@ -58,13 +56,13 @@ namespace CNORXZ
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator==(const IndexInterface& in) const
     {
-	return in.mPos == mPos and in.mRangePtr.get() == mRangePtr.get();
+	return in.mPos == mPos and *in.range() == *range();
     }
 
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator!=(const IndexInterface& in) const
     {
-	return in.mPos != mPos or in.mRangePtr.get() != mRangePtr.get();
+	return in.mPos != mPos or *in.range() != *range();
     }
 
     template <class I, typename MetaType>

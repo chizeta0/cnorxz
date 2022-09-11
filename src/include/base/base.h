@@ -8,5 +8,7 @@
 #include "macros.h"
 #include "assert.h"
 #include "types.h"
+#include "obj_handle.h"
+#include "dtype.h"
 
 #endif

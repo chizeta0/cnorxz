@@ -29,7 +29,7 @@ namespace CNORXZ
 	Int operator-(const IndexInterface& i) const { return mPos - i.mPos; }
 	
 	SizeT pos() const;
-	SizeT max() const;
+	SizeT max() const { return THIS().max(); }
 	PtrId ptrId() const;
 
 	bool operator==(const IndexInterface& in) const;
@@ -49,7 +49,7 @@ namespace CNORXZ
 	SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
 	
 	String stringMeta() const { return THIS().stringMeta(); }
-	MetaType meta() const { return THIS().meta(); }
+	auto meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 
 	template <class Expr>
@@ -70,11 +70,10 @@ namespace CNORXZ
 	IndexInterface& operator=(const IndexInterface& in);
 	IndexInterface(IndexInterface&& in);
 	IndexInterface& operator=(IndexInterface&& in);
-	IndexInterface(const RangePtr& range, SizeT pos);
+	IndexInterface(SizeT pos);
 
 	IndexPtr mRel = nullptr;
 	SizeT mPos = 0;
-	SizeT mMax = 0;
 	PtrId mPtrId = 0;
     };
 
