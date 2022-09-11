@@ -56,6 +56,60 @@ namespace CNORXZ
     // definition: ranges/range_base.h
     class RangeBase;
 
+    typedef Sptr<RangeBase> RangePtr;
+    
+    // definition: ranges/index_base.h
+    template <class I, typename MetaType>
+    class IndexInterface;
+
+    template <class I, typename MetaType>
+    using IndexPtr = Sptr<IndexInterface<I,MetaType>>;
+    
+    // definition: ranges/urange.h
+    template <typename Meta>
+    class URange; // generic simple range (uni-dimensional)
+
+    // definition: ranges/urange.h
+    template <typename Meta>
+    class UIndex;
+
+    // definition: ranges/crange.h
+    class CRange; // classic range, trivial meta data
+
+    // definition: ranges/crange.h
+    class CIndex;
+
+    // definition: ranges/srange.h
+    template <typename Meta, SizeT S>
+    class SRange; // generic static size range
+
+    // definition: ranges/srange.h
+    template <typename Meta, SizeT S>
+    class SIndex;
+
+    // definition: ranges/mrange.h
+    template <class... Ranges>
+    class MRange; // multi range
+
+    // definition: ranges/mrange.h
+    template <class... Indices>
+    class MIndex;
+
+    // definition: ranges/xindex.h
+    class XIndexBase; // dynamic index wrapper
+
+    // definition: ranges/yrange.h
+    class YRange; // dynamic multi range
+    
+    // definition: ranges/yrange.h
+    class YIndex;
+
+    // definition: ranges/pindex.h
+    template <class Index>
+    class PIndex; // partial index (index over sub-ranges and permutations)
+
+    // there should be also a static analogue
+    
     /*********************
      *   derived types   *
      *********************/

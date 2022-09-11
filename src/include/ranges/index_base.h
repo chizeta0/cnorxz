@@ -22,7 +22,12 @@ namespace CNORXZ
 	I& operator=(SizeT pos) { return THIS() = pos; }
 	I& operator++() { return THIS()++; }
 	I& operator--() { return THIS()--;}
-
+	I operator+(Int n) const { return THIS() + n; }
+	I operator-(Int n) const { return THIS() - n; }
+	I& operator+=(Int n) { return THIS() += n; }
+	I& operator-=(Int n) { return THIS() -= n; }
+	Int operator-(const IndexInterface& i) const { return mPos - i.mPos; }
+	
 	SizeT pos() const;
 	SizeT max() const;
 	PtrId ptrId() const;
@@ -40,7 +45,7 @@ namespace CNORXZ
 	Int mm(PtrId idxPtrNum) { return THIS().mm(idxPtrNum); }
 	
 	SizeT dim() const { return THIS().dim(); }
-	RangePtr range() const { return mRangePtr; }
+	auto range() const { return THIS().range(); }
 	SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
 	
 	String stringMeta() const { return THIS().stringMeta(); }
@@ -66,16 +71,20 @@ namespace CNORXZ
 	IndexInterface(IndexInterface&& in);
 	IndexInterface& operator=(IndexInterface&& in);
 	IndexInterface(const RangePtr& range, SizeT pos);
-	
-	RangePtr mRangePtr = nullptr;
+
+	IndexPtr mRel = nullptr;
 	SizeT mPos = 0;
 	SizeT mMax = 0;
 	PtrId mPtrId = 0;
     };
 
-    template <class Index, typename MetaType>
-    using IndexPtr = Sptr<IndexInterface<Index,MetaType>>;
-    
+    // to define relative indices:
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType> operator+(const IndexPtr<I,MetaType>& i, Int n);
+
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType> operator-(const IndexPtr<I,MetaType>& i, Int n);
+
 }
 
 #endif

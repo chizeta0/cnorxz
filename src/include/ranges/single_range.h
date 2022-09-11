@@ -1,269 +1,106 @@
 // -*- C++ -*-
 
-#ifndef __cxz_single_range_h__
-#define __cxz_single_range_h__
+#ifndef __cxz_urange_h__
+#define __cxz_urange_h__
 
-#include <cstdlib>
-#include <vector>
-#include <memory>
-#include <map>
-
-#include "base_def.h"
+#include "base/base.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
-#include "ranges/x_to_string.h"
-#include "ranges/type_map.h"
-
 #include "xfor/for_type.h"
 
 namespace CNORXZ
 {
-    namespace
-    {
-	using namespace CNORXZInternal;
-    }
-
     
-    template <typename U, SpaceType TYPE, size_t S>
-    class GenSingleIndex : public IndexInterface<GenSingleIndex<U,TYPE,S>,U>
+    template <typename MetaType>
+    class UIndex : public IndexInterface<UIndex<MetaType>,MetaType>
     {
     public:
 
-	typedef IndexInterface<GenSingleIndex<U,TYPE,S>,U> IB;
-	typedef U MetaType;
-	typedef GenSingleRange<U,TYPE,S> RangeType;
-	typedef GenSingleIndex IType;
+	typedef IndexInterface<UIndex<MetaType>,MetaType> IB;
+	typedef URange<MetaType> RangeType;
 
-	GenSingleIndex(const std::shared_ptr<GenSingleRange<U,TYPE,S> >& range);
-
-	static constexpr IndexType sType() { return IndexType::SINGLE; }
-	static constexpr size_t totalDim() { return 1; }
-	static constexpr size_t sDim() { return 1; }
-
-	static constexpr SpaceType STYPE = TYPE;
-        static constexpr bool PARALLEL = true; 
-        
-	// ==== >>>>> STATIC POLYMORPHISM <<<<< ====
+	UIndex(const RangePtr& range);
 	
-	IndexType type() const;
+	UIndex& operator=(SizeT pos);
+	UIndex& operator++();
+	UIndex& operator--();
+	UIndex operator+(Int n) const;
+	UIndex operator-(Int n) const;
+	UIndex& operator+=(Int n);
+	UIndex& operator-=(Int n);
+
+	const MetaType& operator*() const;
+	const MetaType* operator->() const;
 	
-	GenSingleIndex& operator=(size_t pos);
-	GenSingleIndex& operator++();
-	GenSingleIndex& operator--();
+	Int pp(PtrId idxPtrNum);
+	Int mm(PtrId idxPtrNum);
 
-	int pp(std::intptr_t idxPtrNum);
-	int mm(std::intptr_t idxPtrNum);
+	SizeT dim() const; // = 1
+	Sptr<RangeType> range() const;
+	SizeT getStepSize(SizeT n) const;
 
-	std::string stringMeta() const;
-	U meta() const;
-	const U* metaPtr() const;
-	GenSingleIndex& at(const U& metaPos);
-	size_t posAt(const U& metaPos) const;
-
-	bool isMeta(const U& metaPos) const;
-	
-	size_t dim(); // = 1
-	bool last();
-	bool first();
-
-	std::shared_ptr<RangeType> range();
-	
-	template <size_t N>
-	void getPtr();
-
-	size_t getStepSize(size_t n);
+	String stringMeta() const;
+	MetaType meta() const;
+	UIndex& at(const MetaType& metaPos);
 
 	template <class Expr>
-	auto ifor(size_t step, Expr ex) const
-	    -> For<GenSingleIndex<U,TYPE,S>,Expr>;
+	auto ifor(SizeT step, Expr ex) const
+	    -> For<UIndex<MetaType>,Expr>;
 
 	template <class Expr>
-	auto iforh(size_t step, Expr ex) const
-	    -> For<GenSingleIndex<U,TYPE,S>,Expr,ForType::HIDDEN>;
+	auto iforh(SizeT step, Expr ex) const
+	    -> For<UIndex<MetaType>,Expr,ForType::HIDDEN>;
 
         template <class Expr>
-	auto pifor(size_t step, Expr ex) const
-	    -> PFor<GenSingleIndex<U,TYPE,S>,Expr>;
+	auto pifor(SizeT step, Expr ex) const
+	    -> PFor<UIndex<MetaType>,Expr>;
         
     private:
-	std::shared_ptr<RangeType> mExplicitRangePtr;
-	const U* mMetaPtr;
+	Sptr<RangeType> mRangePtr;
+	const MetaType* mMetaPtr;
     };
 
-    template <typename U, SpaceType TYPE, size_t S>
-    class GenSingleRangeFactory : public RangeFactoryBase
+    template <typename MetaType>
+    class URangeFactory : public RangeFactoryBase
     {
     public:
-	
-	typedef GenSingleRange<U,TYPE,S> oType;
+	URangeFactory() = delete;
+	URangeFactory(const Vector<U>& space);
+        URangeFactory(Vector<U>&& space);
 
-	GenSingleRangeFactory() = delete;
-	GenSingleRangeFactory(const vector<U>& space);
-        GenSingleRangeFactory(vector<U>&& space);
-	std::shared_ptr<RangeBase> create();
-    };
-    
-    template <typename U>
-    class MetaMap
-    {
-    private:
-	std::map<U,size_t> mMap;
-    public:
-	MetaMap() = default;
-	MetaMap(const MetaMap& in) = default;
-	MetaMap(MetaMap&& in) = default;
-	MetaMap& operator=(const MetaMap& in) = default;
-	MetaMap& operator=(MetaMap&& in) = default;
-
-	MetaMap(const vector<U>& in)
-	{
-	    for(size_t i = 0; i != in.size(); ++i){
-		mMap[in[i]] = i;
-	    }
-	}
-	
-	size_t at(const U& in) const
-        {
-            auto x = mMap.find(in);
-            if(x != mMap.end()){
-                return x->second;
-            }
-            else {
-                return mMap.size();
-            }
-        }
-	size_t count(const U& in) const { return mMap.count(in); }
+    protected:
+	void make();
     };
 
-    template <size_t S>
-    struct CheckStatic
-    {
-        static constexpr size_t ISSTATIC = true;
-        static constexpr size_t SIZE = S;
-    };
-
-    template <>
-    struct CheckStatic<MUI>
-    {
-        static constexpr size_t ISSTATIC = false;
-        static constexpr size_t SIZE = MUI;
-    };
-
-    template <SpaceType TYPE>
-    struct CheckDefault
-    {
-	static constexpr size_t ISDEFAULT = false;
-	static constexpr size_t HASMETACONT = true; 
-    };
-
-    template <>
-    struct CheckDefault<SpaceType::NONE>
-    {
-	static constexpr size_t ISDEFAULT = true;
-	static constexpr size_t HASMETACONT = false; 
-    };
-
-    template <typename U>
-    struct ToCMeta
-    {
-        static inline size_t apply(char* target, const U& elem)
-        {
-            *reinterpret_cast<U*>(target) = elem;
-            return sizeof(U);
-        }
-
-        static inline size_t size(const U& elem)
-        {
-            return sizeof(U);
-        }
-    };
-
-    template <typename V>
-    struct ToCMeta<vector<V>>
-    {
-        static inline size_t apply(char* target, const vector<V>& elem)
-        {
-            size_t o = 0;
-            for(auto& e: elem){
-                o += ToCMeta<V>::apply(target+o, e);
-            }
-            return o;
-        }
-
-        static inline size_t size(const vector<V>& elem)
-        {
-            size_t out = 0;
-            for(auto& x: elem){
-                out += ToCMeta<V>::size(x);
-            }
-            return out;
-        }
-    };
-
-    template <typename U, SpaceType TYPE, size_t S>
-    class GenSingleRange : public RangeInterface<GenSingleIndex<U,TYPE,S> >
+    template <typename MetaType>
+    class URange : public RangeInterface<UIndex<MetaType>>
     {
     public:
 	typedef RangeBase RB;
-	typedef GenSingleIndex<U,TYPE,S> IndexType;
-	typedef GenSingleRange RangeType;
-	typedef U MetaType;
-	typedef GenSingleRangeFactory<U,TYPE,S> FType; 
+	typedef UIndex<MetaType> IndexType;
+	typedef URangeFactory<MetaType> FType; 
 	
-	virtual size_t size() const final;
-	virtual size_t dim() const final;
+	virtual SizeT size() const final;
+	virtual SizeT dim() const final;
 
-	virtual SpaceType spaceType() const final;
-        virtual DataHeader dataHeader() const final;
-
-        virtual vector<size_t> typeNum() const final;
-        virtual size_t cmeta(char* target, size_t pos) const final;
-        virtual size_t cmetaSize() const final;
-	virtual std::string stringMeta(size_t pos) const final;
-	virtual vector<char> data() const final;
-	
-	bool isMeta(const U& metaPos) const;
-	
-	const U& get(size_t pos) const;
-	size_t getMeta(const U& metaPos) const;
+	virtual std::string stringMeta(SizeT pos) const final;
+	const MetaType& get(SizeT pos) const;
+	SizeT getMeta(const MetaType& metaPos) const;
 	
 	virtual IndexType begin() const final;
 	virtual IndexType end() const final;
 		
-	friend GenSingleRangeFactory<U,TYPE,S>;
+	friend URangeFactory<MetaType>;
 
-	static GenSingleRangeFactory<U,TYPE,S> factory()
-	{
-	    static_assert( not CheckDefault<TYPE>::HASMETACONT,
-			   "asked for default factory for meta data containing range" );
-	    return GenSingleRangeFactory<U,TYPE,S>(vector<U>());
-	}
-	
-	static constexpr bool defaultable = CheckDefault<TYPE>::ISDEFAULT;
-	static constexpr size_t ISSTATIC = CheckStatic<S>::ISSTATIC;
-	static constexpr size_t SIZE = CheckStatic<S>::SIZE;
-	static constexpr bool HASMETACONT = CheckDefault<TYPE>::HASMETACONT;
-	
     protected:
 
-	GenSingleRange() = delete;
-	GenSingleRange(const GenSingleRange& in) = delete;
-	
-	GenSingleRange(const vector<U>& space);
-        GenSingleRange(vector<U>&& space);
+	URange() = delete;
+	URange(const URange& in) = delete;
+	URange(const vector<MetaType>& space);
+        URange(vector<MetaType>&& space);
 
-	vector<U> mSpace;
-	MetaMap<U> mMSpace;
+	Vector<MetaType> mSpace; // SORTED!!!
     };
-
-    template <typename U, SpaceType TYPE>
-    using SingleRange = GenSingleRange<U,TYPE,MUI>;
-
-    template <typename U, SpaceType TYPE>
-    using SingleIndex = GenSingleIndex<U,TYPE,MUI>;
-
-    template <typename U, SpaceType TYPE>
-    using SingleRangeFactory = GenSingleRangeFactory<U,TYPE,MUI>;
 
 }
 
@@ -273,41 +110,9 @@ namespace CNORXZ
 
 namespace CNORXZ
 {
-    /******************
-     *  GenSingleIndex   *	     
-     ******************/
-
-    template <bool HASMETACONT>
-    struct MetaPtrHandle
-    {
-	template <class Range>
-	static const typename Range::MetaType* set(Range* r)
-	{
-	    return &r->get(0);
-	}
-
-	template <typename U, class Range>
-	static inline U getMeta(U* metaPtr, size_t pos, std::shared_ptr<Range> r)
-	{
-	    return metaPtr[pos];
-	}
-    };
-
-    template <>
-    struct MetaPtrHandle<false>
-    {
-	template <class Range>
-	static const typename Range::MetaType* set(Range* r)
-	{
-	    return nullptr;
-	}
-
-	template <typename U, class Range>
-	static inline U getMeta(U* metaPtr, size_t pos, std::shared_ptr<Range> r)
-	{
-	    return r->get(pos);
-	}
-    };
+    /*****************
+     *    UIndex     *	     
+     *****************/
 
     template <typename U, SpaceType TYPE, size_t S>
     GenSingleIndex<U,TYPE,S>::GenSingleIndex(const std::shared_ptr<GenSingleRange<U,TYPE,S> >& range) :
