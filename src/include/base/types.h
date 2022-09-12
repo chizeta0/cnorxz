@@ -63,6 +63,26 @@ namespace CNORXZ
     template <typename T>
     class Allocator;
 
+    // definition: ranges/xfor/exttype.h
+    class VPosBase;
+
+    // definition: ranges/xfor/exttype.h
+    template <class PosT>
+    class PosInterface;
+
+    // definition: ranges/xfor/exttype.h
+    class DPos;
+
+    // definition: ranges/xfor/exttype.h
+    class VPos;
+
+    // definition: ranges/xfor/exttype.h
+    template <class PosT>
+    class MPos;
+
+    // definition: ranges/xfor/exttype.h
+    class NPos;
+    
     // definition: ranges/range_base.h
     class RangeBase;
 

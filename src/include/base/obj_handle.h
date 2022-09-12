@@ -12,13 +12,14 @@ namespace CNORXZ
     template <typename T>
     class ObjHandle
     {
-    private:
-	std::unique_ptr<T> mC;
+    protected:
+	Uptr<T> mC;
 
     public:
 
 	ObjHandle();
 	ObjHandle(const T& a);
+	ObjHandle(const Uptr<T>& a);
 	ObjHandle(const ObjHandle& a);
 	ObjHandle(ObjHandle&& a);
 	ObjHandle& operator=(const ObjHandle& a);
