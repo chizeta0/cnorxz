@@ -14,7 +14,7 @@ namespace CNORXZ
     XIndex<Index,Meta>::XIndex(const IndexPtr<Index,Meta>& i) : mI(i) {}
 
     template <class Index, typename Meta>
-    XIndex<Index,Meta>& XIndex<Index,Meta>::operator=(size_t pos)
+    XIndex<Index,Meta>& XIndex<Index,Meta>::operator=(SizeT pos)
     {
 	*mI = pos;
 	return *this;
@@ -35,31 +35,31 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    int XIndex<Index,Meta>::pp(std::intptr_t idxPtrNum)
+    Int XIndex<Index,Meta>::pp(PtrId idxPtrNum)
     {
 	return mI->pp(idxPtrNum);
     }
 
     template <class Index, typename Meta>
-    int XIndex<Index,Meta>::mm(std::intptr_t idxPtrNum)
+    Int XIndex<Index,Meta>::mm(PtrId idxPtrNum)
     {
 	return mI->mm(idxPtrNum);
     }
 
     template <class Index, typename Meta>
-    size_t XIndex<Index,Meta>::dim() const
+    SizeT XIndex<Index,Meta>::dim() const
     {
 	return mI->dim();
     }
 
     template <class Index, typename Meta>
-    size_t XIndex<Index,Meta>::getStepSize(size_t n) const
+    SizeT XIndex<Index,Meta>::getStepSize(SizeT n) const
     {
 	return mI->getStepSize(n);
     }
 
     template <class Index, typename Meta>
-    std::string XIndex<Index,Meta>::stringMeta() const
+    String XIndex<Index,Meta>::stringMeta() const
     {
 	return mI->stringMeta();
     }
@@ -79,13 +79,13 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    DynamicExpression XIndex<Index,Meta>::ifor(size_t step, DynamicExpression ex) const
+    DExpr XIndex<Index,Meta>::ifor(SizeT step, DExpr ex) const
     {
 	return mI->ifor(step, ex);
     }
 
     template <class Index, typename Meta>
-    DynamicExpression XIndex<Index,Meta>::iforh(size_t step, DynamicExpression ex) const
+    DExpr XIndex<Index,Meta>::iforh(SizeT step, DExpr ex) const
     {
 	return mI->iforh(step, ex);
     }

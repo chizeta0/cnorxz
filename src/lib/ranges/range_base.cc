@@ -8,11 +8,11 @@ namespace CNORXZ
      *   RangeFactoryBase    *
      *************************/
 
-    static Map<TypeInfo,Map<Vector<PtrId>,RangePtr>> RangeFactoryBase::sCreated;
+    Map<SizeT,Map<Vector<PtrId>,RangePtr>> RangeFactoryBase::sCreated;
     
     RangePtr RangeFactoryBase::create()
     {
-	mProd = this->make();
+	this->make();
 	mProd->mThis = mProd;
 	return mProd;
     }	
@@ -20,9 +20,9 @@ namespace CNORXZ
     RangePtr RangeFactoryBase::fromCreated(const TypeInfo& info, const Vector<PtrId>& rids) const
     {
 	RangePtr out = nullptr;
-	if(sCreated.count(info) != 0){
-	    if(sCreated[info].count(rids) != 0){
-		out = sCreated[info][rids];
+	if(sCreated.count(info.hash_code()) != 0){
+	    if(sCreated[info.hash_code()].count(rids) != 0){
+		out = sCreated[info.hash_code()][rids];
 	    }
 	}
 	return out;
@@ -30,7 +30,7 @@ namespace CNORXZ
 
     void RangeFactoryBase::addToCreated(const TypeInfo& info, const Vector<PtrId>& rids, const RangePtr& r)
     {
-	sCreated[info][rids] = r;
+	sCreated[info.hash_code()][rids] = r;
     }
     
     /******************

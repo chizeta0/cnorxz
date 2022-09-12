@@ -8,29 +8,29 @@ namespace CNORXZ
 {
     
     template <typename T>
-    ObjHandle<T>::ObjHandle() : mC(std::make_unique<T>()) {}
+    ObjHandle<T>::ObjHandle() {}
 
     template <typename T>
     ObjHandle<T>::ObjHandle(const T& a) : mC(std::make_unique<T>(a)) {}
 
     template <typename T>
-    ObjHandle<T>::ObjHandle(const Uptr<T>& a) : mC(a) {}
+    ObjHandle<T>::ObjHandle(Uptr<T>&& a) : mC(std::forward<Uptr<T>>(a)) {}
 
     template <typename T>
-    ObjHandle<T>::ObjHandle(const ObjHandle& a) : mC(std::make_unique<T>(*a.mC)) {}
+    ObjHandle<T>::ObjHandle(const ObjHandle& a) : mC(a.mC->copy()) {}
 
     template <typename T>
     ObjHandle<T>::ObjHandle(ObjHandle&& a) : mC(a.mC) {}
 
     template <typename T>
-    ObjHandle& ObjHandle<T>::operator=(const ObjHandle& a)
+    ObjHandle<T>& ObjHandle<T>::operator=(const ObjHandle& a)
     {
 	mC = std::make_unique<T>(*a.mC);
 	return *this;
     }
 
     template <typename T>
-    ObjHandle& ObjHandle<T>::operator=(ObjHandle&& a)
+    ObjHandle<T>& ObjHandle<T>::operator=(ObjHandle&& a)
     {
 	mC = a.mC;
 	return *this;

@@ -4,3 +4,5 @@
 #include "darray.h"
 #include "dcontainer_index.h"
 //#include "functional_array.h"
+
+#include "array.cc.h"

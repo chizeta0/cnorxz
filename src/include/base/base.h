@@ -11,4 +11,6 @@
 #include "obj_handle.h"
 #include "dtype.h"
 
+#include "base.cc.h"
+
 #endif

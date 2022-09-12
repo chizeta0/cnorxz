@@ -21,7 +21,7 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(ExprInterface);
 
 	Xpr& THIS() { return static_cast<Xpr&>(*this); }
-	const Xpr& THIS() const { return static_cast<const Expr&>(*this); }
+	const Xpr& THIS() const { return static_cast<const Xpr&>(*this); }
 
 	//Sptr<Expr> copy() const { THIS().copy(); }
 	
@@ -37,29 +37,34 @@ namespace CNORXZ
     public:
 	DEFAULT_MEMBERS(VExprBase);
 
-	virtual void vexec(SizeT mlast, PosT last) = 0;
+	virtual Uptr<VExprBase> copy() const = 0;
+	
+	virtual void vexec(SizeT mlast, DPos last) = 0;
 	virtual void vexec(SizeT mlast) = 0;
 
 	virtual DPos vrootSteps(PtrId ptrId) const = 0;
 	virtual DPos vextension() const = 0;
     };
 
-    template <class Xpr>
+    template <class Xpr, class PosT>
     class VExpr : public VExprBase, public Xpr
     {
     public:
+	typedef ExprInterface<Xpr,PosT> EI;
 	DEFAULT_MEMBERS(VExpr);
-	VExpr(const ExprInterface<Xpr>& a) : Xpr(a.THIS()) {}
+	VExpr(const ExprInterface<Xpr,PosT>& a) : Xpr(a.THIS()) {}
 
-	virtual void vexec(SizeT mlast, PosT last) override final { THIS()(mlast,last); }
-	virtual void vexec(SizeT mlast) override final { THIS()(mlast); }
+	virtual Uptr<VExprBase> copy() const override final { return std::make_unique<VExpr>(*this); }
 
-	virtual DPos vrootSteps(PtrId ptrId) const override final { return THIS().rootSteps(ptrId); }
-	virtual DPos vextension() const override final { return THIS().extension(); }
+	virtual void vexec(SizeT mlast, DPos last) override final { EI::THIS()(mlast,last); }
+	virtual void vexec(SizeT mlast) override final { EI::THIS()(mlast); }
+
+	virtual DPos vrootSteps(PtrId ptrId) const override final { return EI::THIS().rootSteps(ptrId); }
+	virtual DPos vextension() const override final { return EI::THIS().extension(); }
     };
     
     class DExpr : public ObjHandle<VExprBase>,
-		  public ExprInterface<DExpr>
+		  public ExprInterface<DExpr,DPos>
     {
     public:
 	DEFAULT_MEMBERS(DExpr);
@@ -70,7 +75,7 @@ namespace CNORXZ
 	inline DPos rootSteps(PtrId ptrId) const { return mC->vrootSteps(ptrId); }
 	inline DPos extension() const { return mC->vextension(); }
     };
-    
+    /*
     template <ForType FT = ForType::DEFAULT>
     struct PosForward
     {
@@ -106,7 +111,7 @@ namespace CNORXZ
 	SubExpr() = default;
 
 	const IndexClass* mIndPtr;
-	std::intptr_t mSIPtr;
+	PtrId mSIPtr;
 	size_t mSPos;
 	size_t mMax;
 
@@ -114,7 +119,7 @@ namespace CNORXZ
 	typedef decltype(mkExt(0).extend(mExpr.rootSteps())) ExtType;
 	ExtType mExt;
 
-        const vector<size_t>* mSubSet;
+        const Vector<SizeT>* mSubSet;
         
         mutable ExtType mRootSteps;
 
@@ -144,7 +149,7 @@ namespace CNORXZ
         auto rootSteps(std::intptr_t iPtrNum = 0) const -> ExtType;
 	auto extension() const -> ExtType;
     };
-    /*
+
     template <ForType FT, size_t LAYER>
     struct NHLayer
     {
@@ -174,7 +179,7 @@ namespace CNORXZ
 	    return Expr::LAYER;
 	}
     };
-    */
+
     template <class IndexClass, class Expr, ForType FT, size_t DIV>
     class For : public ExpressionBase
     {
@@ -290,26 +295,21 @@ namespace CNORXZ
 
     };
 
+    */
 } 
 
 /* ========================= *
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-#include <iostream>
 
-namespace CNORXZInternal
+namespace CNORXZ
 {
-    template <class ExtType>
-    const ExtType& ExtBase::expl() const
-    {
-	return dynamic_cast<const ExtT<ExtType>*>(this)->ext();
-    }
     
     /*****************
      *     F o r     *
      *****************/
-    
+    /*
     template <class IndexClass, class Expr, ForType FT, size_t DIV>
     For<IndexClass,Expr,FT,DIV>::For(const Sptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
@@ -402,11 +402,11 @@ namespace CNORXZInternal
         static_assert(FT == ForType::DEFAULT, "hidden for not parallelizable");
         return PFor<IndexClass,Expr,DIV>(mIndPtr, mStep, mExpr);
     }
-    
+    */
     /******************
      *    P F o r     *
      ******************/
-    
+    /*
     template <class IndexClass, class Expr, size_t DIV>
     PFor<IndexClass,Expr,DIV>::PFor(const Sptr<IndexClass>& indPtr,
 				 size_t step, Expr expr) :
@@ -508,98 +508,12 @@ namespace CNORXZInternal
         //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
 	//					    sizeof(ExtType)/sizeof(size_t));
     }
-
-    /************************
-     *   SingleExpression   *
-     ************************/
-    
-    template <class IndexClass, class Expr>
-    SingleExpression<IndexClass,Expr>::SingleExpression(const Sptr<IndexClass>& indPtr,
-							Expr expr) :
-	mIndPtr(indPtr.get()), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
-        mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
-    {
-	assert(mIndPtr != nullptr);
-	//VCHECK(mIndPtr->id());
-	//VCHECK(mIndPtr->max());
-    }
-
-    template <class IndexClass, class Expr>
-    SingleExpression<IndexClass,Expr>::SingleExpression(const IndexClass* indPtr,
-				 Expr expr) :
-	mIndPtr(indPtr), mSPos(mIndPtr->pos()), mMax(mIndPtr->max()),
-        mExpr(expr), mExt(mExpr.rootSteps( reinterpret_cast<std::intptr_t>( mIndPtr )))
-    {
-	assert(mIndPtr != nullptr);
-	//VCHECK(mIndPtr->id());
-	//VCHECK(mIndPtr->max());
-    }
-
-    template <class IndexClass, class Expr>
-    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast, DExt last)
-    {
-        operator()(mlast, std::dynamic_pointer_cast<ExtT<ExtType>>(last)->ext());
-        //operator()(mlast, *reinterpret_cast<ExtType const*>(last.first));
-    }
-
-    template <class IndexClass, class Expr>
-    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast,
-							      ExtType last)
-    {
-	//typedef typename IndexClass::RangeType RangeType;
-	const size_t pos = mIndPtr->pos();
-	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
-	const ExtType npos = last + mExt*pos;
-	mExpr(mnpos, npos);
-    }
-
-    template <class IndexClass, class Expr>
-    inline void SingleExpression<IndexClass,Expr>::operator()(size_t mlast)
-    {
-	//typedef typename IndexClass::RangeType RangeType;
-	ExtType last = rootSteps();
-	last.zero();
-	const size_t pos = mIndPtr->pos();
-	const size_t mnpos = PosForward<ForType::DEFAULT>::value(mlast, mMax, pos);
-	const ExtType npos = last + mExt*pos;
-	mExpr(mlast, last);
-    }
-
-    template <class IndexClass, class Expr>
-    auto SingleExpression<IndexClass,Expr>::rootSteps(std::intptr_t iPtrNum) const
-	-> ExtType
-    {
-	return mExpr.rootSteps(iPtrNum);
-    }
-
-    template <class IndexClass, class Expr>
-    auto SingleExpression<IndexClass,Expr>::extension() const
-	-> ExtType
-    {
-	return mExt;
-    }
-
-    template <class IndexClass, class Expr>
-    DExt SingleExpression<IndexClass,Expr>::dRootSteps(std::intptr_t iPtrNum) const
-    {
-        return std::make_shared<ExtT<ExtType>>(rootSteps(iPtrNum));
-        //mRootSteps = rootSteps(iPtrNum);
-        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mRootSteps),
-	//					    sizeof(ExtType)/sizeof(size_t));
-    }
-
-    template <class IndexClass, class Expr>
-    DExt SingleExpression<IndexClass,Expr>::dExtension() const
-    {
-        return std::make_shared<ExtT<ExtType>>(mExt);
-        //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
-        //				    sizeof(ExtType)/sizeof(size_t));
-    }
+    */
     
     /****************
      *   SubExpr    *
      ****************/
-
+    /*
     template <class IndexClass, class Expr>
     SubExpr<IndexClass,Expr>::SubExpr(const Sptr<IndexClass>& indPtr,
 				      std::intptr_t siptr,
@@ -682,11 +596,11 @@ namespace CNORXZInternal
         //return std::make_pair<size_t const*,size_t>(reinterpret_cast<size_t const*>(&mExt),
 	//					    sizeof(ExtType)/sizeof(size_t));
     }
-
+    */
     /***************************
      *   DynamicExpression   *
      ***************************/
-
+    /*
     inline void DynamicExpression::operator()(size_t mlast, DExt last)
     {
 	(*mNext)(mlast,last);
@@ -707,62 +621,7 @@ namespace CNORXZInternal
         return mNext->dExtension();
     }
 
-    /************************
-     *   ExpressionHolder   *
-     ************************/
-
-    template <class Expr>
-    ExpressionHolder<Expr>::ExpressionHolder(DynamicExpression expr) : mExpr(expr) {}
-
-    template <class Expr>
-    inline void ExpressionHolder<Expr>::operator()(size_t mlast, DExt last)
-    {
-	mExpr(mlast,last);
-    }
-
-    template <class Expr>
-    inline void ExpressionHolder<Expr>::operator()(size_t mlast, ExtType last)
-    {
-	mExpr(mlast,
-              std::make_shared<ExtT<ExtType>>(last));
-    }
-
-    template <class Expr>
-    inline void ExpressionHolder<Expr>::operator()(size_t mlast)
-    {
-	mExpr(mlast);
-    }
-
-    template <class Expr>
-    DExt ExpressionHolder<Expr>::dRootSteps(std::intptr_t iPtrNum) const
-    {
-	return mExpr.dRootSteps(iPtrNum);
-    }
-
-    template <class Expr>
-    DExt ExpressionHolder<Expr>::dExtension() const
-    {
-	return mExpr.dExtension();
-    }
-
-    template <class Expr>
-    auto ExpressionHolder<Expr>::rootSteps(std::intptr_t iPtrNum) const
-	-> ExtType
-    {
-        return std::dynamic_pointer_cast<ExtT<ExtType>>(mExpr.dRootSteps(iPtrNum))->ext();
-	//return *reinterpret_cast<ExtType const*>( mExpr.dRootSteps(iPtrNum).first );
-    }
-
-    template <class Expr>
-    auto ExpressionHolder<Expr>::extension() const
-	-> ExtType
-    {
-        return std::dynamic_pointer_cast<ExtT<ExtType>>(mExpr.dExtension())->ext();
-	//return *reinterpret_cast<ExtType const*>( mExpr.dExtension().first );
-    }
-
-
-    
+    */
 } // namespace CNORXZInternal
 
 #endif

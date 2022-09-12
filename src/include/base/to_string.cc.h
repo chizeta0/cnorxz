@@ -8,7 +8,7 @@
 namespace CNORXZ
 {
     template <typename T>
-    String toString(const T& a)
+    String ToString<T>::func(const T& a)
     {
 	std::stringstream ss;
 	ss << a;
@@ -16,7 +16,7 @@ namespace CNORXZ
     }
 
     template <typename T>
-    String toString<vector<T>>(const vector& a)
+    String ToString<vector<T>>::func(const vector& a)
     {
 	std::stringstream ss;
 	ss << "[";
@@ -29,7 +29,7 @@ namespace CNORXZ
     }
 
     template <typename T, size_t N>
-    String toString<std::array<T,N>>(const std::array<T,N>& a)
+    String ToString<std::array<T,N>>::func(const std::array<T,N>& a)
     {
 	std::stringstream ss;
 	ss << "(";
@@ -42,11 +42,16 @@ namespace CNORXZ
     }
 
     template <>
-    String toString<DType>(const DType& a)
+    String ToString<DType>::func(const DType& a)
     {
 	return a.str();
     }
 
+    template <typename T>
+    String toString(const T& a)
+    {
+	return ToString::func(a);
+    }
 }
 
 #endif

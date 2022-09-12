@@ -40,18 +40,32 @@ namespace CNORXZ
     template <typename... T>
     using Tuple = std::tuple<T...>;
 
-    template <typename... T>
-    using TupleElem = std::tuple_element<T...>;
+    template <SizeT I, typename... T>
+    using TupleElem = std::tuple_element<I,Tuple<T...>>;
 
     template <typename K, typename V>
     using Map = std::map<K,V>;
 
-    typedef std::typeinfo TypeInfo;
+    typedef std::type_info TypeInfo;
     
     /*********************
      *   library types   *
      *********************/
 
+    /***
+	Naming Prefixes:
+	D = Y = Dynamic
+	V = X = Virtual
+	S = Static
+	P = Partial = Sub
+	C = Classic
+	M = Multi or !const
+	U = One(=Uni) dimensional
+	N = None = Null
+	T = Thread
+	R = Rank
+     ***/
+    
     // definition: base/dtype.h
     class DType;
 
@@ -74,6 +88,7 @@ namespace CNORXZ
     class DPos;
 
     // definition: ranges/xfor/exttype.h
+    template <class PosT>
     class VPos;
 
     // definition: ranges/xfor/exttype.h
@@ -134,12 +149,16 @@ namespace CNORXZ
     // definition: ranges/xindex.h
     class XIndexBase; // dynamic index wrapper
 
+    typedef Sptr<XIndexBase> XIndexPtr;
+
     // definition: ranges/yrange.h
     class YRange; // dynamic multi range
     
     // definition: ranges/yrange.h
     class YIndex;
 
+    typedef Sptr<YIndex> YIndexPtr;
+    
     // definition: ranges/pindex.h
     template <class Index>
     class PIndex; // partial index (index over sub-ranges and permutations)

@@ -72,7 +72,7 @@ namespace CNORXZ
 	IndexInterface& operator=(IndexInterface&& in);
 	IndexInterface(SizeT pos);
 
-	IndexPtr mRel = nullptr;
+	IndexPtr<I,MetaType> mRel = nullptr;
 	SizeT mPos = 0;
 	PtrId mPtrId = 0;
     };

@@ -4,19 +4,23 @@
 namespace CNORXZ
 {
     YIndex::YIndex(const RangePtr& range) :
-	mIs(mRange.dim()), mBlockSizes(mRange.dim()), mExternalControl(false)
+	mRange(range), mIs(mRange->dim()),
+	mBlockSizes(mRange->dim()), mExternalControl(false)
     {
+	assert(0);
 	// init ...!!!
     }
 
     YIndex::YIndex(const RangePtr& range, const Vector<XIndexPtr>& is) :
-	mIs(is), mBlockSizes(mRange.dim()), mExternalControl(false)
+	mRange(range), mIs(is),
+	mBlockSizes(mRange->dim()), mExternalControl(false)
     {
-	CXZ_ASSERT(mIs.size() == mRange.dim(), "obtained wrong number of indices");
+	CXZ_ASSERT(mIs.size() == mRange->dim(), "obtained wrong number of indices");
+	assert(0);
 	// init ...!!!
     }
 
-    YIndex& YIndex::operator=(size_t pos)
+    YIndex& YIndex::operator=(SizeT pos)
     {
 	IB::mPos = pos;
 	// sub inds... (LAZY!!!) !!!
@@ -39,24 +43,27 @@ namespace CNORXZ
 	return *this;
     }
     
-    int YIndex::pp(std::intptr_t idxPtrNum)
+    Int YIndex::pp(PtrId idxPtrNum)
     {
-	
+	assert(0);
+	return 0;
     }
     
-    int YIndex::mm(std::intptr_t idxPtrNum)
+    Int YIndex::mm(PtrId idxPtrNum)
     {
-
+	assert(0);
+	return 0;
     }
     
-    size_t YIndex::dim() const
+    SizeT YIndex::dim() const
     {
 	return mRange->dim();
     }
     
-    size_t YIndex::getStepSize(size_t n) const
+    SizeT YIndex::getStepSize(SizeT n) const
     {
-	
+	assert(0);
+	return 0;
     }
     
     String YIndex::stringMeta() const
@@ -64,9 +71,9 @@ namespace CNORXZ
 	String out = "[";
 	auto it = mIs.begin();
 	for(; it != mIs.end()-1; ++it){
-	    out += it->stringMeta() + ","
+	    out += (*it)->stringMeta() + ",";
 	}
-	out += it->stringMeta() + "]"
+	out += (*it)->stringMeta() + "]";
 	return out;
     }
     
@@ -74,7 +81,7 @@ namespace CNORXZ
     {
 	//this->sync();
 	Vector<DType> v(mIs.size());
-	std::transform(mIs.begin(), mIs.end(), v.begin(), [](auto& x) { return x->meta() });
+	std::transform(mIs.begin(), mIs.end(), v.begin(), [](auto& x) { return x->meta(); });
 	return DType(v);
     }
     
@@ -82,20 +89,22 @@ namespace CNORXZ
     {
 	auto& v = std::any_cast<const Vector<DType>&>(meta.get());
 	assert(v.size() == mIs.size());
-	for(size_t i = 0; i != mIs.size()){
+	for(SizeT i = 0; i != mIs.size(); ++i){
 	    mIs[i]->at(v[i]);
 	}
 	return *this;
     }
     
-    DynamicExpression YIndex::ifor(size_t step, DynamicExpression ex) const
+    DExpr YIndex::ifor(SizeT step, DExpr ex) const
     {
-
+	assert(0);
+	return DExpr();
     }
     
-    DynamicExpression YIndex::iforh(size_t step, DynamicExpression ex) const
+    DExpr YIndex::iforh(SizeT step, DExpr ex) const
     {
-
+	assert(0);
+	return DExpr();
     }
 
 }

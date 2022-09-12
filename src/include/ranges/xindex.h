@@ -14,25 +14,21 @@ namespace CNORXZ
     public:
 	DEFAULT_MEMBERS(XIndexBase);
 
-	constexpr IndexType type() const;
-
-	virtual XIndexBase& operator=(size_t pos) = 0;
+	virtual XIndexBase& operator=(SizeT pos) = 0;
 	virtual XIndexBase& operator++() = 0;
 	virtual XIndexBase& operator--() = 0;
-	virtual int pp(std::intptr_t idxPtrNum) = 0;
-	virtual int mm(std::intptr_t idxPtrNum) = 0;
+	virtual Int pp(PtrId idxPtrNum) = 0;
+	virtual Int mm(PtrId idxPtrNum) = 0;
 	virtual size_t dim() const = 0;
-	virtual size_t getStepSize(size_t n) const = 0;
-	virtual std::string stringMeta() const = 0;
+	virtual size_t getStepSize(SizeT n) const = 0;
+	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
-	virtual DynamicExpression ifor(size_t step, DynamicExpression ex) const = 0;
-	virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const = 0;
+	virtual DExpr ifor(SizeT step, DExpr ex) const = 0;
+	virtual DExpr iforh(SizeT step, DExpr ex) const = 0;
 	// ...!!!
     };
 
-    typedef std::shared_ptr<XIndexBase> XIndexPtr;
-    
     // MultiIndex Wrapper:
     template <class Index, typename Meta>
     class XIndex : public XIndexBase
@@ -44,18 +40,18 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(XIndex);
 	XIndex(const IndexPtr<Index,Meta>& i);
 
-	virtual XIndex& operator=(size_t pos) override;
+	virtual XIndex& operator=(SizeT pos) override;
 	virtual XIndex& operator++() override;
 	virtual XIndex& operator--() override;
-	virtual int pp(std::intptr_t idxPtrNum) override;
-	virtual int mm(std::intptr_t idxPtrNum) override;
-	virtual size_t dim() const override;
-	virtual size_t getStepSize(size_t n) const override;
-	virtual std::string stringMeta() const override;
+	virtual Int pp(PtrId idxPtrNum) override;
+	virtual Int mm(PtrId idxPtrNum) override;
+	virtual SizeT dim() const override;
+	virtual SizeT getStepSize(SizeT n) const override;
+	virtual String stringMeta() const override;
 	virtual DType meta() const override;
 	virtual XIndexBase& at(const DType& meta) override;
-	virtual DynamicExpression ifor(size_t step, DynamicExpression ex) const override;
-	virtual DynamicExpression iforh(size_t step, DynamicExpression ex) const override;
+	virtual DExpr ifor(SizeT step, DExpr ex) const override;
+	virtual DExpr iforh(SizeT step, DExpr ex) const override;
 	// ....!!!!
     };
 

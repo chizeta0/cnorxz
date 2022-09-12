@@ -2,7 +2,6 @@
 #ifndef __cxz_memcount_h__
 #define __cxz_memcount_h__
 
-#include "allocator_d.h"
 #include "base/types.h"
 
 namespace CNORXZ
@@ -15,10 +14,11 @@ namespace CNORXZ
 	static void sub(SizeT x) { sMemUsage -= x; }
 	
     public:
-	MemCount() = delete(); // static only
+	MemCount() = delete; // static only
 	static SizeT usage() { return sMemUsage; }
 
-	friend Allocator;
+	template <typename T>
+	friend class Allocator;
     };
 
 } // namespace CNORXZ

@@ -2,9 +2,9 @@
 #ifndef __cxz_exttype_h__
 #define __cxz_exttype_h__
 
-#include <array>
+#include "base/base.h"
 
-namespace CNORXZInternal
+namespace CNORXZ
 {
 
     // Dynamic Ext: ObjHandl<ExtBase>
@@ -14,7 +14,8 @@ namespace CNORXZInternal
     {
     public:
 	DEFAULT_MEMBERS(VPosBase);
-        
+
+	virtual Uptr<VPosBase> copy() const = 0;
 	virtual SizeT vsize() const = 0;
 	virtual const SizeT& vval() const = 0;
 	virtual VPosBase& vzero() = 0;
@@ -31,9 +32,9 @@ namespace CNORXZInternal
 	PosT& THIS() { return static_cast<PosT&>(*this); }
 	const PosT& THIS() const { return static_cast<const PosT&>(*this); }
 	
-	inline SizeT size() const { THIS().size(); }
-	inline const SizeT& val() const { THIS().val(); }
-	inline auto next() const { THIS().next(); }
+	inline SizeT size() const { return THIS().size(); }
+	inline const SizeT& val() const { return THIS().val(); }
+	inline auto next() const { return THIS().next(); }
 	inline bool operator==(const PosInterface<PosT>& a) const { return val() == a.val() and next() == a.next(); }
 	inline bool operator!=(const PosInterface<PosT>& a) const { return val() != a.val() or next() != a.next(); }
 	inline bool operator==(SizeT a) const { return val() == a and next() == a; }
@@ -51,18 +52,18 @@ namespace CNORXZInternal
     {
     public:
 	DEFAULT_MEMBERS(DPos);
-	DPos(Uptr<VPosBase> a) : ObjHandle<VPosBase>(a) {}
+	DPos(Uptr<VPosBase>&& a) : ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a)) {}
 
 	template <class PosT>
 	DPos(const PosT& a) : ObjHandle<VPosBase>( std::make_unique<PosT>(a) ) {}
-	
+
 	inline SizeT size() const { return mC->vsize(); }
 	inline const SizeT& val() const { return mC->vval(); }
 	inline DPos& zero() { mC->vzero(); return *this; }
 
 	template <class P>
 	inline DPos extend(const PosInterface<P>& a) const
-	{ /* append MPos<NPos> in static for loop over entries */ }
+	{ return DPos();/* append MPos<NPos> in static for loop over entries */ }
     };
 
     /*
@@ -104,13 +105,14 @@ namespace CNORXZInternal
 	
 	VPos(const PosInterface<PosT>& a) : PosT(a.THIS()) {}
 	
-	virtual SizeT vsize() const override final { return THIS().size(); }
-	virtual const SizeT& vval() const override final { return THIS().val(); }
-	virtual VPos& vzero() override final { THIS().zero(); return *this; }
+	virtual Uptr<VPosBase> copy() const override final { return std::make_unique<VPos>(*this); }
+	virtual SizeT vsize() const override final { return PosT::THIS().size(); }
+	virtual const SizeT& vval() const override final { return PosT::THIS().val(); }
+	virtual VPos& vzero() override final { PosT::THIS().zero(); return *this; }
 	virtual Uptr<VPosBase> vextend(const DPos& a) const override final
-	{ return std::make_unique<VPosBase>( THIS().extend(a) ); }
+	{ return std::make_unique<VPosBase>( PosT::THIS().extend(a) ); }
 	virtual Uptr<VPosBase> vextend(const MPos<NPos>& a) const override final
-	{ return std::make_unique<VPosBase>( THIS().extend(a) ); } // ??? if that works it would be a miracle ???
+	{ return std::make_unique<VPosBase>( PosT::THIS().extend(a) ); } // ??? if that works it would be a miracle ???
 	// .... probably I need to define a static instanciation limit...
 
     };
@@ -268,7 +270,7 @@ namespace CNORXZInternal
     
     inline MPos<NPos> mkExt(SizeT s) { return MPos<NPos>(s); }
 
-
+    /*
     template <size_t I, class X>
     auto getX(const MPos<X>& et)
     {
@@ -315,6 +317,7 @@ namespace CNORXZInternal
     {
 	return getX<I>(et).get();
     }
+    */
 
 } // end namespace CNORXZInternal
 
@@ -322,17 +325,17 @@ namespace CNORXZInternal
  * ---   TEMPLATE CODE   --- *
  * ========================= */
 
-namespace CNORXZInternal
+namespace CNORXZ
 {
 
     template <class X>
     inline MPos<X>::MPos(size_t ext, X next) : mExt(ext), mNext(next) {}
-
+    /*
     template <class X>
     template <size_t N>
     inline MPos<X>::MPos(const std::array<size_t,N>& arr) :
 	mExt(std::get<NUM>(arr)), mNext(arr) {}
-
+    */
     template <class X>
     template <class Z>
     inline MPos<X>::MPos(size_t y, const Z& z) :
@@ -366,14 +369,14 @@ namespace CNORXZInternal
 	mExt = 0u;
 	mNext.zero();
     }
-
+    /*
     template <class X>
     template <size_t N>
     inline auto MPos<X>::nn() const
     {
 	return getX<N>(*this);
     }
-
+    */
     template <class X>
     inline MPos<X> MPos<X>::operator+(const MPos<X>& in) const
     {
@@ -407,12 +410,12 @@ namespace CNORXZInternal
     inline MPos<NPos>::MPos(const Y& y, const Z& z) :
 	mExt(y.val()) {}
 
-
+    /*
     //template <>
     template <size_t N>
     inline MPos<NPos>::MPos(const std::array<size_t,N>& arr) :
 	mExt(std::get<NUM>(arr)) {}
-
+    */
     template <class Y>
     inline MPos<NPos>::MPos(const MPos<Y>& y) :
         mExt(y.val()) {}
@@ -422,13 +425,13 @@ namespace CNORXZInternal
     {
 	mExt = 0u;
     }
-
+    /*
     template <size_t N>
     inline auto MPos<NPos>::nn() const
     {
 	return getX<N>(*this);
     }
-
+    */
     inline const size_t& MPos<NPos>::val() const
     {
 	return mExt;
@@ -450,14 +453,14 @@ namespace CNORXZInternal
     {
 	return MPos<NPos>(mExt * in);
     }
-
+    /*
     template <class X>
     template <size_t N>
     inline auto DVPosX<X>::nn() const
     {
 	return getX<N>(*this);
     }
-
+    */
 } // end namespace CNORXZInternal
 
 

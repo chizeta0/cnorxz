@@ -14,14 +14,14 @@ namespace CNORXZ
     template <typename T>
     DType::DType(const T& d) : mD(d)
     {
-	_mkToStr();
+	_mkToStr<T>();
     }
 
     template <typename T>
     DType& DType::operator=(const T& d)
     {
 	mD = d;
-	_mkToStr();
+	_mkToStr<T>();
 	return *this;
     }
 

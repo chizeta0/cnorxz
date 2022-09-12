@@ -4,6 +4,9 @@
 #define __cxz_range_base_h__
 
 #include "base/base.h"
+#include "base/base.cc.h"
+#include "memory/memory.h"
+#include "memory/memory.cc.h"
 
 namespace CNORXZ
 {
@@ -29,7 +32,7 @@ namespace CNORXZ
     private:
 	// also add single ranges here (PtrId -> own)
 	// rangeCast: PtrId -> original Range
-	static Map<TypeInfo,Map<Vector<PtrId>,RangePtr>> sCreated;
+	static Map<SizeT,Map<Vector<PtrId>,RangePtr>> sCreated;
 	
     };
 

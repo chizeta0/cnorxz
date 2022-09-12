@@ -3,21 +3,36 @@
 #define __cxz_to_string_h__
 
 #include "types.h"
-#include <array>
 
 namespace CNORXZ
 {
     template <typename T>
-    String toString(const T& a);
+    struct ToString
+    {
+	static String func(const T& a);
+    };
 
     template <typename T>
-    String toString<vector<T>>(const vector& a);
+    struct ToString<Vector<T>>
+    {
+	static String func(const Vector<T>& a);
+    };
 
-    template <typename T, size_t N>
-    String toString<std::array<T,N>>(const std::array<T,N>& a);
+    template <typename T, SizeT N>
+    struct ToString<Arr<T,N>>
+    {
+	static String func(const Arr<T,N>& a);
+    };
 
     template <>
-    String toString<DType>(const DType& a);
+    struct ToString<DType>
+    {
+	static String func(const DType& a);
+    };
+
+    template <typename T>
+    String toString(const T& a);
+
 }
 
 #endif
