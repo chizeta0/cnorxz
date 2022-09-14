@@ -109,7 +109,10 @@ namespace CNORXZ
     };
 
     template <typename MetaType>
-    Sptr<URange<MetaType>> rangeCast<URange<MetaType>>(const RangePtr& r);
+    struct RangeCast<URange<MetaType>>
+    {
+	static Sptr<URange<MetaType>> func(const RangePtr& r);
+    };
 }
 
 #endif

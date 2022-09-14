@@ -1,22 +1,23 @@
 
-#ifndef __cxz_range_type_classic_def__
-#define __cxz_range_type_classic_def__
+#ifndef __cxz_crange_h__
+#define __cxz_crange_h__
 
 #include "base/base.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
-#include "xfor/for_type.h"
+//#include "xfor/for_type.h"
+#include "xfor/xfor.h"
 
 namespace CNORXZ
 {
-    class CIndex : public IndexInterface<CIndex<MetaType>,SizeT>
+    class CIndex : public IndexInterface<CIndex,SizeT>
     {
     public:
 
-	typedef IndexInterface<CIndex<SizeT>,SizeT> IB;
+	typedef IndexInterface<CIndex,SizeT> IB;
 	typedef CRange RangeType;
 
-	CIndex(const RangePtr& range);
+	CIndex(const RangePtr& range, SizeT pos = 0);
 	
 	CIndex& operator=(SizeT pos);
 	CIndex& operator++();
@@ -40,10 +41,11 @@ namespace CNORXZ
 	SizeT meta() const;
 	CIndex& at(const SizeT& metaPos);
 
-	template <class Expr>
-	auto ifor(SizeT step, Expr ex) const
-	    -> For<CIndex<SizeT>,Expr>;
+	//template <class Expr>
+	//auto ifor(SizeT step, Expr ex) const
+	//    -> For<CIndex,Expr>;
 
+	/*
 	template <class Expr>
 	auto iforh(SizeT step, Expr ex) const
 	    -> For<CIndex<SizeT>,Expr,ForType::HIDDEN>;
@@ -51,7 +53,7 @@ namespace CNORXZ
         template <class Expr>
 	auto pifor(SizeT step, Expr ex) const
 	    -> PFor<CIndex<SizeT>,Expr>;
-        
+	*/
     private:
 	Sptr<RangeType> mRangePtr;
     };
@@ -69,6 +71,7 @@ namespace CNORXZ
 	virtual void make() override;
 
     private:
+	SizeT mSize;
 	RangePtr mRef;
     };
 
@@ -81,11 +84,11 @@ namespace CNORXZ
         
 	friend CRangeFactory;
 
-	virtual SizeT size() const final;
-	virtual SizeT dim() const final;
-	virtual String stringMeta(SizeT pos) const final;
-	virtual IndexType begin() const final;
-	virtual IndexType end() const final;
+	virtual SizeT size() const override final;
+	virtual SizeT dim() const override final;
+	virtual String stringMeta(SizeT pos) const override final;
+	virtual const TypeInfo& type() const override final;
+	virtual const TypeInfo& metaType() const override final;
 
 	SizeT get(SizeT pos) const;
 	SizeT getMeta(SizeT metaPos) const;
@@ -100,7 +103,10 @@ namespace CNORXZ
     };
 
     template <>
-    Sptr<CRange> rangeCast<CRange>(const RangePtr& r);
+    struct RangeCast<CRange>
+    {
+	static Sptr<CRange> func(const RangePtr& r);
+    };
 }
 
 #endif

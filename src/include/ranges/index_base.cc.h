@@ -50,7 +50,7 @@ namespace CNORXZ
     IndexInterface<I,MetaType>::IndexInterface(SizeT pos) :
 	mPos(pos)
     {
-	mPtrNum = reinterpret_cast<PtrId>(this);
+	mPtrId = reinterpret_cast<PtrId>(this);
     }
 
     template <class I, typename MetaType>

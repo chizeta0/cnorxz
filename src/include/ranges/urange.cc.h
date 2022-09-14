@@ -13,24 +13,10 @@ namespace CNORXZ
      *    UIndex     *	     
      *****************/
 
-    namespace
-    {
-	template <typename MetaType>
-	Sptr<URange<MetaType>> rc(const RangePtr r)
-	{
-	    if(typeid(URange<MetaType>) == r.type()){
-		return std::dynamic_pointer_cast<URange<MetaType>>(r)
-	    }
-	    else {
-		return rangeCast<URange<MetaType>>(r);
-	    }
-	}
-    }
-    
     template <typename MetaType>
     UIndex<MetaType>::UIndex(const RangePtr& range) :
 	IndexInterface<UIndex<MetaType>,MetaType>(0),
-	mRange(rc<MetaType>(range)),
+	mRange(rangeCast<MetaType>(range)),
 	mMetaPtr(&get(0))
     {}
 
@@ -56,14 +42,14 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    int UIndex<MetaType>::pp(std::intptr_t idxPtrNum)
+    Int UIndex<MetaType>::pp(PtrId idxPtrNum)
     {
 	++(*this);
 	return 1;
     }
 
     template <typename MetaType>
-    int UIndex<MetaType>::mm(std::intptr_t idxPtrNum)
+    Int UIndex<MetaType>::mm(PtrId idxPtrNum)
     {
 	--(*this);
 	return 1;
@@ -89,7 +75,7 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    size_t UIndex<MetaType>::dim() // = 1
+    size_t UIndex<MetaType>::dim() const // = 1
     {
 	return 1;
     }
@@ -101,7 +87,7 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    size_t UIndex<MetaType>::getStepSize(size_t n)
+    size_t UIndex<MetaType>::getStepSize(SizeT n)
     {
 	return 1;
     }
@@ -131,9 +117,9 @@ namespace CNORXZ
     }
 
     
-    /********************
-     *   SingleRange    *
-     ********************/
+    /**********************
+     *   URangeFactory    *
+     **********************/
 
     template <typename MetaType>
     URangeFactory<MetaType>::URangeFactory(const Vector<MetaType>& space) :
@@ -165,9 +151,9 @@ namespace CNORXZ
 	}
     }
     
-    /********************
-     *   SingleRange    *
-     ********************/
+    /***************
+     *   URange    *
+     ***************/
     
     template <typename MetaType>
     URange<MetaType>::URange(const Vector<MetaType>& space) :
@@ -191,7 +177,7 @@ namespace CNORXZ
 
         
     template <typename MetaType>
-    const MetaType& URange<MetaType>::get(size_t pos) const
+    const MetaType& URange<MetaType>::get(SizeT pos) const
     {
 	return mSpace[pos];
     }
@@ -226,7 +212,7 @@ namespace CNORXZ
     typename URange<MetaType>::IndexType URange<MetaType>::begin() const
     {
 	UIndex<MetaType> i( std::dynamic_pointer_cast<URange<MetaType> >
-			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+			       ( RangePtr( RB::mThis ) ) );
 	i = 0;
 	return i;
     }
@@ -235,7 +221,7 @@ namespace CNORXZ
     typename URange<MetaType>::IndexType URange<MetaType>::end() const
     {
 	UIndex<MetaType> i( std::dynamic_pointer_cast<URange<MetaType> >
-			       ( std::shared_ptr<RangeBase>( RB::mThis ) ) );
+			       ( RangePtr( RB::mThis ) ) );
 	i = this->size();
 	return i;
     }
@@ -245,11 +231,12 @@ namespace CNORXZ
      *******************/
 
     template <typename MetaType>
-    Sptr<URange<MetaType>> rangeCast<URange<MetaType>>(const RangePtr& r)
+    Sptr<URange<MetaType>> RangeCast<URange<MetaType>>::func(const RangePtr& r)
     {
 	CXZ_ERROR("to be implemented...");
 	return nullptr;
     }
+    
 }
 
 #endif

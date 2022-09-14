@@ -51,8 +51,8 @@ namespace CNORXZ
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
 
-	virtual TypeInfo type() const = 0;
-	virtual TypeInfo metaType() const = 0;
+	virtual const TypeInfo& type() const = 0;
+	virtual const TypeInfo& metaType() const = 0;
         virtual String stringMeta(SizeT pos) const = 0;
 
         PtrId id() const;
@@ -82,6 +82,12 @@ namespace CNORXZ
 	RangeInterface() = default;
     };
 
+    template <class Range>
+    struct RangeCast
+    {
+	static Sptr<Range> func(const RangePtr& r);
+    };
+    
     template <class Range>
     Sptr<Range> rangeCast(const RangePtr r);
 

@@ -2,13 +2,8 @@
 set(libcnorxz_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/range_base.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/yindex.cc
+  ${CMAKE_SOURCE_DIR}/src/lib/ranges/crange.cc
   )
-
-file(GLOB cc_files "${CMAKE_SOURCE_DIR}/src/lib/ranges/range_types/*.cc")
-foreach(ccfile ${cc_files})
-  set(libcnorxz_a_SOURCES ${libcnorxz_a_SOURCES}
-    ${ccfile})
-endforeach(ccfile)
 
 add_library(cnorxz_obj OBJECT
   ${libcnorxz_a_SOURCES}

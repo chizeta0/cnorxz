@@ -12,8 +12,10 @@ namespace CNORXZ
     
     RangePtr RangeFactoryBase::create()
     {
-	this->make();
-	mProd->mThis = mProd;
+	if(not mProd) {
+	    this->make();
+	    mProd->mThis = mProd;
+	}
 	return mProd;
     }	
 

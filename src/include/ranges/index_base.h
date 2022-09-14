@@ -61,8 +61,7 @@ namespace CNORXZ
 	{ return THIS().template iforh<Expr>(step,ex); }
 
     private:
-
-	friend I;
+	friend I; // why not protected???!!!
 	
 	// NO DEFAULT CONSTRUCTORS/ASSIGNMENTS!
 	IndexInterface();
@@ -71,8 +70,8 @@ namespace CNORXZ
 	IndexInterface(IndexInterface&& in);
 	IndexInterface& operator=(IndexInterface&& in);
 	IndexInterface(SizeT pos);
+	IndexInterface(SizeT pos, const IndexPtr<I,MetaType>& rel);
 
-	IndexPtr<I,MetaType> mRel = nullptr;
 	SizeT mPos = 0;
 	PtrId mPtrId = 0;
     };
