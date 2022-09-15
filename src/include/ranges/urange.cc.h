@@ -16,8 +16,8 @@ namespace CNORXZ
     template <typename MetaType>
     UIndex<MetaType>::UIndex(const RangePtr& range) :
 	IndexInterface<UIndex<MetaType>,MetaType>(0),
-	mRange(rangeCast<MetaType>(range)),
-	mMetaPtr(&get(0))
+	mRangePtr(rangeCast<MetaType>(range)),
+	mMetaPtr(&mRangePtr->get(0))
     {}
 
     template <typename MetaType>
@@ -62,9 +62,9 @@ namespace CNORXZ
     }
     
     template <typename MetaType>
-    MetaType& UIndex<MetaType>::meta() const
+    const MetaType& UIndex<MetaType>::meta() const
     {
-	return mSpace[IB::mPos];
+	return mMetaPtr[IB::mPos];
     }
     
     template <typename MetaType>
@@ -81,17 +81,17 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    Sptr<URange<MetaType>> UIndex<MetaType>::range()
+    Sptr<URange<MetaType>> UIndex<MetaType>::range() const
     {
 	return mRangePtr;
     }
 
     template <typename MetaType>
-    size_t UIndex<MetaType>::getStepSize(SizeT n)
+    SizeT UIndex<MetaType>::getStepSize(SizeT n) const
     {
 	return 1;
     }
-
+    /*
     template <typename MetaType>
     template <class Expr>
     auto UIndex<MetaType>::ifor(size_t step, Expr ex) const
@@ -115,7 +115,7 @@ namespace CNORXZ
     {
 	return PFor<UIndex<MetaType>,Expr>(this, step, ex);
     }
-
+    */
     
     /**********************
      *   URangeFactory    *
@@ -140,14 +140,15 @@ namespace CNORXZ
     template <typename MetaType>
     void URangeFactory<MetaType>::make()
     {
+	auto info = typeid(URange<MetaType>);
 	if(mRef != nullptr) {
-	    mProd = this->fromCreated[typeid(oType)][mRef->id()];
+	    mProd = this->fromCreated[info.hash_code()][mRef->id()];
 	}
 	if(mProd == nullptr){
-	    RangePtr key = mProd = std::shared_ptr<oType>
+	    RangePtr key = mProd = std::shared_ptr<URange<MetaType>>
 		( new URange<MetaType>( std::move(mSpace) ) );
-	    if(mRef != nullptr) { key = mRef->id(); }
-	    this->addToCreated(typeid(oType), { key }, mProd);
+	    if(mRef != nullptr) { key = mRef; }
+	    this->addToCreated(info, { key->id() }, mProd);
 	}
     }
     
@@ -157,7 +158,7 @@ namespace CNORXZ
     
     template <typename MetaType>
     URange<MetaType>::URange(const Vector<MetaType>& space) :
-	RangeInterface<URange<MetaType>>(),
+	RangeInterface<URange<MetaType>,MetaType>(),
 	mSpace(space)
     {
 	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());
@@ -167,7 +168,7 @@ namespace CNORXZ
 
     template <typename MetaType>
     URange<MetaType>::URange(Vector<MetaType>&& space) :
-	RangeInterface<URange<MetaType>>(),
+	RangeInterface<URange<MetaType>,MetaType>(),
 	mSpace(space)
     {
 	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());

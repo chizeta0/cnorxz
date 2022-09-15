@@ -10,12 +10,12 @@ namespace CNORXZ
     {
     private:
 	static SizeT sMemUsage;
-	static void add(SizeT x) { sMemUsage += x; }
-	static void sub(SizeT x) { sMemUsage -= x; }
+	static void add(SizeT x);// { sMemUsage += x; }
+	static void sub(SizeT x);// { sMemUsage -= x; }
 	
     public:
 	MemCount() = delete; // static only
-	static SizeT usage() { return sMemUsage; }
+	static SizeT usage();// { return sMemUsage; }
 
 	template <typename T>
 	friend class Allocator;

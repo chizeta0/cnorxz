@@ -1,11 +1,8 @@
 
 #include <fstream>
-#include "base/types.h"
-#include "base/assert.h"
-
-#ifndef TEST_NUMBER_FILE
-#define TEST_NUMBER_FILE "" // CMake Variable
-#endif
+//#include "base/types.h"
+//#include "base/assert.h"
+#include "base/base.h"
 
 namespace CNORXZ
 {

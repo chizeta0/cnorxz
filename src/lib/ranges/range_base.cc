@@ -49,9 +49,27 @@ namespace CNORXZ
 	return this != &in;
     }
     
-    std::intptr_t RangeBase::id() const
+    PtrId RangeBase::id() const
     {
         return reinterpret_cast<std::intptr_t>(this);
     }
+
+    XIndexPtr RangeBase::begin() const
+    {
+	return this->index(0);
+    }
+    
+    XIndexPtr RangeBase::end() const
+    {
+	return this->index(this->size());
+    }
+    
+    RangePtr RangeBase::orig() const
+    {
+	if(mRel) return mRel;
+	else return RangePtr(mThis);
+    }
+
+    RangeBase::RangeBase(const RangePtr& rel) : mRel(rel) {}
 
 } // end namespace CNORXZ

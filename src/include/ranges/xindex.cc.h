@@ -14,6 +14,10 @@ namespace CNORXZ
     XIndex<Index,Meta>::XIndex(const IndexPtr<Index,Meta>& i) : mI(i) {}
 
     template <class Index, typename Meta>
+    XIndex<Index,Meta>::XIndex(const IndexInterface<Index,Meta>& i) :
+	mI(std::make_shared<Index>(i.THIS())) {}
+
+    template <class Index, typename Meta>
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator=(SizeT pos)
     {
 	*mI = pos;
@@ -77,7 +81,7 @@ namespace CNORXZ
 	mI->at(std::any_cast<const Meta&>(meta.get()));
 	return *this;
     }
-
+    /*
     template <class Index, typename Meta>
     DExpr XIndex<Index,Meta>::ifor(SizeT step, DExpr ex) const
     {
@@ -89,7 +93,7 @@ namespace CNORXZ
     {
 	return mI->iforh(step, ex);
     }
-
+    */
 }
 
 #endif

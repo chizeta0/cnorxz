@@ -1,5 +1,8 @@
 
-#include "cxz_darray_base.h"
+#ifndef __cxz_darray_base_cc_h__
+#define __cxz_darray_base_cc_h__
+
+#include "darray_base.h"
 
 namespace CNORXZ
 {
@@ -53,14 +56,14 @@ namespace CNORXZ
     {
 	return mInit;
     }
-
+    /*
     template <typename T>
     template <typename I, typename M>
     ConstOperationRoot<T,I> DArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
-	return ConstOperationRoot<T,I>(/**/);
+	return ConstOperationRoot<T,I>();
     }
-
+    */
 
     /*****************
      *  MDArrayBase  *
@@ -95,11 +98,14 @@ namespace CNORXZ
 	return iterator(this->data(), this->cend());
     }
 
+    /*
     template <typename T>
     template <typename I, typename M>
     OperationRoot<T,I> MDArrayBase<T>::operator()(const IndexPtr<I,M>& i)
     {
-	return OperationRoot<T,I>(/**/);
+	return OperationRoot<T,I>();
     }
-
+    */
 }
+
+#endif

@@ -1,5 +1,5 @@
 
-#include "ranges/yindex.h"
+#include "ranges/ranges.h"
 
 namespace CNORXZ
 {
@@ -20,6 +20,12 @@ namespace CNORXZ
 	// init ...!!!
     }
 
+    YIndex& YIndex::sync()
+    {
+	assert(0);
+	return *this;
+    }
+    
     YIndex& YIndex::operator=(SizeT pos)
     {
 	IB::mPos = pos;

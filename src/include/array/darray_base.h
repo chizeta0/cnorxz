@@ -7,10 +7,9 @@
 #include <memory>
 #include <algorithm>
 
-#include "base_def.h"
-#include "mbase_def.h"
-
-#include "ranges/rheader.h"
+#include "base/base.h"
+#include "dcontainer_index.h"
+//#include "operation/"
 
 namespace CNORXZ
 {
@@ -52,8 +51,8 @@ namespace CNORXZ
 	virtual bool isView() const = 0;
 	virtual bool isInit() const;
 
-	template <typename I, typename M>
-	ConstOperationRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
+	//template <typename I, typename M>
+	//ConstOperationRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
     };
 
     template <typename T>
@@ -71,7 +70,7 @@ namespace CNORXZ
 	using DAB::end;
 	using DAB::cbegin;
 	using DAB::cend;
-	using DAB::operator();
+	//using DAB::operator();
 
 	MDArrayBase(const RangePtr& range);
 	DEFAULT_MEMBERS(MDArrayBase);
@@ -89,9 +88,9 @@ namespace CNORXZ
 	
 	virtual iterator begin();
 	virtual iterator end();
-
-	template <typename I, typename M>
-	OperationRoot<T,I> operator()(const IndexPtr<I,M>& i);
+	
+	//template <typename I, typename M>
+	//OperationRoot<T,I> operator()(const IndexPtr<I,M>& i);
     };
 }
 

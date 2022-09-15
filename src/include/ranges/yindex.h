@@ -10,6 +10,8 @@
 
 namespace CNORXZ
 {
+    // YRange!!!!
+    
     // Future DynamicIndex
     //class YIndex : public XIndexBase
     class YIndex : public IndexInterface<YIndex,DType>

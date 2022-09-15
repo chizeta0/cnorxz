@@ -12,6 +12,12 @@ namespace CNORXZ
 	static String func(const T& a);
     };
 
+    template <>
+    struct ToString<String>
+    {
+	static String func(const String& a);
+    };
+    
     template <typename T>
     struct ToString<Vector<T>>
     {

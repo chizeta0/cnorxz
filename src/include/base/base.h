@@ -24,4 +24,6 @@
 
 #include "base.cc.h"
 
+#include "memory/memory.h"
+
 #endif

@@ -47,27 +47,31 @@ namespace CNORXZ
 	    
 	virtual SizeT size() const = 0;
 	virtual SizeT dim() const = 0;
+	virtual const TypeInfo& type() const = 0;
+	virtual const TypeInfo& metaType() const = 0;
+        virtual String stringMeta(SizeT pos) const = 0;
+	virtual XIndexPtr index(SizeT pos = 0) const = 0;
 	
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
 
-	virtual const TypeInfo& type() const = 0;
-	virtual const TypeInfo& metaType() const = 0;
-        virtual String stringMeta(SizeT pos) const = 0;
-
         PtrId id() const;
 	XIndexPtr begin() const;
 	XIndexPtr end() const;
+	RangePtr orig() const;
 	
 	friend RangeFactoryBase;
 	
     protected:
 	
 	RangeBase() = default;
-	std::weak_ptr<RangeBase> mThis;
+	RangeBase(const RangePtr& rel);
+	// delete copy/move???
+	Wptr<RangeBase> mThis;
+	RangePtr mRel; // used, if created from another range, to point on it
     };
 
-    template <class Index>
+    template <class Index, typename Meta>
     class RangeInterface : public RangeBase
     {
     public:
@@ -77,6 +81,7 @@ namespace CNORXZ
 	
 	Index begin() const;
 	Index end() const;
+	virtual XIndexPtr index(SizeT pos) const override final;
 
     protected:
 	RangeInterface() = default;

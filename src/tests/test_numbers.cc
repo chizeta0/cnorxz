@@ -5,6 +5,6 @@ namespace CNORXZ
 {
     namespace Test
     {
-	static Vector<Double> Number::sCont;
+	Vector<Double> Numbers::sCont;
     }
 }

@@ -3,19 +3,20 @@
 #define __cxz_dcontainer_index_cc_h__
 
 #include "dcontainer_index.h"
+#include "statics/static_for.h"
 
 namespace CNORXZ
 {
 
     template <typename T>
     DConstContainerIndex<T>::DConstContainerIndex(const T* data, const RangePtr& range):
-	mI(range->beginX()), mCData(data)
+	mI(range->begin()), mCData(data)
     {
 	assert(0);
     }
 	
     template <typename T>
-    DConstContainerIndex<T>& DConstContainerIndex<T>::operator=(size_t pos)
+    DConstContainerIndex<T>& DConstContainerIndex<T>::operator=(SizeT pos)
     {
 	(*mI) = pos;
 	IB::mPos = mI->pos();
@@ -39,31 +40,31 @@ namespace CNORXZ
     }
 
     template <typename T>
-    int DConstContainerIndex<T>::pp(std::intptr_t idxPtrNum)
+    int DConstContainerIndex<T>::pp(PtrId idxPtrNum)
     {
 	return mI->pp(idxPtrNum);
     }
 
     template <typename T>
-    int DConstContainerIndex<T>::mm(std::intptr_t idxPtrNum)
+    int DConstContainerIndex<T>::mm(PtrId idxPtrNum)
     {
 	return mI->mm(idxPtrNum);
     }
 
     template <typename T>
-    size_t DConstContainerIndex<T>::dim() const
+    SizeT DConstContainerIndex<T>::dim() const
     {
 	return mI->dim();
     }
 
     template <typename T>
-    size_t DConstContainerIndex<T>::getStepSize(size_t n) const
+    SizeT DConstContainerIndex<T>::getStepSize(SizeT n) const
     {
 	return mI->getStepSize(n); // dim() elements only!!!
     }
 
     template <typename T>
-    std::string DConstContainerIndex<T>::stringMeta() const
+    String DConstContainerIndex<T>::stringMeta() const
     {
 	return mI->stringMeta();
     }
@@ -81,19 +82,19 @@ namespace CNORXZ
 	IB::mPos = mI->pos();
 	return *this;
     }
-
+    /*
     template <typename T>
-    DynamicExpression DConstContainerIndex<T>::ifor(size_t step, DynamicExpression ex) const
+    DExpr DConstContainerIndex<T>::ifor(SizeT step, DExpr ex) const
     {
 	return mI->ifor(step, ex);
     }
 
     template <typename T>
-    DynamicExpression DConstContainerIndex<T>::iforh(size_t step, DynamicExpression ex) const
+    DExpr DConstContainerIndex<T>::iforh(SizeT step, DExpr ex) const
     {
 	return mI->iforh(step, ex);
     }
-
+    */
     template <typename T>
     const T& DConstContainerIndex<T>::operator*() const
     {

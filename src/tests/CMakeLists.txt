@@ -1,14 +1,21 @@
 
-add_definitions("-DTEST_NUMBER_FILE=${CMAKE_SOURCE_DIR}/src/tests/numbers.txt")
+add_definitions(-DTEST_NUMBER_FILE="${CMAKE_SOURCE_DIR}/src/tests/numbers.txt")
 
 set(test_SOURCES
   ${CMAKE_SOURCE_DIR}/src/tests/test_numbers.cc
 )
 
+add_library(test_lib STATIC ${test_SOURCES})
+
 #add_executable(iutest ranges/index_unit_test.cc)
 #add_dependencies(iutest cnorxz)
 #target_link_libraries(iutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz)
 #add_test(NAME iutest COMMAND iutest)
+
+add_executable(rutest range_unit_test.cc ${test_SOURCES})
+add_dependencies(rutest cnorxz)
+target_link_libraries(rutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
+add_test(NAME rutest COMMAND dautest)
 
 #add_executable(autest ranges/anonymous_unit_test.cc)
 #add_dependencies(autest cnorxz)
@@ -22,7 +29,7 @@ set(test_SOURCES
 
 add_executable(dautest darray_unit_test.cc ${test_SOURCES})
 add_dependencies(dautest cnorxz)
-target_link_libraries(dautest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz)
+target_link_libraries(dautest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
 add_test(NAME dautest COMMAND dautest)
 
 #add_executable(oputest op_unit_test.cc)

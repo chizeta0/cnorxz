@@ -9,7 +9,6 @@
 
 namespace CNORXZ
 {
-    
     template <class I, typename MetaType>
     class IndexInterface
     {
@@ -20,8 +19,8 @@ namespace CNORXZ
 	const I& THIS() const { return static_cast<const I&>(*this); }
 
 	I& operator=(SizeT pos) { return THIS() = pos; }
-	I& operator++() { return THIS()++; }
-	I& operator--() { return THIS()--;}
+	I& operator++() { return ++THIS(); }
+	I& operator--() { return --THIS();}
 	I operator+(Int n) const { return THIS() + n; }
 	I operator-(Int n) const { return THIS() - n; }
 	I& operator+=(Int n) { return THIS() += n; }
@@ -51,7 +50,7 @@ namespace CNORXZ
 	String stringMeta() const { return THIS().stringMeta(); }
 	auto meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
-
+	/*
 	template <class Expr>
 	auto ifor(SizeT step, const Expr ex) const
 	{ return THIS().template ifor<Expr>(step,ex); }
@@ -59,7 +58,7 @@ namespace CNORXZ
 	template <class Expr>
 	auto iforh(SizeT step, const Expr ex) const
 	{ return THIS().template iforh<Expr>(step,ex); }
-
+	*/
     private:
 	friend I; // why not protected???!!!
 	
@@ -70,7 +69,6 @@ namespace CNORXZ
 	IndexInterface(IndexInterface&& in);
 	IndexInterface& operator=(IndexInterface&& in);
 	IndexInterface(SizeT pos);
-	IndexInterface(SizeT pos, const IndexPtr<I,MetaType>& rel);
 
 	SizeT mPos = 0;
 	PtrId mPtrId = 0;

@@ -16,15 +16,15 @@ namespace CNORXZ
     }
 
     template <typename T>
-    String ToString<vector<T>>::func(const vector& a)
+    String ToString<Vector<T>>::func(const Vector<T>& a)
     {
 	std::stringstream ss;
 	ss << "[";
 	auto it = a.begin();
 	for(; it != a.end()-1; ++it){
-	    ss << *it << ",";
+	    ss << toString(*it) << ",";
 	}
-	ss << *it << "]";
+	ss << toString(*it) << "]";
 	return ss.str();
     }
 
@@ -35,22 +35,16 @@ namespace CNORXZ
 	ss << "(";
 	auto it = a.begin();
 	for(; it != a.end()-1; ++it){
-	    ss << *it << ",";
+	    ss << toString(*it) << ",";
 	}
-	ss << *it << ")";
+	ss << toString(*it) << ")";
 	return ss.str();
-    }
-
-    template <>
-    String ToString<DType>::func(const DType& a)
-    {
-	return a.str();
     }
 
     template <typename T>
     String toString(const T& a)
     {
-	return ToString::func(a);
+	return ToString<T>::func(a);
     }
 }
 

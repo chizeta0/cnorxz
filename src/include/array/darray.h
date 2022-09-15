@@ -2,7 +2,7 @@
 #ifndef __cxz_darray_h__
 #define __cxz_darray_h__
 
-#include "cxz_darray_base.h"
+#include "darray_base.h"
 
 namespace CNORXZ
 {
@@ -19,14 +19,14 @@ namespace CNORXZ
 	using MDArrayBase<T>::operator[];
 
     private:
-	vector<T> mCont;
+	Vector<T> mCont;
 	
     public:
 
 	DEFAULT_MEMBERS(DArray);
 	DArray(const RangePtr& range);
-	DArray(const RangePtr& range, const vector<T>& vec);
-	DArray(const RangePtr& range, vector<T>&& vec);
+	DArray(const RangePtr& range, const Vector<T>& vec);
+	DArray(const RangePtr& range, Vector<T>&& vec);
 
 	virtual const T* data() const override;
 	virtual T* data() override;

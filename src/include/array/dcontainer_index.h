@@ -2,17 +2,16 @@
 #ifndef __cxz_dcontainer_index_h__
 #define __cxz_dcontainer_index_h__
 
-#include "range_base.h"
-#include "index_base.h"
-#include "statics/static_for.h"
-#include "xfor/xfor.h"
+#include "ranges/range_base.h"
+#include "ranges/index_base.h"
+#include "ranges/xfor/xfor.h"
 #include "ranges/xindex.h"
 #include "ranges/yindex.h"
 
 namespace CNORXZ
 {
 
-    
+    // rename: AIndex (A = Array)
     template <typename T>
     class DConstContainerIndex : public IndexInterface<DConstContainerIndex<T>,DType>
     {
@@ -27,32 +26,20 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(DConstContainerIndex);
 	DConstContainerIndex(const T* data, const RangePtr& range);
 	
-    	DConstContainerIndex& operator=(size_t pos);
+    	DConstContainerIndex& operator=(SizeT pos);
 	DConstContainerIndex& operator++();
 	DConstContainerIndex& operator--();
-
-	template <class I, typename M> // fast but unsave
-	DConstContainerIndex operator+(const IndexInterface<I,M>& i);
 	
-	template <class I, typename M> // fast but unsave
-	DConstContainerIndex operator-(const IndexInterface<I,M>& i);
-	
-	template <class I, typename M> // save version of operator+
-	DConstContainerIndex plus(const IndexInterface<I,M>& i);
-	
-	template <class I, typename M> // save version of operator-
-	DConstContainerIndex minus(const IndexInterface<I,M>& i);
-	
-	int pp(std::intptr_t idxPtrNum);
-	int mm(std::intptr_t idxPtrNum);
-	size_t dim() const;
-	size_t getStepSize(size_t n) const;
-	std::string stringMeta() const;
+	int pp(PtrId idxPtrNum);
+	int mm(PtrId idxPtrNum);
+	SizeT dim() const;
+	SizeT getStepSize(SizeT n) const;
+	String stringMeta() const;
 	DType meta() const;
 	DType metaPtr() const;
 	DConstContainerIndex& at(const DType& meta);
-	DynamicExpression ifor(size_t step, DynamicExpression ex) const;
-	DynamicExpression iforh(size_t step, DynamicExpression ex) const;
+	//DExpr ifor(SizeT step, DExpr ex) const;
+	//DExpr iforh(SizeT step, DExpr ex) const;
 
 	const T& operator*() const;
 	const T* operator->() const;

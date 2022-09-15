@@ -24,8 +24,8 @@ namespace CNORXZ
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
-	virtual DExpr ifor(SizeT step, DExpr ex) const = 0;
-	virtual DExpr iforh(SizeT step, DExpr ex) const = 0;
+	//virtual DExpr ifor(SizeT step, DExpr ex) const = 0;
+	//virtual DExpr iforh(SizeT step, DExpr ex) const = 0;
 	// ...!!!
     };
 
@@ -39,6 +39,7 @@ namespace CNORXZ
     public:
 	DEFAULT_MEMBERS(XIndex);
 	XIndex(const IndexPtr<Index,Meta>& i);
+	XIndex(const IndexInterface<Index,Meta>& i);
 
 	virtual XIndex& operator=(SizeT pos) override;
 	virtual XIndex& operator++() override;
@@ -50,8 +51,8 @@ namespace CNORXZ
 	virtual String stringMeta() const override;
 	virtual DType meta() const override;
 	virtual XIndexBase& at(const DType& meta) override;
-	virtual DExpr ifor(SizeT step, DExpr ex) const override;
-	virtual DExpr iforh(SizeT step, DExpr ex) const override;
+	//virtual DExpr ifor(SizeT step, DExpr ex) const override;
+	//virtual DExpr iforh(SizeT step, DExpr ex) const override;
 	// ....!!!!
     };
 

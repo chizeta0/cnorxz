@@ -75,7 +75,7 @@ namespace CNORXZ
 	RangePtr mRef;
     };
 
-    class CRange : public RangeInterface<CIndex>
+    class CRange : public RangeInterface<CIndex,SizeT>
     {
     public:
 	typedef RangeBase RB;

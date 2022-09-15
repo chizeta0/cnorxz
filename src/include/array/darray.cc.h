@@ -1,5 +1,8 @@
 
-#include "cxz_darray.h"
+#ifndef __cxz_darray_cc_h__
+#define __cxz_darray_cc_h__
+
+#include "darray.h"
 
 namespace CNORXZ
 {
@@ -11,11 +14,11 @@ namespace CNORXZ
     DArray<T>::DArray(const RangePtr& range) : MDArrayBase<T>(range), mCont(range->size()) {}
 
     template <typename T>
-    DArray<T>::DArray(const RangePtr& range, const vector<T>& vec) :
+    DArray<T>::DArray(const RangePtr& range, const Vector<T>& vec) :
 	MDArrayBase<T>(range), mCont(vec) {}
 
     template <typename T>
-    DArray<T>::DArray(const RangePtr& range, vector<T>&& vec) :
+    DArray<T>::DArray(const RangePtr& range, Vector<T>&& vec) :
 	MDArrayBase<T>(range), mCont(vec) {}
 
     template <typename T>
@@ -51,3 +54,5 @@ namespace CNORXZ
     }
     
 }
+
+#endif

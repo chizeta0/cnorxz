@@ -42,7 +42,7 @@ namespace CNORXZ
 	String stringMeta() const;
 	const MetaType& meta() const;
 	UIndex& at(const MetaType& metaPos);
-
+	/*
 	template <class Expr>
 	auto ifor(SizeT step, Expr ex) const
 	    -> For<UIndex<MetaType>,Expr>;
@@ -54,7 +54,7 @@ namespace CNORXZ
         template <class Expr>
 	auto pifor(SizeT step, Expr ex) const
 	    -> PFor<UIndex<MetaType>,Expr>;
-        
+	*/
     private:
 	Sptr<RangeType> mRangePtr;
 	const MetaType* mMetaPtr;
@@ -79,7 +79,7 @@ namespace CNORXZ
     };
 
     template <typename MetaType>
-    class URange : public RangeInterface<UIndex<MetaType>>
+    class URange : public RangeInterface<UIndex<MetaType>,MetaType>
     {
     public:
 	typedef RangeBase RB;
