@@ -7,6 +7,6 @@
 //#include "subrange.h"
 //#include "value_range.h"
 #include "xindex.h"
-#include "yindex.h"
+#include "yrange.h"
 
 #include "ranges.cc.h"

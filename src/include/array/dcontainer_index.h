@@ -6,7 +6,7 @@
 #include "ranges/index_base.h"
 #include "ranges/xfor/xfor.h"
 #include "ranges/xindex.h"
-#include "ranges/yindex.h"
+#include "ranges/yrange.h"
 
 namespace CNORXZ
 {

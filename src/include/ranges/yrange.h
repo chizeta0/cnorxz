@@ -1,6 +1,6 @@
 
-#ifndef __cxz_yindex_h__
-#define __cxz_yindex_h__
+#ifndef __cxz_yrange_h__
+#define __cxz_yrange_h__
 
 #include "base/base.h"
 #include "range_base.h"
