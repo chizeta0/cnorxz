@@ -105,9 +105,9 @@ namespace CNORXZ
     }
     
     
-    /***************
-     *   CRange    *
-     ***************/
+    /**********************
+     *   CRangeFactory    *
+     **********************/
 
     CRangeFactory::CRangeFactory(SizeT size) :
 	mSize(size) {}
@@ -118,13 +118,13 @@ namespace CNORXZ
     void CRangeFactory::make()
     {
 	if(mRef != nullptr) {
-	    mProd = this->fromCreated(typeid(oType), {mRef->id()});
+	    mProd = this->fromCreated(typeid(CRange), {mRef->id()});
 	}
 	if(mProd == nullptr){
-	    RangePtr key = mProd = std::shared_ptr<oType>
+	    RangePtr key = mProd = std::shared_ptr<CRange>
 		( new CRange( mSize ) );
 	    if(mRef != nullptr) { key = mRef; }
-	    this->addToCreated(typeid(oType), { key->id() }, mProd);
+	    this->addToCreated(typeid(CRange), { key->id() }, mProd);
 	}
     }
     

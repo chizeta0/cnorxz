@@ -69,13 +69,12 @@ namespace CNORXZ
 	URangeFactory(const Vector<MetaType>& space, const RangePtr& ref);
         URangeFactory(Vector<MetaType>&& space, const RangePtr& ref);
 	
-    protected:
-	URangeFactory() = default;
-	virtual void make() override;
-
     private:
+	URangeFactory() = default;
+	virtual void make() override final;
+
 	Vector<MetaType> mSpace;
-	RangePtr mRef = nullptr;
+	RangePtr mRef;
     };
 
     template <typename MetaType>
@@ -84,21 +83,19 @@ namespace CNORXZ
     public:
 	typedef RangeBase RB;
 	typedef UIndex<MetaType> IndexType;
-	typedef URangeFactory<MetaType> FType; 
 	
 	friend URangeFactory<MetaType>;
 
-	virtual SizeT size() const final;
-	virtual SizeT dim() const final;
-	virtual String stringMeta(SizeT pos) const final;
-	virtual IndexType begin() const final;
-	virtual IndexType end() const final;
+	virtual SizeT size() const override final;
+	virtual SizeT dim() const override final;
+	virtual String stringMeta(SizeT pos) const override final;
+	virtual IndexType begin() const override final;
+	virtual IndexType end() const override final;
 
 	const MetaType& get(SizeT pos) const;
 	SizeT getMeta(const MetaType& metaPos) const;
 	
-		
-    protected:
+    private:
 
 	URange() = delete;
 	URange(const URange& in) = delete;

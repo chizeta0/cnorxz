@@ -18,34 +18,87 @@ namespace CNORXZ
     {
     public:
 	typedef IndexInterface<YIndex,DType> IB;
+	typedef YRange RangeType;
 	
+	DEFAULT_MEMBERS(YIndex);
+	YIndex(const RangePtr& range, SizeT pos = 0);
+	YIndex(const RangePtr& range, const Vector<XIndexPtr>& is, SizeT pos = 0);
+
+	YIndex& sync();
+
+	YIndex& operator=(SizeT pos);
+	YIndex& operator++();
+	YIndex& operator--();
+	YIndex operator+(Int n) const;
+	YIndex operator-(Int n) const;
+	YIndex& operator+=(Int n);
+	YIndex& operator-=(Int n);
+
+	DType operator*() const;
+	DType operator->() const;
+
+	Int pp(PtrId idxPtrNum);
+	Int mm(PtrId idxPtrNum);
+
+	SizeT dim() const;
+	Sptr<YRange> range() const;
+	SizeT getStepSize(SizeT n) const;
+
+	String stringMeta() const;
+	DType meta() const;
+	YIndex& at(const DType& meta);
+
+	//DExpr ifor(SizeT step, DExpr ex) const;
+	//DExpr iforh(SizeT step, DExpr ex) const;
+
     private:
-	RangePtr mRange;
+
+	Sptr<YRange> mRangePtr;
 	Vector<XIndexPtr> mIs;
 	Vector<SizeT> mBlockSizes; // dim() elements only!!!
 	bool mExternalControl = false;
 
-    public:
-
-	DEFAULT_MEMBERS(YIndex);
-	YIndex(const RangePtr& range);
-	YIndex(const RangePtr& range, const Vector<XIndexPtr>& is);
-
-	YIndex& sync();
-    	YIndex& operator=(SizeT pos);
-	YIndex& operator++();
-	YIndex& operator--();
-	int pp(PtrId idxPtrNum);
-	int mm(PtrId idxPtrNum);
-	size_t dim() const;
-	size_t getStepSize(SizeT n) const;
-	String stringMeta() const;
-	DType meta() const;
-	YIndex& at(const DType& meta);
-	DExpr ifor(SizeT step, DExpr ex) const;
-	DExpr iforh(SizeT step, DExpr ex) const;
     };
 
+    class YRangeFactory : public RangeFactoryBase
+    {
+    public:
+	YRangeFactory(const Vector<RangePtr>& rvec);
+	YRangeFactory(Vector<RangePtr>&& rvec);
+	YRangeFactory(const Vector<RangePtr>& rvec, const RangePtr& ref);
+	YRangeFactory(Vector<RangePtr>&& rvec, const RangePtr& ref);
+
+    private:
+	YRangeFactory() = default;
+	virtual void make() override final;
+
+	Vector<RangePtr> mRVec;
+	RangePtr mRef;
+    };
+
+    class YRange : public RangeInterface<YIndex,DType>
+    {
+    public:
+	typedef RangeBase RB;
+	typedef YIndex IndexType;
+
+	friend YRangeFactory;
+
+	virtual SizeT size() const override final;
+	virtual SizeT dim() const override final;
+	virtual String stringMeta(SizeT pos) const override final;
+	virtual const TypeInfo& type() const override final;
+	virtual const TypeInfo& metaType() const override final;
+
+    private:
+
+	YRange() = delete;
+	YRange(const YRange& a) = delete;
+	YRange(const Vector<RangePtr>& rvec);
+	YRange(Vector<RangePtr>&& rvec);
+
+	Vector<RangePtr> mRVec;
+    };
 }
 
 #endif
