@@ -35,7 +35,7 @@ namespace CNORXZ
 	template <typename T>
 	DType& operator=(const T& d);
 
-	std::string str() const { return mToStr(); }
+	String str() const { return mToStr(); }
 	const std::any& get() const { return mD; }
 
 	bool operator==(const DType& a) const { return mComp(a.mD) == 0; }

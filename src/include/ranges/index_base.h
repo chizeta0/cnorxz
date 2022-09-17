@@ -59,6 +59,9 @@ namespace CNORXZ
 	auto iforh(SizeT step, const Expr ex) const
 	{ return THIS().template iforh<Expr>(step,ex); }
 	*/
+    protected:
+	SizeT mPos = 0;
+	
     private:
 	friend I; // why not protected???!!!
 	
@@ -70,10 +73,15 @@ namespace CNORXZ
 	IndexInterface& operator=(IndexInterface&& in);
 	IndexInterface(SizeT pos);
 
-	SizeT mPos = 0;
 	PtrId mPtrId = 0;
     };
 
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i);
+
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType>& operator--(const IndexPtr<I,MetaType>& i);
+    
     // to define relative indices:
     template <class I, typename MetaType>
     IndexPtr<I,MetaType> operator+(const IndexPtr<I,MetaType>& i, Int n);

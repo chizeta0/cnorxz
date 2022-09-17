@@ -15,6 +15,7 @@ namespace CNORXZ
     DType::DType(const T& d) : mD(d)
     {
 	_mkToStr<T>();
+	_mkComp<T>();
     }
 
     template <typename T>
@@ -22,6 +23,7 @@ namespace CNORXZ
     {
 	mD = d;
 	_mkToStr<T>();
+	_mkComp<T>();
 	return *this;
     }
 
@@ -43,10 +45,10 @@ namespace CNORXZ
 	    else {
 		auto& at = std::any_cast<const T&>(a);
 		auto& dt = std::any_cast<const T&>(mD);
-		if(std::equal_to(dt,at)){
+		if(std::equal_to<T>{}(dt,at)){
 		    return 0;
 		}
-		else if(std::less(dt,at)){
+		else if(std::less<T>{}(dt,at)){
 		    return -1;
 		}
 		else {

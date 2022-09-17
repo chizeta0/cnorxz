@@ -100,6 +100,36 @@ namespace CNORXZ
 	assert(mPtrId == reinterpret_cast<PtrId>(this));
 	return mPtrId;
     }
+
+    /****************************
+     *   Non-member functions   *
+     ****************************/
+    
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i)
+    {
+	++(*i);
+	return i;
+    }
+
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType>& operator--(const IndexPtr<I,MetaType>& i)
+    {
+	--(*i);
+	return i;
+    }
+
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType> operator+(const IndexPtr<I,MetaType>& i, Int n)
+    {
+	return std::make_shared<IndexInterface<I,MetaType>>( *i + n );
+    }
+
+    template <class I, typename MetaType>
+    IndexPtr<I,MetaType> operator-(const IndexPtr<I,MetaType>& i, Int n)
+    {
+	return std::make_shared<IndexInterface<I,MetaType>>( *i - n );
+    }
 }
 
 #endif
