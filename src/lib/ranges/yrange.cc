@@ -10,7 +10,7 @@ namespace CNORXZ
     YIndex::YIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<YIndex,DType>(pos),
 	mRangePtr(rangeCast<YRange>(range)), mIs(mRangePtr->dim()),
-	mBlockSizes(mRangePtr->dim()), mExternalControl(false)
+	mBlockSizes(mRangePtr->dim())
     {
 	assert(0);
 	// init ...!!!
@@ -19,7 +19,7 @@ namespace CNORXZ
     YIndex::YIndex(const RangePtr& range, const Vector<XIndexPtr>& is, SizeT pos) :
 	IndexInterface<YIndex,DType>(pos),
 	mRangePtr(rangeCast<YRange>(range)), mIs(is),
-	mBlockSizes(mRangePtr->dim()), mExternalControl(false)
+	mBlockSizes(mRangePtr->dim())
     {
 	CXZ_ASSERT(mIs.size() == mRangePtr->dim(), "obtained wrong number of indices");
 	assert(0);
@@ -42,7 +42,6 @@ namespace CNORXZ
     
     YIndex& YIndex::operator++()
     {
-	if(mExternalControl) this->sync();
 	assert(0);
 	// increment sub inds (LAZY!!!) !!!
 	++mPos;
@@ -51,7 +50,6 @@ namespace CNORXZ
     
     YIndex& YIndex::operator--()
     {
-	if(mExternalControl) this->sync();
 	assert(0);
 	// decrement sub inds (LAZY!!!) !!!
 	--mPos;
@@ -91,14 +89,12 @@ namespace CNORXZ
     DType YIndex::operator*() const
     {
 	assert(0);
-	// sub inds !!!
 	return DType();
     }
     
     DType YIndex::operator->() const
     {
 	assert(0);
-	// sub inds !!!
 	return DType();
     }
 	
@@ -141,7 +137,6 @@ namespace CNORXZ
    
     DType YIndex::meta() const
     {
-	//this->sync();
 	Vector<DType> v(mIs.size());
 	std::transform(mIs.begin(), mIs.end(), v.begin(), [](auto& x) { return x->meta(); });
 	return DType(v);

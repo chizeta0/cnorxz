@@ -8,7 +8,7 @@
 #include <algorithm>
 
 #include "base/base.h"
-#include "dcontainer_index.h"
+#include "aindex.h"
 //#include "operation/"
 
 namespace CNORXZ
@@ -17,7 +17,7 @@ namespace CNORXZ
     class DArrayBase
     {
     public:
-	typedef DConstContainerIndex<T> const_iterator;
+	typedef AIndex<T> const_iterator;
 
     protected:
 	RangePtr mRange;
@@ -37,10 +37,10 @@ namespace CNORXZ
 	const T& at(const IndexInterface<I,M>& i) const;
 
 	template <typename I, typename M>
-	DArrayBase sl(const IndexInterface<I,M>& i) const;
+	Sptr<DArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
 	
 	virtual const T* data() const = 0;
-	virtual size_t size() const;
+	virtual SizeT size() const;
 	virtual RangePtr range() const;
 
 	virtual const_iterator begin() const;
@@ -61,7 +61,7 @@ namespace CNORXZ
     public:
 	typedef DArrayBase<T> DAB;
 	typedef typename DAB::const_iterator const_iterator;
-	typedef DContainerIndex<T> iterator;
+	typedef BIndex<T> iterator;
 
 	using DAB::operator[];
 	using DAB::at;
@@ -82,7 +82,7 @@ namespace CNORXZ
 	T& at(const IndexInterface<I,M>& i);
 
 	template <typename I, typename M>
-	std::shared_ptr<DArrayBase<T>> sl(const IndexInterface<I,M>& i);
+	Sptr<MDArrayBase<T>> sl(const IndexInterface<I,M>& i);
 
 	virtual T* data() = 0;
 	

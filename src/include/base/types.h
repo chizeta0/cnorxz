@@ -59,11 +59,14 @@ namespace CNORXZ
 	S = Static
 	P = Partial = Sub
 	C = Classic
-	M = Multi or !const
+	M = Multi (Index,Ranges) or !const (Container)
 	U = One(=Uni) dimensional
 	N = None = Null
+	E = Extension (SSE,AVX,etc dof)
 	T = Thread
 	R = Rank
+	A = (const) Array
+	B = (mutable) Array
      ***/
     
     // definition: base/dtype.h

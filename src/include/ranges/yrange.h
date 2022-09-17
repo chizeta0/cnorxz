@@ -24,7 +24,7 @@ namespace CNORXZ
 	YIndex(const RangePtr& range, SizeT pos = 0);
 	YIndex(const RangePtr& range, const Vector<XIndexPtr>& is, SizeT pos = 0);
 
-	YIndex& sync();
+	YIndex& sync(); // remove!!!
 
 	YIndex& operator=(SizeT pos);
 	YIndex& operator++();
@@ -56,7 +56,6 @@ namespace CNORXZ
 	Sptr<YRange> mRangePtr;
 	Vector<XIndexPtr> mIs;
 	Vector<SizeT> mBlockSizes; // dim() elements only!!!
-	bool mExternalControl = false;
 
     };
 

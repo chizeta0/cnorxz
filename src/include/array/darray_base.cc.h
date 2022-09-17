@@ -28,7 +28,7 @@ namespace CNORXZ
     }
 
     template <typename T>
-    size_t DArrayBase<T>::size() const
+    SizeT DArrayBase<T>::size() const
     {
 	return mRange->size();
     }
