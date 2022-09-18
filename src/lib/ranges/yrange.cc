@@ -116,6 +116,11 @@ namespace CNORXZ
     {
 	return mRangePtr->dim();
     }
+
+    Sptr<YRange> YIndex::range() const
+    {
+	return mRangePtr;
+    }
     
     SizeT YIndex::getStepSize(SizeT n) const
     {
