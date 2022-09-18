@@ -3,6 +3,7 @@
 #define __cxz_range_base_cc_h__
 
 #include "range_base.h"
+#include "dindex.h"
 
 namespace CNORXZ
 {
@@ -19,9 +20,9 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    XIndexPtr RangeInterface<Index,Meta>::index(SizeT pos) const
+    DIndex RangeInterface<Index,Meta>::index(SizeT pos) const
     {
-	return std::make_shared<XIndex<Index,Meta>>( this->begin()+pos );
+	return XIndexPtr(std::make_shared<XIndex<Index,Meta>>( this->begin()+pos ));
     }
 	
     template <class Range>

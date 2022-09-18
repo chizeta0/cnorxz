@@ -13,19 +13,28 @@ namespace CNORXZ
     
     template <class Index, typename Meta>
     XIndex<Index,Meta>::XIndex(const IndexPtr<Index,Meta>& i) :
-	XIndexBase(i->pos()),
 	mI(i) {}
 
     template <class Index, typename Meta>
     XIndex<Index,Meta>::XIndex(const IndexInterface<Index,Meta>& i) :
-	XIndexBase(i.pos()),
 	mI(std::make_shared<Index>(i.THIS())) {}
+
+    template <class Index, typename Meta>
+    XIndexPtr XIndex<Index,Meta>::copy() const
+    {
+	return std::make_shared<XIndex<Index,Meta>>(mI->THIS());
+    }
+
+    template <class Index, typename Meta>
+    SizeT XIndex<Index,Meta>::pos() const
+    {
+	return mI->pos();
+    }
 
     template <class Index, typename Meta>
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator=(SizeT pos)
     {
 	*mI = pos;
-	IB::mPos = mI->pos();
 	return *this;
     }
 
@@ -33,7 +42,6 @@ namespace CNORXZ
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator++()
     {
 	++(*mI);
-	IB::mPos = mI->pos();
 	return *this;
     }
 
@@ -41,7 +49,6 @@ namespace CNORXZ
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator--()
     {
 	--(*mI);
-	IB::mPos = mI->pos();
 	return *this;
     }
 
@@ -61,7 +68,6 @@ namespace CNORXZ
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator+=(Int n)
     {
 	(*mI) += n;
-	IB::mPos = mI->pos();
 	return *this;
     }
     
@@ -69,7 +75,6 @@ namespace CNORXZ
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator-=(Int n)
     {
 	(*mI) -= n;
-	IB::mPos = mI->pos();
 	return *this;
     }
 
@@ -89,7 +94,6 @@ namespace CNORXZ
     Int XIndex<Index,Meta>::pp(PtrId idxPtrNum)
     {
 	Int out = mI->pp(idxPtrNum);
-	IB::mPos = mI->pos();
 	return out;
     }
 
@@ -97,7 +101,6 @@ namespace CNORXZ
     Int XIndex<Index,Meta>::mm(PtrId idxPtrNum)
     {
 	Int out = mI->mm(idxPtrNum);
-	IB::mPos = mI->pos();
 	return out;
     }
 
@@ -136,7 +139,6 @@ namespace CNORXZ
     {
 	// check!!!
 	mI->at(std::any_cast<const Meta&>(meta.get()));
-	IB::mPos = mI->pos();
 	return *this;
     }
     /*

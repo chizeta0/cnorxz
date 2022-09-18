@@ -154,6 +154,9 @@ namespace CNORXZ
 
     typedef Sptr<XIndexBase> XIndexPtr;
 
+    // definition: ranges/dindex.h
+    class DIndex;
+    
     // definition: ranges/yrange.h
     class YRange; // dynamic multi range
     

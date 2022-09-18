@@ -50,14 +50,14 @@ namespace CNORXZ
 	virtual const TypeInfo& type() const = 0;
 	virtual const TypeInfo& metaType() const = 0;
         virtual String stringMeta(SizeT pos) const = 0;
-	virtual XIndexPtr index(SizeT pos = 0) const = 0;
+	virtual DIndex index(SizeT pos = 0) const = 0;
 	
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
 
         PtrId id() const;
-	XIndexPtr begin() const;
-	XIndexPtr end() const;
+	DIndex begin() const;
+	DIndex end() const;
 	RangePtr orig() const;
 	
 	friend RangeFactoryBase;
@@ -81,7 +81,7 @@ namespace CNORXZ
 	
 	Index begin() const;
 	Index end() const;
-	virtual XIndexPtr index(SizeT pos) const override final;
+	virtual DIndex index(SizeT pos) const override final;
 
     protected:
 	RangeInterface() = default;

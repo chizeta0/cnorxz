@@ -1,5 +1,5 @@
 
-#include "ranges/range_base.h"
+#include "ranges/ranges.h"
 
 namespace CNORXZ
 {
@@ -51,15 +51,15 @@ namespace CNORXZ
     
     PtrId RangeBase::id() const
     {
-        return reinterpret_cast<std::intptr_t>(this);
+        return reinterpret_cast<PtrId>(this);
     }
 
-    XIndexPtr RangeBase::begin() const
+    DIndex RangeBase::begin() const
     {
 	return this->index(0);
     }
     
-    XIndexPtr RangeBase::end() const
+    DIndex RangeBase::end() const
     {
 	return this->index(this->size());
     }

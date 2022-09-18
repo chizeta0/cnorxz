@@ -9,19 +9,18 @@
 namespace CNORXZ
 {
     // Future IndexWrapper
-    class XIndexBase : public IndexInterface<XIndexBase,DType>
+    class XIndexBase
     {
     public:
-	typedef IndexInterface<XIndexBase,DType> IB;
-	
 	DEFAULT_MEMBERS(XIndexBase);
-	XIndexBase(SizeT pos) : IndexInterface<XIndexBase,DType>(pos) {}
+	virtual XIndexPtr copy() const = 0;
+	virtual SizeT pos() const = 0;
 	
 	virtual XIndexBase& operator=(SizeT pos) = 0;
 	virtual XIndexBase& operator++() = 0;
 	virtual XIndexBase& operator--() = 0;
-	virtual Sptr<XIndexBase> operator+(Int n) const = 0;
-	virtual Sptr<XIndexBase> operator-(Int n) const = 0;
+	virtual XIndexPtr operator+(Int n) const = 0;
+	virtual XIndexPtr operator-(Int n) const = 0;
 	virtual XIndexBase& operator+=(Int n) = 0;
 	virtual XIndexBase& operator-=(Int n) = 0;
 
@@ -52,18 +51,24 @@ namespace CNORXZ
     class XIndex : public XIndexBase
     {
     public:
-	typedef XIndexBase XIB;
-	typedef XIB::IB IB;
-	
-	DEFAULT_MEMBERS(XIndex);
+
+	DEFAULT_C(XIndex);
+	// no default copy/assignment (have to copy objects in shared ptr)
+	XIndex(const XIndex& i);
+	XIndex(XIndex&& i);
+	XIndex& operator=(const XIndex& i);
+	XIndex& operator=(XIndex&& i);
 	XIndex(const IndexPtr<Index,Meta>& i);
 	XIndex(const IndexInterface<Index,Meta>& i);
+
+	virtual XIndexPtr copy() const override final;
+	virtual SizeT pos() const override final;
 
 	virtual XIndex& operator=(SizeT pos) override final;
 	virtual XIndex& operator++() override final;
 	virtual XIndex& operator--() override final;
-	virtual Sptr<XIndexBase> operator+(Int n) const override final;
-	virtual Sptr<XIndexBase> operator-(Int n) const override final;
+	virtual XIndexPtr operator+(Int n) const override final;
+	virtual XIndexPtr operator-(Int n) const override final;
 	virtual XIndex& operator+=(Int n) override final;
 	virtual XIndex& operator-=(Int n) override final;
 

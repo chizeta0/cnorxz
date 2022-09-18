@@ -35,16 +35,16 @@ namespace {
 	EXPECT_EQ(crx->begin().pos(), 0);
 	EXPECT_EQ(crx->end().pos(), mSize);
 
-	EXPECT_EQ(*cr->begin() != *cr->end(), true);
-	EXPECT_EQ(cr->begin()->pos(), 0);
-	EXPECT_EQ(cr->end()->pos(), mSize);
+	EXPECT_EQ(cr->begin() != cr->end(), true);
+	EXPECT_EQ(cr->begin().pos(), 0);
+	EXPECT_EQ(cr->end().pos(), mSize);
 
 	
 	SizeT cnt = 0;
 	auto endxi = cr->end();
-	for(auto xi = cr->begin(); *xi != *endxi; ++(*xi)){
-	    EXPECT_EQ(xi->pos(), cnt);
-	    EXPECT_EQ(*(*xi), cnt);
+	for(auto xi = cr->begin(); xi != endxi; ++xi){
+	    EXPECT_EQ(xi.pos(), cnt);
+	    EXPECT_EQ(*xi, cnt);
 	    ++cnt;
 	}
 	

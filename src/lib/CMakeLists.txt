@@ -5,6 +5,7 @@ set(libcnorxz_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/range_base.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/yrange.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/crange.cc
+  ${CMAKE_SOURCE_DIR}/src/lib/ranges/dindex.cc
   )
 
 add_library(cnorxz_obj OBJECT

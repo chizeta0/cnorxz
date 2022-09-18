@@ -8,5 +8,6 @@
 //#include "value_range.h"
 #include "xindex.h"
 #include "yrange.h"
+#include "dindex.h"
 
 #include "ranges.cc.h"
