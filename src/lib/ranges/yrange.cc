@@ -122,13 +122,20 @@ namespace CNORXZ
 	return mRangePtr;
     }
     
-    SizeT YIndex::getStepSize(SizeT n) const
+    SizeT YIndex::getStepSize(PtrId iptr) const
     {
 	assert(0);
 	// sub inds !!!
 	return 0;
     }
-    
+
+    Int YIndex::getOffset(PtrId iptr) const
+    {
+	assert(0);
+	// sub inds !!!
+	return 0;
+    }
+
     String YIndex::stringMeta() const
     {
 	String out = "[";

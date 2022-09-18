@@ -116,9 +116,14 @@ namespace CNORXZ
 	return mI->range();
     }
     
-    SizeT DIndex::getStepSize(SizeT n) const
+    SizeT DIndex::getStepSize(PtrId iptr) const
     {
-	return mI->getStepSize(n);
+	return mI->getStepSize(iptr);
+    }
+
+    Int DIndex::getOffset(PtrId iptr) const
+    {
+	return mI->getOffset(iptr);
     }
 
     String DIndex::stringMeta() const

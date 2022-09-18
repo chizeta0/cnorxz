@@ -14,8 +14,8 @@ namespace CNORXZ
      *****************/
 
     template <typename MetaType>
-    UIndex<MetaType>::UIndex(const RangePtr& range) :
-	IndexInterface<UIndex<MetaType>,MetaType>(0),
+    UIndex<MetaType>::UIndex(const RangePtr& range, SizeT pos) :
+	IndexInterface<UIndex<MetaType>,MetaType>(pos),
 	mRangePtr(rangeCast<MetaType>(range)),
 	mMetaPtr(&mRangePtr->get(0))
     {}
@@ -41,6 +41,44 @@ namespace CNORXZ
 	return *this;
     }
 
+    template <typename MetaType>
+    UIndex<MetaType> UIndex<MetaType>::operator+(Int n) const
+    {
+	return UIndex(mRangePtr, IB::mPos + n);
+    }
+    
+    template <typename MetaType>
+    UIndex<MetaType> UIndex<MetaType>::operator-(Int n) const
+    {
+	return UIndex(mRangePtr, IB::mPos - n);
+    }
+    
+    template <typename MetaType>
+    UIndex<MetaType>& UIndex<MetaType>::operator+=(Int n)
+    {
+	IB::mPos += n;
+	return *this;
+    }
+    
+    template <typename MetaType>
+    UIndex<MetaType>& UIndex<MetaType>::operator-=(Int n)
+    {
+	IB::mPos -= n;
+	return *this;
+    }
+
+    template <typename MetaType>
+    const MetaType& UIndex<MetaType>::operator*() const
+    {
+	return mMetaPtr[IB::mPos];
+    }
+    
+    template <typename MetaType>
+    const MetaType* UIndex<MetaType>::operator->() const
+    {
+	return mMetaPtr + IB::mPos;
+    }
+	
     template <typename MetaType>
     Int UIndex<MetaType>::pp(PtrId idxPtrNum)
     {
@@ -87,9 +125,15 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    SizeT UIndex<MetaType>::getStepSize(SizeT n) const
+    SizeT UIndex<MetaType>::getStepSize(PtrId iptr) const
     {
-	return 1;
+	return iptr == this->ptrId() ? 1 : 0;
+    }
+    
+    template <typename MetaType>
+    Int UIndex<MetaType>::getOffset(PtrId iptr) const
+    {
+	return 0;
     }
     /*
     template <typename MetaType>

@@ -10,7 +10,7 @@ namespace CNORXZ
     CIndex::CIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<CIndex,SizeT>(pos), mRangePtr(rangeCast<RangeType>(range))
     {}
-
+    
     CIndex& CIndex::operator=(SizeT pos)
     {
 	IB::mPos = pos;
@@ -83,9 +83,14 @@ namespace CNORXZ
 	return mRangePtr;
     }
     
-    SizeT CIndex::getStepSize(SizeT n) const
+    SizeT CIndex::getStepSize(PtrId iptr) const
     {
-	return 1;
+	return iptr == this->ptrId() ? 1 : 0;
+    }
+
+    Int CIndex::getOffset(PtrId iptr) const
+    {
+	return 0;
     }
 
     String CIndex::stringMeta() const

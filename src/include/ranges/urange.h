@@ -19,7 +19,7 @@ namespace CNORXZ
 	typedef IndexInterface<UIndex<MetaType>,MetaType> IB;
 	typedef URange<MetaType> RangeType;
 
-	UIndex(const RangePtr& range);
+	UIndex(const RangePtr& range, SizeT pos = 0);
 	
 	UIndex& operator=(SizeT pos);
 	UIndex& operator++();
@@ -37,7 +37,8 @@ namespace CNORXZ
 
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
-	SizeT getStepSize(SizeT n) const;
+	SizeT getStepSize(PtrId iptr) const;
+	Int getOffset(PtrId iptr) const;
 
 	String stringMeta() const;
 	const MetaType& meta() const;

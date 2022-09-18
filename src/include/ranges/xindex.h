@@ -32,7 +32,8 @@ namespace CNORXZ
 
 	virtual SizeT dim() const = 0;
 	virtual RangePtr range() const = 0;
-	virtual SizeT getStepSize(SizeT n) const = 0;
+	virtual SizeT getStepSize(PtrId iptr) const = 0;
+	virtual Int getOffset(PtrId iptr) const = 0;
 
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
@@ -80,7 +81,8 @@ namespace CNORXZ
 
 	virtual SizeT dim() const override final;
 	virtual RangePtr range() const override final;
-	virtual SizeT getStepSize(SizeT n) const override final;
+	virtual SizeT getStepSize(PtrId iptr) const override final;
+	virtual Int getOffset(PtrId iptr) const override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;

@@ -117,9 +117,15 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    SizeT XIndex<Index,Meta>::getStepSize(SizeT n) const
+    SizeT XIndex<Index,Meta>::getStepSize(PtrId iptr) const
     {
-	return mI->getStepSize(n);
+	return mI->getStepSize(iptr);
+    }
+    
+    template <class Index, typename Meta>
+    Int XIndex<Index,Meta>::getOffset(PtrId iptr) const
+    {
+	return mI->getOffset(iptr);
     }
 
     template <class Index, typename Meta>

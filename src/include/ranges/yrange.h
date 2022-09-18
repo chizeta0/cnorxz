@@ -42,7 +42,8 @@ namespace CNORXZ
 
 	SizeT dim() const;
 	Sptr<YRange> range() const;
-	SizeT getStepSize(SizeT n) const;
+	SizeT getStepSize(PtrId iptr) const;
+	Int getOffset(PtrId iptr) const;
 
 	String stringMeta() const;
 	DType meta() const;

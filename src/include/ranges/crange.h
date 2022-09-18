@@ -35,8 +35,9 @@ namespace CNORXZ
 
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
-	SizeT getStepSize(SizeT n) const;
-
+	SizeT getStepSize(PtrId iptr) const;
+	Int getOffset(PtrId iptr) const;
+	
 	String stringMeta() const;
 	SizeT meta() const;
 	CIndex& at(const SizeT& metaPos);

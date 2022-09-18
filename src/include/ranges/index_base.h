@@ -45,10 +45,9 @@ namespace CNORXZ
 	
 	SizeT dim() const { return THIS().dim(); }
 	auto range() const { return THIS().range(); }
-	// TODO: getStepSize(PtrId iptr) !!!!
-	SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
-	Int getOffset(PtrId iptr) const
-	{ if(mRel) if(iptr == mRel->ptrId()) return mPos - mRel.pos(); return 0; } 
+	SizeT getStepSize(PtrId iptr) const { return THIS().getStepSize(iptr); }
+	//SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
+	Int getOffset(PtrId iptr) const { return THIS().getOffset(iptr); }
 	
 	String stringMeta() const { return THIS().stringMeta(); }
 	auto meta() const { return THIS().meta(); }
@@ -77,7 +76,6 @@ namespace CNORXZ
 	IndexInterface(SizeT pos);
 
 	PtrId mPtrId = 0;
-	IndexPtr<I,MetaType> mRel;
     };
 
     template <class I, typename MetaType>
