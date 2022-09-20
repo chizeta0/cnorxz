@@ -67,6 +67,7 @@ namespace CNORXZ
 	R = Rank
 	A = (const) Array
 	B = (mutable) Array
+	F = Functional, Map,...
      ***/
     
     // definition: base/dtype.h

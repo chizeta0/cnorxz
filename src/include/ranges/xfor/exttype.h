@@ -18,116 +18,178 @@ namespace CNORXZ
 	virtual Uptr<VPosBase> copy() const = 0;
 	virtual SizeT vsize() const = 0;
 	virtual const SizeT& vval() const = 0;
-	virtual VPosBase& vzero() = 0;
+	virtual const VPosBase* vnext() const = 0;
+	virtual Uptr<VPosBase> vplus(const VPosBase* a) const = 0;
+	virtual Uptr<VPosBase> vtimes(SizeT a) const = 0;
 	virtual Uptr<VPosBase> vextend(const DPos& a) const = 0;
-	virtual Uptr<VPosBase> vextend(const MPos<NPos>& a) const = 0;
+	virtual Uptr<VPosBase> vextend(const UPos& a) const = 0;
+	virtual Uptr<VPosBase> vextend(const FPos& a) const = 0;
     };
 
     template <class PosT>
-    class PosInterface
+    class CPosInterface
     {
     public:
-	DEFAULT_MEMBERS(PosInterface);
+	DEFAULT_MEMBERS(CPosInterface);
 
 	PosT& THIS() { return static_cast<PosT&>(*this); }
 	const PosT& THIS() const { return static_cast<const PosT&>(*this); }
 	
 	inline SizeT size() const { return THIS().size(); }
 	inline const SizeT& val() const { return THIS().val(); }
-	inline auto next() const { return THIS().next(); }
-	inline bool operator==(const PosInterface<PosT>& a) const { return val() == a.val() and next() == a.next(); }
-	inline bool operator!=(const PosInterface<PosT>& a) const { return val() != a.val() or next() != a.next(); }
+	inline const auto& next() const { return THIS().next(); }
+	inline bool operator==(const CPosInterface<PosT>& a) const { return val() == a.val() and next() == a.next(); }
+	inline bool operator!=(const CPosInterface<PosT>& a) const { return val() != a.val() or next() != a.next(); }
 	inline bool operator==(SizeT a) const { return val() == a and next() == a; }
 	inline bool operator!=(SizeT a) const { return val() != a or next() != a; }
-	inline PosInterface<PosT> operator+(const PosInterface<PosT>& a) const { return PosT(val()+a.val(), next()+a.next()); }
-	inline PosInterface<PosT> operator*(SizeT a) const { return PosT(val()*a, next()*a); }
-	inline PosInterface<PosT>& zero() { return THIS().zero(); }
+	inline CPosInterface<PosT> operator+(const CPosInterface<PosT>& a) const
+	{ return THIS() + a.THIS(); }
+	inline CPosInterface<PosT> operator*(SizeT a) const { return THIS() * a; }
 
 	template <class P>
-	inline auto extend(const PosInterface<P>& a) const { return THIS().extend(a); }
+	inline auto extend(const CPosInterface<P>& a) const { return THIS().extend(a); }
+    };
+
+    template <class PosT>
+    class PosInterface : public CPosInterface<PosT>
+    {
+    public:
+	typedef CPosInterface<PosT> PI;
+	
+	DEFAULT_MEMBERS(PosInterface);
+
+	template <class PosT1, class PosT2>
+	inline PosInterface& set(const CPosInterface<PosT1>& a, const CPosInterface<PosT2>& b, sizeT c)
+	{ return PI::THIS().set(a,b,c); }
+
+	template <class PosT1, class PosT2>
+	inline PosInterface& operator()(const CPosInterface<PosT1>& a, const CPosInterface<PosT2>& b, sizeT c)
+	{ return set(a,b,c); }
+    };
+    
+    template <class PosT>
+    class VPos : public VPosBase, public PosT
+    {
+    private:
+	VPosRef<decltype(THIS::next())> mNextRef;
+    public:
+	
+	DEFAULT_MEMBERS(VPos);
+	
+	VPos(const PosInterface<PosT>& a) : PosT(a.THIS()), mNextRef(&PosT::THIS().next()) {}
+	
+	virtual Uptr<VPosBase> copy() const override final { return std::make_unique<VPos>(*this); }
+	virtual SizeT vsize() const override final { return PosT::THIS().size(); }
+	virtual const SizeT& vval() const override final { return PosT::THIS().val(); }
+	virtual const VPosRef& vnext() const override final
+	{ return mNextRef; }
+	virtual Uptr<VPosBase> vextend(const DPos& a) const override final
+	{ return std::make_unique<VPos<decltype(PosT::THIS().extend(a))>>
+		( PosT::THIS().extend(a) ); }
+	virtual Uptr<VPosBase> vextend(const UPos& a) const override final
+	{ return std::make_unique<VPos<decltype(PosT::THIS().extend(a))>>
+		( PosT::THIS().extend(a) ); } // ??? if that works it would be a miracle ???
+	virtual Uptr<VPosBase> vextend(const FPos& a) const override final
+	{ return std::make_unique<VPos<decltype(PosT::THIS().extend(a))>>
+		( PosT::THIS().extend(a) ); } // ??? if that works it would be a miracle ???
+	// .... probably I need to define a static instanciation limit...
+
+    };
+
+    template <class PosT>
+    class VPosRef : public VPosBase
+    {
+    private:
+	const PosT* mC;
+    public:
+	DEFAULT_MEMBERS(VPosRef);
+
+	VPosRef(const PosT* c) : mC(c) {}
+    };
+    
+    // defined as empty since they should never instanciated
+    template <>
+    class VPos<DPos>
+    {};
+
+    // defined as empty since they should never instanciated
+    template <>
+    class VPos<DPosRef>
+    {};
+
+    class DPosRef : public CPosInterface<DPosRef>
+    {
+    private:
+	DPosRef mNextRef;
+	const VPosBase* mC;
+    public:
+	DEFAULT_MEMBERS(DPosRef);
+	DPosRef(const VPosBase* c) : mC(c), mNextRef(mC->vnext()) {}
+
+	const T& operator*() const { return *mC; }
+	const T* operator->() const { return mC; }
+	
+	inline sizeT size() const { return mC->vsize(); }
+	inline const SizeT& val() const { return mC->vsize(); }
+	inline const DPosRef& next() const { return mNextRef; } 
+
+	template <class PosT2>
+	inline auto operator+(const MPos<PosT2>& a) const
+	{ return MPos<PosT2>(val()+a.val(), next()+a.next()); }
+
+	inline auto operator+(const UPos& a) const
+	{ return UPos(val()+a.val()); }
+
+	inline auto operator+(const DPos& a) const
+	{ return DPos((*mC)+(*a)); }
+
+	inline auto operator+(const DPosRef& a) const
+	{ return DPos((*mC)+(*a)); }
+
+	inline auto operator*(SizeT a) const
+	{ return DPos((*mC)*a); }
+	
     };
     
     class DPos : public ObjHandle<VPosBase>,
 		 public PosInterface<DPos>
     {
+    private:
+	DPosRef mNextRef;
     public:
 	DEFAULT_MEMBERS(DPos);
-	DPos(Uptr<VPosBase>&& a) : ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a)) {}
+	DPos(Uptr<VPosBase>&& a) :
+	    ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a)),
+	    mNextRef(mC->next())
+	{}
 
 	template <class PosT>
 	DPos(const PosT& a) : ObjHandle<VPosBase>( std::make_unique<PosT>(a) ) {}
 
 	inline SizeT size() const { return mC->vsize(); }
 	inline const SizeT& val() const { return mC->vval(); }
-	inline DPos& zero() { mC->vzero(); return *this; }
+	inline const DPosRef& next() const { return mNextRef; } 
 
-	template <class P>
-	inline DPos extend(const PosInterface<P>& a) const
-	{ return DPos();/* append MPos<NPos> in static for loop over entries */ }
+	template <class PosT2>
+	inline auto operator+(const MPos<PosT2>& a) const
+	{ return MPos<PosT2>(val()+a.val(), next()+a.next()); }
+
+	inline auto operator+(const UPos& a) const
+	{ return UPos(mC->val() + a.val()); }
+
+	inline auto operator+(const DPos& a) const
+	{ return DPos((*mC) + (*a)); }
+
+	inline auto operator+(const DPosRef& a) const
+	{ return DPos((*mC) + (*a)); }
+
+	inline auto operator*(SizeT a) const
+	{ return DPos((*mC)*a); }
+
+	template <class PosT1, class PosT2>
+	inline PosInterface& set(const CPosInterface<PosT1>& a, const CPosInterface<PosT2>& b, sizeT c)
+	{ mC->setVal( a.val() + b.val()*c ) ; mC->vnext()->set(a.next(),b.next(),c); return *this; }
     };
-
-    /*
-    template <class PosT>
-    class VPos : public VPosBase
-    {
-    private:
-	PosT mExt;
-    public:
-
-	DEFAULT_MEMBERS(VPos);
-
-	VPos(const PosT& in) : mExt(in) {}
-
-	virtual SizeT size() const override final { return sizeof(PosT)/sizeof(size_t); }
-	//const PosT& ext() const { return mExt; }
-	virtual const SizeT& val() const override final { return mExt.val(); }
-	virtual void zero() override final { mExt.zero(); }
-
-	virtual bool operator==(const VPosBase& in) const override final
-	{ return mExt == dynamic_cast<const VPos<PosT>&>(in).mExt; }
-	
-	virtual bool operator==(SizeT in) const override final
-	{ return mExt == in; }
-
-	virtual DExt operator+(const VPosBase& in) const override final
-	{ return std::make_shared<VPos<PosT>>( mExt + dynamic_cast<const VPos<PosT>&>(in).mExt ); }
-	virtual DExt operator*(size_t in) const override final
-	{ return std::make_shared<VPos<PosT>>( mExt * in ); }
-
-    };
-    */
-    template <class PosT>
-    class VPos : public VPosBase, public PosT
-    {
-    public:
-	
-	DEFAULT_MEMBERS(VPos);
-	
-	VPos(const PosInterface<PosT>& a) : PosT(a.THIS()) {}
-	
-	virtual Uptr<VPosBase> copy() const override final { return std::make_unique<VPos>(*this); }
-	virtual SizeT vsize() const override final { return PosT::THIS().size(); }
-	virtual const SizeT& vval() const override final { return PosT::THIS().val(); }
-	virtual VPos& vzero() override final { PosT::THIS().zero(); return *this; }
-	virtual Uptr<VPosBase> vextend(const DPos& a) const override final
-	{ return std::make_unique<VPosBase>( PosT::THIS().extend(a) ); }
-	virtual Uptr<VPosBase> vextend(const MPos<NPos>& a) const override final
-	{ return std::make_unique<VPosBase>( PosT::THIS().extend(a) ); } // ??? if that works it would be a miracle ???
-	// .... probably I need to define a static instanciation limit...
-
-    };
-
-    template <class PosT>
-    DPos mkDExt(const VPos<PosT>& in)
-    {
-        return std::make_shared<VPos<PosT>>(in);
-    }
-
-    template <class PosT>
-    VPos<PosT> mkVPos(const PosT& in)
-    {
-        return VPos<PosT>(in);
-    }
     
     template <class PosT>
     class MPos
@@ -146,50 +208,54 @@ namespace CNORXZ
 	
 	inline MPos(SizeT ext, PosT next);
 
-	template <class Z>
-	inline MPos(SizeT y, const Z& z);
+	template <class PosT1>
+	inline MPos(SizeT y, const CPosInterface<PosT1>& z);
 	
-	template <class Y, class Z>
-	inline MPos(const Y& y, const Z& z);
+	template <class PosT1, class PosT2>
+	inline MPos(const CPosInterface<PosT1>& y, const CPosInterface<PosT2>& z);
 
-	template <size_t N>
-	inline MPos(const Arr<SizeT,N>& arr);
+        template <class PosT1>
+        inline MPos(const MPos<PosT1>& y);
 
-        template <class Y>
-        inline MPos(const MPos<Y>& y);
-
-	inline void zero();
-	
 	inline const SizeT& val() const;
 	inline const PosT& next() const;
 
-        template <size_t N>
-        inline auto nn() const;
+	inline auto operator+(const MPos& in) const;
+	//inline MPos operator+(const UPos& in) const;
+	inline auto operator*(SizeT in) const;
 
-	inline bool operator==(const MPos& in) const
-	{
-	    return mExt == in.mExt and mNext == in.mNext;
-	}
-
-	inline bool operator==(size_t in) const
-	{
-	    return mExt == in and mNext == in;
-	}
-
-	inline MPos operator+(const MPos& in) const;
-	inline MPos operator+(const NPos& in) const;
-	inline MPos operator*(size_t in) const;
-
-	template <class Y>
-	auto extend(const Y& y) const -> MPos<decltype(mNext.extend(y))>
+	template <class PosT1>
+	inline auto extend(const PosInterface<PosT1>& y) const -> MPos<decltype(mNext.extend(y))>
 	{ return MPos<decltype(mNext.extend(y))>(mExt, mNext.extend(y)); }
 
+	template <class PosT1, class PosT2>
+	inline PosInterface& set(const CPosInterface<PosT1>& a, const CPosInterface<PosT2>& b, sizeT c)
+	{ return *this = a + b*c; }
+	//{ mExt = a.val() + b.val()*c ; mNext.set(a.next(),b.next(),c); return *this; }
     };    
 
-    class NPos : public PosInterface<NPos>
+    template <class PosT>
+    class FMPos : public PosInterface<FMPos<PosT>>
     {
     private:
-        SizeT VAL = 0;
+	SizeT mExt = 0;
+	const Vector<SizeT>* mMap;
+	PosT mNext;
+
+    public:
+
+	DEFAULT_MEMBERS(FMPos);
+
+	template <class PosT2>
+	inline auto operator+(const PosT2& a) const { return MPos(mExt,mNext) + a; }
+
+	inline auto operator*(SizeT a) const { return MPos(mExt*(*mMap)[a], mNext*a); }
+    };
+    
+    class UPos : public PosInterface<UPos>
+    {
+    private:
+        SizeT mExt = 0;
     public:
 	
 	DEFAULT_MEMBERS(NPos);
@@ -199,75 +265,34 @@ namespace CNORXZ
         
         //static constexpr SizeT SIZE = 0;
 
-	inline const SizeT& val() const { assert(0); return VAL; }
-	inline bool operator==(const NPos& in) const { return true; }
-	inline bool operator==(SizeT in) const { return true; }
-        inline NPos operator+(const NPos& in) const { return NPos(); }
-	inline NPos operator*(size_t in) const { return NPos(); }
-	inline void zero() {}
+	inline const SizeT& val() const { return mExt; }
+	inline SizeT size() const { return 1; }
+	inline const SizeT& next() { static SizeT dummy = 0; return dummy; }
+        inline UPos operator+(const UPos& in) const { return UPos(mExt + in.val()); }
+	inline UPos operator*(size_t in) const { return UPos(mExt * in); }
 	
         template <class Y>
-        Y extend(const Y& y) const
-        { return y; }
+        inline auto extend(const Y& y) const
+        { return MPos<Y>(mExt, y); }
 
     };
     
-    template <>
-    class MPos<NPos> : public PosInterface<MPos<NPos>>
+    class FPos : public PosInterface<FPos>
     {
     private:
-	SizeT mExt = 0u;
-	
+	SizeT mExt = 0;
+	const Vector<SizeT>* mMap;
+
     public:
-	//static constexpr size_t NUM = 0;
-        //static constexpr size_t SIZE = NUM + 1;
-        
-	DEFAULT_MEMBERS(MPos);
-	
-	inline MPos(size_t ext);
 
-        inline MPos(size_t y, const NPos& z) : mExt(y) {}
+	DEFAULT_MEMBERS(FMPos);
 
-	template <class Z>
-	inline MPos(size_t y, const Z& z);
+	template <class PosT2>
+	inline auto operator+(const PosT2& a) const { return UPos(mExt) + a; }
 
-	template <class Y, class Z>
-	inline MPos(const Y& y, const Z& z);
+	inline auto operator*(SizeT a) const { return UPos(mExt*(*mMap)[a]); }
+    };
 
-	template <size_t N>
-	inline MPos(const std::array<size_t,N>& arr);
-
-        template <class Y>
-        inline MPos(const MPos<Y>& y);
-
-	inline bool operator==(const MPos& in) const
-	{
-	    return mExt == in.mExt;
-	}
-
-	inline bool operator==(size_t in) const
-	{
-	    return mExt == in;
-	}
-
-	inline const size_t& val() const;
-	inline NPos next() const { return NPos(); }
-
-	inline void zero();
-	
-        template <size_t N>
-        inline auto nn() const;
-        
-	inline MPos operator+(const MPos& in) const;
-	inline MPos operator+(const NPos& in) const;
-	inline MPos operator*(size_t in) const;
-
-	template <class Y>
-	auto extend(const Y& y) const -> MPos<Y>
-	{ return MPos<Y>(mExt,y); }
-
-    };    
-    
     inline MPos<NPos> mkExt(SizeT s) { return MPos<NPos>(s); }
 
     /*
@@ -384,83 +409,18 @@ namespace CNORXZ
     }
 
     template <class X>
-    inline MPos<X> MPos<X>::operator+(const NPos& in) const
+    inline MPos<X> MPos<X>::operator+(const UPos& in) const
     {
-	return *this;
+	return MPos<X>(mExt + in.val(), mNext);
     }
 
     template <class X>
-    inline MPos<X> MPos<X>::operator*(size_t in) const
+    inline MPos<X> MPos<X>::operator*(SizeT in) const
     {
 	return MPos<X>(mExt * in, mNext * in);
     }
 
     
-    //template <>
-    inline MPos<NPos>::MPos(size_t ext) : mExt(ext) {}
-
-
-    //template <>
-    template <class Z>
-    inline MPos<NPos>::MPos(size_t y, const Z& z) :
-	mExt(z.val()) {}
-    
-    //template <>
-    template <class Y, class Z>
-    inline MPos<NPos>::MPos(const Y& y, const Z& z) :
-	mExt(y.val()) {}
-
-    /*
-    //template <>
-    template <size_t N>
-    inline MPos<NPos>::MPos(const std::array<size_t,N>& arr) :
-	mExt(std::get<NUM>(arr)) {}
-    */
-    template <class Y>
-    inline MPos<NPos>::MPos(const MPos<Y>& y) :
-        mExt(y.val()) {}
-
-    //template <>
-    inline void MPos<NPos>::zero()
-    {
-	mExt = 0u;
-    }
-    /*
-    template <size_t N>
-    inline auto MPos<NPos>::nn() const
-    {
-	return getX<N>(*this);
-    }
-    */
-    inline const size_t& MPos<NPos>::val() const
-    {
-	return mExt;
-    }
-
-    //template <>
-    inline MPos<NPos> MPos<NPos>::operator+(const MPos<NPos>& in) const
-    {
-	return MPos<NPos>(mExt + in.val());
-    }
-
-    inline MPos<NPos> MPos<NPos>::operator+(const NPos& in) const
-    {
-	return *this;
-    }
-
-    //template <>
-    inline MPos<NPos> MPos<NPos>::operator*(size_t in) const
-    {
-	return MPos<NPos>(mExt * in);
-    }
-    /*
-    template <class X>
-    template <size_t N>
-    inline auto DVPosX<X>::nn() const
-    {
-	return getX<N>(*this);
-    }
-    */
 } // end namespace CNORXZInternal
 
 
