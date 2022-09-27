@@ -81,27 +81,45 @@ namespace CNORXZ
     template <typename T>
     class Allocator;
 
-    // definition: ranges/xfor/exttype.h
-    class VPosBase;
+    // definition: ranges/xfor/pos_type.h
+    template <class PosT>
+    class CPosInterface;
 
-    // definition: ranges/xfor/exttype.h
+    // definition: ranges/xfor/pos_type.h
     template <class PosT>
     class PosInterface;
 
-    // definition: ranges/xfor/exttype.h
-    class DPos;
+    // definition: ranges/xfor/pos_type.h
+    class VPosBase;
 
-    // definition: ranges/xfor/exttype.h
+    // definition: ranges/xfor/pos_type.h
     template <class PosT>
     class VPos;
 
-    // definition: ranges/xfor/exttype.h
+    // definition: ranges/xfor/pos_type.h
+    template <class PosT>
+    class VPosRef;
+
+    // definition: ranges/xfor/pos_type.h
+    class DPos;
+
+    // definition: ranges/xfor/pos_type.h
+    class DPosRef;
+
+    // definition: ranges/xfor/pos_type.h
     template <class PosT>
     class MPos;
 
-    // definition: ranges/xfor/exttype.h
-    class NPos;
-    
+    // definition: ranges/xfor/pos_type.h
+    template <class PosT>
+    class FMPos;
+
+    // definition: ranges/xfor/pos_type.h
+    class UPos;
+
+    // definition: ranges/xfor/pos_type.h
+    class FPos;
+
     // definition: ranges/range_base.h
     class RangeBase;
 
@@ -171,6 +189,10 @@ namespace CNORXZ
     class PIndex; // partial index (index over sub-ranges and permutations)
 
     // there should be also a static analogue
+
+    // definition: ranges/lindex.h
+    template <class Index>
+    class LIndex;
     
     /*********************
      *   derived types   *
