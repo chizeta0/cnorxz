@@ -85,20 +85,30 @@ namespace CNORXZ
     template <class PosT>
     class CPosInterface;
 
-    // definition: ranges/xfor/pos_type.h
-    template <class PosT>
-    class PosInterface;
-
-    // definition: ranges/xfor/pos_type.h
+    // definition: ranges/xfor/vpos_type.h
     class VPosBase;
 
-    // definition: ranges/xfor/pos_type.h
+    // definition: ranges/xfor/vpos_type.h
     template <class PosT>
     class VPos;
 
-    // definition: ranges/xfor/pos_type.h
+    // definition: ranges/xfor/vpos_type.h
     template <class PosT>
     class VPosRef;
+
+    // definition: ranges/xfor/pos_type.h
+    class UPos;
+
+    // definition: ranges/xfor/pos_type.h
+    template <SizeT N>
+    class SPos;
+
+    // definition: ranges/xfor/pos_type.h
+    class FPos;
+
+    // definition: ranges/xfor/pos_type.h
+    template <SizeT N, SizeT... Ms>
+    class SFPos;
 
     // definition: ranges/xfor/pos_type.h
     class DPos;
@@ -107,7 +117,7 @@ namespace CNORXZ
     class DPosRef;
 
     // definition: ranges/xfor/pos_type.h
-    template <class PosT>
+    template <class PosT1, class PosT2>
     class MPos;
 
     // definition: ranges/xfor/pos_type.h

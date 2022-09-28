@@ -12,10 +12,15 @@ add_library(test_lib STATIC ${test_SOURCES})
 #target_link_libraries(iutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz)
 #add_test(NAME iutest COMMAND iutest)
 
+add_executable(xfutest xfor_unit_test.cc)
+add_dependencies(xfutest cnorxz)
+target_link_libraries(xfutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
+add_test(NAME xfutest COMMAND xfutest)
+
 add_executable(rutest range_unit_test.cc)
 add_dependencies(rutest cnorxz)
 target_link_libraries(rutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
-add_test(NAME rutest COMMAND dautest)
+add_test(NAME rutest COMMAND rutest)
 
 #add_executable(autest ranges/anonymous_unit_test.cc)
 #add_dependencies(autest cnorxz)

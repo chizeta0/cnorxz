@@ -11,7 +11,7 @@ namespace CNORXZ
      ****************/
 
     template <SizeT N>
-    UPtr<VPosBase> VPosBase::vextend(const SPos<N>& a) const
+    Uptr<VPosBase> VPosBase::vextend(const SPos<N>& a) const
     {
 	return this->vextend(UPos(N));
     }
@@ -21,8 +21,8 @@ namespace CNORXZ
      ************/
 
     template <class PosT>
-    VPos<PosT>::VPos(const PosInterface<PosT>& a) :
-	PosT(a.THIS()),
+    VPos<PosT>::VPos(const CPosInterface<PosT>& a) :
+	PosT(a.THIS())
     {}
 	
     template <class PosT>
@@ -38,7 +38,7 @@ namespace CNORXZ
     }
 
     template <class PosT>
-    const SizeT& VPos<PosT>::vval() const
+    SizeT VPos<PosT>::vval() const
     {
 	return PosT::THIS().val();
     }
@@ -56,9 +56,27 @@ namespace CNORXZ
     }
 
     template <class PosT>
+    Uptr<VPosBase> VPos<PosT>::vplus(const VPosBase* a) const
+    {
+	return std::make_unique<VPos<PosT>>((*this) + DPosRef(a));
+    }
+    
+    template <class PosT>
+    Uptr<VPosBase> VPos<PosT>::vtimes(const VPosBase* a) const
+    {
+	return std::make_unique<VPos<PosT>>((*this) * UPos(a->vval()));
+    }
+    
+    template <class PosT>
     Uptr<VPosBase> VPos<PosT>::vextend(const DPos& a) const
     {
 	return std::make_unique<MPos<PosT,DPos>>(*this,a);
+    }
+
+    template <class PosT>
+    Uptr<VPosBase> VPos<PosT>::vextend(const DPosRef& a) const
+    {
+	return std::make_unique<MPos<PosT,DPosRef>>(*this,a);
     }
 
     template <class PosT>
@@ -79,9 +97,9 @@ namespace CNORXZ
      ******************/
 
     template <class PosT1, class PosT2>
-    VPos<MPos<PosT1,PosT2>>::VPos(const PosInterface<MPos<PosT1,PosT2>>& a) :
+    VPos<MPos<PosT1,PosT2>>::VPos(const CPosInterface<MPos<PosT1,PosT2>>& a) :
 	MPos<PosT1,PosT2>(a.THIS()),
-	mFRef(&mFirst), mNRef(&mNext)
+	mFRef(&MPosT::mFirst), mNRef(&MPosT::mNext)
     {}
 	
     template <class PosT1, class PosT2>
@@ -115,6 +133,18 @@ namespace CNORXZ
     }
     
     template <class PosT1, class PosT2>
+    Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vplus(const VPosBase* a) const
+    {
+	return std::make_unique<MPos<PosT1,PosT2>>((*this) + DPosRef(a));
+    }
+    
+    template <class PosT1, class PosT2>
+    Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vtimes(const VPosBase* a) const
+    {
+	return std::make_unique<MPos<PosT1,PosT2>>((*this) * UPos(a->vval()));
+    }
+    
+    template <class PosT1, class PosT2>
     Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const DPos& a) const 
     {
 	return std::make_unique<MPos<MPosT,DPos>>(*this,a);
@@ -143,8 +173,8 @@ namespace CNORXZ
      ***************/
 
     template <class PosT>
-    VPosRef<PosT>::VPosRef(const PosT* c) :
-	mC(c), mNextRef(&mC->next())
+    VPosRef<PosT>::VPosRef(const CPosInterface<PosT>* c) :
+	mC(c)
     {}
 
     template <class PosT>
@@ -160,21 +190,33 @@ namespace CNORXZ
     }
     
     template <class PosT>
-    const SizeT& VPosRef<PosT>::vval() const 
+    SizeT VPosRef<PosT>::vval() const 
     {
 	return mC->val();
     }
     
     template <class PosT>
-    const VPosBase& VPosRef<PosT>::vget() const 
+    const VPosBase* VPosRef<PosT>::vget() const 
     {
 	return this;
     }
 
     template <class PosT>
-    const VPosBase& VPosRef<PosT>::vnext() const 
+    const VPosBase* VPosRef<PosT>::vnext() const 
     {
 	return nullptr;
+    }
+    
+    template <class PosT>
+    Uptr<VPosBase> VPosRef<PosT>::vplus(const VPosBase* a) const
+    {
+	return std::make_unique<VPos<PosT>>((*mC) + DPosRef(a));
+    }
+    
+    template <class PosT>
+    Uptr<VPosBase> VPosRef<PosT>::vtimes(const VPosBase* a) const
+    {
+	return std::make_unique<VPos<PosT>>((*mC) * UPos(a->vval()));
     }
     
     template <class PosT>
@@ -182,7 +224,13 @@ namespace CNORXZ
     {
 	return std::make_unique<MPos<PosT,DPos>>(*mC,a);
     }
-    
+
+    template <class PosT>
+    Uptr<VPosBase> VPosRef<PosT>::vextend(const DPosRef& a) const 
+    {
+	return std::make_unique<MPos<PosT,DPosRef>>(*mC,a);
+    }
+
     template <class PosT>
     Uptr<VPosBase> VPosRef<PosT>::vextend(const UPos& a) const 
     {
@@ -200,7 +248,7 @@ namespace CNORXZ
      *********************/
 
     template <class PosT1, class PosT2>
-    VPosRef<MPos<PosT1,PosT2>>::VPosRef(const PosT* c) :
+    VPosRef<MPos<PosT1,PosT2>>::VPosRef(const CPosInterface<MPos<PosT1,PosT2>>* c) :
 	mC(c), mFRef(&c->get()), mNRef(&c->next())
     {}
 
@@ -234,6 +282,18 @@ namespace CNORXZ
 	return mNRef;
     }
 
+    template <class PosT1, class PosT2>
+    Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vplus(const VPosBase* a) const
+    {
+	return std::make_unique<MPos<PosT1,PosT2>>((*mC) + DPosRef(a));
+    }
+    
+    template <class PosT1, class PosT2>
+    Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vtimes(const VPosBase* a) const
+    {
+	return std::make_unique<MPos<PosT1,PosT2>>((*mC) * UPos(a->vval()));
+    }
+    
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const DPos& a) const
     {

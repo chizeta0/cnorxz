@@ -129,13 +129,6 @@ namespace CNORXZ
 	return 0;
     }
 
-    Int YIndex::getOffset(PtrId iptr) const
-    {
-	assert(0);
-	// sub inds !!!
-	return 0;
-    }
-
     String YIndex::stringMeta() const
     {
 	String out = "[";

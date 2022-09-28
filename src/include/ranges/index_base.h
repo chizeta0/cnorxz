@@ -5,7 +5,6 @@
 
 #include "base/base.h"
 #include "range_base.h"
-#include "xfor/xfor.h"
 
 namespace CNORXZ
 {
@@ -47,7 +46,6 @@ namespace CNORXZ
 	auto range() const { return THIS().range(); }
 	SizeT getStepSize(PtrId iptr) const { return THIS().getStepSize(iptr); }
 	//SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
-	Int getOffset(PtrId iptr) const { return THIS().getOffset(iptr); }
 	
 	String stringMeta() const { return THIS().stringMeta(); }
 	auto meta() const { return THIS().meta(); }

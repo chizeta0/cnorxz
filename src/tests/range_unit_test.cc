@@ -8,7 +8,8 @@
 //#include "cnorxz.h"
 #include "ranges/ranges.h"
 
-namespace {
+namespace
+{
 
     using namespace CNORXZ;
     

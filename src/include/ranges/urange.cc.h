@@ -130,11 +130,6 @@ namespace CNORXZ
 	return iptr == this->ptrId() ? 1 : 0;
     }
     
-    template <typename MetaType>
-    Int UIndex<MetaType>::getOffset(PtrId iptr) const
-    {
-	return 0;
-    }
     /*
     template <typename MetaType>
     template <class Expr>

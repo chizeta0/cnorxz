@@ -2,7 +2,6 @@
 #ifndef __cxz_op_expressions__
 #define __cxz_op_expressions__
 
-#include "xfor/xfor.h"
 #include "access.h"
 
 namespace CNORXZ

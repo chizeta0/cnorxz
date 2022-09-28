@@ -6,7 +6,6 @@
 #include "range_base.h"
 #include "index_base.h"
 #include "xindex.h"
-#include "xfor/xfor.h"
 
 namespace CNORXZ
 {
@@ -43,7 +42,6 @@ namespace CNORXZ
 	SizeT dim() const;
 	Sptr<YRange> range() const;
 	SizeT getStepSize(PtrId iptr) const;
-	Int getOffset(PtrId iptr) const;
 
 	String stringMeta() const;
 	DType meta() const;

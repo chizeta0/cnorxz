@@ -7,7 +7,6 @@
 #include <tuple>
 #include <array>
 #include <omp.h>
-#include "xfor.h"
 
 namespace CNORXZInternal
 {

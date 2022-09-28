@@ -88,11 +88,6 @@ namespace CNORXZ
 	return iptr == this->ptrId() ? 1 : 0;
     }
 
-    Int CIndex::getOffset(PtrId iptr) const
-    {
-	return 0;
-    }
-
     String CIndex::stringMeta() const
     {
 	return toString(IB::mPos);

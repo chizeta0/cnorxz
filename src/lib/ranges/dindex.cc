@@ -121,11 +121,6 @@ namespace CNORXZ
 	return mI->getStepSize(iptr);
     }
 
-    Int DIndex::getOffset(PtrId iptr) const
-    {
-	return mI->getOffset(iptr);
-    }
-
     String DIndex::stringMeta() const
     {
 	return mI->stringMeta();

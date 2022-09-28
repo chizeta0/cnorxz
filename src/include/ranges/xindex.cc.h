@@ -123,12 +123,6 @@ namespace CNORXZ
     }
     
     template <class Index, typename Meta>
-    Int XIndex<Index,Meta>::getOffset(PtrId iptr) const
-    {
-	return mI->getOffset(iptr);
-    }
-
-    template <class Index, typename Meta>
     String XIndex<Index,Meta>::stringMeta() const
     {
 	return mI->stringMeta();
