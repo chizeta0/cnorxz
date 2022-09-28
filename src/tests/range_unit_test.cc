@@ -32,11 +32,13 @@ namespace
 	EXPECT_EQ(cr->size(), mSize);
 	EXPECT_EQ(crx->size(), mSize);
 
-	EXPECT_EQ(crx->begin() != crx->end(), true);
+	EXPECT_TRUE(crx->begin() != crx->end());
+	EXPECT_FALSE(crx->begin() == crx->end());
 	EXPECT_EQ(crx->begin().pos(), 0u);
 	EXPECT_EQ(crx->end().pos(), mSize);
 
-	EXPECT_EQ(cr->begin() != cr->end(), true);
+	EXPECT_TRUE(cr->begin() != cr->end());
+	EXPECT_FALSE(cr->begin() == cr->end());
 	EXPECT_EQ(cr->begin().pos(), 0u);
 	EXPECT_EQ(cr->end().pos(), mSize);
 

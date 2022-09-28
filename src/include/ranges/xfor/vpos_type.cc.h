@@ -28,7 +28,7 @@ namespace CNORXZ
     template <class PosT>
     Uptr<VPosBase> VPos<PosT>::copy() const
     {
-	return std::make_unique<VPos>(*this);
+	return std::make_unique<VPos<PosT>>(*this);
     }
 
     template <class PosT>
@@ -99,13 +99,13 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     VPos<MPos<PosT1,PosT2>>::VPos(const CPosInterface<MPos<PosT1,PosT2>>& a) :
 	MPos<PosT1,PosT2>(a.THIS()),
-	mFRef(&MPosT::mFirst), mNRef(&MPosT::mNext)
+	mFRef(&this->first()), mNRef(&this->next())
     {}
 	
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::copy() const 
     {
-	return std::make_unique<MPos<PosT1,PosT2>>(*this);
+	return std::make_unique<VPos<MPos<PosT1,PosT2>>>(*this);
     }
     
     template <class PosT1, class PosT2>
@@ -123,13 +123,13 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     const VPosBase* VPos<MPos<PosT1,PosT2>>::vget() const 
     {
-	return mFRef;
+	return &mFRef;
     }
     
     template <class PosT1, class PosT2>
     const VPosBase* VPos<MPos<PosT1,PosT2>>::vnext() const 
     {
-	return mNRef;
+	return &mNRef;
     }
     
     template <class PosT1, class PosT2>
@@ -174,7 +174,7 @@ namespace CNORXZ
 
     template <class PosT>
     VPosRef<PosT>::VPosRef(const CPosInterface<PosT>* c) :
-	mC(c)
+	mC(&c->THIS())
     {}
 
     template <class PosT>
@@ -255,7 +255,7 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::copy() const
     {
-	return std::make_unique<MPos<PosT1,PosT2>>(*mFRef,*mNRef);
+	return std::make_unique<VPos<MPos<PosT1,PosT2>>>(*mFRef,*mNRef);
     }
 
     template <class PosT1, class PosT2>

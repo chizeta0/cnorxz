@@ -186,7 +186,7 @@ namespace CNORXZ
 
     template <class PosT>
     inline DPos::DPos(const CPosInterface<PosT>& a) :
-	ObjHandle<VPosBase>( std::make_unique<PosT>(a) )
+	ObjHandle<VPosBase>( std::make_unique<VPos<PosT>>(a) )
     {}
 
     inline SizeT DPos::size() const
@@ -199,6 +199,11 @@ namespace CNORXZ
 	return mC->vval();
     }
     
+    inline DPosRef DPos::first() const
+    {
+	return DPosRef(mC->vget());
+    } 
+
     inline DPosRef DPos::next() const
     {
 	return DPosRef(mC->vnext());
@@ -207,13 +212,15 @@ namespace CNORXZ
     template <class PosT1>
     inline DPos DPos::operator+(const CPosInterface<PosT1>& a) const
     {
-	return DPos(mC->vplus(VPosRef<PosT1>(&a))); // check memory safety!!!
+	VPosRef<PosT1> r(&a);
+	return DPos(mC->vplus(&r)); // check memory safety!!!
     }
     
     template <class PosT1>
     inline DPos DPos::operator*(const CPosInterface<PosT1>& a) const
     {
-	return DPos(mC->vtimes(VPosRef<PosT1>(&a))); // check memory safety!!!
+	VPosRef<PosT1> r(&a);
+	return DPos(mC->vtimes(&r)); // check memory safety!!!
     }    
     
     template <class PosT1>
@@ -240,6 +247,11 @@ namespace CNORXZ
 	return mC->vval();
     }
     
+    inline DPosRef DPosRef::first() const
+    {
+	return DPosRef(mC->vget());
+    } 
+
     inline DPosRef DPosRef::next() const
     {
 	return DPosRef(mC->vnext());
@@ -248,13 +260,15 @@ namespace CNORXZ
     template <class PosT1>
     inline DPos DPosRef::operator+(const CPosInterface<PosT1>& a) const
     {
-	return DPos(mC->vplus(VPosRef<PosT1>(&a))); // check memory safety!!!
+	VPosRef<PosT1> r(&a);
+	return DPos(mC->vplus(&r)); // check memory safety!!!
     }
     
     template <class PosT1>
     inline DPos DPosRef::operator*(const CPosInterface<PosT1>& a) const
     {
-	return DPos(mC->vtimes(VPosRef<PosT1>(&a))); // check memory safety!!!
+	VPosRef<PosT1> r(&a);
+	return DPos(mC->vtimes(&r)); // check memory safety!!!
     }    
     
     template <class PosT1>
@@ -271,7 +285,7 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     constexpr MPos<PosT1,PosT2>::MPos(const CPosInterface<PosT1>& first,
 				      const CPosInterface<PosT2>& next) :
-	mFirst(first), mNext(next)
+	mFirst(first.THIS()), mNext(next.THIS())
     {}
 
     template <class PosT1, class PosT2>
@@ -311,9 +325,9 @@ namespace CNORXZ
     template <class PosT3>
     constexpr auto MPos<PosT1,PosT2>::operator*(const CPosInterface<PosT3>& a) const
     {
-	typedef decltype(first()*a) PosT5;
-	typedef decltype(next()*a) PosT6;
-	return MPos<PosT5,PosT6>(first()*a, next()*a);
+	typedef decltype(first()*a.THIS()) PosT5;
+	typedef decltype(next()*a.THIS()) PosT6;
+	return MPos<PosT5,PosT6>(first()*a.THIS(), next()*a.THIS());
     }
 
     template <class PosT1, class PosT2>

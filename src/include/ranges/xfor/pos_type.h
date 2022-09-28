@@ -11,6 +11,8 @@ namespace CNORXZ
     class CPosInterface
     {
     public:
+	static constexpr bool MULTI = PosT::MULTI;
+	
 	DEFAULT_MEMBERS(CPosInterface);
 
 	PosT& THIS() { return static_cast<PosT&>(*this); }
@@ -18,11 +20,20 @@ namespace CNORXZ
 	
 	inline SizeT size() const { return THIS().size(); }
 	inline auto val() const { return THIS().val(); }
+	// template!!!
 	inline CPosInterface<PosT> operator+(const CPosInterface<PosT>& a) const
 	{ return THIS() + a.THIS(); }
+	// template!!!
 	inline CPosInterface<PosT> operator*(const CPosInterface<PosT>& a) const
 	{ return THIS() * a.THIS(); }
-
+	// template!!!
+	// inline CPosInterface<PosT> execute(const CPosInterface<PosT>& a,
+	// const CPosInterface<PosT>& b, const CPosInterface<PosT>& c) const
+	// => a+b*c; only this executes also the FPos/SFPos-Map!!! 
+	
+	// for each class implement +/* for each argument type EXPLICITLY (NO templates, except for MPos)
+	// *: only UPos/SPos as Arguments, for DPos only UPos as Args
+	
 	template <class P>
 	inline auto extend(const CPosInterface<P>& a) const { return THIS().extend(a); }
     };
@@ -31,6 +42,8 @@ namespace CNORXZ
     class SPos : public CPosInterface<SPos<N>>
     {
     public:
+	static constexpr bool MULTI = false;
+
 	constexpr SPos() = default;
 
 	constexpr SizeT size() const;
@@ -53,6 +66,7 @@ namespace CNORXZ
     private:
         SizeT mExt = 0;
     public:
+	static constexpr bool MULTI = false;
 	
 	DEFAULT_MEMBERS(UPos);
 
@@ -79,6 +93,8 @@ namespace CNORXZ
 	const SizeT* mMap = nullptr;
 
     public:
+	static constexpr bool MULTI = false;
+
 	DEFAULT_MEMBERS(FPos);
 
 	inline FPos(SizeT ext, const SizeT* map);
@@ -100,6 +116,8 @@ namespace CNORXZ
     class SFPos : public CPosInterface<SFPos<N,Ms...>>
     {
     public:
+	static constexpr bool MULTI = false;
+
 	constexpr SFPos() = default;
 
 	constexpr SizeT size() const;
@@ -121,6 +139,8 @@ namespace CNORXZ
 		 public CPosInterface<DPos>
     {
     public:
+	static constexpr bool MULTI = true;
+
 	DEFAULT_MEMBERS(DPos);
 	inline DPos(Uptr<VPosBase>&& a);
 	
@@ -129,6 +149,7 @@ namespace CNORXZ
 
 	inline SizeT size() const;
 	inline SizeT val() const;
+	inline DPosRef first() const;
 	inline DPosRef next() const;
 
 	template <class PosT1>
@@ -147,11 +168,14 @@ namespace CNORXZ
     private:
 	const VPosBase* mC;
     public:
+	static constexpr bool MULTI = true;
+
 	DEFAULT_MEMBERS(DPosRef);
 	inline DPosRef(const VPosBase* c);
 
 	inline SizeT size() const;
 	inline SizeT val() const;
+	inline DPosRef first() const;
 	inline DPosRef next() const;
 
 	template <class PosT1>
@@ -164,6 +188,8 @@ namespace CNORXZ
 	inline DPos extend(const CPosInterface<PosT1>& a) const;
     };
 
+    // go to original pattern (-> LINEAR template chain)
+    // first: just cast by constructor
     template <class PosT1, class PosT2>
     class MPos : public CPosInterface<MPos<PosT1,PosT2>>
     {
@@ -173,6 +199,8 @@ namespace CNORXZ
 	PosT2 mNext;
 	
     public:
+	static constexpr bool MULTI = true;
+
 	DEFAULT_MEMBERS(MPos);
 	
 	constexpr MPos(const CPosInterface<PosT1>& first,
