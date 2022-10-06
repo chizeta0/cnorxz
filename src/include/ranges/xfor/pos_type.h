@@ -6,68 +6,45 @@
 
 namespace CNORXZ
 {
+    // shift to base.h
+#define CXZ_CVAL_FALSE static constexpr bool value = false
+#define CXZ_CVAL_TRUE static constexpr bool value = true
+    
+    template <class T>
+    struct is_pos_type { CXZ_CVAL_FALSE; };
 
-    template <class PosT>
-    class CPosInterface
-    {
-    public:
-	static constexpr bool MULTI = PosT::MULTI;
-	
-	DEFAULT_MEMBERS(CPosInterface);
-
-	PosT& THIS() { return static_cast<PosT&>(*this); }
-	const PosT& THIS() const { return static_cast<const PosT&>(*this); }
-	
-	inline SizeT size() const { return THIS().size(); }
-	inline auto val() const { return THIS().val(); }
-	// template!!!
-	inline CPosInterface<PosT> operator+(const CPosInterface<PosT>& a) const
-	{ return THIS() + a.THIS(); }
-	// template!!!
-	inline CPosInterface<PosT> operator*(const CPosInterface<PosT>& a) const
-	{ return THIS() * a.THIS(); }
-	// template!!!
-	// inline CPosInterface<PosT> execute(const CPosInterface<PosT>& a,
-	// const CPosInterface<PosT>& b, const CPosInterface<PosT>& c) const
-	// => a+b*c; only this executes also the FPos/SFPos-Map!!! 
-	
-	// for each class implement +/* for each argument type EXPLICITLY (NO templates, except for MPos)
-	// *: only UPos/SPos as Arguments, for DPos only UPos as Args
-	
-	template <class P>
-	inline auto extend(const CPosInterface<P>& a) const { return THIS().extend(a); }
-    };
-
+    template <class T>
+    struct is_scalar_pos_type { CXZ_CVAL_FALSE; };
+    
     template <SizeT N>
-    class SPos : public CPosInterface<SPos<N>>
+    class SPos
     {
     public:
-	static constexpr bool MULTI = false;
-
 	constexpr SPos() = default;
 
 	constexpr SizeT size() const;
 	constexpr SizeT val() const;
-
+	
 	template <SizeT N1>
 	constexpr auto operator+(const SPos<N1>& a) const;
 	template <SizeT N1>
 	constexpr auto operator*(const SPos<N1>& a) const;
+	template <SizeT N1>
+	constexpr auto operator()(const SPos<N1>& a) const;
 
 	constexpr auto operator+(const UPos& a) const;
 	constexpr auto operator*(const UPos& a) const;
-
+	constexpr auto operator()(const UPos& a) const;
+	
 	template <class PosT>
-	constexpr auto extend(const CPosInterface<PosT>& a) const;
+	constexpr auto extend(const PosT& a) const;
     };
-    
-    class UPos : public CPosInterface<UPos>
+
+    class UPos
     {
     private:
         SizeT mExt = 0;
     public:
-	static constexpr bool MULTI = false;
-	
 	DEFAULT_MEMBERS(UPos);
 
 	constexpr UPos(SizeT ext);
@@ -76,25 +53,26 @@ namespace CNORXZ
 	constexpr const SizeT& val() const;
 
 	template <class PosT>
-	constexpr UPos operator+(const CPosInterface<PosT>& a) const;
+	constexpr UPos operator+(const PosT& a) const;
 
         template <class PosT>
-	constexpr UPos operator*(const CPosInterface<PosT>& a) const;
-	
+	constexpr UPos operator*(const PosT& a) const;
+
+	template <class PosT>
+	constexpr UPos operator()(const PosT& a) const;
+
         template <class PosT>
-        constexpr auto extend(const CPosInterface<PosT>& y) const;
+        constexpr auto extend(const PosT& a) const;
 
     };
-    
-    class FPos : public CPosInterface<FPos>
+
+    class FPos
     {
     private:
 	SizeT mExt = 0;
 	const SizeT* mMap = nullptr;
 
     public:
-	static constexpr bool MULTI = false;
-
 	DEFAULT_MEMBERS(FPos);
 
 	inline FPos(SizeT ext, const SizeT* map);
@@ -103,21 +81,22 @@ namespace CNORXZ
 	constexpr const SizeT& val() const;
 	
 	template <class PosT1>
-	constexpr UPos operator+(const CPosInterface<PosT1>& a) const;
+	constexpr UPos operator+(const PosT1& a) const;
 
 	template <class PosT1>
-	constexpr UPos operator*(const CPosInterface<PosT1>& a) const;
+	constexpr FPos operator*(const PosT1& a) const;
+
+	template <class PosT>
+	constexpr UPos operator()(const PosT& a) const;
 
 	template <class PosT1>
-	constexpr auto extend(const CPosInterface<PosT1>& a) const;
+	constexpr auto extend(const PosT1& a) const;
     };
 
     template <SizeT N, SizeT... Ms>
-    class SFPos : public CPosInterface<SFPos<N,Ms...>>
+    class SFPos
     {
     public:
-	static constexpr bool MULTI = false;
-
 	constexpr SFPos() = default;
 
 	constexpr SizeT size() const;
@@ -127,101 +106,57 @@ namespace CNORXZ
 	constexpr auto operator+(const SPos<N1>& a) const;
 	template <SizeT N1>
 	constexpr auto operator*(const SPos<N1>& a) const;
+	template <SizeT N1>
+	constexpr auto operator()(const SPos<N1>& a) const;
 
 	constexpr auto operator+(const UPos& a) const;
 	constexpr auto operator*(const UPos& a) const;
+	constexpr auto operator()(const UPos& a) const;
 
 	template <class PosT>
-	constexpr auto extend(const CPosInterface<PosT>& a) const;
-    };
-    
-    class DPos : public ObjHandle<VPosBase>,
-		 public CPosInterface<DPos>
-    {
-    public:
-	static constexpr bool MULTI = true;
-
-	DEFAULT_MEMBERS(DPos);
-	inline DPos(Uptr<VPosBase>&& a);
-	
-	template <class PosT>
-	inline DPos(const CPosInterface<PosT>& a);
-
-	inline SizeT size() const;
-	inline SizeT val() const;
-	inline DPosRef first() const;
-	inline DPosRef next() const;
-
-	template <class PosT1>
-	inline DPos operator+(const CPosInterface<PosT1>& a) const;
-
-	template <class PosT1>
-	inline DPos operator*(const CPosInterface<PosT1>& a) const;
-
-	template <class PosT1>
-	inline DPos extend(const CPosInterface<PosT1>& a) const;
-	
-    };
-    
-    class DPosRef : public CPosInterface<DPosRef>
-    {
-    private:
-	const VPosBase* mC;
-    public:
-	static constexpr bool MULTI = true;
-
-	DEFAULT_MEMBERS(DPosRef);
-	inline DPosRef(const VPosBase* c);
-
-	inline SizeT size() const;
-	inline SizeT val() const;
-	inline DPosRef first() const;
-	inline DPosRef next() const;
-
-	template <class PosT1>
-	inline DPos operator+(const CPosInterface<PosT1>& a) const;
-
-	template <class PosT1>
-	inline DPos operator*(const CPosInterface<PosT1>& a) const;
-
-	template <class PosT1>
-	inline DPos extend(const CPosInterface<PosT1>& a) const;
+	constexpr auto extend(const PosT& a) const;
     };
 
-    // go to original pattern (-> LINEAR template chain)
-    // first: just cast by constructor
-    template <class PosT1, class PosT2>
-    class MPos : public CPosInterface<MPos<PosT1,PosT2>>
+    template <class BPosT, class NPosT>
+    class MPos : public BPosT // BPos should be a SCALAR PosT (NO MPos!)
     {
-    private:
-
-	PosT1 mFirst;
-	PosT2 mNext;
-	
+    protected:
+	NPosT mNext;
     public:
-	static constexpr bool MULTI = true;
+	constexpr MPos()
 
-	DEFAULT_MEMBERS(MPos);
-	
-	constexpr MPos(const CPosInterface<PosT1>& first,
-		       const CPosInterface<PosT2>& next);
+	template <typename... Args>
+	constexpr MPos(Args&&... args, const NPosT& next);
+
+	template <typename... Args>
+	constexpr MPos(Args&&... args, NPosT&& next);
 
 	constexpr SizeT size() const;
-	constexpr auto val() const;
-	constexpr const PosT1& first() const;
-	constexpr const PosT2& next() const;
+	constexpr const NPos& next() const;
 
-	template <class PosT3, class PosT4>
-	constexpr auto operator+(const MPos<PosT3,PosT4>& a) const;
+	template <class PosT>
+	constexpr auto operator+(const PosT& a) const;
 
-	template <class PosT3>
-	constexpr auto operator*(const CPosInterface<PosT3>& a) const;
+	template <class PosT>
+	constexpr auto operator*(const PosT& a) const;
 
-	template <class PosT3>
-	constexpr auto extend(const CPosInterface<PosT3>& p) const;
+	// same as operator*, except for FPos/SFPos, where map is executed
+	template <class PosT>
+	constexpr auto operator()(const PosT& a) const;
+	
+	template <class PosT>
+	constexpr auto extend(const PosT& a) const;
+    };
 
-    };    
-    
+    template <SizeT N> struct is_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
+    template <SizeT N> struct is_scalar_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
+    template <> struct is_pos_type<UPos> { CXZ_CVAL_TRUE; };
+    template <> struct is_scalar_pos_type<UPos> { CXZ_CVAL_TRUE; };
+    template <> struct is_pos_type<FPos> { CXZ_CVAL_TRUE; };
+    template <> struct is_scalar_pos_type<FPos> { CXZ_CVAL_TRUE; };
+    template <SizeT N, SizeT... Ms> struct is_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
+    template <SizeT N, SizeT... Ms> struct is_scalar_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
+    template <class BPosT, class NPosT> struct is_pos_type<MPos<BPosT,NPosT>> { CXZ_CVAL_TRUE; };
 
 } // end namespace CNORXZInternal
 

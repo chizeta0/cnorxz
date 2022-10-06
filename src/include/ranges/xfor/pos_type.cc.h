@@ -38,6 +38,13 @@ namespace CNORXZ
     }
 
     template <SizeT N>
+    template <SizeT N1>
+    constexpr auto SPos<N>::operator()(const SPos<N1>& a) const
+    {
+	return SPos<N*N1>();
+    }
+
+    template <SizeT N>
     constexpr auto SPos<N>::operator+(const UPos& a) const
     {
 	return UPos(N+a.val());
@@ -50,8 +57,14 @@ namespace CNORXZ
     }
 
     template <SizeT N>
+    constexpr auto SPos<N>::operator()(const UPos& a) const
+    {
+	return UPos(N*a.val());
+    }
+
+    template <SizeT N>
     template <class PosT>
-    constexpr auto SPos<N>::extend(const CPosInterface<PosT>& a) const
+    constexpr auto SPos<N>::extend(const PosT& a) const
     {
 	return MPos<SPos<N>,PosT>(*this,a);
     }
@@ -73,19 +86,25 @@ namespace CNORXZ
     }
     
     template <class PosT>
-    constexpr UPos UPos::operator+(const CPosInterface<PosT>& in) const
+    constexpr UPos UPos::operator+(const PosT& in) const
     {
 	return UPos(mExt + in.val());
     }
     
     template <class PosT>
-    constexpr UPos UPos::operator*(const CPosInterface<PosT>& in) const
+    constexpr UPos UPos::operator*(const PosT& in) const
     {
 	return UPos(mExt * in.val());
     }
 	
     template <class PosT>
-    constexpr auto UPos::extend(const CPosInterface<PosT>& p1) const
+    constexpr UPos UPos::operator()(const PosT& in) const
+    {
+	return UPos(mExt * in.val());
+    }
+	
+    template <class PosT>
+    constexpr auto UPos::extend(const PosT& p1) const
     {
 	return MPos<UPos,PosT>(*this, p1);
     }
@@ -107,19 +126,25 @@ namespace CNORXZ
     }
 	
     template <class PosT1>
-    constexpr UPos FPos::operator+(const CPosInterface<PosT1>& a) const
+    constexpr UPos FPos::operator+(const PosT1& a) const
     {
 	return UPos(mExt + a.val());
     }
 
+    template <class PosT>
+    constexpr FPos UPos::operator*(const PosT& in) const
+    {
+	return FPos(mExt * in.val(), mMap);
+    }
+
     template <class PosT1>
-    constexpr UPos FPos::operator*(const CPosInterface<PosT1>& a) const
+    constexpr UPos FPos::operator()(const PosT1& a) const
     {
 	return UPos(mExt * mMap[a.val()]);
     }
 
     template <class PosT1>
-    constexpr auto FPos::extend(const CPosInterface<PosT1>& a) const
+    constexpr auto FPos::extend(const PosT1& a) const
     {
 	return MPos<FPos,PosT1>(*this,a);
     }
@@ -151,6 +176,13 @@ namespace CNORXZ
     template <SizeT N1>
     constexpr auto SFPos<N,Ms...>::operator*(const SPos<N1>& a) const
     {
+	return SFPos<N*N1,Ms...>();
+    }
+
+    template <SizeT N, SizeT... Ms>
+    template <SizeT N1>
+    constexpr auto SFPos<N,Ms...>::operator()(const SPos<N1>& a) const
+    {
 	constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
 	return SPos<N*std::get<a.val()>(ms)>();
     }
@@ -162,7 +194,15 @@ namespace CNORXZ
     }
     
     template <SizeT N, SizeT... Ms>
+    template <SizeT N1>
     constexpr auto SFPos<N,Ms...>::operator*(const UPos& a) const
+    {
+	static const Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
+	return FPos(N * a.val(), &ms[0]);
+    }
+
+    template <SizeT N, SizeT... Ms>
+    constexpr auto SFPos<N,Ms...>::operator()(const UPos& a) const
     {
 	constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
 	return UPos(N * ms[a.val()]);
@@ -170,171 +210,84 @@ namespace CNORXZ
 
     template <SizeT N, SizeT... Ms>
     template <class PosT>
-    constexpr auto SFPos<N,Ms...>::extend(const CPosInterface<PosT>& a) const
+    constexpr auto SFPos<N,Ms...>::extend(const PosT& a) const
     {
 	return MPos<SFPos<N,Ms...>,PosT>(*this,a);
     }
-
-    
-    /************
-     *   DPos   *
-     ************/
-
-    inline DPos::DPos(Uptr<VPosBase>&& a) :
-	ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a))
-    {}
-
-    template <class PosT>
-    inline DPos::DPos(const CPosInterface<PosT>& a) :
-	ObjHandle<VPosBase>( std::make_unique<VPos<PosT>>(a) )
-    {}
-
-    inline SizeT DPos::size() const
-    {
-	return mC->vsize();
-    }
-    
-    inline SizeT DPos::val() const
-    {
-	return mC->vval();
-    }
-    
-    inline DPosRef DPos::first() const
-    {
-	return DPosRef(mC->vget());
-    } 
-
-    inline DPosRef DPos::next() const
-    {
-	return DPosRef(mC->vnext());
-    } 
-
-    template <class PosT1>
-    inline DPos DPos::operator+(const CPosInterface<PosT1>& a) const
-    {
-	VPosRef<PosT1> r(&a);
-	return DPos(mC->vplus(&r)); // check memory safety!!!
-    }
-    
-    template <class PosT1>
-    inline DPos DPos::operator*(const CPosInterface<PosT1>& a) const
-    {
-	VPosRef<PosT1> r(&a);
-	return DPos(mC->vtimes(&r)); // check memory safety!!!
-    }    
-    
-    template <class PosT1>
-    inline DPos DPos::extend(const CPosInterface<PosT1>& a) const
-    {
-	return DPos(mC->vextend(a));
-    }
-    
-    /***************
-     *   DPosRef   *
-     ***************/
-    
-    inline DPosRef::DPosRef(const VPosBase* c) :
-	mC(c)
-    {}
-    
-    inline SizeT DPosRef::size() const
-    {
-	return mC->vsize();
-    }
-    
-    inline SizeT DPosRef::val() const
-    {
-	return mC->vval();
-    }
-    
-    inline DPosRef DPosRef::first() const
-    {
-	return DPosRef(mC->vget());
-    } 
-
-    inline DPosRef DPosRef::next() const
-    {
-	return DPosRef(mC->vnext());
-    } 
-
-    template <class PosT1>
-    inline DPos DPosRef::operator+(const CPosInterface<PosT1>& a) const
-    {
-	VPosRef<PosT1> r(&a);
-	return DPos(mC->vplus(&r)); // check memory safety!!!
-    }
-    
-    template <class PosT1>
-    inline DPos DPosRef::operator*(const CPosInterface<PosT1>& a) const
-    {
-	VPosRef<PosT1> r(&a);
-	return DPos(mC->vtimes(&r)); // check memory safety!!!
-    }    
-    
-    template <class PosT1>
-    inline DPos DPosRef::extend(const CPosInterface<PosT1>& a) const
-    {
-	return DPos(mC->vextend(a));
-    }
-
 
     /************
      *   MPos   *
      ************/
 
-    template <class PosT1, class PosT2>
-    constexpr MPos<PosT1,PosT2>::MPos(const CPosInterface<PosT1>& first,
-				      const CPosInterface<PosT2>& next) :
-	mFirst(first.THIS()), mNext(next.THIS())
-    {}
-
-    template <class PosT1, class PosT2>
-    constexpr SizeT MPos<PosT1,PosT2>::size() const
+    template <class BPosT, class NPosT>
+    constexpr MPos<BPosT,NPosT>::MPos()
     {
-	return mFirst.size() + mNext.size();
+	static_assert(is_scalar_pos_type<BPosT>::value,
+		      "MPos has to be derived from scalar pos type");
     }
 
-    template <class PosT1, class PosT2>
-    constexpr auto MPos<PosT1,PosT2>::val() const
+    template <class BPosT, class NPosT>
+    template <typename... Args>
+    constexpr MPos<BPosT,NPosT>::MPos(Args&&... args, const NPosT& next) :
+	BPosT(args...), mNext(next)
     {
-	return mFirst.val();
+	static_assert(is_scalar_pos_type<BPosT>::value,
+		      "MPos has to be derived from scalar pos type");
     }
 
-    template <class PosT1, class PosT2>
-    constexpr const PosT1& MPos<PosT1,PosT2>::first() const
+    template <class BPosT, class NPosT>
+    template <typename... Args>
+    constexpr MPos<BPosT,NPosT>::MPos(Args&&... args, NPosT&& next) :
+	BPosT(args...), mNext(next)
     {
-	return mFirst;
+	static_assert(is_scalar_pos_type<BPosT>::value,
+		      "MPos has to be derived from scalar pos type");
     }
 
-    template <class PosT1, class PosT2>
-    constexpr const PosT2& MPos<PosT1,PosT2>::next() const
+    template <class BPosT, class NPosT>
+    constexpr SizeT MPos<BPosT,NPosT>::size() const
+    {
+	return BPosT::size() + mNext.size();
+    }
+
+    template <class BPosT, class NPosT>
+    constexpr const NPos& MPos<BPosT,NPosT>::next() const
     {
 	return mNext;
     }
 
-    template <class PosT1, class PosT2>
-    template <class PosT3, class PosT4>
-    constexpr auto MPos<PosT1,PosT2>::operator+(const MPos<PosT3,PosT4>& a) const
+    template <class BPosT, class NPosT>
+    template <class PosT>
+    constexpr auto MPos<BPosT,NPosT>::operator+(const PosT& a) const
     {
-	typedef decltype(first()+a.first()) PosT5;
-	typedef decltype(next()+a.next()) PosT6;
-	return MPos<PosT5,PosT6>(first()+a.first(), next()+a.next());
+	typedef decltype(BPosT::operator+(a)) OBPosT;
+	typedef decltype(mNext + a.next()) ONPosT;
+	return MPos<OBPosT,ONPosT>( BPosT::operator+(a), mNext + a.next() );
     }
 
-    template <class PosT1, class PosT2>
-    template <class PosT3>
-    constexpr auto MPos<PosT1,PosT2>::operator*(const CPosInterface<PosT3>& a) const
+    template <class BPosT, class NPosT>
+    template <class PosT>
+    constexpr auto MPos<BPosT,NPosT>::operator*(const PosT& a) const
     {
-	typedef decltype(first()*a.THIS()) PosT5;
-	typedef decltype(next()*a.THIS()) PosT6;
-	return MPos<PosT5,PosT6>(first()*a.THIS(), next()*a.THIS());
+	typedef decltype(BPosT::operator*(a)) OBPosT;
+	typedef decltype(mNext * a.next()) ONPosT;
+	return MPos<OBPosT,ONPosT>( BPosT::operator*(a), mNext * a.next() );
     }
 
-    template <class PosT1, class PosT2>
-    template <class PosT3>
-    constexpr auto MPos<PosT1,PosT2>::extend(const CPosInterface<PosT3>& p) const
+    template <class BPosT, class NPosT>
+    template <class PosT>
+    constexpr auto MPos<BPosT,NPosT>::operator()(const PosT& a) const
     {
-	return MPos<MPos<PosT1,PosT2>,PosT3>(*this,p);
+	typedef decltype(BPosT::operator()(a)) OBPosT;
+	typedef decltype(mNext(a.next())) ONPosT;
+	return MPos<OBPosT,ONPosT>( BPosT::operator()(a), mNext(a.next()) );
+    }
+	
+    template <class BPosT, class NPosT>
+    template <class PosT>
+    constexpr auto MPos<BPosT,NPosT>::extend(const PosT& a) const
+    {
+	return mNext.extend(a);
     }
 
 }
