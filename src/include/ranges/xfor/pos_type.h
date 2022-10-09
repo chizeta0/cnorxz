@@ -21,6 +21,8 @@ namespace CNORXZ
     {
     public:
 	constexpr SPos() = default;
+	constexpr SPos(const SPos& a) = default;
+	constexpr SPos(SPos&& a) = default;
 
 	constexpr SizeT size() const;
 	constexpr SizeT val() const;
@@ -96,6 +98,8 @@ namespace CNORXZ
     template <SizeT N, SizeT... Ms>
     class SFPos
     {
+    private:
+	static Arr<SizeT,sizeof...(Ms)> sMs;
     public:
 	constexpr SFPos() = default;
 
@@ -123,8 +127,10 @@ namespace CNORXZ
     protected:
 	NPosT mNext;
     public:
-	constexpr MPos()
+	constexpr MPos();
 
+	constexpr MPos(const BPosT& b, const NPosT& n);
+	
 	template <typename... Args>
 	constexpr MPos(Args&&... args, const NPosT& next);
 
@@ -132,7 +138,7 @@ namespace CNORXZ
 	constexpr MPos(Args&&... args, NPosT&& next);
 
 	constexpr SizeT size() const;
-	constexpr const NPos& next() const;
+	constexpr const NPosT& next() const;
 
 	template <class PosT>
 	constexpr auto operator+(const PosT& a) const;

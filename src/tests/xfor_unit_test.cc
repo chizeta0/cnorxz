@@ -8,7 +8,7 @@ namespace
     using namespace CNORXZ;
 
     template <class PosT1, class PosT2>
-    constexpr auto mkMPos(const CPosInterface<PosT1>& a, const CPosInterface<PosT2>& b)
+    constexpr auto mkMPos(const PosT1& a, const PosT2& b)
     {
 	return MPos<PosT1,PosT2>(a,b);
     }
@@ -84,17 +84,17 @@ namespace
 	EXPECT_EQ(mp4.size(), 2);
 	EXPECT_EQ(mp5.size(), 2);
 
-	EXPECT_EQ(mp1.first().val(), mS2p.val());
+	EXPECT_EQ(mp1.val(), mS2p.val());
 	EXPECT_EQ(mp1.next().val(), mUp1.val());
-	EXPECT_EQ(mp2.first().val(), mUp2.val());
+	EXPECT_EQ(mp2.val(), mUp2.val());
 	EXPECT_EQ(mp2.next().val(), mS4p.val());
-	EXPECT_EQ(mp3a.first().val(), mS2p.val() + mUp2.val());
+	EXPECT_EQ(mp3a.val(), mS2p.val() + mUp2.val());
 	EXPECT_EQ(mp3a.next().val(), mUp1.val() + mS4p.val());
-	EXPECT_EQ(mp3b.first().val(), mS2p.val() + mUp2.val());
+	EXPECT_EQ(mp3b.val(), mS2p.val() + mUp2.val());
 	EXPECT_EQ(mp3b.next().val(), mUp1.val() + mS4p.val());
-	EXPECT_EQ(mp4.first().val(), mS2p.val() * mS2p.val());
+	EXPECT_EQ(mp4.val(), mS2p.val() * mS2p.val());
 	EXPECT_EQ(mp4.next().val(), mUp1.val() * mS2p.val());
-	EXPECT_EQ(mp5.first().val(), mUp2.val() * mUp1.val());
+	EXPECT_EQ(mp5.val(), mUp2.val() * mUp1.val());
 	EXPECT_EQ(mp5.next().val(), mS4p.val() * mUp1.val());
     }
     /*

@@ -132,7 +132,7 @@ namespace CNORXZ
     }
 
     template <class PosT>
-    constexpr FPos UPos::operator*(const PosT& in) const
+    constexpr FPos FPos::operator*(const PosT& in) const
     {
 	return FPos(mExt * in.val(), mMap);
     }
@@ -153,6 +153,9 @@ namespace CNORXZ
      *   SFPos   *
      *************/
 
+    template <SizeT N, SizeT... Ms>
+    Arr<SizeT,sizeof...(Ms)> SFPos<N,Ms...>::sMs = { Ms... };
+    
     template <SizeT N, SizeT... Ms>
     constexpr SizeT SFPos<N,Ms...>::size() const
     {
@@ -194,11 +197,9 @@ namespace CNORXZ
     }
     
     template <SizeT N, SizeT... Ms>
-    template <SizeT N1>
     constexpr auto SFPos<N,Ms...>::operator*(const UPos& a) const
     {
-	static const Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
-	return FPos(N * a.val(), &ms[0]);
+	return FPos(N * a.val(), &sMs[0]);
     }
 
     template <SizeT N, SizeT... Ms>
@@ -221,6 +222,14 @@ namespace CNORXZ
 
     template <class BPosT, class NPosT>
     constexpr MPos<BPosT,NPosT>::MPos()
+    {
+	static_assert(is_scalar_pos_type<BPosT>::value,
+		      "MPos has to be derived from scalar pos type");
+    }
+
+    template <class BPosT, class NPosT>
+    constexpr MPos<BPosT,NPosT>::MPos(const BPosT& b, const NPosT& n) :
+	BPosT(b), mNext(n)
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
@@ -251,7 +260,7 @@ namespace CNORXZ
     }
 
     template <class BPosT, class NPosT>
-    constexpr const NPos& MPos<BPosT,NPosT>::next() const
+    constexpr const NPosT& MPos<BPosT,NPosT>::next() const
     {
 	return mNext;
     }
@@ -270,8 +279,8 @@ namespace CNORXZ
     constexpr auto MPos<BPosT,NPosT>::operator*(const PosT& a) const
     {
 	typedef decltype(BPosT::operator*(a)) OBPosT;
-	typedef decltype(mNext * a.next()) ONPosT;
-	return MPos<OBPosT,ONPosT>( BPosT::operator*(a), mNext * a.next() );
+	typedef decltype(mNext * a) ONPosT;
+	return MPos<OBPosT,ONPosT>( BPosT::operator*(a), mNext * a );
     }
 
     template <class BPosT, class NPosT>
@@ -279,8 +288,8 @@ namespace CNORXZ
     constexpr auto MPos<BPosT,NPosT>::operator()(const PosT& a) const
     {
 	typedef decltype(BPosT::operator()(a)) OBPosT;
-	typedef decltype(mNext(a.next())) ONPosT;
-	return MPos<OBPosT,ONPosT>( BPosT::operator()(a), mNext(a.next()) );
+	typedef decltype(mNext(a)) ONPosT;
+	return MPos<OBPosT,ONPosT>( BPosT::operator()(a), mNext(a) );
     }
 	
     template <class BPosT, class NPosT>
