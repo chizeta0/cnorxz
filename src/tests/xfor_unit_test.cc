@@ -36,10 +36,10 @@ namespace
 
     TEST_F(Pos_Test, Basics)
     {
-	EXPECT_EQ( mUp1.size(), 1 );
-	EXPECT_EQ( mUp2.size(), 1 );
-	EXPECT_EQ( mS4p.size(), 1 );
-	EXPECT_EQ( mS2p.size(), 1 );
+	EXPECT_EQ( mUp1.size(), 1u );
+	EXPECT_EQ( mUp2.size(), 1u );
+	EXPECT_EQ( mS4p.size(), 1u );
+	EXPECT_EQ( mS2p.size(), 1u );
 
 	EXPECT_EQ( mUp1.val(), s1 );
 	EXPECT_EQ( mUp2.val(), s2 );
@@ -53,12 +53,12 @@ namespace
 	auto up5 = mS4p + mUp1;
 	auto up6 = mUp1 + mS2p;
 
-	EXPECT_EQ( s6p.size(), 1 );
-	EXPECT_EQ( s8p.size(), 1 );
-	EXPECT_EQ( up3.size(), 1 );
-	EXPECT_EQ( up4.size(), 1 );
-	EXPECT_EQ( up5.size(), 1 );
-	EXPECT_EQ( up6.size(), 1 );
+	EXPECT_EQ( s6p.size(), 1u );
+	EXPECT_EQ( s8p.size(), 1u );
+	EXPECT_EQ( up3.size(), 1u );
+	EXPECT_EQ( up4.size(), 1u );
+	EXPECT_EQ( up5.size(), 1u );
+	EXPECT_EQ( up6.size(), 1u );
 
 	EXPECT_EQ( s6p.val(), ss1+ss2 );
 	EXPECT_EQ( s8p.val(), ss1*ss2 );
@@ -77,12 +77,12 @@ namespace
 	auto mp4 = mp1 * mS2p;
 	auto mp5 = mp2 * mUp1;
 
-	EXPECT_EQ(mp1.size(), 2);
-	EXPECT_EQ(mp2.size(), 2);
-	EXPECT_EQ(mp3a.size(), 2);
-	EXPECT_EQ(mp3b.size(), 2);
-	EXPECT_EQ(mp4.size(), 2);
-	EXPECT_EQ(mp5.size(), 2);
+	EXPECT_EQ( mp1.size(), 2u );
+	EXPECT_EQ( mp2.size(), 2u );
+	EXPECT_EQ( mp3a.size(), 2u );
+	EXPECT_EQ( mp3b.size(), 2u );
+	EXPECT_EQ( mp4.size(), 2u );
+	EXPECT_EQ( mp5.size(), 2u );
 
 	EXPECT_EQ(mp1.val(), mS2p.val());
 	EXPECT_EQ(mp1.next().val(), mUp1.val());
