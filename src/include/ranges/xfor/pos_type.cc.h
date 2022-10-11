@@ -216,6 +216,12 @@ namespace CNORXZ
 	return MPos<SFPos<N,Ms...>,PosT>(*this,a);
     }
 
+    template <SizeT N, SizeT... Ms>
+    constexpr SFPos<N,Ms...>::operator FPos() const
+    {
+	return FPos(N, &sMs[0]);
+    }
+
     /************
      *   MPos   *
      ************/
@@ -299,6 +305,117 @@ namespace CNORXZ
 	return mNext.extend(a);
     }
 
+    /************
+     *   DPos   *
+     ************/
+
+    inline DPos::DPos(Uptr<VPosBase>&& a) :
+	ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a))
+    {}
+	
+    template <class PosT>
+    inline DPos::DPos(const PosT& a) :
+	ObjHandle<VPosBase>(std::make_unique<VPos<PosT>>(a))
+    {
+	static_assert(is_pos_type<PosT>::value,
+		      "DPos can only be constructed from pos types");
+    }
+    
+    template <class PosT>
+    inline DPos::DPos(PosT&& a) :
+	ObjHandle<VPosBase>(std::make_unique<VPos<PosT>>(a))
+    {
+	static_assert(is_pos_type<PosT>::value,
+		      "DPos can only be constructed from pos types");
+    }
+
+    inline SizeT DPos::size() const
+    {
+	return mC->vsize();
+    }
+    
+    inline SizeT DPos::val() const
+    {
+	return mC->vval();
+    }
+    
+    inline DPosRef DPos::next() const
+    {
+	return DPosRef(mC->vnext());
+    }
+
+    template <class PosT>
+    inline DPos DPos::operator+(const PosT& a) const
+    {
+	return DPos(mC->vplus( VPosRef<PosT>(&a) ));
+    }
+
+    template <class PosT>
+    inline DPos DPos::operator*(const PosT& a) const
+    {
+	
+	return DPos(mC->vtimes( VPosRef<PosT>(&a) ));
+    }
+
+    // same as operator*, except for FPos/SFPos, where map is executed
+    template <class PosT>
+    inline DPos DPos::operator()(const PosT& a) const
+    {
+	return DPos(mC->vexec( VPosRef<PosT>(&a) ));
+    }
+	
+    template <class PosT>
+    inline DPos DPos::extend(const PosT& a) const
+    {
+	return DPos(mC->vextend( a ));
+    }
+
+    /***************
+     *   DPosRef   *
+     ***************/
+
+    inline DPosRef::DPosRef(const VPosBase* p) : mP(p) {}
+
+    inline SizeT DPosRef::size() const
+    {
+	return mP->vsize();
+    }
+    
+    inline SizeT DPosRef::val() const
+    {
+	return mP->vval();
+    }
+    
+    inline DPosRef DPosRef::next() const
+    {
+	return DPosRef(mP->vnext());
+    }
+
+    template <class PosT>
+    inline DPos DPosRef::operator+(const PosT& a) const
+    {
+	return DPos(mP->vplus( VPosRef<PosT>(&a) ));
+    }
+
+    template <class PosT>
+    inline DPos DPosRef::operator*(const PosT& a) const
+    {
+	return DPos(mP->vtimes( VPosRef<PosT>(&a) ));
+    }
+
+    // same as operator*, except for FPos/SFPos, where map is executed
+    template <class PosT>
+    inline DPos DPosRef::operator()(const PosT& a) const
+    {
+	return DPos(mP->vexec( VPosRef<PosT>(&a) ));
+    }
+	
+    template <class PosT>
+    inline DPos DPosRef::extend(const PosT& a) const
+    {
+	return DPos(mP->vextend( a ));
+    }
+    
 }
 
 #endif

@@ -18,7 +18,6 @@ namespace CNORXZ
     public:
 
 	ObjHandle();
-	ObjHandle(const T& a);
 	ObjHandle(Uptr<T>&& a);
 	ObjHandle(const ObjHandle& a);
 	ObjHandle(ObjHandle&& a);

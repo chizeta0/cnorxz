@@ -11,9 +11,6 @@ namespace CNORXZ
     ObjHandle<T>::ObjHandle() {}
 
     template <typename T>
-    ObjHandle<T>::ObjHandle(const T& a) : mC(std::make_unique<T>(a)) {}
-
-    template <typename T>
     ObjHandle<T>::ObjHandle(Uptr<T>&& a) : mC(std::forward<Uptr<T>>(a)) {}
 
     template <typename T>

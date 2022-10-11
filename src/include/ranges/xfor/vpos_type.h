@@ -14,10 +14,10 @@ namespace CNORXZ
 	virtual Uptr<VPosBase> copy() const = 0;
 	virtual SizeT vsize() const = 0;
 	virtual SizeT vval() const = 0;
-	virtual const VPosBase* vget() const = 0;
 	virtual const VPosBase* vnext() const = 0;
 	virtual Uptr<VPosBase> vplus(const VPosBase* a) const = 0;
 	virtual Uptr<VPosBase> vtimes(const VPosBase* a) const = 0;
+	virtual Uptr<VPosBase> vexec(const VPosBase* a) const = 0;
 	virtual Uptr<VPosBase> vextend(const DPos& a) const = 0;
 	virtual Uptr<VPosBase> vextend(const DPosRef& a) const = 0;
 	virtual Uptr<VPosBase> vextend(const UPos& a) const = 0;
@@ -25,6 +25,9 @@ namespace CNORXZ
 
 	template <SizeT N>
 	Uptr<VPosBase> vextend(const SPos<N>& a) const;
+
+	template <SizeT N, SizeT... Ms>
+	Uptr<VPosBase> vextend(const SFPos<N,Ms...>& a) const;
     };
 
     template <class PosT>
@@ -33,15 +36,15 @@ namespace CNORXZ
     public:
 	
 	DEFAULT_MEMBERS(VPos);
-	VPos(const CPosInterface<PosT>& a);
+	VPos(const PosT& a);
 	
 	virtual Uptr<VPosBase> copy() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
-	virtual const VPosBase* vget() const override final;
 	virtual const VPosBase* vnext() const override final;
 	virtual Uptr<VPosBase> vplus(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vtimes(const VPosBase* a) const override final;
+	virtual Uptr<VPosBase> vexec(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPos& a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPosRef& a) const override final;
 	virtual Uptr<VPosBase> vextend(const UPos& a) const override final;
@@ -52,21 +55,19 @@ namespace CNORXZ
     class VPos<MPos<PosT1,PosT2>> : public VPosBase, public MPos<PosT1,PosT2>
     {
     private:
-	VPosRef<PosT1> mFRef;
 	VPosRef<PosT2> mNRef;
+
     public:
-	typedef MPos<PosT1,PosT2> MPosT;
-	
 	DEFAULT_MEMBERS(VPos);
-	VPos(const CPosInterface<MPos<PosT1,PosT2>>& a);
+	VPos(const MPos<PosT1,PosT2>& a);
 	
 	virtual Uptr<VPosBase> copy() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
-	virtual const VPosBase* vget() const override final;
 	virtual const VPosBase* vnext() const override final;
 	virtual Uptr<VPosBase> vplus(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vtimes(const VPosBase* a) const override final;
+	virtual Uptr<VPosBase> vexec(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPos& a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPosRef& a) const override final;
 	virtual Uptr<VPosBase> vextend(const UPos& a) const override final;
@@ -81,15 +82,15 @@ namespace CNORXZ
 
     public:
 	DEFAULT_MEMBERS(VPosRef);
-	VPosRef(const CPosInterface<PosT>* c);
+	VPosRef(const PosT* c);
 
 	virtual Uptr<VPosBase> copy() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
-	virtual const VPosBase* vget() const override final;
 	virtual const VPosBase* vnext() const override final;
 	virtual Uptr<VPosBase> vplus(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vtimes(const VPosBase* a) const override final;
+	virtual Uptr<VPosBase> vexec(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPos& a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPosRef& a) const override final;
 	virtual Uptr<VPosBase> vextend(const UPos& a) const override final;
@@ -102,21 +103,19 @@ namespace CNORXZ
     {
     private:
 	const MPos<PosT1,PosT2>* mC = nullptr;
-	VPosRef<PosT1> mFRef;
 	VPosRef<PosT2> mNRef;
-    public:
-	typedef MPos<PosT1,PosT2> MPosT;
 
+    public:
 	DEFAULT_MEMBERS(VPosRef);
-	VPosRef(const CPosInterface<MPos<PosT1,PosT2>>* c);
+	VPosRef(const MPos<PosT1,PosT2>* c);
 
 	virtual Uptr<VPosBase> copy() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
-	virtual const VPosBase* vget() const override final;
 	virtual const VPosBase* vnext() const override final;
 	virtual Uptr<VPosBase> vplus(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vtimes(const VPosBase* a) const override final;
+	virtual Uptr<VPosBase> vexec(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPos& a) const override final;
 	virtual Uptr<VPosBase> vextend(const DPosRef& a) const override final;
 	virtual Uptr<VPosBase> vextend(const UPos& a) const override final;

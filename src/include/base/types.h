@@ -120,16 +120,6 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     class MPos;
 
-    // definition: ranges/xfor/pos_type.h
-    template <class PosT>
-    class FMPos;
-
-    // definition: ranges/xfor/pos_type.h
-    class UPos;
-
-    // definition: ranges/xfor/pos_type.h
-    class FPos;
-
     // definition: ranges/range_base.h
     class RangeBase;
 

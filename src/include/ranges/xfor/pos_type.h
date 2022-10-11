@@ -6,9 +6,6 @@
 
 namespace CNORXZ
 {
-    // shift to base.h
-#define CXZ_CVAL_FALSE static constexpr bool value = false
-#define CXZ_CVAL_TRUE static constexpr bool value = true
     
     template <class T>
     struct is_pos_type { CXZ_CVAL_FALSE; };
@@ -93,6 +90,7 @@ namespace CNORXZ
 
 	template <class PosT1>
 	constexpr auto extend(const PosT1& a) const;
+
     };
 
     template <SizeT N, SizeT... Ms>
@@ -119,6 +117,8 @@ namespace CNORXZ
 
 	template <class PosT>
 	constexpr auto extend(const PosT& a) const;
+
+	explicit constexpr operator FPos() const;
     };
 
     template <class BPosT, class NPosT>
@@ -154,6 +154,65 @@ namespace CNORXZ
 	constexpr auto extend(const PosT& a) const;
     };
 
+    class DPos : public ObjHandle<VPosBase>
+    {
+    public:
+	DEFAULT_MEMBERS(DPos);
+
+	inline DPos(Uptr<VPosBase>&& a);
+	
+	template <class PosT>
+	inline explicit DPos(const PosT& a);
+
+	template <class PosT>
+	inline explicit DPos(PosT&& a);
+
+	inline SizeT size() const;
+	inline SizeT val() const;
+	inline DPosRef next() const;
+
+	template <class PosT>
+	inline DPos operator+(const PosT& a) const;
+
+	template <class PosT>
+	inline DPos operator*(const PosT& a) const;
+
+	// same as operator*, except for FPos/SFPos, where map is executed
+	template <class PosT>
+	inline DPos operator()(const PosT& a) const;
+	
+	template <class PosT>
+	inline DPos extend(const PosT& a) const;
+    };
+
+    class DPosRef
+    {
+    private:
+	const VPosBase* mP = nullptr;
+
+    public:
+	DEFAULT_MEMBERS(DPosRef);
+
+	explicit DPosRef(const VPosBase* p);
+	
+	inline SizeT size() const;
+	inline SizeT val() const;
+	inline DPosRef next() const;
+
+	template <class PosT>
+	inline DPos operator+(const PosT& a) const;
+
+	template <class PosT>
+	inline DPos operator*(const PosT& a) const;
+
+	// same as operator*, except for FPos/SFPos, where map is executed
+	template <class PosT>
+	inline DPos operator()(const PosT& a) const;
+	
+	template <class PosT>
+	inline DPos extend(const PosT& a) const;
+    };
+    
     template <SizeT N> struct is_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <SizeT N> struct is_scalar_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<UPos> { CXZ_CVAL_TRUE; };
@@ -163,7 +222,9 @@ namespace CNORXZ
     template <SizeT N, SizeT... Ms> struct is_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
     template <SizeT N, SizeT... Ms> struct is_scalar_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
     template <class BPosT, class NPosT> struct is_pos_type<MPos<BPosT,NPosT>> { CXZ_CVAL_TRUE; };
-
+    template <> struct is_pos_type<DPos> { CXZ_CVAL_TRUE; };
+    template <> struct is_pos_type<DPosRef> { CXZ_CVAL_TRUE; };
+    
 } // end namespace CNORXZInternal
 
 
