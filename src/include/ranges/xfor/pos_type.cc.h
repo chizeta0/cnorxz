@@ -69,6 +69,12 @@ namespace CNORXZ
 	return MPos<SPos<N>,PosT>(*this,a);
     }
 
+    template <SizeT N>
+    constexpr SPos<N>::operator UPos() const
+    {
+	return UPos(N);
+    }
+
     /************
      *   UPos   *
      ************/
@@ -315,18 +321,30 @@ namespace CNORXZ
 	
     template <class PosT>
     inline DPos::DPos(const PosT& a) :
-	ObjHandle<VPosBase>(std::make_unique<VPos<PosT>>(a))
+	ObjHandle<VPosBase>
+	(std::make_unique<VPos<typename std::remove_reference<PosT>::type>>(a))
     {
-	static_assert(is_pos_type<PosT>::value,
+	static_assert(is_pos_type<typename std::remove_reference<PosT>::type>::value,
 		      "DPos can only be constructed from pos types");
     }
     
     template <class PosT>
     inline DPos::DPos(PosT&& a) :
-	ObjHandle<VPosBase>(std::make_unique<VPos<PosT>>(a))
+	ObjHandle<VPosBase>
+	(std::make_unique<VPos<typename std::remove_reference<PosT>::type>>(a))
     {
-	static_assert(is_pos_type<PosT>::value,
+	static_assert(is_pos_type<typename std::remove_reference<PosT>::type>::value,
 		      "DPos can only be constructed from pos types");
+    }
+
+    inline const VPosBase* DPos::get() const
+    {
+	return mC->get();
+    }
+
+    inline bool DPos::F() const
+    {
+	return mC->F();
     }
 
     inline SizeT DPos::size() const
@@ -375,6 +393,16 @@ namespace CNORXZ
      ***************/
 
     inline DPosRef::DPosRef(const VPosBase* p) : mP(p) {}
+
+    inline const VPosBase* DPosRef::get() const
+    {
+	return mP->get();
+    }
+
+    inline bool DPosRef::F() const
+    {
+	return mP->F();
+    }
 
     inline SizeT DPosRef::size() const
     {

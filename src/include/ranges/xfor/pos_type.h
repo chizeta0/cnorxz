@@ -37,6 +37,8 @@ namespace CNORXZ
 	
 	template <class PosT>
 	constexpr auto extend(const PosT& a) const;
+
+	explicit constexpr operator UPos() const;
     };
 
     class UPos
@@ -167,6 +169,8 @@ namespace CNORXZ
 	template <class PosT>
 	inline explicit DPos(PosT&& a);
 
+	inline const VPosBase* get() const;
+	inline bool F() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
 	inline DPosRef next() const;
@@ -194,7 +198,9 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(DPosRef);
 
 	explicit DPosRef(const VPosBase* p);
-	
+
+	inline const VPosBase* get() const;
+	inline bool F() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
 	inline DPosRef next() const;
