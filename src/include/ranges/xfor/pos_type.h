@@ -12,7 +12,10 @@ namespace CNORXZ
 
     template <class T>
     struct is_scalar_pos_type { CXZ_CVAL_FALSE; };
-    
+
+    template <class T>
+    struct is_static_pos_type { CXZ_CVAL_FALSE; };
+
     template <SizeT N>
     class SPos
     {
@@ -170,6 +173,7 @@ namespace CNORXZ
 	inline explicit DPos(PosT&& a);
 
 	inline const VPosBase* get() const;
+	inline const VPosBase* vpos() const;
 	inline bool F() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
@@ -200,6 +204,7 @@ namespace CNORXZ
 	explicit DPosRef(const VPosBase* p);
 
 	inline const VPosBase* get() const;
+	inline const VPosBase* vpos() const;
 	inline bool F() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
@@ -221,12 +226,14 @@ namespace CNORXZ
     
     template <SizeT N> struct is_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <SizeT N> struct is_scalar_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
+    template <SizeT N> struct is_static_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<UPos> { CXZ_CVAL_TRUE; };
     template <> struct is_scalar_pos_type<UPos> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<FPos> { CXZ_CVAL_TRUE; };
     template <> struct is_scalar_pos_type<FPos> { CXZ_CVAL_TRUE; };
     template <SizeT N, SizeT... Ms> struct is_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
     template <SizeT N, SizeT... Ms> struct is_scalar_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
+    template <SizeT N, SizeT... Ms> struct is_static_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
     template <class BPosT, class NPosT> struct is_pos_type<MPos<BPosT,NPosT>> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<DPos> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<DPosRef> { CXZ_CVAL_TRUE; };

@@ -3,6 +3,7 @@
 #define __cxz_vpos_type_cc_h__
 
 #include "vpos_type.h"
+#include "pos_type.h"
 
 namespace CNORXZ
 {
@@ -28,14 +29,14 @@ namespace CNORXZ
 	return this->vextend(static_cast<const PosT1&>(a))->vextend(a.next());
     }
 
-    inline Uptr<VPosBase> vextend(const DPos& a) const
+    inline Uptr<VPosBase> VPosBase::vextend(const DPos& a) const
     {
-	Uptr out = nullptr;
+	Uptr<VPosBase> out = nullptr;
 	if(a.F()){
-	    out = this->vextend(dynamic_cast<const FPos*>(a.get()));
+	    out = this->vextend(*dynamic_cast<const FPos*>(a.get()));
 	}
 	else {
-	    out = this->vextend(dynamic_cast<const UPos*>(a.get()));
+	    out = this->vextend(*dynamic_cast<const UPos*>(a.get()));
 	}
 	if(a.size() > 1){
 	    return out->vextend(a.next());
@@ -45,14 +46,14 @@ namespace CNORXZ
 	}
     }
     
-    inline Uptr<VPosBase> vextend(const DPosRef& a) const
+    inline Uptr<VPosBase> VPosBase::vextend(const DPosRef& a) const
     {
-	Uptr out = nullptr;
+	Uptr<VPosBase> out = nullptr;
 	if(a.F()){
-	    out = this->vextend(dynamic_cast<const FPos*>(a.get()));
+	    out = this->vextend(*dynamic_cast<const FPos*>(a.get()));
 	}
 	else {
-	    out = this->vextend(dynamic_cast<const UPos*>(a.get()));
+	    out = this->vextend(*dynamic_cast<const UPos*>(a.get()));
 	}
 	if(a.size() > 1){
 	    return out->vextend(a.next());
@@ -78,9 +79,15 @@ namespace CNORXZ
     }
 
     template <class PosT>
+    const VPosBase* VPos<PosT>::vget() const
+    {
+	return this;
+    }
+    
+    template <class PosT>
     bool VPos<PosT>::F() const
     {
-	if constexpr(typename std::is_same<PosT,FPos>::value){
+	if constexpr(std::is_same<PosT,FPos>::value){
 	    return true;
 	}
 	else {
@@ -149,6 +156,7 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     VPos<MPos<PosT1,PosT2>>::VPos(const MPos<PosT1,PosT2>& a) :
 	MPos<PosT1,PosT2>(a),
+	mTRef(this),
 	mNRef(&this->next())
     {}
 	
@@ -159,9 +167,15 @@ namespace CNORXZ
     }
     
     template <class PosT1, class PosT2>
+    const VPosBase* VPos<MPos<PosT1,PosT2>>::vget() const
+    {
+	return &mTRef;
+    }
+
+    template <class PosT1, class PosT2>
     bool VPos<MPos<PosT1,PosT2>>::F() const
     {
-	if constexpr(typename std::is_same<PosT1,FPos>::value){
+	if constexpr(std::is_same<PosT1,FPos>::value){
 	    return true;
 	}
 	else {
@@ -238,9 +252,15 @@ namespace CNORXZ
     }
     
     template <class PosT>
+    const VPosBase* VPosRef<PosT>::vget() const
+    {
+	return this;
+    }
+    
+    template <class PosT>
     bool VPosRef<PosT>::F() const
     {
-	if constexpr(typename std::is_same<PosT,FPos>::value){
+	if constexpr(std::is_same<PosT,FPos>::value){
 	    return true;
 	}
 	else {
@@ -307,7 +327,7 @@ namespace CNORXZ
 
     template <class PosT1, class PosT2>
     VPosRef<MPos<PosT1,PosT2>>::VPosRef(const MPos<PosT1,PosT2>* c) :
-	mC(c), mNRef(c->vnext())
+	mC(c), mTRef(this), mNRef(c->vnext())
     {}
 
     template <class PosT1, class PosT2>
@@ -317,9 +337,15 @@ namespace CNORXZ
     }
 
     template <class PosT1, class PosT2>
+    const VPosBase* VPosRef<MPos<PosT1,PosT2>>::vget() const
+    {
+	return &mTRef;
+    }
+
+    template <class PosT1, class PosT2>
     bool VPosRef<MPos<PosT1,PosT2>>::F() const
     {
-	if constexpr(typename std::is_same<PosT1,FPos>::value){
+	if constexpr(std::is_same<PosT1,FPos>::value){
 	    return true;
 	}
 	else {

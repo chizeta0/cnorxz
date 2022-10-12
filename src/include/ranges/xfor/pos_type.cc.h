@@ -3,6 +3,7 @@
 #define __cxz_pos_type_cc_h__
 
 #include "pos_type.h"
+#include "vpos_type.h"
 
 namespace CNORXZ
 {
@@ -339,7 +340,12 @@ namespace CNORXZ
 
     inline const VPosBase* DPos::get() const
     {
-	return mC->get();
+	return mC->vget();
+    }
+
+    inline const VPosBase* DPos::vpos() const
+    {
+	return mC.get();
     }
 
     inline bool DPos::F() const
@@ -365,21 +371,35 @@ namespace CNORXZ
     template <class PosT>
     inline DPos DPos::operator+(const PosT& a) const
     {
-	return DPos(mC->vplus( VPosRef<PosT>(&a) ));
+	if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+	    return DPos(mC->vplus( a.vpos() ));
+	}
+	else {
+	    return DPos(mC->vplus( VPosRef<PosT>(&a) ));
+	}
     }
 
     template <class PosT>
     inline DPos DPos::operator*(const PosT& a) const
     {
-	
-	return DPos(mC->vtimes( VPosRef<PosT>(&a) ));
+	if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+	    return DPos(mC->vtimes( a.vpos() ));
+	}
+	else {
+	    return DPos(mC->vtimes( VPosRef<PosT>(&a) ));
+	}
     }
 
     // same as operator*, except for FPos/SFPos, where map is executed
     template <class PosT>
     inline DPos DPos::operator()(const PosT& a) const
     {
-	return DPos(mC->vexec( VPosRef<PosT>(&a) ));
+	if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+	    return DPos(mC->vexec( a.vpos() ));
+	}
+	else {
+	    return DPos(mC->vexec( VPosRef<PosT>(&a) ));
+	}
     }
 	
     template <class PosT>
@@ -396,7 +416,12 @@ namespace CNORXZ
 
     inline const VPosBase* DPosRef::get() const
     {
-	return mP->get();
+	return mP->vget();
+    }
+
+    inline const VPosBase* DPosRef::vpos() const
+    {
+	return mP;
     }
 
     inline bool DPosRef::F() const
@@ -422,20 +447,35 @@ namespace CNORXZ
     template <class PosT>
     inline DPos DPosRef::operator+(const PosT& a) const
     {
-	return DPos(mP->vplus( VPosRef<PosT>(&a) ));
+	if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+	    return DPos(mP->vplus( a.vpos() ));
+	}
+	else {
+	    return DPos(mP->vplus( VPosRef<PosT>(&a) ));
+	}
     }
 
     template <class PosT>
     inline DPos DPosRef::operator*(const PosT& a) const
     {
-	return DPos(mP->vtimes( VPosRef<PosT>(&a) ));
+	if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+	    return DPos(mP->vtimes( a.vpos() ));
+	}
+	else {
+	    return DPos(mP->vtimes( VPosRef<PosT>(&a) ));
+	}
     }
 
     // same as operator*, except for FPos/SFPos, where map is executed
     template <class PosT>
     inline DPos DPosRef::operator()(const PosT& a) const
     {
-	return DPos(mP->vexec( VPosRef<PosT>(&a) ));
+	if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+	    return DPos(mP->vexec( a.vpos() ));
+	}
+	else {
+	    return DPos(mP->vexec( VPosRef<PosT>(&a) ));
+	}
     }
 	
     template <class PosT>

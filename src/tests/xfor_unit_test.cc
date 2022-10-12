@@ -102,20 +102,20 @@ namespace
     {
 	DPos dp01(static_cast<UPos>(mS2p));
 	DPos dp02(mUp1);
-	/*
-	DPos dp1(mkMPos(mS2p, mUp1));
-	DPos dp2(mkMPos(mUp2, mS4p));
+	
+	DPos dp1(mkMPos(static_cast<UPos>(mS2p), mUp1));
+	DPos dp2(mkMPos(mUp2, static_cast<UPos>(mS4p)));
 	auto dp3a = dp1 + dp2;
 	auto dp3b = dp2 + dp1;
 	auto dp4 = dp1 * dp01;
 	auto dp5 = dp2 * dp02;
-	*/
+	
 	EXPECT_EQ(dp01.size(), 1);
 	EXPECT_EQ(dp02.size(), 1);
 
 	EXPECT_EQ(dp01.val(), mS2p.val());
 	EXPECT_EQ(dp02.val(), mUp1.val());
-	/*
+	
 	EXPECT_EQ(dp1.size(), 2);
 	EXPECT_EQ(dp2.size(), 2);
 
@@ -124,19 +124,19 @@ namespace
 	EXPECT_EQ(dp4.size(), 2);
 	EXPECT_EQ(dp5.size(), 2);
 
-	EXPECT_EQ(dp1.first().val(), mS2p.val());
+	EXPECT_EQ(dp1.val(), mS2p.val());
 	EXPECT_EQ(dp1.next().val(), mUp1.val());
-	EXPECT_EQ(dp2.first().val(), mUp2.val());
+	EXPECT_EQ(dp2.val(), mUp2.val());
 	EXPECT_EQ(dp2.next().val(), mS4p.val());
-	EXPECT_EQ(dp3a.first().val(), mS2p.val() + mUp2.val());
+	EXPECT_EQ(dp3a.val(), mS2p.val() + mUp2.val());
 	EXPECT_EQ(dp3a.next().val(), mUp1.val() + mS4p.val());
-	EXPECT_EQ(dp3b.first().val(), mS2p.val() + mUp2.val());
+	EXPECT_EQ(dp3b.val(), mS2p.val() + mUp2.val());
 	EXPECT_EQ(dp3b.next().val(), mUp1.val() + mS4p.val());
-	EXPECT_EQ(dp4.first().val(), mS2p.val() * mS2p.val());
+	EXPECT_EQ(dp4.val(), mS2p.val() * mS2p.val());
 	EXPECT_EQ(dp4.next().val(), mUp1.val() * mS2p.val());
-	EXPECT_EQ(dp5.first().val(), mUp2.val() * mUp1.val());
+	EXPECT_EQ(dp5.val(), mUp2.val() * mUp1.val());
 	EXPECT_EQ(dp5.next().val(), mS4p.val() * mUp1.val());
-	*/
+	
     }
     
 }

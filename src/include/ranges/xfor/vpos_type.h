@@ -45,6 +45,7 @@ namespace CNORXZ
 	VPos(const PosT& a);
 	
 	virtual Uptr<VPosBase> copy() const override final;
+	virtual const VPosBase* vget() const override final;
 	virtual bool F() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
@@ -60,6 +61,7 @@ namespace CNORXZ
     class VPos<MPos<PosT1,PosT2>> : public VPosBase, public MPos<PosT1,PosT2>
     {
     private:
+	VPosRef<PosT1> mTRef;
 	VPosRef<PosT2> mNRef;
 
     public:
@@ -67,6 +69,7 @@ namespace CNORXZ
 	VPos(const MPos<PosT1,PosT2>& a);
 	
 	virtual Uptr<VPosBase> copy() const override final;
+	virtual const VPosBase* vget() const override final;
 	virtual bool F() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
@@ -89,6 +92,7 @@ namespace CNORXZ
 	VPosRef(const PosT* c);
 
 	virtual Uptr<VPosBase> copy() const override final;
+	virtual const VPosBase* vget() const override final;
 	virtual bool F() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
@@ -106,6 +110,7 @@ namespace CNORXZ
     {
     private:
 	const MPos<PosT1,PosT2>* mC = nullptr;
+	VPosRef<PosT1> mTRef;
 	VPosRef<PosT2> mNRef;
 
     public:
@@ -113,6 +118,7 @@ namespace CNORXZ
 	VPosRef(const MPos<PosT1,PosT2>* c);
 
 	virtual Uptr<VPosBase> copy() const override final;
+	virtual const VPosBase* vget() const override final;
 	virtual bool F() const override final;
 	virtual SizeT vsize() const override final;
 	virtual SizeT vval() const override final;
@@ -127,6 +133,26 @@ namespace CNORXZ
     };
 
     
+    // defined as empty since they should never instanciated
+    template <SizeT N>
+    class VPos<SPos<N>>
+    {};
+
+    // defined as empty since they should never instanciated
+    template <SizeT N>
+    class VPosRef<SPos<N>>
+    {};
+
+    // defined as empty since they should never instanciated
+    template <SizeT N, SizeT... Ms>
+    class VPos<SFPos<N,Ms...>>
+    {};
+
+    // defined as empty since they should never instanciated
+    template <SizeT N, SizeT... Ms>
+    class VPosRef<SFPos<N,Ms...>>
+    {};
+
     // defined as empty since they should never instanciated
     template <>
     class VPos<DPos>
