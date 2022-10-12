@@ -4,6 +4,8 @@
 
 #include "base/base.h"
 
+#define MAX_VMPOS_DEPTH 10
+
 namespace CNORXZ
 {
     class VPosBase
@@ -126,8 +128,6 @@ namespace CNORXZ
 	virtual Uptr<VPosBase> vplus(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vtimes(const VPosBase* a) const override final;
 	virtual Uptr<VPosBase> vexec(const VPosBase* a) const override final;
-	virtual Uptr<VPosBase> vextend(const DPos& a) const override final;
-	virtual Uptr<VPosBase> vextend(const DPosRef& a) const override final;
 	virtual Uptr<VPosBase> vextend(const UPos& a) const override final;
 	virtual Uptr<VPosBase> vextend(const FPos& a) const override final;
     };

@@ -238,6 +238,8 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
+	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
+		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -246,6 +248,8 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
+	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
+		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -255,6 +259,8 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
+	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
+		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -264,6 +270,8 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
+	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
+		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -309,7 +317,8 @@ namespace CNORXZ
     template <class PosT>
     constexpr auto MPos<BPosT,NPosT>::extend(const PosT& a) const
     {
-	return mNext.extend(a);
+	typedef decltype(mNext.extend(a)) ONPosT;
+	return MPos<BPosT,ONPosT>(*this, mNext.extend(a));
     }
 
     /************

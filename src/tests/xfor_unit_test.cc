@@ -97,6 +97,25 @@ namespace
 	EXPECT_EQ(mp5.val(), mUp2.val() * mUp1.val());
 	EXPECT_EQ(mp5.next().val(), mS4p.val() * mUp1.val());
     }
+
+    TEST_F(Pos_Test, Extend)
+    {
+	auto mp1 = mkMPos(mS2p, mUp1);
+	auto mp2 = mkMPos(mUp2, mS4p);
+	auto mp3 = mp1.extend(mUp2);
+	auto mp4 = mp2.extend(mS2p);
+
+	EXPECT_EQ( mp3.size(), 3u );
+	EXPECT_EQ( mp4.size(), 3u );
+
+	EXPECT_EQ( mp3.val(), mS2p.val() );
+	EXPECT_EQ( mp3.next().val(), mUp1.val() );
+	EXPECT_EQ( mp3.next().next().val(), mUp2.val() );
+
+    	EXPECT_EQ( mp4.val(), mUp2.val() );
+	EXPECT_EQ( mp4.next().val(), mS4p.val() );
+	EXPECT_EQ( mp4.next().next().val(), mS2p.val() );
+    }
     
     TEST_F(Pos_Test, Dyn)
     {

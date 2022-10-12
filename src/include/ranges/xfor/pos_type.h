@@ -16,6 +16,18 @@ namespace CNORXZ
     template <class T>
     struct is_static_pos_type { CXZ_CVAL_FALSE; };
 
+    template <class PosT>
+    struct pos_depth
+    {
+	pos_depth()
+	{
+	    static_assert(is_pos_type<PosT>::value,
+			  "pos_depth is only defined for pos types");
+	}
+
+	static constexpr SizeT value = 1;
+    };
+    
     template <SizeT N>
     class SPos
     {
@@ -237,6 +249,12 @@ namespace CNORXZ
     template <class BPosT, class NPosT> struct is_pos_type<MPos<BPosT,NPosT>> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<DPos> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<DPosRef> { CXZ_CVAL_TRUE; };
+
+    template <class BPosT, class NPosT>
+    struct pos_depth<MPos<BPosT,NPosT>>
+    {
+	static constexpr SizeT value = pos_depth<NPosT>::value + 1;
+    };
     
 } // end namespace CNORXZInternal
 

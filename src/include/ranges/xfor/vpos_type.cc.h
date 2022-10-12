@@ -156,7 +156,7 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     VPos<MPos<PosT1,PosT2>>::VPos(const MPos<PosT1,PosT2>& a) :
 	MPos<PosT1,PosT2>(a),
-	mTRef(this),
+	mTRef(static_cast<const PosT1*>(this)),
 	mNRef(&this->next())
     {}
 	
@@ -225,15 +225,27 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const UPos& a) const 
     {
-	typedef decltype(this->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(a));
+	if constexpr(pos_depth<PosT2>::value < MAX_VMPOS_DEPTH-1){
+	    typedef decltype(this->extend(a)) OPosT;
+	    return std::make_unique<VPos<OPosT>>(this->extend(a));
+	}
+	else {
+	    CXZ_ERROR("preliminary...");
+	    return nullptr;
+	}
     }
     
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const FPos& a) const 
     {
-	typedef decltype(this->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(a));
+	if constexpr(pos_depth<PosT2>::value < MAX_VMPOS_DEPTH-1){
+	    typedef decltype(this->extend(a)) OPosT;
+	    return std::make_unique<VPos<OPosT>>(this->extend(a));
+	}
+	else {
+	    CXZ_ERROR("preliminary...");
+	    return nullptr;
+	}
     }
     
     /***************
@@ -327,7 +339,9 @@ namespace CNORXZ
 
     template <class PosT1, class PosT2>
     VPosRef<MPos<PosT1,PosT2>>::VPosRef(const MPos<PosT1,PosT2>* c) :
-	mC(c), mTRef(this), mNRef(c->vnext())
+	mC(c),
+	mTRef(static_cast<const PosT1*>(mC)),
+	mNRef(&c->next())
     {}
 
     template <class PosT1, class PosT2>
@@ -368,7 +382,7 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     const VPosBase* VPosRef<MPos<PosT1,PosT2>>::vnext() const
     {
-	return mNRef;
+	return &mNRef;
     }
 
     template <class PosT1, class PosT2>
@@ -395,15 +409,27 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const UPos& a) const
     {
-	typedef decltype(mC->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(a));
+	if constexpr(pos_depth<PosT2>::value < MAX_VMPOS_DEPTH-1){
+	    typedef decltype(mC->extend(a)) OPosT;
+	    return std::make_unique<VPos<OPosT>>(mC->extend(a));
+	}
+	else {
+	    CXZ_ERROR("preliminary...");
+	    return nullptr;
+	}
     }
 
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const FPos& a) const
     {
-	typedef decltype(mC->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(a));
+	if constexpr(pos_depth<PosT2>::value < MAX_VMPOS_DEPTH-1){
+	    typedef decltype(mC->extend(a)) OPosT;
+	    return std::make_unique<VPos<OPosT>>(mC->extend(a));
+	}
+	else {
+	    CXZ_ERROR("preliminary...");
+	    return nullptr;
+	}
     }
 }
 
