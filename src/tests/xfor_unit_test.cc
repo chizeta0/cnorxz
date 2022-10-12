@@ -110,19 +110,19 @@ namespace
 	auto dp4 = dp1 * dp01;
 	auto dp5 = dp2 * dp02;
 	
-	EXPECT_EQ(dp01.size(), 1);
-	EXPECT_EQ(dp02.size(), 1);
+	EXPECT_EQ(dp01.size(), 1u);
+	EXPECT_EQ(dp02.size(), 1u);
 
 	EXPECT_EQ(dp01.val(), mS2p.val());
 	EXPECT_EQ(dp02.val(), mUp1.val());
 	
-	EXPECT_EQ(dp1.size(), 2);
-	EXPECT_EQ(dp2.size(), 2);
+	EXPECT_EQ(dp1.size(), 2u);
+	EXPECT_EQ(dp2.size(), 2u);
 
-	EXPECT_EQ(dp3a.size(), 2);
-	EXPECT_EQ(dp3b.size(), 2);
-	EXPECT_EQ(dp4.size(), 2);
-	EXPECT_EQ(dp5.size(), 2);
+	EXPECT_EQ(dp3a.size(), 2u);
+	EXPECT_EQ(dp3b.size(), 2u);
+	EXPECT_EQ(dp4.size(), 2u);
+	EXPECT_EQ(dp5.size(), 2u);
 
 	EXPECT_EQ(dp1.val(), mS2p.val());
 	EXPECT_EQ(dp1.next().val(), mUp1.val());
