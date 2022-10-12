@@ -4,7 +4,7 @@
 
 #include "base/base.h"
 
-#define MAX_VMPOS_DEPTH 10
+#define MAX_VMPOS_DEPTH 4
 
 namespace CNORXZ
 {
@@ -106,6 +106,7 @@ namespace CNORXZ
 	virtual Uptr<VPosBase> vextend(const FPos& a) const override final;
 
     };
+
 
     template <class PosT1, class PosT2>
     class VPosRef<MPos<PosT1,PosT2>> : public VPosBase

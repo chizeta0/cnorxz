@@ -156,9 +156,12 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     VPos<MPos<PosT1,PosT2>>::VPos(const MPos<PosT1,PosT2>& a) :
 	MPos<PosT1,PosT2>(a),
-	mTRef(static_cast<const PosT1*>(this)),
-	mNRef(&this->next())
-    {}
+	mTRef(static_cast<const PosT1*>(this))
+    {
+	if constexpr(not std::is_same<PosT2,DPos>::value){
+	    mNRef = VPosRef<PosT2>(&this->next());
+	}
+    }
 	
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::copy() const 
@@ -198,7 +201,12 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     const VPosBase* VPos<MPos<PosT1,PosT2>>::vnext() const 
     {
-	return &mNRef;
+	if constexpr(not std::is_same<PosT2,DPos>::value){
+	    return &mNRef;
+	}
+	else {
+	    return this->next().get();
+	}
     }
     
     template <class PosT1, class PosT2>
@@ -230,8 +238,10 @@ namespace CNORXZ
 	    return std::make_unique<VPos<OPosT>>(this->extend(a));
 	}
 	else {
-	    CXZ_ERROR("preliminary...");
-	    return nullptr;
+	    typedef decltype(this->extend(DPos(a))) OPosT;
+	    return std::make_unique<VPos<OPosT>>(this->extend(DPos(a)));
+	    //CXZ_ERROR("preliminary...");
+	    //return nullptr;
 	}
     }
     
@@ -340,9 +350,12 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     VPosRef<MPos<PosT1,PosT2>>::VPosRef(const MPos<PosT1,PosT2>* c) :
 	mC(c),
-	mTRef(static_cast<const PosT1*>(mC)),
-	mNRef(&c->next())
-    {}
+	mTRef(static_cast<const PosT1*>(mC))
+    {
+	if constexpr(not std::is_same<PosT2,DPos>::value){
+	    mNRef = VPosRef<PosT2>(&c->next());
+	}
+    }
 
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::copy() const
@@ -382,7 +395,12 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     const VPosBase* VPosRef<MPos<PosT1,PosT2>>::vnext() const
     {
-	return &mNRef;
+	if constexpr(not std::is_same<PosT2,DPos>::value){
+	    return &mNRef;
+	}
+	else {
+	    return mC->next().get();
+	}
     }
 
     template <class PosT1, class PosT2>
@@ -431,6 +449,7 @@ namespace CNORXZ
 	    return nullptr;
 	}
     }
+
 }
 
 #endif

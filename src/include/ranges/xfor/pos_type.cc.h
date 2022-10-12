@@ -238,8 +238,6 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
-	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
-		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -248,8 +246,6 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
-	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
-		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -259,8 +255,6 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
-	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
-		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -270,8 +264,6 @@ namespace CNORXZ
     {
 	static_assert(is_scalar_pos_type<BPosT>::value,
 		      "MPos has to be derived from scalar pos type");
-	static_assert(pos_depth<NPosT>::value < MAX_VMPOS_DEPTH,
-		      "preliminary...");
     }
 
     template <class BPosT, class NPosT>
@@ -384,7 +376,8 @@ namespace CNORXZ
 	    return DPos(mC->vplus( a.vpos() ));
 	}
 	else {
-	    return DPos(mC->vplus( VPosRef<PosT>(&a) ));
+	    VPosRef<PosT> b(&a);
+	    return DPos(mC->vplus( &b ));
 	}
     }
 
@@ -395,7 +388,8 @@ namespace CNORXZ
 	    return DPos(mC->vtimes( a.vpos() ));
 	}
 	else {
-	    return DPos(mC->vtimes( VPosRef<PosT>(&a) ));
+	    VPosRef<PosT> b(&a);
+	    return DPos(mC->vtimes( &b ));
 	}
     }
 
@@ -407,7 +401,8 @@ namespace CNORXZ
 	    return DPos(mC->vexec( a.vpos() ));
 	}
 	else {
-	    return DPos(mC->vexec( VPosRef<PosT>(&a) ));
+	    VPosRef<PosT> b(&a);
+	    return DPos(mC->vexec( &b ));
 	}
     }
 	
