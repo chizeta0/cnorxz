@@ -1,7 +1,7 @@
 
 #include "gtest/gtest.h"
 
-#include "ranges/xfor/xfor.h"
+#include "ranges/xpr/xpr.h"
 
 namespace
 {

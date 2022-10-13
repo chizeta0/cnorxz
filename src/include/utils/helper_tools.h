@@ -7,7 +7,7 @@
 #include <ostream>
 #include "map_range.h"
 #include <functional>
-#include "xfor/iloop.h"
+#include "xpr/iloop.h"
 
 namespace CNORXZ
 {

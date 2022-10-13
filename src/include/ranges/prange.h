@@ -13,7 +13,7 @@
 #include "ranges/x_to_string.h"
 #include "ranges/type_map.h"
 
-#include "xfor/for_type.h"
+#include "xpr/for_type.h"
 
 namespace CNORXZ
 {
