@@ -35,4 +35,7 @@
 #define CXZ_CVAL_FALSE static constexpr bool value = false
 #define CXZ_CVAL_TRUE static constexpr bool value = true
 
+#define IS_SAME(a,b) std::is_same<a,b>::value
+#define IS_NOT_SAME(a,b) (not std::is_same<a,b>::value)
+
 #endif

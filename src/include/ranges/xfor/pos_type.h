@@ -177,6 +177,7 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(DPos);
 
 	inline DPos(Uptr<VPosBase>&& a);
+	inline DPos(const DPosRef& a);
 	
 	template <class PosT>
 	inline explicit DPos(const PosT& a);
@@ -186,7 +187,6 @@ namespace CNORXZ
 
 	inline const VPosBase* get() const;
 	inline const VPosBase* vpos() const;
-	inline bool F() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
 	inline DPosRef next() const;
@@ -217,7 +217,6 @@ namespace CNORXZ
 
 	inline const VPosBase* get() const;
 	inline const VPosBase* vpos() const;
-	inline bool F() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
 	inline DPosRef next() const;

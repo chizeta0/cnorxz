@@ -320,7 +320,11 @@ namespace CNORXZ
     inline DPos::DPos(Uptr<VPosBase>&& a) :
 	ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a))
     {}
-	
+
+    inline DPos::DPos(const DPosRef& a) :
+	ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a.vpos()->copy()))
+    {}
+
     template <class PosT>
     inline DPos::DPos(const PosT& a) :
 	ObjHandle<VPosBase>
@@ -347,11 +351,6 @@ namespace CNORXZ
     inline const VPosBase* DPos::vpos() const
     {
 	return mC.get();
-    }
-
-    inline bool DPos::F() const
-    {
-	return mC->F();
     }
 
     inline SizeT DPos::size() const
@@ -428,11 +427,6 @@ namespace CNORXZ
 	return mP;
     }
 
-    inline bool DPosRef::F() const
-    {
-	return mP->F();
-    }
-
     inline SizeT DPosRef::size() const
     {
 	return mP->vsize();
@@ -455,7 +449,8 @@ namespace CNORXZ
 	    return DPos(mP->vplus( a.vpos() ));
 	}
 	else {
-	    return DPos(mP->vplus( VPosRef<PosT>(&a) ));
+	    VPosRef<PosT> b(&a);
+	    return DPos(mP->vplus( &b ));
 	}
     }
 
@@ -466,7 +461,8 @@ namespace CNORXZ
 	    return DPos(mP->vtimes( a.vpos() ));
 	}
 	else {
-	    return DPos(mP->vtimes( VPosRef<PosT>(&a) ));
+	    VPosRef<PosT> b(&a);
+	    return DPos(mP->vtimes( &b ));
 	}
     }
 
@@ -478,7 +474,8 @@ namespace CNORXZ
 	    return DPos(mP->vexec( a.vpos() ));
 	}
 	else {
-	    return DPos(mP->vexec( VPosRef<PosT>(&a) ));
+	    VPosRef<PosT> b(&a);
+	    return DPos(mP->vexec( &b ));
 	}
     }
 	
