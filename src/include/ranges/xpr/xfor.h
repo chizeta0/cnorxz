@@ -14,67 +14,7 @@ namespace CNORXZ
     // 'HIDDEN FOR' CLASS for nested for loops in contractions a.s.o.
     // (NO COUNTING OF MASTER POSITION !!!!!)
 
-    template <class Xpr, class PosT>
-    class ExprInterface
-    {
-    public:
-	DEFAULT_MEMBERS(ExprInterface);
 
-	Xpr& THIS() { return static_cast<Xpr&>(*this); }
-	const Xpr& THIS() const { return static_cast<const Xpr&>(*this); }
-
-	//Sptr<Expr> copy() const { THIS().copy(); }
-	
-	void operator()(SizeT mlast, PosT last) { THIS()(mlast, last); }
-	void operator()(SizeT mlast = 0) { THIS()(mlast); }
-
-	PosT rootSteps(PtrId ptrId = 0) const { return THIS().rootSteps(ptrId); }
-	PosT extension() const { return THIS().extenrion(); }
-    };
-
-    class VExprBase
-    {
-    public:
-	DEFAULT_MEMBERS(VExprBase);
-
-	virtual Uptr<VExprBase> copy() const = 0;
-	
-	virtual void vexec(SizeT mlast, DPos last) = 0;
-	virtual void vexec(SizeT mlast) = 0;
-
-	virtual DPos vrootSteps(PtrId ptrId) const = 0;
-	virtual DPos vextension() const = 0;
-    };
-
-    template <class Xpr, class PosT>
-    class VExpr : public VExprBase, public Xpr
-    {
-    public:
-	typedef ExprInterface<Xpr,PosT> EI;
-	DEFAULT_MEMBERS(VExpr);
-	VExpr(const ExprInterface<Xpr,PosT>& a) : Xpr(a.THIS()) {}
-
-	virtual Uptr<VExprBase> copy() const override final { return std::make_unique<VExpr>(*this); }
-
-	virtual void vexec(SizeT mlast, DPos last) override final { EI::THIS()(mlast,last); }
-	virtual void vexec(SizeT mlast) override final { EI::THIS()(mlast); }
-
-	virtual DPos vrootSteps(PtrId ptrId) const override final { return EI::THIS().rootSteps(ptrId); }
-	virtual DPos vextension() const override final { return EI::THIS().extension(); }
-    };
-    
-    class DExpr : public ObjHandle<VExprBase>,
-		  public ExprInterface<DExpr,DPos>
-    {
-    public:
-	DEFAULT_MEMBERS(DExpr);
-
-	inline void operator()(SizeT mlast, DPos last) { mC->vexec(mlast, last); }
-	inline void operator()(SizeT mlast) { mC->vexec(mlast); }
-
-	inline DPos rootSteps(PtrId ptrId) const { return mC->vrootSteps(ptrId); }
-	inline DPos extension() const { return mC->vextension(); }
-    };
     /*
     template <ForType FT = ForType::DEFAULT>
     struct PosForward
