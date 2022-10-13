@@ -155,9 +155,40 @@ namespace
 	EXPECT_EQ(dp4.next().val(), mUp1.val() * mS2p.val());
 	EXPECT_EQ(dp5.val(), mUp2.val() * mUp1.val());
 	EXPECT_EQ(dp5.next().val(), mS4p.val() * mUp1.val());
-	
     }
-    
+
+    TEST_F(Pos_Test, DynExtend)
+    {
+	DPos dp1(mkMPos(static_cast<UPos>(mS2p), mUp1));
+	DPos dp2(mkMPos(mUp2, static_cast<UPos>(mS4p)));
+	auto dp3 = dp1.extend(mUp2);
+	auto dp4 = dp2.extend(mS2p);
+	auto dp5 = dp3 + dp4;
+	DPos dp01(mUp1);
+	auto dp6 = dp3 * dp01;
+
+	EXPECT_EQ( dp3.size(), 3u );
+	EXPECT_EQ( dp4.size(), 3u );
+
+	EXPECT_EQ( dp3.val(), mS2p.val() );
+	EXPECT_EQ( dp3.next().val(), mUp1.val() );
+	EXPECT_EQ( dp3.next().next().val(), mUp2.val() );
+
+    	EXPECT_EQ( dp4.val(), mUp2.val() );
+	EXPECT_EQ( dp4.next().val(), mS4p.val() );
+	EXPECT_EQ( dp4.next().next().val(), mS2p.val() );
+
+	EXPECT_EQ( dp5.size(), 3u );
+	EXPECT_EQ( dp6.size(), 3u );
+
+	EXPECT_EQ( dp5.val(), dp3.val() + dp4.val() );
+	EXPECT_EQ( dp5.next().val(), dp3.next().val() + dp4.next().val() );
+	EXPECT_EQ( dp5.next().next().val(), dp3.next().next().val() + dp4.next().next().val() );
+
+	EXPECT_EQ( dp6.val(), dp3.val() * dp01.val() );
+	EXPECT_EQ( dp6.next().val(), dp3.next().val() * dp01.val() );
+	EXPECT_EQ( dp6.next().next().val(), dp3.next().next().val() * dp01.val() );
+    }
 }
 
 int main(int argc, char** argv)
