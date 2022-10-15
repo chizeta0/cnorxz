@@ -23,15 +23,15 @@ namespace CNORXZ
     }
 
     template <class Xpr>
-    SizeT VXpr<Xpr>::vexec(SizeT mlast, const DPos& last) const
+    SizeT VXpr<Xpr>::vexec(const UPos& mlast, const DPos& last) const
     {
 	return (*this)(mlast, last);
     }
 
     template <class Xpr>
-    SizeT VXpr<Xpr>::vexec(SizeT mlast) const
+    SizeT VXpr<Xpr>::vexec() const
     {
-	return (*this)(mlast);
+	return (*this)();
     }
     
     template <class Xpr>
@@ -50,15 +50,15 @@ namespace CNORXZ
     {}
 
     template <class PosT>
-    inline SizeT DXpr::operator()(SizeT mlast, const PosT& last) const
+    inline SizeT DXpr::operator()(const UPos& mlast, const PosT& last) const
     {
 	DPosRef dlast(&last);
 	return mC->vexec(mlast, dlast);
     }
     
-    inline SizeT DXpr::operator()(SizeT mlast) const
+    inline SizeT DXpr::operator()() const
     {
-	return mC->vexec(mlast);
+	return mC->vexec();
     }
 
     inline DPos DXpr::rootSteps(PtrId ptrId) const

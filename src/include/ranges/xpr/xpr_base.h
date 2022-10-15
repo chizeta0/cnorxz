@@ -3,6 +3,7 @@
 #define __cxz_xpr_base_h__
 
 #include "base/base.h"
+#include "pos_type.h"
 
 namespace CNORXZ
 {
@@ -13,18 +14,18 @@ namespace CNORXZ
     public:
 	DEFAULT_MEMBERS(XprInterface);
 
-	Xpr& THIS() { return static_cast<Xpr&>(*this); }
-	const Xpr& THIS() const { return static_cast<const Xpr&>(*this); }
+	inline Xpr& THIS() { return static_cast<Xpr&>(*this); }
+	inline const Xpr& THIS() const { return static_cast<const Xpr&>(*this); }
 
-	template <class PosT>
-	SizeT operator()(SizeT mlast, const PosT& last) const { return THIS()(mlast,last); } 
+	template <class PosT1, class PosT2>
+	inline SizeT operator()(const PosT1& mlast, const PosT2& last) const { return THIS()(mlast,last); } 
 
-	SizeT operator()(SizeT mlast = 0) const { return THIS()(mlast); }
+	inline SizeT operator()() const { return THIS()(); }
 
-	auto rootSteps(PtrId ptrId) const { return THIS().rootSteps(ptrId); }
+	inline auto rootSteps(PtrId ptrId) const { return THIS().rootSteps(ptrId); }
 
 	template <SizeT N>
-	constexpr auto staticRootSteps(PtrId ptrId) const { return THIS().staticRootSteps<N>(ptrId); }
+	constexpr auto staticRootSteps(PtrId ptrId) const { return THIS().template staticRootSteps<N>(ptrId); }
     };
 
     class VXprBase
@@ -34,8 +35,8 @@ namespace CNORXZ
 
 	virtual Uptr<VXprBase> copy() const = 0;
 
-	virtual SizeT vexec(SizeT mlast, const DPos& last) const = 0;
-	virtual SizeT vexec(SizeT mlast) const = 0;
+	virtual SizeT vexec(const UPos& mlast, const DPos& last) const = 0;
+	virtual SizeT vexec() const = 0;
 
 	virtual DPos vrootSteps(PtrId ptrId) const = 0;
     };
@@ -49,8 +50,8 @@ namespace CNORXZ
 
 	virtual Uptr<VXprBase> copy() const override final;
 
-	virtual SizeT vexec(SizeT mlast, const DPos& last) const override final;
-	virtual SizeT vexec(SizeT mlast) const override final;
+	virtual SizeT vexec(const UPos& mlast, const DPos& last) const override final;
+	virtual SizeT vexec() const override final;
 
 	virtual DPos vrootSteps(PtrId ptrId) const override final;
     };
@@ -65,8 +66,8 @@ namespace CNORXZ
 	explicit DXpr(const Xpr& a);
 
 	template <class PosT>
-	inline SizeT operator()(SizeT mlast, const PosT& last) const;
-	inline SizeT operator()(SizeT mlast) const;
+	inline SizeT operator()(const UPos& mlast, const PosT& last) const;
+	inline SizeT operator()() const;
 
 	inline DPos rootSteps(PtrId ptrId) const;
 
