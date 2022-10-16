@@ -35,7 +35,7 @@ namespace CNORXZ
     }
     
     template <class Xpr>
-    DPos VXpr<Xpr>::vrootSteps(PtrId ptrId) const
+    DPos VXpr<Xpr>::vrootSteps(const IndexId<0>& id) const
     {
 	return DPos(this->rootSteps(ptrId));
     }
@@ -61,15 +61,10 @@ namespace CNORXZ
 	return mC->vexec();
     }
 
-    inline DPos DXpr::rootSteps(PtrId ptrId) const
+    template <SizeT I>
+    inline DPos DXpr::rootSteps(const IndexId<I>& id) const
     {
-	return mC->rootSteps(ptrId);
-    }
-
-    template <SizeT N>
-    inline DPos DXpr::staticRootSteps(PtrId ptrId) const
-    {
-	return this->rootSteps(ptrId);
+	return mC->rootSteps(IndexId<0>(id.id()));
     }
 }
 

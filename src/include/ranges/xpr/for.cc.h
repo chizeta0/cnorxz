@@ -12,18 +12,18 @@ namespace CNORXZ
      *   For   *
      ***********/
     
-    template <class Xpr>
-    constexpr For<Xpr>::For(SizeT size, PtrId iptrId, SizeT step, const Xpr& xpr) :
+    template <SizeT L, class Xpr>
+    constexpr For<L,Xpr>::For(SizeT size, const IndexId<L>& id, SizeT step, const Xpr& xpr) :
 	mSize(size),
-	mIptrId(iptrId),
+	mId(id),
 	mStep(step),
 	mXpr(xpr),
-	mExt(mXpr.rootSteps(mIptrId))
+	mExt(mXpr.rootSteps(mId))
     {}
 
-    template <class Xpr>
+    template <SizeT L, class Xpr>
     template <class PosT1, class PosT2>
-    inline SizeT For<Xpr>::operator()(const PosT1& mlast, const PosT2& last) const
+    inline SizeT For<L,Xpr>::operator()(const PosT1& mlast, const PosT2& last) const
     {
 	for(SizeT i = 0; i != mSize; ++i){
 	    const auto mpos = mlast + mStep * UPos(i);
@@ -33,8 +33,8 @@ namespace CNORXZ
 	return 0;
     }
 	
-    template <class Xpr>
-    inline SizeT For<Xpr>::operator()() const
+    template <SizeT L, class Xpr>
+    inline SizeT For<L,Xpr>::operator()() const
     {
 	for(SizeT i = 0; i != mSize; ++i){
 	    const SizeT mpos = mStep * UPos(i);
@@ -44,17 +44,11 @@ namespace CNORXZ
 	return 0;
     }
 
-    template <class Xpr>
-    inline auto For<Xpr>::rootSteps(PtrId ptrId) const
+    template <SizeT L, class Xpr>
+    template <SizeT I>
+    inline decltype(auto) For<L,Xpr>::rootSteps(const IndexId<I>& id) const
     {
-	return mXpr.rootSteps(ptrId);
-    }
-
-    template <class Xpr>
-    template <SizeT L>
-    constexpr auto For<Xpr>::staticRootSteps(PtrId ptrId) const
-    {
-	return mXpr.template staticRootSteps<L>(ptrId);
+	return mXpr.rootSteps(id);
     }
 
 
@@ -63,10 +57,10 @@ namespace CNORXZ
      *************/
 
     template <SizeT N, SizeT L, SizeT S, class Xpr>
-    constexpr SLFor<N,L,S,Xpr>::SLFor(PtrId iptrId, const Xpr& xpr) :
-	mIptrId(iptrId),
+    constexpr SLFor<N,L,S,Xpr>::SLFor(const IndexId<L>& id, const Xpr& xpr) :
+	mId(id),
 	mXpr(xpr),
-	mExt(mXpr.template staticRootSteps<L>(mIptrId))
+	mExt(mXpr.RootSteps(mId))
     {}
 
     template <SizeT N, SizeT L, SizeT S, class Xpr>
@@ -83,16 +77,10 @@ namespace CNORXZ
     }
 
     template <SizeT N, SizeT L, SizeT S, class Xpr>
-    constexpr auto SLFor<N,L,S,Xpr>::rootSteps(PtrId ptrId) const
+    template <SizeT I>
+    constexpr decltype(auto) SLFor<N,L,S,Xpr>::rootSteps(const IndexId<I>& id) const
     {
-	return mXpr.rootSteps(ptrId);
-    }
-
-    template <SizeT N, SizeT L, SizeT S, class Xpr>
-    template <SizeT L2>
-    constexpr auto SLFor<N,L,S,Xpr>::staticRootSteps(PtrId ptrId) const
-    {
-	return mXpr.template staticRootSteps<L2>(ptrId);
+	return mXpr.rootSteps(id);
     }
 
     template <SizeT N, SizeT L, SizeT S, class Xpr>
@@ -133,18 +121,18 @@ namespace CNORXZ
      *   TFor   *
      ************/
 
-    template <class Xpr>
-    constexpr TFor<Xpr>::TFor(SizeT size, PtrId iptrId, SizeT step, const Xpr& xpr) :
+    template <SizeT L, class Xpr>
+    constexpr TFor<L,Xpr>::TFor(SizeT size, const IndexId<L>& id, SizeT step, const Xpr& xpr) :
 	mSize(size),
-	mIptrId(iptrId),
+	mId(id),
 	mStep(step),
 	mXpr(xpr),
-	mExt(mXpr.rootSteps(mIptrId))
+	mExt(mXpr.rootSteps(mId))
     {}
 
-    template <class Xpr>
+    template <SizeT L, class Xpr>
     template <class PosT1, class PosT2>
-    inline SizeT TFor<Xpr>::operator()(const PosT1& mlast, const PosT2& last) const
+    inline SizeT TFor<L,Xpr>::operator()(const PosT1& mlast, const PosT2& last) const
     {
 	int i = 0;
 #pragma omp parallel shared(mXpr) private(i)
@@ -152,17 +140,16 @@ namespace CNORXZ
 	    auto xpr = mXpr;
 #pragma omp for 
 	    for(i = 0; i < mSize; i++){
-		const UPos I(i);
-		const auto mpos = mlast + mStep * I;
-		const auto pos = last + mExt * I;
+		const auto mpos = mlast + mStep * UPos(i);
+		const auto pos = last + mExt * UPos(i);
 		mXpr(mpos, pos);
 	    }
 	}
 	return 0;
     }
 	
-    template <class Xpr>
-    inline SizeT TFor<Xpr>::operator()() const
+    template <SizeT L, class Xpr>
+    inline SizeT TFor<L,Xpr>::operator()() const
     {
 	int i = 0;
 #pragma omp parallel shared(mXpr) private(i)
@@ -170,26 +157,19 @@ namespace CNORXZ
 	    auto xpr = mXpr;
 #pragma omp for 
 	    for(i = 0; i < static_cast<int>(mSize); i++){
-		const UPos I(i);
-		const auto mpos = mStep * I;
-		const auto pos = mExt * I;
+		const auto mpos = mStep * UPos(i);
+		const auto pos = mExt * UPos(i);
 		mXpr(mpos, pos);
 	    }
 	}
 	return 0;
     }
 
-    template <class Xpr>
-    inline auto TFor<Xpr>::rootSteps(PtrId ptrId) const
+    template <SizeT L, class Xpr>
+    template <SizeT I>
+    inline decltype(auto) TFor<L,Xpr>::rootSteps(const IndexId<I>& id) const
     {
-	return mXpr.rootSteps(ptrId);
-    }
-
-    template <class Xpr>
-    template <SizeT L2>
-    inline auto TFor<Xpr>::staticRootSteps(PtrId ptrId) const
-    {
-	return mXpr.template staticRootSteps<L2>(ptrId);
+	return mXpr.rootSteps(id);
     }
 
 

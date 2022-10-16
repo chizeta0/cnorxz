@@ -36,19 +36,19 @@ namespace CNORXZ
 	bool operator>(const IndexInterface& in) const;
 	bool operator<=(const IndexInterface& in) const;
 	bool operator>=(const IndexInterface& in) const;
-	auto operator*() const { return THIS().operator*(); }
-	auto operator->() const { return THIS().operator->(); }
+	decltype(auto) operator*() const { return THIS().operator*(); }
+	decltype(auto) operator->() const { return THIS().operator->(); }
 
 	Int pp(PtrId idxPtrNum) { return THIS().pp(idxPtrNum); }
 	Int mm(PtrId idxPtrNum) { return THIS().mm(idxPtrNum); }
 	
 	SizeT dim() const { return THIS().dim(); }
-	auto range() const { return THIS().range(); }
+	decltype(auto) range() const { return THIS().range(); }
 	SizeT getStepSize(PtrId iptr) const { return THIS().getStepSize(iptr); }
 	//SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
 	
 	String stringMeta() const { return THIS().stringMeta(); }
-	auto meta() const { return THIS().meta(); }
+	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 	/*
 	template <class Expr>

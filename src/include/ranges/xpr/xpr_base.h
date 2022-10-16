@@ -4,6 +4,7 @@
 
 #include "base/base.h"
 #include "pos_type.h"
+#include "index_id.h"
 
 namespace CNORXZ
 {
@@ -22,10 +23,8 @@ namespace CNORXZ
 
 	inline SizeT operator()() const { return THIS()(); }
 
-	inline auto rootSteps(PtrId ptrId) const { return THIS().rootSteps(ptrId); }
-
-	template <SizeT N>
-	constexpr auto staticRootSteps(PtrId ptrId) const { return THIS().template staticRootSteps<N>(ptrId); }
+	template <SizeT I>
+	inline decltype(auto) rootSteps(const IndexId<I>& id) const { return THIS().rootSteps(id); }
     };
 
     class VXprBase
@@ -38,7 +37,7 @@ namespace CNORXZ
 	virtual SizeT vexec(const UPos& mlast, const DPos& last) const = 0;
 	virtual SizeT vexec() const = 0;
 
-	virtual DPos vrootSteps(PtrId ptrId) const = 0;
+	virtual DPos vrootSteps(const IndexId<0>& id) const = 0;
     };
 
     template <class Xpr>
@@ -53,7 +52,7 @@ namespace CNORXZ
 	virtual SizeT vexec(const UPos& mlast, const DPos& last) const override final;
 	virtual SizeT vexec() const override final;
 
-	virtual DPos vrootSteps(PtrId ptrId) const override final;
+	virtual DPos vrootSteps(const IndexId<0>& id) const override final;
     };
 
     class DXpr : public ObjHandle<VXprBase>,
@@ -69,10 +68,8 @@ namespace CNORXZ
 	inline SizeT operator()(const UPos& mlast, const PosT& last) const;
 	inline SizeT operator()() const;
 
-	inline DPos rootSteps(PtrId ptrId) const;
-
-	template <SizeT N>
-	inline DPos staticRootSteps(PtrId ptrId) const; // fallback to rootSteps
+	template <SizeT I>
+	inline DPos rootSteps(const IndexId<I>& id) const;
     };
 }
 
