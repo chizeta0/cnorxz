@@ -5,6 +5,7 @@
 #include "base/base.h"
 #include "range_base.h"
 #include "index_base.h"
+#include "xpr/xpr.h"
 
 namespace CNORXZ
 {
@@ -31,6 +32,9 @@ namespace CNORXZ
 	DIndex& operator+=(Int n);
 	DIndex& operator-=(Int n);
 
+	SizeT max() const;
+	IndexId<0> id() const;
+	
 	DType operator*() const;
 	DType operator->() const;
 
@@ -39,14 +43,14 @@ namespace CNORXZ
 
 	SizeT dim() const;
 	RangePtr range() const;
-	SizeT getStepSize(PtrId iptr) const;
+
+	UPos stepSize(const IndexId<0>& id) const;
 
 	String stringMeta() const;
 	DType meta() const;
 	DIndex& at(const DType& meta);
 
-	//DExpr ifor(SizeT step, DExpr ex) const;
-	//DExpr iforh(SizeT step, DExpr ex) const;
+	DXpr ifor(const UPos& step, const DXpr& xpr) const;
 
     private:
 	XIndexPtr mI;

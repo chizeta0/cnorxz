@@ -5,6 +5,7 @@
 #include "base/base.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
+#include "xpr/xpr.h"
 
 namespace CNORXZ
 {
@@ -25,6 +26,9 @@ namespace CNORXZ
 	CIndex& operator+=(Int n);
 	CIndex& operator-=(Int n);
 
+	SizeT max() const;
+	IndexId<0> id() const;
+	
 	SizeT operator*() const;
 	SizeT operator->() const;
 	
@@ -33,25 +37,15 @@ namespace CNORXZ
 
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
-	SizeT getStepSize(PtrId iptr) const;
+	UPos stepSize(const IndexId<0>& id) const;
 	
 	String stringMeta() const;
 	SizeT meta() const;
 	CIndex& at(const SizeT& metaPos);
 
-	//template <class Expr>
-	//auto ifor(SizeT step, Expr ex) const
-	//    -> For<CIndex,Expr>;
+	template <class PosT, class Xpr>
+	decltype(auto) ifor(const PosT& step, const Xpr& xpr) const;
 
-	/*
-	template <class Expr>
-	auto iforh(SizeT step, Expr ex) const
-	    -> For<CIndex<SizeT>,Expr,ForType::HIDDEN>;
-
-        template <class Expr>
-	auto pifor(SizeT step, Expr ex) const
-	    -> PFor<CIndex<SizeT>,Expr>;
-	*/
     private:
 	Sptr<RangeType> mRangePtr;
     };

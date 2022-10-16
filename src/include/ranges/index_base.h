@@ -5,6 +5,8 @@
 
 #include "base/base.h"
 #include "range_base.h"
+#include "xpr/index_id.h"
+#include "xpr/xpr_base.h"
 
 namespace CNORXZ
 {
@@ -29,6 +31,7 @@ namespace CNORXZ
 	SizeT pos() const;
 	SizeT max() const { return THIS().max(); }
 	PtrId ptrId() const;
+	decltype(auto) id() const { return THIS().id(); }
 
 	bool operator==(const IndexInterface& in) const;
 	bool operator!=(const IndexInterface& in) const;
@@ -44,21 +47,17 @@ namespace CNORXZ
 	
 	SizeT dim() const { return THIS().dim(); }
 	decltype(auto) range() const { return THIS().range(); }
-	SizeT getStepSize(PtrId iptr) const { return THIS().getStepSize(iptr); }
-	//SizeT getStepSize(SizeT n) const { return THIS().getStepSize(n); }
+
+	template <SizeT J>
+	decltype(auto) stepSize(const IndexId<J>& id) const { return THIS().stepSize(id); }
 	
 	String stringMeta() const { return THIS().stringMeta(); }
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
-	/*
-	template <class Expr>
-	auto ifor(SizeT step, const Expr ex) const
-	{ return THIS().template ifor<Expr>(step,ex); }
 	
-	template <class Expr>
-	auto iforh(SizeT step, const Expr ex) const
-	{ return THIS().template iforh<Expr>(step,ex); }
-	*/
+	template <class PosT, class Xpr>
+	decltype(auto) ifor(const PosT& step, const Xpr& xpr) const { return THIS().ifor(step,xpr); }
+	
     protected:
 	SizeT mPos = 0;
 	

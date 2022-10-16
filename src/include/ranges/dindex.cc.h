@@ -11,7 +11,6 @@ namespace CNORXZ
 	IndexInterface<DIndex,DType>(i.pos()),
 	mI(std::make_shared<XIndex<Index,Meta>>(i))
     {}
-
 }
 
 #endif

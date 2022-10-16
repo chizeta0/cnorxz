@@ -79,6 +79,18 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
+    SizeT XIndex<Index,Meta>::max() const
+    {
+	return mI->max();
+    }
+
+    template <class Index, typename Meta>
+    IndexId<0> XIndex<Index,Meta>::id() const
+    {
+	return IndexId<0>(mI->id().id());
+    }
+    
+    template <class Index, typename Meta>
     DType XIndex<Index,Meta>::operator*() const
     {
 	return DType(*(*mI));
@@ -117,9 +129,9 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    SizeT XIndex<Index,Meta>::getStepSize(PtrId iptr) const
+    UPos XIndex<Index,Meta>::stepSize(const IndexId<0>& id) const
     {
-	return mI->getStepSize(iptr);
+	return mI->stepSize(id);
     }
     
     template <class Index, typename Meta>
@@ -141,19 +153,13 @@ namespace CNORXZ
 	mI->at(std::any_cast<const Meta&>(meta.get()));
 	return *this;
     }
-    /*
-    template <class Index, typename Meta>
-    DExpr XIndex<Index,Meta>::ifor(SizeT step, DExpr ex) const
-    {
-	return mI->ifor(step, ex);
-    }
 
     template <class Index, typename Meta>
-    DExpr XIndex<Index,Meta>::iforh(SizeT step, DExpr ex) const
+    DXpr XIndex<Index,Meta>::ifor(const UPos& step, const DXpr& xpr) const
     {
-	return mI->iforh(step, ex);
+	return DXpr(mI->ifor(step, xpr));
     }
-    */
+
 }
 
 #endif

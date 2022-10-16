@@ -8,7 +8,7 @@ namespace CNORXZ
 {
 
     template <SizeT I>
-    explicit constexpr IndexId<I>::IndexId(PtrId id) :
+    constexpr IndexId<I>::IndexId(PtrId id) :
 	mId(id)
     {}
 

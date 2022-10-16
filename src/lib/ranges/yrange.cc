@@ -86,6 +86,20 @@ namespace CNORXZ
 	return *this;
     }
 
+    SizeT YIndex::max() const
+    {
+	SizeT o = 1;
+	for(auto& i: mIs){
+	    o *= i->max();
+	}
+	return o;
+    }
+    
+    IndexId<0> YIndex::id() const
+    {
+	return IndexId<0>(this->ptrId());
+    }
+
     DType YIndex::operator*() const
     {
 	assert(0);
@@ -122,11 +136,11 @@ namespace CNORXZ
 	return mRangePtr;
     }
     
-    SizeT YIndex::getStepSize(PtrId iptr) const
+    UPos YIndex::stepSize(const IndexId<0> id) const
     {
 	assert(0);
 	// sub inds !!!
-	return 0;
+	return UPos(0);
     }
 
     String YIndex::stringMeta() const
@@ -156,19 +170,12 @@ namespace CNORXZ
 	}
 	return *this;
     }
-    /*
-    DExpr YIndex::ifor(SizeT step, DExpr ex) const
+
+    DXpr YIndex::ifor(const UPos& step, const DXpr& xpr) const
     {
 	assert(0);
-	return DExpr();
+	return DXpr();
     }
-    
-    DExpr YIndex::iforh(SizeT step, DExpr ex) const
-    {
-	assert(0);
-	return DExpr();
-    }
-    */
     
     /**********************
      *   YRangeFactory    *

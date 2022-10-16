@@ -5,6 +5,7 @@
 #include "base/base.h"
 #include "ranges/index_base.h"
 #include "ranges/range_base.h"
+#include "xpr/xpr.h"
 
 namespace CNORXZ
 {
@@ -20,8 +21,10 @@ namespace CNORXZ
 	LIndex(const Index& i);
 	LIndex(Index&& i);
 
-	template <SizeT L1>
-	auto getStaticStepSize(PtrId iptr) const;
+	IndexId<L> id() const;
+	
+	template <SizeT I>
+	decltype(auto) stepSize(const IndexId<I>& id) const;
 
     };
 }

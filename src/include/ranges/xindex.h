@@ -5,6 +5,7 @@
 #include "base/base.h"
 #include "range_base.h"
 #include "index_base.h"
+#include "xpr/xpr.h"
 
 namespace CNORXZ
 {
@@ -24,6 +25,9 @@ namespace CNORXZ
 	virtual XIndexBase& operator+=(Int n) = 0;
 	virtual XIndexBase& operator-=(Int n) = 0;
 
+	virtual SizeT max() const = 0;
+	virtual IndexId<0> id() const = 0;
+	
 	virtual DType operator*() const = 0;
 	virtual DType operator->() const = 0;
 
@@ -32,15 +36,13 @@ namespace CNORXZ
 
 	virtual SizeT dim() const = 0;
 	virtual RangePtr range() const = 0;
-	virtual SizeT getStepSize(PtrId iptr) const = 0;
+	virtual UPos stepSize(const IndexId<0>& id) const = 0;
 
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
 
-	//virtual DExpr ifor(SizeT step, DExpr ex) const = 0;
-	//virtual DExpr iforh(SizeT step, DExpr ex) const = 0;
-	// ...!!!
+	virtual DXpr ifor(const UPos& step, const DXpr& xpr) const = 0;
     };
 
     //Sptr<XIndexBase>& operator++(Sptr<XIndexBase>& i);
@@ -72,6 +74,9 @@ namespace CNORXZ
 	virtual XIndex& operator+=(Int n) override final;
 	virtual XIndex& operator-=(Int n) override final;
 
+	virtual SizeT max() const override final;
+	virtual IndexId<0> id() const override final;
+	
 	virtual DType operator*() const override final;
 	virtual DType operator->() const override final;
 
@@ -80,15 +85,13 @@ namespace CNORXZ
 
 	virtual SizeT dim() const override final;
 	virtual RangePtr range() const override final;
-	virtual SizeT getStepSize(PtrId iptr) const override final;
+	virtual UPos stepSize(const IndexId<0>& id) const override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;
 	virtual XIndexBase& at(const DType& meta) override final;
 
-	//virtual DExpr ifor(SizeT step, DExpr ex) const override final;
-	//virtual DExpr iforh(SizeT step, DExpr ex) const override final;
-	// ....!!!!
+	virtual DXpr ifor(const UPos& step, const DXpr& xpr) const override final;
 
     private:
 	IndexPtr<Index,Meta> mI;

@@ -64,8 +64,7 @@ namespace CNORXZ
 	template <class Xpr>
 	explicit DXpr(const Xpr& a);
 
-	template <class PosT>
-	inline SizeT operator()(const UPos& mlast, const PosT& last) const;
+	inline SizeT operator()(const UPos& mlast, const DPos& last) const;
 	inline SizeT operator()() const;
 
 	template <SizeT I>

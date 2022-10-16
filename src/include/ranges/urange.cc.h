@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "urange.h"
+#include "xpr/for.h"
 
 namespace CNORXZ
 {
@@ -68,6 +69,18 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
+    SizeT UIndex<MetaType>::max() const
+    {
+	return mRangePtr->size();
+    }
+
+    template <typename MetaType>
+    IndexId<0> UIndex<MetaType>::id() const
+    {
+	return IndexId<0>(this->ptrId());
+    }
+
+    template <typename MetaType>
     const MetaType& UIndex<MetaType>::operator*() const
     {
 	return mMetaPtr[IB::mPos];
@@ -125,36 +138,18 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    SizeT UIndex<MetaType>::getStepSize(PtrId iptr) const
+    template <SizeT I>
+    UPos UIndex<MetaType>::stepSize(const IndexId<I>& id) const
     {
-	return iptr == this->ptrId() ? 1 : 0;
+	return UPos(id == this->id() ? 1 : 0);
     }
     
-    /*
     template <typename MetaType>
-    template <class Expr>
-    auto UIndex<MetaType>::ifor(size_t step, Expr ex) const
-	-> For<URange<MetaType>,Expr>
+    template <class PosT, class Xpr>
+    decltype(auto) UIndex<MetaType>::ifor(const PosT step, Xpr xpr) const
     {
-	return For<UIndex<MetaType>,Expr>(this, step, ex);
+	return For<0,PosT,Xpr>(this->max(), this->id(), step, xpr);
     }
-
-    template <typename MetaType>
-    template <class Expr>
-    auto UIndex<MetaType>::iforh(size_t step, Expr ex) const
-	-> For<URange<MetaType>,Expr,ForType::HIDDEN>
-    {
-	return For<UIndex<MetaType>,Expr,ForType::HIDDEN>(this, step, ex);
-    }
-
-    template <typename MetaType>
-    template <class Expr>
-    auto UIndex<MetaType>::pifor(size_t step, Expr ex) const
-	-> PFor<URange<MetaType>,Expr>
-    {
-	return PFor<UIndex<MetaType>,Expr>(this, step, ex);
-    }
-    */
     
     /**********************
      *   URangeFactory    *

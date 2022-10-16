@@ -116,9 +116,9 @@ namespace CNORXZ
 	return mI->range();
     }
     
-    SizeT DIndex::getStepSize(PtrId iptr) const
+    UPos DIndex::stepSize(const IndexId<0>& id) const
     {
-	return mI->getStepSize(iptr);
+	return mI->stepSize(id);
     }
 
     String DIndex::stringMeta() const
@@ -138,7 +138,9 @@ namespace CNORXZ
 	return *this;
     }
 
-    //DExpr DIndex::ifor(SizeT step, DExpr ex) const;
-    //DExpr DIndex::iforh(SizeT step, DExpr ex) const;
+    DXpr DIndex::ifor(const UPos& step, const DXpr& xpr) const
+    {
+	return DXpr(mI->ifor(step, xpr));
+    }
     
 }

@@ -12,24 +12,20 @@ namespace CNORXZ
 	Index(i) {}
 
     template <class Index, SizeT L>
-    template <SizeT L1>
-    auto LIndex<Index,L>::getStaticStepSize(PtrId iptr) const
+    IndexId<L> LIndex<Index,L>::id() const
     {
-	if constexpr(L == 0 or L1 == 0){
-	    return this->getStepSize(iptr);
+	return IndexId<L>(this->ptrId());
+    }
+
+    template <class Index, SizeT L>
+    template <SizeT I>
+    decltype(auto) LIndex<Index,L>::stepSize(const IndexId<I>& id) const
+    {
+	if constexpr(L == 0 or I == 0){
+	    return UPos(this->id() == id ? 1 : 0);
 	}
 	else {
-	    if constexpr(L == L1){
-		CXZ_ASSERT(iptr == this->ptrId(),
-			   "got two different indices with the same static label " << L);
-		return SPos<1>();
-	    }
-	    else {
-		CXZ_ASSERT(iptr == this->ptrId(),
-			   "got two equal indices with the different static label " << L
-			   << " and " << L1);
-		return SPos<0>();
-	    }
+	    return this->id() == id ? SPos<1>() : SPos<0>();
 	}
     }
 

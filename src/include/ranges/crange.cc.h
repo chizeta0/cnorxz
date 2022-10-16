@@ -6,29 +6,11 @@
 
 namespace CNORXZ
 {
-    /*
-    template <class Expr>
-    auto CRange::ifor(SizeT step, Expr ex) const
-	-> For<CIndex,Expr>
+    template <class PosT, class Xpr>
+    decltype(auto) CIndex::ifor(const PosT& step, const Xpr& xpr) const
     {
-	return For<CIndex,Expr>(this, step, ex);
+	return For<0,PosT,Xpr>(this->max(), this->id(), step, xpr);
     }
-    */
-    /*
-    template <class Expr>
-    auto CRange::iforh(SizeT step, Expr ex) const
-	-> For<CIndex,Expr,ForType::HIDDEN>
-    {
-
-    }
-
-    template <class Expr>
-    auto CRange::pifor(SizeT step, Expr ex) const
-	-> PFor<CIndex,Expr>
-    {
-    
-    }
-    */
 }
 
 #endif

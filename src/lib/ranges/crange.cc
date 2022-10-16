@@ -51,6 +51,16 @@ namespace CNORXZ
 	return *this;
     }
 
+    SizeT CIndex::max() const
+    {
+	return mRangePtr->size();
+    }
+    
+    IndexId<0> CIndex::id() const
+    {
+	return IndexId<0>(this->ptrId());
+    }
+
     SizeT CIndex::operator*() const
     {
 	return IB::mPos;
@@ -83,9 +93,9 @@ namespace CNORXZ
 	return mRangePtr;
     }
     
-    SizeT CIndex::getStepSize(PtrId iptr) const
+    UPos CIndex::stepSize(const IndexId<0>& id) const
     {
-	return iptr == this->ptrId() ? 1 : 0;
+	return UPos(id == this->id() ? 1 : 0);
     }
 
     String CIndex::stringMeta() const
