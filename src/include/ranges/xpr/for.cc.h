@@ -144,14 +144,15 @@ namespace CNORXZ
     inline SizeT TFor<L,PosT,Xpr>::operator()(const PosT1& mlast, const PosT2& last) const
     {
 	int i = 0;
-#pragma omp parallel shared(mXpr) private(i)
+	const int size = static_cast<int>(mSize);
+#pragma omp parallel
 	{
 	    auto xpr = mXpr;
 #pragma omp for 
-	    for(i = 0; i < mSize; i++){
+	    for(i = 0; i < size; i++){
 		const auto mpos = mlast + mStep * UPos(i);
 		const auto pos = last + mExt * UPos(i);
-		mXpr(mpos, pos);
+		xpr(mpos, pos);
 	    }
 	}
 	return 0;
@@ -161,14 +162,15 @@ namespace CNORXZ
     inline SizeT TFor<L,PosT,Xpr>::operator()() const
     {
 	int i = 0;
-#pragma omp parallel shared(mXpr) private(i)
+	const int size = static_cast<int>(mSize);
+#pragma omp parallel
 	{
 	    auto xpr = mXpr;
 #pragma omp for 
-	    for(i = 0; i < static_cast<int>(mSize); i++){
+	    for(i = 0; i < size; i++){
 		const auto mpos = mStep * UPos(i);
 		const auto pos = mExt * UPos(i);
-		mXpr(mpos, pos);
+		xpr(mpos, pos);
 	    }
 	}
 	return 0;
