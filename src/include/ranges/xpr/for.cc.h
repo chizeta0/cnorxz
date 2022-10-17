@@ -184,6 +184,43 @@ namespace CNORXZ
     }
 
 
+    /************
+     *   EFor   *
+     ************/
+
+    template <SizeT N, SizeT L, class PosT, class Xpr>
+    constexpr EFor<N,L,PosT,Xpr>::EFor(const IndexId<L>& id, const PosT& step, const Xpr& xpr) :
+	mId(id),
+	mStep(step),
+	mXpr(xpr),
+	mExt(mXpr.RootSteps(mId))
+    {
+	static_assert(is_pos_type<PosT>::value, "got non-pos type");
+    }
+
+    template <SizeT N, SizeT L, class PosT, class Xpr>
+    template <class PosT1, class PosT2>
+    constexpr SizeT EFor<N,L,PosT,Xpr>::operator()(const PosT1& mlast, const PosT2& last) const
+    {
+	auto mpos = mkEPos<N>(mlast, mStep);
+	auto pos = mkEPos<N>(last, mExt);
+	return mXpr(mpos, pos);
+    }
+	
+    template <SizeT N, SizeT L, class PosT, class Xpr>
+    constexpr SizeT EFor<N,L,PosT,Xpr>::operator()() const
+    {
+	auto mpos = mkEPos<N>(SPos<0>(), mStep);
+	auto pos = mkEPos<N>(SPos<0>(), mExt);
+	return mXpr(mpos, pos);
+    }
+
+    template <SizeT N, SizeT L, class PosT, class Xpr>
+    template <SizeT I>
+    constexpr decltype(auto) EFor<N,L,PosT,Xpr>::rootSteps(const IndexId<I>& id) const
+    {
+	return mXpr.rootSteps(id);
+    }
 }
 
 #endif

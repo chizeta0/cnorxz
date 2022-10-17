@@ -97,11 +97,21 @@ namespace CNORXZ
     {
 	return UPos(mExt + in.val());
     }
+
+    constexpr SPos<0> UPos::operator*(const SPos<0>& a) const
+    {
+	return SPos<0>();
+    }
     
     template <class PosT>
     constexpr UPos UPos::operator*(const PosT& in) const
     {
 	return UPos(mExt * in.val());
+    }
+
+    constexpr SPos<0> UPos::operator()(const SPos<0>& a) const
+    {
+	return SPos<0>();
     }
 	
     template <class PosT>
@@ -477,14 +487,107 @@ namespace CNORXZ
 	    VPosRef<PosT> b(&a);
 	    return DPos(mP->vexec( &b ));
 	}
-    }
-	
+    }	
+
     template <class PosT>
     inline DPos DPosRef::extend(const PosT& a) const
     {
 	return DPos(mP->vextend( a ));
     }
     
+    /************
+     *   EPos   *
+     ************/
+
+    template <class BPosT, class... OPosTs>
+    constexpr EPos<BPosT,OPosTs...>::EPos(const BPosT& b, const OPosTs&... os) :
+	BPosT(b),
+	mP(os...)
+    {}
+
+    template <class BPosT, class... OPosTs>
+    constexpr EPos<BPosT,OPosTs...>::EPos(BPosT&& b, OPosTs&&... os) :
+	BPosT(b),
+	mP(os...)
+    {}
+
+    template <class BPosT, class... OPosTs>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::val() const
+    {
+	return ival(std::index_sequence_for<OPosTs...>{});
+    }
+
+    template <class BPosT, class... OPosTs>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::next() const
+    {
+	return inext(std::index_sequence_for<OPosTs...>{});
+    }
+
+    template <class BPosT, class... OPosTs>
+    template <SizeT... Is>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::ival(std::index_sequence<Is...> is) const
+    {
+	if constexpr(is_static_pos_type<EPos<BPosT,OPosTs...>>::value){
+	    return std::index_sequence<std::get<Is>(mP).val()...>{};
+	}
+	else {
+	    return Arr<SizeT,is.size()> { std::get<Is>(mP).val()... };
+	}
+    }
+
+    template <class BPosT, class... OPosTs>
+    template <SizeT... Is>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::inext(std::index_sequence<Is...> is) const
+    {
+	typedef EPos<decltype(next()),decltype(std::get<Is>(mP).next())...> OEPosT;
+	return OEPosT(next(), std::get<Is>(mP).next()...);
+    }
+
+    /*********************************
+     *   Traits and Helper-Classes   *
+     *********************************/
+
+    template <SizeT N, class BPosT, class OPosT>
+    decltype(auto) mkEPos(const BPosT& a, const OPosT& b)
+    {
+	return mkiEPos(a, b, std::make_index_sequence<N>{});
+    }
+
+    template <SizeT N, class BPosT, class OPosT, SizeT... Is>
+    decltype(auto) mkiEPos(const BPosT& a, const OPosT& b, std::index_sequence<Is...> is)
+    {
+	return EPos<BPosT,decltype(b*SPos<Is>())...>(a, b*SPos<Is>()...);
+    }
+    
+    template <class OPosT1, class OPosT2, class... OPosTs>
+    constexpr bool pos_type_consecutive_2<OPosT1,OPosT2,OPosTs...>::eval()
+    {
+	if constexpr(is_static_pos_type<OPosT1>::value and is_static_pos_type<OPosT2>::value){
+	    if constexpr(sizeof...(OPosTs) != 0){
+		return OPosT1().val() < OPosT2().val() and pos_type_consecutive<OPosT2,OPosTs...>::value;
+	    }
+	    else {
+		return OPosT1().val() < OPosT2().val();
+	    }
+	}
+	return false;
+    }
+
+    template <class OPosT1, class... OPosTs>
+    constexpr bool pos_type_same<OPosT1,OPosTs...>::eval()
+    {
+	if constexpr(is_static_pos_type<OPosT1>::value){
+	    if constexpr(sizeof...(OPosTs) != 0){
+		return OPosT1().val() == 0 and pos_type_same<OPosTs...>::value;
+	    }
+	    else {
+		return OPosT1().val() == 0;
+	    }
+	}
+	else {
+	    return false;
+	}
+    }
 }
 
 #endif

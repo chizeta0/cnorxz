@@ -87,7 +87,7 @@ namespace CNORXZ
 	
     private:
 	SizeT mSize = 0;
-	IndexId<L> mId = 0;
+	IndexId<L> mId;
 	Xpr mXpr;
 	PosT mStep;
 	typedef decltype(mXpr.rootSteps(mId)) XPosT;
@@ -95,7 +95,30 @@ namespace CNORXZ
 	
     };
 
-    
+    // Extension For (Vectorization)
+    template <SizeT N, SizeT L, class PosT, class Xpr>
+    class EFor : public XprInterface<EFor<N,L,PosT,Xpr>>
+    {
+    public:
+	DEFAULT_MEMBERS(EFor);
+
+	constexpr EFor(const IndexId<L>& id, const PosT& step, const Xpr& xpr);
+
+	template <class PosT1, class PosT2>
+	constexpr SizeT operator()(const PosT1& mlast, const PosT2& last) const;
+
+	constexpr SizeT operator()() const;
+
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+    private:
+	IndexId<L> mId;
+	Xpr mXpr;
+	PosT mStep;
+	typedef decltype(mXpr.rootSteps(mId)) XPosT;
+	XPosT mExt;
+    };
     
 }
 

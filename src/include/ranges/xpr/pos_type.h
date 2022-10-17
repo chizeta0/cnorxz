@@ -7,27 +7,6 @@
 namespace CNORXZ
 {
     
-    template <class T>
-    struct is_pos_type { CXZ_CVAL_FALSE; };
-
-    template <class T>
-    struct is_scalar_pos_type { CXZ_CVAL_FALSE; };
-
-    template <class T>
-    struct is_static_pos_type { CXZ_CVAL_FALSE; };
-
-    template <class PosT>
-    struct pos_depth
-    {
-	pos_depth()
-	{
-	    static_assert(is_pos_type<PosT>::value,
-			  "pos_depth is only defined for pos types");
-	}
-
-	static constexpr SizeT value = 1;
-    };
-    
     template <SizeT N>
     class SPos
     {
@@ -71,8 +50,12 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr UPos operator+(const PosT& a) const;
 
+	constexpr SPos<0> operator*(const SPos<0>& a) const;
+
         template <class PosT>
 	constexpr UPos operator*(const PosT& a) const;
+
+	constexpr SPos<0> operator()(const SPos<0>& a) const;
 
 	template <class PosT>
 	constexpr UPos operator()(const PosT& a) const;
@@ -234,27 +217,131 @@ namespace CNORXZ
 	template <class PosT>
 	inline DPos extend(const PosT& a) const;
     };
+
+    // for common call of extension vector elements
+    // BPos = base pos type
+    // OPos = offset pos type (i.e. step/ext * for index of lowest for layer)
+    // currently EPos must be used only at the lowest for layer
+    template <class BPosT, class... OPosTs>
+    class EPos : public BPosT
+    {
+    private:
+	Tuple<OPosTs...> mP;
+
+	template <SizeT... Is>
+	constexpr decltype(auto) ival(std::index_sequence<Is...> is) const;
+
+	template <SizeT... Is>
+	constexpr decltype(auto) inext(std::index_sequence<Is...> is) const;
+	
+    public:
+	DEFAULT_MEMBERS(EPos);
+
+	constexpr EPos(const BPosT& b, const OPosTs&... os);
+	constexpr EPos(BPosT&& b, OPosTs&&... os);
+
+	constexpr decltype(auto) val() const;
+	constexpr decltype(auto) next() const;
+    };
+
+    /*********************************
+     *   Traits and Helper-Classes   *
+     *********************************/
     
+    template <class T>
+    struct is_pos_type { CXZ_CVAL_FALSE; };
+
+    template <class T>
+    struct is_scalar_pos_type { CXZ_CVAL_FALSE; };
+
+    template <class T>
+    struct is_static_pos_type { CXZ_CVAL_FALSE; };
+
+    template <class T>
+    struct is_epos_type { CXZ_CVAL_FALSE; };
+    
+    template <class PosT>
+    struct pos_depth
+    {
+	static constexpr SizeT value = is_pos_type<PosT>::value ? 1 : 0;
+    };
+    
+    template <class OPosT1, class OPosT2, class... OPosTs>
+    struct pos_type_consecutive_2
+    {
+    private:
+	static constexpr bool eval();
+	
+    public:
+	static constexpr bool value = eval();
+    };
+
+    template <class OPosT1, class... OPosTs>
+    struct pos_type_consecutive
+    {
+	static constexpr bool value = sizeof...(OPosTs) == 0 ? is_pos_type<OPosT1>::value : pos_type_consecutive_2<OPosT1,OPosTs...>::value;
+    };
+
+    template <class OPosT1, class... OPosTs>
+    struct pos_type_same
+    {
+    private:
+	static constexpr bool eval();
+	
+    public:
+	static constexpr bool value = eval();
+    };
+    
+    template <class PosT> struct pos_type_is_consecutive { CXZ_CVAL_FALSE; };
+
+    template <SizeT N, class BPosT, class OPosT>
+    decltype(auto) mkEPos(const BPosT& a, const OPosT& b);
+
+    template <SizeT N, class BPosT, class OPosT, SizeT... Is>
+    decltype(auto) mkiEPos(const BPosT& a, const OPosT& b, std::index_sequence<Is...> is);
+
+    /**************************************************
+     *   Traits and Helper-Classes: Specializations   *
+     **************************************************/
+
     template <SizeT N> struct is_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <SizeT N> struct is_scalar_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <SizeT N> struct is_static_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
+
     template <> struct is_pos_type<UPos> { CXZ_CVAL_TRUE; };
     template <> struct is_scalar_pos_type<UPos> { CXZ_CVAL_TRUE; };
+
     template <> struct is_pos_type<FPos> { CXZ_CVAL_TRUE; };
     template <> struct is_scalar_pos_type<FPos> { CXZ_CVAL_TRUE; };
+
     template <SizeT N, SizeT... Ms> struct is_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
     template <SizeT N, SizeT... Ms> struct is_scalar_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
     template <SizeT N, SizeT... Ms> struct is_static_pos_type<SFPos<N,Ms...>> { CXZ_CVAL_TRUE; };
+
     template <class BPosT, class NPosT> struct is_pos_type<MPos<BPosT,NPosT>> { CXZ_CVAL_TRUE; };
+
     template <> struct is_pos_type<DPos> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<DPosRef> { CXZ_CVAL_TRUE; };
 
+    template <class BPosT, class... OPosTs> struct is_pos_type<EPos<BPosT,OPosTs...>> { CXZ_CVAL_TRUE; };
+    template <class BPosT, class... OPosTs> struct is_scalar_pos_type<EPos<BPosT,OPosTs...>>
+    { static constexpr bool value = is_scalar_pos_type<BPosT>::value; };
+    template <class BPosT, class... OPosTs> struct is_static_pos_type<EPos<BPosT,OPosTs...>>
+    { static constexpr bool value = is_static_pos_type<BPosT>::value and (is_static_pos_type<OPosTs>::value and ...); };
+    template <class BPosT, class... OPosTs> struct is_epos_type<EPos<BPosT,OPosTs...>> { CXZ_CVAL_TRUE; };
+    
     template <class BPosT, class NPosT>
     struct pos_depth<MPos<BPosT,NPosT>>
     {
 	static constexpr SizeT value = pos_depth<NPosT>::value + 1;
     };
-    
+
+    template <class BPosT, class... OPosTs>
+    struct pos_type_is_consecutive<EPos<BPosT,OPosTs...>>
+    {
+	static constexpr bool value = pos_type_is_consecutive<OPosTs...>::value;
+    };
+
 } // end namespace CNORXZInternal
 
 
