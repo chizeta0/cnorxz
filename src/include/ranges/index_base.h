@@ -55,8 +55,8 @@ namespace CNORXZ
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 	
-	template <class PosT, class Xpr>
-	decltype(auto) ifor(const PosT& step, const Xpr& xpr) const { return THIS().ifor(step,xpr); }
+	template <class Xpr>
+	decltype(auto) ifor(const Xpr& xpr) const { return THIS().ifor(xpr); }
 	
     protected:
 	SizeT mPos = 0;

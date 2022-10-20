@@ -145,10 +145,10 @@ namespace CNORXZ
     }
     
     template <typename MetaType>
-    template <class PosT, class Xpr>
-    decltype(auto) UIndex<MetaType>::ifor(const PosT step, Xpr xpr) const
+    template <class Xpr>
+    decltype(auto) UIndex<MetaType>::ifor(const Xpr& xpr) const
     {
-	return For<0,PosT,Xpr>(this->max(), this->id(), step, xpr);
+	return For<0,Xpr>(this->max(), this->id(), xpr);
     }
     
     /**********************

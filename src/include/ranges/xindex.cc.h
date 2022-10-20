@@ -155,9 +155,9 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    DXpr XIndex<Index,Meta>::ifor(const UPos& step, const DXpr& xpr) const
+    DXpr XIndex<Index,Meta>::ifor(const DXpr& xpr) const
     {
-	return DXpr(mI->ifor(step, xpr));
+	return DXpr(mI->ifor(xpr));
     }
 
 }

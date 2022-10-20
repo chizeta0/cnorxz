@@ -171,7 +171,7 @@ namespace CNORXZ
 	return *this;
     }
 
-    DXpr YIndex::ifor(const UPos& step, const DXpr& xpr) const
+    DXpr YIndex::ifor(const DXpr& xpr) const
     {
 	assert(0);
 	return DXpr();

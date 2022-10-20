@@ -23,9 +23,9 @@ namespace CNORXZ
     }
 
     template <class Xpr>
-    SizeT VXpr<Xpr>::vexec(const UPos& mlast, const DPos& last) const
+    SizeT VXpr<Xpr>::vexec(const DPos& last) const
     {
-	return (*this)(mlast, last);
+	return (*this)(last);
     }
 
     template <class Xpr>
@@ -49,9 +49,9 @@ namespace CNORXZ
 	ObjHandle<VXprBase>(std::make_unique<VXpr<Xpr>>(a))
     {}
 
-    inline SizeT DXpr::operator()(const UPos& mlast, const DPos& last) const
+    inline SizeT DXpr::operator()(const DPos& last) const
     {
-	return mC->vexec(mlast, last);
+	return mC->vexec(last);
     }
     
     inline SizeT DXpr::operator()() const

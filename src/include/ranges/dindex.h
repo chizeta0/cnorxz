@@ -50,7 +50,7 @@ namespace CNORXZ
 	DType meta() const;
 	DIndex& at(const DType& meta);
 
-	DXpr ifor(const UPos& step, const DXpr& xpr) const;
+	DXpr ifor(const DXpr& xpr) const;
 
     private:
 	XIndexPtr mI;

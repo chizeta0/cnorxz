@@ -8,16 +8,16 @@
 namespace CNORXZ
 {
 
-    template <SizeT L, class PosT, class Xpr>
-    class For : public XprInterface<For<L,PosT,Xpr>>
+    template <SizeT L, class Xpr>
+    class For : public XprInterface<For<L,Xpr>>
     {
     public:
 	DEFAULT_MEMBERS(For);
 
-	constexpr For(SizeT size, const IndexId<L>& id, const PosT& step, const Xpr& xpr);
+	constexpr For(SizeT size, const IndexId<L>& id, const Xpr& xpr);
 
-	template <class PosT1, class PosT2>
-	inline SizeT operator()(const PosT1& mlast, const PosT2& last) const;
+	template <class PosT>
+	inline SizeT operator()(const PosT& last) const;
 	
 	inline SizeT operator()() const;
 
@@ -28,23 +28,22 @@ namespace CNORXZ
 	SizeT mSize = 0;
 	IndexId<L> mId;
 	Xpr mXpr;
-	PosT mStep; // one-dim
 	typedef decltype(mXpr.rootSteps(mId)) XPosT;
 	XPosT mExt;
 	
     };
 
     // unrolled loop:
-    template <SizeT N, SizeT L, class PosT, class Xpr>
-    class SFor : public XprInterface<SFor<N,L,PosT,Xpr>>
+    template <SizeT N, SizeT L, class Xpr>
+    class SFor : public XprInterface<SFor<N,L,Xpr>>
     {
     public:
 	DEFAULT_MEMBERS(SFor);
 
-	constexpr SFor(const IndexId<L>& id, const PosT& step, const Xpr& xpr);
+	constexpr SFor(const IndexId<L>& id, const Xpr& xpr);
 
-	template <class PosT1, class PosT2>
-	constexpr SizeT operator()(const PosT1& mlast, const PosT2& last) const;
+	template <class PosT>
+	constexpr SizeT operator()(const PosT& last) const;
 	
 	constexpr SizeT operator()() const;
 
@@ -53,15 +52,14 @@ namespace CNORXZ
 	
     private:
 
-	template <SizeT I, class PosT1, class PosT2>
-	constexpr SizeT exec(const PosT1& mlast, const PosT2& last) const;
+	template <SizeT I, class PosT>
+	constexpr SizeT exec(const PosT& last) const;
 
 	template <SizeT I>
 	constexpr SizeT exec() const;
 
 	IndexId<L> mId;
 	Xpr mXpr;
-	PosT mStep;
 	typedef decltype(mXpr.RootSteps(mId)) XPosT;
 	XPosT mExt;
 	
@@ -69,16 +67,16 @@ namespace CNORXZ
 
 
     // multi-threading
-    template <SizeT L, class PosT, class Xpr>
-    class TFor : public XprInterface<TFor<L,PosT,Xpr>>
+    template <SizeT L, class Xpr>
+    class TFor : public XprInterface<TFor<L,Xpr>>
     {
     public:
 	DEFAULT_MEMBERS(TFor);
 
-	constexpr TFor(SizeT size, const IndexId<L>& id, const PosT& step, const Xpr& xpr);
+	constexpr TFor(SizeT size, const IndexId<L>& id, const Xpr& xpr);
 
-	template <class PosT1, class PosT2>
-	inline SizeT operator()(const PosT1& mlast, const PosT2& last) const;
+	template <class PosT>
+	inline SizeT operator()(const PosT& last) const;
 	
 	inline SizeT operator()() const;
 
@@ -89,23 +87,22 @@ namespace CNORXZ
 	SizeT mSize = 0;
 	IndexId<L> mId;
 	Xpr mXpr;
-	PosT mStep;
 	typedef decltype(mXpr.rootSteps(mId)) XPosT;
 	XPosT mExt;
 	
     };
 
     // Extension For (Vectorization)
-    template <SizeT N, SizeT L, class PosT, class Xpr>
-    class EFor : public XprInterface<EFor<N,L,PosT,Xpr>>
+    template <SizeT N, SizeT L, class Xpr>
+    class EFor : public XprInterface<EFor<N,L,Xpr>>
     {
     public:
 	DEFAULT_MEMBERS(EFor);
 
-	constexpr EFor(const IndexId<L>& id, const PosT& step, const Xpr& xpr);
+	constexpr EFor(const IndexId<L>& id, const Xpr& xpr);
 
-	template <class PosT1, class PosT2>
-	constexpr SizeT operator()(const PosT1& mlast, const PosT2& last) const;
+	template <class PosT>
+	constexpr SizeT operator()(const PosT& last) const;
 
 	constexpr SizeT operator()() const;
 
@@ -115,7 +112,6 @@ namespace CNORXZ
     private:
 	IndexId<L> mId;
 	Xpr mXpr;
-	PosT mStep;
 	typedef decltype(mXpr.rootSteps(mId)) XPosT;
 	XPosT mExt;
     };
