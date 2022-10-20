@@ -145,7 +145,7 @@ namespace CNORXZ
     {
 	int i = 0;
 	const int size = static_cast<int>(mSize);
-#pragma omp parallel
+#pragma omp parallel private(i)
 	{
 	    auto xpr = mXpr;
 #pragma omp for 
@@ -163,7 +163,7 @@ namespace CNORXZ
     {
 	int i = 0;
 	const int size = static_cast<int>(mSize);
-#pragma omp parallel
+#pragma omp parallel private(i)
 	{
 	    auto xpr = mXpr;
 #pragma omp for 

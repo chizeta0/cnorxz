@@ -24,7 +24,7 @@ namespace CNORXZ
 	inline SizeT operator()() const { return THIS()(); }
 
 	template <SizeT I>
-	inline decltype(auto) rootSteps(const IndexId<I>& id) const { return THIS().rootSteps(id); }
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const { return THIS().rootSteps(id); }
     };
 
     class VXprBase
