@@ -373,7 +373,8 @@ namespace CNORXZ
 	return mC->vval();
     }
     
-    inline DPosRef DPos::next() const
+    //inline DPosRef DPos::next() const
+    inline DPosRef DPos::sub() const
     {
 	return DPosRef(mC->vnext());
     }
@@ -416,9 +417,10 @@ namespace CNORXZ
     }
 	
     template <class PosT>
-    inline DPos DPos::extend(const PosT& a) const
+    inline decltype(auto) DPos::extend(const PosT& a) const
     {
-	return DPos(mC->vextend( a ));
+	//return DPos(mC->vextend( a ));
+	return MPos<DPos,PosT>(*this,a);
     }
 
     /***************
@@ -447,7 +449,8 @@ namespace CNORXZ
 	return mP->vval();
     }
     
-    inline DPosRef DPosRef::next() const
+    //inline DPosRef DPosRef::next() const
+    inline DPosRef DPosRef::sub() const
     {
 	return DPosRef(mP->vnext());
     }
@@ -490,9 +493,10 @@ namespace CNORXZ
     }	
 
     template <class PosT>
-    inline DPos DPosRef::extend(const PosT& a) const
+    inline decltype(auto) DPosRef::extend(const PosT& a) const
     {
-	return DPos(mP->vextend( a ));
+	//return DPos(mP->vextend( a ));
+	return MPos<DPos,PosT>(*this,a);
     }
     
     /************

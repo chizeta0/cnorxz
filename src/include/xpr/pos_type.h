@@ -154,6 +154,7 @@ namespace CNORXZ
 	constexpr auto extend(const PosT& a) const;
     };
 
+    // treat as scalar pos!!!
     class DPos : public ObjHandle<VPosBase>
     {
     public:
@@ -172,7 +173,8 @@ namespace CNORXZ
 	inline const VPosBase* vpos() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
-	inline DPosRef next() const;
+	inline DPosRef sub() const;
+	//inline DPosRef next() const;
 
 	template <class PosT>
 	inline DPos operator+(const PosT& a) const;
@@ -185,7 +187,7 @@ namespace CNORXZ
 	inline DPos operator()(const PosT& a) const;
 	
 	template <class PosT>
-	inline DPos extend(const PosT& a) const;
+	inline decltype(auto) extend(const PosT& a) const;
     };
 
     class DPosRef
@@ -202,7 +204,8 @@ namespace CNORXZ
 	inline const VPosBase* vpos() const;
 	inline SizeT size() const;
 	inline SizeT val() const;
-	inline DPosRef next() const;
+	inline DPosRef sub() const;
+	//inline DPosRef next() const;
 
 	template <class PosT>
 	inline DPos operator+(const PosT& a) const;
@@ -215,7 +218,7 @@ namespace CNORXZ
 	inline DPos operator()(const PosT& a) const;
 	
 	template <class PosT>
-	inline DPos extend(const PosT& a) const;
+	inline decltype(auto) extend(const PosT& a) const;
     };
 
     // for common call of extension vector elements
@@ -261,7 +264,7 @@ namespace CNORXZ
     struct is_epos_type { CXZ_CVAL_FALSE; };
     
     template <class PosT>
-    struct pos_depth
+    struct static_pos_size
     {
 	static constexpr SizeT value = is_pos_type<PosT>::value ? 1 : 0;
     };
@@ -322,6 +325,8 @@ namespace CNORXZ
 
     template <> struct is_pos_type<DPos> { CXZ_CVAL_TRUE; };
     template <> struct is_pos_type<DPosRef> { CXZ_CVAL_TRUE; };
+    template <> struct is_scalar_pos_type<DPos> { CXZ_CVAL_TRUE; };
+    template <> struct is_scalar_pos_type<DPosRef> { CXZ_CVAL_TRUE; };
 
     template <class BPosT, class... OPosTs> struct is_pos_type<EPos<BPosT,OPosTs...>> { CXZ_CVAL_TRUE; };
     template <class BPosT, class... OPosTs> struct is_scalar_pos_type<EPos<BPosT,OPosTs...>>
@@ -331,9 +336,9 @@ namespace CNORXZ
     template <class BPosT, class... OPosTs> struct is_epos_type<EPos<BPosT,OPosTs...>> { CXZ_CVAL_TRUE; };
     
     template <class BPosT, class NPosT>
-    struct pos_depth<MPos<BPosT,NPosT>>
+    struct static_pos_size<MPos<BPosT,NPosT>>
     {
-	static constexpr SizeT value = pos_depth<NPosT>::value + 1;
+	static constexpr SizeT value = static_pos_size<NPosT>::value + 1;
     };
 
     template <class BPosT, class... OPosTs>

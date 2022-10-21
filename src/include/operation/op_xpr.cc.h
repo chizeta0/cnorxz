@@ -3,6 +3,7 @@
 #define __cxz_op_expr_cc_h__
 
 #include "op_expr.h"
+#include "op_utility.h"
 
 namespace CNORXZ
 {
@@ -18,7 +19,7 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     inline SizeT OpXpr<F,Ops...>::operator()(const PosT& last) const
     {
-	pos_unpack_args(mF,mOps,last); // utility function (to be implemented)
+	pos_unpack_args(mF,last,mOps); // utility function (to be implemented)
 	// depending on whether Ops[N] is static or not call statically or dynamically .next()
 	return 0;
     }
