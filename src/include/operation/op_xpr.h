@@ -4,7 +4,7 @@
 
 #include "base/base.h"
 #include "operation/operation_base.h"
-#include "xpr_base.h"
+#include "xpr/xpr_base.h"
 
 namespace CNORXZ
 {
