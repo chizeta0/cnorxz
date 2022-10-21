@@ -1,16 +1,9 @@
 // -*- C++ -*-
 
-#ifndef __cxz_operation_h__
-#define __cxz_operation_h__
+#ifndef __cxz_op_types_h__
+#define __cxz_op_types_h__
 
 #include "base/base.h"
-
-#include "arith.h"
-#include "type_operations.h"
-#include "op_expressions.h"
-#include "access.h"
-
-#include "statics/static_for.h"
 
 namespace CNORXZ
 {

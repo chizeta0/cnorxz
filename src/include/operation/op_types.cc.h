@@ -1,8 +1,12 @@
 
-#include "cxz_operation.h"
+#ifndef __cxz_op_types_cc_h__
+#define __cxz_op_types_cc_h__
+
+#include "op_types.h"
 #include "xpr/pos_type.h"
 #include "ranges/range_helper.h"
 #include "xpr/op_xpr.h"
+#include "statics/static_for.h"
 
 
 namespace CNORXZ
@@ -326,3 +330,5 @@ namespace CNORXZ
     }
 
 }
+
+#endif
