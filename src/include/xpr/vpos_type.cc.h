@@ -7,28 +7,6 @@
 
 namespace CNORXZ
 {
-    /****************
-     *   VPosBase   *
-     ****************/
-    /*
-    template <SizeT N>
-    inline Uptr<VPosBase> VPosBase::vextend(const SPos<N>& a) const
-    {
-	return this->vextend(UPos(N));
-    }
-
-    template <SizeT N, SizeT... Ms>
-    inline Uptr<VPosBase> VPosBase::vextend(const SFPos<N,Ms...>& a) const
-    {
-	return this->vextend(static_cast<FPos>(a));
-    }
-
-    template <class PosT1, class PosT2>
-    inline Uptr<VPosBase> VPosBase::vextend(const MPos<PosT1,PosT2>& a) const
-    {
-	return this->vextend(static_cast<const PosT1&>(a))->vextend(a.next());
-    }
-    */
     /************
      *   VPos   *
      ************/
@@ -88,35 +66,7 @@ namespace CNORXZ
 	typedef decltype((*this)(UPos(a->vval()))) OPosT;
 	return std::make_unique<VPos<OPosT>>( (*this)(UPos(a->vval())) );
     }
-    /*
-    template <class PosT>
-    Uptr<VPosBase> VPos<PosT>::vextend(const UPos& a) const
-    {
-	typedef decltype(this->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(a));
-    } 
 
-    template <class PosT>
-    Uptr<VPosBase> VPos<PosT>::vextend(const FPos& a) const
-    {
-	typedef decltype(this->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(a));
-    }
-
-    template <class PosT>
-    Uptr<VPosBase> VPos<PosT>::vextend(const DPos& a) const
-    {
-	typedef decltype(this->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(a));
-    }
-
-    template <class PosT>
-    Uptr<VPosBase> VPos<PosT>::vextend(const DPosRef& a) const
-    {
-	typedef decltype(this->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(DPos(a)));
-    }
-    */
     /******************
      *   VPos<MPos>   *
      ******************/
@@ -190,8 +140,8 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vplus(const VPosBase* a) const
     {
-	typedef decltype((*this) + DPosRef(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>((*this) + DPosRef(a));
+	typedef decltype((*this) + PosFromVPos<MPos<PosT1,PosT2>>::make(a)) OPosT;
+	return std::make_unique<VPos<OPosT>>((*this) + PosFromVPos<MPos<PosT1,PosT2>>::make(a));
     }
     
     template <class PosT1, class PosT2>
@@ -207,35 +157,7 @@ namespace CNORXZ
 	typedef decltype( (*this)(UPos(a->vval())) ) OPosT;
 	return std::make_unique<VPos<OPosT>>( (*this)(UPos(a->vval())) );
     }
-    /*
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const UPos& a) const 
-    {
-	typedef decltype(this->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(DPos(a)));
-    }
-    
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const FPos& a) const 
-    {
-	typedef decltype(this->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(DPos(a)));
-    }
 
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const DPos& a) const
-    {
-	typedef decltype(this->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(a));
-    }
-    
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPos<MPos<PosT1,PosT2>>::vextend(const DPosRef& a) const
-    {
-	typedef decltype(this->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(this->extend(DPos(a)));
-    }
-    */
     /***************
      *   VPosRef   *
      ***************/
@@ -295,35 +217,7 @@ namespace CNORXZ
 	typedef decltype( (*mC)(UPos(a->vval())) ) OPosT;
 	return std::make_unique<VPos<OPosT>>( (*mC)(UPos(a->vval())) );
     }
-    /*
-    template <class PosT>
-    Uptr<VPosBase> VPosRef<PosT>::vextend(const UPos& a) const 
-    {
-	typedef decltype(mC->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(a));
-    }
-    
-    template <class PosT>
-    Uptr<VPosBase> VPosRef<PosT>::vextend(const FPos& a) const 
-    {
-	typedef decltype(mC->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(a));
-    }
 
-    template <class PosT>
-    Uptr<VPosBase> VPosRef<PosT>::vextend(const DPos& a) const
-    {
-	typedef decltype(mC->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(a));
-    }
-
-    template <class PosT>
-    Uptr<VPosBase> VPosRef<PosT>::vextend(const DPosRef& a) const
-    {
-	typedef decltype(mC->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(DPos(a)));
-    }
-    */
     /*********************
      *   VPosRef<MPos>   *
      *********************/
@@ -376,8 +270,8 @@ namespace CNORXZ
     template <class PosT1, class PosT2>
     Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vplus(const VPosBase* a) const
     {
-	typedef decltype((*mC) + DPosRef(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>((*mC) + DPosRef(a));
+	typedef decltype((*mC) + PosFromVPos<MPos<PosT1,PosT2>>::make(a)) OPosT;
+	return std::make_unique<VPos<OPosT>>((*mC) + PosFromVPos<MPos<PosT1,PosT2>>::make(a));
     }
     
     template <class PosT1, class PosT2>
@@ -393,35 +287,25 @@ namespace CNORXZ
 	typedef decltype( (*mC)(UPos(a->vval())) ) OPosT;
 	return std::make_unique<VPos<OPosT>>( (*mC)(UPos(a->vval())) );
     }
-    /*
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const UPos& a) const
-    {
-	typedef decltype(mC->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(DPos(a)));
-    }
-
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const FPos& a) const
-    {
-	typedef decltype(mC->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(DPos(a)));
-    }
-
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const DPos& a) const
-    {
-	typedef decltype(mC->extend(a)) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(a));
-    }
     
-    template <class PosT1, class PosT2>
-    Uptr<VPosBase> VPosRef<MPos<PosT1,PosT2>>::vextend(const DPosRef& a) const
+    /*******************
+     *   PosFromVPos   *
+     *******************/
+
+    template <class PosT>
+    inline decltype(auto) PosFromVPos<PosT>::make(const VPosBase* a)
     {
-	typedef decltype(mC->extend(DPos(a))) OPosT;
-	return std::make_unique<VPos<OPosT>>(mC->extend(DPos(a)));
+	return PosT(a->vval());
     }
-    */
+
+    template <class PosT1, class PosT2>
+    inline decltype(auto) PosFromVPos<MPos<PosT1,PosT2>>::make(const VPosBase* a)
+    {
+#if CXZ_DEBUG
+	CXZ_ASSERT(a->vnext() != nullptr, "VPos does not match required size");
+#endif
+	return MPos<PosT1,PosT2>(a->vval(), PosFromVPos<PosT2>::make(a->vnext()));
+    }
 }
 
 #endif
