@@ -2,7 +2,7 @@
 #include "cxz_operation.h"
 #include "xpr/pos_type.h"
 #include "ranges/range_helper.h"
-#include "ranges/xpr/op_xpr.h"
+#include "xpr/op_xpr.h"
 
 
 namespace CNORXZ

@@ -81,38 +81,38 @@ namespace CNORXZ
     template <typename T>
     class Allocator;
 
-    // definition: ranges/xpr/vpos_type.h
+    // definition: xpr/vpos_type.h
     class VPosBase;
 
-    // definition: ranges/xpr/vpos_type.h
+    // definition: xpr/vpos_type.h
     template <class PosT>
     class VPos;
 
-    // definition: ranges/xpr/vpos_type.h
+    // definition: xpr/vpos_type.h
     template <class PosT>
     class VPosRef;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     class UPos;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     template <SizeT N>
     class SPos;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     class FPos;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     template <SizeT N, SizeT... Ms>
     class SFPos;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     class DPos;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     class DPosRef;
 
-    // definition: ranges/xpr/pos_type.h
+    // definition: xpr/pos_type.h
     template <class PosT1, class PosT2>
     class MPos;
 
