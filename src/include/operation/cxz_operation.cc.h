@@ -46,390 +46,124 @@ namespace CNORXZ
     }
 
 
-    /****************************
-     *   ConstOperationRoot     *
-     ****************************/
+    /***************
+     *   COpRoot   *
+     ***************/
 
-    template <typename T, class... Ranges>
-    ConstOperationRoot<T,Ranges...>::
-    ConstOperationRoot(const ArrayBase<T,Ranges...>& ma,
-		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mDataPtr(ma.data()),
-        mOrigDataPtr(ma.data()),
-	mIndex( ma.begin() )
+    template <typename T, class IndexT>
+    constexpr COpRoot<T,IndexT>::COpRoot(const DArrayBase<T>& a, const Sptr<IndexT>& ind) :
+	mData(a.data()),
+	mIndex(ind)
+    {}
+
+    template <typename T, class IndexT>
+    constexpr COpRoot<T,IndexT>::COpRoot(const T* data, const Sptr<IndexT>& ind) :
+	mData(data),
+	mIndex(ind)
+    {}
+
+    template <typename T, class IndexT>
+    template <class PosT>
+    constexpr decltype(auto) COpRoot<T,IndexT>::get(const PosT& pos) const
     {
-	mIndex(indices...);
-        mDataPtr = mOrigDataPtr + mIndex.pos();
+	if constexpr(is_epos_type<PosT>::value){
+	    return vreg(mData,pos); // distinguish between consecutive/non-consecutive
+	}
+	else {
+	    return mData[pos.val()];
+	}
     }
 
-    template <typename T, class... Ranges>
-    ConstOperationRoot<T,Ranges...>::
-    ConstOperationRoot(std::shared_ptr<ArrayBase<T,Ranges...> > maptr,
-		       const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mDataPtr(maptr->data()),
-        mOrigDataPtr(maptr->data()),
-	mIndex(maptr->begin()),
-	mMaPtr(maptr)
+    template <typename T, class IndexT>
+    template <SizeT I>
+    constexpr decltype(auto) COpRoot<T,IndexT>::rootSteps(const IndexId<I>& id) const
     {
-	mIndex(indices...);
-        mDataPtr = mOrigDataPtr + mIndex.pos();
+	return mIndex->stepSize(id);
     }
 
-    template <typename T, class... Ranges>
-    ConstOperationRoot<T,Ranges...>::
-    ConstOperationRoot(const T* data, const IndexType& ind) :
-	mDataPtr(data),
-        mOrigDataPtr(data),
-	mIndex( ind )
-    {
-        mDataPtr = mOrigDataPtr + mIndex.pos();
-    }
-
-    template <typename T, class... Ranges>
-    template <class ET>
-    inline const T& ConstOperationRoot<T,Ranges...>::get(ET pos) const
-    {
-	return mDataPtr[pos.val()];
-    }
-
-    template <typename T, class... Ranges>
-    template <typename V, class ET>
-    inline const V& ConstOperationRoot<T,Ranges...>::vget(ET pos) const
-    {
-	return *(reinterpret_cast<const V*>(mDataPtr+pos.val()));
-    }
-
-    template <typename T, class... Ranges>
-    template <class ET>
-    inline ConstOperationRoot<T,Ranges...>& ConstOperationRoot<T,Ranges...>::set(ET pos)
-    {
-        mDataPtr = mOrigDataPtr + pos.val();
-	return *this;
-    }
-
-    template <typename T, class... Ranges>
-    const T* ConstOperationRoot<T,Ranges...>::data() const
-    {
-        return mDataPtr;
-    }
-    
-    template <typename T, class... Ranges>
-    MExt<None> ConstOperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
-    {
-	return MExt<None>(RangeHelper::getStepSize( mIndex, iPtrNum ));
-    }
-
-
-    template <typename T, class... Ranges>
+    template <typename T, class IndexT>
     template <class Expr>
-    Expr ConstOperationRoot<T,Ranges...>::loop(Expr exp) const
+    constexpr decltype(auto) COpRoot<T,IndexT>::loop(Xpr&& xpr) const
     {
-	return exp;
+	return xpr;
     }
 
-    /********************
-     *   StaticCast     *
-     ********************/
-
-    template <typename T, class Op>
-    StaticCast<T,Op>::StaticCast(const Op& op) : mOp(op) {}
-
-    template <typename T, class Op>
-    template <class ET>
-    inline T StaticCast<T,Op>::get(ET pos) const
+    template <typename T, class IndexT>
+    const T* COpRoot<T,IndexT>::data() const
     {
-	return static_cast<T>( mOp.get(pos) );
-    }
-
-    template <typename T, class Op>
-    template <typename V, class ET>
-    inline V StaticCast<T,Op>::vget(ET pos) const
-    {
-	assert(0); // !!!
-	return V();
-    }
-
-    template <typename T, class Op>
-    template <class ET>
-    inline StaticCast<T,Op>& StaticCast<T,Op>::set(ET pos)
-    {
-	mOp.set(pos);
-	return *this;
+        return mData;
     }
     
-    template <typename T, class Op>
-    auto StaticCast<T,Op>::rootSteps(std::intptr_t iPtrNum) const
-	-> decltype(mOp.rootSteps(iPtrNum))
-    {
-	return mOp.rootSteps(iPtrNum);
-    }
 
-    template <typename T, class Op>
-    template <class Expr>
-    Expr StaticCast<T,Op>::loop(Expr exp) const
-    {
-	return mOp.loop(exp);
-    }
+    /****************
+     *   OpRoot     *
+     ****************/
     
+    template <typename T, class IndexT>
+    constexpr OpRoot<T,IndexT>::OpRoot(MDArrayBase<T>& a, const Sptr<IndexT>& ind);
+	mData(a.data()),
+	mIndex(ind)
+    {}
+
+    template <typename T, class IndexT>
+    constexpr OpRoot<T,IndexT>::OpRoot(T* data, const Sptr<IndexT>& ind) :
+	mData(data),
+	mIndex(ind)
+    {}
     
-    /****************************
-     *   MetaOperationRoot     *
-     ****************************/
-
-    template <class Range>
-    MetaOperationRoot<Range>::
-    MetaOperationRoot(const std::shared_ptr<IndexType>& ind) :
-	mWorkIndex(*ind), mIndex( ind ) {}
-
-    
-    template <class Range>
-    template <class ET>
-    inline typename MetaOperationRoot<Range>::value_type
-    MetaOperationRoot<Range>::get(ET pos) const
+    template <typename T, class IndexT>
+    template <class Op>
+    constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator=(const Op& o)
     {
-	return (mWorkIndex = pos.val()).meta();
-    }
-
-    template <class Range>
-    template <typename V, class ET>
-    inline V
-    MetaOperationRoot<Range>::vget(ET pos) const
-    {
-	assert(0); // !!!
-	return V();
-    }
-
-    template <class Range>
-    template <class ET>
-    inline MetaOperationRoot<Range>& MetaOperationRoot<Range>::set(ET pos)
-    {
-	return *this;
-    }
-
-    template <class Range>
-    MExt<None> MetaOperationRoot<Range>::rootSteps(std::intptr_t iPtrNum) const
-    {
-	return MExt<None>(RangeHelper::getStepSize( *mIndex, iPtrNum ));
-    }
-
-
-    template <class Range>
-    template <class Expr>
-    Expr MetaOperationRoot<Range>::loop(Expr exp) const
-    {
-	return exp;
-    }
-
-    /***********************
-     *   OperationRoot     *
-     ***********************/
-    
-    template <typename T, class... Ranges>
-    OperationRoot<T,Ranges...>::
-    OperationRoot(MutableArrayBase<T,Ranges...>& ma,
-		  const std::shared_ptr<typename Ranges::IndexType>&... indices) :
-	mDataPtr(ma.data()),
-        mOrigDataPtr(ma.data()),
-        mDataAcc( ma.data(), ma.data() ),
-	mIndex( ma.begin() )
-    {
-	mIndex(indices...);
-        mDataAcc.set( mIndex.pos() );
-        mDataPtr = mOrigDataPtr + mIndex.pos();
-    }
-
-    template <typename T, class... Ranges>
-    OperationRoot<T,Ranges...>::
-    OperationRoot(MutableArrayBase<T,Ranges...>& ma,
-		  const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices) :
-	mDataPtr(ma.data()),
-        mOrigDataPtr(ma.data()),
-        mDataAcc( ma.data(), ma.data() ),
-	mIndex( ma.begin() )
-    {
-	mIndex(indices);
-        mDataAcc.set( mIndex.pos() );
-        mDataPtr = mOrigDataPtr + mIndex.pos();
-    }
-
-    template <typename T, class... Ranges>
-    OperationRoot<T,Ranges...>::
-    OperationRoot(T* data, const IndexType& ind) :
-	mDataPtr(data),
-        mOrigDataPtr(data),
-        mDataAcc( data, data ),
-	mIndex( ind )
-    {
-        mDataAcc.set( mIndex.pos() );
-        mDataPtr = mOrigDataPtr + mIndex.pos();
-    }
-
-    template <typename T, class... Ranges>
-    template <class Func, class Access, class OpClass>
-    auto OperationRoot<T,Ranges...>::asx(const OpClass& in) const
-    {
-	static_assert(Access::VSIZE > 0, "Access::VSIZE failed");
-	return mIndex.ifor(1,this->template asxExpr<Func,Access>(in)).template vec<Access::VSIZE>();
-    }
-
-    template <typename T, class... Ranges>
-    template <class Func, class Access, class OpClass>
-    auto OperationRoot<T,Ranges...>::asxExpr(const OpClass& in) const
-    {
-        static_assert( OpClass::SIZE == decltype(in.rootSteps())::SIZE, "Ext Size mismatch" );
-        return in.loop(AssignmentExpr<T,Func,Access,OperationRoot<T,Ranges...>,OpClass>
-                       (Access(mDataAcc),*this,in));
-    }
-    
-    template <typename T, class... Ranges>
-    template <class Func, class Access, class OpClass, class Index>
-    auto OperationRoot<T,Ranges...>::asx(const OpClass& in, const std::shared_ptr<Index>& i) const
-    {
-	static_assert(Access::VSIZE > 0, "Access::VSIZE failed");
-        return i->ifor(1,this->template asxExpr<Func,Access>(in)).template vec<Access::VSIZE>();
-    }
-
-    template <typename T, class... Ranges>
-    template <class OpClass>
-    auto OperationRoot<T,Ranges...>::assign(const OpClass& in) const
-    {
-        return this->template asx<identity<T>,PointerAccess<T>>(in);
-    }
-
-    template <typename T, class... Ranges>
-    template <class OpClass>
-    auto OperationRoot<T,Ranges...>::assignExpr(const OpClass& in) const
-    {
-        return this->template asxExpr<identity<T>,PointerAccess<T>>(in);
-    }
-    
-    template <typename T, class... Ranges>
-    template <class OpClass, class Index>
-    auto OperationRoot<T,Ranges...>::assign(const OpClass& in, const std::shared_ptr<Index>& i) const
-    {
-        return this->template asx<identity<T>,PointerAccess<T>>(in,i);
-    }
-
-    template <typename T>
-    using xplus = plus<T>;
-
-    template <typename T, class... Ranges>
-    template <class OpClass>
-    auto OperationRoot<T,Ranges...>::plus(const OpClass& in) const
-    {
-        return this->template asx<xplus<T>,PointerAccess<T>>(in);
-    }
-
-    template <typename T, class... Ranges>
-    template <class OpClass, class Index>
-    auto OperationRoot<T,Ranges...>::plus(const OpClass& in, const std::shared_ptr<Index>& i) const
-    {
-        return this->template asx<xplus<T>,PointerAccess<T>>(in,i);
-    }
-    
-    template <bool VABLE, class Func, typename TarOp, class OpClass>
-    inline void vexec(TarOp& th, const OpClass& in)
-    {
-	// VECTORIZATION!!!
-	// PARALLEL!!!
-        if constexpr(VABLE){
-            CHECK;
-            typedef typename TarOp::value_type T;
-            auto x = th.template asx<VFunc<Func>,VPointerAccess<T>>(in);
-            if(x.rootSteps(x.vI()) == 1){
-		//if(0){
-                CHECK;
-                x();
-            }
-            else {
-                th.template asx<Func,PointerAccess<T>>(in)();
-            }
-        }
-        else {
-            typedef typename TarOp::value_type T;
-            //IAccess<T,F<T>> tmp;
-            th.template asx<Func,PointerAccess<T>>(in)();
-        }
-    }
-    
-    template <typename T, class... Ranges>
-    template <class OpClass>
-    OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OpClass& in)
-    {
-	vexec<OpClass::VABLE,identity<T>>(*this,in);
+	a(mInd, [](auto& a, const auto& b) { a = b; }, o)
         return *this;
     }
 
-    template <typename T, class... Ranges>
-    template <class OpClass>
-    OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator+=(const OpClass& in)
+    template <typename T, class IndexT>
+    template <class Op>
+    constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator+=(const Op& o)
     {
-	vexec<OpClass::VABLE,xplus<T>>(*this,in);
+	a(mInd, [](auto& a, const auto& b) { a += b; }, o)
         return *this;
     }
 
-    template <typename T, class... Ranges>
-    OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::operator=(const OperationRoot<T,Ranges...>& in)
+    template <typename T, class IndexT>
+    constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator=(const OpRoot<T,IndexT>& in)
     {
-	return operator=<OperationRoot<T,Ranges...> >(in);
-    }
-    /*
-    template <typename T, class... Ranges>
-    ParallelOperationRoot<T,Ranges...> OperationRoot<T,Ranges...>::par()
-    {
-        return ParallelOperationRoot<T,Ranges...>(mOrigDataPtr, mIndex);
-    }
-    */
-    template <typename T, class... Ranges>
-    template <class ET>
-    inline T& OperationRoot<T,Ranges...>::get(ET pos) const
-    {
-        return *mDataAcc.get(pos.val());
-    }
-
-    template <typename T, class... Ranges>
-    template <typename V, class ET>
-    inline V& OperationRoot<T,Ranges...>::vget(ET pos) const
-    {
-        return *(reinterpret_cast<V*>(mDataAcc.get(pos.val())));
-    }
-
-    template <typename T, class... Ranges>
-    template <class ET>
-    inline OperationRoot<T,Ranges...>& OperationRoot<T,Ranges...>::set(ET pos)
-    {
-        mDataAcc.set(pos.val());
-        mDataPtr = mOrigDataPtr + pos.val();
+	a(mInd, [](auto& a, const auto& b) { a = b; }, o)
 	return *this;
     }
 
-    template <typename T, class... Ranges>
-    MExt<None> OperationRoot<T,Ranges...>::rootSteps(std::intptr_t iPtrNum) const
+    template <typename T, class IndexT>
+    template <class PosT>
+    constexpr decltype(auto) OpRoot<T,IndexT>::get(const PosT& pos) const
     {
-	return MExt<None>(RangeHelper::getStepSize( mIndex, iPtrNum ));
+	if constexpr(is_epos_type<PosT>::value){
+	    return vreg(mData,pos); // distinguish between consecutive/non-consecutive
+	}
+	else {
+	    return mData[pos.val()];
+	}
     }
 
-    template <typename T, class... Ranges>
+    template <typename T, class IndexT>
+    template <SizeT I>
+    constexpr decltype(auto) OpRoot<T,IndexT>::rootSteps(const IndexId<I>& id) const
+    {
+	return mIndex->stepSize(id);
+    }
+
+    template <typename T, class IndexT>
     template <class Expr>
-    Expr OperationRoot<T,Ranges...>::loop(Expr exp) const
+    constexpr decltype(auto) OpRoot<T,IndexT>::loop(Xpr&& xpr) const;
     {
-	return exp;
+	return xpr;
     }
 
-    template <typename T, class... Ranges>
-    T* OperationRoot<T,Ranges...>::data() const
+    template <typename T, class IndexT>
+    T* OpRoot<T,IndexT>::data() const
     {
-        return mDataAcc.get(0);
-    }
-
-    template <typename T, class... Ranges>
-    template <class... Indices>
-    auto OperationRoot<T,Ranges...>::sl(const std::shared_ptr<Indices>&... inds)
-	-> Slice<T,typename Indices::RangeType...>
-    {
-	Slice<T,typename Indices::RangeType...> out(inds->range()...);
-	out.define(inds...) = *this;
-	return out;
+        return mData;
     }
 
 

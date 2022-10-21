@@ -68,7 +68,7 @@ namespace CNORXZ
     { static constexpr bool value = std::is_base_of<OpInterface,T>::value };
 
     template <typename T, class IndexT>
-    class COpRoot : public COpInterface<T,COpRoot<T,IndexT>>
+    class COpRoot : public COpInterface<COpRoot<T,IndexT>>
     {
     public:
 
@@ -85,192 +85,81 @@ namespace CNORXZ
 	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 	
 	template <class Xpr>
-	constexpr decltype(auto) loop(Xpr&& exp) const;
+	constexpr decltype(auto) loop(Xpr&& xpr) const;
 
 	const T* data() const;
 	
     private:
-	const T* mData;
+	const T* mData = nullptr;
 	Sptr<IndexType> mIndex;
     };
 
-    
-    template <class Range>
-    class MetaOperationRoot : public OperationTemplate<typename Range::MetaType,
-						       MetaOperationRoot<Range> >
+    template <typename T, class IndexT>
+    class OpCont : public OpInterface<OpCont<T,IndexT>>
     {
-    public:
-
-	typedef typename Range::IndexType IndexType;
-	typedef typename IndexType::MetaType value_type;
-	typedef OperationBase<value_type,MetaOperationRoot<Range> > OT;
-	
-	static constexpr size_t SIZE = 1;
-        static constexpr bool CONT = false;
-        static constexpr bool VABLE = false;
-        
-	MetaOperationRoot(const std::shared_ptr<IndexType>& ind);
-
-	template <class ET>
-	inline value_type get(ET pos) const;
-
-	template <typename V, class ET>
-	inline V vget(ET pos) const;
-
-	template <class ET>
-	inline MetaOperationRoot& set(ET pos);
-
-	MExt<None> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
-
-	template <class Expr>
-	Expr loop(Expr exp) const;
-		
-    private:
-
-        mutable IndexType mWorkIndex;
-        std::shared_ptr<IndexType> mIndex;
+	// operation container (intermediate operation results)
+	// TO BE IMPLEMENTED!!!
     };
-
-    template <typename T, class... Ranges>
-    class OperationRoot : public OperationTemplate<T,OperationRoot<T,Ranges...> >
+    
+    
+    template <typename T, class IndexT>
+    class OpRoot : public OpInterface<OpRoot<T,IndexT>>
     {
     public:
-
 	typedef T value_type;
-	typedef OperationBase<T,OperationRoot<T,Ranges...> > OT;
-	typedef ContainerRange<Ranges...> CRange;
-	typedef ConstContainerIndex<T,typename Ranges::IndexType...> IndexType;
+	typedef OpInterface<OpRoot<T,IndexT>> OI;
 
-	static constexpr size_t SIZE = 1;
-        static constexpr bool CONT = true;
-        static constexpr bool VABLE = true;
-
-    private:
-
-	T* mDataPtr;
-        T* mOrigDataPtr;
-        PointerAccess<T> mDataAcc;
-	IndexType mIndex;
-
-    public:
-	OperationRoot(MutableArrayBase<T,Ranges...>& ma,
-		      const std::shared_ptr<typename Ranges::IndexType>&... indices);
-
-	OperationRoot(MutableArrayBase<T,Ranges...>& ma,
-		      const std::tuple<std::shared_ptr<typename Ranges::IndexType>...>& indices);
-
-	OperationRoot(T* data, const IndexType& ind);
-
-        template <class Func, class Access, class OpClass>
-        auto asx(const OpClass& in) const;
-
-        template <class Func, class Access, class OpClass>
-        auto asxExpr(const OpClass& in) const;
+	constexpr OpRoot(MDArrayBase<T>& a, const Sptr<IndexT>& ind);
+	constexpr OpRoot(T* data, const Sptr<IndexT>& ind);
             
-        template <class Func, class Access, class OpClass, class Index>
-        auto asx(const OpClass& in, const std::shared_ptr<Index>& i) const;
-            
-        template <class OpClass>
-        auto assign(const OpClass& in) const;
+        template <class Op>
+        constexpr OpRoot& operator=(const Op& in);
 
-	template <class OpClass>
-        auto assignExpr(const OpClass& in) const;
-	    
-        template <class OpClass, class Index>
-        auto assign(const OpClass& in, const std::shared_ptr<Index>& i) const;
-	
-	template <class OpClass>
-        auto plus(const OpClass& in) const;
+        template <class Op>
+        constexpr OpRoot& operator+=(const Op& in);
 
-        template <class OpClass, class Index>
-        auto plus(const OpClass& in, const std::shared_ptr<Index>& i) const;
-            
-        template <class OpClass>
-        OperationRoot& operator=(const OpClass& in);
-
-        template <class OpClass>
-        OperationRoot& operator+=(const OpClass& in);
-
-        OperationRoot& operator=(const OperationRoot& in);
+        constexpr OpRoot& operator=(const OpRoot& in);
         
-	auto par() { return *this; }
-        
-	template <class ET>
-	inline T& get(ET pos) const;
+	template <class PosT>
+	constexpr decltype(auto) get(const PosT& pos) const;
 
-	template <typename V, class ET>
-	inline V& vget(ET pos) const;
-	
-	template <class ET>
-	inline OperationRoot& set(ET pos);
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
-	MExt<None> rootSteps(std::intptr_t iPtrNum = 0) const; // nullptr for simple usage with decltype
-
-	template <class Expr>
-	Expr loop(Expr exp) const;
+	template <class Xpr>
+	constexpr decltype(auto) loop(Xpr&& exp) const;
         
 	T* data() const;
-	
-	template <class... Indices>
-	auto sl(const std::shared_ptr<Indices>&... inds)
-	    -> Slice<T,typename Indices::RangeType...>;
-
-    };
-
-    template <typename T, class OpFunction, class... Ops>
-    class Operation : public OperationTemplate<T,Operation<T,OpFunction,Ops...> >
-    {
-    public:
-
-	typedef T value_type;
-	typedef OperationBase<T,Operation<T,OpFunction,Ops...> > OT;
-	typedef OpFunction F;
-	
-	static constexpr size_t SIZE = (... + Ops::SIZE);
-	static constexpr bool FISSTATIC = OpFunction::FISSTATIC;
-        static constexpr bool CONT = false;
-	static constexpr bool VABLE =
-	    (... and (Ops::VABLE and std::is_same<T,typename Ops::value_type>::value));
 
     private:
-	OperationTuple<Ops...> mOps;
-	std::shared_ptr<OpFunction> mF; // only if non-static
-	typedef decltype(mOps.rootSteps(0)) ExtType;
+	T* mData = nullptr;
+	Sptr<IndexT> mIndex;
 	
-    public:
-		
-	Operation(const Ops&... ops);
-	Operation(std::shared_ptr<OpFunction> ff, const Ops&... ops);
-
-	template <class ET>
-	inline auto get(ET pos) const;
-
-	template <typename V, class ET>
-	inline auto vget(ET pos) const;
-
-	template <class ET>
-	inline Operation& set(ET pos);
-	
-	auto rootSteps(std::intptr_t iPtrNum = 0) const
-	    -> ExtType; // nullptr for simple usage with decltype
-
-	template <class Expr>
-	auto loop(Expr exp) const;
-
-	T* data() const { assert(0); return nullptr; }
     };
     
-    template <class OpFunction, class... Ops>
-    auto mkOperation(const std::shared_ptr<OpFunction>& f, const Ops&... ops)
-	-> Operation<typename OpFunction::value_type,OpFunction,Ops...>
+
+    template <class F, class... Ops>
+    class Operation : public OpInterface<Operation<F,Ops...>>
     {
-	if constexpr(OpFunction::FISSTATIC){
-	    return Operation<typename OpFunction::value_type,OpFunction,Ops...>(ops...);
-	}
-	else {
-	    return Operation<typename OpFunction::value_type,OpFunction,Ops...>(f,ops...);
-	}
-    }
+    public:
+	typedef OpInterface<T,Operation<T,F,Ops...>> OI;
+
+	constexpr Operation(F&& f, Ops&&... ops);
+
+	template <class PosT>
+	constexpr decltype(auto) get(const PosT& pos) const;
+
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const
+
+	template <class Xpr>
+	constexpr decltype(auto) loop(Xpr&& xpr) const;
+
+    private:
+	Tuple<Ops...> mOps;
+	F mF;
+	
+    };
     
     template <typename T, class Op, class IndexType>
     class Contraction : public OperationTemplate<T,Contraction<T,Op,IndexType> >
@@ -315,8 +204,5 @@ namespace CNORXZ
 	    -> decltype(mInd->iforh(1,mOp.loop(exp)));
     };
 }
-
-
-#include "type_operations.h"
 
 #endif
