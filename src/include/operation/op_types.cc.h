@@ -164,12 +164,6 @@ namespace CNORXZ
 	return xpr;
     }
 
-    template <typename T, class IndexT>
-    T* OpRoot<T,IndexT>::data() const
-    {
-        return mData;
-    }
-
 
     /*******************
      *   Operation     *
@@ -207,26 +201,6 @@ namespace CNORXZ
 	    typedef typename std::remove_reference<decltype(std::get<I>(ops))>::type NextOpType;
 	    return mkOpExpr<I+1>
 		( f, getX<NextOpType::SIZE>(pos), ops, args..., std::get<I>(ops).get(pos));
-	}
-    }
-
-    template <size_t I, typename V, class OpFunction, class ETuple, class OpTuple, typename... Args>
-    inline auto
-    mkVOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
-    {
-	if constexpr(I == std::tuple_size<OpTuple>{}){
-	    if constexpr(OpFunction::FISSTATIC){
-		return VFunc<OpFunction>::apply(args...);
-	    }
-	    else {
-		auto vf = mkVFuncPtr(f);
-		(*vf)(args...);
-	    }
-	}
-	else {
-	    typedef typename std::remove_reference<decltype(std::get<I>(ops))>::type NextOpType;
-	    return mkVOpExpr<I+1,V>( f, getX<NextOpType::SIZE>(pos), ops, args...,
-				     std::get<I>(ops).template vget<V>(pos));
 	}
     }
 
@@ -284,51 +258,38 @@ namespace CNORXZ
      *   Contraction     *
      *********************/
 
-    template <typename T, class Op, class IndexType>
-    Contraction<T,Op,IndexType>::Contraction(const Op& op, std::shared_ptr<IndexType> ind) :
-	mOp(op),
-	mInd(ind) {}
+    template <class CXpr>
+    Contraction<CXpr>::Contraction(CXpr&& cxpr) :
+	mCXpr(cxpr)
+    {}
 
-    // forward loop !!!!
-    template <typename T, class Op, class IndexType>
-    template <class ET>
-    inline auto Contraction<T,Op,IndexType>::get(ET pos) const
-        -> decltype(mOp.template get<ET>(pos))
+    template <class CXpr>
+    template <class PosT>
+    constexpr decltype(auto) Contraction<CXpr>::get(const PosT& pos) const
     {
-	return mOp.template get<ET>(pos);
+	return mCXpr(pos);
     }
 
-    template <typename T, class Op, class IndexType>
-    template <typename V, class ET>
-    inline auto Contraction<T,Op,IndexType>::vget(ET pos) const
-        -> decltype(mOp.template vget<V,ET>(pos))
+    template <class CXpr>
+    template <SizeT I>
+    constexpr decltype(auto) Contraction<CXpr>::rootSteps(const IndexId<I>& id) const;
     {
-	return mOp.template vget<V,ET>(pos);
+	return mCXpr.stepSize(id);
     }
 
-    template <typename T, class Op, class IndexType>
-    template <class ET>
-    inline Contraction<T,Op,IndexType>& Contraction<T,Op,IndexType>::set(ET pos)
-    {
-	mOp.set(pos);
-	return *this;
-    }
-
-    template <typename T, class Op, class IndexType>
-    auto Contraction<T,Op,IndexType>::rootSteps(std::intptr_t iPtrNum) const
-	-> decltype(mOp.rootSteps(iPtrNum))
-    {
-	return mOp.rootSteps(iPtrNum);
-    }
-
-    template <typename T, class Op, class IndexType>
+    template <class CXpr>
     template <class Expr>
-    auto Contraction<T,Op,IndexType>::loop(Expr exp) const
-	-> decltype(mInd->iforh(1,mOp.loop(exp)))
+    constexpr decltype(auto) Contraction<CXpr>::loop(Xpr&& xpr) const
     {
-	return mInd->iforh(0,mOp.loop(exp));
+	return xpr;
     }
 
+    template <class F, class Op, class IndexT>
+    constexpr decltype(auto) mkContracion(F&& f, Op&& op, const Sptr<IndexT>& i)
+    {
+	typedef decltype(i->ifor( mkOpXpr( f, op ) )) CXprT;
+	return Contraction<CXprT>( i->ifor( mkOpXpr( f, op ) ) );
+    }
 }
 
 #endif

@@ -154,48 +154,30 @@ namespace CNORXZ
 	
     };
     
-    template <typename T, class Op, class IndexType>
-    class Contraction : public OperationTemplate<T,Contraction<T,Op,IndexType> >
+    template <class CXpr>
+    class Contraction : public OpInterface<Contraction<CXpr>>
     {
     public:
+	typedef OpInterface<Contraction<CXpr>> OI;
 
-	typedef T value_type;
-	typedef OperationBase<T,Contraction<T,Op,IndexType> > OT;
+	constexpr Contraction(CXpr&& cxpr);
 
-	static constexpr size_t SIZE = Op::SIZE;
-        static constexpr bool CONT = Op::CONT;
-        static constexpr bool VABLE = Op::VABLE;
-        
+	template <class PosT>
+	constexpr decltype(auto) get(const PosT& pos) const;
+
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+	template <class Xpr>
+	constexpr decltype(auto) loop(Xpr&& xpr) const;
+
     private:
-
-	Op mOp;
-	std::shared_ptr<IndexType> mInd;
-
-    public:
-	typedef decltype(mOp.rootSteps(0)) ETuple;
-	
-	Contraction(const Op& op, std::shared_ptr<IndexType> ind);
-
-	template <class ET>
-	inline auto get(ET pos) const
-            -> decltype(mOp.template get<ET>(pos));
-
-	template <typename V, class ET>
-	inline auto vget(ET pos) const
-            -> decltype(mOp.template vget<V,ET>(pos));
-
-	template <class ET>
-	inline Contraction& set(ET pos);
-
-	T* data() const { assert(0); return nullptr; }
-
-	auto rootSteps(std::intptr_t iPtrNum = 0) const  // nullptr for simple usage with decltype
-	    -> decltype(mOp.rootSteps(iPtrNum));
-
-	template <class Expr>
-	auto loop(Expr exp) const
-	    -> decltype(mInd->iforh(1,mOp.loop(exp)));
+	CXpr mCXpr;
+	Sptr<IndexType> mInd;
     };
+
+    template <class F, class Op, class IndexT>
+    constexpr decltype(auto) mkContracion(F&& f, Op&& op, const Sptr<IndexT>& i);
 }
 
 #endif
