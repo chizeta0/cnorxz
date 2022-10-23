@@ -8,42 +8,63 @@
 
 namespace CNORXZ
 {
+    /*************
+     *   ZeroF   *
+     *************/
+
+    template <typename... T>
+    constexpr decltype(auto) ZeroF::operator()(const T&... as) const
+    {
+	return 0;
+    }
+
+    template <typename... T>
+    constexpr decltype(auto) NoF::operator()(const T&... as) const
+    {
+	return;
+    }
+
     /***********
      *   For   *
      ***********/
     
-    template <SizeT L, class Xpr>
-    constexpr For<L,Xpr>::For(SizeT size, const IndexId<L>& id, const Xpr& xpr) :
+    template <SizeT L, class Xpr, class F>
+    constexpr For<L,Xpr,F>::For(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f) :
 	mSize(size),
 	mId(id),
 	mXpr(xpr),
-	mExt(mXpr.rootSteps(mId))
+	mExt(mXpr.rootSteps(mId)),
+	mF(f)
     {}
 
-    template <SizeT L, class Xpr>
+    template <SizeT L, class Xpr, class F>
     template <class PosT>
-    inline SizeT For<L,Xpr>::operator()(const PosT& last) const
+    inline decltype(auto) For<L,Xpr,F>::operator()(const PosT& last) const
     {
+	typedef typename std::remove_reference<decltype(mXpr(last + mExt * UPos(0)))>::type OutT;
+	auto o = OutT();
 	for(SizeT i = 0; i != mSize; ++i){
 	    const auto pos = last + mExt * UPos(i);
-	    mXpr(pos);
+	    mF(o, mXpr(pos));
 	}
-	return 0;
+	return o;
     }
 	
-    template <SizeT L, class Xpr>
-    inline SizeT For<L,Xpr>::operator()() const
+    template <SizeT L, class Xpr, class F>
+    inline decltype(auto) For<L,Xpr,F>::operator()() const
     {
+	typedef typename std::remove_reference<decltype(mXpr(mExt * UPos(0)))>::type OutT;
+	auto o = OutT();
 	for(SizeT i = 0; i != mSize; ++i){
 	    const auto pos = mExt * UPos(i);
-	    mXpr(pos);
+	    mF(o, mXpr(pos));
 	}
-	return 0;
+	return o;
     }
 
-    template <SizeT L, class Xpr>
+    template <SizeT L, class Xpr, class F>
     template <SizeT I>
-    inline decltype(auto) For<L,Xpr>::rootSteps(const IndexId<I>& id) const
+    inline decltype(auto) For<L,Xpr,F>::rootSteps(const IndexId<I>& id) const
     {
 	return mXpr.rootSteps(id);
     }
@@ -53,60 +74,61 @@ namespace CNORXZ
      *   SFor   *
      ************/
 
-    template <SizeT N, SizeT L, class Xpr>
-    constexpr SFor<N,L,Xpr>::SFor(const IndexId<L>& id, const Xpr& xpr) :
+    template <SizeT N, SizeT L, class Xpr, class F>
+    constexpr SFor<N,L,Xpr,F>::SFor(const IndexId<L>& id, const Xpr& xpr, F&& f) :
 	mId(id),
 	mXpr(xpr),
-	mExt(mXpr.RootSteps(mId))
+	mExt(mXpr.RootSteps(mId)),
+	mF(f)
     {}
 
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F>
     template <class PosT>
-    constexpr SizeT SFor<N,L,Xpr>::operator()(const PosT& last) const
+    constexpr decltype(auto) SFor<N,L,Xpr,F>::operator()(const PosT& last) const
     {
 	return exec<0>(last);
     }
 	
-    template <SizeT N, SizeT L, class Xpr>
-    constexpr SizeT SFor<N,L,Xpr>::operator()() const
+    template <SizeT N, SizeT L, class Xpr, class F>
+    constexpr decltype(auto) SFor<N,L,Xpr,F>::operator()() const
     {
 	return exec<0>();
     }
 
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F>
     template <SizeT I>
-    constexpr decltype(auto) SFor<N,L,Xpr>::rootSteps(const IndexId<I>& id) const
+    constexpr decltype(auto) SFor<N,L,Xpr,F>::rootSteps(const IndexId<I>& id) const
     {
 	return mXpr.rootSteps(id);
     }
 
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F>
     template <SizeT I, class PosT>
-    constexpr SizeT SFor<N,L,Xpr>::exec(const PosT& last) const
+    constexpr decltype(auto) SFor<N,L,Xpr,F>::exec(const PosT& last) const
     {
 	constexpr SPos<I> i;
 	const auto pos = last + mExt * i;
-	mXpr(pos);
+	auto o = mXpr(pos);
 	if constexpr(I < N-1){
-	    return exec<I+1>(last);
+	    return mF(o,exec<I+1>(last));
 	}
 	else {
-	    return 0;
+	    return o;
 	}
     }
 
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F>
     template <SizeT I>
-    constexpr SizeT SFor<N,L,Xpr>::exec() const
+    constexpr decltype(auto) SFor<N,L,Xpr,F>::exec() const
     {
 	constexpr SPos<I> i;
 	const auto pos = mExt * i;
-	mXpr(pos);
+	auto o = mXpr(pos);
 	if constexpr(I < N-1){
-	    return exec<I+1>();
+	    return mF(o,exec<I+1>());
 	}
 	else {
-	    return 0;
+	    return o;
 	}
     }
 
@@ -114,12 +136,13 @@ namespace CNORXZ
      *   TFor   *
      ************/
 
-    template <SizeT L, class Xpr>
-    constexpr TFor<L,Xpr>::TFor(SizeT size, const IndexId<L>& id, const Xpr& xpr) :
+    template <SizeT L, class Xpr, class F>
+    constexpr TFor<L,Xpr,F>::TFor(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f) :
 	mSize(size),
 	mId(id),
 	mXpr(xpr),
-	mExt(mXpr.rootSteps(mId))
+	mExt(mXpr.rootSteps(mId)),
+	mF(f)
     {
 	// check for write access!!!
 	/*
@@ -130,12 +153,18 @@ namespace CNORXZ
 	*/
     }
 
-    template <SizeT L, class Xpr>
+    template <SizeT L, class Xpr, class F>
     template <class PosT>
-    inline SizeT TFor<L,Xpr>::operator()(const PosT& last) const
+    inline decltype(auto) TFor<L,Xpr,F>::operator()(const PosT& last) const
     {
+	typedef typename std::remove_reference<decltype(mXpr(last + mExt * UPos(0)))>::type OutT;
 	int i = 0;
 	const int size = static_cast<int>(mSize);
+	Vector<OutT> ov;
+	if constexpr(not std::is_same<F,ZeroF>::value){
+	    // replace if statement by "does s.th. non-trivial"
+	    ov.resize(mSize);
+	}
 #pragma omp parallel private(i)
 	{
 	    auto xpr = mXpr;
@@ -145,14 +174,27 @@ namespace CNORXZ
 		xpr(pos);
 	    }
 	}
-	return 0;
+	OutT o;
+	if constexpr(not std::is_same<F,ZeroF>::value){
+	    // replace if statement by "does s.th. non-trivial"
+	    for(SizeT i = 0; i != mSize; ++i){
+		mF(o, ov[i]);
+	    }
+	}
+	return o;
     }
 	
-    template <SizeT L, class Xpr>
-    inline SizeT TFor<L,Xpr>::operator()() const
+    template <SizeT L, class Xpr, class F>
+    inline decltype(auto) TFor<L,Xpr,F>::operator()() const
     {
+	typedef typename std::remove_reference<decltype(mXpr(mExt * UPos(0)))>::type OutT;
 	int i = 0;
 	const int size = static_cast<int>(mSize);
+	Vector<OutT> ov;
+	if constexpr(not std::is_same<F,ZeroF>::value){
+	    // replace if statement by "does s.th. non-trivial"
+	    ov.resize(mSize);
+	}
 #pragma omp parallel private(i)
 	{
 	    auto xpr = mXpr;
@@ -162,12 +204,19 @@ namespace CNORXZ
 		xpr(pos);
 	    }
 	}
-	return 0;
+	OutT o;
+	if constexpr(not std::is_same<F,ZeroF>::value){
+	    // replace if statement by "does s.th. non-trivial"
+	    for(SizeT i = 0; i != mSize; ++i){
+		mF(o, ov[i]);
+	    }
+	}
+	return o;
     }
 
-    template <SizeT L, class Xpr>
+    template <SizeT L, class Xpr, class F>
     template <SizeT I>
-    inline decltype(auto) TFor<L,Xpr>::rootSteps(const IndexId<I>& id) const
+    inline decltype(auto) TFor<L,Xpr,F>::rootSteps(const IndexId<I>& id) const
     {
 	return mXpr.rootSteps(id);
     }
@@ -186,14 +235,14 @@ namespace CNORXZ
 
     template <SizeT N, SizeT L, class Xpr>
     template <class PosT>
-    constexpr SizeT EFor<N,L,Xpr>::operator()(const PosT& last) const
+    constexpr decltype(auto) EFor<N,L,Xpr>::operator()(const PosT& last) const
     {
 	auto pos = mkEPos<N>(last, mExt);
 	return mXpr(pos);
     }
 	
     template <SizeT N, SizeT L, class Xpr>
-    constexpr SizeT EFor<N,L,Xpr>::operator()() const
+    constexpr decltype(auto) EFor<N,L,Xpr>::operator()() const
     {
 	auto pos = mkEPos<N>(SPos<0>(), mExt);
 	return mXpr(pos);

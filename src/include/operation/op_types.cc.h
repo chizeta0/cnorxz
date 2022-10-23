@@ -4,10 +4,8 @@
 
 #include "op_types.h"
 #include "xpr/pos_type.h"
-#include "ranges/range_helper.h"
 #include "xpr/op_xpr.h"
-#include "statics/static_for.h"
-
+#include "op_utility.h"
 
 namespace CNORXZ
 {
@@ -17,20 +15,29 @@ namespace CNORXZ
      **********************/
 
     template <class OpT>
-    template <class IndexT>
-    auto COpInterface<OpT>::c(const std::shared_ptr<IndexT>& ind) const
+    template <class F, class IndexT>
+    decltype(auto) COpInterface<OpT>::c(F&& f, const Sptr<IndexT>& ind) const
     {
-	return Contraction<T,OpT,IndexT>(THIS(), ind);
+	return mkContraction(std::forward<F>(f), THIS(), ind);
+    }
+
+    template <class OpT>
+    template <class IndexT>
+    decltype(auto) COpInterface<OpT>::c(const Sptr<IndexT>& ind) const
+    {
+	return mkContraction([](auto& a, const auto& b) { a += b; },
+			     THIS(), ind);
     }
 
     template <class OpT>
     template <class F, class... Args>
     constexpr auto a(F&& f, Args&&... args) const;
-    auto COpInterface<OpT>::o(F&& f, Args&&... args) const
+    decltype(auto) COpInterface<OpT>::o(F&& f, Args&&... args) const
     {
-        return Operation<R,F,OpT,Args...>(f, THIS(), args...);
+        return Operation<F,OpT,Args...>(std::forward<F>(f), THIS(), args...);
     }
 
+    
     /*********************
      *   OpInterface     *
      *********************/
@@ -39,7 +46,7 @@ namespace CNORXZ
     template <class IndexT, class F, class... Args>
     constexpr decltype(auto) OpInterface<OpT>::ax(const Sptr<IndexT>& ind, F&& f, Args&&... args)
     {
-	return ind->ifor( SPos<1>(), OpXpr<F,OpT,Args...>(f, THIS(), args...) );
+	return ind->ifor( Operation<F,OpT,Args...>(f, THIS(), args...) );
     }
 
     template <class OpT>
@@ -49,7 +56,7 @@ namespace CNORXZ
 	return ax(ind, f, args...)();
     }
 
-
+    
     /***************
      *   COpRoot   *
      ***************/
@@ -68,7 +75,7 @@ namespace CNORXZ
 
     template <typename T, class IndexT>
     template <class PosT>
-    constexpr decltype(auto) COpRoot<T,IndexT>::get(const PosT& pos) const
+    constexpr decltype(auto) COpRoot<T,IndexT>::operator()(const PosT& pos) const
     {
 	if constexpr(is_epos_type<PosT>::value){
 	    return vreg(mData,pos); // distinguish between consecutive/non-consecutive
@@ -79,17 +86,16 @@ namespace CNORXZ
     }
 
     template <typename T, class IndexT>
+    constexpr decltype(auto) COpRoot<T,IndexT>::operator()() const
+    {
+	return mData[0];
+    }
+    
+    template <typename T, class IndexT>
     template <SizeT I>
     constexpr decltype(auto) COpRoot<T,IndexT>::rootSteps(const IndexId<I>& id) const
     {
 	return mIndex->stepSize(id);
-    }
-
-    template <typename T, class IndexT>
-    template <class Expr>
-    constexpr decltype(auto) COpRoot<T,IndexT>::loop(Xpr&& xpr) const
-    {
-	return xpr;
     }
 
     template <typename T, class IndexT>
@@ -140,7 +146,7 @@ namespace CNORXZ
 
     template <typename T, class IndexT>
     template <class PosT>
-    constexpr decltype(auto) OpRoot<T,IndexT>::get(const PosT& pos) const
+    constexpr decltype(auto) OpRoot<T,IndexT>::operator()(const PosT& pos) const
     {
 	if constexpr(is_epos_type<PosT>::value){
 	    return vreg(mData,pos); // distinguish between consecutive/non-consecutive
@@ -151,17 +157,16 @@ namespace CNORXZ
     }
 
     template <typename T, class IndexT>
+    constexpr decltype(auto) OpRoot<T,IndexT>::operator()() const
+    {
+	return mData[0];
+    }
+    
+    template <typename T, class IndexT>
     template <SizeT I>
     constexpr decltype(auto) OpRoot<T,IndexT>::rootSteps(const IndexId<I>& id) const
     {
 	return mIndex->stepSize(id);
-    }
-
-    template <typename T, class IndexT>
-    template <class Expr>
-    constexpr decltype(auto) OpRoot<T,IndexT>::loop(Xpr&& xpr) const;
-    {
-	return xpr;
     }
 
 
@@ -169,88 +174,36 @@ namespace CNORXZ
      *   Operation     *
      *******************/
     
-    template <typename T, class OpFunction, class... Ops>
-    Operation<T,OpFunction,Ops...>::Operation(const Ops&... ops) :
-	mOps(ops...)
-    {
-	static_assert( FISSTATIC, "need function instance for non-static function" );
-    }
-
-    template <typename T, class OpFunction, class... Ops>
-    Operation<T,OpFunction,Ops...>::Operation(std::shared_ptr<OpFunction> ff,
-					      const Ops&... ops) :
+    template <class F, class... Ops>
+    Operation<F,Ops...>::Operation(F&& f, Ops&&... ops) :
 	mOps(ops...),
 	mF(ff)
+    {}
+
+    template <class F, class... Ops>
+    template <class PosT>
+    inline decltype(auto) Operation<F,Ops...>::operator()(const PosT& pos) const
     {
-	static_assert( not FISSTATIC, "using instance of static function" );
+	return pos_unpack_args(mF, pos, mOps);
     }
 
-    template <size_t I, class OpFunction, class ETuple, class OpTuple, typename... Args>
-    inline auto
-    mkOpExpr(std::shared_ptr<OpFunction> f, const ETuple& pos, const OpTuple& ops, Args... args)
+    template <class F, class... Ops>
+    template <class PosT>
+    inline decltype(auto) Operation<F,Ops...>::operator()() const
     {
-	if constexpr(I == std::tuple_size<OpTuple>{}){
-	    if constexpr(OpFunction::FISSTATIC){
-		return OpFunction::apply(args...);
-	    }
-	    else {
-		(*f)(args...);
-	    }
-	}
-	else {
-	    typedef typename std::remove_reference<decltype(std::get<I>(ops))>::type NextOpType;
-	    return mkOpExpr<I+1>
-		( f, getX<NextOpType::SIZE>(pos), ops, args..., std::get<I>(ops).get(pos));
-	}
+	return exec(std::make_index_sequence<sizeof...(Ops)>{});
     }
 
-    template <typename T, class OpFunction, class... Ops>
-    template <class ET>
-    inline auto Operation<T,OpFunction,Ops...>::get(ET pos) const
+    template <class F, class... Ops>
+    constexpr decltype(auto) Operation<F,Ops...>::rootSteps(const IndexId<I>& id) const
     {
-	return mkOpExpr<0>(mF, pos, mOps.mOps);
+	return mOps.rootSteps(id);
     }
 
-    template <typename T, class OpFunction, class... Ops>
-    template <typename V, class ET>
-    inline auto Operation<T,OpFunction,Ops...>::vget(ET pos) const
+    template <class F, class... Ops>
+    constexpr decltype(auto) Operation<F,Ops...>::exec(std::index_sequence<Is...> is) const
     {
-	return mkVOpExpr<0,V>(mF, pos, mOps.mOps);
-    }
-
-    template <size_t I, class OpTuple, class ETuple>
-    static inline void setOpPos(OpTuple& ot, const ETuple& et)
-    {
-	if constexpr(I != std::tuple_size<OpTuple>{}){
-	    typedef typename std::remove_reference<decltype(std::get<I>(ot))>::type NextOpType;
-	    std::get<I>( ot ).set( et );
-	    setOpPos<I+1>(ot, getX<NextOpType::SIZE>(et));
-	}
-    }
-    
-    template <typename T, class OpFunction, class... Ops>
-    template <class ET>
-    inline Operation<T,OpFunction,Ops...>& Operation<T,OpFunction,Ops...>::set(ET pos)
-    {
-	setOpPos<0>(mOps.mOps,pos);
-	return *this;
-    }
-
-    template <typename T, class OpFunction, class... Ops>
-    auto Operation<T,OpFunction,Ops...>::rootSteps(std::intptr_t iPtrNum) const
-	-> ExtType
-    {
-	return mOps.rootSteps(iPtrNum);
-    }
-
-    template <typename T, class OpFunction, class... Ops>
-    template <class Expr>
-    auto Operation<T,OpFunction,Ops...>::loop(Expr exp) const
-    {
-	return sfor_m<sizeof...(Ops),0>
-	    ( [&](auto i){ return std::get<i>(mOps.mOps); },
-	      [&](auto f, auto next) { return f.loop(next); },
-	      exp );
+	return mF( std::get<Is>(mOps)() ... );
     }
 
     
@@ -265,9 +218,15 @@ namespace CNORXZ
 
     template <class CXpr>
     template <class PosT>
-    constexpr decltype(auto) Contraction<CXpr>::get(const PosT& pos) const
+    constexpr decltype(auto) Contraction<CXpr>::operator()(const PosT& pos) const
     {
 	return mCXpr(pos);
+    }
+
+    template <class CXpr>
+    constexpr decltype(auto) Contraction<CXpr>::operator()() const
+    {
+	return mCXpr();
     }
 
     template <class CXpr>
@@ -277,18 +236,11 @@ namespace CNORXZ
 	return mCXpr.stepSize(id);
     }
 
-    template <class CXpr>
-    template <class Expr>
-    constexpr decltype(auto) Contraction<CXpr>::loop(Xpr&& xpr) const
-    {
-	return xpr;
-    }
-
     template <class F, class Op, class IndexT>
     constexpr decltype(auto) mkContracion(F&& f, Op&& op, const Sptr<IndexT>& i)
     {
-	typedef decltype(i->ifor( mkOpXpr( f, op ) )) CXprT;
-	return Contraction<CXprT>( i->ifor( mkOpXpr( f, op ) ) );
+	typedef decltype(i->ifor( op, f )) CXprT; // TODO: implement ifor with func arg!!!
+	return Contraction<CXprT>( i->ifor( op, f ) );
     }
 }
 

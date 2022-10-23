@@ -10,30 +10,22 @@ namespace CNORXZ
 
 
     template <class OpT>
-    class COpInterface
+    class COpInterface : public XprInterface<OpT>
     {
     public:
 	
 	OpT& THIS() { return static_cast<OpT&>(*this); }
 	const OpT& THIS() const { return static_cast<const OpT&>(*this); }
 
+	template <class F, class IndexT>
+	constexpr decltype(auto) c(F&& f, const Sptr<IndexT>& ind) const;
+
 	template <class IndexT>
-	constexpr auto c(const Sptr<IndexT>& ind) const;
+	constexpr decltype(auto) c(const Sptr<IndexT>& ind) const;
 
 	template <class F, class... Args>
-	constexpr auto o(F&& f, Args&&... args) const;
+	constexpr decltype(auto) o(F&& f, Args&&... args) const;
 
-	template <class PosT>
-	constexpr decltype(auto) get(const PosT& pos) const
-	{ return THIS().get(pos); }
-
-	template <SizeT I>
-	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const
-	{ return THIS().rootSteps(id); }
-	
-	template <class Xpr>
-	constexpr decltype(auto) loop(Xpr&& exp) const
-	{ return THIS().loop(exp); }
     };
 
     template <class OpT>
@@ -72,14 +64,13 @@ namespace CNORXZ
 	constexpr COpRoot(const T* data, const Sptr<IndexT>& ind);
 
 	template <class PosT>
-	constexpr decltype(auto) get(const PosT& pos) const;
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
 
 	template <SizeT I>
 	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 	
-	template <class Xpr>
-	constexpr decltype(auto) loop(Xpr&& xpr) const;
-
 	const T* data() const;
 	
     private:
@@ -114,14 +105,13 @@ namespace CNORXZ
         constexpr OpRoot& operator=(const OpRoot& in);
         
 	template <class PosT>
-	constexpr decltype(auto) get(const PosT& pos) const;
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
 
 	template <SizeT I>
 	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
-	template <class Xpr>
-	constexpr decltype(auto) loop(Xpr&& exp) const;
-        
 	T* data() const;
 
     private:
@@ -140,15 +130,17 @@ namespace CNORXZ
 	constexpr Operation(F&& f, Ops&&... ops);
 
 	template <class PosT>
-	constexpr decltype(auto) get(const PosT& pos) const;
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
 
 	template <SizeT I>
-	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const
-
-	template <class Xpr>
-	constexpr decltype(auto) loop(Xpr&& xpr) const;
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
     private:
+	template <SizeT... Is>
+	constexpr decltype(auto) exec(std::index_sequence<Is...> is) const;
+     
 	Tuple<Ops...> mOps;
 	F mF;
 	
@@ -163,13 +155,12 @@ namespace CNORXZ
 	constexpr Contraction(CXpr&& cxpr);
 
 	template <class PosT>
-	constexpr decltype(auto) get(const PosT& pos) const;
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
 
 	template <SizeT I>
 	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
-
-	template <class Xpr>
-	constexpr decltype(auto) loop(Xpr&& xpr) const;
 
     private:
 	CXpr mCXpr;

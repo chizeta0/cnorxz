@@ -11,31 +11,31 @@ namespace CNORXZ
      *   VXpr   *
      ************/
     
-    template <class Xpr>
-    VXpr<Xpr>::VXpr(const XprInterface<Xpr>& a) :
+    template <typename T, class Xpr>
+    VXpr<T,Xpr>::VXpr(const XprInterface<Xpr>& a) :
 	Xpr(a.THIS())
     {}
 
-    template <class Xpr>
-    Uptr<VXprBase> VXpr<Xpr>::copy() const
+    template <typename T, class Xpr>
+    Uptr<VXprBase<T>> VXpr<T,Xpr>::copy() const
     {
-	return std::make_unique<VXpr<Xpr>>(*this);
+	return std::make_unique<VXpr<T,Xpr>>(*this);
     }
 
-    template <class Xpr>
-    SizeT VXpr<Xpr>::vexec(const DPos& last) const
+    template <typename T, class Xpr>
+    T VXpr<T,Xpr>::vexec(const DPos& last) const
     {
 	return (*this)(last);
     }
 
-    template <class Xpr>
-    SizeT VXpr<Xpr>::vexec() const
+    template <typename T, class Xpr>
+    T VXpr<T,Xpr>::vexec() const
     {
 	return (*this)();
     }
     
-    template <class Xpr>
-    DPos VXpr<Xpr>::vrootSteps(const IndexId<0>& id) const
+    template <typename T, class Xpr>
+    DPos VXpr<T,Xpr>::vrootSteps(const IndexId<0>& id) const
     {
 	return DPos(this->rootSteps(id));
     }
@@ -44,25 +44,29 @@ namespace CNORXZ
      *   DXpr   *
      ************/
 
+    template <typename T>
     template <class Xpr>
-    DXpr::DXpr(const Xpr& a) :
-	ObjHandle<VXprBase>(std::make_unique<VXpr<Xpr>>(a))
+    DXpr<T>::DXpr(const Xpr& a) :
+	ObjHandle<VXprBase<T>>(std::make_unique<VXpr<T,Xpr>>(a))
     {}
 
-    inline SizeT DXpr::operator()(const DPos& last) const
+    template <typename T>
+    inline T DXpr<T>::operator()(const DPos& last) const
     {
-	return mC->vexec(last);
+	return VB::mC->vexec(last);
     }
     
-    inline SizeT DXpr::operator()() const
+    template <typename T>
+    inline T DXpr<T>::operator()() const
     {
-	return mC->vexec();
+	return VB::mC->vexec();
     }
 
+    template <typename T>
     template <SizeT I>
-    inline DPos DXpr::rootSteps(const IndexId<I>& id) const
+    inline DPos DXpr<T>::rootSteps(const IndexId<I>& id) const
     {
-	return mC->vrootSteps(IndexId<0>(id.id()));
+	return VB::mC->vrootSteps(IndexId<0>(id.id()));
     }
 }
 

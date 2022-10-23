@@ -9,7 +9,7 @@ namespace CNORXZ
     template <class Xpr>
     decltype(auto) CIndex::ifor(const Xpr& xpr) const
     {
-	return For<0,Xpr>(this->max(), this->id(), xpr);
+	return For<0,Xpr>(this->max(), this->id(), xpr, NoF());
     }
 }
 

@@ -138,9 +138,9 @@ namespace CNORXZ
 	return *this;
     }
 
-    DXpr DIndex::ifor(const DXpr& xpr) const
+    DXpr<SizeT> DIndex::ifor(const DXpr<SizeT>& xpr) const
     {
-	return DXpr(mI->ifor(xpr));
+	return DXpr<SizeT>(mI->ifor(xpr));
     }
     
 }
