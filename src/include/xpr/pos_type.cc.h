@@ -528,6 +528,13 @@ namespace CNORXZ
     }
 
     template <class BPosT, class... OPosTs>
+    template <SizeT I>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::get() const
+    {
+	return std::get<I>(mP);
+    }
+
+    template <class BPosT, class... OPosTs>
     template <SizeT... Is>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::ival(std::index_sequence<Is...> is) const
     {
@@ -564,11 +571,11 @@ namespace CNORXZ
     }
     
     template <class OPosT1, class OPosT2, class... OPosTs>
-    constexpr bool pos_type_consecutive_2<OPosT1,OPosT2,OPosTs...>::eval()
+    constexpr bool pos_types_consecutive_2<OPosT1,OPosT2,OPosTs...>::eval()
     {
 	if constexpr(is_static_pos_type<OPosT1>::value and is_static_pos_type<OPosT2>::value){
 	    if constexpr(sizeof...(OPosTs) != 0){
-		return OPosT1().val() < OPosT2().val() and pos_type_consecutive<OPosT2,OPosTs...>::value;
+		return OPosT1().val() < OPosT2().val() and pos_types_consecutive<OPosT2,OPosTs...>::value;
 	    }
 	    else {
 		return OPosT1().val() < OPosT2().val();

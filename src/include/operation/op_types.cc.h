@@ -149,7 +149,14 @@ namespace CNORXZ
     constexpr decltype(auto) OpRoot<T,IndexT>::operator()(const PosT& pos) const
     {
 	if constexpr(is_epos_type<PosT>::value){
-	    return vreg(mData,pos); // distinguish between consecutive/non-consecutive
+	    if constexpr(pos_type_is_consecutive<PosT>::value){
+		return vreg(mData,pos);
+	    }
+	    else {
+		// non-consecutive data cannot be directly accessed
+		// so there is no non-const (write) access!
+		return vreg(const_cast<const T*>(mData),pos);
+	    }
 	}
 	else {
 	    return mData[pos.val()];

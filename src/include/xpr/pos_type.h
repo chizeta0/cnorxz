@@ -245,6 +245,9 @@ namespace CNORXZ
 
 	constexpr decltype(auto) val() const;
 	constexpr decltype(auto) next() const;
+
+	template <SizeT I>
+	constexpr decltype(auto) get() const;
     };
 
     /*********************************
@@ -268,9 +271,15 @@ namespace CNORXZ
     {
 	static constexpr SizeT value = is_pos_type<PosT>::value ? 1 : 0;
     };
+
+    template <class PosT>
+    struct epos_size
+    {
+	static constexpr SizeT value = 0;
+    };
     
     template <class OPosT1, class OPosT2, class... OPosTs>
-    struct pos_type_consecutive_2
+    struct pos_types_consecutive_2
     {
     private:
 	static constexpr bool eval();
@@ -280,9 +289,9 @@ namespace CNORXZ
     };
 
     template <class OPosT1, class... OPosTs>
-    struct pos_type_consecutive
+    struct pos_types_consecutive
     {
-	static constexpr bool value = sizeof...(OPosTs) == 0 ? is_pos_type<OPosT1>::value : pos_type_consecutive_2<OPosT1,OPosTs...>::value;
+	static constexpr bool value = sizeof...(OPosTs) == 0 ? is_pos_type<OPosT1>::value : pos_types_consecutive_2<OPosT1,OPosTs...>::value;
     };
 
     template <class OPosT1, class... OPosTs>
@@ -295,7 +304,7 @@ namespace CNORXZ
 	static constexpr bool value = eval();
     };
     
-    template <class PosT> struct pos_type_is_consecutive { CXZ_CVAL_FALSE; };
+    template <class PosT> struct pos_type_is_consecutive { CXZ_CVAL_TRUE; };
 
     template <SizeT N, class BPosT, class OPosT>
     decltype(auto) mkEPos(const BPosT& a, const OPosT& b);
@@ -342,9 +351,15 @@ namespace CNORXZ
     };
 
     template <class BPosT, class... OPosTs>
+    struct epos_size<EPos<BPosT,OPosTs...>>
+    {
+	static constexpr SizeT value = sizeof...(OPosTs);
+    };
+    
+    template <class BPosT, class... OPosTs>
     struct pos_type_is_consecutive<EPos<BPosT,OPosTs...>>
     {
-	static constexpr bool value = pos_type_is_consecutive<OPosTs...>::value;
+	static constexpr bool value = pos_types_consecutive<OPosTs...>::value;
     };
 
 } // end namespace CNORXZInternal
