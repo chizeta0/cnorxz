@@ -6,6 +6,7 @@
 #include "xpr/pos_type.h"
 #include "xpr/op_xpr.h"
 #include "op_utility.h"
+#include "extensions/extensions.h"
 
 namespace CNORXZ
 {

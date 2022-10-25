@@ -11,23 +11,113 @@ namespace CNORXZ
     // no use of Arr = std::array here, since I want ensure that
     // it has exactly a memory size of N
     template <typename T, SizeT N>
-    struct PseudoReg
+    struct Consecutive
     {
 	T mD[N];
     };
 
+    // specialize for all kinds of available vector registers:
+    template <typename T, SizeT N>
+    struct MkConsecutive
+    {
+	static inline decltype(auto) make(const T* d);
+
+	static inline decltype(auto) make(T* d);
+
+	template <typename... Args>
+	static inline decltype(auto) makeA(Args&&... args);
+    };
+    
+
+    /****************************************
+     *   consecutive generating functions   *
+     ****************************************/
+
     template <typename T, class EPosT, SizeT... Is>
-    decltype(auto) vregi(const T* d, const EPosT& pos, std::index_sequence<Is...> is);
+    inline decltype(auto) vregi(const T* d, const EPosT& pos, std::index_sequence<Is...> is);
 
-    // specialize for all kinds of available vector registers:
     template <typename T, class EPosT>
-    decltype(auto) vreg(const T* d, const EPosT& pos);
+    inline decltype(auto) vreg(const T* d, const EPosT& pos);
 
-    // specialize for all kinds of available vector registers:
     template <typename T, class EPosT>
-    decltype(auto) vreg(T* d, const EPosT& pos);
+    inline decltype(auto) vreg(T* d, const EPosT& pos);
 
-    // TODO: Maybe specialize PseudoReg (-> Reg) itself (?)
+    /******************************
+     *   basic operations: plus   *
+     ******************************/
+    
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator+(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator+(const Consecutive<T,N>& a, const T& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator+(const T& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator+=(const Consecutive<T,N>& a);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator+=(const T& a);
+
+    /*******************************
+     *   basic operations: minus   *
+     *******************************/
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator-(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator-(const Consecutive<T,N>& a, const T& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator-(const T& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator-=(const Consecutive<T,N>& a);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator-=(const T& a);
+
+    /***********************************
+     *   basic operations: muliplies   *
+     ***********************************/
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator*(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator*(const Consecutive<T,N>& a, const T& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator*(const T& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator*=(const Consecutive<T,N>& a);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator*=(const T& a);
+
+    /*********************************
+     *   basic operations: divides   *
+     *********************************/
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator/(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator/(const Consecutive<T,N>& a, const T& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator/(const T& a, const Consecutive<T,N>& b);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator/=(const Consecutive<T,N>& a);
+
+    template <typename T, SizeT N>
+    constexpr Consecutive<T,N> operator/=(const T& a);
+
 }
 
 #endif

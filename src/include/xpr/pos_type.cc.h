@@ -575,10 +575,10 @@ namespace CNORXZ
     {
 	if constexpr(is_static_pos_type<OPosT1>::value and is_static_pos_type<OPosT2>::value){
 	    if constexpr(sizeof...(OPosTs) != 0){
-		return OPosT1().val() < OPosT2().val() and pos_types_consecutive<OPosT2,OPosTs...>::value;
+		return OPosT1().val()+1 == OPosT2().val() and pos_types_consecutive<OPosT2,OPosTs...>::value;
 	    }
 	    else {
-		return OPosT1().val() < OPosT2().val();
+		return OPosT1().val()+1 == OPosT2().val();
 	    }
 	}
 	return false;
