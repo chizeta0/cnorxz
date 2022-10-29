@@ -12,40 +12,31 @@ namespace CNORXZ
 {
     namespace AVX
     {
-	// define for all types that are defined in base/types.h
-	struct ConsecutiveD
-	{
-	    __m256d mD;
-	};
-
-	struct ConsecutiveI
-	{
-	    __m256i mD;
-	};
+	static constexpr SizeT ND = AVX_VSIZE/sizeof(Double);
     }
     
     template <>
-    struct MkConsecutive<Double,AVX_SIZE/sizeof(Double)>
+    struct PlusCC<Double,Double,ND>
     {
-	static inline decltype(auto) make(const Double* d);
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
 
-	static inline decltype(auto) make(Double* d);
-
-	template <typename... Args>
-	static inline decltype(auto) makeA(Args&&... args);
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
     };
-    
-    template <>
-    struct MkConsecutive<Double,AVX_SIZE/sizeof(Int)>
+
+    template <typename X>
+    struct PlusCX<Double,X,ND>
     {
-	static inline decltype(auto) make(const Int* d);
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const X& b);
 
-	static inline decltype(auto) make(Int* d);
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const X& b);
 
-	template <typename... Args>
-	static inline decltype(auto) makeA(Args&&... args);
+    	static constexpr decltype(auto)
+	eval(const X& a, const Consecutive<Double,ND>& b);
     };
-    
 }
 
 #endif

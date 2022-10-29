@@ -6,41 +6,60 @@
 
 namespace CNORXZ
 {
-    inline decltype(auto) MkConsecutive<Double,AVX_SIZE/sizeof(Double)>::make(const Double* d)
+    constexpr decltype(auto) PlusCC<Double,Double,ND>::eval(const Consecutive<Double,ND>& a,
+							    const Consecutive<Double,ND>& b)
     {
-	return *reinterpret_cast<const AVX::ConsecutiveD*>( d );
+	Consecutive<Double,ND> o;
+	__m256d av = _mm256_load_pd(a.mD);
+	__m256d bv = _mm256_load_pd(b.mD);
+	__m256d ov = _mm256_add_pd(av, bv);
+	_mm256_store_pd(o.mD, ov);
+	return o;
     }
     
-    inline decltype(auto) MkConsecutive<Double,AVX_SIZE/sizeof(Double)>::make(Double* d)
+    constexpr decltype(auto) PlusCC<Double,Double,ND>::aeval(Consecutive<Double,ND>& a,
+							     const Consecutive<Double,ND>& b)
     {
-	return *reinterpret_cast<AVX::ConsecutiveD*>( d );
-    }
-    
-    template <typename... Args>
-    inline decltype(auto) MkConsecutive<Double,AVX_SIZE/sizeof(Double)>::makeA(Args&&... args)
-    {
-	static_assert(sizeof...(Args) == AVX_SIZE/sizeof(Double),
-		      "got inconsistent number of arguments");
-	return AVX::ConsecutiveD { _mm256_setr_pd(args...); }
+	__m256d av = _mm256_load_pd(a.mD);
+	__m256d bv = _mm256_load_pd(b.mD);
+	__m256d ov = _mm256_add_pd(av, bv);
+	_mm256_store_pd(a.mD, ov);
+	return a;
     }
 
-    inline decltype(auto) MkConsecutive<Int,AVX_SIZE/sizeof(Int)>::make(const Int* d)
+    template <typename X>
+    static constexpr decltype(auto)
+    PlusCX<Double,X,ND>::eval(const Consecutive<Double,ND>& a, const X& b)
     {
-	return *reinterpret_cast<const AVX::ConsecutiveI*>( d );
+	Consecutive<Double,ND> o;
+	__m256d av = _mm256_load_pd(a.mD);
+	__m256d bv = _mm256_set1_pd( static_cast<Double>(b) );
+	__m256d ov = _mm256_add_pd(av, bv);
+	_mm256_store_pd(o.mD, ov);
+	return o;
     }
-    
-    inline decltype(auto) MkConsecutive<Int,AVX_SIZE/sizeof(Int)>::make(Int* d)
+
+    template <typename X>
+    static constexpr decltype(auto)
+    PlusCX<Double,X,ND>::aeval(Consecutive<Double,ND>& a, const X& b)
     {
-	return *reinterpret_cast<AVX::ConsecutiveI*>( d );
+	__m256d av = _mm256_load_pd(a.mD);
+	__m256d bv = _mm256_set1_pd( static_cast<Double>(b) );
+	__m256d ov = _mm256_add_pd(av, bv);
+	_mm256_store_pd(a.mD, ov);
+	return a;
     }
-    
-    template <typename... Args>
-    inline decltype(auto) MkConsecutive<Int,AVX_SIZE/sizeof(Int)>::makeA(Args&&... args)
+
+    template <typename X>
+    static constexpr decltype(auto)
+    PlusCX<Double,X,ND>::eval(const X& a, const Consecutive<Double,ND>& b)
     {
-	static_assert(sizeof(Int) == 32/8, "lib error: Int size has changed");
-	static_assert(sizeof...(Args) == AVX_SIZE/sizeof(Int),
-		      "got inconsistent number of arguments");
-	return AVX::ConsecutiveI { _mm256_setr_epi32(args...); }
+	Consecutive<Double,ND> o;
+	__m256d av = _mm256_set1_pd( static_cast<Double>(a) );
+	__m256d bv = _mm256_load_pd(b.mD);
+	__m256d ov = _mm256_add_pd(av, bv);
+	_mm256_store_pd(o.mD, ov);
+	return o;
     }
 
 }

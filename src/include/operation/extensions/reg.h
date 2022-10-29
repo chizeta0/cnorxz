@@ -6,8 +6,7 @@
 
 namespace CNORXZ
 {
-    // pseudo extension type to be returned if extension vector of
-    // reuqired size is not available
+    
     // no use of Arr = std::array here, since I want ensure that
     // it has exactly a memory size of N
     template <typename T, SizeT N>
@@ -16,18 +15,23 @@ namespace CNORXZ
 	T mD[N];
     };
 
-    // specialize for all kinds of available vector registers:
-    template <typename T, SizeT N>
-    struct MkConsecutive
-    {
-	static inline decltype(auto) make(const T* d);
+    template <typename T>
+    struct is_consecutive_type { CXZ_CVAL_FALSE; };
 
-	static inline decltype(auto) make(T* d);
+    template <typename T>
+    struct consecutive_base { typedef T type; };
 
-	template <typename... Args>
-	static inline decltype(auto) makeA(Args&&... args);
-    };
+    template <typename T>
+    struct consecutive_size { static constexpr SizeT value = 0; };
     
+    template <typename T, SizeT N>
+    struct is_consecutive_type<Consecutive<T,N>> { CXZ_CVAL_TRUE; };
+
+    template <typename T, SizeT N>
+    struct consecutive_base<Consecutive<T,N>> { typedef T type; };
+
+    template <typename T, SizeT N>
+    struct consecutive_size<Consecutive<T,N>> { static constexpr SizeT value = N; };
 
     /****************************************
      *   consecutive generating functions   *
@@ -42,81 +46,139 @@ namespace CNORXZ
     template <typename T, class EPosT>
     inline decltype(auto) vreg(T* d, const EPosT& pos);
 
+    /******************
+     *   ConsecFunc   *
+     ******************/
+
+    template <SizeT I, typename T>
+    constexpr decltype(auto) consecGet(const T& a);
+
+    template <SizeT I, typename T>
+    constexpr decltype(auto) consecGet(T& a);
+
+    template <SizeT I, class F, typename... Args>
+    constexpr decltype(auto) consecApply(const F& f, const Args&... args);
+
+    template <SizeT I, class F, typename Dst, typename... Args>
+    constexpr Dst& consecAssign(const F& f, Dst& dst, const Args&... args);
+
+    template <class F, typename... Args, SizeT... Is>
+    constexpr decltype(auto) consecFuncI(const F& f, const Args&... args,
+					 std::index_sequence<Is...> is);
+    
+    template <class F, typename Dst, typename... Args, SizeT... Is>
+    constexpr Dst& consecFuncAI(const F& f, Dst& dst, const Args&... args,
+				std::index_sequence<Is...> is);
+
+    template <SizeT N, class F, typename... Args>
+    constexpr decltype(auto) consecFunc(const F& f, const Args&... args);
+
+    template <SizeT N, class F, typename Dst, typename... Args>
+    constexpr Dst& consecFuncA(const F& f, Dst& dst, const Args&... args);
+
     /******************************
      *   basic operations: plus   *
      ******************************/
+
+    template <typename T, typename U, SizeT N>
+    struct PlusCC
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<T,N>& a, const Consecutive<U,N>& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<T,N>& a, const Consecutive<U,N>& b);
+    };
+
+    template <typename T, typename X, SizeT N>
+    struct PlusCX
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<T,N>& a, const X& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<T,N>& a, const X& b);
+
+	static constexpr decltype(auto)
+	eval(const X& a, const Consecutive<T,N>& b);
+    };
     
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator+(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator+(const Consecutive<T,N>& a, const Consecutive<U,N>& b)
+    { return PlusCC<T,U,N>::eval(a,b); }
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator+(const Consecutive<T,N>& a, const T& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator+(const Consecutive<T,N>& a, const U& b)
+    { return PlusCX<T,U,N>::eval(a,b); }
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator+(const T& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator+(const T& a, const Consecutive<U,N>& b)
+    { return PlusCX<U,T,N>::eval(a,b); }
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator+=(const Consecutive<T,N>& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator+=(Consecutive<T,N>& o, const Consecutive<U,N>& a)
+    { return PlusCC<T,U,N>::aeval(a,b); }
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator+=(const T& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator+=(Consecutive<T,N>& o, const U& a)
+    { return PlusCX<T,U,N>::aeval(a,b); }
 
     /*******************************
      *   basic operations: minus   *
      *******************************/
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator-(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator-(const Consecutive<T,N>& a, const Consecutive<U,N>& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator-(const Consecutive<T,N>& a, const T& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator-(const Consecutive<T,N>& a, const U& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator-(const T& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator-(const T& a, const Consecutive<U,N>& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator-=(const Consecutive<T,N>& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator-=(Consecutive<T,N>& o, const Consecutive<U,N>& a);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator-=(const T& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator-=(Consecutive<T,N>& o, const U& a);
 
     /***********************************
      *   basic operations: muliplies   *
      ***********************************/
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator*(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator*(const Consecutive<T,N>& a, const Consecutive<U,N>& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator*(const Consecutive<T,N>& a, const T& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator*(const Consecutive<T,N>& a, const U& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator*(const T& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator*(const T& a, const Consecutive<U,N>& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator*=(const Consecutive<T,N>& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator*=(Consecutive<T,N>& o, const Consecutive<U,N>& a);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator*=(const T& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator*=(Consecutive<T,N>& o, const U& a);
 
     /*********************************
      *   basic operations: divides   *
      *********************************/
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator/(const Consecutive<T,N>& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator/(const Consecutive<T,N>& a, const Consecutive<U,N>& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator/(const Consecutive<T,N>& a, const T& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator/(const Consecutive<T,N>& a, const U& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator/(const T& a, const Consecutive<T,N>& b);
+    template <typename T, typename U, SizeT N>
+    constexpr decltype(auto) operator/(const T& a, const Consecutive<U,N>& b);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator/=(const Consecutive<T,N>& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator/=(Consecutive<T,N>& o, const Consecutive<U,N>& a);
 
-    template <typename T, SizeT N>
-    constexpr Consecutive<T,N> operator/=(const T& a);
+    template <typename T, typename U, SizeT N>
+    constexpr Consecutive<T,N>& operator/=(Consecutive<T,N>& o, const U& a);
 
 }
 
