@@ -37,6 +37,75 @@ namespace CNORXZ
     	static constexpr decltype(auto)
 	eval(const X& a, const Consecutive<Double,ND>& b);
     };
+
+    template <>
+    struct MinusCC<Double,Double,ND>
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+    };
+
+    template <typename X>
+    struct MinusCX<Double,X,ND>
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const X& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const X& b);
+
+    	static constexpr decltype(auto)
+	eval(const X& a, const Consecutive<Double,ND>& b);
+    };
+
+    template <>
+    struct MultipliesCC<Double,Double,ND>
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+    };
+
+    template <typename X>
+    struct MultipliesCX<Double,X,ND>
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const X& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const X& b);
+
+    	static constexpr decltype(auto)
+	eval(const X& a, const Consecutive<Double,ND>& b);
+    };
+
+    template <>
+    struct DividesCC<Double,Double,ND>
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+    };
+
+    template <typename X>
+    struct DividesCX<Double,X,ND>
+    {
+	static constexpr decltype(auto)
+	eval(const Consecutive<Double,ND>& a, const X& b);
+
+	static constexpr decltype(auto)
+	aeval(Consecutive<Double,ND>& a, const X& b);
+
+    	static constexpr decltype(auto)
+	eval(const X& a, const Consecutive<Double,ND>& b);
+    };
 }
 
 #endif
