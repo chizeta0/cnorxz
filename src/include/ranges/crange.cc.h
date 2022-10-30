@@ -6,10 +6,10 @@
 
 namespace CNORXZ
 {
-    template <class Xpr>
-    decltype(auto) CIndex::ifor(const Xpr& xpr) const
+    template <class Xpr, class F>
+    decltype(auto) CIndex::ifor(const Xpr& xpr, F&& f) const
     {
-	return For<0,Xpr>(this->max(), this->id(), xpr, NoF());
+	return For<0,Xpr,F>(this->max(), this->id(), xpr, std::forward<F>(f));
     }
 }
 

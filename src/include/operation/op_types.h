@@ -56,8 +56,6 @@ namespace CNORXZ
     class COpRoot : public COpInterface<COpRoot<T,IndexT>>
     {
     public:
-
-	typedef T value_type;
 	typedef OpInterface<T,COpRoot<T,IndexT>> OI;
 	
 	constexpr COpRoot(const DArrayBase<T>& a, const Sptr<IndexT>& ind);
@@ -83,6 +81,25 @@ namespace CNORXZ
     {
 	// operation container (intermediate operation results)
 	// TO BE IMPLEMENTED!!!
+    public:
+	typedef OpInterface<OpCont<T,IndexT>> OI;
+
+	constexpr OpCont(const Sptr<Index>& ind);
+
+	template <class PosT>
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
+
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+	T* data();
+	const T* data() const;
+	
+    private:
+	Sptr<IndexT> mIndex;
+	Vector<T> mC;
     };
     
     
@@ -90,7 +107,6 @@ namespace CNORXZ
     class OpRoot : public OpInterface<OpRoot<T,IndexT>>
     {
     public:
-	typedef T value_type;
 	typedef OpInterface<OpRoot<T,IndexT>> OI;
 
 	constexpr OpRoot(MDArrayBase<T>& a, const Sptr<IndexT>& ind);

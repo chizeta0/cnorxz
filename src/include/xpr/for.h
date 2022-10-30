@@ -4,22 +4,10 @@
 
 #include "base/base.h"
 #include "xpr_base.h"
+#include "func.h"
 
 namespace CNORXZ
 {
-    class ZeroF
-    {
-    public:
-	template <typename... T>
-	constexpr decltype(auto) operator()(const T&... as) const;
-    };
-
-    class NoF
-    {
-    public:
-	template <typename... T>
-	constexpr decltype(auto) operator()(const T&... as) const;
-    };
 
     template <SizeT L, class Xpr, class F = NoF>
     class For : public XprInterface<For<L,Xpr,F>>

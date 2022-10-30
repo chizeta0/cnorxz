@@ -43,8 +43,8 @@ namespace CNORXZ
 	SizeT meta() const;
 	CIndex& at(const SizeT& metaPos);
 
-	template <class Xpr>
-	decltype(auto) ifor(const Xpr& xpr) const;
+	template <class Xpr, class F = NoF>
+	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
     private:
 	Sptr<RangeType> mRangePtr;

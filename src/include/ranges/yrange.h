@@ -51,7 +51,7 @@ namespace CNORXZ
 	DType meta() const;
 	YIndex& at(const DType& meta);
 
-	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr) const;
+	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
     private:
 

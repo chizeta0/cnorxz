@@ -8,21 +8,6 @@
 
 namespace CNORXZ
 {
-    /*************
-     *   ZeroF   *
-     *************/
-
-    template <typename... T>
-    constexpr decltype(auto) ZeroF::operator()(const T&... as) const
-    {
-	return 0;
-    }
-
-    template <typename... T>
-    constexpr decltype(auto) NoF::operator()(const T&... as) const
-    {
-	return;
-    }
 
     /***********
      *   For   *

@@ -4,3 +4,4 @@
 #include "xpr_base.cc.h"
 #include "for.cc.h"
 #include "index_id.cc.h"
+#include "func.cc.h"

@@ -155,9 +155,10 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    DXpr<SizeT> XIndex<Index,Meta>::ifor(const DXpr<SizeT>& xpr) const
+    DXpr<SizeT> XIndex<Index,Meta>::ifor(const DXpr<SizeT>& xpr,
+					 std::function<SizeT(SizeT,SizeT)>&& f) const
     {
-	return DXpr<SizeT>(mI->ifor(xpr));
+	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)));
     }
 
 }

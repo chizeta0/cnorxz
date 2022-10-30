@@ -107,6 +107,60 @@ namespace CNORXZ
     
 
     /****************
+     *   OpCont     *
+     ****************/
+
+    template <typename T, class IndexT>
+    constexpr OpCont<T,IndexT>::OpCont(const Sptr<Index>& ind) :
+	mIndex(ind),
+	mC(mIndex.max())
+    {}
+
+    template <typename T, class IndexT>
+    template <class PosT>
+    constexpr decltype(auto) OpCont<T,IndexT>::operator()(const PosT& pos) const
+    {
+	if constexpr(is_epos_type<PosT>::value){
+	    if constexpr(pos_type_is_consecutive<PosT>::value){
+		return vreg(mC.data(),pos);
+	    }
+	    else {
+		// non-consecutive data cannot be directly accessed
+		// so there is no non-const (write) access!
+		return vreg(const_cast<const T*>(mData),pos);
+	    }
+	}
+	else {
+	    return mC[pos.val()];
+	}
+    }
+
+    template <typename T, class IndexT>
+    constexpr decltype(auto) OpCont<T,IndexT>::operator()() const
+    {
+	return mC[0];
+    }
+
+    template <typename T, class IndexT>
+    template <SizeT I>
+    constexpr decltype(auto) OpCont<T,IndexT>::rootSteps(const IndexId<I>& id) const
+    {
+	return mIndex->stepSize(id);
+    }
+
+    template <typename T, class IndexT>
+    T* OpCont<T,IndexT>::data()
+    {
+	return mC.data();
+    }
+
+    template <typename T, class IndexT>
+    const T* OpCont<T,IndexT>::data() const
+    {
+	return mC.data();
+    }
+    
+    /****************
      *   OpRoot     *
      ****************/
     
@@ -139,7 +193,7 @@ namespace CNORXZ
     }
 
     template <typename T, class IndexT>
-    constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator=(const OpRoot<T,IndexT>& in)
+    constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator=(const OpRoot<T,IndexT>& o)
     {
 	a(mInd, [](auto& a, const auto& b) { a = b; }, o)
 	return *this;
@@ -176,7 +230,12 @@ namespace CNORXZ
     {
 	return mIndex->stepSize(id);
     }
-
+    
+    template <typename T, class IndexT>
+    T* OpRoot<T,IndexT>::data() const
+    {
+	return mData;
+    }
 
     /*******************
      *   Operation     *

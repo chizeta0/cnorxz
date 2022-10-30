@@ -7,6 +7,7 @@
 #include "range_base.h"
 #include "xpr/index_id.h"
 #include "xpr/xpr_base.h"
+#include "xpr/func.h"
 
 namespace CNORXZ
 {
@@ -55,8 +56,9 @@ namespace CNORXZ
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 	
-	template <class Xpr>
-	decltype(auto) ifor(const Xpr& xpr) const { return THIS().ifor(xpr); }
+	template <class Xpr, class F = NoF>
+	decltype(auto) ifor(const Xpr& xpr, F&& f) const
+	{ return THIS().ifor(xpr,std::forward<F>(f)); }
 	
     protected:
 	SizeT mPos = 0;

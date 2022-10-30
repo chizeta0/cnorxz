@@ -48,8 +48,8 @@ namespace CNORXZ
 	const MetaType& meta() const;
 	UIndex& at(const MetaType& metaPos);
 
-	template <class Xpr>
-	decltype(auto) ifor(const Xpr& xpr) const;
+	template <class Xpr, class F>
+	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
     private:
 	Sptr<RangeType> mRangePtr;

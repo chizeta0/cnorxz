@@ -171,9 +171,10 @@ namespace CNORXZ
 	return *this;
     }
 
-    DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr) const
+    DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
     {
 	assert(0);
+	f(0,0);
 	return DXpr<SizeT>();
     }
     
