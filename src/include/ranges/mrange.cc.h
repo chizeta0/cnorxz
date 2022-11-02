@@ -8,41 +8,74 @@
 
 namespace CNORXZ
 {
+    /***********************
+     *   MIndex (private)  *
+     ***********************/
+
+    template <class... Indices>
+    template <SizeT P, SizeT... Is>
+    constexpr decltype(auto) MIndex<Indices...>::indexSequencePlus(std::index_sequence<Is...> is) const
+    {
+	return std::index_sequence<P+Is...> {};
+    }
+
+    template <class... Indices>
+    template <SizeT B, SizeT E>
+    constexpr decltype(auto) MIndex<Indices...>::mkIndexSequence() const
+    {
+	return indexSequencePlus<B>(std::make_index_sequence<E-B>{});
+    }
+
+    template <class... Indices>
+    template <class G, class F, SizeT... Is>
+    constexpr decltype(auto) MIndex<Indices...>::accumulatei(const G& g, const F& f, std::index_sequence<Is...> is) const
+    {
+	return f( g(std::get<Is>(mIPack))... );
+    }
+
+    template <class... Indices>
+    template <SizeT B, SizeT E, class G, class F>
+    constexpr decltype(auto) MIndex<Indices...>::accumulate(const G& g, const F& f) const
+    {
+	return accumulatei(g, f, mkIndexSequence<B,E>())
+    }
+
+    template <class... Indices>
+    template <SizeT... Is>
+    constexpr decltype(auto) mkIPack(SizeT pos, std::index_sequence<Is...> is) const
+    {
+	static_assert(sizeof...(Is) == sizeof...(Indices),
+		      "sequence size does not match number of indices");
+	return std::make_tuple( std::make_shared<Indices>( mRange->sub(Is) )... );
+    }
+    
+    template <class... Indices>
+    template <SizeT... Is>
+    constexpr decltype(auto) mkBlockSizes(std::index_sequence<Is...> is) const
+    {
+	static_assert(sizeof...(Is) == sizeof...(Indices)-1,
+		      "set lowest block size manually");
+	return Arr<SizeT,sizeof...(Indices)>
+	    { accumulate<Is,sizeof...(Indices)>( [](const auto& i) { return i->max(); },
+						 [](const auto&... as) { return (as * ...); } ),
+	      1 };
+    }
+
     /**************
      *   MIndex   *
      **************/
-    
+
     template <class... Indices>
     template <class MRange>
-    MIndex<Indices...>::MIndex(const Sptr<MRange>& range) :
-	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...> >(0)
-    {
-	std::get<sizeof...(Indices)>(mBlockSizes) = 1;
-	sfor_mn<sizeof...(Indices),0>
-	    ( [&](auto i) {
-		  auto r = range->template getPtr<i>();
-		  std::get<i>(mIPack) = r->beginPtr();
-		  *std::get<i>(mIPack) = 0;
-		  
-		  std::get<i>(mBlockSizes) = sfor_p<i,sizeof...(Indices)>
-		      ( [&](auto j) { return std::get<j>(mIPack)->max(); } ,
-			[&](auto a, auto b) { return a * b; });
-		  return 0;
-	      });
-	
-	IB::mPos = sfor_m<sizeof...(Indices),0>
-	    ( [&](auto i) { return std::get<i>(mIPack); },
-	      [&](auto a, auto b) {return a->pos() + b*a->max();}, 0 );
-    }
+    MIndex<Indices...>::MIndex(const Sptr<MRange>& range, SizeT pos) :
+	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(pos),
+	mIPack(mkIPack(IB::mPos, std::make_index_sequence<sizeof...(Indices)>{})),
+	mBlockSizes(mkBlockSizes(IB::mPos), std::make_index_sequence<sizeof...(Indices)>{}),
+	mRange(range)
+    {}
 
     template <class... Indices>
-    MIndex<Indices...>& MIndex<Indices...>::operator()(Sptr<Indices>&... indices)
-    {
-	return (*this)(std::make_tuple(indices...));
-    }
-
-    template <class... Indices>
-    MIndex<Indices...>& MIndex<Indices...>::operator()(const Tuple<Sptr<Indices>...>& indices)
+    MIndex<Indices...>& MIndex<Indices...>::operator()(const Sptr<MIndex>& mi)
     {
 	sfor_pn<0,sizeof...(Indices)>
 	    ( [&](auto i) { std::get<i>(mIPack) = std::get<i>(indices); return 0; } );
@@ -158,20 +191,6 @@ namespace CNORXZ
     {
 	return RangeHelper::mkFor<0>(step, mIPack, mBlockSizes, exs);
     }
-
-    template <class... Indices>
-    template <class Exprs>
-    auto MIndex<Indices...>::iforh(SizeT step, Exprs exs) const
-    {
-	return RangeHelper::mkForh<0>(step, mIPack, mBlockSizes, exs);
-    }
-
-    template <class... Indices>
-    template <class Exprs>
-    auto MIndex<Indices...>::pifor(SizeT step, Exprs exs) const
-    {
-	return RangeHelper::mkPFor<0>(step, mIPack, mBlockSizes, exs);
-    }
     */
     
     /*********************
@@ -179,63 +198,115 @@ namespace CNORXZ
      *********************/
 
     template <class... Ranges>
-    MRangeFactory<Ranges...>::MRangeFactory(const Sptr<Ranges>&... rs)
-    {
-	mProd = Sptr< MRange<Ranges...> >( new MRange<Ranges...>( rs... ) );
-    }
-    
-    template <class... Ranges>
-    MRangeFactory<Ranges...>::MRangeFactory(const typename MRange<Ranges...>::Space& st)
-    {
-	mProd = Sptr< MRange<Ranges...> >( new MRange<Ranges...>( st ) );
-    }
+    MRangeFactory<Ranges...>::MRangeFactory(const Tuple<Sptr<Ranges>...>& rs) :
+	mRs(rs)
+    {}
 
     template <class... Ranges>
-    Sptr<RangeBase> MRangeFactory<Ranges...>::create()
+    MRangeFactory<Ranges...>::MRangeFactory(const Tuple<Sptr<Ranges>...>& rs,
+					    const RangePtr& ref) :
+	mRs(rs),
+	mRef(ref)
+    {}
+
+    template <class... Ranges>
+    void MRangeFactory<Ranges...>::make()
     {
-	mProd = checkIfCreated( std::dynamic_pointer_cast<oType>( mProd )->mSpace );
-	setSelf();
-	return mProd;
+	auto info = typeid(MRange<Ranges...>);
+	if(mRef != nullptr) {
+	    mProd = this->fromCreated[info.hash_code()][mRef->id()];
+	}
+	if(mProd == nullptr) {
+	    RangePtr key = mProd = std::shared_ptr<MRange<Ranges...>>
+		( new MRange<Ranges...>( mSpace ) );
+	    if(mRef != nullptr) { key = mRef }
+	    this->addToCreated(info, { key->id() }, mProd);
+	}
     }
     
-    /******************
+    /**************
      *   MRange   *
-     ******************/
+     **************/
 
     template <class... Ranges>
-    MRange<Ranges...>::MRange(const Sptr<Ranges>&... rs) : mSpace(std::make_tuple(rs...)) {}
+    MRange<Ranges...>::MRange(const Tuple<Sptr<Ranges>...>& rs) :
+	mRs(rs),
+	mA( mkA( std::make_index_sequence<sizeof...(Ranges)>{} ) )
+    {}
 
     template <class... Ranges>
-    MRange<Ranges...>::MRange(const Space& space) : mSpace( space ) {}
-
-    template <class... Ranges>
-    SizeT MRange<Ranges...>::getMeta(const MetaType& metaPos) const
+    RangePtr MRange<Ranges...>::sub(SizeT num) const
     {
-	return RangeHelper::getMeta<sizeof...(Ranges)-1>(mSpace,metaPos);
+	CXZ_ASSERT(num < this->dim(), "index out of range");
+	return mA[num];
+    }
+
+    template <class... Ranges>
+    SizeT MRange<Ranges...>::size() const
+    {
+	return this->sizei(std::make_index_sequence<sizeof...(Ranges)> {});
     }
 
     template <class... Ranges>
     SizeT MRange<Ranges...>::dim() const
     {
-	return sdim;
+	return sizeof...(Ranges);
     }
     
     template <class... Ranges>
-    SizeT MRange<Ranges...>::size() const
+    String MRange<Ranges...>::stringMeta(SizeT pos) const
     {
-	return sfor_p<0,sizeof...(Ranges)>
-	    ( [&](auto i) { return std::get<i>(mSpace)->size(); },
-	      [&](auto a, auto b) { return a * b; } );
+	
     }
 
     template <class... Ranges>
-    String MRange<Ranges...>::stringMeta(SizeT pos) const
+    IndexType MRange<Ranges...>::begin() const
     {
-	auto i = begin();
-	i = pos;
-	return "[" + RangeHelper::getStringMeta<0>(i) + "]";
+	
+    }
+    
+    template <class... Ranges>
+    IndexType MRange<Ranges...>::end() const
+    {
+
     }
 
+    template <class... Ranges>
+    decltype(auto) MRange<Ranges...>::space() const
+    {
+	return mRs;
+    }
+
+    template <class... Ranges>
+    const MetaType MRange<Ranges...>::get(SizeT pos) const
+    {
+	
+    }
+
+    template <class... Ranges>
+    SizeT MRange<Ranges...>::getMeta(const MetaType& metaPos) const
+    {
+	assert(0);
+	//return RangeHelper::getMeta<sizeof...(Ranges)-1>(mSpace,metaPos);
+    }
+
+    /************************
+     *   MRange (private)   *
+     ************************/
+
+    template <class... Ranges>
+    template <SizeT... Is>
+    decltype(auto) MRange<Ranges...>::mkA(std::index_sequence<Is...> is) const
+    {
+	return Arr<RangePtr,sizeof...(Ranges)> { std::get<Is>(mRs)... };
+    }
+
+    template <class... Ranges>
+    SizeT MRange<Ranges...>::sizei(std::index_sequence<Is...> is) const
+    {
+	return ( std::get<Is>(mRs)->size() * ... );
+    }
+    
 }
 
 #endif

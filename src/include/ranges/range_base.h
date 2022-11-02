@@ -44,7 +44,8 @@ namespace CNORXZ
     public:
 	
 	virtual ~RangeBase() = default;
-	    
+
+	virtual RangePtr sub() const;
 	virtual SizeT size() const = 0;
 	virtual SizeT dim() const = 0;
 	virtual const TypeInfo& type() const = 0;

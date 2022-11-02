@@ -39,6 +39,11 @@ namespace CNORXZ
      *   RangeBase    *
      ******************/
 
+    RangePtr RangeBase::sub() const
+    {
+	return nullptr;
+    }
+
     bool RangeBase::operator==(const RangeBase& in) const
     {
 	return this == &in;

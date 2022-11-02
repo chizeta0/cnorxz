@@ -33,8 +33,7 @@ namespace CNORXZ
 	MIndex(const RangePtr& range, SizeT pos = 0);
 
 	// replace sub-index instances; only use if you know what you are doing!
-	MIndex& operator()(Sptr<Indices>&... indices);
-	MIndex& operator()(const MIndex& indices);
+	MIndex& operator()(const Sptr<MIndex>& mi);
 
 	const IndexPack& pack() const { return mIPack; }
 	const auto& getBlockSizes() const { return mBlockSizes; }
@@ -66,16 +65,36 @@ namespace CNORXZ
 	MetaType meta() const;
 	MIndex& at(const MetaType& metaPos);
 
-	template <class PosT, class Xpr>
-	auto ifor(const PosT& step, const Xpr& xpr) const;
+	template <class Xpr, class F>
+	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
     private:
 	MIndex() = default;
 	
 	IndexPack mIPack;
-	Arr<SizeT,sizeof...(Indices)+1> mBlockSizes;
+	Arr<SizeT,sizeof...(Indices)> mBlockSizes;
 	Sptr<RangeType> mRange;
 
+	// shift to utils:
+	template <SizeT P, SizeT... Is>
+	constexpr decltype(auto) indexSequencePlus(std::index_sequence<Is...> is) const;
+
+	// shift to utils:
+	template <SizeT B, SizeT E>
+	constexpr decltype(auto) mkIndexSequence() const;
+
+	
+	template <class G, class F, SizeT... Is>
+	constexpr decltype(auto) accumulatei(const G& g, const F& f, std::index_sequence<Is...> is) const;
+
+	template <SizeT B, SizeT E, class G, class F>
+	constexpr decltype(auto) accumulate(const G& g, const F& f) const;
+
+	template <SizeT... Is>
+	constexpr decltype(auto) mkIPack(SizeT pos, std::index_sequence<Is...> is) const;
+
+	template <SizeT... Is>
+	constexpr decltype(auto) mkBlockSizes(std::index_sequence<Is...> is) const;
     };
 
 
@@ -84,44 +103,54 @@ namespace CNORXZ
     class MRangeFactory : public RangeFactoryBase
     {
     public:
-	MRangeFactory() = delete;
-	MRangeFactory(const Sptr<Ranges>&... rs);
 	MRangeFactory(const Tuple<Sptr<Ranges>...>& rs);
+	MRangeFactory(const Tuple<Sptr<Ranges>...>& rs, const RangePtr& ref);
 	
     private:
+	MRangeFactory() = default;
 	virtual void make() override final;
 
 	Tuple<Sptr<Ranges>...> mRs;
+	RangePtr mRef;
     };
     
     template <class... Ranges>
-    class MRange : public RangeInterface<MIndex<typename Ranges::IndexType...> >
+    class MRange : public RangeInterface<MIndex<typename Ranges::IndexType...>,
+					 Tuple<typename Ranges::IndexType::MetaType...>>
     {
     public:
 	typedef RangeBase RB;
 	typedef MIndex<typename Ranges::IndexType...> IndexType;
         typedef Tuple<typename Ranges::IndexType::MetaType...> MetaType;
 
-	const Space& space() const;
-
-	SizeT getMeta(const MetaType& metaPos) const;
-
-	virtual Sptr<RangeBase> sub(SizeT num) const override;
-	
-	virtual SizeT dim() const final;
-	virtual SizeT size() const final;
-
-	virtual String stringMeta(SizeT pos) const final;
-	
 	friend MRangeFactory<Ranges...>;
+
+	virtual RangePtr sub(SizeT num) const override final;
+	virtual SizeT size() const override final;
+	virtual SizeT dim() const override final;
+	virtual String stringMeta(SizeT pos) const override final;
+	virtual IndexType begin() const override final;
+	virtual IndexType end() const override final;
+	
+	decltype(auto) space() const;
+	const MetaType get(SizeT pos) const;
+	SizeT getMeta(const MetaType& metaPos) const;
 
     protected:
 	MRange() = delete;
 	MRange(const MRange& in) = delete;
 	MRange& operator=(const MRange& in) = delete;
+	MRange(const Tuple<Sptr<Ranges>...>& rs);
 	
 	Tuple<Sptr<Ranges>...> mRs;
+	Arr<RangePtr,sizeof...(Ranges)> mA;
+    private:
 
+	template <SizeT... Is>
+	decltype(auto) mkA(std::index_sequence<Is...> is) const;
+
+	template <SizeT... Is>
+	SizeT sizei(std::index_sequence<Is...> is) const;
     };
     
 }
