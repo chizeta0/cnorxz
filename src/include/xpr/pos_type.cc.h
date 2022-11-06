@@ -65,9 +65,16 @@ namespace CNORXZ
 
     template <SizeT N>
     template <class PosT>
-    constexpr auto SPos<N>::extend(const PosT& a) const
+    constexpr decltype(auto) SPos<N>::extend(const PosT& a) const
     {
 	return MPos<SPos<N>,PosT>(*this,a);
+    }
+
+    template <SizeT N>
+    template <class PosT>
+    constexpr decltype(auto) SPos<N>::operator<<(const PosT& a) const
+    {
+	return extend(a);
     }
 
     template <SizeT N>
@@ -121,11 +128,17 @@ namespace CNORXZ
     }
 	
     template <class PosT>
-    constexpr auto UPos::extend(const PosT& p1) const
+    constexpr decltype(auto) UPos::extend(const PosT& p1) const
     {
 	return MPos<UPos,PosT>(*this, p1);
     }
 
+    template <class PosT>
+    constexpr decltype(auto) UPos::operator<<(const PosT& a) const
+    {
+	return extend(a);
+    }
+    
     /************
      *   FPos   *
      ************/
@@ -160,10 +173,16 @@ namespace CNORXZ
 	return UPos(mExt * mMap[a.val()]);
     }
 
-    template <class PosT1>
-    constexpr auto FPos::extend(const PosT1& a) const
+    template <class PosT>
+    constexpr decltype(auto) FPos::extend(const PosT& a) const
     {
 	return MPos<FPos,PosT1>(*this,a);
+    }
+
+    template <class PosT>
+    constexpr decltype(auto) FPos::operator<<(const PosT& a) const
+    {
+	return extend(a);
     }
 
     /*************
@@ -228,9 +247,16 @@ namespace CNORXZ
 
     template <SizeT N, SizeT... Ms>
     template <class PosT>
-    constexpr auto SFPos<N,Ms...>::extend(const PosT& a) const
+    constexpr decltype(auto) SFPos<N,Ms...>::extend(const PosT& a) const
     {
 	return MPos<SFPos<N,Ms...>,PosT>(*this,a);
+    }
+
+    template <SizeT N, SizeT... Ms>
+    template <class PosT>
+    constexpr decltype(auto) SFPos<N,Ms...>::operator<<(const PosT& a) const
+    {
+	return extend(a);
     }
 
     template <SizeT N, SizeT... Ms>
@@ -317,12 +343,19 @@ namespace CNORXZ
 	
     template <class BPosT, class NPosT>
     template <class PosT>
-    constexpr auto MPos<BPosT,NPosT>::extend(const PosT& a) const
+    constexpr decltype(auto) MPos<BPosT,NPosT>::extend(const PosT& a) const
     {
 	typedef decltype(mNext.extend(a)) ONPosT;
 	return MPos<BPosT,ONPosT>(*this, mNext.extend(a));
     }
 
+    template <class BPosT, class NPosT>
+    template <class PosT>
+    constexpr decltype(auto) MPos<BPosT,NPosT>::operator<<(const PosT& a) const
+    {
+	return extend(a);
+    }
+    
     /************
      *   DPos   *
      ************/

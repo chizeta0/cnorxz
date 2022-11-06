@@ -30,8 +30,11 @@ namespace CNORXZ
 	constexpr auto operator()(const UPos& a) const;
 	
 	template <class PosT>
-	constexpr auto extend(const PosT& a) const;
+	constexpr decltype(auto) extend(const PosT& a) const;
 
+	template <class PosT>
+	constexpr decltype(auto) operator<<(const PosT& a) const;
+	
 	explicit constexpr operator UPos() const;
     };
 
@@ -61,8 +64,10 @@ namespace CNORXZ
 	constexpr UPos operator()(const PosT& a) const;
 
         template <class PosT>
-        constexpr auto extend(const PosT& a) const;
+        constexpr decltype(auto) extend(const PosT& a) const;
 
+	template <class PosT>
+	constexpr decltype(auto) operator<<(const PosT& a) const;
     };
 
     class FPos
@@ -88,9 +93,11 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr UPos operator()(const PosT& a) const;
 
-	template <class PosT1>
-	constexpr auto extend(const PosT1& a) const;
+	template <class PosT>
+	constexpr decltype(auto) extend(const PosT& a) const;
 
+	template <class PosT>
+	constexpr decltype(auto) operator<<(const PosT& a) const;
     };
 
     template <SizeT N, SizeT... Ms>
@@ -116,7 +123,10 @@ namespace CNORXZ
 	constexpr auto operator()(const UPos& a) const;
 
 	template <class PosT>
-	constexpr auto extend(const PosT& a) const;
+	constexpr decltype(auto) extend(const PosT& a) const;
+
+	template <class PosT>
+	constexpr decltype(auto) operator<<(const PosT& a) const;
 
 	explicit constexpr operator FPos() const;
     };
@@ -151,7 +161,10 @@ namespace CNORXZ
 	constexpr auto operator()(const PosT& a) const;
 	
 	template <class PosT>
-	constexpr auto extend(const PosT& a) const;
+	constexpr decltype(auto) extend(const PosT& a) const;
+
+	template <class PosT>
+	constexpr decltype(auto) operator<<(const PosT& a) const;
     };
 
     // treat as scalar pos!!!
@@ -188,6 +201,9 @@ namespace CNORXZ
 	
 	template <class PosT>
 	inline decltype(auto) extend(const PosT& a) const;
+
+	template <class PosT>
+	inline decltype(auto) operator<<(const PosT& a) const;
     };
 
     class DPosRef
@@ -219,6 +235,9 @@ namespace CNORXZ
 	
 	template <class PosT>
 	inline decltype(auto) extend(const PosT& a) const;
+
+	template <class PosT>
+	inline decltype(auto) operator<<(const PosT& a) const;
     };
 
     // for common call of extension vector elements

@@ -35,9 +35,6 @@ namespace CNORXZ
 	const MetaType& operator*() const;
 	const MetaType* operator->() const;
 	
-	Int pp(PtrId idxPtrNum);
-	Int mm(PtrId idxPtrNum);
-
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
 

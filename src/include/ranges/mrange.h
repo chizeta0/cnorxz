@@ -52,9 +52,6 @@ namespace CNORXZ
 	SizeT operator*() const;
 	SizeT operator->() const;
 
-	int pp(PtrId idxPtrNum);
-	int mm(PtrId idxPtrNum);
-
 	SizeT dim();
 	Sptr<RangeType> range();
 
@@ -66,13 +63,15 @@ namespace CNORXZ
 	MIndex& at(const MetaType& metaPos);
 
 	template <class Xpr, class F>
-	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
+	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
     private:
 	MIndex() = default;
 	
 	IndexPack mIPack;
-	Arr<SizeT,sizeof...(Indices)> mBlockSizes;
+	//Arr<SizeT,sizeof...(Indices)> mBlockSizes;
+	typedef decltype(mkBlockSizes(std::make_index_sequence<sizeof...(Indices)-1>{})) BlockTuple;
+	BlockTuple mBlockSizes;
 	Sptr<RangeType> mRange;
 
 	// shift to utils:
@@ -87,16 +86,64 @@ namespace CNORXZ
 	template <class G, class F, SizeT... Is>
 	constexpr decltype(auto) accumulatei(const G& g, const F& f, std::index_sequence<Is...> is) const;
 
+	template <class G, class F, SizeT... Is>
+	constexpr decltype(auto) accumulate2i(const G& g, const F& f, std::index_sequence<Is...> is) const;
+
 	template <SizeT B, SizeT E, class G, class F>
 	constexpr decltype(auto) accumulate(const G& g, const F& f) const;
+
+	template <SizeT B, SizeT E, class G, class F>
+	constexpr decltype(auto) accumulate2(const G& g, const F& f) const;
 
 	template <SizeT... Is>
 	constexpr decltype(auto) mkIPack(SizeT pos, std::index_sequence<Is...> is) const;
 
 	template <SizeT... Is>
+	inline void setIPack(std::index_sequence<Is...> is) const;
+
+	template <SizeT... Is>
 	constexpr decltype(auto) mkBlockSizes(std::index_sequence<Is...> is) const;
+
+	template <SizeT... Is>
+	constexpr decltype(auto) mkPos(std::index_sequence<Is...> is) const;
+
+	template <SizeT I>
+	inline void up();
+
+	template <SizeT I>
+	inline void down();
+
+	template <SizeT... Is>
+	inline String mkStringMeta(std::index_sequence<Is...> is) const;
+
+	template <SizeT... Is>
+	inline MetaType mkMeta(std::index_sequence<Is...> is) const;
+
+	template <SizeT I, class Xpr, class F>
+	constexpr decltype(auto) mkIFor(const Xpr& xpr, F&& f) const;
+
+	template <SizeT... Is>
+	inline void ati(const MetaType& meta, std::index_sequence<Is...> is) const;
     };
 
+    // modified blockSizes; to be used for Slices; can be created from MIndices
+    template <class MIndexType, class BlockType>
+    class GMIndex : public MIndexType
+    {
+    public:
+	// override everything that modyfies IB::mPos or uses mBlockSizes!!!
+	
+	constexpr GMIndex(const MIndexType& mi, const BlockType& b);
+	
+	template <class Xpr, class F>
+	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
+
+    private:
+	BlockType mBlockSizes;
+
+	template <SizeT... Is>
+	constexpr decltype(auto) mkPos(std::index_sequence<Is...> is) const;
+    };
 
     // NOT THREAD SAVE
     template <class... Ranges>

@@ -93,20 +93,6 @@ namespace CNORXZ
     }
 	
     template <typename MetaType>
-    Int UIndex<MetaType>::pp(PtrId idxPtrNum)
-    {
-	++(*this);
-	return 1;
-    }
-
-    template <typename MetaType>
-    Int UIndex<MetaType>::mm(PtrId idxPtrNum)
-    {
-	--(*this);
-	return 1;
-    }
-
-    template <typename MetaType>
     String UIndex<MetaType>::stringMeta() const
     {
 	return toString(this->meta());
