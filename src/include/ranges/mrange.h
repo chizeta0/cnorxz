@@ -22,6 +22,7 @@ namespace CNORXZ
 	typedef Tuple<Sptr<Indices>...> IndexPack;
 	typedef Tuple<typename Indices::MetaType...> MetaType;
 	typedef MRange<typename Indices::RangeType...> RangeType;
+	static constexpr SizeT NI = sizeof...(Indices);
 
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
@@ -69,43 +70,14 @@ namespace CNORXZ
 	MIndex() = default;
 	
 	IndexPack mIPack;
-	//Arr<SizeT,sizeof...(Indices)> mBlockSizes;
-	typedef decltype(mkBlockSizes(std::make_index_sequence<sizeof...(Indices)-1>{})) BlockTuple;
+	typedef decltype(mkBlockSizes(Isqr<0,NI-1>{})) BlockTuple;
 	BlockTuple mBlockSizes;
 	Sptr<RangeType> mRange;
 
-	// shift to utils:
-	template <SizeT P, SizeT... Is>
-	constexpr decltype(auto) indexSequencePlus(std::index_sequence<Is...> is) const;
-
-	// shift to utils:
-	template <SizeT B, SizeT E>
-	constexpr decltype(auto) mkIndexSequence() const;
-
-	
-	template <class G, class F, SizeT... Is>
-	constexpr decltype(auto) accumulatei(const G& g, const F& f, std::index_sequence<Is...> is) const;
-
-	template <class G, class F, SizeT... Is>
-	constexpr decltype(auto) accumulate2i(const G& g, const F& f, std::index_sequence<Is...> is) const;
-
-	template <SizeT B, SizeT E, class G, class F>
-	constexpr decltype(auto) accumulate(const G& g, const F& f) const;
-
-	template <SizeT B, SizeT E, class G, class F>
-	constexpr decltype(auto) accumulate2(const G& g, const F& f) const;
-
 	template <SizeT... Is>
-	constexpr decltype(auto) mkIPack(SizeT pos, std::index_sequence<Is...> is) const;
+	constexpr decltype(auto) mkIPack(SizeT pos, Isq<Is...> is) const;
 
-	template <SizeT... Is>
-	inline void setIPack(std::index_sequence<Is...> is) const;
-
-	template <SizeT... Is>
-	constexpr decltype(auto) mkBlockSizes(std::index_sequence<Is...> is) const;
-
-	template <SizeT... Is>
-	constexpr decltype(auto) mkPos(std::index_sequence<Is...> is) const;
+	constexpr decltype(auto) mkBlockSizes() const;
 
 	template <SizeT I>
 	inline void up();
@@ -113,17 +85,8 @@ namespace CNORXZ
 	template <SizeT I>
 	inline void down();
 
-	template <SizeT... Is>
-	inline String mkStringMeta(std::index_sequence<Is...> is) const;
-
-	template <SizeT... Is>
-	inline MetaType mkMeta(std::index_sequence<Is...> is) const;
-
 	template <SizeT I, class Xpr, class F>
 	constexpr decltype(auto) mkIFor(const Xpr& xpr, F&& f) const;
-
-	template <SizeT... Is>
-	inline void ati(const MetaType& meta, std::index_sequence<Is...> is) const;
     };
 
     // modified blockSizes; to be used for Slices; can be created from MIndices
@@ -142,7 +105,7 @@ namespace CNORXZ
 	BlockType mBlockSizes;
 
 	template <SizeT... Is>
-	constexpr decltype(auto) mkPos(std::index_sequence<Is...> is) const;
+	constexpr decltype(auto) mkPos(Isq<Is...> is) const;
     };
 
     // NOT THREAD SAVE
@@ -169,6 +132,7 @@ namespace CNORXZ
 	typedef RangeBase RB;
 	typedef MIndex<typename Ranges::IndexType...> IndexType;
         typedef Tuple<typename Ranges::IndexType::MetaType...> MetaType;
+	static constexpr SizeT NR = sizeof...(Ranges);
 
 	friend MRangeFactory<Ranges...>;
 
@@ -190,14 +154,10 @@ namespace CNORXZ
 	MRange(const Tuple<Sptr<Ranges>...>& rs);
 	
 	Tuple<Sptr<Ranges>...> mRs;
-	Arr<RangePtr,sizeof...(Ranges)> mA;
+	Arr<RangePtr,NR> mA;
     private:
 
-	template <SizeT... Is>
-	decltype(auto) mkA(std::index_sequence<Is...> is) const;
-
-	template <SizeT... Is>
-	SizeT sizei(std::index_sequence<Is...> is) const;
+	decltype(auto) mkA() const;
     };
     
 }

@@ -10,6 +10,7 @@
 #include <array>
 #include <map>
 #include <typeinfo>
+#include <utility>
 
 namespace CNORXZ
 {
@@ -43,10 +44,20 @@ namespace CNORXZ
     template <SizeT I, typename... T>
     using TupleElem = std::tuple_element<I,Tuple<T...>>;
 
+    template <typename T>
+    using RemoveRef = std::remove_reference<T>::type;
+    
     template <typename K, typename V>
     using Map = std::map<K,V>;
 
     typedef std::type_info TypeInfo;
+
+    template <SizeT... Is>
+    using Isq = std::index_sequence<Is...>;
+    // cxz helper functions/classes: -> isq.h
+
+    template <class... T>
+    using Isqf = std::index_sequence_for<T...>;
     
     /*********************
      *   library types   *

@@ -22,6 +22,8 @@
 #include "types.h"
 #include "obj_handle.h"
 #include "dtype.h"
+#include "isq.h"
+#include "iter.h"
 
 #include "base.cc.h"
 

@@ -13,82 +13,22 @@ namespace CNORXZ
      ***********************/
 
     template <class... Indices>
-    template <SizeT P, SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::indexSequencePlus(std::index_sequence<Is...> is) const
-    {
-	return std::index_sequence<P+Is...> {};
-    }
-
-    template <class... Indices>
-    template <SizeT B, SizeT E>
-    constexpr decltype(auto) MIndex<Indices...>::mkIndexSequence() const
-    {
-	return indexSequencePlus<B>(std::make_index_sequence<E-B>{});
-    }
-
-    template <class... Indices>
-    template <class G, class F, SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::accumulatei(const G& g, const F& f, std::index_sequence<Is...> is) const
-    {
-	return f( g(std::get<Is>(mIPack))... );
-    }
-    
-    template <class... Indices>
-    template <class G, class F, SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::accumulate2i(const G& g, const F& f, std::index_sequence<Is...> is) const
-    {
-	return f( g(std::get<Is>(mIPack), std::get<Is>(mBlockSizes))... );
-    }
-
-    template <class... Indices>
-    template <SizeT B, SizeT E, class G, class F>
-    constexpr decltype(auto) MIndex<Indices...>::accumulate(const G& g, const F& f) const
-    {
-	return accumulatei(g, f, mkIndexSequence<B,E>())
-    }
-
-    template <class... Indices>
-    template <SizeT B, SizeT E, class G, class F>
-    constexpr decltype(auto) MIndex<Indices...>::accumulate2(const G& g, const F& f) const
-    {
-	return accumulate2i(g, f, mkIndexSequence<B,E>())
-    }
-
-    template <class... Indices>
     template <SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::mkIPack(SizeT pos, std::index_sequence<Is...> is) const
+    constexpr decltype(auto) MIndex<Indices...>::mkIPack(SizeT pos, Isq<Is...> is) const
     {
-	static_assert(sizeof...(Is) == sizeof...(Indices),
+	static_assert(sizeof...(Is) == NI,
 		      "sequence size does not match number of indices");
 	return std::make_tuple( std::make_shared<Indices>( mRange->sub(Is) )... );
-				//, (pos / std::get<Is>(mBlockSizes) ) %  )... );
     }
     
     template <class... Indices>
-    template <SizeT... Is>
-    inline void MIndex<Indices...>::setIPack(std::index_sequence<Is...> is) const
+    constexpr decltype(auto) MIndex<Indices...>::mkBlockSizes() const
     {
-	( (std::get<Is>(mIPack) = (IB::mPos / std::get<Is>(mBlockSize)) % std::get<Is>(mIPack)->max() ),... );
-    }
-    
-    template <class... Indices>
-    template <SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::mkBlockSizes(std::index_sequence<Is...> is) const
-    {
-	static_assert(sizeof...(Is) == sizeof...(Indices)-1,
-		      "set lowest block size manually");
 	return std::make_tuple
-	    ( accumulate<Is,sizeof...(Indices)>
-	      ( [](const auto& i) { return i->max(); },
-		[](const auto&... as) { return (as * ...); } )...,
+	    ( iter<Is,NI>
+	      ( [&](auto i) { return std::get<i>(mIPack)->max(); },
+		[&](const auto&... as) { return (as * ...); } )...,
 	      SPos<1>() );
-    }
-
-    template <class... Indices>
-    template <SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::mkPos(std::index_sequence<Is...> is) const
-    {
-	return ( (std::get<Is>(mIPack)*std::get<Is>(mBlockSizes)) + ... );
     }
 
     template <class... Indices>
@@ -126,33 +66,6 @@ namespace CNORXZ
     }
 
     template <class... Indices>
-    template <SizeT... Is>
-    inline String MIndex<Indices...>::mkStringMeta(std::index_sequence<Is...> is) const
-    {
-	const String blim = "[";
-	const String elim = "]";
-	const String dlim = ",";
-	static_assert(sizeof...(Is) == sizeof...(Indices)-1,
-		      "set last position outside the index pack");
-	if constexpr(sizeof...(Is) == 0){
-	    return blim + std::get<0>(mIPack)->stringMeta() + elim;
-	}
-	else {
-	    return blim +
-		( ( std::get<Is>(mIPack)->stringMeta() + dlim ) + ... +
-		  std::get<sizeof...(Indices)-1>(mIPack)->stringMeta() )
-		+ elim;
-	}
-    }
-
-    template <class... Indices>
-    template <SizeT... Is>
-    inline typename MIndex<Indices...>::MetaType MIndex<Indices...>::mkMeta(std::index_sequence<Is...> is) const
-    {
-	return std::make_tuple( std::get<Is>(mIPack)->meta()... );
-    }
-    
-    template <class... Indices>
     template <SizeT I, class Xpr, class F>
     constexpr decltype(auto) MIndex<Indices...>::mkIFor(const Xpr& xpr, F&& f) const
     {
@@ -164,12 +77,6 @@ namespace CNORXZ
 	}
     }
 
-    template <SizeT... Is>
-    inline void ati(const MetaType& meta, std::index_sequence<Is...> is) const
-    {
-	( std::get<Is>(mIPack)->at( std::get<Is>(meta) ), ... );
-    }
-
     /**************
      *   MIndex   *
      **************/
@@ -178,8 +85,8 @@ namespace CNORXZ
     template <class MRange>
     MIndex<Indices...>::MIndex(const Sptr<MRange>& range, SizeT pos) :
 	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(0),
-	mIPack(mkIPack(IB::mPos, std::make_index_sequence<sizeof...(Indices)>{})),
-	mBlockSizes(mkBlockSizes(IB::mPos), std::make_index_sequence<sizeof...(Indices)>{}),
+	mIPack(mkIPack(IB::mPos, Isqr<0,NI>{})),
+	mBlockSizes(mkBlockSizes(IB::mPos), Isqr<0,NI>{}),
 	mRange(range),
     {
 	(*this) = pos;
@@ -189,7 +96,9 @@ namespace CNORXZ
     MIndex<Indices...>& MIndex<Indices...>::operator()(const Sptr<MIndex>& mi)
     {
 	mIPack = mi.mIPack;
-	IB::mPos = mkPos(std::make_index_sequence<sizeof...(Indices)>{});
+	IB::mPos = iter<0,NI>
+	    ( [&](auto i) { return std::get<i>(mIPack)*std::get<i>(mBlockSizes); },
+	      [](const auto&... xs) { return (xs + ...); });
 	return *this;
     }
 
@@ -197,7 +106,7 @@ namespace CNORXZ
     MIndex<Indices...>& MIndex<Indices...>::operator=(SizeT pos)
     {
 	IB::mPos = pos;
-	setIPack(std::make_index_sequence<sizeof...(Indices)>{});
+	iter<0,NI>( [&](auto i) { std::get<i>(mIPack) = (IB::mPos / std::get<i>(mBlockSize)) % std::get<i>(mIPack)->max() }, NoF{} );
 	return *this;
     }
 
@@ -207,7 +116,7 @@ namespace CNORXZ
 	// End state is defined by high-index being end while all other indices are zero
 	auto& i0 = std::get<0>(mIPack);
 	if(i0->pos() != i0->max()){
-	    up<sizeof...(Indices)-1>();
+	    up<NI-1>();
 	}
 	return *this;
     }
@@ -216,7 +125,7 @@ namespace CNORXZ
     MIndex<Indices...>& MIndex<Indices...>::operator--()
     {
 	if(IB::mPos != 0){
-	    down<sizeof...(Indices)-1>();
+	    down<NI-1>();
 	}
 	return *this;
     }
@@ -224,27 +133,37 @@ namespace CNORXZ
     template <class... Indices>
     String MIndex<Indices...>::stringMeta() const
     {
-	return mkStringMeta(std::make_index_sequence<sizeof...(Indices)-1>{});
+	const String blim = "[";
+	const String elim = "]";
+	const String dlim = ",";
+	return iter<1,NI>
+	    ( [&](auto i) { return std::get<i>(mIPack)->stringMeta(); },
+	      [&](const auto&... xs) {
+		  return blim + std::get<0>(mIPack)->stringMeta() + ( (dlim + xs) + ... ) + elim;
+	      } );
     }
     
     template <class... Indices>
     typename MIndex<Indices...>::MetaType MIndex<Indices...>::meta() const
     {
-	return mkMeta(std::make_index_sequence<sizeof...(Indices)>{});
+	return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->meta(); },
+			   [](const auto&... xs) { return std::make_tuple(xs...); } );
     }
 
     template <class... Indices>
     MIndex<Indices...>& MIndex<Indices...>::at(const MetaType& metaPos)
     {
-	ati(metaPos, std::make_index_sequence<sizeof...(Indices)>{});
-	IB::mPos = mkPos(std::make_index_sequence<sizeof...(Indices)>{});
+	iter<0,NI>( [&](auto i) { std::get<Is>(mIPack)->at( std::get<Is>(meta) ) }, NoF {} );
+	IB::mPos = iter<0,NI>
+	    ( [&](auto i) { return std::get<i>(mIPack)*std::get<i>(mBlockSizes); },
+	      [](const auto&... xs) { return (xs + ...); });
 	return *this;
     }
 
     template <class... Indices>
     SizeT MIndex<Indices...>::dim()
     {
-	return sizeof...(Indices);
+	return NI;
     }
 
     template <class... Indices>
@@ -258,8 +177,9 @@ namespace CNORXZ
     template <SizeT I>
     decltype(auto) MIndex<Indices...>::stepSize(const IndexId<I>& id) const;
     {
-	return accumulate2( [](const auto& i, const auto& b) { return i->stepSize(id) * b },
-			    [](const auto&... ss) { return ( ss + ... ); });
+	return iter<0,NI>
+	    ( [&](auto i) { return std::get<i>(mIPack)->stepSize(id) * std::get<i>(mBlockSize); },
+	      [](const auto&... ss) { return ( ss + ... ); });
     }
 
     template <class... Indices>	
@@ -307,7 +227,7 @@ namespace CNORXZ
     template <class... Ranges>
     MRange<Ranges...>::MRange(const Tuple<Sptr<Ranges>...>& rs) :
 	mRs(rs),
-	mA( mkA( std::make_index_sequence<sizeof...(Ranges)>{} ) )
+	mA( mkA( std::make_index_sequence<NR>{} ) )
     {}
 
     template <class... Ranges>
@@ -320,13 +240,14 @@ namespace CNORXZ
     template <class... Ranges>
     SizeT MRange<Ranges...>::size() const
     {
-	return this->sizei(std::make_index_sequence<sizeof...(Ranges)> {});
+	return iter<0,NR>( [&](auto i) { return std::get<i>(mRs)->size() },
+			   [](const auto&... xs) { return (xs * ...); } );
     }
 
     template <class... Ranges>
     SizeT MRange<Ranges...>::dim() const
     {
-	return sizeof...(Ranges);
+	return NR;
     }
     
     template <class... Ranges>
@@ -359,16 +280,10 @@ namespace CNORXZ
      ************************/
 
     template <class... Ranges>
-    template <SizeT... Is>
-    decltype(auto) MRange<Ranges...>::mkA(std::index_sequence<Is...> is) const
+    decltype(auto) MRange<Ranges...>::mkA() const
     {
-	return Arr<RangePtr,sizeof...(Ranges)> { std::get<Is>(mRs)... };
-    }
-
-    template <class... Ranges>
-    SizeT MRange<Ranges...>::sizei(std::index_sequence<Is...> is) const
-    {
-	return ( std::get<Is>(mRs)->size() * ... );
+	return iter<0,NR>([&](auto i) { return std::get<Is>(mRs); },
+			  [](const auto&... xs) { return Arr<RangePtr,NR> { xs... } } );
     }
     
 }
