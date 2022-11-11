@@ -176,7 +176,7 @@ namespace CNORXZ
     template <class PosT>
     constexpr decltype(auto) FPos::extend(const PosT& a) const
     {
-	return MPos<FPos,PosT1>(*this,a);
+	return MPos<FPos,PosT>(*this,a);
     }
 
     template <class PosT>

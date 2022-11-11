@@ -9,7 +9,7 @@
 namespace CNORXZ
 {
     template <SizeT O, SizeT... Is>
-    std::index_sequence<(Is+O)...> mkIsqAdd(std::index_sequence<is...> is) { return {}; }
+    std::index_sequence<(Is+O)...> mkIsqAdd(std::index_sequence<Is...> is) { return {}; }
 
     template <SizeT B, SizeT E>
     struct MkIsq
@@ -17,14 +17,14 @@ namespace CNORXZ
 	static auto make()
 	{
 	    static_assert(B <= E, "begin of sequence must be smaller than end of sequence");
-	    return mkIsqAdd<B>( std::make_index_sequence<E-B> );
+	    return mkIsqAdd<B>( std::make_index_sequence<E-B>{} );
 	}
 
 	typedef decltype(make()) type;
     };
     
     template <SizeT B, SizeT E>
-    using Isqr = MkIsq<B,E>::type;
+    using Isqr = typename MkIsq<B,E>::type;
 }
 
 #endif

@@ -3,7 +3,7 @@
 #define __cxz_iter_cc_h__
 
 #include "iter.h"
-#include "functional/fundamental.h"
+#include "xpr/func.h"
 
 namespace CNORXZ
 {
@@ -11,10 +11,10 @@ namespace CNORXZ
     constexpr decltype(auto) iteri(const G& g, const F& f, Isq<Is...> is)
     {
 	if constexpr(std::is_same<F,NoF>::value){
-	    ( g(std::integral_constant<SizeT,Is>{}, args...), ... );
+	    ( g(std::integral_constant<SizeT,Is>{}), ... );
 	}
 	else {
-	    return f( g(std::integral_constant<SizeT,Is>{}, args...) ... );
+	    return f( g(std::integral_constant<SizeT,Is>{}) ... );
 	}
     }
 

@@ -45,7 +45,7 @@ namespace CNORXZ
     using TupleElem = std::tuple_element<I,Tuple<T...>>;
 
     template <typename T>
-    using RemoveRef = std::remove_reference<T>::type;
+    using RemoveRef = typename std::remove_reference<T>::type;
     
     template <typename K, typename V>
     using Map = std::map<K,V>;
