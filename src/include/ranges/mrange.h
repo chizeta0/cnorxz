@@ -26,19 +26,14 @@ namespace CNORXZ
 
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
+	MIndex() = default;
 	MIndex(const MIndex& i);
 	MIndex(MIndex&& i);
-	MIndex& operator=(const MIndex& i);
-	MIndex& operator=(MIndex&& i);
+	MIndex& operator=(const MIndex& i) = default;
+	MIndex& operator=(MIndex&& i) = default;
 
 	MIndex(const RangePtr& range, SizeT pos = 0);
 
-	// replace sub-index instances; only use if you know what you are doing!
-	MIndex& operator()(const Sptr<MIndex>& mi);
-
-	const IndexPack& pack() const { return mIPack; }
-	const auto& getBlockSizes() const { return mBlockSizes; }
-	
 	MIndex& operator=(SizeT pos);
 	MIndex& operator++();
 	MIndex& operator--();
@@ -46,29 +41,33 @@ namespace CNORXZ
 	MIndex operator-(Int n) const;
 	MIndex& operator+=(Int n);
 	MIndex& operator-=(Int n);
-	
-	SizeT max() const;
-	decltype(auto) id() const;
-	
-	SizeT operator*() const;
-	SizeT operator->() const;
 
-	SizeT dim();
-	Sptr<RangeType> range();
+	SizeT max() const;
+	IndexId<0> id() const;
+
+	MetaType operator*() const;
+	MetaType operator->() const;
+
+	SizeT dim() const
+	Sptr<RangeType> range() const;
 
 	template <SizeT I>
 	decltype(auto) stepSize(const IndexId<I>& id) const;
-
+	
 	String stringMeta() const;
 	MetaType meta() const;
 	MIndex& at(const MetaType& metaPos);
-
+	
 	template <class Xpr, class F>
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
+	// replace sub-index instances; only use if you know what you are doing!
+	MIndex& operator()(const Sptr<MIndex>& mi);
+
+	const IndexPack& pack() const;
+	const auto& blockSizes() const;
+
     private:
-	MIndex() = default;
-	
 	IndexPack mIPack;
 	typedef decltype(mkBlockSizes(Isqr<0,NI-1>{})) BlockTuple;
 	BlockTuple mBlockSizes;
