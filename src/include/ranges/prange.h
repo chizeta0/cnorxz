@@ -48,9 +48,6 @@ namespace CNORXZ
 
         SubIndex& operator()(const std::shared_ptr<Index>& ind); // set full index
         
-	int pp(std::intptr_t idxPtrNum);
-	int mm(std::intptr_t idxPtrNum);
-
 	std::string stringMeta() const;
 	MetaType meta() const;
 	const MetaType* metaPtr() const;

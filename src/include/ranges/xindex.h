@@ -29,10 +29,6 @@ namespace CNORXZ
 	virtual IndexId<0> id() const = 0;
 	
 	virtual DType operator*() const = 0;
-	virtual DType operator->() const = 0;
-
-	virtual Int pp(PtrId idxPtrNum) = 0;
-	virtual Int mm(PtrId idxPtrNum) = 0;
 
 	virtual SizeT dim() const = 0;
 	virtual RangePtr range() const = 0;
@@ -79,10 +75,6 @@ namespace CNORXZ
 	virtual IndexId<0> id() const override final;
 	
 	virtual DType operator*() const override final;
-	virtual DType operator->() const override final;
-
-	virtual Int pp(PtrId idxPtrNum) override final;
-	virtual Int mm(PtrId idxPtrNum) override final;
 
 	virtual SizeT dim() const override final;
 	virtual RangePtr range() const override final;

@@ -33,7 +33,6 @@ namespace CNORXZ
 	IndexId<0> id() const;
 	
 	const MetaType& operator*() const;
-	const MetaType* operator->() const;
 	
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
@@ -82,8 +81,8 @@ namespace CNORXZ
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
 	virtual String stringMeta(SizeT pos) const override final;
-	virtual IndexType begin() const override final;
-	virtual IndexType end() const override final;
+	virtual const TypeInfo& type() const override final;
+	virtual const TypeInfo& metaType() const override final;
 
 	const MetaType& get(SizeT pos) const;
 	SizeT getMeta(const MetaType& metaPos) const;

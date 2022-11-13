@@ -17,7 +17,7 @@ namespace CNORXZ
     template <typename MetaType>
     UIndex<MetaType>::UIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<UIndex<MetaType>,MetaType>(pos),
-	mRangePtr(rangeCast<MetaType>(range)),
+	mRangePtr(rangeCast<RangeType>(range)),
 	mMetaPtr(&mRangePtr->get(0))
     {}
 
@@ -87,12 +87,6 @@ namespace CNORXZ
     }
     
     template <typename MetaType>
-    const MetaType* UIndex<MetaType>::operator->() const
-    {
-	return mMetaPtr + IB::mPos;
-    }
-	
-    template <typename MetaType>
     String UIndex<MetaType>::stringMeta() const
     {
 	return toString(this->meta());
@@ -134,7 +128,7 @@ namespace CNORXZ
     template <class Xpr, class F>
     decltype(auto) UIndex<MetaType>::ifor(const Xpr& xpr, F&& f) const
     {
-	return For<0,Xpr>(this->max(), this->id(), xpr, std::forward<F>(f));
+	return For<0,Xpr,F>(this->max(), this->id(), xpr, std::forward<F>(f));
     }
     
     /**********************
@@ -160,9 +154,9 @@ namespace CNORXZ
     template <typename MetaType>
     void URangeFactory<MetaType>::make()
     {
-	auto info = typeid(URange<MetaType>);
+	const auto& info = typeid(URange<MetaType>);
 	if(mRef != nullptr) {
-	    mProd = this->fromCreated[info.hash_code()][mRef->id()];
+	    mProd = this->fromCreated(info, {mRef->id()});
 	}
 	if(mProd == nullptr){
 	    RangePtr key = mProd = std::shared_ptr<URange<MetaType>>
@@ -188,7 +182,7 @@ namespace CNORXZ
 
     template <typename MetaType>
     URange<MetaType>::URange(Vector<MetaType>&& space) :
-	RangeInterface<URange<MetaType>,MetaType>(),
+	RangeInterface<UIndex<MetaType>,MetaType>(),
 	mSpace(space)
     {
 	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());
@@ -230,21 +224,15 @@ namespace CNORXZ
     }
     
     template <typename MetaType>
-    typename URange<MetaType>::IndexType URange<MetaType>::begin() const
+    const TypeInfo& URange<MetaType>::type() const
     {
-	UIndex<MetaType> i( std::dynamic_pointer_cast<URange<MetaType> >
-			       ( RangePtr( RB::mThis ) ) );
-	i = 0;
-	return i;
+	return typeid(URange<MetaType>);
     }
     
     template <typename MetaType>
-    typename URange<MetaType>::IndexType URange<MetaType>::end() const
+    const TypeInfo& URange<MetaType>::metaType() const
     {
-	UIndex<MetaType> i( std::dynamic_pointer_cast<URange<MetaType> >
-			       ( RangePtr( RB::mThis ) ) );
-	i = this->size();
-	return i;
+	return typeid(MetaType);
     }
 
     /*******************

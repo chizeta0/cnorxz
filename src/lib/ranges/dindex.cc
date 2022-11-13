@@ -87,25 +87,6 @@ namespace CNORXZ
 	return *(*mI);
     }
     
-    DType DIndex::operator->() const
-    {
-	return *(*mI);
-    }
-
-    Int DIndex::pp(PtrId idxPtrNum)
-    {
-	const Int out = mI->pp(idxPtrNum);
-	IB::mPos = mI->pos();
-	return out;
-    }
-    
-    Int DIndex::mm(PtrId idxPtrNum)
-    {
-	const Int out = mI->mm(idxPtrNum);
-	IB::mPos = mI->pos();
-	return out;
-    }
-
     SizeT DIndex::dim() const
     {
 	return mI->dim();

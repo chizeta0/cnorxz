@@ -41,11 +41,7 @@ namespace CNORXZ
 	bool operator<=(const IndexInterface& in) const;
 	bool operator>=(const IndexInterface& in) const;
 	decltype(auto) operator*() const { return THIS().operator*(); }
-	decltype(auto) operator->() const { return THIS().operator->(); }
 
-	Int pp(PtrId idxPtrNum) { return THIS().pp(idxPtrNum); }
-	Int mm(PtrId idxPtrNum) { return THIS().mm(idxPtrNum); }
-	
 	SizeT dim() const { return THIS().dim(); }
 	decltype(auto) range() const { return THIS().range(); }
 

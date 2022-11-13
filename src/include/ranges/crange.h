@@ -30,11 +30,7 @@ namespace CNORXZ
 	IndexId<0> id() const;
 	
 	SizeT operator*() const;
-	SizeT operator->() const;
 	
-	Int pp(PtrId idxPtrNum);
-	Int mm(PtrId idxPtrNum);
-
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
 	UPos stepSize(const IndexId<0>& id) const;

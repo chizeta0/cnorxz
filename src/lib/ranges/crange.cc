@@ -66,23 +66,6 @@ namespace CNORXZ
 	return IB::mPos;
     }
     
-    SizeT CIndex::operator->() const
-    {
-	return IB::mPos; // check if this makes sense!!!
-    }
-	
-    Int CIndex::pp(PtrId idxPtrNum)
-    {
-	++(*this);
-	return 1;
-    }
-    
-    Int CIndex::mm(PtrId idxPtrNum)
-    {
-	--(*this);
-	return 1;
-    }
-
     SizeT CIndex::dim() const // = 1
     {
 	return 1;

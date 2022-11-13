@@ -106,26 +106,6 @@ namespace CNORXZ
 	return DType();
     }
     
-    DType YIndex::operator->() const
-    {
-	assert(0);
-	return DType();
-    }
-	
-    Int YIndex::pp(PtrId idxPtrNum)
-    {
-	assert(0);
-	// sub inds !!!
-	return 0;
-    }
-    
-    Int YIndex::mm(PtrId idxPtrNum)
-    {
-	assert(0);
-	// sub inds !!!
-	return 0;
-    }
-    
     SizeT YIndex::dim() const
     {
 	return mRangePtr->dim();

@@ -198,12 +198,6 @@ namespace CNORXZ
 	return meta();
     }
     
-    template <class... Indices>
-    MetaType MIndex<Indices...>::operator->() const
-    {
-	return meta();
-    }
-
     template <class... Indices>	
     SizeT MIndex<Indices...>::dim() const
     {

@@ -38,10 +38,6 @@ namespace CNORXZ
 	IndexId<0> id() const;
 	
 	DType operator*() const;
-	DType operator->() const;
-
-	Int pp(PtrId idxPtrNum);
-	Int mm(PtrId idxPtrNum);
 
 	SizeT dim() const;
 	Sptr<YRange> range() const;

@@ -46,7 +46,6 @@ namespace CNORXZ
 	IndexId<0> id() const;
 
 	MetaType operator*() const;
-	MetaType operator->() const;
 
 	SizeT dim() const
 	Sptr<RangeType> range() const;

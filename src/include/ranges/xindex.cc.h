@@ -95,26 +95,6 @@ namespace CNORXZ
     {
 	return DType(*(*mI));
     }
-    
-    template <class Index, typename Meta>
-    DType XIndex<Index,Meta>::operator->() const
-    {
-	return DType(*(*mI));
-    }
-
-    template <class Index, typename Meta>
-    Int XIndex<Index,Meta>::pp(PtrId idxPtrNum)
-    {
-	Int out = mI->pp(idxPtrNum);
-	return out;
-    }
-
-    template <class Index, typename Meta>
-    Int XIndex<Index,Meta>::mm(PtrId idxPtrNum)
-    {
-	Int out = mI->mm(idxPtrNum);
-	return out;
-    }
 
     template <class Index, typename Meta>
     SizeT XIndex<Index,Meta>::dim() const
