@@ -30,6 +30,12 @@ namespace CNORXZ
 	static String func(const Arr<T,N>& a);
     };
 
+    template <typename... Ts>
+    struct ToString<Tuple<Ts...>>
+    {
+	static String func(const Tuple<Ts...>& t);
+    };
+    
     template <>
     struct ToString<DType>
     {

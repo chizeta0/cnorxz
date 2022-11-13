@@ -28,8 +28,8 @@ namespace CNORXZ
 	// ( have to assign sub-indices (ptr!) correctly )
 	MIndex() = default;
 	MIndex(const MIndex& i);
-	MIndex(MIndex&& i);
-	MIndex& operator=(const MIndex& i) = default;
+	MIndex& operator=(const MIndex& i);
+	MIndex(MIndex&& i) = default;
 	MIndex& operator=(MIndex&& i) = default;
 
 	MIndex(const RangePtr& range, SizeT pos = 0);
@@ -47,7 +47,7 @@ namespace CNORXZ
 
 	MetaType operator*() const;
 
-	SizeT dim() const
+	SizeT dim() const;
 	Sptr<RangeType> range() const;
 
 	template <SizeT I>
@@ -67,15 +67,11 @@ namespace CNORXZ
 	const auto& blockSizes() const;
 
     private:
-	IndexPack mIPack;
-	typedef decltype(mkBlockSizes(Isqr<0,NI-1>{})) BlockTuple;
-	BlockTuple mBlockSizes;
-	Sptr<RangeType> mRange;
+	template <SizeT... Is>
+	static constexpr decltype(auto) mkBlockSizes(const IndexPack& ipack, Isq<Is...> is);
 
 	template <SizeT... Is>
 	constexpr decltype(auto) mkIPack(SizeT pos, Isq<Is...> is) const;
-
-	constexpr decltype(auto) mkBlockSizes() const;
 
 	template <SizeT I>
 	inline void up();
@@ -85,6 +81,11 @@ namespace CNORXZ
 
 	template <SizeT I, class Xpr, class F>
 	constexpr decltype(auto) mkIFor(const Xpr& xpr, F&& f) const;
+
+	IndexPack mIPack;
+	typedef RemoveRef<decltype(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))> BlockTuple;
+	BlockTuple mBlockSizes;
+	Sptr<RangeType> mRange;
     };
 
     // modified blockSizes; to be used for Slices; can be created from MIndices
@@ -123,8 +124,7 @@ namespace CNORXZ
     };
     
     template <class... Ranges>
-    class MRange : public RangeInterface<MIndex<typename Ranges::IndexType...>,
-					 Tuple<typename Ranges::IndexType::MetaType...>>
+    class MRange : public RangeInterface<MRange<Ranges...>>
     {
     public:
 	typedef RangeBase RB;
@@ -138,8 +138,8 @@ namespace CNORXZ
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
 	virtual String stringMeta(SizeT pos) const override final;
-	virtual IndexType begin() const override final;
-	virtual IndexType end() const override final;
+	virtual const TypeInfo& type() const override final;
+	virtual const TypeInfo& metaType() const override final;
 	
 	decltype(auto) space() const;
 	const MetaType get(SizeT pos) const;
@@ -157,7 +157,9 @@ namespace CNORXZ
 
 	decltype(auto) mkA() const;
     };
-    
+
+    template <class... Ranges>
+    RangePtr mrange(const Sptr<Ranges>&... rs);
 }
 
 #endif

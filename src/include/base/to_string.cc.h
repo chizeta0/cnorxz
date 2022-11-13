@@ -3,6 +3,7 @@
 #define __cxz_to_string_cc_h__
 
 #include "to_string.h"
+#include "iter.h"
 #include <sstream>
 
 namespace CNORXZ
@@ -29,7 +30,7 @@ namespace CNORXZ
     }
 
     template <typename T, size_t N>
-    String ToString<std::array<T,N>>::func(const std::array<T,N>& a)
+    String ToString<Arr<T,N>>::func(const Arr<T,N>& a)
     {
 	std::stringstream ss;
 	ss << "(";
@@ -39,6 +40,19 @@ namespace CNORXZ
 	}
 	ss << toString(*it) << ")";
 	return ss.str();
+    }
+
+    template <typename... Ts>
+    String ToString<Tuple<Ts...>>::func(const Tuple<Ts...>& t)
+    {
+	const String blim = "(";
+	const String elim = ")";
+	const String dlim = ",";
+	return iter<1,sizeof...(Ts)>
+	    ( [&](auto i) { return toString(std::get<i>(t)); },
+	      [&](const auto&... xs) {
+		  return blim + toString(std::get<0>(t)) + ( (dlim + xs) + ... ) + elim;
+	      } );
     }
 
     template <typename T>

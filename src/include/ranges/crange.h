@@ -15,6 +15,7 @@ namespace CNORXZ
 
 	typedef IndexInterface<CIndex,SizeT> IB;
 	typedef CRange RangeType;
+	typedef SizeT MetaType;
 
 	CIndex(const RangePtr& range, SizeT pos = 0);
 	
@@ -63,7 +64,7 @@ namespace CNORXZ
 	RangePtr mRef;
     };
 
-    class CRange : public RangeInterface<CIndex,SizeT>
+    class CRange : public RangeInterface<CRange>
     {
     public:
 	typedef RangeBase RB;

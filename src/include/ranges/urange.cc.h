@@ -172,7 +172,7 @@ namespace CNORXZ
     
     template <typename MetaType>
     URange<MetaType>::URange(const Vector<MetaType>& space) :
-	RangeInterface<URange<MetaType>,MetaType>(),
+	RangeInterface<URange<MetaType>>(),
 	mSpace(space)
     {
 	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());
@@ -182,7 +182,7 @@ namespace CNORXZ
 
     template <typename MetaType>
     URange<MetaType>::URange(Vector<MetaType>&& space) :
-	RangeInterface<UIndex<MetaType>,MetaType>(),
+	RangeInterface<URange<MetaType>>(),
 	mSpace(space)
     {
 	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());

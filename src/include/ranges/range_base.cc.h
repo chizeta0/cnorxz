@@ -4,25 +4,30 @@
 
 #include "range_base.h"
 #include "dindex.h"
+#include "mrange.h"
 
 namespace CNORXZ
 {
-    template <class Index, typename Meta>
-    Index RangeInterface<Index,Meta>::begin() const
+    template <class Range>
+    decltype(auto) RangeInterface<Range>::begin() const
     {
-	return Index(RangePtr(RB::mThis), 0);
+	typedef typename Range::IndexType IndexType;
+	return IndexType(RangePtr(RB::mThis), 0);
     }
 
-    template <class Index, typename Meta>
-    Index RangeInterface<Index,Meta>::end() const
+    template <class Range>
+    decltype(auto) RangeInterface<Range>::end() const
     {
-	return Index(RangePtr(RB::mThis), this->size());
+	typedef typename Range::IndexType IndexType;
+	return IndexType(RangePtr(RB::mThis), this->size());
     }
 
-    template <class Index, typename Meta>
-    DIndex RangeInterface<Index,Meta>::index(SizeT pos) const
+    template <class Range>
+    DIndex RangeInterface<Range>::index(SizeT pos) const
     {
-	return XIndexPtr(std::make_shared<XIndex<Index,Meta>>( this->begin()+pos ));
+	typedef typename Range::IndexType IndexType;
+	typedef typename IndexType::MetaType MetaType;
+	return XIndexPtr(std::make_shared<XIndex<IndexType,MetaType>>( this->begin()+pos ));
     }
 	
     template <class Range>

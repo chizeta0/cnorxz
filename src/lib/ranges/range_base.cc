@@ -39,7 +39,7 @@ namespace CNORXZ
      *   RangeBase    *
      ******************/
 
-    RangePtr RangeBase::sub() const
+    RangePtr RangeBase::sub(SizeT num) const
     {
 	return nullptr;
     }
@@ -76,5 +76,15 @@ namespace CNORXZ
     }
 
     RangeBase::RangeBase(const RangePtr& rel) : mRel(rel) {}
+
+    /****************************
+     *   Non-member functions   *
+     ****************************/
+    
+    RangePtr operator*(const RangePtr& a, const RangePtr& b)
+    {
+	assert(0); // check segfault + "flatten" yrange (no yrange of yranges etc)
+	return YRangeFactory({a,b}).create();
+    }
 
 } // end namespace CNORXZ

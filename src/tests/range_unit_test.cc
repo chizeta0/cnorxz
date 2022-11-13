@@ -37,6 +37,21 @@ namespace
 
 	Vector<String> mMeta;
     };
+
+    class MR_Test : public ::testing::Test
+    {
+    protected:
+
+	MR_Test()
+	{
+	    mMeta = { "test", "strings", "foo" };
+	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
+	    mSize = 7;
+	}
+
+	Vector<String> mMeta;
+	SizeT mSize;
+    };
     
     TEST_F(CR_Test, Basics)
     {
@@ -102,6 +117,22 @@ namespace
 	for(auto x: *urx){
 	    EXPECT_EQ(x, mMeta[cnt2++]);
 	}
+    }
+
+    TEST_F(MR_Test, Basics)
+    {
+	auto cr = CRangeFactory(mSize).create();
+	auto crx = std::dynamic_pointer_cast<CRange>(cr);
+	auto ur = URangeFactory<String>(mMeta).create();
+	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
+	auto mr = mrange(crx,urx);
+	auto mrx = std::dynamic_pointer_cast<MRange<CRange,URange<String>>>(mr);
+
+	EXPECT_EQ(mr->size(), mMeta.size()*mSize);
+	EXPECT_EQ(mrx->size(), mMeta.size()*mSize);
+	EXPECT_EQ(mrx->dim(), 2u);
+
+	// further tests!!!
     }
     
     // UR_Test

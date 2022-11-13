@@ -19,6 +19,7 @@ namespace CNORXZ
     public:
 	typedef IndexInterface<YIndex,DType> IB;
 	typedef YRange RangeType;
+	typedef DType MetaType;
 	
 	DEFAULT_MEMBERS(YIndex);
 	YIndex(const RangePtr& range, SizeT pos = 0);
@@ -73,7 +74,7 @@ namespace CNORXZ
 	RangePtr mRef;
     };
 
-    class YRange : public RangeInterface<YIndex,DType>
+    class YRange : public RangeInterface<YRange>
     {
     public:
 	typedef RangeBase RB;

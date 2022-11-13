@@ -11,13 +11,14 @@
 namespace CNORXZ
 {
     
-    template <typename MetaType>
-    class UIndex : public IndexInterface<UIndex<MetaType>,MetaType>
+    template <typename MetaT>
+    class UIndex : public IndexInterface<UIndex<MetaT>,MetaT>
     {
     public:
 
-	typedef IndexInterface<UIndex<MetaType>,MetaType> IB;
-	typedef URange<MetaType> RangeType;
+	typedef IndexInterface<UIndex<MetaT>,MetaT> IB;
+	typedef URange<MetaT> RangeType;
+	typedef MetaT MetaType;
 
 	UIndex(const RangePtr& range, SizeT pos = 0);
 	
@@ -32,7 +33,7 @@ namespace CNORXZ
 	SizeT max() const;
 	IndexId<0> id() const;
 	
-	const MetaType& operator*() const;
+	const MetaT& operator*() const;
 	
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
@@ -41,15 +42,15 @@ namespace CNORXZ
 	UPos stepSize(const IndexId<I>& id) const;
 
 	String stringMeta() const;
-	const MetaType& meta() const;
-	UIndex& at(const MetaType& metaPos);
+	const MetaT& meta() const;
+	UIndex& at(const MetaT& metaPos);
 
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
     private:
 	Sptr<RangeType> mRangePtr;
-	const MetaType* mMetaPtr;
+	const MetaT* mMetaPtr;
     };
 
     template <typename MetaType>
@@ -70,7 +71,7 @@ namespace CNORXZ
     };
 
     template <typename MetaType>
-    class URange : public RangeInterface<UIndex<MetaType>,MetaType>
+    class URange : public RangeInterface<URange<MetaType>>
     {
     public:
 	typedef RangeBase RB;

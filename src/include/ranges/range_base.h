@@ -45,7 +45,7 @@ namespace CNORXZ
 	
 	virtual ~RangeBase() = default;
 
-	virtual RangePtr sub() const;
+	virtual RangePtr sub(SizeT num) const;
 	virtual SizeT size() const = 0;
 	virtual SizeT dim() const = 0;
 	virtual const TypeInfo& type() const = 0;
@@ -72,16 +72,15 @@ namespace CNORXZ
 	RangePtr mRel; // used, if created from another range, to point on it
     };
 
-    template <class Index, typename Meta>
+    template <class Range>
     class RangeInterface : public RangeBase
     {
     public:
 
-	typedef Index IndexType;
 	typedef RangeBase RB;
 	
-	Index begin() const;
-	Index end() const;
+	decltype(auto) begin() const;
+	decltype(auto) end() const;
 	virtual DIndex index(SizeT pos) const override final;
 
     protected:
@@ -97,7 +96,8 @@ namespace CNORXZ
     template <class Range>
     Sptr<Range> rangeCast(const RangePtr r);
 
-    RangePtr operator*(const RangePtr& a, const RangePtr& b); // -> Ptr to MultiRange
+    RangePtr operator*(const RangePtr& a, const RangePtr& b); // -> Ptr to YRange
+
 }
 
 #endif
