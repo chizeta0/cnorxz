@@ -82,10 +82,10 @@ namespace CNORXZ
 	template <SizeT I, class Xpr, class F>
 	constexpr decltype(auto) mkIFor(const Xpr& xpr, F&& f) const;
 
+	Sptr<RangeType> mRange;
 	IndexPack mIPack;
 	typedef RemoveRef<decltype(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))> BlockTuple;
 	BlockTuple mBlockSizes;
-	Sptr<RangeType> mRange;
     };
 
     // modified blockSizes; to be used for Slices; can be created from MIndices

@@ -16,6 +16,8 @@ namespace CNORXZ
     {
 	static_assert(sizeof...(Is) == NI,
 		      "sequence size does not match number of indices");
+	CXZ_ASSERT( ( (mRange->sub(Is) != nullptr) and ... ),
+		    "no subranges available" );
 	return std::make_tuple( std::make_shared<Indices>( mRange->sub(Is) )... );
     }
     
@@ -84,27 +86,27 @@ namespace CNORXZ
     template <class... Indices>
     MIndex<Indices...>::MIndex(const MIndex& i) :
 	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(i.pos()),
+	mRange(rangeCast<RangeType>(i.range())),
 	mIPack(mkIPack(IB::mPos, Isqr<0,NI>{})),
-	mBlockSizes(mkBlockSizes(mIPack,Isqr<0,NI-1>{})),
-	mRange(rangeCast<RangeType>(i.range()))
+	mBlockSizes(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))
     {}
 
     template <class... Indices>
     MIndex<Indices...>& MIndex<Indices...>::operator=(const MIndex& i)
     {
 	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>::operator=(i);
+	mRange = rangeCast<RangeType>(i.range());
 	mIPack = mkIPack(IB::mPos, Isqr<0,NI>{});
 	mBlockSizes = mkBlockSizes(mIPack,Isqr<0,NI-1>{});
-	mRange = rangeCast<RangeType>(i.range());
 	return *this;
     }
 
     template <class... Indices>
     MIndex<Indices...>::MIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(0),
+	mRange(rangeCast<RangeType>(range)),
 	mIPack(mkIPack(IB::mPos, Isqr<0,NI>{})),
-	mBlockSizes(mkBlockSizes(mIPack,Isqr<0,NI-1>{})),
-	mRange(rangeCast<RangeType>(range))
+	mBlockSizes(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))
     {
 	(*this) = pos;
     }

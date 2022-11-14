@@ -1,5 +1,4 @@
 
-
 #include <cstdlib>
 #include <iostream>
 
@@ -114,7 +113,7 @@ namespace
 	}
 
 	SizeT cnt2 = 0;
-	for(auto x: *urx){
+	for(const auto& x: *urx){
 	    EXPECT_EQ(x, mMeta[cnt2++]);
 	}
     }
@@ -130,12 +129,53 @@ namespace
 
 	EXPECT_EQ(mr->size(), mMeta.size()*mSize);
 	EXPECT_EQ(mrx->size(), mMeta.size()*mSize);
+	EXPECT_EQ(mr->dim(), 2u);
 	EXPECT_EQ(mrx->dim(), 2u);
 
-	// further tests!!!
+	EXPECT_TRUE(mrx->begin() != mrx->end());
+	EXPECT_FALSE(mrx->begin() == mrx->end());
+	EXPECT_EQ(mrx->begin().pos(), 0u);
+	EXPECT_EQ(mrx->end().pos(), mrx->size());
+
+	EXPECT_TRUE(mr->begin() != mr->end());
+	EXPECT_FALSE(mr->begin() == mr->end());
+	EXPECT_EQ(mr->begin().pos(), 0u);
+	EXPECT_EQ(mr->end().pos(), mr->size());
+
+	const SizeT mmsize = mMeta.size();
+	auto mkm = [&](SizeT i) { return Tuple<SizeT,String>(i/mmsize,mMeta[i % mmsize]); };
+	
+	SizeT cnt = 0;
+	auto endxi = mr->end();
+	for(auto xi = mr->begin(); xi != endxi; ++xi){
+	    EXPECT_EQ(xi.pos(), cnt);
+	    auto meta = mkm(cnt);
+	    EXPECT_TRUE(*xi == DType(meta));
+	    EXPECT_EQ((*xi).str(), toString(meta));
+	    ++cnt;
+	}
+
+	cnt = 0;
+	auto endxxi = mrx->end();
+	for(auto xxi = mrx->begin(); xxi != endxxi; ++xxi){
+	    EXPECT_EQ(xxi.pos(), cnt);
+	    auto ci = std::get<0>(xxi.pack());
+	    auto ui = std::get<1>(xxi.pack());
+	    Tuple<SizeT,String> meta(*(*ci),*(*ui));
+	    auto meta2 = mkm(cnt);
+	    EXPECT_EQ(meta, meta2);
+	    EXPECT_TRUE(*xxi == meta);
+	    ++cnt;
+	}
+
+	cnt = 0;
+	for(auto x: *mrx){
+	    auto meta = mkm(cnt);
+	    EXPECT_EQ(x, meta);
+	    ++cnt;
+	}
     }
     
-    // UR_Test
     // RCast_Test
 }
 
