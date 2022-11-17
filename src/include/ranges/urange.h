@@ -22,7 +22,7 @@ namespace CNORXZ
 
 	UIndex(const RangePtr& range, SizeT pos = 0);
 	
-	UIndex& operator=(SizeT pos);
+	UIndex& operator=(SizeT lexpos);
 	UIndex& operator++();
 	UIndex& operator--();
 	UIndex operator+(Int n) const;
@@ -30,7 +30,9 @@ namespace CNORXZ
 	UIndex& operator+=(Int n);
 	UIndex& operator-=(Int n);
 
-	SizeT max() const;
+	SizeT lex() const;
+	SizeT pmax() const;
+	SizeT lmax() const;
 	IndexId<0> id() const;
 	
 	const MetaT& operator*() const;

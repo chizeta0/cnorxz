@@ -51,6 +51,21 @@ namespace
 	Vector<String> mMeta;
 	SizeT mSize;
     };
+
+    class YR_Test : public ::testing::Test
+    {
+    protected:
+
+	YR_Test()
+	{
+	    mMeta = { "test", "strings", "foo" };
+	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
+	    mSize = 7;
+	}
+
+	Vector<String> mMeta;
+	SizeT mSize;
+    };
     
     TEST_F(CR_Test, Basics)
     {
@@ -175,7 +190,22 @@ namespace
 	    ++cnt;
 	}
     }
-    
+
+    TEST_F(YR_Test, Basics)
+    {
+	auto cr = CRangeFactory(mSize).create();
+	auto ur = URangeFactory<String>(mMeta).create();
+	auto yr = cr * ur;
+
+	EXPECT_EQ(yr->size(), mMeta.size()*mSize);
+	EXPECT_EQ(yr->dim(), 2u);
+	
+	EXPECT_TRUE(yr->begin() != yr->end());
+	EXPECT_FALSE(yr->begin() == yr->end());
+	EXPECT_EQ(yr->begin().pos(), 0u);
+	EXPECT_EQ(yr->end().pos(), yr->size());
+	
+    }
     // RCast_Test
 }
 

@@ -22,9 +22,9 @@ namespace CNORXZ
     {}
 
     template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::operator=(size_t pos)
+    UIndex<MetaType>& UIndex<MetaType>::operator=(size_t lexpos)
     {
-	IB::mPos = pos;
+	IB::mPos = lexpos;
 	return *this;
     }
 
@@ -69,7 +69,19 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
-    SizeT UIndex<MetaType>::max() const
+    SizeT UIndex<MetaType>::lex() const
+    {
+	return IB::mPos;
+    }
+    
+    template <typename MetaType>
+    SizeT UIndex<MetaType>::pmax() const
+    {
+	return mRangePtr->size();
+    }
+
+    template <typename MetaType>
+    SizeT UIndex<MetaType>::lmax() const
     {
 	return mRangePtr->size();
     }
@@ -128,7 +140,7 @@ namespace CNORXZ
     template <class Xpr, class F>
     decltype(auto) UIndex<MetaType>::ifor(const Xpr& xpr, F&& f) const
     {
-	return For<0,Xpr,F>(this->max(), this->id(), xpr, std::forward<F>(f));
+	return For<0,Xpr,F>(this->pmax(), this->id(), xpr, std::forward<F>(f));
     }
     
     /**********************

@@ -11,6 +11,7 @@
 #include <map>
 #include <typeinfo>
 #include <utility>
+#include <numeric>
 
 namespace CNORXZ
 {
@@ -20,6 +21,7 @@ namespace CNORXZ
 
     typedef std::intptr_t PtrId;
     typedef int32_t Int;
+    typedef int64_t LInt;
     typedef uint64_t SizeT;
     typedef double Double;
     typedef Double Real;

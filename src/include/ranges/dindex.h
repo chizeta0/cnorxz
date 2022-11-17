@@ -24,7 +24,7 @@ namespace CNORXZ
 	template <class Index, typename Meta>
 	DIndex(const IndexInterface<Index,Meta>& i);
 
-	DIndex& operator=(SizeT pos);
+	DIndex& operator=(SizeT lexpos);
 	DIndex& operator++();
 	DIndex& operator--();
 	DIndex operator+(Int n) const;
@@ -32,7 +32,9 @@ namespace CNORXZ
 	DIndex& operator+=(Int n);
 	DIndex& operator-=(Int n);
 
-	SizeT max() const;
+	SizeT lex() const;
+	SizeT pmax() const;
+	SizeT lmax() const;
 	IndexId<0> id() const;
 	
 	DType operator*() const;
@@ -48,6 +50,8 @@ namespace CNORXZ
 
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
+	const XIndexPtr& xptr() const;
+	
     private:
 	XIndexPtr mI;
     };

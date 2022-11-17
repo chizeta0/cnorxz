@@ -3,96 +3,216 @@
 
 namespace CNORXZ
 {
+    /*************************
+     *   YIndex (private)    *
+     *************************/
+
+    inline Vector<XIndexPtr> YIndex::mkIndices() const
+    {
+	Vector<XIndexPtr> o(mRange->dim(), nullptr);
+	for(SizeT i = 0; i != mRange->dim(); ++i){
+	    auto rp = mRange->sub(i);
+	    CXZ_ASSERT(rp != nullptr, "subranges not available");
+	    o[i] = rp->begin().xptr();
+	}
+	return o;
+    }
+    
+    inline Vector<SizeT> YIndex::mkBlockSizes() const
+    {
+	Vector<SizeT> o(mIs.size());
+	SizeT b = 1;
+	for(SizeT i = o.size(); i != 0; --i){
+	    const SizeT j = i-1;
+	    o[j] = b;
+	    b *= mIs[j]->pmax();
+	}
+	return o;
+    }
+
+    inline Vector<SizeT> YIndex::mkLexBlockSizes() const
+    {
+	Vector<SizeT> o(mIs.size());
+	SizeT b = 1;
+	for(SizeT i = o.size(); i != 0; --i){
+	    const SizeT j = i-1;
+	    o[j] = b;
+	    b *= mIs[j]->lmax();
+	}
+	return o;
+    }
+    
+    inline void YIndex::up(SizeT i)
+    {
+	auto& idx = mIs[i];
+	// it is guaranteed that the last accessible position 
+	// is one less than the max position (=end)
+	if(i != 0 and idx->lex() == idx->lmax()-1){
+	    IB::mPos -= mBlockSizes[i] * idx->pos();
+	    (*idx) = 0;
+	    up(i-1);
+	    return;
+	}
+	IB::mPos += mBlockSizes[i];
+	++(*idx);
+    }
+    
+    inline void YIndex::down(SizeT i)
+    {
+	auto& idx = mIs[i];
+	if(i != 0 and idx->pos() == 0){
+	    (*idx) = idx->lmax()-1;
+	    IB::mPos += mBlockSizes[i] * idx->pos();
+	    down(i-1);
+	    return;
+	}
+	IB::mPos += mBlockSizes[i];
+	--(*idx);
+    }
+    
+    inline decltype(auto) YIndex::mkIFor(SizeT i, const DXpr<SizeT>& xpr,
+					 const std::function<SizeT(SizeT,SizeT)>& f) const
+    {
+	if(i == mIs.size()-1){
+	    return mIs[i]->ifor( xpr, f );
+	}
+	else {
+	    return mIs[i]->ifor( mkIFor(i+1, xpr, f), f );
+	}
+    }
+
+    inline SizeT YIndex::mkPMax() const
+    {
+	SizeT o = 0;
+	for(SizeT i = 0; i != mIs.size(); ++i){
+	    o += (mIs[i]->pmax()-1) * mBlockSizes[i];
+	}
+	return o+1;
+    }
+    
+    inline SizeT YIndex::mkLMax() const
+    {
+	return std::accumulate(mIs.begin(), mIs.end(),1,
+			       [](const auto& res, const auto& el) { return res * el->lmax(); } );
+    }
+    
+    
     /***************
      *   YIndex    *
      ***************/
 
-    YIndex::YIndex(const RangePtr& range, SizeT pos) :
-	IndexInterface<YIndex,DType>(pos),
-	mRangePtr(rangeCast<YRange>(range)), mIs(mRangePtr->dim()),
-	mBlockSizes(mRangePtr->dim())
+    YIndex::YIndex(const YIndex& i) :
+	IndexInterface<YIndex,DType>(i),
+	mRange(rangeCast<YRange>(i.range())),
+	mIs(mkIndices()),
+	mBlockSizes(mkBlockSizes()),
+	mLexBlockSizes(mkLexBlockSizes()),
+	mPMax(mkPMax()),
+	mLMax(mkLMax())
     {
-	assert(0);
-	// init ...!!!
-    }
-
-    YIndex::YIndex(const RangePtr& range, const Vector<XIndexPtr>& is, SizeT pos) :
-	IndexInterface<YIndex,DType>(pos),
-	mRangePtr(rangeCast<YRange>(range)), mIs(is),
-	mBlockSizes(mRangePtr->dim())
-    {
-	CXZ_ASSERT(mIs.size() == mRangePtr->dim(), "obtained wrong number of indices");
-	assert(0);
-	// init ...!!!
-    }
-
-    YIndex& YIndex::sync()
-    {
-	assert(0);
-	return *this;
+	*this = i.lex();
     }
     
-    YIndex& YIndex::operator=(SizeT pos)
+    YIndex& YIndex::operator=(const YIndex& i)
     {
-	IB::mPos = pos;
-	assert(0);
-	// sub inds... (LAZY!!!) !!!
+	IndexInterface<YIndex,DType>::operator=(i);
+	mRange = rangeCast<YRange>(i.range());
+	mIs = mkIndices();
+	mBlockSizes = mkBlockSizes();
+	mLexBlockSizes = mkLexBlockSizes();
+	mPMax = mkPMax();
+	mLMax = mkLMax();
+	return *this = i.lex();
+    }
+
+    YIndex::YIndex(const RangePtr& range, SizeT lexpos) :
+	IndexInterface<YIndex,DType>(0),
+	mRange(rangeCast<YRange>(range)),
+	mIs(mkIndices()),
+	mBlockSizes(mkBlockSizes()),
+	mLexBlockSizes(mkLexBlockSizes()),
+	mPMax(mkPMax()),
+	mLMax(mkLMax())
+    {
+	*this = lexpos;
+    }
+
+    YIndex& YIndex::operator=(SizeT lexpos)
+    {
+	mLex = lexpos;
+	if(lexpos == lmax()){
+	    IB::mPos = pmax();
+	    return *this;
+	}
+	IB::mPos = 0;
+	for(SizeT i = 0; i != mIs.size(); ++i){
+	    *mIs[i] = (lex() / mLexBlockSizes[i]) % mIs[i]->lmax();
+	    IB::mPos += mBlockSizes[i] * mIs[i]->pos();
+	}
 	return *this;
     }
     
     YIndex& YIndex::operator++()
     {
-	assert(0);
-	// increment sub inds (LAZY!!!) !!!
-	++mPos;
+	auto& i0 = mIs[0];
+	if(i0->lex() != i0->lmax()){
+	    up(mIs.size()-1);
+	}
+	// no else! up() changes i0!
+	if(i0->lex() == i0->lmax()){
+	    IB::mPos = pmax();
+	}
 	return *this;
     }
     
     YIndex& YIndex::operator--()
     {
-	assert(0);
-	// decrement sub inds (LAZY!!!) !!!
-	--mPos;
+	auto& i0 = mIs[0];
+	if(i0->lex() == i0->lmax()){
+	    IB::mPos = mBlockSizes[0] * i0->pmax();
+	}
+	if(lex() != 0){
+	    down(mIs.size()-1);
+	}
 	return *this;
     }
     
     YIndex YIndex::operator+(Int n) const
     {
-	assert(0);
-	// sub inds !!!
-	return YIndex(mRangePtr, IB::mPos + n);
+	YIndex o(*this);
+	return o += n;
     }
     
     YIndex YIndex::operator-(Int n) const
     {
-	assert(0);
-	// sub inds !!!
-	return YIndex(mRangePtr, IB::mPos - n);
+	YIndex o(*this);
+	return o -= n;
     }
     
     YIndex& YIndex::operator+=(Int n)
     {
-	assert(0);
-	// sub inds !!!
-	IB::mPos += n;
-	return *this;
+	return *this = lex() + n;
     }
     
     YIndex& YIndex::operator-=(Int n)
     {
-	assert(0);
-	// sub inds !!!
-	IB::mPos -= n;
-	return *this;
+	
+	return *this = lex() - n;
     }
 
-    SizeT YIndex::max() const
+    SizeT YIndex::lex() const
     {
-	SizeT o = 1;
-	for(auto& i: mIs){
-	    o *= i->max();
-	}
-	return o;
+	return mLex;
+    }
+    
+    SizeT YIndex::pmax() const
+    {
+	return mPMax;
+    }
+
+    SizeT YIndex::lmax() const
+    {
+	return mLMax;
     }
     
     IndexId<0> YIndex::id() const
@@ -102,42 +222,45 @@ namespace CNORXZ
 
     DType YIndex::operator*() const
     {
-	assert(0);
-	return DType();
+	return meta();
     }
     
     SizeT YIndex::dim() const
     {
-	return mRangePtr->dim();
+	return mRange->dim();
     }
 
     Sptr<YRange> YIndex::range() const
     {
-	return mRangePtr;
+	return mRange;
     }
     
     UPos YIndex::stepSize(const IndexId<0> id) const
     {
-	assert(0);
-	// sub inds !!!
-	return UPos(0);
+	SizeT o = 0;
+	for(SizeT i = 0; i != mIs.size(); ++i){
+	    const auto u = mIs[i]->stepSize(id) * UPos(mBlockSizes[i]);
+	    o += u.val();
+	}
+	return UPos(o);
     }
 
     String YIndex::stringMeta() const
     {
-	String out = "[";
-	auto it = mIs.begin();
-	for(; it != mIs.end()-1; ++it){
-	    out += (*it)->stringMeta() + ",";
-	}
-	out += (*it)->stringMeta() + "]";
-	return out;
+	const String blim = "[";
+	const String elim = "]";
+	const String dlim = ",";
+	return blim +
+	    std::accumulate(std::next(mIs.begin()), mIs.end(), mIs[0]->stringMeta(),
+			    [&](const auto& s, const auto& e)
+			    { return s + dlim + e->stringMeta(); } ) +
+	    elim;
     }
    
     DType YIndex::meta() const
     {
 	Vector<DType> v(mIs.size());
-	std::transform(mIs.begin(), mIs.end(), v.begin(), [](auto& x) { return x->meta(); });
+	std::transform(mIs.begin(), mIs.end(), v.begin(), [](const auto& x) { return x->meta(); });
 	return DType(v);
     }
     
@@ -145,17 +268,17 @@ namespace CNORXZ
     {
 	auto& v = std::any_cast<const Vector<DType>&>(meta.get());
 	assert(v.size() == mIs.size());
+	IB::mPos = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
 	    mIs[i]->at(v[i]);
+	    IB::mPos += mIs[i]->pos() * mBlockSizes[i];
 	}
 	return *this;
     }
 
-    DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
+    DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, const std::function<SizeT(SizeT,SizeT)>& f) const
     {
-	assert(0);
-	f(0,0);
-	return DXpr<SizeT>();
+	return mkIFor(0, xpr, f);
     }
     
     /**********************
@@ -176,7 +299,7 @@ namespace CNORXZ
     
     void YRangeFactory::make()
     {
-	Vector<PtrId> key;
+	Vector<PtrId> key(mRVec.size());
 	std::transform(mRVec.begin(), mRVec.end(), key.begin(),
 		       [&](const RangePtr& r) { return r->id(); } );
 	mProd = this->fromCreated(typeid(YRange), key);
@@ -190,6 +313,11 @@ namespace CNORXZ
     /***************
      *   YRange    *
      ***************/
+
+    RangePtr YRange::sub(SizeT i) const
+    {
+	return mRVec[i];
+    }
 
     SizeT YRange::size() const
     {

@@ -10,10 +10,6 @@
 
 namespace CNORXZ
 {
-    // YRange!!!!
-    
-    // Future DynamicIndex
-    //class YIndex : public XIndexBase
     class YIndex : public IndexInterface<YIndex,DType>
     {
     public:
@@ -21,21 +17,26 @@ namespace CNORXZ
 	typedef YRange RangeType;
 	typedef DType MetaType;
 	
-	DEFAULT_MEMBERS(YIndex);
-	YIndex(const RangePtr& range, SizeT pos = 0);
-	YIndex(const RangePtr& range, const Vector<XIndexPtr>& is, SizeT pos = 0);
+	YIndex() = default;
+	YIndex(YIndex&& i) = default;
+	YIndex& operator=(YIndex&& i) = default;
 
-	YIndex& sync(); // remove!!!
+	YIndex(const YIndex& i);
+	YIndex& operator=(const YIndex& i);
 
-	YIndex& operator=(SizeT pos);
+	YIndex(const RangePtr& range, SizeT lexpos);
+
+	YIndex& operator=(SizeT lexpos);
 	YIndex& operator++();
 	YIndex& operator--();
-	YIndex operator+(Int n) const;
+	YIndex operator+(Int n) const; // equivalent to applying n times ++
 	YIndex operator-(Int n) const;
 	YIndex& operator+=(Int n);
 	YIndex& operator-=(Int n);
 
-	SizeT max() const;
+	SizeT lex() const;
+	SizeT pmax() const;
+	SizeT lmax() const;
 	IndexId<0> id() const;
 	
 	DType operator*() const;
@@ -48,14 +49,28 @@ namespace CNORXZ
 	DType meta() const;
 	YIndex& at(const DType& meta);
 
-	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
+	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, const std::function<SizeT(SizeT,SizeT)>& f) const;
 
     private:
+	inline Vector<SizeT> mkBlockSizes() const;
+	inline Vector<SizeT> mkLexBlockSizes() const;
+	inline Vector<XIndexPtr> mkIndices() const;
+	inline void up(SizeT i);
+	inline void down(SizeT i);
+	inline decltype(auto) mkIFor(SizeT i, const DXpr<SizeT>& xpr,
+				     const std::function<SizeT(SizeT,SizeT)>& f) const;
 
-	Sptr<YRange> mRangePtr;
+	inline SizeT mkPMax() const;
+	inline SizeT mkLMax() const;
+	
+	SizeT mLPos = 0;
+	Sptr<YRange> mRange;
 	Vector<XIndexPtr> mIs;
 	Vector<SizeT> mBlockSizes; // dim() elements only!!!
-
+	Vector<SizeT> mLexBlockSizes; // dim() elements only!!!
+	SizeT mLex = 0;
+	SizeT mPMax = 0;
+	SizeT mLMax = 0;
     };
 
     class YRangeFactory : public RangeFactoryBase
@@ -82,6 +97,7 @@ namespace CNORXZ
 
 	friend YRangeFactory;
 
+	virtual RangePtr sub(SizeT i) const override final;
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
 	virtual String stringMeta(SizeT pos) const override final;

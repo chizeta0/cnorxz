@@ -19,7 +19,7 @@ namespace CNORXZ
 
 	CIndex(const RangePtr& range, SizeT pos = 0);
 	
-	CIndex& operator=(SizeT pos);
+	CIndex& operator=(SizeT lexpos);
 	CIndex& operator++();
 	CIndex& operator--();
 	CIndex operator+(Int n) const;
@@ -27,7 +27,9 @@ namespace CNORXZ
 	CIndex& operator+=(Int n);
 	CIndex& operator-=(Int n);
 
-	SizeT max() const;
+	SizeT lex() const;
+	SizeT pmax() const;
+	SizeT lmax() const;
 	IndexId<0> id() const;
 	
 	SizeT operator*() const;

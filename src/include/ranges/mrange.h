@@ -27,12 +27,13 @@ namespace CNORXZ
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
 	MIndex() = default;
-	MIndex(const MIndex& i);
-	MIndex& operator=(const MIndex& i);
 	MIndex(MIndex&& i) = default;
 	MIndex& operator=(MIndex&& i) = default;
 
-	MIndex(const RangePtr& range, SizeT pos = 0);
+	MIndex(const MIndex& i);
+	MIndex& operator=(const MIndex& i);
+
+	MIndex(const RangePtr& range, SizeT lexpos = 0);
 
 	MIndex& operator=(SizeT pos);
 	MIndex& operator++();
@@ -42,7 +43,9 @@ namespace CNORXZ
 	MIndex& operator+=(Int n);
 	MIndex& operator-=(Int n);
 
-	SizeT max() const;
+	SizeT lex() const;
+	SizeT pmax() const;
+	SizeT lmax() const;
 	IndexId<0> id() const;
 
 	MetaType operator*() const;
@@ -71,7 +74,7 @@ namespace CNORXZ
 	static constexpr decltype(auto) mkBlockSizes(const IndexPack& ipack, Isq<Is...> is);
 
 	template <SizeT... Is>
-	constexpr decltype(auto) mkIPack(SizeT pos, Isq<Is...> is) const;
+	constexpr decltype(auto) mkIPack(Isq<Is...> is) const;
 
 	template <SizeT I>
 	inline void up();
@@ -86,6 +89,7 @@ namespace CNORXZ
 	IndexPack mIPack;
 	typedef RemoveRef<decltype(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))> BlockTuple;
 	BlockTuple mBlockSizes;
+	SizeT mPMax = 0; // = LMax here, add new variable in GMIndex!
     };
 
     // modified blockSizes; to be used for Slices; can be created from MIndices
@@ -101,7 +105,7 @@ namespace CNORXZ
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
     private:
-	BlockType mBlockSizes;
+	BlockType mLexBlockSizes;
 
 	template <SizeT... Is>
 	constexpr decltype(auto) mkPos(Isq<Is...> is) const;

@@ -20,17 +20,18 @@ namespace CNORXZ
 	I& THIS() { return static_cast<I&>(*this); }
 	const I& THIS() const { return static_cast<const I&>(*this); }
 
-	I& operator=(SizeT pos) { return THIS() = pos; }
 	I& operator++() { return ++THIS(); }
 	I& operator--() { return --THIS();}
 	I operator+(Int n) const { return THIS() + n; }
 	I operator-(Int n) const { return THIS() - n; }
 	I& operator+=(Int n) { return THIS() += n; }
 	I& operator-=(Int n) { return THIS() -= n; }
-	Int operator-(const IndexInterface& i) const { return mPos - i.mPos; }
+	Int operator-(const IndexInterface& i) const { return lex() - i.lex(); }
 	
-	SizeT pos() const;
-	SizeT max() const { return THIS().max(); }
+	SizeT pos() const; // 'memory' pos
+	SizeT lex() const { return THIS().lex(); } // lexicographic pos
+	SizeT pmax() const { return THIS().pmax(); } // memory pos max
+	SizeT lmax() const { return THIS().lmax(); } // lexicographic pos max
 	PtrId ptrId() const;
 	decltype(auto) id() const { return THIS().id(); }
 

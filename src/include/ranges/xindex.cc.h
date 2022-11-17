@@ -32,9 +32,10 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    XIndex<Index,Meta>& XIndex<Index,Meta>::operator=(SizeT pos)
+    XIndex<Index,Meta>& XIndex<Index,Meta>::operator=(SizeT lexpos)
     {
-	*mI = pos;
+	mI->THIS() = lexpos;
+	assert(mI->lex() == lexpos);
 	return *this;
     }
 
@@ -79,9 +80,21 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    SizeT XIndex<Index,Meta>::max() const
+    SizeT XIndex<Index,Meta>::lex() const
     {
-	return mI->max();
+	return mI->lex();
+    }
+
+    template <class Index, typename Meta>
+    SizeT XIndex<Index,Meta>::pmax() const
+    {
+	return mI->pmax();
+    }
+
+    template <class Index, typename Meta>
+    SizeT XIndex<Index,Meta>::lmax() const
+    {
+	return mI->lmax();
     }
 
     template <class Index, typename Meta>
@@ -136,9 +149,9 @@ namespace CNORXZ
 
     template <class Index, typename Meta>
     DXpr<SizeT> XIndex<Index,Meta>::ifor(const DXpr<SizeT>& xpr,
-					 std::function<SizeT(SizeT,SizeT)>&& f) const
+					 const std::function<SizeT(SizeT,SizeT)>& f) const
     {
-	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)));
+	return DXpr<SizeT>(mI->ifor(xpr, f));
     }
 
 }

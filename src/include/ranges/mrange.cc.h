@@ -12,12 +12,12 @@ namespace CNORXZ
 
     template <class... Indices>
     template <SizeT... Is>
-    constexpr decltype(auto) MIndex<Indices...>::mkIPack(SizeT pos, Isq<Is...> is) const
+    constexpr decltype(auto) MIndex<Indices...>::mkIPack(Isq<Is...> is) const
     {
 	static_assert(sizeof...(Is) == NI,
-		      "sequence size does not match number of indices");
+		      "sequence sioze does not match number of indices");
 	CXZ_ASSERT( ( (mRange->sub(Is) != nullptr) and ... ),
-		    "no subranges available" );
+		    "subranges not available" );
 	return std::make_tuple( std::make_shared<Indices>( mRange->sub(Is) )... );
     }
     
@@ -28,7 +28,7 @@ namespace CNORXZ
 	return std::make_tuple
 	    ( iter<Is,NI>
 	      // replace UPos by SPos where possible !!!
-	      ( [&](auto i) { return UPos(std::get<i>(ipack)->max()); },
+	      ( [&](auto i) { return UPos(std::get<i>(ipack)->pmax()); },
 		[&](const auto&... as) { return (as * ...); } )...,
 	      SPos<1>() );
     }
@@ -39,7 +39,7 @@ namespace CNORXZ
     {
 	auto& i = std::get<I>(mIPack);
 	if constexpr(I != 0){
-	    if(i->pos() == i->max()-1){
+	    if(i->lex() == i->lmax()-1){
 		IB::mPos -= std::get<I>(mBlockSizes).val() * i->pos();
 		(*i) = 0;
 		up<I-1>();
@@ -56,8 +56,8 @@ namespace CNORXZ
     {
 	auto& i = std::get<I>(mIPack);
 	if constexpr(I != 0){
-	    if(i->pos() == 0){
-		(*i) = i->max()-1;
+	    if(i->lex() == 0){
+		(*i) = i->lmax()-1;
 		IB::mPos += std::get<I>(mBlockSizes).val() * i->pos();
 		down<I-1>();
 		return;
@@ -85,37 +85,46 @@ namespace CNORXZ
 
     template <class... Indices>
     MIndex<Indices...>::MIndex(const MIndex& i) :
-	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(i.pos()),
+	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(i.range())),
-	mIPack(mkIPack(IB::mPos, Isqr<0,NI>{})),
+	mIPack(mkIPack(Isqr<0,NI>{})),
 	mBlockSizes(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))
-    {}
+    {
+	mPMax = iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->pmax(); },
+			    [](auto... e) { return (e * ...); });
+	*this = i.pos();
+    }
 
     template <class... Indices>
     MIndex<Indices...>& MIndex<Indices...>::operator=(const MIndex& i)
     {
-	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>::operator=(i);
+	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>::operator=(0);
 	mRange = rangeCast<RangeType>(i.range());
-	mIPack = mkIPack(IB::mPos, Isqr<0,NI>{});
+	mIPack = mkIPack(Isqr<0,NI>{});
 	mBlockSizes = mkBlockSizes(mIPack,Isqr<0,NI-1>{});
-	return *this;
+	mPMax = iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->pmax(); },
+			    [](auto... e) { return (e * ...); });
+	return *this = i.pos();
     }
 
     template <class... Indices>
-    MIndex<Indices...>::MIndex(const RangePtr& range, SizeT pos) :
+    MIndex<Indices...>::MIndex(const RangePtr& range, SizeT lexpos) :
 	IndexInterface<MIndex<Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(range)),
-	mIPack(mkIPack(IB::mPos, Isqr<0,NI>{})),
+	mIPack(mkIPack(Isqr<0,NI>{})),
 	mBlockSizes(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))
     {
-	(*this) = pos;
+	mPMax = iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->pmax(); },
+			    [](auto... e) { return (e * ...); });
+	*this = lexpos;
     }
 
     template <class... Indices>
-    MIndex<Indices...>& MIndex<Indices...>::operator=(SizeT pos)
+    MIndex<Indices...>& MIndex<Indices...>::operator=(SizeT lexpos)
     {
-	IB::mPos = pos;
-	iter<0,NI>( [&](auto i) { *std::get<i>(mIPack) = (IB::mPos / std::get<i>(mBlockSizes).val()) % std::get<i>(mIPack)->max(); }, NoF{} );
+	// Adapt in GMIndex
+	IB::mPos = lexpos;
+	iter<0,NI>( [&](auto i) { *std::get<i>(mIPack) = (IB::mPos / std::get<i>(mBlockSizes).val()) % std::get<i>(mIPack)->pmax(); }, NoF{} );
 	return *this;
     }
 
@@ -123,8 +132,7 @@ namespace CNORXZ
     MIndex<Indices...>& MIndex<Indices...>::operator++()
     {
 	// End state is defined by high-index being end while all other indices are zero
-	auto& i0 = std::get<0>(mIPack);
-	if(i0->pos() != i0->max()){
+	if(lex() != lmax()){
 	    up<NI-1>();
 	}
 	return *this;
@@ -133,7 +141,7 @@ namespace CNORXZ
     template <class... Indices>
     MIndex<Indices...>& MIndex<Indices...>::operator--()
     {
-	if(IB::mPos != 0){
+	if(lex() != 0){
 	    down<NI-1>();
 	}
 	return *this;
@@ -156,12 +164,12 @@ namespace CNORXZ
     template <class... Indices>
     MIndex<Indices...>& MIndex<Indices...>::operator+=(Int n)
     {
-	if(-n > static_cast<long int>(IB::mPos)){
+	if(-n > static_cast<long int>(lex())){
 	    (*this) = 0;
 	}
-	const SizeT p = IB::mPos + n;
-	if(p > max()){
-	    (*this) = max();
+	const SizeT p = lex() + n;
+	if(p > lmax()){
+	    (*this) = lmax();
 	}
 	(*this) = p;
 	return *this;
@@ -170,21 +178,33 @@ namespace CNORXZ
     template <class... Indices>
     MIndex<Indices...>& MIndex<Indices...>::operator-=(Int n)
     {
-	if(n > static_cast<long int>(IB::mPos)){
+	if(n > static_cast<long int>(lex())){
 	    (*this) = 0;
 	}
-	const SizeT p = IB::mPos + n;
-	if(p > max()){
-	    (*this) = max();
+	const SizeT p = lex() + n;
+	if(p > lmax()){
+	    (*this) = lmax();
 	}
 	(*this) = p;
 	return *this;
     }
 
     template <class... Indices>
-    SizeT MIndex<Indices...>::max() const
+    SizeT MIndex<Indices...>::lex() const
     {
-	return mRange->size();
+	return IB::mPos;
+    }
+    
+    template <class... Indices>
+    SizeT MIndex<Indices...>::pmax() const
+    {
+	return mPMax;
+    }
+
+    template <class... Indices>
+    SizeT MIndex<Indices...>::lmax() const
+    {
+	return mPMax;
     }
 
     template <class... Indices>

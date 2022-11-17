@@ -37,9 +37,9 @@ namespace CNORXZ
 	mI(i)
     {}
     
-    DIndex& DIndex::operator=(SizeT pos)
+    DIndex& DIndex::operator=(SizeT lexpos)
     {
-	*mI = pos;
+	*mI = lexpos;
 	IB::mPos = mI->pos();
 	return *this;
     }
@@ -80,6 +80,26 @@ namespace CNORXZ
 
 	IB::mPos = mI->pos();
 	return *this;
+    }
+
+    SizeT DIndex::lex() const
+    {
+	return mI->lex();
+    }
+    
+    SizeT DIndex::pmax() const
+    {
+	return mI->pmax();
+    }
+    
+    SizeT DIndex::lmax() const
+    {
+	return mI->lmax();
+    }
+    
+    IndexId<0> DIndex::id() const
+    {
+	return mI->id();
     }
 
     DType DIndex::operator*() const
@@ -124,4 +144,8 @@ namespace CNORXZ
 	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)) );
     }
     
+    const XIndexPtr& DIndex::xptr() const
+    {
+	return mI;
+    }
 }

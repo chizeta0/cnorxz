@@ -11,9 +11,9 @@ namespace CNORXZ
 	IndexInterface<CIndex,SizeT>(pos), mRangePtr(rangeCast<RangeType>(range))
     {}
     
-    CIndex& CIndex::operator=(SizeT pos)
+    CIndex& CIndex::operator=(SizeT lexpos)
     {
-	IB::mPos = pos;
+	IB::mPos = lexpos;
 	return *this;
     }
     
@@ -51,11 +51,21 @@ namespace CNORXZ
 	return *this;
     }
 
-    SizeT CIndex::max() const
+    SizeT CIndex::lex() const
+    {
+	return IB::mPos;
+    }
+    
+    SizeT CIndex::lmax() const
     {
 	return mRangePtr->size();
     }
-    
+
+    SizeT CIndex::pmax() const
+    {
+	return mRangePtr->size();
+    }
+
     IndexId<0> CIndex::id() const
     {
 	return IndexId<0>(this->ptrId());

@@ -83,7 +83,7 @@ namespace CNORXZ
     
     RangePtr operator*(const RangePtr& a, const RangePtr& b)
     {
-	assert(0); // check segfault + "flatten" yrange (no yrange of yranges etc)
+	//assert(0); // check segfault + "flatten" yrange (no yrange of yranges etc)
 	return YRangeFactory({a,b}).create();
     }
 

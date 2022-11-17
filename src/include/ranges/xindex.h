@@ -17,7 +17,7 @@ namespace CNORXZ
 	virtual XIndexPtr copy() const = 0;
 	virtual SizeT pos() const = 0;
 	
-	virtual XIndexBase& operator=(SizeT pos) = 0;
+	virtual XIndexBase& operator=(SizeT lexpos) = 0;
 	virtual XIndexBase& operator++() = 0;
 	virtual XIndexBase& operator--() = 0;
 	virtual XIndexPtr operator+(Int n) const = 0;
@@ -25,7 +25,9 @@ namespace CNORXZ
 	virtual XIndexBase& operator+=(Int n) = 0;
 	virtual XIndexBase& operator-=(Int n) = 0;
 
-	virtual SizeT max() const = 0;
+	virtual SizeT lex() const = 0;
+	virtual SizeT pmax() const = 0;
+	virtual SizeT lmax() const = 0;
 	virtual IndexId<0> id() const = 0;
 	
 	virtual DType operator*() const = 0;
@@ -39,7 +41,7 @@ namespace CNORXZ
 	virtual XIndexBase& at(const DType& meta) = 0;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
-				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
+				 const std::function<SizeT(SizeT,SizeT)>& f) const = 0;
     };
 
     //Sptr<XIndexBase>& operator++(Sptr<XIndexBase>& i);
@@ -63,7 +65,7 @@ namespace CNORXZ
 	virtual XIndexPtr copy() const override final;
 	virtual SizeT pos() const override final;
 
-	virtual XIndex& operator=(SizeT pos) override final;
+	virtual XIndex& operator=(SizeT lexpos) override final;
 	virtual XIndex& operator++() override final;
 	virtual XIndex& operator--() override final;
 	virtual XIndexPtr operator+(Int n) const override final;
@@ -71,7 +73,9 @@ namespace CNORXZ
 	virtual XIndex& operator+=(Int n) override final;
 	virtual XIndex& operator-=(Int n) override final;
 
-	virtual SizeT max() const override final;
+	virtual SizeT lex() const override final;
+	virtual SizeT pmax() const override final;
+	virtual SizeT lmax() const override final;
 	virtual IndexId<0> id() const override final;
 	
 	virtual DType operator*() const override final;
@@ -85,7 +89,7 @@ namespace CNORXZ
 	virtual XIndexBase& at(const DType& meta) override final;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
-				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;
+				 const std::function<SizeT(SizeT,SizeT)>& f) const override final;
 
     private:
 	IndexPtr<Index,Meta> mI;
