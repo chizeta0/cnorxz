@@ -260,7 +260,8 @@ namespace CNORXZ
     DType YIndex::meta() const
     {
 	Vector<DType> v(mIs.size());
-	std::transform(mIs.begin(), mIs.end(), v.begin(), [](const auto& x) { return x->meta(); });
+	std::transform(mIs.begin(), mIs.end(), v.begin(),
+		       [](const auto& x) { return x->meta(); });
 	return DType(v);
     }
     

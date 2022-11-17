@@ -17,8 +17,8 @@ namespace CNORXZ
     {
     private:
 	std::any mD;
-	std::function<String()> mToStr;
-	std::function<Int(std::any)> mComp;
+	std::function<String(const std::any&)> mToStr;
+	std::function<Int(const std::any&,const std::any&)> mComp;
 
 	template <typename T>
 	void _mkToStr();
@@ -28,22 +28,22 @@ namespace CNORXZ
 	
     public:
 	DEFAULT_MEMBERS(DType);
-
+	
 	template <typename T>
 	DType(const T& d);
 	
 	template <typename T>
 	DType& operator=(const T& d);
 
-	String str() const { return mToStr(); }
+	String str() const { return mToStr(mD); }
 	const std::any& get() const { return mD; }
 
-	bool operator==(const DType& a) const { return mComp(a.mD) == 0; }
-	bool operator!=(const DType& a) const { return mComp(a.mD) != 0; }
-	bool operator<(const DType& a) const { return mComp(a.mD) == -1; }
-	bool operator>(const DType& a) const { return mComp(a.mD) == 1; }
-	bool operator<=(const DType& a) const { auto c = mComp(a.mD); return c <= 0; }
-	bool operator>=(const DType& a) const { auto c = mComp(a.mD); return c == 1 or c == 0; }
+	bool operator==(const DType& a) const { return mComp(mD,a.mD) == 0; }
+	bool operator!=(const DType& a) const { return mComp(mD,a.mD) != 0; }
+	bool operator<(const DType& a) const { return mComp(mD,a.mD) == -1; }
+	bool operator>(const DType& a) const { return mComp(mD,a.mD) == 1; }
+	bool operator<=(const DType& a) const { auto c = mComp(mD,a.mD); return c <= 0; }
+	bool operator>=(const DType& a) const { auto c = mComp(mD,a.mD); return c == 1 or c == 0; }
     };
     
 } // namespace CNORXZ

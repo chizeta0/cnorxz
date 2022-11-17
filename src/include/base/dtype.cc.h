@@ -30,21 +30,21 @@ namespace CNORXZ
     template <typename T>
     void DType::_mkToStr()
     {
-	mToStr = [&](){
-	    return toString(std::any_cast<T>(mD));
+	mToStr = [](const std::any& d){
+	    return toString(std::any_cast<T>(d));
 	};
     }
 
     template <typename T>
     void DType::_mkComp()
     {
-	mComp = [&](const std::any& a){
-	    if(mD.type() != a.type()){
+	mComp = [](const std::any& d, const std::any& a){
+	    if(d.type() != a.type()){
 		return 2;
 	    }
 	    else {
 		auto& at = std::any_cast<const T&>(a);
-		auto& dt = std::any_cast<const T&>(mD);
+		auto& dt = std::any_cast<const T&>(d);
 		if(std::equal_to<T>{}(dt,at)){
 		    return 0;
 		}

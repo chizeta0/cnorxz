@@ -19,9 +19,11 @@ namespace
 	CR_Test()
 	{
 	    mSize = 7;
+	    cr = CRangeFactory(mSize).create();
 	}
 
 	SizeT mSize;
+	RangePtr cr;
     };
 
     class UR_Test : public ::testing::Test
@@ -32,9 +34,11 @@ namespace
 	{
 	    mMeta = { "These", "are", "test", "strings", "foo", "bar", "baz" };
 	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
+	    ur = URangeFactory<String>(mMeta).create();
 	}
 
 	Vector<String> mMeta;
+	RangePtr ur;
     };
 
     class MR_Test : public ::testing::Test
@@ -46,10 +50,16 @@ namespace
 	    mMeta = { "test", "strings", "foo" };
 	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
 	    mSize = 7;
+	    auto cr = CRangeFactory(mSize).create();
+	    auto crx = std::dynamic_pointer_cast<CRange>(cr);
+	    auto ur = URangeFactory<String>(mMeta).create();
+	    auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
+	    mr = mrange(crx,urx);
 	}
 
 	Vector<String> mMeta;
 	SizeT mSize;
+	RangePtr mr;
     };
 
     class YR_Test : public ::testing::Test
@@ -61,15 +71,18 @@ namespace
 	    mMeta = { "test", "strings", "foo" };
 	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
 	    mSize = 7;
+	    auto cr = CRangeFactory(mSize).create();
+	    auto ur = URangeFactory<String>(mMeta).create();
+	    yr = cr * ur;
 	}
 
 	Vector<String> mMeta;
 	SizeT mSize;
+	RangePtr yr;
     };
     
     TEST_F(CR_Test, Basics)
     {
-	auto cr = CRangeFactory(mSize).create();
 	auto crx = std::dynamic_pointer_cast<CRange>(cr);
 	EXPECT_EQ(cr->size(), mSize);
 	EXPECT_EQ(crx->size(), mSize);
@@ -103,7 +116,6 @@ namespace
 
     TEST_F(UR_Test, Basics)
     {
-	auto ur = URangeFactory<String>(mMeta).create();
 	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
 	EXPECT_EQ(ur->size(), mMeta.size());
 	EXPECT_EQ(urx->size(), mMeta.size());
@@ -135,11 +147,6 @@ namespace
 
     TEST_F(MR_Test, Basics)
     {
-	auto cr = CRangeFactory(mSize).create();
-	auto crx = std::dynamic_pointer_cast<CRange>(cr);
-	auto ur = URangeFactory<String>(mMeta).create();
-	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
-	auto mr = mrange(crx,urx);
 	auto mrx = std::dynamic_pointer_cast<MRange<CRange,URange<String>>>(mr);
 
 	EXPECT_EQ(mr->size(), mMeta.size()*mSize);
@@ -193,9 +200,6 @@ namespace
 
     TEST_F(YR_Test, Basics)
     {
-	auto cr = CRangeFactory(mSize).create();
-	auto ur = URangeFactory<String>(mMeta).create();
-	auto yr = cr * ur;
 
 	EXPECT_EQ(yr->size(), mMeta.size()*mSize);
 	EXPECT_EQ(yr->dim(), 2u);
@@ -204,6 +208,19 @@ namespace
 	EXPECT_FALSE(yr->begin() == yr->end());
 	EXPECT_EQ(yr->begin().pos(), 0u);
 	EXPECT_EQ(yr->end().pos(), yr->size());
+
+	const SizeT mmsize = mMeta.size();
+	auto mkm = [&](SizeT i) { return Vector<DType>({DType(i/mmsize),DType(mMeta[i % mmsize])}); };
+
+	SizeT cnt = 0;
+	auto endxi = yr->end();
+	for(auto xi = yr->begin(); xi != endxi; ++xi){
+	    EXPECT_EQ(xi.pos(), cnt);
+	    auto meta = mkm(cnt);
+	    EXPECT_TRUE(*xi == DType(meta));
+	    EXPECT_EQ((*xi).str(), toString(meta));
+	    ++cnt;
+	}
 	
     }
     // RCast_Test
