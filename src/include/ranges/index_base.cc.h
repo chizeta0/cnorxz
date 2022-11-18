@@ -54,37 +54,37 @@ namespace CNORXZ
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator==(const IndexInterface& in) const
     {
-	return in.mPos == mPos and *in.range() == *range();
+	return in.lex() == lex() and *in.range() == *range();
     }
 
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator!=(const IndexInterface& in) const
     {
-	return in.mPos != mPos or *in.range() != *range();
+	return in.lex() != lex() or *in.range() != *range();
     }
 
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator<(const IndexInterface& in) const
     {
-	return mPos < in.mPos;
+	return lex() < in.lex();
     }
 
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator>(const IndexInterface& in) const
     {
-	return mPos > in.mPos;
+	return lex() > in.lex();
     }
 
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator<=(const IndexInterface& in) const
     {
-	return mPos <= in.mPos;
+	return lex() <= in.lex();
     }
 
     template <class I, typename MetaType>
     bool IndexInterface<I,MetaType>::operator>=(const IndexInterface& in) const
     {
-	return mPos >= in.mPos;
+	return lex() >= in.lex();
     }
 
     template <class I, typename MetaType>

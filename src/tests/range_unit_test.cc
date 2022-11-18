@@ -171,6 +171,7 @@ namespace
 	auto endxi = mr->end();
 	for(auto xi = mr->begin(); xi != endxi; ++xi){
 	    EXPECT_EQ(xi.pos(), cnt);
+	    EXPECT_EQ(xi.lex(), cnt);
 	    auto meta = mkm(cnt);
 	    EXPECT_TRUE(*xi == DType(meta));
 	    EXPECT_EQ((*xi).str(), toString(meta));
@@ -181,6 +182,7 @@ namespace
 	auto endxxi = mrx->end();
 	for(auto xxi = mrx->begin(); xxi != endxxi; ++xxi){
 	    EXPECT_EQ(xxi.pos(), cnt);
+	    EXPECT_EQ(xxi.lex(), cnt);
 	    auto ci = std::get<0>(xxi.pack());
 	    auto ui = std::get<1>(xxi.pack());
 	    Tuple<SizeT,String> meta(*(*ci),*(*ui));
@@ -218,10 +220,51 @@ namespace
 	    EXPECT_EQ(xi.pos(), cnt);
 	    auto meta = mkm(cnt);
 	    EXPECT_TRUE(*xi == DType(meta));
+	    EXPECT_EQ(yr->stringMeta(cnt), toString(meta));
 	    EXPECT_EQ((*xi).str(), toString(meta));
 	    ++cnt;
 	}
+    }
+
+    TEST_F(YR_Test, Index)
+    {
+	auto yrx = std::dynamic_pointer_cast<YRange>(yr);
+	auto yi = yrx->begin();
+
+	EXPECT_EQ(yi.pmax(), yr->size());
+	EXPECT_EQ(yi.lmax(), yr->size());
+	EXPECT_EQ(yi.range(), yr);
+	EXPECT_EQ(yi.range(), yrx);
+	EXPECT_EQ(yi.dim(), 2u);
 	
+	const SizeT mmsize = mMeta.size();
+	auto mkm = [&](SizeT i) { return Vector<DType>({DType(i/mmsize),DType(mMeta[i % mmsize])}); };
+	for(SizeT i = 0; i != yr->size(); ++i){
+	    auto a = yi + i;
+	    EXPECT_EQ(a.lex(), i);
+	    EXPECT_EQ(a.pos(), i);
+	    auto mmi = DType(mkm(i));
+	    EXPECT_TRUE(a.meta() == mmi);
+	    EXPECT_TRUE(*a == mmi);
+	    EXPECT_EQ(a.stringMeta(), toString(mmi));
+	    
+	    for(SizeT j = 0; j != yr->size(); ++j){
+		const Int jj = static_cast<Int>(j) - static_cast<Int>(i);
+		auto b = a + jj;
+		auto mmj = DType(mkm(j));
+		EXPECT_EQ(b.lex(), j);
+		EXPECT_EQ(b.pos(), j);
+		EXPECT_TRUE(*b == mmj);
+		EXPECT_EQ(b.stringMeta(), toString(mmj));
+	    }
+	}
+	yi += yi.lmax() + 10;
+	EXPECT_EQ(yi.lex(), yi.lmax());
+	EXPECT_EQ(yi.pos(), yi.pmax());
+
+	yi -= yi.lmax() + 20;
+	EXPECT_EQ(yi.lex(), 0);
+	EXPECT_EQ(yi.pos(), 0);
     }
     // RCast_Test
 }

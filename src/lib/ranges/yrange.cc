@@ -49,11 +49,13 @@ namespace CNORXZ
 	// is one less than the max position (=end)
 	if(i != 0 and idx->lex() == idx->lmax()-1){
 	    IB::mPos -= mBlockSizes[i] * idx->pos();
+	    mLex -= mLexBlockSizes[i] * idx->lex();
 	    (*idx) = 0;
 	    up(i-1);
 	    return;
 	}
 	IB::mPos += mBlockSizes[i];
+	mLex += mLexBlockSizes[i];
 	++(*idx);
     }
     
@@ -63,10 +65,12 @@ namespace CNORXZ
 	if(i != 0 and idx->pos() == 0){
 	    (*idx) = idx->lmax()-1;
 	    IB::mPos += mBlockSizes[i] * idx->pos();
+	    mLex += mLexBlockSizes[i] * idx->lex();
 	    down(i-1);
 	    return;
 	}
-	IB::mPos += mBlockSizes[i];
+	IB::mPos -= mBlockSizes[i];
+	mLex -= mLexBlockSizes[i];
 	--(*idx);
     }
     
@@ -139,11 +143,12 @@ namespace CNORXZ
 
     YIndex& YIndex::operator=(SizeT lexpos)
     {
-	mLex = lexpos;
-	if(lexpos == lmax()){
+	if(lexpos >= lmax()){
+	    mLex = lmax();
 	    IB::mPos = pmax();
 	    return *this;
 	}
+	mLex = lexpos;
 	IB::mPos = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
 	    *mIs[i] = (lex() / mLexBlockSizes[i]) % mIs[i]->lmax();
@@ -191,13 +196,18 @@ namespace CNORXZ
     
     YIndex& YIndex::operator+=(Int n)
     {
-	return *this = lex() + n;
+	if(static_cast<Int>(lex()) + n < 0){
+	    return *this = 0;
+	}
+	return *this = static_cast<Int>(lex()) + n;
     }
     
     YIndex& YIndex::operator-=(Int n)
     {
-	
-	return *this = lex() - n;
+	if(static_cast<Int>(lex()) - n < 0){
+	    return *this = 0;
+	}
+	return *this = static_cast<Int>(lex()) - n;
     }
 
     SizeT YIndex::lex() const
@@ -336,18 +346,20 @@ namespace CNORXZ
     
     String YRange::stringMeta(SizeT pos) const
     {
-	String out = "[";
+	const String blim = "[";
+	const String elim = "]";
+	const String dlim = ",";
+	String out = elim;
 	for(auto rit = mRVec.end()-1;;--rit){
 	    const SizeT cursize = (*rit)->size();
 	    const SizeT curpos = pos % cursize;
-	    out += (*rit)->stringMeta(curpos);
-	    pos -= curpos;
+	    out = (*rit)->stringMeta(curpos) + out;
 	    pos /= cursize;
 	    if(rit == mRVec.begin()){
-		out += "]";
+		out = blim + out;
 		break;
 	    }
-	    out += ",";
+	    out = dlim + out;
 	}
 	return out;
     }
