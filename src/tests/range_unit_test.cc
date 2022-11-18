@@ -263,8 +263,8 @@ namespace
 	EXPECT_EQ(yi.pos(), yi.pmax());
 
 	yi -= yi.lmax() + 20;
-	EXPECT_EQ(yi.lex(), 0);
-	EXPECT_EQ(yi.pos(), 0);
+	EXPECT_EQ(yi.lex(), 0u);
+	EXPECT_EQ(yi.pos(), 0u);
     }
     // RCast_Test
 }
