@@ -26,8 +26,8 @@ namespace CNORXZ
 	virtual XIndexBase& operator-=(Int n) = 0;
 
 	virtual SizeT lex() const = 0;
-	virtual SizeT pmax() const = 0;
-	virtual SizeT lmax() const = 0;
+	virtual UPos pmax() const = 0;
+	virtual UPos lmax() const = 0;
 	virtual IndexId<0> id() const = 0;
 	
 	virtual DType operator*() const = 0;
@@ -74,8 +74,8 @@ namespace CNORXZ
 	virtual XIndex& operator-=(Int n) override final;
 
 	virtual SizeT lex() const override final;
-	virtual SizeT pmax() const override final;
-	virtual SizeT lmax() const override final;
+	virtual UPos pmax() const override final;
+	virtual UPos lmax() const override final;
 	virtual IndexId<0> id() const override final;
 	
 	virtual DType operator*() const override final;

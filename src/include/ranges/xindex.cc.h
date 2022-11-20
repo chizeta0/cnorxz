@@ -86,15 +86,15 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    SizeT XIndex<Index,Meta>::pmax() const
+    UPos XIndex<Index,Meta>::pmax() const
     {
-	return mI->pmax();
+	return UPos(mI->pmax());
     }
 
     template <class Index, typename Meta>
-    SizeT XIndex<Index,Meta>::lmax() const
+    UPos XIndex<Index,Meta>::lmax() const
     {
-	return mI->lmax();
+	return UPos(mI->lmax());
     }
 
     template <class Index, typename Meta>

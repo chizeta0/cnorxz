@@ -82,6 +82,9 @@ namespace CNORXZ
 	B = (mutable) Array
 	F = Functional, Map,...
      ***/
+
+    // default template parameter
+    class None {};
     
     // definition: base/dtype.h
     class DType;
@@ -174,8 +177,8 @@ namespace CNORXZ
     class MRange; // multi range
 
     // definition: ranges/mrange.h
-    template <class... Indices>
-    class MIndex;
+    template <class BlockType, class... Indices>
+    class GMIndex;
 
     // definition: ranges/xindex.h
     class XIndexBase; // dynamic index wrapper

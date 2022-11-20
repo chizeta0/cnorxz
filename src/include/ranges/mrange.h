@@ -11,14 +11,14 @@
 namespace CNORXZ
 {
     
-    template <class... Indices>
-    class MIndex : public IndexInterface<MIndex<Indices...>,
-					 Tuple<typename Indices::MetaType...> >
+    template <class BlockType, class... Indices>
+    class GMIndex : public IndexInterface<GMIndex<BlockType,Indices...>,
+					  Tuple<typename Indices::MetaType...> >
     {
     public:
 	
-	typedef IndexInterface<MIndex<Indices...>,
-			       Tuple<typename Indices::MetaType...> > IB;
+	typedef IndexInterface<GMIndex<BlockType,Indices...>,
+			       Tuple<typename Indices::MetaType...>> IB;
 	typedef Tuple<Sptr<Indices>...> IndexPack;
 	typedef Tuple<typename Indices::MetaType...> MetaType;
 	typedef MRange<typename Indices::RangeType...> RangeType;
@@ -26,31 +26,32 @@ namespace CNORXZ
 
 	// NO DEFAULT HERE !!!
 	// ( have to assign sub-indices (ptr!) correctly )
-	MIndex() = default;
-	MIndex(MIndex&& i) = default;
-	MIndex& operator=(MIndex&& i) = default;
+	constexpr GMIndex() = default;
+	constexpr GMIndex(GMIndex&& i) = default;
+	constexpr GMIndex& operator=(GMIndex&& i) = default;
 
-	MIndex(const MIndex& i);
-	MIndex& operator=(const MIndex& i);
+	constexpr GMIndex(const GMIndex& i);
+	constexpr GMIndex& operator=(const GMIndex& i);
 
-	MIndex(const RangePtr& range, SizeT lexpos = 0);
+	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
+	constexpr GMIndex(const RangePtr& range, const BlockType& blockSizes, SizeT lexpos = 0);
 
-	MIndex& operator=(SizeT pos);
-	MIndex& operator++();
-	MIndex& operator--();
-	MIndex operator+(Int n) const;
-	MIndex operator-(Int n) const;
-	MIndex& operator+=(Int n);
-	MIndex& operator-=(Int n);
+	GMIndex& operator=(SizeT pos);
+	GMIndex& operator++();
+	GMIndex& operator--();
+	GMIndex operator+(Int n) const;
+	GMIndex operator-(Int n) const;
+	GMIndex& operator+=(Int n);
+	GMIndex& operator-=(Int n);
 
 	SizeT lex() const;
-	SizeT pmax() const;
-	SizeT lmax() const;
+	constexpr decltype(auto) pmax() const;
+	constexpr decltype(auto) lmax() const;
 	IndexId<0> id() const;
 
 	MetaType operator*() const;
-
-	SizeT dim() const;
+	
+	constexpr SizeT dim() const;
 	Sptr<RangeType> range() const;
 
 	template <SizeT I>
@@ -58,20 +59,25 @@ namespace CNORXZ
 	
 	String stringMeta() const;
 	MetaType meta() const;
-	MIndex& at(const MetaType& metaPos);
+	GMIndex& at(const MetaType& metaPos);
 	
 	template <class Xpr, class F>
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
 	// replace sub-index instances; only use if you know what you are doing!
-	MIndex& operator()(const Sptr<MIndex>& mi);
+	GMIndex& operator()(const Sptr<GMIndex>& mi);
 
 	const IndexPack& pack() const;
 	const auto& blockSizes() const;
+	const auto& lexBlockSizes() const;
 
     private:
 	template <SizeT... Is>
-	static constexpr decltype(auto) mkBlockSizes(const IndexPack& ipack, Isq<Is...> is);
+	static constexpr decltype(auto) mkLexBlockSizes(const IndexPack& ipack, Isq<Is...> is);
+
+	static constexpr decltype(auto) mkLMax(const IndexPack& ipack);
+
+	static constexpr decltype(auto) mkPMax(const IndexPack& ipack, const BlockType& blockSizes);
 
 	template <SizeT... Is>
 	constexpr decltype(auto) mkIPack(Isq<Is...> is) const;
@@ -87,31 +93,19 @@ namespace CNORXZ
 
 	Sptr<RangeType> mRange;
 	IndexPack mIPack;
-	typedef RemoveRef<decltype(mkBlockSizes(mIPack,Isqr<0,NI-1>{}))> BlockTuple;
-	BlockTuple mBlockSizes;
-	SizeT mPMax = 0; // = LMax here, add new variable in GMIndex!
+	typedef RemoveRef<decltype(mkLexBlockSizes(mIPack,Isqr<0,NI-1>{}))> LexBlockType;
+	LexBlockType mLexBlockSizes;
+	BlockType mBlockSizes;
+	SizeT mLex;
+	typedef RemoveRef<decltype(mkLMax(mIPack))> LMaxT;
+	LMaxT mLMax;
+	typedef RemoveRef<decltype(mkPMax(mIPack,mBlockSizes))> PMaxT;
+	PMaxT mPMax;
     };
 
-    // modified blockSizes; to be used for Slices; can be created from MIndices
-    template <class MIndexType, class BlockType>
-    class GMIndex : public MIndexType
-    {
-    public:
-	// override everything that modyfies IB::mPos or uses mBlockSizes!!!
-	
-	constexpr GMIndex(const MIndexType& mi, const BlockType& b);
-	
-	template <class Xpr, class F>
-	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
-
-    private:
-	BlockType mLexBlockSizes;
-
-	template <SizeT... Is>
-	constexpr decltype(auto) mkPos(Isq<Is...> is) const;
-    };
-
-    // NOT THREAD SAVE
+    template <class... Indices>
+    using MIndex = GMIndex<None,Indices...>;
+    
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase
     {

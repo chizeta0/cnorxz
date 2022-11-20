@@ -28,8 +28,8 @@ namespace CNORXZ
 	CIndex& operator-=(Int n);
 
 	SizeT lex() const;
-	SizeT pmax() const;
-	SizeT lmax() const;
+	UPos pmax() const;
+	UPos lmax() const;
 	IndexId<0> id() const;
 	
 	SizeT operator*() const;

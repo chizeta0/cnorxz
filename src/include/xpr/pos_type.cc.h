@@ -83,6 +83,12 @@ namespace CNORXZ
 	return UPos(N);
     }
 
+    template <SizeT N>
+    constexpr SPos<N>::operator SizeT() const
+    {
+	return val();
+    }
+
     /************
      *   UPos   *
      ************/
@@ -138,7 +144,12 @@ namespace CNORXZ
     {
 	return extend(a);
     }
-    
+
+    constexpr UPos::operator SizeT() const
+    {
+	return val();
+    }
+
     /************
      *   FPos   *
      ************/
@@ -183,6 +194,11 @@ namespace CNORXZ
     constexpr decltype(auto) FPos::operator<<(const PosT& a) const
     {
 	return extend(a);
+    }
+
+    constexpr FPos::operator SizeT() const
+    {
+	return val();
     }
 
     /*************
@@ -263,6 +279,12 @@ namespace CNORXZ
     constexpr SFPos<N,Ms...>::operator FPos() const
     {
 	return FPos(N, &sMs[0]);
+    }
+
+    template <SizeT N, SizeT... Ms>
+    constexpr SFPos<N,Ms...>::operator SizeT() const
+    {
+	return val();
     }
 
     /************
@@ -456,6 +478,11 @@ namespace CNORXZ
 	return MPos<DPos,PosT>(*this,a);
     }
 
+    inline DPos::operator SizeT() const
+    {
+	return val();
+    }
+
     /***************
      *   DPosRef   *
      ***************/
@@ -530,6 +557,11 @@ namespace CNORXZ
     {
 	//return DPos(mP->vextend( a ));
 	return MPos<DPos,PosT>(*this,a);
+    }
+
+    inline DPosRef::operator SizeT() const
+    {
+	return val();
     }
     
     /************

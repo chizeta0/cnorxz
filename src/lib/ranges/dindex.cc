@@ -87,12 +87,12 @@ namespace CNORXZ
 	return mI->lex();
     }
     
-    SizeT DIndex::pmax() const
+    UPos DIndex::pmax() const
     {
 	return mI->pmax();
     }
     
-    SizeT DIndex::lmax() const
+    UPos DIndex::lmax() const
     {
 	return mI->lmax();
     }

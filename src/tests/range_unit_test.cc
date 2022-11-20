@@ -231,8 +231,8 @@ namespace
 	auto yrx = std::dynamic_pointer_cast<YRange>(yr);
 	auto yi = yrx->begin();
 
-	EXPECT_EQ(yi.pmax(), yr->size());
-	EXPECT_EQ(yi.lmax(), yr->size());
+	EXPECT_EQ(yi.pmax().val(), yr->size());
+	EXPECT_EQ(yi.lmax().val(), yr->size());
 	EXPECT_EQ(yi.range(), yr);
 	EXPECT_EQ(yi.range(), yrx);
 	EXPECT_EQ(yi.dim(), 2u);
@@ -258,11 +258,11 @@ namespace
 		EXPECT_EQ(b.stringMeta(), toString(mmj));
 	    }
 	}
-	yi += yi.lmax() + 10;
-	EXPECT_EQ(yi.lex(), yi.lmax());
-	EXPECT_EQ(yi.pos(), yi.pmax());
+	yi += yi.lmax().val() + 10;
+	EXPECT_EQ(yi.lex(), yi.lmax().val());
+	EXPECT_EQ(yi.pos(), yi.pmax().val());
 
-	yi -= yi.lmax() + 20;
+	yi -= yi.lmax().val() + 20;
 	EXPECT_EQ(yi.lex(), 0u);
 	EXPECT_EQ(yi.pos(), 0u);
     }

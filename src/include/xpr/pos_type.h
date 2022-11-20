@@ -36,6 +36,7 @@ namespace CNORXZ
 	constexpr decltype(auto) operator<<(const PosT& a) const;
 	
 	explicit constexpr operator UPos() const;
+	explicit constexpr operator SizeT() const;
     };
 
     class UPos
@@ -68,6 +69,8 @@ namespace CNORXZ
 
 	template <class PosT>
 	constexpr decltype(auto) operator<<(const PosT& a) const;
+
+	explicit constexpr operator SizeT() const;
     };
 
     class FPos
@@ -98,6 +101,8 @@ namespace CNORXZ
 
 	template <class PosT>
 	constexpr decltype(auto) operator<<(const PosT& a) const;
+
+	explicit constexpr operator SizeT() const;
     };
 
     template <SizeT N, SizeT... Ms>
@@ -129,6 +134,8 @@ namespace CNORXZ
 	constexpr decltype(auto) operator<<(const PosT& a) const;
 
 	explicit constexpr operator FPos() const;
+
+	explicit constexpr operator SizeT() const;
     };
 
     template <class BPosT, class NPosT>
@@ -204,6 +211,8 @@ namespace CNORXZ
 
 	template <class PosT>
 	inline decltype(auto) operator<<(const PosT& a) const;
+
+	explicit inline operator SizeT() const;
     };
 
     class DPosRef
@@ -238,6 +247,8 @@ namespace CNORXZ
 
 	template <class PosT>
 	inline decltype(auto) operator<<(const PosT& a) const;
+
+	explicit inline operator SizeT() const;
     };
 
     // for common call of extension vector elements

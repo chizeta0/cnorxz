@@ -56,14 +56,14 @@ namespace CNORXZ
 	return IB::mPos;
     }
     
-    SizeT CIndex::lmax() const
+    UPos CIndex::lmax() const
     {
-	return mRangePtr->size();
+	return UPos(mRangePtr->size());
     }
 
-    SizeT CIndex::pmax() const
+    UPos CIndex::pmax() const
     {
-	return mRangePtr->size();
+	return UPos(mRangePtr->size());
     }
 
     IndexId<0> CIndex::id() const

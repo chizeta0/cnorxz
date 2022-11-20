@@ -30,8 +30,8 @@ namespace CNORXZ
 	
 	SizeT pos() const; // 'memory' pos
 	SizeT lex() const { return THIS().lex(); } // lexicographic pos
-	SizeT pmax() const { return THIS().pmax(); } // memory pos max
-	SizeT lmax() const { return THIS().lmax(); } // lexicographic pos max
+	SizeT pmax() const { return static_cast<SizeT>(THIS().pmax()); } // memory pos max
+	SizeT lmax() const { return static_cast<SizeT>(THIS().lmax()); } // lexicographic pos max
 	PtrId ptrId() const;
 	decltype(auto) id() const { return THIS().id(); }
 

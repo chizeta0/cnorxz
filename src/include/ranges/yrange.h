@@ -35,8 +35,8 @@ namespace CNORXZ
 	YIndex& operator-=(Int n);
 
 	SizeT lex() const;
-	SizeT pmax() const;
-	SizeT lmax() const;
+	UPos pmax() const;
+	UPos lmax() const;
 	IndexId<0> id() const;
 	
 	DType operator*() const;
@@ -69,8 +69,8 @@ namespace CNORXZ
 	Vector<SizeT> mBlockSizes; // dim() elements only!!!
 	Vector<SizeT> mLexBlockSizes; // dim() elements only!!!
 	SizeT mLex = 0;
-	SizeT mPMax = 0;
-	SizeT mLMax = 0;
+	UPos mPMax = 0;
+	UPos mLMax = 0;
     };
 
     class YRangeFactory : public RangeFactoryBase

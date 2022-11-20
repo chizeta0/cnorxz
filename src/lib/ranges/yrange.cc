@@ -25,7 +25,7 @@ namespace CNORXZ
 	for(SizeT i = o.size(); i != 0; --i){
 	    const SizeT j = i-1;
 	    o[j] = b;
-	    b *= mIs[j]->pmax();
+	    b *= mIs[j]->pmax().val();
 	}
 	return o;
     }
@@ -37,7 +37,7 @@ namespace CNORXZ
 	for(SizeT i = o.size(); i != 0; --i){
 	    const SizeT j = i-1;
 	    o[j] = b;
-	    b *= mIs[j]->lmax();
+	    b *= mIs[j]->lmax().val();
 	}
 	return o;
     }
@@ -47,7 +47,7 @@ namespace CNORXZ
 	auto& idx = mIs[i];
 	// it is guaranteed that the last accessible position 
 	// is one less than the max position (=end)
-	if(i != 0 and idx->lex() == idx->lmax()-1){
+	if(i != 0 and idx->lex() == idx->lmax().val()-1){
 	    IB::mPos -= mBlockSizes[i] * idx->pos();
 	    mLex -= mLexBlockSizes[i] * idx->lex();
 	    (*idx) = 0;
@@ -63,7 +63,7 @@ namespace CNORXZ
     {
 	auto& idx = mIs[i];
 	if(i != 0 and idx->pos() == 0){
-	    (*idx) = idx->lmax()-1;
+	    (*idx) = idx->lmax().val()-1;
 	    IB::mPos += mBlockSizes[i] * idx->pos();
 	    mLex += mLexBlockSizes[i] * idx->lex();
 	    down(i-1);
@@ -89,7 +89,7 @@ namespace CNORXZ
     {
 	SizeT o = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
-	    o += (mIs[i]->pmax()-1) * mBlockSizes[i];
+	    o += (mIs[i]->pmax().val()-1) * mBlockSizes[i];
 	}
 	return o+1;
     }
@@ -97,7 +97,7 @@ namespace CNORXZ
     inline SizeT YIndex::mkLMax() const
     {
 	return std::accumulate(mIs.begin(), mIs.end(),1,
-			       [](const auto& res, const auto& el) { return res * el->lmax(); } );
+			       [](const auto& res, const auto& el) { return res * el->lmax().val(); } );
     }
     
     
@@ -143,15 +143,15 @@ namespace CNORXZ
 
     YIndex& YIndex::operator=(SizeT lexpos)
     {
-	if(lexpos >= lmax()){
-	    mLex = lmax();
-	    IB::mPos = pmax();
+	if(lexpos >= lmax().val()){
+	    mLex = lmax().val();
+	    IB::mPos = pmax().val();
 	    return *this;
 	}
 	mLex = lexpos;
 	IB::mPos = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
-	    *mIs[i] = (lex() / mLexBlockSizes[i]) % mIs[i]->lmax();
+	    *mIs[i] = (lex() / mLexBlockSizes[i]) % mIs[i]->lmax().val();
 	    IB::mPos += mBlockSizes[i] * mIs[i]->pos();
 	}
 	return *this;
@@ -159,22 +159,19 @@ namespace CNORXZ
     
     YIndex& YIndex::operator++()
     {
-	auto& i0 = mIs[0];
-	if(i0->lex() != i0->lmax()){
-	    up(mIs.size()-1);
+	if(lex() == lmax().val()-1){
+	    return *this = lmax().val();
 	}
-	// no else! up() changes i0!
-	if(i0->lex() == i0->lmax()){
-	    IB::mPos = pmax();
+	if(lex() != lmax().val()){
+	    up(mIs.size()-1);
 	}
 	return *this;
     }
     
     YIndex& YIndex::operator--()
     {
-	auto& i0 = mIs[0];
-	if(i0->lex() == i0->lmax()){
-	    IB::mPos = mBlockSizes[0] * i0->pmax();
+	if(lex() == lmax().val()){
+	    return *this = lmax().val()-1;
 	}
 	if(lex() != 0){
 	    down(mIs.size()-1);
@@ -215,12 +212,12 @@ namespace CNORXZ
 	return mLex;
     }
     
-    SizeT YIndex::pmax() const
+    UPos YIndex::pmax() const
     {
 	return mPMax;
     }
 
-    SizeT YIndex::lmax() const
+    UPos YIndex::lmax() const
     {
 	return mLMax;
     }
