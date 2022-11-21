@@ -34,6 +34,73 @@ namespace
 	SPos<ss2> mS2p;
     };
 
+    class For_Test : public ::testing::Test
+    {
+    protected:
+
+	class TestXpr1
+	{
+	public:
+	    constexpr TestXpr1(const IndexId<0>& id) : mId(id) {}
+	    
+	    template <class PosT>
+	    inline SizeT operator()(const PosT& last) const
+	    {
+		const SizeT o = 1u;
+		return o << last.val();
+	    }
+
+	    template <SizeT I>
+	    inline UPos rootSteps(const IndexId<I>& id) const
+	    {
+		return UPos( mId == id ? 1u : 0u );
+	    }
+
+	private:
+	    IndexId<0> mId;
+	};
+
+	class TestXpr2
+	{
+	public:
+	    constexpr TestXpr2(const IndexId<0>& id, SizeT size) :
+		mId(id), mSize(size), mCnt(size) {}
+	    
+	    template <class PosT>
+	    inline void operator()(const PosT& last) const
+	    {
+		--mCnt;
+		EXPECT_EQ(mCnt, mSize-last.val()-1);
+	    }
+
+	    template <SizeT I>
+	    inline UPos rootSteps(const IndexId<I>& id) const
+	    {
+		return UPos( mId == id ? 1u : 0u );
+	    }
+
+	private:
+	    IndexId<0> mId;
+	    SizeT mSize;
+	    mutable SizeT mCnt;
+	};
+
+	static constexpr SizeT sSize = 7u;
+
+	For_Test()
+	{
+	    mSize = sSize;
+	    mId1 = 10u;
+	    mId2 = 11u;
+	    mId3 = 12u;
+	}
+
+	SizeT mSize;
+	PtrId mId1;
+	PtrId mId2;
+	PtrId mId3;
+    };
+    
     TEST_F(Pos_Test, Basics)
     {
 	EXPECT_EQ( mUp1.size(), 1u );
@@ -157,6 +224,37 @@ namespace
 	EXPECT_EQ(dp5.sub().val(), mS4p.val() * mUp1.val());
     }
 
+    TEST_F(For_Test, For)
+    {
+	auto loop = mkFor(mSize, IndexId<0>(mId1), TestXpr1( IndexId<0>(mId1) ),
+			  [](auto& o, const auto& e) { o += e; });
+
+	const UPos rs = loop.rootSteps(IndexId<0>(mId1));
+	EXPECT_EQ(rs.val(), 1u);
+	const UPos rs2 = loop.rootSteps(IndexId<0>(mId2));
+	EXPECT_EQ(rs2.val(), 0u);
+	const SizeT res = loop();
+	EXPECT_EQ(res, (1u << mSize) - 1u);
+
+	auto loop2 = mkFor(mSize, IndexId<0>(mId1), TestXpr2( IndexId<0>(mId1), mSize ));
+	loop2();
+    }
+
+    TEST_F(For_Test, SFor)
+    {
+	auto loop = mkSFor<sSize>(IndexId<0>(mId1), TestXpr1( IndexId<0>(mId1) ),
+				  [](const auto& a, const auto& b) { return a + b; });
+
+	const UPos rs = loop.rootSteps(IndexId<0>(mId1));
+	EXPECT_EQ(rs.val(), 1u);
+	const UPos rs2 = loop.rootSteps(IndexId<0>(mId2));
+	EXPECT_EQ(rs2.val(), 0u);
+	const SizeT res = loop();
+	EXPECT_EQ(res, (1u << mSize) - 1u);
+
+	auto loop2 = mkSFor<sSize>(IndexId<0>(mId1), TestXpr2( IndexId<0>(mId1), mSize ));
+	loop2();
+    }
 }
 
 int main(int argc, char** argv)

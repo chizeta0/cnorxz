@@ -34,7 +34,12 @@ namespace CNORXZ
 	F mF;
     };
 
-    
+    template <SizeT L, class Xpr, class F>
+    constexpr decltype(auto) mkFor(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f);
+
+    template <SizeT L, class Xpr>
+    constexpr decltype(auto) mkFor(SizeT size, const IndexId<L>& id, const Xpr& xpr);
+
     // unrolled loop:
     template <SizeT N, SizeT L, class Xpr, class F = NoF>
     class SFor : public XprInterface<SFor<N,L,Xpr,F>>
@@ -60,14 +65,25 @@ namespace CNORXZ
 	template <SizeT I>
 	constexpr decltype(auto) exec() const;
 
+	template <SizeT I, class PosT>
+	inline void exec2(const PosT& last) const;
+
+	template <SizeT I>
+	inline void exec2() const;
+
 	IndexId<L> mId;
 	Xpr mXpr;
-	typedef decltype(mXpr.RootSteps(mId)) XPosT;
+	typedef decltype(mXpr.rootSteps(mId)) XPosT;
 	XPosT mExt;
 	F mF;
 	
     };
 
+    template <SizeT N, SizeT L, class Xpr, class F>
+    constexpr decltype(auto) mkSFor(const IndexId<L>& id, const Xpr& xpr, F&& f);
+
+    template <SizeT N, SizeT L, class Xpr>
+    constexpr decltype(auto) mkSFor(const IndexId<L>& id, const Xpr& xpr);
 
     // multi-threading
     template <SizeT L, class Xpr, class F = NoF>
