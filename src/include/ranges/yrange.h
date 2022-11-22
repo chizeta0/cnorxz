@@ -113,6 +113,12 @@ namespace CNORXZ
 
 	Vector<RangePtr> mRVec;
     };
+
+    template <>
+    struct RangeCast<YRange>
+    {
+	static Sptr<YRange> func(const RangePtr& r);
+    };
 }
 
 #endif

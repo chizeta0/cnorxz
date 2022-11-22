@@ -375,4 +375,12 @@ namespace CNORXZ
     
     YRange::YRange(Vector<RangePtr>&& rvec) : mRVec(std::forward<Vector<RangePtr>>(rvec)) {}
 
+    /*******************
+     *   Range Casts   *
+     *******************/
+
+    Sptr<YRange> RangeCast<YRange>::func(const RangePtr& r)
+    {
+	return std::dynamic_pointer_cast<YRange>( YRangeFactory({r}).create() );
+    }
 }

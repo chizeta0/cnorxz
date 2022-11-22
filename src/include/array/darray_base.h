@@ -21,7 +21,6 @@ namespace CNORXZ
 
     protected:
 	RangePtr mRange;
-	bool mInit = false;
 	
     public:
 
@@ -40,6 +39,7 @@ namespace CNORXZ
 	Sptr<DArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
 	
 	virtual const T* data() const = 0;
+	virtual SizeT pmax() const = 0; // max allocated postion of data() (exclusive!)
 	virtual SizeT size() const;
 	virtual RangePtr range() const;
 
@@ -49,7 +49,6 @@ namespace CNORXZ
 	virtual const_iterator cend() const = 0;
 
 	virtual bool isView() const = 0;
-	virtual bool isInit() const;
 
 	//template <typename I, typename M>
 	//ConstOperationRoot<T,I> operator()(const IndexPtr<I,M>& i) const;

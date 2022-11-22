@@ -11,16 +11,26 @@ namespace CNORXZ
      ***************/
     
     template <typename T>
-    DArray<T>::DArray(const RangePtr& range) : MDArrayBase<T>(range), mCont(range->size()) {}
+    DArray<T>::DArray(const RangePtr& range) :
+	MDArrayBase<T>(range), mCont(range->size())
+    {}
 
     template <typename T>
     DArray<T>::DArray(const RangePtr& range, const Vector<T>& vec) :
-	MDArrayBase<T>(range), mCont(vec) {}
+	MDArrayBase<T>(range), mCont(vec)
+    {}
 
     template <typename T>
     DArray<T>::DArray(const RangePtr& range, Vector<T>&& vec) :
-	MDArrayBase<T>(range), mCont(vec) {}
+	MDArrayBase<T>(range), mCont(vec)
+    {}
 
+    template <typename T>
+    SizeT DArray<T>::pmax() const
+    {
+	return mCont.size();
+    }
+    
     template <typename T>
     const T* DArray<T>::data() const
     {
@@ -36,15 +46,13 @@ namespace CNORXZ
     template <typename T>
     typename DArray<T>::const_iterator DArray<T>::cbegin() const
     {
-	assert(0);
-	return const_iterator();
+	return const_iterator(mCont.data(), AB::mRange);
     }
 
     template <typename T>
     typename DArray<T>::const_iterator DArray<T>::cend() const
     {
-	assert(0);
-	return const_iterator();
+	return const_iterator(mCont.data(), AB::mRange, mCont.size());
     }
 
     template <typename T>

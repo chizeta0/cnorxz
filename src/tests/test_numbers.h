@@ -1,4 +1,7 @@
 
+#ifndef __test_numbers_h__
+#define __test_numbers_h__
+
 #include <fstream>
 //#include "base/types.h"
 //#include "base/assert.h"
@@ -50,3 +53,5 @@ namespace CNORXZ
 	};
     }
 }
+
+#endif

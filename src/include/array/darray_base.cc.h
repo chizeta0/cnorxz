@@ -6,25 +6,31 @@
 
 namespace CNORXZ
 {
-    /****************
-     *  DArrayBase  *
-     ***************/
+    /******************
+     *   DArrayBase   *
+     ******************/
 
     template <typename T>
-    DArrayBase<T>::DArrayBase(const RangePtr& range) : mRange(range), mInit(true) {}
+    DArrayBase<T>::DArrayBase(const RangePtr& range) :
+	mRange(rangeCast<YRange>(range))
+    {}
 
     template <typename T>
     template <typename I, typename M>
     const T& DArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
-	return *(this->begin()+i);
+	auto ai = this->begin() + i.lex();
+	return *ai;
     }
     
     template <typename T>
     template <typename I, typename M>
     const T& DArrayBase<T>::at(const IndexInterface<I,M>& i) const
     {
-	return *this->begin().plus(i);
+	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
+	// check further compatibility of index/range format!!!
+	auto ai = this->begin() + i.lex();
+	return *ai;
     }
 
     template <typename T>
@@ -51,11 +57,6 @@ namespace CNORXZ
 	return this->cend();
     }
     
-    template <typename T>
-    bool DArrayBase<T>::isInit() const
-    {
-	return mInit;
-    }
     /*
     template <typename T>
     template <typename I, typename M>
@@ -65,25 +66,31 @@ namespace CNORXZ
     }
     */
 
-    /*****************
-     *  MDArrayBase  *
-     ****************/
+    /*******************
+     *   MDArrayBase   *
+     *******************/
 
     template <typename T>
-    MDArrayBase<T>::MDArrayBase(const RangePtr& range) : DArrayBase<T>(range) {}
+    MDArrayBase<T>::MDArrayBase(const RangePtr& range) :
+	DArrayBase<T>(range)
+    {}
 
     template <typename T>
     template <typename I, typename M>
     T& MDArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
-	return *(this->begin()+i);
+	auto ai = this->begin() + i.lex();
+	return *ai;
     }
 
     template <typename T>
     template <typename I, typename M>
     T& MDArrayBase<T>::at(const IndexInterface<I,M>& i)
     {
-	return *this->begin().plus(i);
+	CXZ_ASSERT(i.pos() < this->pmax(), "index out of range");
+	// check further compatibility of index/range format!!!
+	auto ai = this->begin() + i.lex();
+	return *ai;
     }
 
     template <typename T>
