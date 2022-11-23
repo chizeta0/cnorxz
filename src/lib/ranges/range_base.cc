@@ -83,8 +83,35 @@ namespace CNORXZ
     
     RangePtr operator*(const RangePtr& a, const RangePtr& b)
     {
-	//assert(0); // check segfault + "flatten" yrange (no yrange of yranges etc)
-	return YRangeFactory({a,b}).create();
+	CXZ_ASSERT(a != nullptr, "first operand not initialized");
+	CXZ_ASSERT(b != nullptr, "second operand not initialized");
+	
+	Vector<RangePtr> rvec;
+	rvec.reserve(a->dim() + b->dim());
+
+	if(a->sub(0) != nullptr){
+	    for(SizeT i = 0; i != a->dim(); ++i){
+		CXZ_ASSERT(a->sub(i) != nullptr,
+			   "sub range " << i << " of first operand not available");
+		rvec.push_back(a->sub(i));
+	    }
+	}
+	else {
+	    rvec.push_back(a);
+	}
+
+	if(b->sub(0) != nullptr){
+	    for(SizeT i = 0; i != b->dim(); ++i){
+		CXZ_ASSERT(b->sub(i) != nullptr,
+			   "sub range " << i << " of second operand not available");
+		rvec.push_back(b->sub(i));
+	    }
+	}
+	else {
+	    rvec.push_back(b);
+	}
+
+	return YRangeFactory(rvec).create();
     }
 
 } // end namespace CNORXZ

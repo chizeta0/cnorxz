@@ -43,6 +43,22 @@ namespace CNORXZ
     }
 
     template <class BlockType, class... Indices>
+    inline void GMIndex<BlockType,Indices...>::mkPos()
+    {
+	mLex = iter<0,NI>
+	    ([&](auto i) { return std::get<i>(mIPack)->lex() * std::get<i>(mLexBlockSizes).val(); },
+	     [](const auto&... e) { return (e + ...); });
+	if constexpr(not std::is_same<BlockType,None>::value){
+	    IB::mPos = iter<0,NI>
+		([&](auto i) { return std::get<i>(mIPack)->pos() * std::get<i>(mBlockSizes).val(); },
+		 [](const auto&... e) { return (e + ...); });
+	}
+	else {
+	    IB::mPos = mLex;
+	}
+    }
+
+    template <class BlockType, class... Indices>
     template <SizeT... Is>
     constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkLexBlockSizes(const IndexPack& ipack, Isq<Is...> is)
     {
@@ -120,12 +136,12 @@ namespace CNORXZ
 	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(i.range())),
 	mIPack(mkIPack(Isqr<0,NI>{})),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<0,NI-1>{})),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
 	mBlockSizes(i.mBlockSizes),
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mBlockSizes))
     {
-	*this = i.pos();
+	*this = i.lex();
     }
 
     template <class BlockType, class... Indices>
@@ -134,11 +150,37 @@ namespace CNORXZ
 	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>::operator=(0);
 	mRange = rangeCast<RangeType>(i.range());
 	mIPack = mkIPack(Isqr<0,NI>{});
-	mLexBlockSizes = mkLexBlockSizes(mIPack,Isqr<0,NI-1>{});
+	mLexBlockSizes = mkLexBlockSizes(mIPack,Isqr<1,NI>{});
 	mBlockSizes = i.mBlockSizes;
 	mLMax = mkLMax(mIPack);
 	mPMax = mkPMax(mIPack,mBlockSizes);
-	return *this = i.pos();
+	return *this = i.lex();
+    }
+
+    template <class BlockType, class... Indices>
+    constexpr GMIndex<BlockType,Indices...>::GMIndex(const Indices&... is) :
+	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is.range()...))),
+	mIPack(std::make_shared<Indices>(is)...),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
+	mBlockSizes(),
+	mLMax(mkLMax(mIPack)),
+	mPMax(mkPMax(mIPack,mBlockSizes))
+    {
+	mkPos();
+    }
+
+    template <class BlockType, class... Indices>
+    constexpr GMIndex<BlockType,Indices...>::GMIndex(const Sptr<Indices>&... is) :
+	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is->range()...))),
+	mIPack(is...),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
+	mBlockSizes(),
+	mLMax(mkLMax(mIPack)),
+	mPMax(mkPMax(mIPack,mBlockSizes))
+    {
+	mkPos();
     }
 
     template <class BlockType, class... Indices>
@@ -146,7 +188,7 @@ namespace CNORXZ
 	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(range)),
 	mIPack(mkIPack(Isqr<0,NI>{})),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<0,NI-1>{})),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
 	mBlockSizes(),
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mBlockSizes))
@@ -159,7 +201,7 @@ namespace CNORXZ
 	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(range)),
 	mIPack(mkIPack(Isqr<0,NI>{})),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<0,NI-1>{})),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
 	mBlockSizes(blockSizes),
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mBlockSizes))

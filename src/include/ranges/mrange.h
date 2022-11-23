@@ -33,6 +33,8 @@ namespace CNORXZ
 	constexpr GMIndex(const GMIndex& i);
 	constexpr GMIndex& operator=(const GMIndex& i);
 
+	constexpr GMIndex(const Indices&... is);
+	constexpr GMIndex(const Sptr<Indices>&... is);
 	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
 	constexpr GMIndex(const RangePtr& range, const BlockType& blockSizes, SizeT lexpos = 0);
 
@@ -79,6 +81,8 @@ namespace CNORXZ
 
 	static constexpr decltype(auto) mkPMax(const IndexPack& ipack, const BlockType& blockSizes);
 
+	inline void mkPos();
+	
 	template <SizeT... Is>
 	constexpr decltype(auto) mkIPack(Isq<Is...> is) const;
 

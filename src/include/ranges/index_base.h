@@ -87,6 +87,9 @@ namespace CNORXZ
     template <class I, typename MetaType>
     IndexPtr<I,MetaType> operator-(const IndexPtr<I,MetaType>& i, Int n);
 
+    template <class I1, class I2, typename MType1, typename MType2>
+    decltype(auto) operator*(const IndexInterface<I1,MType1>& a,
+			     const IndexInterface<I2,MType2>& b);
 }
 
 #endif
