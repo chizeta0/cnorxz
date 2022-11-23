@@ -1,7 +1,0 @@
-:: Rename MultiArray library in CNORXZ (Containers with Native Operation Routines by XZ (chizeta))
-MultiArrayTools -> CNORXZ
-MultiArray -> Array
-multi_array_*.{cc,h} -> cxz_*.{cc,h}
-*ma* -> *cxz*
-libmultiarray -> libcnorxz
-...!!!
