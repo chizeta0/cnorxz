@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import Cython.Build
+import setuptools
+
+libname = "@CMAKE_PROJECT_NAME@"
+version = "@GIT_TAG_VERSION@"
+author = "Christian Zimmermann"
+author_email = "chizeta@f3l.de"
+
+inc_dirs = list()
+inc_dirs.append( "@INSTALL_PATH@/include" )
+
+lib_dirs = list()
+lib_dirs.append( "/usr/lib" )
+lib_dirs.append( "/usr/local/lib" )
+lib_dirs.append( "@INSTALL_PATH@/lib" )
+
+default_extension_args = dict(
+    language = "c++",
+    include_dirs = inc_dirs,
+    libraries = [libname],
+    library_dirs = lib_dirs,
+    extra_compile_args = "@CMAKE_CXX_FLAGS@".split(),
+)
+
+if __name__ == "__main__":
+    print("Version:")
+    print("\t",version)
+    print("Include directories:")
+    for d in inc_dirs:
+        print("\t",d)
+    print("Library directories:")
+    for d in lib_dirs:
+        print("\t",d)
+
+    extensions = list()
+    extensions.append(
+        setuptools.Extension(
+            name = libname + ".base",
+            sources = [
+                "base/ranges.pys",
+                "base/array.pys",
+            ],
+            **default_extension_args
+        )
+    )
+    # append further extensions (cereal, hdf5, mpi ...) here
+    
+    setuptools.setup(
+        name = libname,
+        packages = setuptools.find_packages(),
+        version = version,
+        include_dirs = inc_dirs,
+        ext_modules = Cython.Build.cythonize(extensions),
+        author = author,
+        author_email = author_email,
+    )

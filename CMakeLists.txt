@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
   
-project(multi_array)
+project(cnorxz)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7.0)
@@ -22,7 +22,7 @@ else()
   #set(INSTALL_PATH ${CMAKE_SOURCE_DIR}/install)
   get_filename_component(INSTALL_PATH ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_PREFIX} ABSOLUTE)
 endif()
-message(WARNING "found absolute install path '${INSTALL_PATH}'") 
+message(STATUS "found absolute install path '${INSTALL_PATH}'") 
 
 find_package( GTest REQUIRED )
 if(GTest_FOUND)

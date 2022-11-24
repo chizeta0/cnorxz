@@ -19,15 +19,15 @@ add_library(cnorxz SHARED
   )
 set_target_properties(cnorxz PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-add_library(cnorxz_static
-  $<TARGET_OBJECTS:cnorxz_obj>
-  )
-set_target_properties(cnorxz_obj PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+#add_library(cnorxz_static
+#  $<TARGET_OBJECTS:cnorxz_obj>
+#  )
+#set_target_properties(cnorxz_obj PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 install(TARGETS cnorxz
   ARCHIVE DESTINATION ${INSTALL_PATH}/lib
   LIBRARY DESTINATION ${INSTALL_PATH}/lib)
 
-install(TARGETS cnorxz_static
-  ARCHIVE DESTINATION ${INSTALL_PATH}/lib
-  LIBRARY DESTINATION ${INSTALL_PATH}/lib)
+#install(TARGETS cnorxz_static
+#  ARCHIVE DESTINATION ${INSTALL_PATH}/lib
+#  LIBRARY DESTINATION ${INSTALL_PATH}/lib)
