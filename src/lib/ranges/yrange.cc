@@ -41,6 +41,23 @@ namespace CNORXZ
 	}
 	return o;
     }
+
+    inline Vector<RangePtr> YIndex::mkRangeVec(const Vector<XIndexPtr>& is) const
+    {
+	Vector<RangePtr> o(is.size());
+	std::transform(is.begin(), is.end(), o.begin(), [](const auto& e) { return e->range(); });
+	return o;
+    }
+
+    inline void YIndex::mkPos()
+    {
+	mLex = 0;
+	IB::mPos = 0;
+	for(SizeT i = 0; i != dim(); ++i){
+	    mLex += mIs[i]->lex() * mLexBlockSizes[i];
+	    IB::mPos += mIs[i]->pos() * mBlockSizes[i];
+	}
+    }
     
     inline void YIndex::up(SizeT i)
     {
@@ -127,6 +144,30 @@ namespace CNORXZ
 	mPMax = mkPMax();
 	mLMax = mkLMax();
 	return *this = i.lex();
+    }
+
+    YIndex::YIndex(const Vector<XIndexPtr>& is) :
+	IndexInterface<YIndex,DType>(0),
+	mRange(std::dynamic_pointer_cast<YRange>(yrange(mkRangeVec(is)))),
+	mIs(is),
+	mBlockSizes(mkBlockSizes()),
+	mLexBlockSizes(mkLexBlockSizes()),
+	mPMax(mkPMax()),
+	mLMax(mkLMax())
+    {
+	mkPos();
+    }
+	
+    YIndex::YIndex(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is) :
+	IndexInterface<YIndex,DType>(0),
+	mRange(std::dynamic_pointer_cast<YRange>(yrange(mkRangeVec(is)))),
+	mIs(is),
+	mBlockSizes(bs),
+	mLexBlockSizes(mkLexBlockSizes()),
+	mPMax(mkPMax()),
+	mLMax(mkLMax())
+    {
+	mkPos();
     }
 
     YIndex::YIndex(const RangePtr& range, SizeT lexpos) :
@@ -288,6 +329,34 @@ namespace CNORXZ
     {
 	return mkIFor(0, xpr, f);
     }
+
+    YIndex& YIndex::operator()(const Sptr<YIndex>& i)
+    {
+	mIs = i->pack();
+	mkPos();
+	return *this;
+    }
+    
+    YIndex& YIndex::operator()()
+    {
+	mkPos();
+	return *this;
+    }
+    
+    const Vector<XIndexPtr>& YIndex::pack() const
+    {
+	return mIs;
+    }
+	
+    const Vector<SizeT>& YIndex::blockSizes() const
+    {
+	return mBlockSizes;
+    }
+    
+    const Vector<SizeT>& YIndex::lexBlockSizes() const
+    {
+	return mLexBlockSizes;
+    }
     
     /**********************
      *   YRangeFactory    *
@@ -374,6 +443,15 @@ namespace CNORXZ
     YRange::YRange(const Vector<RangePtr>& rvec) : mRVec(rvec) {}
     
     YRange::YRange(Vector<RangePtr>&& rvec) : mRVec(std::forward<Vector<RangePtr>>(rvec)) {}
+
+    /****************************
+     *   non-member functions   *
+     ****************************/
+
+    RangePtr yrange(const Vector<RangePtr>& rs)
+    {
+	return YRangeFactory(rs).create();
+    }
 
     /*******************
      *   Range Casts   *

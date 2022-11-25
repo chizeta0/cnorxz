@@ -24,8 +24,6 @@ namespace CNORXZ
 	typedef MRange<typename Indices::RangeType...> RangeType;
 	static constexpr SizeT NI = sizeof...(Indices);
 
-	// NO DEFAULT HERE !!!
-	// ( have to assign sub-indices (ptr!) correctly )
 	constexpr GMIndex() = default;
 	constexpr GMIndex(GMIndex&& i) = default;
 	constexpr GMIndex& operator=(GMIndex&& i) = default;
@@ -34,7 +32,9 @@ namespace CNORXZ
 	constexpr GMIndex& operator=(const GMIndex& i);
 
 	constexpr GMIndex(const Indices&... is);
+	constexpr GMIndex(const BlockType& blockSizes, const Indices&... is);
 	constexpr GMIndex(const Sptr<Indices>&... is);
+	constexpr GMIndex(const BlockType& blockSizes, const Sptr<Indices>&... is);
 	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
 	constexpr GMIndex(const RangePtr& range, const BlockType& blockSizes, SizeT lexpos = 0);
 
@@ -67,7 +67,8 @@ namespace CNORXZ
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
 	// replace sub-index instances; only use if you know what you are doing!
-	GMIndex& operator()(const Sptr<GMIndex>& mi);
+	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
+	GMIndex& operator()();
 
 	const IndexPack& pack() const;
 	const auto& blockSizes() const;
@@ -107,8 +108,8 @@ namespace CNORXZ
 	PMaxT mPMax;
     };
 
-    template <class... Indices>
-    using MIndex = GMIndex<None,Indices...>;
+    //template <class... Indices>
+    //using MIndex = GMIndex<None,Indices...>;
     
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase

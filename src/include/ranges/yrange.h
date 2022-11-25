@@ -24,6 +24,8 @@ namespace CNORXZ
 	YIndex(const YIndex& i);
 	YIndex& operator=(const YIndex& i);
 
+	YIndex(const Vector<XIndexPtr>& is);
+	YIndex(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is);
 	YIndex(const RangePtr& range, SizeT lexpos);
 
 	YIndex& operator=(SizeT lexpos);
@@ -51,9 +53,18 @@ namespace CNORXZ
 
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, const std::function<SizeT(SizeT,SizeT)>& f) const;
 
+	YIndex& operator()(const Sptr<YIndex>& i);
+	YIndex& operator()();
+	
+	const Vector<XIndexPtr>& pack() const;
+	const Vector<SizeT>& blockSizes() const;
+	const Vector<SizeT>& lexBlockSizes() const;
+	
     private:
 	inline Vector<SizeT> mkBlockSizes() const;
 	inline Vector<SizeT> mkLexBlockSizes() const;
+	inline Vector<RangePtr> mkRangeVec(const Vector<XIndexPtr>& is) const;
+	inline void mkPos();
 	inline Vector<XIndexPtr> mkIndices() const;
 	inline void up(SizeT i);
 	inline void down(SizeT i);
@@ -114,6 +125,8 @@ namespace CNORXZ
 	Vector<RangePtr> mRVec;
     };
 
+    RangePtr yrange(const Vector<RangePtr>& rs);
+    
     template <>
     struct RangeCast<YRange>
     {

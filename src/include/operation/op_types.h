@@ -79,8 +79,6 @@ namespace CNORXZ
     template <typename T, class IndexT>
     class OpCont : public OpInterface<OpCont<T,IndexT>>
     {
-	// operation container (intermediate operation results)
-	// TO BE IMPLEMENTED!!!
     public:
 	typedef OpInterface<OpCont<T,IndexT>> OI;
 

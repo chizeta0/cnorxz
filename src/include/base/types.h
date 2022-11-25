@@ -180,6 +180,9 @@ namespace CNORXZ
     template <class BlockType, class... Indices>
     class GMIndex;
 
+    template <class... Indices>
+    using MIndex = GMIndex<None,Indices...>;
+
     // definition: ranges/xindex.h
     class XIndexBase; // dynamic index wrapper
 

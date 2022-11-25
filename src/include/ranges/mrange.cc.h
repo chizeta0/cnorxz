@@ -171,12 +171,39 @@ namespace CNORXZ
     }
 
     template <class BlockType, class... Indices>
+    constexpr GMIndex<BlockType,Indices...>::GMIndex(const BlockType& bs, const Indices&... is) :
+	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is.range()...))),
+	mIPack(std::make_shared<Indices>(is)...),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
+	mBlockSizes(bs),
+	mLMax(mkLMax(mIPack)),
+	mPMax(mkPMax(mIPack,mBlockSizes))
+    {
+	mkPos();
+    }
+
+    template <class BlockType, class... Indices>
     constexpr GMIndex<BlockType,Indices...>::GMIndex(const Sptr<Indices>&... is) :
 	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is->range()...))),
 	mIPack(is...),
 	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
 	mBlockSizes(),
+	mLMax(mkLMax(mIPack)),
+	mPMax(mkPMax(mIPack,mBlockSizes))
+    {
+	mkPos();
+    }
+
+    template <class BlockType, class... Indices>
+    constexpr GMIndex<BlockType,Indices...>::GMIndex(const BlockType& bs,
+						     const Sptr<Indices>&... is) :
+	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is->range()...))),
+	mIPack(is...),
+	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
+	mBlockSizes(bs),
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mBlockSizes))
     {
@@ -385,12 +412,17 @@ namespace CNORXZ
     }
 
     template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator()(const Sptr<GMIndex>& mi)
+    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator()(const Sptr<MIndex<Indices...>>& mi)
     {
-	mIPack = mi.mIPack;
-	IB::mPos = iter<0,NI>
-	    ( [&](auto i) { return std::get<i>(mIPack)->pos()*std::get<i>(blockSizes()).val(); },
-	      [](const auto&... xs) { return (xs + ...); });
+	mIPack = mi.pack();
+	mkPos();
+	return *this;
+    }
+
+    template <class BlockType, class... Indices>
+    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator()()
+    {
+	mkPos();
 	return *this;
     }
 
