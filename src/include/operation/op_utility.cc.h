@@ -4,7 +4,7 @@
 
 #include "op_utility.h"
 #include "xpr/pos_type.h"
-#include "operation/op_type.h"
+//#include "operation/op_types.h"
 
 namespace CNORXZ
 {
@@ -36,7 +36,7 @@ namespace CNORXZ
     inline void pos_unpack_args_i(const F& f, const PosT& pos, const OpTuple& args,
 				  OpSizes opsizes, std::index_sequence<Is...> is)
     {
-	f(std::get<Is>(args).get(pos_get<sum_index_sequence<Is>(opsizes)>(pos))...);
+	f(std::get<Is>(args)(pos_get<sum_index_sequence<Is>(opsizes)>(pos))...);
     }
 
     template <class F, class PosT, class... Ops>
@@ -44,9 +44,9 @@ namespace CNORXZ
     {
 	static_assert(is_pos_type<PosT>::value, "got non-pos-type");
 	static_assert((is_operation<Ops>::value and ...), "got non-operation type");
-	typedef std::make_index_sequence<sizeof...Ops> Idxs;
+	typedef std::make_index_sequence<sizeof...(Ops)> Idxs;
 	typedef std::index_sequence<op_size<Ops>::value...> OpSizes;
-	pos_unpack_args_i(f, pos, args, OpSizes{}, Idx{});
+	pos_unpack_args_i(f, pos, args, OpSizes{}, Idxs{});
     }
 
 }

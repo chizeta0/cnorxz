@@ -12,7 +12,7 @@ namespace CNORXZ
     {
 	constexpr SizeT N = epos_size<EPosT>::value;
 	static_assert(N == sizeof...(Is), "got inconsistent index sequence");
-	return Consecutive<T,N> { args... };
+	return Consecutive<T,N> { d[pos.template get<Is>().val()]... };
     }
 
     template <typename T, class EPosT>
@@ -82,7 +82,7 @@ namespace CNORXZ
 
     template <class F, typename... Args, SizeT... Is>
     static constexpr decltype(auto) consecFuncI(const F& f, const Args&... args,
-						std::index_sequence<Is...> is);
+						std::index_sequence<Is...> is)
     {
 	typedef decltype(consecApply<0>(f, args...)) OType;
 	constexpr SizeT N = sizeof...(Is);
@@ -121,10 +121,10 @@ namespace CNORXZ
     }
 
     template <typename T, typename U, SizeT N>
-    constexpr Consecutive<T,N>&
+    constexpr decltype(auto)
     PlusCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
     {
-	return consecFuncA( [](auto& x, const auto& y) { return x += y; }, a, b );
+	return consecFuncA( [](auto& x, const auto& y) { return x += y; }, o, a );
     }
 
     template <typename T, typename X, SizeT N>
@@ -134,15 +134,15 @@ namespace CNORXZ
     }
 
     template <typename T, typename X, SizeT N>
-    constexpr decltype(auto) PlusCX<T,X,N>::eval(const X& a, const Consecutive<U,N>& b)
+    constexpr decltype(auto) PlusCX<T,X,N>::eval(const X& a, const Consecutive<T,N>& b)
     {
 	return consecFunc( [](const auto& x, const auto& y) { return x + y; }, a, b );
     }
 
     template <typename T, typename X, SizeT N>
-    constexpr Consecutive<T,N>& PlusCX<T,X,N>::aeval(Consecutive<T,N>& o, const X& a)
+    constexpr decltype(auto) PlusCX<T,X,N>::aeval(Consecutive<T,N>& o, const X& a)
     {
-	return consecFuncA( [](auto& x, const auto& y) { return x += y; }, a, b );
+	return consecFuncA( [](auto& x, const auto& y) { return x += y; }, o, a );
     }
 
     /*******************************
@@ -168,15 +168,15 @@ namespace CNORXZ
     }
 
     template <typename T, typename U, SizeT N>
-    constexpr Consecutive<T,N>& MinusCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
+    constexpr decltype(auto) MinusCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
     {
-	return consecFuncA( [](auto& x, const auto& y) { return x -= y; }, a, b );
+	return consecFuncA( [](auto& x, const auto& y) { return x -= y; }, o, a );
     }
 
     template <typename T, typename X, SizeT N>
-    constexpr Consecutive<T,N>& MinusCX<T,X,N>::aeval(Consecutive<T,N>& o, const X& a)
+    constexpr decltype(auto) MinusCX<T,X,N>::aeval(Consecutive<T,N>& o, const X& a)
     {
-	return consecFuncA( [](auto& x, const auto& y) { return x -= y; }, a, b );
+	return consecFuncA( [](auto& x, const auto& y) { return x -= y; }, o, a );
     }
 
     /***********************************
@@ -190,7 +190,7 @@ namespace CNORXZ
     }
 
     template <typename T, typename X, SizeT N>
-    constexpr decltype(auto) MultipliesCX<T,U,N>::eval(const Consecutive<T,N>& a, const U& b)
+    constexpr decltype(auto) MultipliesCX<T,X,N>::eval(const Consecutive<T,N>& a, const X& b)
     {
 	return consecFunc( [](const auto& x, const auto& y) { return x * y; }, a, b );
     }
@@ -202,15 +202,15 @@ namespace CNORXZ
     }
 
     template <typename T, typename U, SizeT N>
-    constexpr Consecutive<T,N>& MultipliesCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
+    constexpr decltype(auto) MultipliesCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
     {
-	return consecFuncA( [](const auto& x, const auto& y) { return x *= y; }, a, b );
+	return consecFuncA( [](const auto& x, const auto& y) { return x *= y; }, o, a );
     }
 
     template <typename T, typename X, SizeT N>
-    constexpr Consecutive<T,N>& MultipliesCX<T,X,N>::eval(Consecutive<T,N>& o, const X& a)
+    constexpr decltype(auto) MultipliesCX<T,X,N>::aeval(Consecutive<T,N>& o, const X& a)
     {
-	return consecFuncA( [](const auto& x, const auto& y) { return x *= y; }, a, b );
+	return consecFuncA( [](const auto& x, const auto& y) { return x *= y; }, o, a );
     }
 
     /*********************************
@@ -236,15 +236,15 @@ namespace CNORXZ
     }
 
     template <typename T, typename U, SizeT N>
-    constexpr Consecutive<T,N>& DividesCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
+    constexpr decltype(auto) DividesCC<T,U,N>::aeval(Consecutive<T,N>& o, const Consecutive<U,N>& a)
     {
-	return consecFuncA( [](const auto& x, const auto& y) { return x /= y; }, a, b );
+	return consecFuncA( [](const auto& x, const auto& y) { return x /= y; }, o, a );
     }
 
     template <typename T, typename X, SizeT N>
-    constexpr Consecutive<T,N>& DividesCX<T,X,N>::eval(Consecutive<T,N>& o, const X& a)
+    constexpr decltype(auto) DividesCX<T,X,N>::aeval(Consecutive<T,N>& o, const X& a)
     {
-	return consecFuncA( [](const auto& x, const auto& y) { return x /= y; }, a, b );
+	return consecFuncA( [](const auto& x, const auto& y) { return x /= y; }, o, a );
     }
 }
 

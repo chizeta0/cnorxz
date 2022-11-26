@@ -4,6 +4,8 @@
 #define __cxz_op_types_h__
 
 #include "base/base.h"
+#include "xpr/xpr_base.h"
+#include "array/darray_base.h"
 
 namespace CNORXZ
 {
@@ -13,6 +15,7 @@ namespace CNORXZ
     class COpInterface : public XprInterface<OpT>
     {
     public:
+	constexpr COpInterface() = default;
 	
 	OpT& THIS() { return static_cast<OpT&>(*this); }
 	const OpT& THIS() const { return static_cast<const OpT&>(*this); }
@@ -34,32 +37,41 @@ namespace CNORXZ
     public:
 	typedef COpInterface<OpT> OI;
 
+	constexpr OpInterface() = default;
+	
 	OpT& THIS() { return static_cast<OpT&>(*this); }
 	const OpT& THIS() const { return static_cast<const OpT&>(*this); }
 
 	template <class IndexT, class F, class... Args>
-	constexpr decltype(auto) ax(const Sptr<IndexT>& ind, F&& f, Args&&... args);
+	constexpr decltype(auto) ax(const Sptr<IndexT>& ind, F&& f, const Args&... args);
 
 	template <class IndexT, class F, class... Args>
-	inline SizeT a(const Sptr<IndexT>& ind, F&& f, Args&&... args);
+	inline void a(const Sptr<IndexT>& ind, F&& f, const Args&... args);
     };
 
     template <class T>
     struct is_operation
-    { static constexpr bool value = std::is_base_of<COpInterface,T>::value };
+    { static constexpr bool value = std::is_base_of<COpInterface<T>,T>::value; };
 
     template <class T>
     struct is_mutable_operation
-    { static constexpr bool value = std::is_base_of<OpInterface,T>::value };
+    { static constexpr bool value = std::is_base_of<OpInterface<T>,T>::value; };
 
+    template <class T>
+    struct op_size
+    { static constexpr SizeT value = is_operation<T>::value ? 1 : 0; };
+    
     template <typename T, class IndexT>
     class COpRoot : public COpInterface<COpRoot<T,IndexT>>
     {
     public:
-	typedef OpInterface<T,COpRoot<T,IndexT>> OI;
+	typedef OpInterface<COpRoot<T,IndexT>> OI;
+
+	constexpr COpRoot() = default;
 	
 	constexpr COpRoot(const DArrayBase<T>& a, const Sptr<IndexT>& ind);
 	constexpr COpRoot(const T* data, const Sptr<IndexT>& ind);
+	constexpr COpRoot& init(const T* data, const Sptr<IndexT>& ind);
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& pos) const;
@@ -73,7 +85,7 @@ namespace CNORXZ
 	
     private:
 	const T* mData = nullptr;
-	Sptr<IndexType> mIndex;
+	Sptr<IndexT> mIndex;
     };
 
     template <typename T, class IndexT>
@@ -82,7 +94,19 @@ namespace CNORXZ
     public:
 	typedef OpInterface<OpCont<T,IndexT>> OI;
 
-	constexpr OpCont(const Sptr<Index>& ind);
+	constexpr OpCont() = default;
+	
+	constexpr OpCont(const Sptr<IndexT>& ind);
+	constexpr OpCont& init(const Sptr<IndexT>& ind);
+	constexpr OpCont& init(const Sptr<IndexT>& ind, const Vector<T>& c);
+
+        template <class Op>
+        constexpr OpCont& operator=(const Op& in);
+
+        template <class Op>
+        constexpr OpCont& operator+=(const Op& in);
+
+        constexpr OpCont& operator=(const OpCont& in);
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& pos) const;
@@ -97,7 +121,7 @@ namespace CNORXZ
 	
     private:
 	Sptr<IndexT> mIndex;
-	Vector<T> mC;
+	Sptr<Vector<T>> mC;
     };
     
     
@@ -107,8 +131,11 @@ namespace CNORXZ
     public:
 	typedef OpInterface<OpRoot<T,IndexT>> OI;
 
+	constexpr OpRoot() = default;
+	
 	constexpr OpRoot(MDArrayBase<T>& a, const Sptr<IndexT>& ind);
 	constexpr OpRoot(T* data, const Sptr<IndexT>& ind);
+	constexpr OpRoot& init(T* data, const Sptr<IndexT>& ind);
             
         template <class Op>
         constexpr OpRoot& operator=(const Op& in);
@@ -139,9 +166,11 @@ namespace CNORXZ
     class Operation : public OpInterface<Operation<F,Ops...>>
     {
     public:
-	typedef OpInterface<T,Operation<T,F,Ops...>> OI;
+	typedef OpInterface<Operation<F,Ops...>> OI;
 
-	constexpr Operation(F&& f, Ops&&... ops);
+	constexpr Operation() = default;
+	
+	constexpr Operation(F&& f, const Ops&... ops);
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& pos) const;
@@ -154,11 +183,19 @@ namespace CNORXZ
     private:
 	template <SizeT... Is>
 	constexpr decltype(auto) exec(std::index_sequence<Is...> is) const;
+
+	template <SizeT I, SizeT... Is>
+	constexpr decltype(auto) rootStepsi(const IndexId<I>& id,
+					    std::index_sequence<Is...> is) const;
      
 	Tuple<Ops...> mOps;
 	F mF;
 	
     };
+
+    template <class F, class... Ops>
+    struct op_size<Operation<F,Ops...>>
+    { static constexpr SizeT value = sizeof...(Ops); };
     
     template <class CXpr>
     class Contraction : public OpInterface<Contraction<CXpr>>
@@ -166,6 +203,8 @@ namespace CNORXZ
     public:
 	typedef OpInterface<Contraction<CXpr>> OI;
 
+	constexpr Contraction() = default;
+	
 	constexpr Contraction(CXpr&& cxpr);
 
 	template <class PosT>
@@ -178,7 +217,6 @@ namespace CNORXZ
 
     private:
 	CXpr mCXpr;
-	Sptr<IndexType> mInd;
     };
 
     template <class F, class Op, class IndexT>

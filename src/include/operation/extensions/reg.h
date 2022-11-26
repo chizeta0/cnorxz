@@ -117,11 +117,11 @@ namespace CNORXZ
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator+=(Consecutive<T,N>& o, const Consecutive<U,N>& a)
-    { return PlusCC<T,U,N>::aeval(a,b); }
+    { return PlusCC<T,U,N>::aeval(o,a); }
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator+=(Consecutive<T,N>& o, const U& a)
-    { return PlusCX<T,U,N>::aeval(a,b); }
+    { return PlusCX<T,U,N>::aeval(o,a); }
 
     /*******************************
      *   basic operations: minus   *
@@ -164,11 +164,11 @@ namespace CNORXZ
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator-=(Consecutive<T,N>& o, const Consecutive<U,N>& a)
-    { return MinusCC<T,U,N>::eval(a,b); }
+    { return MinusCC<T,U,N>::eval(o,a); }
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator-=(Consecutive<T,N>& o, const U& a)
-    { return MinusCX<T,U,N>::eval(a,b); }
+    { return MinusCX<T,U,N>::eval(o,a); }
 
     /***********************************
      *   basic operations: muliplies   *
@@ -199,23 +199,23 @@ namespace CNORXZ
     
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto) operator*(const Consecutive<T,N>& a, const Consecutive<U,N>& b)
-    { return MulitpliesCC<T,U,N>::eval(a,b); }
+    { return MultipliesCC<T,U,N>::eval(a,b); }
 
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto) operator*(const Consecutive<T,N>& a, const U& b)
-    { return MulitpliesCX<T,U,N>::eval(a,b); }
+    { return MultipliesCX<T,U,N>::eval(a,b); }
 
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto) operator*(const T& a, const Consecutive<U,N>& b)
-    { return MulitpliesXC<U,T,N>::eval(a,b); }
+    { return MultipliesCX<U,T,N>::eval(a,b); }
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator*=(Consecutive<T,N>& o, const Consecutive<U,N>& a)
-    { return MulitpliesCC<T,U,N>::eval(a,b); }
+    { return MultipliesCC<T,U,N>::eval(o,a); }
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator*=(Consecutive<T,N>& o, const U& a)
-    { return MulitpliesCX<T,U,N>::eval(a,b); }
+    { return MultipliesCX<T,U,N>::eval(o,a); }
 
     /*********************************
      *   basic operations: divides   *
@@ -258,11 +258,11 @@ namespace CNORXZ
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator/=(Consecutive<T,N>& o, const Consecutive<U,N>& a)
-    { return DividesCC<T,U,N>::eval(a,b); }
+    { return DividesCC<T,U,N>::eval(o,a); }
 
     template <typename T, typename U, SizeT N>
     constexpr Consecutive<T,N>& operator/=(Consecutive<T,N>& o, const U& a)
-    { return DividesCX<T,U,N>::eval(a,b); }
+    { return DividesCX<T,U,N>::eval(o,a); }
 
 }
 

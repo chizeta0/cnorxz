@@ -19,7 +19,6 @@ namespace CNORXZ
     template <class F, class PosT, class... Ops>
     inline void pos_unpack_args(const F& f, const PosT& pos, const Tuple<Ops...>& args);
     
-    
 }
 
 #endif

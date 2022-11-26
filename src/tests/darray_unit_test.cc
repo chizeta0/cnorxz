@@ -11,7 +11,8 @@
 namespace
 {
     using namespace CNORXZ;
-
+    using Test::Numbers;
+    
     class DA_1D_Test : public ::testing::Test
     {
     protected:
@@ -46,7 +47,7 @@ namespace
 
     TEST_F(DA_1D_Test, Basics)
     {
-	const DArray<Double> a(mCR1, ::CNORXZ::Test::Numbers::get(0,mSize));
+	const DArray<Double> a(mCR1, Numbers::get(0,mSize));
 	auto crx = std::dynamic_pointer_cast<CRange>(mCR1);
 	EXPECT_EQ(a.size(), mSize);
 	EXPECT_FALSE(a.isView());
@@ -65,7 +66,7 @@ namespace
     {
 	const SizeT ssize = mStrMeta.size();
 	const SizeT size = mSize * ssize;
-	const DArray<Double> a(mCR1*mUR1, ::CNORXZ::Test::Numbers::get(0,size));
+	const DArray<Double> a(mCR1*mUR1, Numbers::get(0,size));
 	EXPECT_EQ(a.range()->dim(), 2u);
 	EXPECT_EQ(a.size(), size);
 	EXPECT_EQ(a.pmax(), size);
