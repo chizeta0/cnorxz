@@ -3,7 +3,6 @@
 #define __cxz_aindex_cc_h__
 
 #include "aindex.h"
-#include "statics/static_for.h"
 
 namespace CNORXZ
 {
