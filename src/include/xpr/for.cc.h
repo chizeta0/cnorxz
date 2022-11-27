@@ -26,7 +26,7 @@ namespace CNORXZ
     template <class PosT>
     inline decltype(auto) For<L,Xpr,F>::operator()(const PosT& last) const
     {
-	if constexpr(std::is_same<F,NoF>::value){
+	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
 	    for(SizeT i = 0; i != mSize; ++i){
 		const auto pos = last + mExt * UPos(i);
 		mXpr(pos);
@@ -47,7 +47,7 @@ namespace CNORXZ
     template <SizeT L, class Xpr, class F>
     inline decltype(auto) For<L,Xpr,F>::operator()() const
     {
-	if constexpr(std::is_same<F,NoF>::value){
+	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
 	    for(SizeT i = 0; i != mSize; ++i){
 		const auto pos = mExt * UPos(i);
 		mXpr(pos);

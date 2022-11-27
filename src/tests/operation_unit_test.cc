@@ -47,6 +47,8 @@ namespace
     {
     protected:
 
+	typedef MIndex<CIndex,CIndex> MCCI;
+	
 	OpCont_CR_CR_Test()
 	{
 	    mSize1 = 7;
@@ -57,6 +59,16 @@ namespace
 	    mData12 = Numbers::get(off+mSize1+mSize2, mSize1*mSize2);
 	    auto cra = CRangeFactory(mSize1).create();
 	    auto crb = CRangeFactory(mSize2).create();
+	    mCIa1 = std::make_shared<CIndex>(cra);
+	    mCIa2 = std::make_shared<CIndex>(cra);
+	    mCIb1 = std::make_shared<CIndex>(crb);
+	    mCIb2 = std::make_shared<CIndex>(crb);
+	    mCCa1a2 = std::make_shared<MCCI>(mCIa1,mCIa2);
+	    mCCa2a1 = std::make_shared<MCCI>(mCIa2,mCIa1);
+	    //mCCa1a2 = mCIa1*mCIa2;
+	    //mCCa2a1 = mCIa2*mCIa1;
+	    mOCa1a2.init(mCCa1a2);
+	    mORa2a1.init(mData12.data(), mCCa2a1);
 	}
 
 	SizeT mSize1;
@@ -64,12 +76,14 @@ namespace
 	Vector<Double> mData1;
 	Vector<Double> mData2;
 	Vector<Double> mData12;
-	Sptr<CIndex> mCI1;
-	Sptr<CIndex> mCI2;
-	OpCont<double,CIndex> mOp1;
-	COpRoot<double,CIndex> mOp2;
-	OpCont<double,CIndex> mOp3;
-	COpRoot<double,CIndex> mOp4;
+	Sptr<CIndex> mCIa1;
+	Sptr<CIndex> mCIa2;
+	Sptr<CIndex> mCIb1;
+	Sptr<CIndex> mCIb2;
+	Sptr<MCCI> mCCa1a2;
+	Sptr<MCCI> mCCa2a1;
+	OpCont<double,MCCI> mOCa1a2;
+	COpRoot<double,MCCI> mORa2a1;
     };
 
     TEST_F(OpCont_CR_Test, Basics)
@@ -131,4 +145,23 @@ namespace
 	}
     }
 
+    TEST_F(OpCont_CR_CR_Test, Basics)
+    {
+	EXPECT_EQ(mOCa1a2.rootSteps(mCIa1->id()).val(), mCIa2->pmax().val());
+	EXPECT_EQ(mOCa1a2.rootSteps(mCIa2->id()).val(), 1u);
+	EXPECT_EQ(mORa2a1.rootSteps(mCIa1->id()).val(), 1u);
+	EXPECT_EQ(mORa2a1.rootSteps(mCIa2->id()).val(), mCIa1->pmax().val());
+    }
+
+    TEST_F(OpCont_CR_CR_Test, Assignment)
+    {
+	mOCa1a2 = mORa2a1;
+	for(SizeT i = 0; i != mCIa1->pmax().val(); ++i){
+	    for(SizeT j = 0; j != mCIa2->pmax().val(); ++j){
+		const SizeT jS = mCIa2->pmax().val();
+		const SizeT iS = mCIa1->pmax().val();
+		EXPECT_EQ(mOCa1a2.data()[i*jS+j], mORa2a1.data()[j*iS+i]);
+	    }
+	}
+    }
 }
