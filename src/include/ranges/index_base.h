@@ -74,6 +74,14 @@ namespace CNORXZ
 	PtrId mPtrId = 0;
     };
 
+    template <class I>
+    struct index_has_const_size
+    { static constexpr bool value = false; };
+
+    template <class I>
+    struct index_const_size
+    { static constexpr SizeT value = 0; };
+
     template <class I, typename MetaType>
     IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i);
 

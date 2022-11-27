@@ -215,7 +215,14 @@ namespace CNORXZ
     
     template <typename T>
     using Vector = std::vector<T,Allocator<T>>;
-    
+
+    template <typename T, SizeT N, bool Static>
+    struct Container
+    { typedef Vector<T> type; };
+
+    template <typename T, SizeT N>
+    struct Container<T,N,true>
+    { typedef Arr<T,N> type; };
 }
 
 #endif

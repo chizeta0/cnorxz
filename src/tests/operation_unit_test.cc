@@ -43,6 +43,35 @@ namespace
 	COpRoot<double,CIndex> mOp4;
     };
 
+    class OpCont_CR_CR_Test : public ::testing::Test
+    {
+    protected:
+
+	OpCont_CR_CR_Test()
+	{
+	    mSize1 = 7;
+	    mSize2 = 11;
+	    const SizeT off = 20;
+	    mData1 = Numbers::get(off, mSize1);
+	    mData2 = Numbers::get(off+mSize1, mSize2);
+	    mData12 = Numbers::get(off+mSize1+mSize2, mSize1*mSize2);
+	    auto cra = CRangeFactory(mSize1).create();
+	    auto crb = CRangeFactory(mSize2).create();
+	}
+
+	SizeT mSize1;
+	SizeT mSize2;
+	Vector<Double> mData1;
+	Vector<Double> mData2;
+	Vector<Double> mData12;
+	Sptr<CIndex> mCI1;
+	Sptr<CIndex> mCI2;
+	OpCont<double,CIndex> mOp1;
+	COpRoot<double,CIndex> mOp2;
+	OpCont<double,CIndex> mOp3;
+	COpRoot<double,CIndex> mOp4;
+    };
+
     TEST_F(OpCont_CR_Test, Basics)
     {
 	EXPECT_EQ(mOp2.data(), mData1.data());

@@ -110,6 +110,13 @@ namespace CNORXZ
 
     //template <class... Indices>
     //using MIndex = GMIndex<None,Indices...>;
+    template <class... Indices>
+    struct index_has_const_size<MIndex<Indices...>>
+    { static constexpr bool value = (index_has_const_size<Indices>::value and ...); };
+
+    template <class... Indices>
+    struct index_const_size<MIndex<Indices...>>
+    { static constexpr SizeT value = (index_const_size<Indices>::value * ...); };
     
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase

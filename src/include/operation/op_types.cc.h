@@ -18,7 +18,7 @@ namespace CNORXZ
     template <class F, class IndexT>
     constexpr decltype(auto) COpInterface<OpT>::c(F&& f, const Sptr<IndexT>& ind) const
     {
-	return mkContraction(std::forward<F>(f), THIS(), ind);
+	return mkContraction(std::forward<F>(f), THIS().r(), ind);
     }
 
     template <class OpT>
@@ -33,7 +33,7 @@ namespace CNORXZ
     template <class F, class... Args>
     constexpr decltype(auto) COpInterface<OpT>::o(F&& f, Args&&... args) const
     {
-        return Operation<F,OpT,Args...>(std::forward<F>(f), THIS(), args...);
+	return mkOperation(std::forward<F>(f), THIS().r(), args...);
     }
 
     
@@ -45,7 +45,7 @@ namespace CNORXZ
     template <class IndexT, class F, class... Args>
     constexpr decltype(auto) OpInterface<OpT>::ax(const Sptr<IndexT>& ind, F&& f, const Args&... args)
     {
-	return ind->ifor( Operation<F,OpT,Args...>(f, THIS(), args...), NoF {} );
+	return ind->ifor( mkOperation(f, OI::THIS().r(), args...), NoF {} );
     }
 
     template <class OpT>
@@ -126,11 +126,8 @@ namespace CNORXZ
     constexpr OpCont<T,IndexT>& OpCont<T,IndexT>::init(const Sptr<IndexT>& ind)
     {
 	mIndex = ind;
-	if(not mC){
-	    mC = std::make_shared<Vector<T>>(mIndex->pmax().val());
-	}
-	else if(mC->size() != mIndex->pmax().val()){
-	    mC->resize(mIndex->pmax().val());
+	if(mC.size() != mIndex->pmax().val()){
+	    mC.resize(mIndex->pmax().val());
 	}
 	return *this;
     }
@@ -140,10 +137,22 @@ namespace CNORXZ
 						       const Vector<T>& c)
     {
 	init(ind);
-	CXZ_ASSERT(c.size() == mC->size(),
-		   "size-mismatch: expected " << mC->size() << ", got " << c.size());
-	std::transform(c.begin(), c.end(), mC->begin(), [](const auto& x) { return x; } );
+	CXZ_ASSERT(c.size() == mC.size(),
+		   "size-mismatch: expected " << mC.size() << ", got " << c.size());
+	std::transform(c.begin(), c.end(), mC.begin(), [](const auto& x) { return x; } );
 	return *this;
+    }
+
+    template <typename T, class IndexT>
+    constexpr decltype(auto) OpCont<T,IndexT>::r()
+    {
+	return OpRoot<T,IndexT>(data(), mIndex);
+    }
+
+    template <typename T, class IndexT>
+    constexpr decltype(auto) OpCont<T,IndexT>::r() const
+    {
+	return COpRoot<T,IndexT>(data(), mIndex);
     }
 
     template <typename T, class IndexT>
@@ -175,23 +184,23 @@ namespace CNORXZ
     {
 	if constexpr(is_epos_type<PosT>::value){
 	    if constexpr(pos_type_is_consecutive<PosT>::value){
-		return vreg(mC->data(),pos);
+		return vreg(mC.data(),pos);
 	    }
 	    else {
 		// non-consecutive data cannot be directly accessed
 		// so there is no non-const (write) access!
-		return vreg(const_cast<const T*>(mC->data()),pos);
+		return vreg(const_cast<const T*>(mC.data()),pos);
 	    }
 	}
 	else {
-	    return (*mC)[pos.val()];
+	    return mC[pos.val()];
 	}
     }
 
     template <typename T, class IndexT>
     constexpr decltype(auto) OpCont<T,IndexT>::operator()() const
     {
-	return (*mC)[0];
+	return mC[0];
     }
 
     template <typename T, class IndexT>
@@ -204,13 +213,13 @@ namespace CNORXZ
     template <typename T, class IndexT>
     T* OpCont<T,IndexT>::data()
     {
-	return mC->data();
+	return mC.data();
     }
 
     template <typename T, class IndexT>
     const T* OpCont<T,IndexT>::data() const
     {
-	return mC->data();
+	return mC.data();
     }
     
     /****************
@@ -341,6 +350,12 @@ namespace CNORXZ
 							     std::index_sequence<Is...> is) const
     {
 	return ( std::get<Is>(mOps).rootSteps(id) << ... );
+    }
+
+    template <class F, class... Ops>
+    constexpr decltype(auto) mkOperation(F&& f, const Ops&... ops)
+    {
+	return Operation<F,Ops...>(std::forward<F>(f), ops...);
     }
 
     

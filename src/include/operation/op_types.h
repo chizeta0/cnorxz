@@ -20,6 +20,9 @@ namespace CNORXZ
 	OpT& THIS() { return static_cast<OpT&>(*this); }
 	const OpT& THIS() const { return static_cast<const OpT&>(*this); }
 
+	constexpr decltype(auto) r() { return THIS(); }
+	constexpr decltype(auto) r() const { return THIS(); }
+	
 	template <class F, class IndexT>
 	constexpr decltype(auto) c(F&& f, const Sptr<IndexT>& ind) const;
 
@@ -93,13 +96,18 @@ namespace CNORXZ
     {
     public:
 	typedef OpInterface<OpCont<T,IndexT>> OI;
-
+	typedef typename Container<T,index_const_size<IndexT>::value,
+				   index_has_const_size<IndexT>::value>::type CT;
+	
 	constexpr OpCont() = default;
 	
 	constexpr OpCont(const Sptr<IndexT>& ind);
 	constexpr OpCont& init(const Sptr<IndexT>& ind);
 	constexpr OpCont& init(const Sptr<IndexT>& ind, const Vector<T>& c);
 
+	constexpr decltype(auto) r();
+	constexpr decltype(auto) r() const;
+	
         template <class Op>
         constexpr OpCont& operator=(const Op& in);
 
@@ -121,7 +129,7 @@ namespace CNORXZ
 	
     private:
 	Sptr<IndexT> mIndex;
-	Sptr<Vector<T>> mC;
+	CT mC;
     };
     
     
@@ -192,6 +200,9 @@ namespace CNORXZ
 	F mF;
 	
     };
+
+    template <class F, class... Ops>
+    constexpr decltype(auto) mkOperation(F&& f, const Ops&... ops);
 
     template <class F, class... Ops>
     struct op_size<Operation<F,Ops...>>
