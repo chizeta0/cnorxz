@@ -131,18 +131,6 @@ namespace CNORXZ
 	return std::make_shared<IndexInterface<I,MetaType>>( *i - n );
     }
 
-    template <class I1, class I2, typename MType1, typename MType2>
-    decltype(auto) operator*(const IndexInterface<I1,MType1>& a,
-			     const IndexInterface<I2,MType2>& b)
-    {
-	return MIndex<I1,I2>(a.THIS(),b.THIS());
-    }
-
-    template <class I1, class I2, typename MType1, typename MType2>
-    decltype(auto) operator*(const IndexPtr<I1,MType1>& a, const IndexPtr<I2,MType2>& b)
-    {
-	return std::make_shared<MIndex<I1,I2>>(a->THIS(), b->THIS());
-    }
 }
 
 #endif

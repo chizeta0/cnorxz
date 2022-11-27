@@ -41,6 +41,7 @@ namespace CNORXZ
 	bool operator>(const IndexInterface& in) const;
 	bool operator<=(const IndexInterface& in) const;
 	bool operator>=(const IndexInterface& in) const;
+
 	decltype(auto) operator*() const { return THIS().operator*(); }
 
 	SizeT dim() const { return THIS().dim(); }
@@ -82,6 +83,10 @@ namespace CNORXZ
     struct index_const_size
     { static constexpr SizeT value = 0; };
 
+    template <class I>
+    struct index_dim
+    { static constexpr SizeT value = 1; };
+    
     template <class I, typename MetaType>
     IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i);
 
@@ -95,12 +100,6 @@ namespace CNORXZ
     template <class I, typename MetaType>
     IndexPtr<I,MetaType> operator-(const IndexPtr<I,MetaType>& i, Int n);
 
-    template <class I1, class I2, typename MType1, typename MType2>
-    decltype(auto) operator*(const IndexInterface<I1,MType1>& a,
-			     const IndexInterface<I2,MType2>& b);
-
-    template <class I1, class I2, typename MType1, typename MType2>
-    decltype(auto) operator*(const IndexPtr<I1,MType1>& a, const IndexPtr<I2,MType2>& b);
 }
 
 #endif
