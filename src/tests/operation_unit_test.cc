@@ -55,14 +55,14 @@ namespace
 	auto rs22 = mOp2.rootSteps(mCI2->id());
 	auto rs32 = mOp3.rootSteps(mCI2->id());
 	auto rs42 = mOp4.rootSteps(mCI2->id());
-	EXPECT_EQ(rs11.val(), 1);
-	EXPECT_EQ(rs21.val(), 1);
-	EXPECT_EQ(rs31.val(), 0);
-	EXPECT_EQ(rs41.val(), 0);
-	EXPECT_EQ(rs12.val(), 0);
-	EXPECT_EQ(rs22.val(), 0);
-	EXPECT_EQ(rs32.val(), 1);
-	EXPECT_EQ(rs42.val(), 1);
+	EXPECT_EQ(rs11.val(), 1u);
+	EXPECT_EQ(rs21.val(), 1u);
+	EXPECT_EQ(rs31.val(), 0u);
+	EXPECT_EQ(rs41.val(), 0u);
+	EXPECT_EQ(rs12.val(), 0u);
+	EXPECT_EQ(rs22.val(), 0u);
+	EXPECT_EQ(rs32.val(), 1u);
+	EXPECT_EQ(rs42.val(), 1u);
     }
 
     TEST_F(OpCont_CR_Test, Assignment)
