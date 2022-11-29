@@ -55,6 +55,9 @@ namespace CNORXZ
 	const MetaT* mMetaPtr;
     };
 
+    template <typename MetaType, class I1>
+    decltype(auto) operator*(const Sptr<UIndex<MetaType>>& a, const Sptr<I1>& b);
+    
     template <typename MetaType>
     class URangeFactory : public RangeFactoryBase
     {

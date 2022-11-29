@@ -111,6 +111,9 @@ namespace CNORXZ
 	PMaxT mPMax;
     };
 
+    template <class BT1, class... Is1, class BT2, class... Is2>
+    decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b);
+    
     //template <class... Indices>
     //using MIndex = GMIndex<None,Indices...>;
     template <class... Indices>
@@ -127,33 +130,6 @@ namespace CNORXZ
 
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is);
-
-    struct MIndexMul
-    {
-	template <class BlockT, class... Indices, class I, typename Meta, SizeT... Is>
-	static constexpr decltype(auto) evalMX(const GMIndex<BlockT,Indices...>& a,
-					       const IndexInterface<I,Meta>& b,
-					       Isq<Is...> is);
-
-	template <class BlockT, class... Indices, class I, typename Meta, SizeT... Js>
-	static constexpr decltype(auto) evalXM(const IndexInterface<I,Meta>& a,
-					       const GMIndex<BlockT,Indices...>& b,
-					       Isq<Js...> js);
-
-	template <class BlockT1, class... Indices1, class BlockT2, class... Indices2, SizeT... Is, SizeT... Js>
-	static constexpr decltype(auto) evalMM(const GMIndex<BlockT1,Indices1...>& a,
-					       const GMIndex<BlockT2,Indices2...>& b,
-					       Isq<Is...> is, Isq<Js...> js);
-    };
-
-    // move to separate file!!!
-    template <class I1, typename Meta1, class I2, typename Meta2>
-    constexpr decltype(auto) operator*(const IndexInterface<I1,Meta1>& a,
-				       const IndexInterface<I2,Meta2>& b);
-    
-    //template <class BlockT, class... Indices2, SizeT... Is, SizeT... Js>
-    //constexpr decltype(auto) mindex(const GMIndex<BlockT,Indices2...>& a,
-    //				    Isq<Is...> is, Isq<Js...> js) const;
 
     
     template <class... Ranges>

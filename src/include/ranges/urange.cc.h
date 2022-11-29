@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "urange.h"
+#include "index_mul.h"
 #include "xpr/for.h"
 
 namespace CNORXZ
@@ -143,6 +144,12 @@ namespace CNORXZ
 	return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
     }
     
+    template <typename MetaType, class I1>
+    decltype(auto) operator*(const Sptr<UIndex<MetaType>>& a, const Sptr<I1>& b)
+    {
+	return iptrMul(a, b);
+    }
+
     /**********************
      *   URangeFactory    *
      **********************/

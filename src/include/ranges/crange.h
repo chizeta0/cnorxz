@@ -49,6 +49,8 @@ namespace CNORXZ
 	Sptr<RangeType> mRangePtr;
     };
 
+    template <class I>
+    decltype(auto) operator*(const Sptr<CIndex>& a, const Sptr<I>& b);
 
     class CRangeFactory : public RangeFactoryBase
     {
