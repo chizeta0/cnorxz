@@ -1,5 +1,3 @@
-before_script:
-    - export GTEST_ROOT=/opt/gtest-1.8.0
 
 image: rikorose/gcc-cmake
 
