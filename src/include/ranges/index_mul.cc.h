@@ -16,7 +16,8 @@ namespace CNORXZ
 					       Isq<Is...> is)
     {
 	static_assert(sizeof...(Is) == sizeof...(Indices), "inconsistent index sequence");
-	return MIndex<Indices...,I>( std::get<Is>(a.pack())..., b.THIS() );
+	return MIndex<Indices...,I>( std::get<Is>(a.pack())...,
+				     std::make_shared<I>(b.THIS()) );
     }
     
     template <class BlockT, class... Indices, class I, typename Meta, SizeT... Js>
@@ -25,7 +26,8 @@ namespace CNORXZ
 					       Isq<Js...> js)
     {
 	static_assert(sizeof...(Js) == sizeof...(Indices), "inconsistent index sequence");
-	return MIndex<Indices...,I>( a.THIS(), std::get<Js>(b.pack())... );
+	return MIndex<Indices...,I>( std::make_shared<I>(a.THIS()),
+				     std::get<Js>(b.pack())... );
     }
     
     template <class BlockT1, class... Indices1, class BlockT2, class... Indices2,
@@ -83,20 +85,24 @@ namespace CNORXZ
 				       const IndexInterface<I2,Meta2>& b)
     {
 	// special operations for DIndex / YIndex
-	if constexpr(index_dim<I1>::value == 1){
-	    if constexpr(index_dim<I2>::value == 1){
+	constexpr SizeT I1D = index_dim<I1>::value;
+	constexpr SizeT I2D = index_dim<I2>::value;
+	if constexpr(I1D == 1){
+	    if constexpr(I2D == 1){
 		return MIndex<I1,I2>(a.THIS(),b.THIS());
 	    }
 	    else {
-		return MIndexMul::evalXM(a, b.THIS());
+		return MIndexMul::evalXM(a, b.THIS(), std::make_index_sequence<I2D>{});
 	    }
 	}
 	else {
-	    if constexpr(index_dim<I2>::value == 1){
-		return MIndexMul::evalMX(a.THIS(), b);
+	    if constexpr(I2D == 1){
+		return MIndexMul::evalMX(a.THIS(), b, std::make_index_sequence<I1D>{});
 	    }
 	    else {
-		return MIndexMul::evalMM(a.THIS(), b.THIS());
+		return MIndexMul::evalMM(a.THIS(), b.THIS(),
+					 std::make_index_sequence<I1D>{},
+					 std::make_index_sequence<I2D>{});
 	    }
 	}
     }

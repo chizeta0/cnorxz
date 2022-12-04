@@ -46,9 +46,6 @@ namespace CNORXZ
 	GMIndex& operator+=(Int n);
 	GMIndex& operator-=(Int n);
 
-	template <class Index, typename Meta>
-	constexpr decltype(auto) operator*(const IndexInterface<Index,Meta>& a) const;
-
 	SizeT lex() const;
 	constexpr decltype(auto) pmax() const;
 	constexpr decltype(auto) lmax() const;

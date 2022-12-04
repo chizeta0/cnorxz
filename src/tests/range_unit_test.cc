@@ -412,18 +412,23 @@ namespace
 
     TEST_F(YR_Test, IndexMultiplication)
     {
-	const SizeT ssize = mMeta.size();
+	const SizeT s1 = mMeta.size();
+	const SizeT s2 = mSize;
 	auto crx = std::dynamic_pointer_cast<CRange>(cr);
 	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
 	for(auto cix = crx->begin(); cix != crx->end(); ++cix){
 	    for(auto uix = urx->begin(); uix != urx->end(); ++uix){
-		const SizeT p = cix.lex()*ssize + uix.lex();
-		EXPECT_EQ((cix*uix).lex(), p);
+		const SizeT p1 = cix.lex()*s1 + uix.lex();
+		EXPECT_EQ((cix*uix).lex(), p1);
+		for(auto ci2x = crx->begin(); ci2x != crx->end(); ++ci2x){
+		    const SizeT p2 = cix.lex()*s1*s2 + uix.lex()*s2 + ci2x.lex();
+		    EXPECT_EQ((cix*uix*ci2x).lex(), p2);
+		}
 	    }
 	}
 	for(auto ci = cr->begin(); ci != cr->end(); ++ci){
 	    for(auto ui = ur->begin(); ui != ur->end(); ++ui){
-		const SizeT p = ci.lex()*ssize + ui.lex();
+		const SizeT p = ci.lex()*s1 + ui.lex();
 		EXPECT_EQ((ci*ui).lex(), p);
 	    }
 	}
