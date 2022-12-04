@@ -50,16 +50,20 @@ namespace
 	    mMeta = { "test", "strings", "foo" };
 	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
 	    mSize = 7;
-	    auto cr = CRangeFactory(mSize).create();
+	    cr = CRangeFactory(mSize).create();
 	    auto crx = std::dynamic_pointer_cast<CRange>(cr);
-	    auto ur = URangeFactory<String>(mMeta).create();
+	    ur = URangeFactory<String>(mMeta).create();
 	    auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
 	    mr = mrange(crx,urx);
+	    mr2 = mrange(crx,urx,crx);
 	}
 
 	Vector<String> mMeta;
 	SizeT mSize;
 	RangePtr mr;
+	RangePtr mr2;
+	RangePtr cr;
+	RangePtr ur;
     };
 
     class YR_Test : public ::testing::Test
@@ -71,19 +75,24 @@ namespace
 	    mMeta = { "test", "strings", "foo" };
 	    std::sort(mMeta.begin(), mMeta.end(), std::less<String>());
 	    mSize = 7;
-	    auto cr = CRangeFactory(mSize).create();
-	    auto ur = URangeFactory<String>(mMeta).create();
+	    cr = CRangeFactory(mSize).create();
+	    ur = URangeFactory<String>(mMeta).create();
 	    yr = cr * ur;
+	    yr2 = cr * ur * cr;
 	}
 
 	Vector<String> mMeta;
 	SizeT mSize;
 	RangePtr yr;
+	RangePtr yr2;
+	RangePtr cr;
+	RangePtr ur;
     };
     
     TEST_F(CR_Test, Basics)
     {
 	auto crx = std::dynamic_pointer_cast<CRange>(cr);
+	EXPECT_FALSE(crx == nullptr);
 	EXPECT_EQ(cr->size(), mSize);
 	EXPECT_EQ(crx->size(), mSize);
 
@@ -117,6 +126,7 @@ namespace
     TEST_F(UR_Test, Basics)
     {
 	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
+	EXPECT_FALSE(urx == nullptr);
 	EXPECT_EQ(ur->size(), mMeta.size());
 	EXPECT_EQ(urx->size(), mMeta.size());
 	
@@ -145,9 +155,10 @@ namespace
 	}
     }
 
-    TEST_F(MR_Test, Basics)
+    TEST_F(MR_Test, Basics2d)
     {
 	auto mrx = std::dynamic_pointer_cast<MRange<CRange,URange<String>>>(mr);
+	EXPECT_FALSE(mrx == nullptr);
 
 	EXPECT_EQ(mr->size(), mMeta.size()*mSize);
 	EXPECT_EQ(mrx->size(), mMeta.size()*mSize);
@@ -200,7 +211,66 @@ namespace
 	}
     }
 
-    TEST_F(YR_Test, Basics)
+    TEST_F(MR_Test, Basics3d)
+    {
+	auto mrx = std::dynamic_pointer_cast<MRange<CRange,URange<String>,CRange>>(mr2);
+	EXPECT_FALSE(mrx == nullptr);
+
+	EXPECT_EQ(mr2->size(), mMeta.size()*mSize*mSize);
+	EXPECT_EQ(mrx->size(), mMeta.size()*mSize*mSize);
+	EXPECT_EQ(mr2->dim(), 3u);
+	EXPECT_EQ(mrx->dim(), 3u);
+
+	EXPECT_TRUE(mrx->begin() != mrx->end());
+	EXPECT_FALSE(mrx->begin() == mrx->end());
+	EXPECT_EQ(mrx->begin().pos(), 0u);
+	EXPECT_EQ(mrx->end().pos(), mrx->size());
+
+	EXPECT_TRUE(mr2->begin() != mr2->end());
+	EXPECT_FALSE(mr2->begin() == mr2->end());
+	EXPECT_EQ(mr2->begin().pos(), 0u);
+	EXPECT_EQ(mr2->end().pos(), mr2->size());
+
+	const SizeT s1 = mMeta.size();
+	const SizeT s2 = mSize;
+	const SizeT s1s2 = s1*s2;
+	auto mkm = [&](SizeT i) { return Tuple<SizeT,String,SizeT>(i/s1s2,mMeta[(i/s2) % s1],i % s2); };
+	
+	SizeT cnt = 0;
+	auto endxi = mr2->end();
+	for(auto xi = mr2->begin(); xi != endxi; ++xi){
+	    EXPECT_EQ(xi.pos(), cnt);
+	    EXPECT_EQ(xi.lex(), cnt);
+	    auto meta = mkm(cnt);
+	    EXPECT_TRUE(*xi == DType(meta));
+	    EXPECT_EQ((*xi).str(), toString(meta));
+	    ++cnt;
+	}
+
+	cnt = 0;
+	auto endxxi = mrx->end();
+	for(auto xxi = mrx->begin(); xxi != endxxi; ++xxi){
+	    EXPECT_EQ(xxi.pos(), cnt);
+	    EXPECT_EQ(xxi.lex(), cnt);
+	    auto ci1 = std::get<0>(xxi.pack());
+	    auto ui = std::get<1>(xxi.pack());
+	    auto ci2 = std::get<2>(xxi.pack());
+	    Tuple<SizeT,String,SizeT> meta(*(*ci1),*(*ui),*(*ci2));
+	    auto meta2 = mkm(cnt);
+	    EXPECT_EQ(meta, meta2);
+	    EXPECT_TRUE(*xxi == meta);
+	    ++cnt;
+	}
+
+	cnt = 0;
+	for(auto x: *mrx){
+	    auto meta = mkm(cnt);
+	    EXPECT_EQ(x, meta);
+	    ++cnt;
+	}
+    }
+
+    TEST_F(YR_Test, Basics2d)
     {
 
 	EXPECT_EQ(yr->size(), mMeta.size()*mSize);
@@ -226,9 +296,38 @@ namespace
 	}
     }
 
-    TEST_F(YR_Test, Index)
+    TEST_F(YR_Test, Basics3d)
+    {
+
+	EXPECT_EQ(yr2->size(), mMeta.size()*mSize*mSize);
+	EXPECT_EQ(yr2->dim(), 3u);
+	
+	EXPECT_TRUE(yr2->begin() != yr2->end());
+	EXPECT_FALSE(yr2->begin() == yr2->end());
+	EXPECT_EQ(yr2->begin().pos(), 0u);
+	EXPECT_EQ(yr2->end().pos(), yr2->size());
+
+	const SizeT s1 = mMeta.size();
+	const SizeT s2 = mSize;
+	const SizeT s1s2 = s1*s2;
+	auto mkm = [&](SizeT i) { return Vector<DType>({DType(i/s1s2),DType(mMeta[(i/s2) % s1]),DType(i % s2)}); };
+
+	SizeT cnt = 0;
+	auto endxi = yr2->end();
+	for(auto xi = yr2->begin(); xi != endxi; ++xi){
+	    EXPECT_EQ(xi.pos(), cnt);
+	    auto meta = mkm(cnt);
+	    EXPECT_EQ(yr2->stringMeta(cnt), toString(meta));
+	    EXPECT_TRUE(*xi == DType(meta));
+	    EXPECT_EQ((*xi).str(), toString(meta));
+	    ++cnt;
+	}
+    }
+
+    TEST_F(YR_Test, Index2d)
     {
 	auto yrx = std::dynamic_pointer_cast<YRange>(yr);
+	EXPECT_FALSE(yrx == nullptr);
 	auto yi = yrx->begin();
 
 	EXPECT_EQ(yi.pmax().val(), yr->size());
@@ -266,7 +365,51 @@ namespace
 	EXPECT_EQ(yi.lex(), 0u);
 	EXPECT_EQ(yi.pos(), 0u);
     }
-    // RCast_Test
+
+    TEST_F(YR_Test, Index3d)
+    {
+	auto yrx = std::dynamic_pointer_cast<YRange>(yr2);
+	EXPECT_FALSE(yrx == nullptr);
+	auto yi = yrx->begin();
+
+	EXPECT_EQ(yi.pmax().val(), yr2->size());
+	EXPECT_EQ(yi.lmax().val(), yr2->size());
+	EXPECT_EQ(yi.range(), yr2);
+	EXPECT_EQ(yi.range(), yrx);
+	EXPECT_EQ(yi.dim(), 3u);
+	
+	const SizeT s1 = mMeta.size();
+	const SizeT s2 = mSize;
+	const SizeT s1s2 = s1*s2;
+	auto mkm = [&](SizeT i) { return Vector<DType>({DType(i/s1s2),DType(mMeta[(i/s2) % s1]),DType(i % s2)}); };
+	for(SizeT i = 0; i != yr2->size(); ++i){
+	    auto a = yi + i;
+	    EXPECT_EQ(a.lex(), i);
+	    EXPECT_EQ(a.pos(), i);
+	    auto mmi = DType(mkm(i));
+	    EXPECT_TRUE(a.meta() == mmi);
+	    EXPECT_TRUE(*a == mmi);
+	    EXPECT_EQ(a.stringMeta(), toString(mmi));
+	    
+	    for(SizeT j = 0; j != yr2->size(); ++j){
+		const Int jj = static_cast<Int>(j) - static_cast<Int>(i);
+		auto b = a + jj;
+		auto mmj = DType(mkm(j));
+		EXPECT_EQ(b.lex(), j);
+		EXPECT_EQ(b.pos(), j);
+		EXPECT_TRUE(*b == mmj);
+		EXPECT_EQ(b.stringMeta(), toString(mmj));
+	    }
+	}
+	yi += yi.lmax().val() + 10;
+	EXPECT_EQ(yi.lex(), yi.lmax().val());
+	EXPECT_EQ(yi.pos(), yi.pmax().val());
+
+	yi -= yi.lmax().val() + 20;
+	EXPECT_EQ(yi.lex(), 0u);
+	EXPECT_EQ(yi.pos(), 0u);
+    }
+// RCast_Test
 }
 
 int main(int argc, char** argv)
