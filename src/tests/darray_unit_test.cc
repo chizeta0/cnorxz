@@ -77,7 +77,6 @@ namespace
 	for(auto ci = cr1x->begin(); ci != cr1x->end(); ++ci){
 	    for(auto ui = ur1x->begin(); ui != ur1x->end(); ++ui){
 		const SizeT p = ci.lex()*ssize + ui.lex();
-		EXPECT_EQ((ci*ui).lex(), p); // test this in rutest!!!
 		EXPECT_EQ( a[ci*ui], a.data()[p] );
 	    }
 	}

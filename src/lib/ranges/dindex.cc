@@ -36,7 +36,14 @@ namespace CNORXZ
 	IndexInterface<DIndex,DType>(i->pos()),
 	mI(i)
     {}
-    
+
+    DIndex::DIndex(const RangePtr& r, SizeT lexpos) :
+	IndexInterface<DIndex,DType>(0)
+    {
+	*this = r->begin();
+	*this = lexpos;
+    }
+
     DIndex& DIndex::operator=(SizeT lexpos)
     {
 	*mI = lexpos;

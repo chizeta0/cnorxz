@@ -41,7 +41,7 @@ namespace CNORXZ
 	virtual XIndexBase& at(const DType& meta) = 0;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
-				 const std::function<SizeT(SizeT,SizeT)>& f) const = 0;
+				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
     };
 
     //Sptr<XIndexBase>& operator++(Sptr<XIndexBase>& i);
@@ -89,7 +89,7 @@ namespace CNORXZ
 	virtual XIndexBase& at(const DType& meta) override final;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
-				 const std::function<SizeT(SizeT,SizeT)>& f) const override final;
+				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;
 
     private:
 	IndexPtr<Index,Meta> mI;

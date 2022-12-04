@@ -13,6 +13,8 @@ namespace CNORXZ
     {
     public:
 	typedef IndexInterface<DIndex,DType> IB;
+	typedef DType MetaType;
+	typedef RangeBase RangeType;
 
 	DEFAULT_C(DIndex);
 	DIndex(const DIndex& i);
@@ -20,6 +22,7 @@ namespace CNORXZ
 	DIndex& operator=(const DIndex& i);
 	DIndex& operator=(DIndex&& i);
 	DIndex(const XIndexPtr& i);
+	DIndex(const RangePtr& r, SizeT lexpos = 0);
 	
 	template <class Index, typename Meta>
 	DIndex(const IndexInterface<Index,Meta>& i);

@@ -120,10 +120,12 @@ namespace CNORXZ
     constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkIFor(const Xpr& xpr, F&& f) const
     {
 	if constexpr(I == sizeof...(Indices)-1){
-	    return std::get<I>(mIPack)->ifor(xpr,f);
+	    return std::get<I>(mIPack)->ifor(xpr,std::forward<F>(f));
 	}
 	else {
-	    return std::get<I>(mIPack)->ifor( mkIFor<I+1>( xpr, f ), f );
+	    auto f1 = f;
+	    auto f2 = f1;
+	    return std::get<I>(mIPack)->ifor( mkIFor<I+1>( xpr, std::move(f1) ), std::move(f2) );
 	}
     }
 
@@ -408,7 +410,7 @@ namespace CNORXZ
     template <class Xpr, class F>
     constexpr decltype(auto) GMIndex<BlockType,Indices...>::ifor(const Xpr& xpr, F&& f) const
     {
-	return mkIFor<0>(xpr, f);
+	return mkIFor<0>(xpr, std::forward<F>(f));
     }
 
     template <class BlockType, class... Indices>

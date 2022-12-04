@@ -42,6 +42,7 @@ namespace CNORXZ
     class RangeBase
     {
     public:
+	typedef DIndex IndexType;
 	
 	virtual ~RangeBase() = default;
 

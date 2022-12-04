@@ -51,7 +51,7 @@ namespace CNORXZ
 	DType meta() const;
 	YIndex& at(const DType& meta);
 
-	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, const std::function<SizeT(SizeT,SizeT)>& f) const;
+	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	YIndex& operator()(const Sptr<YIndex>& i);
 	YIndex& operator()();
@@ -69,7 +69,7 @@ namespace CNORXZ
 	inline void up(SizeT i);
 	inline void down(SizeT i);
 	inline decltype(auto) mkIFor(SizeT i, const DXpr<SizeT>& xpr,
-				     const std::function<SizeT(SizeT,SizeT)>& f) const;
+				     std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	inline SizeT mkPMax() const;
 	inline SizeT mkLMax() const;

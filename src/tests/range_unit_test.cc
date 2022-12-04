@@ -409,6 +409,26 @@ namespace
 	EXPECT_EQ(yi.lex(), 0u);
 	EXPECT_EQ(yi.pos(), 0u);
     }
+
+    TEST_F(YR_Test, IndexMultiplication)
+    {
+	const SizeT ssize = mMeta.size();
+	auto crx = std::dynamic_pointer_cast<CRange>(cr);
+	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
+	for(auto cix = crx->begin(); cix != crx->end(); ++cix){
+	    for(auto uix = urx->begin(); uix != urx->end(); ++uix){
+		const SizeT p = cix.lex()*ssize + uix.lex();
+		EXPECT_EQ((cix*uix).lex(), p);
+	    }
+	}
+	for(auto ci = cr->begin(); ci != cr->end(); ++ci){
+	    for(auto ui = ur->begin(); ui != ur->end(); ++ui){
+		const SizeT p = ci.lex()*ssize + ui.lex();
+		EXPECT_EQ((ci*ui).lex(), p);
+	    }
+	}
+    }
+    
 // RCast_Test
 }
 
