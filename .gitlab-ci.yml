@@ -1,7 +1,7 @@
 before_script:
     - export GTEST_ROOT=/opt/gtest-1.8.0
 
-image: hub.docker.com/r/88plug/gcc-8-ubuntu-18.04
+image: 88plug/gcc-8-ubuntu-18.04
 
 stages:
     - build
