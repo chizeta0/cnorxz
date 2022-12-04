@@ -6,10 +6,9 @@ image: debian
 stages:
     - build
 
-build-centos:
+build-debian:
     stage: build
     script:
-      - source /opt/rh/devtoolset-8/enable
       - mkdir build
       - cd build
       - cmake3 ..
