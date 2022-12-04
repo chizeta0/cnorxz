@@ -1,7 +1,7 @@
 before_script:
     - export GTEST_ROOT=/opt/gtest-1.8.0
 
-image: docker pull rikorose/gcc-cmake
+image: rikorose/gcc-cmake
 
 stages:
     - build
