@@ -430,6 +430,10 @@ namespace
 	    for(auto ui = ur->begin(); ui != ur->end(); ++ui){
 		const SizeT p = ci.lex()*s1 + ui.lex();
 		EXPECT_EQ((ci*ui).lex(), p);
+		for(auto ci2 = cr->begin(); ci2 != cr->end(); ++ci2){
+		    const SizeT p2 = ci.lex()*s1*s2 + ui.lex()*s2 + ci2.lex();
+		    EXPECT_EQ((ci*ui*ci2).lex(), p2);
+		}
 	    }
 	}
     }
