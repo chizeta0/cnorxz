@@ -74,7 +74,6 @@ namespace CNORXZ
 	inline SizeT mkPMax() const;
 	inline SizeT mkLMax() const;
 	
-	SizeT mLPos = 0;
 	Sptr<YRange> mRange;
 	Vector<XIndexPtr> mIs;
 	Vector<SizeT> mBlockSizes; // dim() elements only!!!

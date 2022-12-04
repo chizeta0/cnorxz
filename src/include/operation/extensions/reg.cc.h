@@ -81,8 +81,8 @@ namespace CNORXZ
     }
 
     template <class F, typename... Args, SizeT... Is>
-    static constexpr decltype(auto) consecFuncI(const F& f, const Args&... args,
-						std::index_sequence<Is...> is)
+    constexpr decltype(auto) consecFuncI(const F& f, const Args&... args,
+					 std::index_sequence<Is...> is)
     {
 	typedef decltype(consecApply<0>(f, args...)) OType;
 	constexpr SizeT N = sizeof...(Is);

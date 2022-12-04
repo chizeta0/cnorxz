@@ -32,6 +32,7 @@ namespace CNORXZ
     {
     public:
 	DEFAULT_MEMBERS(VXprBase);
+	virtual ~VXprBase() = default;
 
 	virtual Uptr<VXprBase<T>> copy() const = 0;
 

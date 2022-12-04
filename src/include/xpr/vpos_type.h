@@ -10,6 +10,7 @@ namespace CNORXZ
     {
     public:
 	DEFAULT_MEMBERS(VPosBase);
+	virtual ~VPosBase() = default;
 
 	virtual Uptr<VPosBase> copy() const = 0;
 	virtual SizeT vsize() const = 0;

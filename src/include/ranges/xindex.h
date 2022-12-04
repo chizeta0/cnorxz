@@ -14,6 +14,7 @@ namespace CNORXZ
     {
     public:
 	DEFAULT_MEMBERS(XIndexBase);
+	virtual ~XIndexBase() = default;
 	virtual XIndexPtr copy() const = 0;
 	virtual SizeT pos() const = 0;
 	
