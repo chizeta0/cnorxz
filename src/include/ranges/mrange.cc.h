@@ -64,8 +64,8 @@ namespace CNORXZ
     {
 	return std::make_tuple
 	    ( iter<Is,NI>
-	      ( [&](auto i) { return std::get<i>(ipack)->pmax(); },
-		[&](const auto&... as) { return (as * ...); } )...,
+	      ( [&ipack](auto i) { return std::get<i>(ipack)->pmax(); },
+		[](const auto&... as) { return (as * ...); } )...,
 	      SPos<1>() );
     }
 
