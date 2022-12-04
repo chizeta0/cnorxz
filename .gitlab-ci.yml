@@ -11,6 +11,6 @@ build-debian:
     script:
       - mkdir build
       - cd build
-      - cmake3 ..
+      - cmake ..
       - make -j2
       - make test
