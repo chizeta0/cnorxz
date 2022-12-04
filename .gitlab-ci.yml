@@ -1,5 +1,5 @@
 
-image: rikorose/gcc-cmake
+image: jenswet/gcc-cmake-gcovr
 
 stages:
     - build
