@@ -1,15 +1,17 @@
+before_script:
+    - export GTEST_ROOT=/opt/gtest-1.8.0
 
-image: jenswet/gcc-cmake-gcovr
+image: docker.io/rqcd/centos-buildtools:7.2.1511
 
 stages:
     - build
 
-build-gcc:
+build-centos:
     stage: build
     script:
+      - source /opt/rh/devtoolset-7/enable
       - mkdir build
       - cd build
-      - cmake ..
+      - cmake3 ..
       - make -j2
-      - ./src/tests/rutest
       - make test
