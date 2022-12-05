@@ -1,7 +1,5 @@
-before_script:
-    - export GTEST_ROOT=/opt/gtest-1.8.0
 
-image: docker.io/rqcd/centos-buildtools:7.2.1511
+image: docker.io/chizeta/centos:8
 
 stages:
     - build
@@ -9,9 +7,15 @@ stages:
 build-centos:
     stage: build
     script:
-      - source /opt/rh/devtoolset-7/enable
-      - mkdir build
-      - cd build
+      - source /opt/rh/gcc-toolset-9/enable
+      - mkdir build-gcc
+      - cd build-gcc
+      - cmake3 ..
+      - make -j2
+      - make test
+      - cd ..
+      - mkdir build-clang
+      - cd build-clang
       - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 ..
       - make -j2
       - make test
