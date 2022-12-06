@@ -1,23 +1,23 @@
 
-#ifndef __cxz_darray_base_cc_h__
-#define __cxz_darray_base_cc_h__
+#ifndef __cxz_array_base_cc_h__
+#define __cxz_array_base_cc_h__
 
-#include "darray_base.h"
+#include "array_base.h"
 
 namespace CNORXZ
 {
     /******************
-     *   DArrayBase   *
+     *   CArrayBase   *
      ******************/
 
     template <typename T>
-    DArrayBase<T>::DArrayBase(const RangePtr& range) :
+    CArrayBase<T>::CArrayBase(const RangePtr& range) :
 	mRange(rangeCast<YRange>(range))
     {}
 
     template <typename T>
     template <typename I, typename M>
-    const T& DArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
+    const T& CArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
 	auto ai = this->begin() + i.lex();
 	return *ai;
@@ -25,7 +25,7 @@ namespace CNORXZ
     
     template <typename T>
     template <typename I, typename M>
-    const T& DArrayBase<T>::at(const IndexInterface<I,M>& i) const
+    const T& CArrayBase<T>::at(const IndexInterface<I,M>& i) const
     {
 	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
 	// check further compatibility of index/range format!!!
@@ -34,25 +34,25 @@ namespace CNORXZ
     }
 
     template <typename T>
-    SizeT DArrayBase<T>::size() const
+    SizeT CArrayBase<T>::size() const
     {
 	return mRange->size();
     }
     
     template <typename T>
-    RangePtr DArrayBase<T>::range() const
+    RangePtr CArrayBase<T>::range() const
     {
 	return mRange;
     }
 
     template <typename T>
-    typename DArrayBase<T>::const_iterator DArrayBase<T>::begin() const
+    typename CArrayBase<T>::const_iterator CArrayBase<T>::begin() const
     {
 	return this->cbegin();
     }
     
     template <typename T>
-    typename DArrayBase<T>::const_iterator DArrayBase<T>::end() const
+    typename CArrayBase<T>::const_iterator CArrayBase<T>::end() const
     {
 	return this->cend();
     }
@@ -60,24 +60,24 @@ namespace CNORXZ
     /*
     template <typename T>
     template <typename I, typename M>
-    ConstOperationRoot<T,I> DArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
+    ConstOperationRoot<T,I> CArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
 	return ConstOperationRoot<T,I>();
     }
     */
 
-    /*******************
-     *   MDArrayBase   *
-     *******************/
+    /*****************
+     *   ArrayBase   *
+     *****************/
 
     template <typename T>
-    MDArrayBase<T>::MDArrayBase(const RangePtr& range) :
-	DArrayBase<T>(range)
+    ArrayBase<T>::ArrayBase(const RangePtr& range) :
+	CArrayBase<T>(range)
     {}
 
     template <typename T>
     template <typename I, typename M>
-    T& MDArrayBase<T>::operator[](const IndexInterface<I,M>& i)
+    T& ArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
 	auto ai = this->begin() + i.lex();
 	return *ai;
@@ -85,7 +85,7 @@ namespace CNORXZ
 
     template <typename T>
     template <typename I, typename M>
-    T& MDArrayBase<T>::at(const IndexInterface<I,M>& i)
+    T& ArrayBase<T>::at(const IndexInterface<I,M>& i)
     {
 	CXZ_ASSERT(i.pos() < this->pmax(), "index out of range");
 	// check further compatibility of index/range format!!!
@@ -94,13 +94,13 @@ namespace CNORXZ
     }
 
     template <typename T>
-    typename MDArrayBase<T>::iterator MDArrayBase<T>::begin()
+    typename ArrayBase<T>::iterator ArrayBase<T>::begin()
     {
 	return iterator(this->data(), this->cbegin());
     }
 
     template <typename T>
-    typename MDArrayBase<T>::iterator MDArrayBase<T>::end()
+    typename ArrayBase<T>::iterator ArrayBase<T>::end()
     {
 	return iterator(this->data(), this->cend());
     }
@@ -108,7 +108,7 @@ namespace CNORXZ
     /*
     template <typename T>
     template <typename I, typename M>
-    OperationRoot<T,I> MDArrayBase<T>::operator()(const IndexPtr<I,M>& i)
+    OperationRoot<T,I> ArrayBase<T>::operator()(const IndexPtr<I,M>& i)
     {
 	return OperationRoot<T,I>();
     }

@@ -5,7 +5,7 @@
 
 #include "base/base.h"
 #include "xpr/xpr_base.h"
-#include "array/darray_base.h"
+#include "array/array_base.h"
 
 namespace CNORXZ
 {
@@ -72,7 +72,7 @@ namespace CNORXZ
 
 	constexpr COpRoot() = default;
 	
-	constexpr COpRoot(const DArrayBase<T>& a, const Sptr<IndexT>& ind);
+	constexpr COpRoot(const CArrayBase<T>& a, const Sptr<IndexT>& ind);
 	constexpr COpRoot(const T* data, const Sptr<IndexT>& ind);
 	constexpr COpRoot& init(const T* data, const Sptr<IndexT>& ind);
 
@@ -141,7 +141,7 @@ namespace CNORXZ
 
 	constexpr OpRoot() = default;
 	
-	constexpr OpRoot(MDArrayBase<T>& a, const Sptr<IndexT>& ind);
+	constexpr OpRoot(ArrayBase<T>& a, const Sptr<IndexT>& ind);
 	constexpr OpRoot(T* data, const Sptr<IndexT>& ind);
 	constexpr OpRoot& init(T* data, const Sptr<IndexT>& ind);
             

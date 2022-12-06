@@ -13,11 +13,11 @@ namespace
     using namespace CNORXZ;
     using Test::Numbers;
     
-    class DA_1D_Test : public ::testing::Test
+    class MA_1D_Test : public ::testing::Test
     {
     protected:
 
-	DA_1D_Test()
+	MA_1D_Test()
 	{
 	    mSize = 7;
 	    mCR1 = CRangeFactory(mSize).create();
@@ -27,11 +27,11 @@ namespace
 	RangePtr mCR1;
     };
 
-    class DA_2D_Test : public ::testing::Test
+    class MA_2D_Test : public ::testing::Test
     {
     protected:
 
-	DA_2D_Test()
+	MA_2D_Test()
 	{
 	    mSize = 5;
 	    mStrMeta = { "another", "test", "string", "vector", "for", "this", "Test" };
@@ -45,9 +45,9 @@ namespace
 	RangePtr mUR1;
     };
 
-    TEST_F(DA_1D_Test, Basics)
+    TEST_F(MA_1D_Test, Basics)
     {
-	const DArray<Double> a(mCR1, Numbers::get(0,mSize));
+	const MArray<Double> a(mCR1, Numbers::get(0,mSize));
 	auto crx = std::dynamic_pointer_cast<CRange>(mCR1);
 	EXPECT_EQ(a.size(), mSize);
 	EXPECT_FALSE(a.isView());
@@ -62,11 +62,11 @@ namespace
 	EXPECT_THROW({a.at(ei);}, std::runtime_error);
     }
 
-    TEST_F(DA_2D_Test, Basics)
+    TEST_F(MA_2D_Test, Basics)
     {
 	const SizeT ssize = mStrMeta.size();
 	const SizeT size = mSize * ssize;
-	const DArray<Double> a(mCR1*mUR1, Numbers::get(0,size));
+	const MArray<Double> a(mCR1*mUR1, Numbers::get(0,size));
 	EXPECT_EQ(a.range()->dim(), 2u);
 	EXPECT_EQ(a.size(), size);
 	EXPECT_EQ(a.pmax(), size);

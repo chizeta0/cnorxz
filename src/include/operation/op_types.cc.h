@@ -61,7 +61,7 @@ namespace CNORXZ
      ***************/
 
     template <typename T, class IndexT>
-    constexpr COpRoot<T,IndexT>::COpRoot(const DArrayBase<T>& a, const Sptr<IndexT>& ind) :
+    constexpr COpRoot<T,IndexT>::COpRoot(const CArrayBase<T>& a, const Sptr<IndexT>& ind) :
 	mData(a.data()),
 	mIndex(ind)
     {}
@@ -227,7 +227,7 @@ namespace CNORXZ
      ****************/
     
     template <typename T, class IndexT>
-    constexpr OpRoot<T,IndexT>::OpRoot(MDArrayBase<T>& a, const Sptr<IndexT>& ind) :
+    constexpr OpRoot<T,IndexT>::OpRoot(ArrayBase<T>& a, const Sptr<IndexT>& ind) :
 	mData(a.data()),
 	mIndex(ind)
     {}

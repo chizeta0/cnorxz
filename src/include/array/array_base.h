@@ -1,6 +1,6 @@
 
-#ifndef __cxz_darray_base_h__
-#define __cxz_darray_base_h__
+#ifndef __cxz_array_base_h__
+#define __cxz_array_base_h__
 
 #include <cstdlib>
 #include <vector>
@@ -14,7 +14,7 @@
 namespace CNORXZ
 {
     template <typename T>
-    class DArrayBase
+    class CArrayBase
     {
     public:
 	typedef AIndex<T> const_iterator;
@@ -24,10 +24,10 @@ namespace CNORXZ
 	
     public:
 
-	DArrayBase(const RangePtr& range);
-	DEFAULT_MEMBERS(DArrayBase);
+	CArrayBase(const RangePtr& range);
+	DEFAULT_MEMBERS(CArrayBase);
 
-	virtual ~DArrayBase() = default;
+	virtual ~CArrayBase() = default;
 
 	template <typename I, typename M>
 	const T& operator[](const IndexInterface<I,M>& i) const;
@@ -36,7 +36,7 @@ namespace CNORXZ
 	const T& at(const IndexInterface<I,M>& i) const;
 
 	template <typename I, typename M>
-	Sptr<DArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
+	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
 	
 	virtual const T* data() const = 0;
 	virtual SizeT pmax() const = 0; // max allocated postion of data() (exclusive!)
@@ -55,24 +55,24 @@ namespace CNORXZ
     };
 
     template <typename T>
-    class MDArrayBase : public DArrayBase<T>
+    class ArrayBase : public CArrayBase<T>
     {
     public:
-	typedef DArrayBase<T> DAB;
-	typedef typename DAB::const_iterator const_iterator;
+	typedef CArrayBase<T> CAB;
+	typedef typename CAB::const_iterator const_iterator;
 	typedef BIndex<T> iterator;
 
-	using DAB::operator[];
-	using DAB::at;
-	using DAB::data;
-	using DAB::begin;
-	using DAB::end;
-	using DAB::cbegin;
-	using DAB::cend;
-	//using DAB::operator();
+	using CAB::operator[];
+	using CAB::at;
+	using CAB::data;
+	using CAB::begin;
+	using CAB::end;
+	using CAB::cbegin;
+	using CAB::cend;
+	//using CAB::operator();
 
-	MDArrayBase(const RangePtr& range);
-	DEFAULT_MEMBERS(MDArrayBase);
+	ArrayBase(const RangePtr& range);
+	DEFAULT_MEMBERS(ArrayBase);
 
 	template <typename I, typename M>
 	T& operator[](const IndexInterface<I,M>& i);
@@ -81,7 +81,7 @@ namespace CNORXZ
 	T& at(const IndexInterface<I,M>& i);
 
 	template <typename I, typename M>
-	Sptr<MDArrayBase<T>> sl(const IndexInterface<I,M>& i);
+	Sptr<ArrayBase<T>> sl(const IndexInterface<I,M>& i);
 
 	virtual T* data() = 0;
 	

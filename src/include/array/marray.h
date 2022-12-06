@@ -1,26 +1,26 @@
 
-#ifndef __cxz_darray_h__
-#define __cxz_darray_h__
+#ifndef __cxz_marray_h__
+#define __cxz_marray_h__
 
-#include "darray_base.h"
+#include "array_base.h"
 
 namespace CNORXZ
 {
 
     template <typename T>
-    class DArray : public MDArrayBase<T>
+    class MArray : public ArrayBase<T>
     {
     public:
-	typedef DArrayBase<T> AB;
+	typedef CArrayBase<T> AB;
 	typedef typename AB::const_iterator const_iterator;
 
-	using DArrayBase<T>::operator[];
-	using MDArrayBase<T>::operator[];
+	using CArrayBase<T>::operator[];
+	using ArrayBase<T>::operator[];
 
-	DEFAULT_MEMBERS(DArray);
-	DArray(const RangePtr& range);
-	DArray(const RangePtr& range, const Vector<T>& vec);
-	DArray(const RangePtr& range, Vector<T>&& vec);
+	DEFAULT_MEMBERS(MArray);
+	MArray(const RangePtr& range);
+	MArray(const RangePtr& range, const Vector<T>& vec);
+	MArray(const RangePtr& range, Vector<T>&& vec);
 
 	virtual SizeT pmax() const override;
 	virtual const T* data() const override;
