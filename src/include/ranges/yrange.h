@@ -26,7 +26,8 @@ namespace CNORXZ
 
 	YIndex(const Vector<XIndexPtr>& is);
 	YIndex(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is);
-	YIndex(const RangePtr& range, SizeT lexpos);
+	YIndex(const RangePtr& range, SizeT lexpos = 0);
+	YIndex(const RangePtr& range, const Vector<SizeT>& bs, SizeT lexpos = 0);
 
 	YIndex& operator=(SizeT lexpos);
 	YIndex& operator++();

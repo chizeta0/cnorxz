@@ -22,7 +22,6 @@ namespace CNORXZ
 	MArray(const RangePtr& range, const Vector<T>& vec);
 	MArray(const RangePtr& range, Vector<T>&& vec);
 
-	virtual SizeT pmax() const override;
 	virtual const T* data() const override;
 	virtual T* data() override;
 	virtual const_iterator cbegin() const override;

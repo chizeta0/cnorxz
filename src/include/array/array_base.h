@@ -39,7 +39,6 @@ namespace CNORXZ
 	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
 	
 	virtual const T* data() const = 0;
-	virtual SizeT pmax() const = 0; // max allocated postion of data() (exclusive!)
 	virtual SizeT size() const;
 	virtual RangePtr range() const;
 

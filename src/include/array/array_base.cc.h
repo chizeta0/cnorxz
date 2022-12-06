@@ -34,6 +34,13 @@ namespace CNORXZ
     }
 
     template <typename T>
+    template <typename I, typename M>
+    Sptr<CArrayBase<T>> CArrayBase<T>::sl(const IndexInterface<I,M>& i) const
+    {
+	
+    }
+
+    template <typename T>
     SizeT CArrayBase<T>::size() const
     {
 	return mRange->size();
@@ -87,7 +94,7 @@ namespace CNORXZ
     template <typename I, typename M>
     T& ArrayBase<T>::at(const IndexInterface<I,M>& i)
     {
-	CXZ_ASSERT(i.pos() < this->pmax(), "index out of range");
+	CXZ_ASSERT(i.les() < this->size(), "index out of range");
 	// check further compatibility of index/range format!!!
 	auto ai = this->begin() + i.lex();
 	return *ai;

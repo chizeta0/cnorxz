@@ -26,12 +26,6 @@ namespace CNORXZ
     {}
 
     template <typename T>
-    SizeT MArray<T>::pmax() const
-    {
-	return mCont.size();
-    }
-    
-    template <typename T>
     const T* MArray<T>::data() const
     {
 	return mCont.data();

@@ -184,6 +184,18 @@ namespace CNORXZ
 	*this = lexpos;
     }
 
+    YIndex::YIndex(const RangePtr& range, const Vector<SizeT>& bs, SizeT lexpos) :
+	IndexInterface<YIndex,DType>(0),
+	mRange(rangeCast<YRange>(range)),
+	mIs(mkIndices()),
+	mBlockSizes(bs),
+	mLexBlockSizes(mkLexBlockSizes()),
+	mPMax(mkPMax()),
+	mLMax(mkLMax())
+    {
+	*this = lexpos;
+    }
+
     YIndex& YIndex::operator=(SizeT lexpos)
     {
 	if(lexpos >= lmax().val()){

@@ -69,7 +69,6 @@ namespace
 	const MArray<Double> a(mCR1*mUR1, Numbers::get(0,size));
 	EXPECT_EQ(a.range()->dim(), 2u);
 	EXPECT_EQ(a.size(), size);
-	EXPECT_EQ(a.pmax(), size);
 	EXPECT_EQ(a.range()->sub(0), mCR1);
 	EXPECT_EQ(a.range()->sub(1), mUR1);
 	auto cr1x = std::dynamic_pointer_cast<CRange>(mCR1);
