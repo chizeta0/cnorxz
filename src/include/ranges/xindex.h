@@ -37,7 +37,9 @@ namespace CNORXZ
 	virtual RangePtr range() const = 0;
 	virtual UPos stepSize(const IndexId<0>& id) const = 0;
 	virtual Vector<XIndexPtr> pack() const = 0;
-	
+	virtual Vector<SizeT> blockSizes() const = 0;
+	virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) = 0;
+
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
@@ -86,6 +88,8 @@ namespace CNORXZ
 	virtual RangePtr range() const override final;
 	virtual UPos stepSize(const IndexId<0>& id) const override final;
 	virtual Vector<XIndexPtr> pack() const override final;
+	virtual Vector<SizeT> blockSizes() const override final;
+	virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;

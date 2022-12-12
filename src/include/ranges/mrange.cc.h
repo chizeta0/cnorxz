@@ -451,6 +451,24 @@ namespace CNORXZ
 	return mLexBlockSizes;
     }
 
+    template <class BlockType, class... Indices>
+    GMIndex& GMIndex<BlockType,Indices...>::setBlockSizes(const BlockType& bs)
+    {
+	if constexpr(not std::is_same<BlockType,None>::value){
+	    mBlockSizes = bs;
+	}
+	return *this;
+    }
+
+    template <class BT1, class BT2, class... Indices>
+    decltype(auto) replaceBlockSize(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi)
+    {
+	return iter<0,sizeof...(Indices)>
+	    ( [&](auto i) { return std::get<i>(gmi.pack()); },
+	      [&](const auto&... e) { return std::make_shared<GMIndex<BT1,Indices...>>
+		    ( bs1, e... ); } );
+    }
+
     template <class BT1, class... Is1, class BT2, class... Is2>
     decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b)
     {

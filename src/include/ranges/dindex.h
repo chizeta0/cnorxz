@@ -47,6 +47,8 @@ namespace CNORXZ
 
 	UPos stepSize(const IndexId<0>& id) const;
 	Vector<XIndexPtr> pack() const;
+	Vector<SizeT> blockSizes() const;
+	DIndex& setBlockSizes(const Vector<SizeT>& bs);
 
 	String stringMeta() const;
 	DType meta() const;

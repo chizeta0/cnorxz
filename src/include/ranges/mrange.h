@@ -73,6 +73,7 @@ namespace CNORXZ
 	const IndexPack& pack() const;
 	const auto& blockSizes() const;
 	const auto& lexBlockSizes() const;
+	GMIndex& setBlockSizes(const BlockType& bs);
 
     private:
 	template <SizeT... Is>
@@ -108,6 +109,9 @@ namespace CNORXZ
 	PMaxT mPMax;
     };
 
+    template <class BT1, class BT2, class... Indices>
+    decltype(auto) replaceBlockSize(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
+    
     template <class BT1, class... Is1, class BT2, class... Is2>
     decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b);
     

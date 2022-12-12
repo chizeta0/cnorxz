@@ -134,6 +134,17 @@ namespace CNORXZ
 	return mI->pack();
     }
 
+    Vector<SizeT> DIndex::blockSizes() const
+    {
+	return mI->blockSizes();
+    }
+    
+    DIndex& DIndex::setBlockSizes(const Vector<SizeT>& bs)
+    {
+	mI->setBlockSizes(bs);
+	return *this;
+    }
+
     String DIndex::stringMeta() const
     {
 	return mI->stringMeta();

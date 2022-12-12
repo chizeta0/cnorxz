@@ -22,13 +22,6 @@ namespace CNORXZ
     protected:
 	RangePtr mRange;
 	
-	template <typename I, typename M>
-	inline Vector<SizeT> mkSliceBlockSize(const I1& i, const I2& beg) const;
-
-	inline RangePtr mkSliceRange(const RangePtr& r) const;
-
-	inline void assertCompatible() const;
-	
     public:
 
 	CArrayBase(const RangePtr& range);

@@ -81,42 +81,6 @@ namespace CNORXZ
     }
     */
 
-    /******************************
-     *   CArrayBase (protected)   *
-     ******************************/
-
-    template <typename T>
-    template <class IPack1, class IPack2>
-    inline Vector<SizeT> CArrayBase<T>::mkSliceBlockSize(const IPack1& ip1, const IPack2& ip2) const
-    {
-	const SizeT ip1dim = indexPackDim(ip1);
-	const SizeT ip2dim = indexPackDim(ip2);
-	if(ip1dim > ip2dim){
-	    //const SizeT ip1sdim = indexPackSDim(ip1);
-	    const SizeT ip2sdim = indexPackSDim(ip2);
-	    CXZ_ASSERT(ip1dim == ip2sdim or ip2sdim == ip2dim,
-		       "")
-	}
-	else if(ip1dim < ip2dim){
-
-	}
-	else {
-
-	}
-    }
-
-    template <typename T>
-    inline RangePtr CArrayBase<T>::mkSliceRange(const RangePtr& r) const
-    {
-	
-    }
-
-    template <typename T>
-    inline void CArrayBase<T>::assertCompatible() const
-    {
-	
-    }
-
     /*****************
      *   ArrayBase   *
      *****************/

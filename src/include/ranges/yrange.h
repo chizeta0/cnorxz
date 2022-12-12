@@ -60,6 +60,7 @@ namespace CNORXZ
 	const Vector<XIndexPtr>& pack() const;
 	const Vector<SizeT>& blockSizes() const;
 	const Vector<SizeT>& lexBlockSizes() const;
+	YIndex& setBlockSizes(const Vector<SizeT>& bs);
 	
     private:
 	inline Vector<SizeT> mkBlockSizes() const;

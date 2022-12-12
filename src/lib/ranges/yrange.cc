@@ -371,6 +371,13 @@ namespace CNORXZ
     {
 	return mLexBlockSizes;
     }
+
+    YIndex& YIndex::setBlockSizes(const Vector<SizeT>& bs)
+    {
+	mBlockSizes = bs;
+	return *this;
+    }
+
     
     /**********************
      *   YRangeFactory    *

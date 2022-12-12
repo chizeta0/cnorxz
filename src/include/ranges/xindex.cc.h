@@ -130,18 +130,61 @@ namespace CNORXZ
     template <class Index, typename Meta>
     Vector<XIndexPtr> XIndex<Index,Meta>::pack() const
     {
-	constexpr SizeT D = index_dim<Index>::value;
-	// replace by traits: has_sub, has_static_sub (-> to be implemented!!!)
-	if constexpr(D > 1){
+	if constexpr(has_static_sub<Index>::value){
+	    constexpr SizeT D = index_dim<Index>::value;
 	    return iter<0,D>
 		( [&](auto i) { return mkXIndex(std::get<i>(mI->pack())); },
 		  [](const auto&... e) { return { e ... }; } );
 	}
-	else if constexpr(std::is_same<Index,YIndex>::value){
+	else if constexpr(has_sub<Index>::value){
 	    return mI->pack();
 	}
 	else {
 	    return {};
+	}
+    }
+
+    template <class Index, typename Meta>
+    Vector<SizeT> XIndex<Index,Meta>::blockSizes() const
+    {
+	if constexpr(has_static_sub<Index>::value){
+	    constexpr SizeT D = index_dim<Index>::value;
+	    return iter<0,D>
+		( [&](auto i) { return std::get<i>(mI->blockSizes()); },
+		  [](const auto&... e) { return Vector<SizeT>( { e... } ); } );
+	}
+	else if constexpr(has_sub<Index>::value) {
+	    return mI->blockSizes();
+	}
+	else {
+	    return {};
+	}
+    }
+
+    template <class Index, typename Meta>
+    XIndexPtr XIndex<Index,Meta>::setBlockSizes(const Vector<SizeT>& bs)
+    {
+	if constexpr(has_static_sub<Index>::value){
+	    constexpr SizeT D = index_dim<Index>::value;
+	    CXZ_ASSERT(bs.size() == D,
+		       "got block sizes of wrong dimension: " << bs.size() << " vs " << D);
+	    typedef decltype(mI->blockSizes()) BT;
+	    Arr<SizeT,D> arr;
+	    std::copy_n(bs.begin(), D, arr.begin());
+	    if constexpr(std::is_same<BT,Arr<SizeT,D>>::value){
+		mI->setBlockSizes(arr);
+		return nullptr;
+	    }
+	    else {
+		return replaceBlockSizes(arr, mI);
+	    }
+	}
+	else if constexpr(has_sub<Index>::value) {
+	    mI->setBlockSizes(bs);
+	    return nullptr;
+	}
+	else {
+	    return nullptr;
 	}
     }
     
