@@ -126,6 +126,24 @@ namespace CNORXZ
     {
 	return mI->stepSize(id);
     }
+
+    template <class Index, typename Meta>
+    Vector<XIndexPtr> XIndex<Index,Meta>::pack() const
+    {
+	constexpr SizeT D = index_dim<Index>::value;
+	// replace by traits: has_sub, has_static_sub (-> to be implemented!!!)
+	if constexpr(D > 1){
+	    return iter<0,D>
+		( [&](auto i) { return mkXIndex(std::get<i>(mI->pack())); },
+		  [](const auto&... e) { return { e ... }; } );
+	}
+	else if constexpr(std::is_same<Index,YIndex>::value){
+	    return mI->pack();
+	}
+	else {
+	    return {};
+	}
+    }
     
     template <class Index, typename Meta>
     String XIndex<Index,Meta>::stringMeta() const
@@ -154,6 +172,13 @@ namespace CNORXZ
 	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)));
     }
 
+    template <class Index>
+    XIndexPtr mkXIndex(const Sptr<Index>& i)
+    {
+	typedef typename Index::MetaType Meta;
+	return std::make_shared<XIndex<Index,Meta>>
+	    (std::dynamic_pointer_cast<IndexInterface<Index,Meta>>(i));
+    }
 }
 
 #endif

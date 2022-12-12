@@ -36,7 +36,8 @@ namespace CNORXZ
 	virtual SizeT dim() const = 0;
 	virtual RangePtr range() const = 0;
 	virtual UPos stepSize(const IndexId<0>& id) const = 0;
-
+	virtual Vector<XIndexPtr> pack() const = 0;
+	
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
@@ -84,6 +85,7 @@ namespace CNORXZ
 	virtual SizeT dim() const override final;
 	virtual RangePtr range() const override final;
 	virtual UPos stepSize(const IndexId<0>& id) const override final;
+	virtual Vector<XIndexPtr> pack() const override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;
@@ -97,6 +99,9 @@ namespace CNORXZ
 
     };
 
+    template <class Index>
+    XIndexPtr mkXIndex(const Sptr<Index>& i);
+    
 }
 
 #endif

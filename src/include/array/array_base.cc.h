@@ -28,8 +28,10 @@ namespace CNORXZ
     const T& CArrayBase<T>::at(const IndexInterface<I,M>& i) const
     {
 	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
+	auto beg = this->begin();
+	//assertCompatible(i,beg);
 	// check further compatibility of index/range format!!!
-	auto ai = this->begin() + i.lex();
+	auto ai = beg + i.lex();
 	return *ai;
     }
 
@@ -37,7 +39,13 @@ namespace CNORXZ
     template <typename I, typename M>
     Sptr<CArrayBase<T>> CArrayBase<T>::sl(const IndexInterface<I,M>& i) const
     {
-	
+	////auto r = mkSliceRange(i.range());
+	//auto beg = this->begin();
+	//assertCompatible(i,beg);
+	////auto bs = mkSliceBlockSizes(i, beg);
+	//auto it = beg + i.lex();
+	////return std::make_shared<CSlice>(r, this, bs, it.pos());
+	return std::make_shared<CSlice>();
     }
 
     template <typename T>
@@ -73,6 +81,42 @@ namespace CNORXZ
     }
     */
 
+    /******************************
+     *   CArrayBase (protected)   *
+     ******************************/
+
+    template <typename T>
+    template <class IPack1, class IPack2>
+    inline Vector<SizeT> CArrayBase<T>::mkSliceBlockSize(const IPack1& ip1, const IPack2& ip2) const
+    {
+	const SizeT ip1dim = indexPackDim(ip1);
+	const SizeT ip2dim = indexPackDim(ip2);
+	if(ip1dim > ip2dim){
+	    //const SizeT ip1sdim = indexPackSDim(ip1);
+	    const SizeT ip2sdim = indexPackSDim(ip2);
+	    CXZ_ASSERT(ip1dim == ip2sdim or ip2sdim == ip2dim,
+		       "")
+	}
+	else if(ip1dim < ip2dim){
+
+	}
+	else {
+
+	}
+    }
+
+    template <typename T>
+    inline RangePtr CArrayBase<T>::mkSliceRange(const RangePtr& r) const
+    {
+	
+    }
+
+    template <typename T>
+    inline void CArrayBase<T>::assertCompatible() const
+    {
+	
+    }
+
     /*****************
      *   ArrayBase   *
      *****************/
@@ -98,6 +142,17 @@ namespace CNORXZ
 	// check further compatibility of index/range format!!!
 	auto ai = this->begin() + i.lex();
 	return *ai;
+    }
+
+    template <typename T>
+    template <typename I, typename M>
+    Sptr<ArrayBase<T>> ArrayBase<T>::sl(const IndexInterface<I,M>& i)
+    {
+	auto r = mkSliceRange(i);
+	auto beg = this->begin();
+	auto bs = mkSliceBlockSizes(i, beg);
+	auto it = beg + i.lex();
+	return std::make_shared<Slice>(r, this, bs, it.pos());
     }
 
     template <typename T>

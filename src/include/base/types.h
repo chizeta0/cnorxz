@@ -40,6 +40,9 @@ namespace CNORXZ
     template <typename T>
     using Uptr = std::unique_ptr<T>;
 
+    template <typename T, typename U>
+    using Pair = std::pair<T,U>;
+    
     template <typename... T>
     using Tuple = std::tuple<T...>;
 

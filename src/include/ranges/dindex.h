@@ -46,6 +46,7 @@ namespace CNORXZ
 	RangePtr range() const;
 
 	UPos stepSize(const IndexId<0>& id) const;
+	Vector<XIndexPtr> pack() const;
 
 	String stringMeta() const;
 	DType meta() const;

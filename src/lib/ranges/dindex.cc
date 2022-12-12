@@ -129,6 +129,11 @@ namespace CNORXZ
 	return mI->stepSize(id);
     }
 
+    Vector<XIndexPtr> DIndex::pack() const
+    {
+	return mI->pack();
+    }
+
     String DIndex::stringMeta() const
     {
 	return mI->stringMeta();

@@ -22,6 +22,13 @@ namespace CNORXZ
     protected:
 	RangePtr mRange;
 	
+	template <typename I, typename M>
+	inline Vector<SizeT> mkSliceBlockSize(const I1& i, const I2& beg) const;
+
+	inline RangePtr mkSliceRange(const RangePtr& r) const;
+
+	inline void assertCompatible() const;
+	
     public:
 
 	CArrayBase(const RangePtr& range);
@@ -89,7 +96,37 @@ namespace CNORXZ
 	
 	//template <typename I, typename M>
 	//OperationRoot<T,I> operator()(const IndexPtr<I,M>& i);
+
     };
+
+    // to extra header file !!!:
+    template <class... Indices>
+    constexpr decltype(auto) flattenIndexPack(const Tuple<Sptr<Indices>...>& ipack)
+    {
+	constexpr SizeT D = sizeof...(Indices);
+	
+    }
+    
+    inline Vector<XIndexPtr> flattenIndexPack(const Vector<XIndexPtr>& ipack)
+    {
+	
+    }
+    
+    template <class... Indices>
+    inline SizeT indexPackDim(Tuple<Sptr<Indices>...> ipack)
+    {
+	constexpr SizeT D = sizeof...(Indices);
+	return iter<0,D>([&](const auto& i) { return std::get<i>(ipack)->dim(); },
+			 [](const auto&... e) { return (e + ...); });
+    }
+    
+    inline SizeT indexPackDim(const Vector<XIndexPtr>& ipack)
+    {
+	return std::accumulate(ipack.begin(), ipack.end(), ipack[0]->dim(),
+			       [](auto a, auto b) { return a->dim() + b->dim(); });
+    }
+
+    
 }
 
 #endif
