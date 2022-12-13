@@ -13,6 +13,12 @@ namespace CNORZX
 
     template <class F>
     inline decltype(auto) indexPackZip(const Vector<XIndexPtr>& a, const Vector<XIndexPtr>& b, F&& f);
+
+    template <class Index>
+    constexpr decltype(auto) getIndexDepth(const Index& ind);
+
+    template <class Index, typename IntT>
+    constexpr decltype(auto) getDimension(const Index& ind, IntT depth);
 }
 
 #endif
