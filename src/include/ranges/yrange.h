@@ -56,7 +56,7 @@ namespace CNORXZ
 
 	YIndex& operator()(const Sptr<YIndex>& i);
 	YIndex& operator()();
-	
+
 	const Vector<XIndexPtr>& pack() const;
 	const Vector<SizeT>& blockSizes() const;
 	const Vector<SizeT>& lexBlockSizes() const;

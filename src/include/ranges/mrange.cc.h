@@ -435,6 +435,50 @@ namespace CNORXZ
     }
 
     template <class BlockType, class... Indices>
+    template <class Index, class F, class G>
+    constexpr decltype(auto) GMIndex<BlockType,Indices...>::zip(const Index& ind, const F& f, const G& g) const
+    {
+	static_assert(is_index<Index>::value, "got non-index type");
+	if constexpr(has_static_sub<Index>::value){
+	    static_assert(index_dim<Index>::value == NI,
+			  "got static-dimensional index with wrong dimension");
+	    if constexpr(std::is_same<G,NoF>::value or std::is_same<F,NoF>::value){
+		iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->zip(*std::get<i>(ind.pack()), f); },
+			    NoF {} );
+		f(*this, ind);
+		return;
+	    }
+	    else {
+		return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->zip(*std::get<i>(ind.pack()), f); },
+				   [](auto... e) { return g(std::make_tuple(e...), f(*this, ind)); } );
+	    }
+	}
+	else if constexpr(has_sub<Index>::value){
+	    CXZ_ASSERT(ind.dim() == NI, "got index with wrong dimension = " << ind.dim()
+		       << ", expected: " << NI);
+	    if constexpr(std::is_same<G,NoF>::value or std::is_same<F,NoF>::value){
+		iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->zip(*ind.pack()[i],f); },
+			    NoF {} );
+		f(*this, ind);
+		return;
+	    }
+	    else {
+		return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->zip(*ind.pack()[i],f); },
+				   [](auto... e) { return g(std::make_tuple(e...), f(*this, ind)); } );
+	    }
+	}
+	else {
+	    if constexpr(std::is_same<F,NoF>::value){
+		f(*this, ind);
+		return;
+	    }
+	    else {
+		return f(*this, ind);
+	    }
+	}
+    }
+
+    template <class BlockType, class... Indices>
     const auto& GMIndex<BlockType,Indices...>::blockSizes() const
     {
 	if constexpr(std::is_same<BlockType,None>::value){

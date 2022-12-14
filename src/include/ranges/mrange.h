@@ -70,6 +70,9 @@ namespace CNORXZ
 	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
 	GMIndex& operator()();
 
+	template <class Index, class F = NoF, class G = NoF>
+	constexpr decltype(auto) zip(const Index& ind, const F& f, const G& g) const; // also non-const version !!!
+
 	const IndexPack& pack() const;
 	const auto& blockSizes() const;
 	const auto& lexBlockSizes() const;
