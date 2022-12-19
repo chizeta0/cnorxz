@@ -86,7 +86,15 @@ namespace CNORXZ
     template <class I>
     struct index_dim
     { static constexpr SizeT value = 1; };
-    
+
+    template <class T>
+    struct has_sub
+    { static constexpr bool value = false; };
+
+    template <class T>
+    struct has_static_sub
+    { static constexpr bool value = false; };
+
     template <class I, typename MetaType>
     IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i);
 

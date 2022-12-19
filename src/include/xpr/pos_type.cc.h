@@ -111,6 +111,12 @@ namespace CNORXZ
 	return UPos(mExt + in.val());
     }
 
+    template <class PosT>
+    constexpr UPos UPos::operator-(const PosT& in) const
+    {
+	return UPos(mExt - in.val());
+    }
+
     constexpr SPos<0> UPos::operator*(const SPos<0>& a) const
     {
 	return SPos<0>();

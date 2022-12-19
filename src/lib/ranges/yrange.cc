@@ -378,7 +378,20 @@ namespace CNORXZ
 	return *this;
     }
 
-    
+    /****************************
+     *   non-member functions   *
+     ****************************/
+
+    YIndex yindex(const Vector<XIndexPtr>& is)
+    {
+	return YIndex(is);
+    }
+
+    Sptr<YIndex> yindexPtr(const Vector<XIndexPtr>& is)
+    {
+	return std::make_shared<YIndex>(is);
+    }
+
     /**********************
      *   YRangeFactory    *
      **********************/

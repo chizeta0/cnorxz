@@ -46,6 +46,7 @@ namespace CNORXZ
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
+
     };
 
     //Sptr<XIndexBase>& operator++(Sptr<XIndexBase>& i);
@@ -103,6 +104,10 @@ namespace CNORXZ
 
     };
 
+    template <>
+    struct has_sub<XIndexBase>
+    { static constexpr bool value = true; };
+    
     template <class Index>
     XIndexPtr mkXIndex(const Sptr<Index>& i);
     

@@ -21,6 +21,12 @@ namespace CNORXZ
 
     protected:
 	RangePtr mRange;
+
+	template <class Index>
+	YIndex mkSliceIndex(const YIndex& yi, const Index& i) const;
+
+	template <class Index>
+	XIndexPtr mkSliceIndex(const XIndexPtr& xi, const Sptr<Index>& i) const;
 	
     public:
 
@@ -92,34 +98,6 @@ namespace CNORXZ
 
     };
 
-    // to extra header file !!!:
-    template <class... Indices>
-    constexpr decltype(auto) flattenIndexPack(const Tuple<Sptr<Indices>...>& ipack)
-    {
-	constexpr SizeT D = sizeof...(Indices);
-	
-    }
-    
-    inline Vector<XIndexPtr> flattenIndexPack(const Vector<XIndexPtr>& ipack)
-    {
-	
-    }
-    
-    template <class... Indices>
-    inline SizeT indexPackDim(Tuple<Sptr<Indices>...> ipack)
-    {
-	constexpr SizeT D = sizeof...(Indices);
-	return iter<0,D>([&](const auto& i) { return std::get<i>(ipack)->dim(); },
-			 [](const auto&... e) { return (e + ...); });
-    }
-    
-    inline SizeT indexPackDim(const Vector<XIndexPtr>& ipack)
-    {
-	return std::accumulate(ipack.begin(), ipack.end(), ipack[0]->dim(),
-			       [](auto a, auto b) { return a->dim() + b->dim(); });
-    }
-
-    
 }
 
 #endif

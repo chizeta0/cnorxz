@@ -85,6 +85,9 @@ namespace CNORXZ
 	UPos mLMax = 0;
     };
 
+    YIndex yindex(const Vector<XIndexPtr>& is);
+    Sptr<YIndex> yindexPtr(const Vector<XIndexPtr>& is);
+
     class YRangeFactory : public RangeFactoryBase
     {
     public:

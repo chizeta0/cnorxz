@@ -133,14 +133,14 @@ namespace CNORXZ
 	if constexpr(has_static_sub<Index>::value){
 	    constexpr SizeT D = index_dim<Index>::value;
 	    return iter<0,D>
-		( [&](auto i) { return mkXIndex(std::get<i>(mI->pack())); },
-		  [](const auto&... e) { return { e ... }; } );
+		( [&](auto i) { return mkXIndex(std::get<i>(mI->THIS().pack())); },
+		  [](const auto&... e) { return Vector<XIndexPtr>({ e ... }); } );
 	}
 	else if constexpr(has_sub<Index>::value){
-	    return mI->pack();
+	    return mI->THIS().pack();
 	}
 	else {
-	    return {};
+	    return Vector<XIndexPtr>();
 	}
     }
 
@@ -149,15 +149,16 @@ namespace CNORXZ
     {
 	if constexpr(has_static_sub<Index>::value){
 	    constexpr SizeT D = index_dim<Index>::value;
+	    const auto& bs = mI->THIS().blockSizes();
 	    return iter<0,D>
-		( [&](auto i) { return std::get<i>(mI->blockSizes()); },
-		  [](const auto&... e) { return Vector<SizeT>( { e... } ); } );
+		( [&](auto i) { return std::get<i>(bs); },
+		  [](const auto&... e) { return Vector<SizeT>( { static_cast<SizeT>(e)... } ); } );
 	}
 	else if constexpr(has_sub<Index>::value) {
-	    return mI->blockSizes();
+	    return mI->THIS().blockSizes();
 	}
 	else {
-	    return {};
+	    return Vector<SizeT>();
 	}
     }
 
@@ -168,19 +169,19 @@ namespace CNORXZ
 	    constexpr SizeT D = index_dim<Index>::value;
 	    CXZ_ASSERT(bs.size() == D,
 		       "got block sizes of wrong dimension: " << bs.size() << " vs " << D);
-	    typedef decltype(mI->blockSizes()) BT;
-	    Arr<SizeT,D> arr;
+	    typedef decltype(mI->THIS().blockSizes()) BT;
+	    Arr<UPos,D> arr;
 	    std::copy_n(bs.begin(), D, arr.begin());
-	    if constexpr(std::is_same<BT,Arr<SizeT,D>>::value){
-		mI->setBlockSizes(arr);
+	    if constexpr(std::is_same<BT,Arr<UPos,D>>::value){
+		mI->THIS().setBlockSizes(arr);
 		return nullptr;
 	    }
 	    else {
-		return replaceBlockSizes(arr, mI);
+		return mkXIndex(replaceBlockSizes(arr, mI));
 	    }
 	}
 	else if constexpr(has_sub<Index>::value) {
-	    mI->setBlockSizes(bs);
+	    mI->THIS().setBlockSizes(bs);
 	    return nullptr;
 	}
 	else {

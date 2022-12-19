@@ -54,6 +54,9 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr UPos operator+(const PosT& a) const;
 
+	template <class PosT>
+	constexpr UPos operator-(const PosT& a) const;
+
 	constexpr SPos<0> operator*(const SPos<0>& a) const;
 
         template <class PosT>

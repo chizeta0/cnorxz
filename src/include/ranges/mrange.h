@@ -70,9 +70,6 @@ namespace CNORXZ
 	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
 	GMIndex& operator()();
 
-	template <class Index, class F = NoF, class G = NoF>
-	constexpr decltype(auto) zip(const Index& ind, const F& f, const G& g) const; // also non-const version !!!
-
 	const IndexPack& pack() const;
 	const auto& blockSizes() const;
 	const auto& lexBlockSizes() const;
@@ -113,7 +110,11 @@ namespace CNORXZ
     };
 
     template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceBlockSize(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
+    decltype(auto) replaceBlockSizes(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
+
+    template <class BT1, class BT2, class... Indices>
+    decltype(auto) replaceBlockSizes(const BT1& bs1,
+				     const Sptr<IndexInterface<GMIndex<BT2,Indices...>,typename GMIndex<BT2,Indices...>::MetaType>>& gmi);
     
     template <class BT1, class... Is1, class BT2, class... Is2>
     decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b);
@@ -131,6 +132,14 @@ namespace CNORXZ
     template <class... Indices>
     struct index_dim<MIndex<Indices...>>
     { static constexpr SizeT value = sizeof...(Indices); };
+
+    template <class... Indices>
+    struct has_sub<MIndex<Indices...>>
+    { static constexpr bool value = true; };
+
+    template <class... Indices>
+    struct has_static_sub<MIndex<Indices...>>
+    { static constexpr bool value = true; };
 
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is);
