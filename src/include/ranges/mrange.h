@@ -112,10 +112,6 @@ namespace CNORXZ
     template <class BT1, class BT2, class... Indices>
     decltype(auto) replaceBlockSizes(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
 
-    template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceBlockSizes(const BT1& bs1,
-				     const Sptr<IndexInterface<GMIndex<BT2,Indices...>,typename GMIndex<BT2,Indices...>::MetaType>>& gmi);
-    
     template <class BT1, class... Is1, class BT2, class... Is2>
     decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b);
     

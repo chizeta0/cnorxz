@@ -177,7 +177,7 @@ namespace CNORXZ
 		return nullptr;
 	    }
 	    else {
-		return mkXIndex(replaceBlockSizes(arr, mI));
+		return mkXIndex(replaceBlockSizes(arr, std::static_pointer_cast<Index>(mI)));
 	    }
 	}
 	else if constexpr(has_sub<Index>::value) {
