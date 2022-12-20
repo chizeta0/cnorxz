@@ -14,8 +14,8 @@ namespace CNORXZ
     class LIndex : public Index
     {
     public:
-	typedef Index::IB IB;
-	typedef Index::RangeType RangeType;
+	typedef typename Index::IB IB;
+	typedef typename Index::RangeType RangeType;
 
 	DEFAULT_MEMBERS(LIndex);
 	LIndex(const Index& i);

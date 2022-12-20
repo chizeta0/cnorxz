@@ -1,4 +1,7 @@
 
+#ifndef __cxz_lindex_cc_h__
+#define __cxz_lindex_cc_h__
+
 #include "lindex.h"
 
 namespace CNORXZ
@@ -30,3 +33,5 @@ namespace CNORXZ
     }
 
 }
+
+#endif

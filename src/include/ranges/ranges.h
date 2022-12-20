@@ -8,6 +8,7 @@
 #include "xindex.h"
 #include "yrange.h"
 #include "dindex.h"
+#include "lindex.h"
 #include "index_mul.h"
 
 #include "ranges.cc.h"

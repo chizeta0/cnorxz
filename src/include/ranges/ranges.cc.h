@@ -6,4 +6,5 @@
 #include "urange.cc.h"
 #include "crange.cc.h"
 #include "dindex.cc.h"
+#include "lindex.cc.h"
 #include "index_mul.cc.h"
