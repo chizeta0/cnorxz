@@ -209,8 +209,56 @@ namespace CNORXZ
     // there should be also a static analogue
 
     // definition: ranges/lindex.h
-    template <class Index>
+    template <class Index, SizeT L>
     class LIndex;
+
+    // definition: array/array_base.h
+    template <typename T>
+    class CArrayBase;
+
+    // definition: array/array_base.h
+    template <typename T>
+    class ArrayBase;
+
+    // definition: array/array.h
+    template <typename T>
+    class MArray;
+
+    // definition: array/slice.h
+    template <typename T>
+    class CSlice;
+
+    // definition: array/slice.h
+    template <typename T>
+    class Slice;
+
+    // definition: operation/op_types.h
+    template <class OpT>
+    class COpInterface;
+    
+    // definition: operation/op_types.h
+    template <class OpT>
+    class OpInterface;
+
+    // definition: operation/op_types.h
+    template <typename T, class IndexT>
+    class COpRoot;
+
+    // definition: operation/op_types.h
+    template <typename T, class IndexT>
+    class OpCont;
+
+    // definition: operation/op_types.h
+    template <typename T, class IndexT>
+    class OpRoot;
+
+    // definition: operation/op_types.h
+    template <class F, class... Ops>
+    class Operation;
+
+    // definition: operation/op_types.h
+    template <class CXpr>
+    class Contraction;
     
     /*********************
      *   derived types   *

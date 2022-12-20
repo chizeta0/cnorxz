@@ -144,7 +144,7 @@ namespace CNORXZ
     {
 	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
 	auto beg = this->begin();
-	//assertCompatible(i,beg);
+	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
 	// check further compatibility of index/range format!!!
 	auto ai = beg + i.lex();
 	return *ai;
@@ -185,14 +185,35 @@ namespace CNORXZ
 	return this->cend();
     }
     
-    /*
     template <typename T>
-    template <typename I, typename M>
-    ConstOperationRoot<T,I> CArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
+    template <class I, typename M>
+    COpRoot<T,I> CArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
-	return ConstOperationRoot<T,I>();
+	return COpRoot<T,I>(*this, std::static_pointer_cast<I>(i));
     }
-    */
+
+    template <typename T>
+    template <class I, SizeT L>
+    COpRoot<T,I> CArrayBase<T>::operator()(const LIndex<I,L>& i) const
+    {
+	return COpRoot<T,LIndex<I,L>>(*this, i);
+    }
+
+    template <typename T>
+    template <class I, typename M>
+    COpRoot<T,I> CArrayBase<T>::op(const IndexPtr<I,M>& i) const
+    {
+	CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
+	return COpRoot<T,I>(*this, std::static_pointer_cast<I>(i));
+    }
+
+    template <typename T>
+    template <class I, SizeT L>
+    COpRoot<T,I> CArrayBase<T>::op(const LIndex<I,L>& i) const
+    {
+	CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
+	return COpRoot<T,LIndex<I,L>>(*this, i);
+    }
 
     /*****************
      *   ArrayBase   *
@@ -244,14 +265,35 @@ namespace CNORXZ
 	return iterator(this->data(), this->cend());
     }
 
-    /*
     template <typename T>
-    template <typename I, typename M>
-    OperationRoot<T,I> ArrayBase<T>::operator()(const IndexPtr<I,M>& i)
+    template <class I, typename M>
+    OpRoot<T,I> ArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
-	return OperationRoot<T,I>();
+	return OpRoot<T,I>(*this, std::static_pointer_cast<I>(i));
     }
-    */
+
+    template <typename T>
+    template <class I, SizeT L>
+    OpRoot<T,I> ArrayBase<T>::operator()(const LIndex<I,L>& i) const
+    {
+	return OpRoot<T,LIndex<I,L>>(*this, i);
+    }
+
+    template <typename T>
+    template <class I, typename M>
+    OpRoot<T,I> ArrayBase<T>::op(const IndexPtr<I,M>& i) const
+    {
+	CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
+	return OpRoot<T,I>(*this, std::static_pointer_cast<I>(i));
+    }
+
+    template <typename T>
+    template <class I, SizeT L>
+    OpRoot<T,I> ArrayBase<T>::op(const LIndex<I,L>& i) const
+    {
+	CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
+	return OpRoot<T,LIndex<I,L>>(*this, i);
+    }
 }
 
 #endif

@@ -9,7 +9,7 @@
 
 #include "base/base.h"
 #include "aindex.h"
-//#include "operation/"
+#include "operation/op_types.h"
 
 namespace CNORXZ
 {
@@ -55,8 +55,17 @@ namespace CNORXZ
 
 	virtual bool isView() const = 0;
 
-	//template <typename I, typename M>
-	//ConstOperationRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
+	template <class I, typename M>
+	COpRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
+
+	template <class I, SizeT L>
+	COpRoot<T,I> operator()(const LIndex<I,L>& i) const;
+
+    	template <class I, typename M>
+	COpRoot<T,I> op(const IndexPtr<I,M>& i) const;
+
+	template <class I, SizeT L>
+	COpRoot<T,I> op(const LIndex<I,L>& i) const;
     };
 
     template <typename T>
@@ -93,9 +102,17 @@ namespace CNORXZ
 	virtual iterator begin();
 	virtual iterator end();
 	
-	//template <typename I, typename M>
-	//OperationRoot<T,I> operator()(const IndexPtr<I,M>& i);
+	template <class I, typename M>
+	OpRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
 
+	template <class I, SizeT L>
+	OpRoot<T,I> operator()(const LIndex<I,L>& i) const;
+
+    	template <class I, typename M>
+	OpRoot<T,I> op(const IndexPtr<I,M>& i) const;
+
+	template <class I, SizeT L>
+	OpRoot<T,I> op(const LIndex<I,L>& i) const;
     };
 
 }
