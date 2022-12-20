@@ -189,6 +189,7 @@ namespace CNORXZ
     template <class I, typename M>
     COpRoot<T,I> CArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
+	CXZ_ASSERT(false, "BLOCKSIZES!!");
 	return COpRoot<T,I>(*this, std::static_pointer_cast<I>(i));
     }
 
@@ -196,6 +197,7 @@ namespace CNORXZ
     template <class I, SizeT L>
     COpRoot<T,I> CArrayBase<T>::operator()(const LIndex<I,L>& i) const
     {
+	CXZ_ASSERT(false, "BLOCKSIZES!!");
 	return COpRoot<T,LIndex<I,L>>(*this, i);
     }
 
@@ -269,6 +271,7 @@ namespace CNORXZ
     template <class I, typename M>
     OpRoot<T,I> ArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
     {
+	CXZ_ASSERT(false, "BLOCKSIZES!!");
 	return OpRoot<T,I>(*this, std::static_pointer_cast<I>(i));
     }
 
@@ -276,6 +279,7 @@ namespace CNORXZ
     template <class I, SizeT L>
     OpRoot<T,I> ArrayBase<T>::operator()(const LIndex<I,L>& i) const
     {
+	CXZ_ASSERT(false, "BLOCKSIZES!!");
 	return OpRoot<T,LIndex<I,L>>(*this, i);
     }
 
