@@ -7,6 +7,23 @@
 
 namespace CNORXZ
 {
+    template <class Index>
+    decltype(auto) CIndex::format(const Sptr<Index>& ind) const
+    {
+	return ind;
+    }
+
+    template <class Index>
+    decltype(auto) CIndex::slice(const Sptr<Index>& ind) const
+    {
+	if(ind != nullptr){
+	    if(ind->dim() != 0) {
+		return Sptr<CIndex>();
+	    }
+	}
+	return std::make_shared<CIndex>(*this);
+    }
+
     template <class Xpr, class F>
     decltype(auto) CIndex::ifor(const Xpr& xpr, F&& f) const
     {

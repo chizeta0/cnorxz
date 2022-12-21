@@ -53,6 +53,12 @@ namespace CNORXZ
 	String stringMeta() const { return THIS().stringMeta(); }
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
+
+	template <class Index>
+	decltype(auto) format(const Sptr<Index>& ind) const { return THIS().format(ind); }
+
+	template <class Index>
+	decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }
 	
 	template <class Xpr, class F = NoF>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const
@@ -75,6 +81,10 @@ namespace CNORXZ
 	PtrId mPtrId = 0;
     };
 
+    template <class I>
+    struct is_index
+    { static constexpr bool value = std::is_base_of<IndexInterface<I,typename I::MetaType>,I>::value; };
+    
     template <class I>
     struct index_has_const_size
     { static constexpr bool value = false; };

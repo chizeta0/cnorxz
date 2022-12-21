@@ -63,6 +63,18 @@ namespace CNORXZ
 	MetaType meta() const;
 	GMIndex& at(const MetaType& metaPos);
 	
+	template <class Index>
+	decltype(auto) format(const Sptr<Index>& ind) const;
+	// -> IndexInterface;
+	// replace index instances xor replace blockSizes of ind by that of *this
+	// return result as new instance
+
+	template <class Index>
+	decltype(auto) slice(const Sptr<Index>& ind) const;
+	// -> IndexInterface;
+	// drop index instance or drop blockSize if that if ind is Null
+	// return result as new instance
+
 	template <class Xpr, class F>
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 

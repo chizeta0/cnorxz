@@ -407,6 +407,48 @@ namespace CNORXZ
     }
 
     template <class BlockType, class... Indices>	
+    template <class Index>
+    decltype(auto) GMIndex<BlockType,Indices...>::format(const Sptr<Index>& ind) const
+    {
+	static_assert(is_index<Index>::value, "got non-index type");
+	static_assert(has_sub<Index>::value, "try to format single index");
+	if constexpr(has_static_sub<Index>::value){
+	    static_assert(index_dim<Index>::value == NI, "got index with conflicting static dimension");
+	    typedef std::remove_reference<decltype(ind->blockSizes())>::type BT;
+	    return iter<0,NI>
+		( [&](auto i) {
+		    std::get<i>(mIPack)->format(std::get<i>(ind->pack()));
+		},
+		    [](const auto&... e) {
+			return std::make_shared<GMIndex<BT,Indices...>>
+			    (mBlockSizes, e... );
+		    } );
+	}
+	else {
+	    typedef Arr<UPos,NI> BT;
+	    auto pack = ind->pack();
+	    CXZ_ASSERT(pack.size() == NI, "attempt to format index of dimension " << NI
+		       << " using index of dimension " << bs.size());
+	    auto bs = ind->blockSizes();
+	    return iter<0,NI>
+		( [&](auto i) {
+		    return std::get<i>(mIPack)->format(pack[i]);
+		},
+		    [](const auto&... e) {
+			return std::make_shared<GMIndex<BlockType,Indices...>>
+			    (mBlockSizes, e... );
+		    } );
+	}
+    }
+    
+    template <class BlockType, class... Indices>	
+    template <class Index>
+    decltype(auto) GMIndex<BlockType,Indices...>::slice(const Sptr<Index>& ind) const
+    {
+	static_assert(is_index<Index>::value, "got non-index type");
+    }
+    
+    template <class BlockType, class... Indices>	
     template <class Xpr, class F>
     constexpr decltype(auto) GMIndex<BlockType,Indices...>::ifor(const Xpr& xpr, F&& f) const
     {

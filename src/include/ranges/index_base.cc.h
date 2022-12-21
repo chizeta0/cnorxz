@@ -101,6 +101,7 @@ namespace CNORXZ
 	return mPtrId;
     }
 
+
     /****************************
      *   Non-member functions   *
      ****************************/
