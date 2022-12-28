@@ -136,6 +136,25 @@ namespace CNORXZ
     {
 	return UPos(id == this->id() ? 1 : 0);
     }
+
+    template <typename MetaType>
+    template <class Index>
+    decltype(auto) UIndex<MetaType>::format(const Sptr<Index>& ind) const
+    {
+	return ind;
+    }
+
+    template <typename MetaType>
+    template <class Index>
+    decltype(auto) UIndex<MetaType>::slice(const Sptr<Index>& ind) const
+    {
+	if(ind != nullptr){
+	    if(ind->dim() != 0) {
+		return Sptr<CIndex>();
+	    }
+	}
+	return std::make_shared<CIndex>(*this);
+    }
     
     template <typename MetaType>
     template <class Xpr, class F>

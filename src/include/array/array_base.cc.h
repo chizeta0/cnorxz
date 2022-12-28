@@ -118,7 +118,7 @@ namespace CNORXZ
 	if(npack.size() == 0){
 	    return nullptr;
 	}
-	return mkXIndex(yindexPtr(npack));
+	return xindexPtr(yindexPtr(npack));
     }
 
     /******************

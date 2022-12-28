@@ -54,6 +54,9 @@ namespace CNORXZ
 	DType meta() const;
 	DIndex& at(const DType& meta);
 
+	Sptr<DIndex> format(const Sptr<DIndex>& ind) const;
+	Sptr<DIndex> slice(const Sptr<DIndex>& ind) const;
+	
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	const XIndexPtr& xptr() const;
@@ -61,7 +64,10 @@ namespace CNORXZ
     private:
 	XIndexPtr mI;
     };
-    
+
+    template <>
+    struct has_sub<DIndex>
+    { static constexpr bool value = true; };
 }
 
 #endif

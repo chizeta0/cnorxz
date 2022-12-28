@@ -133,7 +133,7 @@ namespace CNORXZ
 	if constexpr(has_static_sub<Index>::value){
 	    constexpr SizeT D = index_dim<Index>::value;
 	    return iter<0,D>
-		( [&](auto i) { return mkXIndex(std::get<i>(mI->THIS().pack())); },
+		( [&](auto i) { return xindexPtr(std::get<i>(mI->THIS().pack())); },
 		  [](const auto&... e) { return Vector<XIndexPtr>({ e ... }); } );
 	}
 	else if constexpr(has_sub<Index>::value){
@@ -177,7 +177,7 @@ namespace CNORXZ
 		return nullptr;
 	    }
 	    else {
-		return mkXIndex(replaceBlockSizes(arr, std::static_pointer_cast<Index>(mI)));
+		return xindexPtr(replaceBlockSizes(arr, std::static_pointer_cast<Index>(mI)));
 	    }
 	}
 	else if constexpr(has_sub<Index>::value) {
@@ -210,6 +210,22 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
+    Sptr<DIndex> XIndex<Index,Meta>::format(const Sptr<DIndex>& ind) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+	//return std::make_shared<DIndex>(xindexPtr(mI->format(ind)));
+    }
+    
+    template <class Index, typename Meta>
+    Sptr<DIndex> XIndex<Index,Meta>::slice(const Sptr<DIndex>& ind) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+	//return std::make_shared<DIndex>(xindexPtr(mI->slice(ind)));
+    }
+
+    template <class Index, typename Meta>
     DXpr<SizeT> XIndex<Index,Meta>::ifor(const DXpr<SizeT>& xpr,
 					 std::function<SizeT(SizeT,SizeT)>&& f) const
     {
@@ -217,11 +233,17 @@ namespace CNORXZ
     }
 
     template <class Index>
-    XIndexPtr mkXIndex(const Sptr<Index>& i)
+    inline XIndexPtr xindexPtr(const Sptr<Index>& i)
     {
 	typedef typename Index::MetaType Meta;
 	return std::make_shared<XIndex<Index,Meta>>
 	    (std::dynamic_pointer_cast<IndexInterface<Index,Meta>>(i));
+    }
+
+    template <>
+    inline XIndexPtr xindexPtr<XIndexBase>(const Sptr<XIndexBase>& i)
+    {
+	return i;
     }
 }
 

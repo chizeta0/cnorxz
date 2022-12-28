@@ -339,6 +339,18 @@ namespace CNORXZ
 	return *this;
     }
 
+    Sptr<DIndex> YIndex::format(const Sptr<DIndex>& ind) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+    }
+    
+    Sptr<DIndex> YIndex::slice(const Sptr<DIndex>& ind) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+    }
+
     DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
     {
 	return mkIFor(0, xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f));

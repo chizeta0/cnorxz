@@ -52,6 +52,9 @@ namespace CNORXZ
 	DType meta() const;
 	YIndex& at(const DType& meta);
 
+	Sptr<DIndex> format(const Sptr<DIndex>& ind) const;
+	Sptr<DIndex> slice(const Sptr<DIndex>& ind) const;
+	
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	YIndex& operator()(const Sptr<YIndex>& i);
@@ -87,6 +90,7 @@ namespace CNORXZ
 
     YIndex yindex(const Vector<XIndexPtr>& is);
     Sptr<YIndex> yindexPtr(const Vector<XIndexPtr>& is);
+    Sptr<YIndex> yindexPtr(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is);
 
     class YRangeFactory : public RangeFactoryBase
     {

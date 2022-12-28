@@ -9,10 +9,12 @@
 
 namespace CNORXZ
 {
-    // Future IndexWrapper
     class XIndexBase
     {
     public:
+
+	//typedef DType MetaType;
+	
 	DEFAULT_MEMBERS(XIndexBase);
 	virtual ~XIndexBase() = default;
 	virtual XIndexPtr copy() const = 0;
@@ -43,6 +45,9 @@ namespace CNORXZ
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
+
+	virtual Sptr<DIndex> format(const Sptr<DIndex>& ind) const = 0;
+	virtual Sptr<DIndex> slice(const Sptr<DIndex>& ind) const = 0;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
@@ -96,6 +101,9 @@ namespace CNORXZ
 	virtual DType meta() const override final;
 	virtual XIndexBase& at(const DType& meta) override final;
 
+	virtual Sptr<DIndex> format(const Sptr<DIndex>& ind) const override final;
+	virtual Sptr<DIndex> slice(const Sptr<DIndex>& ind) const override final;
+
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;
 
@@ -109,8 +117,11 @@ namespace CNORXZ
     { static constexpr bool value = true; };
     
     template <class Index>
-    XIndexPtr mkXIndex(const Sptr<Index>& i);
-    
+    inline XIndexPtr xindexPtr(const Sptr<Index>& i);
+
+    template <>
+    inline XIndexPtr xindexPtr<XIndexBase>(const Sptr<XIndexBase>& i);
+
 }
 
 #endif

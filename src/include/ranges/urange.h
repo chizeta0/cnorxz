@@ -47,6 +47,12 @@ namespace CNORXZ
 	const MetaT& meta() const;
 	UIndex& at(const MetaT& metaPos);
 
+	template <class Index>
+	decltype(auto) format(const Sptr<Index>& ind) const;
+
+	template <class Index>
+	decltype(auto) slice(const Sptr<Index>& ind) const;
+
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 

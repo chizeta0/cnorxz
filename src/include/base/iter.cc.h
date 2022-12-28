@@ -23,6 +23,33 @@ namespace CNORXZ
     {
 	return iteri(g, f, Isqr<B,E>{});
     }
+
+    template <SizeT E, SizeT I, class G, class F, class C, typename... Args>
+    constexpr decltype(auto) iterIfi(const G& g, const F& f, const C& c, const Args&... args)
+    {
+	if constexpr(I >= E){
+	    if constexpr(std::is_same<F,NoF>::value){
+		return;
+	    }
+	    else {
+		return f(args...);
+	    }
+	}
+	else {
+	    if constexpr(c(std::integral_constant<SizeT,I>{})){
+		return iterIfi<E,I+1>(g, f, c, args..., g(std::integral_constant<SizeT,I>{}));
+	    }
+	    else {
+		return iterIfi<E,I+1>(g, f, c, args...);
+	    }
+	}
+    }
+
+    template <SizeT B, SizeT E, class G, class F, class C>
+    constexpr decltype(auto) iterIf(const G& g, const F& f, const C& c)
+    {
+	return iterIfi<E,B>(g, f, c);
+    }
 }
 
 #endif

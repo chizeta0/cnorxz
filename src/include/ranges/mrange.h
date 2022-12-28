@@ -72,7 +72,7 @@ namespace CNORXZ
 	template <class Index>
 	decltype(auto) slice(const Sptr<Index>& ind) const;
 	// -> IndexInterface;
-	// drop index instance or drop blockSize if that if ind is Null
+	// drop index instance or drop blockSize of ind if that of *this is not Null
 	// return result as new instance
 
 	template <class Xpr, class F>
@@ -152,6 +152,8 @@ namespace CNORXZ
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is);
 
+    template <class BlockType, class... Indices>
+    constexpr decltype(auto) gmindexPtr(const BlockType& bs, const Sptr<Indices>&... is);
     
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase

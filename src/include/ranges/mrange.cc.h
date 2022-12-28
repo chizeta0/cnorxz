@@ -414,29 +414,24 @@ namespace CNORXZ
 	static_assert(has_sub<Index>::value, "try to format single index");
 	if constexpr(has_static_sub<Index>::value){
 	    static_assert(index_dim<Index>::value == NI, "got index with conflicting static dimension");
-	    typedef std::remove_reference<decltype(ind->blockSizes())>::type BT;
 	    return iter<0,NI>
 		( [&](auto i) {
-		    std::get<i>(mIPack)->format(std::get<i>(ind->pack()));
+		    return std::get<i>(mIPack)->format(std::get<i>(ind->pack()));
 		},
-		    [](const auto&... e) {
-			return std::make_shared<GMIndex<BT,Indices...>>
-			    (mBlockSizes, e... );
+		    [&](const auto&... e) {
+			return gmindexPtr(mBlockSizes, e... );
 		    } );
 	}
 	else {
-	    typedef Arr<UPos,NI> BT;
 	    auto pack = ind->pack();
 	    CXZ_ASSERT(pack.size() == NI, "attempt to format index of dimension " << NI
-		       << " using index of dimension " << bs.size());
-	    auto bs = ind->blockSizes();
+		       << " using index of dimension " << pack.size());
 	    return iter<0,NI>
 		( [&](auto i) {
 		    return std::get<i>(mIPack)->format(pack[i]);
 		},
-		    [](const auto&... e) {
-			return std::make_shared<GMIndex<BlockType,Indices...>>
-			    (mBlockSizes, e... );
+		    [&](const auto&... e) {
+			return gmindexPtr(mBlockSizes, e... );
 		    } );
 	}
     }
@@ -446,6 +441,46 @@ namespace CNORXZ
     decltype(auto) GMIndex<BlockType,Indices...>::slice(const Sptr<Index>& ind) const
     {
 	static_assert(is_index<Index>::value, "got non-index type");
+	static_assert(has_sub<Index>::value, "try to slice single index");
+	if constexpr(has_static_sub<Index>::value and
+		     ((has_static_sub<Indices>::value and ...) or
+		      (not has_sub<Indices>::value and ...)) ){
+	    static_assert(index_dim<Index>::value == NI, "got index with conflicting static dimension");
+	    const auto bs = iterIf<0,NI>
+		( [&](auto i) { return std::get<i>(mBlockSizes); },
+		  [](const auto&... e) { std::make_tuple(e...); },
+		  [](auto i) {
+		      return std::is_same<typename TupleElem<i>::type,NIndex>::value;
+		  });
+	    return iterIf<0,NI>
+		( [&](auto i) { return std::get<i>(mIPack)->slice(std::get<i>(ind->pack())); },
+		    [&](const auto&... e) { return gmindex(bs, e... ); },
+		    [](auto i) {
+			return std::is_same<typename TupleElem<i>::type,NIndex>::value;
+		    } );
+	}
+	else {
+	    Vector<SizeT> bs;
+	    Vector<XIndexPtr> ivec;
+	    bs.reserve(NI);
+	    ivec.reserve(NI);
+	    auto pack = ind->pack();
+	    CXZ_ASSERT(pack.size() == NI, "attempt to slice index of dimension " << NI
+		       << " using index of dimension " << pack.size());
+	    iter<0,NI>
+		( [&](auto i) {
+		    if(std::get<i>(mIPack)->dim() == 0){
+			bs.push_back(std::get<i>(mBlockSizes).val());
+			if constexpr(has_static_sub<Index>::value){
+			    ivec.push_back( xindexPtr( std::get<i>(ind->pack()) ) );
+			}
+			else {
+			    ivec.push_back( xindexPtr( ind->pack()[i] ) );
+			}
+		    }
+		}, NoF {});
+	    return yindexPtr(bs, ivec);
+	}
     }
     
     template <class BlockType, class... Indices>	
@@ -523,6 +558,11 @@ namespace CNORXZ
 	return MIndex<Indices...>(is...);
     }    
 
+    template <class BlockType, class... Indices>
+    constexpr decltype(auto) gmindexPtr(const BlockType& bs, const Sptr<Indices>&... is)
+    {
+	return std::make_shared<GMIndex<BlockType,Indices...>>(bs, is...);
+    }    
     
     /*********************
      *   MRangeFactory   *
