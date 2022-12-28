@@ -21,12 +21,6 @@ namespace CNORXZ
 
     protected:
 	RangePtr mRange;
-
-	template <class Index>
-	YIndex mkSliceIndex(const YIndex& yi, const Index& i) const;
-
-	template <class Index>
-	XIndexPtr mkSliceIndex(const XIndexPtr& xi, const Sptr<Index>& i) const;
 	
     public:
 
@@ -59,13 +53,8 @@ namespace CNORXZ
 	COpRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
 
 	template <class I, SizeT L>
-	COpRoot<T,I> operator()(const LIndex<I,L>& i) const;
+	COpRoot<T,I> operator()(const Sptr<LIndex<I,L>>& i) const;
 
-    	template <class I, typename M>
-	COpRoot<T,I> op(const IndexPtr<I,M>& i) const;
-
-	template <class I, SizeT L>
-	COpRoot<T,I> op(const LIndex<I,L>& i) const;
     };
 
     template <typename T>
@@ -103,16 +92,11 @@ namespace CNORXZ
 	virtual iterator end();
 	
 	template <class I, typename M>
-	OpRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
+	OpRoot<T,I> operator()(const IndexPtr<I,M>& i);
 
 	template <class I, SizeT L>
-	OpRoot<T,I> operator()(const LIndex<I,L>& i) const;
+	OpRoot<T,I> operator()(const Sptr<LIndex<I,L>>& i);
 
-    	template <class I, typename M>
-	OpRoot<T,I> op(const IndexPtr<I,M>& i) const;
-
-	template <class I, SizeT L>
-	OpRoot<T,I> op(const LIndex<I,L>& i) const;
     };
 
 }
