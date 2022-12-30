@@ -92,6 +92,9 @@ namespace CNORXZ
     };
 
     template <typename T, class IndexT>
+    constexpr decltype(auto) coproot(const CArrayBase<T>& a, const Sptr<IndexT>& ind);
+    
+    template <typename T, class IndexT>
     class OpCont : public OpInterface<OpCont<T,IndexT>>
     {
     public:
@@ -169,6 +172,8 @@ namespace CNORXZ
 	
     };
     
+    template <typename T, class IndexT>
+    constexpr decltype(auto) oproot(ArrayBase<T>& a, const Sptr<IndexT>& ind);
 
     template <class F, class... Ops>
     class Operation : public OpInterface<Operation<F,Ops...>>

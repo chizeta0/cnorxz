@@ -6,6 +6,8 @@
 #include "base/base.h"
 #include "memory/memory.h"
 #include "ranges/ranges.h"
+#include "array/array.h"
+#include "operation/operation.h"
 
 #include "cnorxz.cc.h"
 

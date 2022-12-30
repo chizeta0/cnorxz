@@ -49,11 +49,8 @@ namespace CNORXZ
 
 	virtual bool isView() const = 0;
 
-	template <class I, typename M>
-	COpRoot<T,I> operator()(const IndexPtr<I,M>& i) const;
-
-	template <class I, SizeT L>
-	COpRoot<T,I> operator()(const Sptr<LIndex<I,L>>& i) const;
+	template <class Index>
+	COpRoot<T,Index> operator()(const Sptr<Index>& i) const;
 
     };
 
@@ -91,11 +88,8 @@ namespace CNORXZ
 	virtual iterator begin();
 	virtual iterator end();
 	
-	template <class I, typename M>
-	OpRoot<T,I> operator()(const IndexPtr<I,M>& i);
-
-	template <class I, SizeT L>
-	OpRoot<T,I> operator()(const Sptr<LIndex<I,L>>& i);
+	template <class Index>
+	OpRoot<T,Index> operator()(const Sptr<Index>& i);
 
     };
 

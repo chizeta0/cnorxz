@@ -111,7 +111,12 @@ namespace CNORXZ
         return mData;
     }
     
-
+    template <typename T, class IndexT>
+    constexpr decltype(auto) coproot(const CArrayBase<T>& a, const Sptr<IndexT>& ind)
+    {
+	return COpRoot<T,IndexT>(a, ind);
+    }
+    
     /****************
      *   OpCont     *
      ****************/
@@ -250,7 +255,7 @@ namespace CNORXZ
     template <class Op>
     constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator=(const Op& o)
     {
-	a(mIndex, [](auto& a, const auto& b) { a = b; }, o);
+	OI::a(mIndex, [](auto& a, const auto& b) { a = b; }, o);
         return *this;
     }
 
@@ -258,14 +263,14 @@ namespace CNORXZ
     template <class Op>
     constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator+=(const Op& o)
     {
-	a(mIndex, [](auto& a, const auto& b) { a += b; }, o);
+	OI::a(mIndex, [](auto& a, const auto& b) { a += b; }, o);
         return *this;
     }
 
     template <typename T, class IndexT>
     constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator=(const OpRoot<T,IndexT>& o)
     {
-	a(mIndex, [](auto& a, const auto& b) { a = b; }, o);
+	OI::a(mIndex, [](auto& a, const auto& b) { a = b; }, o);
 	return *this;
     }
 
@@ -305,6 +310,12 @@ namespace CNORXZ
     T* OpRoot<T,IndexT>::data() const
     {
 	return mData;
+    }
+
+    template <typename T, class IndexT>
+    constexpr decltype(auto) oproot(ArrayBase<T>& a, const Sptr<IndexT>& ind)
+    {
+	return OpRoot<T,IndexT>(a, ind);
     }
 
     /*******************

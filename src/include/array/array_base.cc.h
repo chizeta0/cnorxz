@@ -71,19 +71,11 @@ namespace CNORXZ
     }
     
     template <typename T>
-    template <class I, typename M>
-    COpRoot<T,I> CArrayBase<T>::operator()(const IndexPtr<I,M>& i) const
+    template <class Index>
+    COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
-	auto fi = this->cbegin().format( std::static_pointer_cast<I>(i) );
-	return COpRoot<T,I>(*this, fi);
-    }
-
-    template <typename T>
-    template <class I, SizeT L>
-    COpRoot<T,I> CArrayBase<T>::operator()(const Sptr<LIndex<I,L>>& i) const
-    {
-	auto fi = this->cbegin().format( i );
-	return COpRoot<T,LIndex<I,L>>(*this, fi);
+	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	return coproot(*this, i);
     }
 
     /*****************
@@ -107,7 +99,7 @@ namespace CNORXZ
     template <typename I, typename M>
     T& ArrayBase<T>::at(const IndexInterface<I,M>& i)
     {
-	CXZ_ASSERT(i.les() < this->size(), "index out of range");
+	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
 	// check further compatibility of index/range format!!!
 	auto ai = this->begin() + i.lex();
 	return *ai;
@@ -136,19 +128,11 @@ namespace CNORXZ
     }
 
     template <typename T>
-    template <class I, typename M>
-    OpRoot<T,I> ArrayBase<T>::operator()(const IndexPtr<I,M>& i)
+    template <class Index>
+    OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
-	auto fi = this->cbegin().format( std::static_pointer_cast<I>(i) );
-	return OpRoot<T,I>(*this, fi);
-    }
-
-    template <typename T>
-    template <class I, SizeT L>
-    OpRoot<T,I> ArrayBase<T>::operator()(const Sptr<LIndex<I,L>>& i)
-    {
-	auto fi = this->cbegin().format( i );
-	return OpRoot<T,LIndex<I,L>>(*this, fi);
+	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	return oproot(*this, i);
     }
 
 }
