@@ -8,3 +8,4 @@
 #include "dindex.cc.h"
 #include "lindex.cc.h"
 #include "index_mul.cc.h"
+#include "index_pack.cc.h"

@@ -10,5 +10,6 @@
 #include "dindex.h"
 #include "lindex.h"
 #include "index_mul.h"
+#include "index_pack.h"
 
 #include "ranges.cc.h"

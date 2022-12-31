@@ -10,7 +10,8 @@
 
 namespace CNORXZ
 {
-    
+    // template <class FormatT, class... Indices>
+    // -> Format + IndexTuple
     template <class BlockType, class... Indices>
     class GMIndex : public IndexInterface<GMIndex<BlockType,Indices...>,
 					  Tuple<typename Indices::MetaType...> >
@@ -31,6 +32,8 @@ namespace CNORXZ
 	constexpr GMIndex(const GMIndex& i);
 	constexpr GMIndex& operator=(const GMIndex& i);
 
+	//constexpr GMIndex(const SPack<Indices...>& is);
+	//constexpr GMIndex(const FormatT& format, const SPack<Indices...>& is);
 	constexpr GMIndex(const Indices&... is);
 	constexpr GMIndex(const BlockType& blockSizes, const Indices&... is);
 	constexpr GMIndex(const Sptr<Indices>&... is);
@@ -113,7 +116,7 @@ namespace CNORXZ
 	IndexPack mIPack;
 	typedef RemoveRef<decltype(mkLexBlockSizes(mIPack,Isqr<0,NI-1>{}))> LexBlockType;
 	LexBlockType mLexBlockSizes;
-	BlockType mBlockSizes;
+	BlockType mBlockSizes; // -> FormatT
 	SizeT mLex;
 	typedef RemoveRef<decltype(mkLMax(mIPack))> LMaxT;
 	LMaxT mLMax;
