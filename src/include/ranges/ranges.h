@@ -11,5 +11,6 @@
 #include "lindex.h"
 #include "index_mul.h"
 #include "index_pack.h"
+#include "index_format.h"
 
 #include "ranges.cc.h"
