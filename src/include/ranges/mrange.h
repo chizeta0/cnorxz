@@ -22,7 +22,7 @@ namespace CNORXZ
 	
 	typedef IndexInterface<GMIndex<FormatT,Indices...>,
 			       Tuple<typename Indices::MetaType...>> IB;
-	typedef Tuple<Sptr<Indices>...> IndexPack;
+	//typedef Tuple<Sptr<Indices>...> IndexPack;
 	typedef Tuple<typename Indices::MetaType...> MetaType;
 	typedef MRange<typename Indices::RangeType...> RangeType;
 	static constexpr SizeT NI = sizeof...(Indices);
@@ -75,18 +75,18 @@ namespace CNORXZ
 	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
 	GMIndex& operator()();
 
-	const IndexPack& pack() const;
+	const SPack<Indices...>& pack() const;
 	const auto& format() const;
 	const auto& lexFormat() const;
 	GMIndex& setFormat(const FormatT& bs);
 
     private:
 	template <SizeT... Is>
-	static constexpr decltype(auto) mkLexFormat(const IndexPack& ipack, Isq<Is...> is);
+	static constexpr decltype(auto) mkLexFormat(const SPack<Indices...>& ipack, Isq<Is...> is);
 
-	static constexpr decltype(auto) mkLMax(const IndexPack& ipack);
+	static constexpr decltype(auto) mkLMax(const SPack<Indices...>& ipack);
 
-	static constexpr decltype(auto) mkPMax(const IndexPack& ipack, const FormatT& format);
+	static constexpr decltype(auto) mkPMax(const SPack<Indices...>& ipack, const FormatT& format);
 
 	inline void mkPos();
 	
@@ -103,7 +103,7 @@ namespace CNORXZ
 	constexpr decltype(auto) mkIFor(const Xpr& xpr, F&& f) const;
 
 	Sptr<RangeType> mRange;
-	IndexPack mIPack;
+	SPack<Indices...> mIPack;
 	typedef RemoveRef<decltype(mkLexFormat(mIPack,Isqr<0,NI-1>{}))> LexFormatT;
 	LexFormatT mLexFormat;
 	FormatT mFormat;

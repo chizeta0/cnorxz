@@ -22,14 +22,14 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
-    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkLMax(const IndexPack& ipack)
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkLMax(const SPack<Indices...>& ipack)
     {
-	return iter<0,NI>( [&](auto i) { return std::get<i>(ipack)->lmax(); },
+	return iter<0,NI>( [&](auto i) { return ipack[i]->lmax(); },
 			   [](auto... e) { return (e * ...); });
     }
 
     template <class FormatT, class... Indices>
-    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkPMax(const IndexPack& ipack, const FormatT& format)
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkPMax(const SPack<Indices...>& ipack, const FormatT& format)
     {
 	if constexpr(std::is_same<FormatT,None>::value){
 	    return mkLMax(ipack);
@@ -37,7 +37,7 @@ namespace CNORXZ
 	else {
 	    return iter<0,NI>
 		( [&](auto i)
-		{ return (std::get<i>(ipack)->pmax() - SPos<1>()) * format[i]; },
+		{ return (ipack[i]->pmax() - SPos<1>()) * format[i]; },
 		    [](auto... e) { return (e + ...); }) + SPos<1>();
 	}
     }
@@ -46,11 +46,11 @@ namespace CNORXZ
     inline void GMIndex<FormatT,Indices...>::mkPos()
     {
 	mLex = iter<0,NI>
-	    ([&](auto i) { return std::get<i>(mIPack)->lex() * mLexFormat[i].val(); },
+	    ([&](auto i) { return mIPack[i]->lex() * mLexFormat[i].val(); },
 	     [](const auto&... e) { return (e + ...); });
 	if constexpr(not std::is_same<FormatT,None>::value){
 	    IB::mPos = iter<0,NI>
-		([&](auto i) { return std::get<i>(mIPack)->pos() * mFormat[i].val(); },
+		([&](auto i) { return mIPack[i]->pos() * mFormat[i].val(); },
 		 [](const auto&... e) { return (e + ...); });
 	}
 	else {
@@ -60,11 +60,11 @@ namespace CNORXZ
 
     template <class FormatT, class... Indices>
     template <SizeT... Is>
-    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkLexFormat(const IndexPack& ipack, Isq<Is...> is)
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkLexFormat(const SPack<Indices...>& ipack, Isq<Is...> is)
     {
 	return gmformat
 	    ( iter<Is,NI>
-	      ( [&](auto i) { return std::get<i>(ipack)->pmax(); },
+	      ( [&](auto i) { return ipack[i]->pmax(); },
 		[](const auto&... as) { return (as * ...); } )...,
 	      SPos<1>() );
     }
@@ -73,8 +73,8 @@ namespace CNORXZ
     template <SizeT I>
     inline void GMIndex<FormatT,Indices...>::up()
     {
-	std::integral_constant<SizeT,I> i;
-	auto& ind = std::get<I>(mIPack);
+	constexpr std::integral_constant<SizeT,I> i;
+	auto& ind = mIPack[i];
 	if constexpr(I != 0){
 	    if(ind->lex() == ind->lmax().val()-1){
 		IB::mPos -= format()[i].val() * ind->pos();
@@ -97,8 +97,8 @@ namespace CNORXZ
     template <SizeT I>
     inline void GMIndex<FormatT,Indices...>::down()
     {
-	std::integral_constant<SizeT,I> i;
-	auto& ind = std::get<I>(mIPack);
+	constexpr std::integral_constant<SizeT,I> i;
+	auto& ind = mIPack[i];
 	if constexpr(I != 0){
 	    if(ind->lex() == 0){
 		(*ind) = ind->lmax().val()-1;
@@ -121,13 +121,14 @@ namespace CNORXZ
     template <SizeT I, class Xpr, class F>
     constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkIFor(const Xpr& xpr, F&& f) const
     {
+	constexpr std::integral_constant<SizeT,I> i;
 	if constexpr(I == sizeof...(Indices)-1){
-	    return std::get<I>(mIPack)->ifor(xpr,std::forward<F>(f));
+	    return mIPack[i]->ifor(xpr,std::forward<F>(f));
 	}
 	else {
 	    auto f1 = f;
 	    auto f2 = f1;
-	    return std::get<I>(mIPack)->ifor( mkIFor<I+1>( xpr, std::move(f1) ), std::move(f2) );
+	    return mIPack[i]->ifor( mkIFor<I+1>( xpr, std::move(f1) ), std::move(f2) );
 	}
     }
 
@@ -250,8 +251,8 @@ namespace CNORXZ
 	}
 	if constexpr(not std::is_same<FormatT,None>::value){ mLex = lexpos; }
 	IB::mPos = iter<0,NI>( [&](auto i) {
-	    *std::get<i>(mIPack) = (lex() / lexFormat()[i].val()) % std::get<i>(mIPack)->lmax().val();
-	    return format()[i].val() * std::get<i>(mIPack)->pos();
+	    *mIPack[i] = (lex() / lexFormat()[i].val()) % mIPack[i]->lmax().val();
+	    return format()[i].val() * mIPack[i]->pos();
 	}, [](const auto&... e) { return (e + ...); } );
 	return *this;
     }
@@ -374,7 +375,7 @@ namespace CNORXZ
     decltype(auto) GMIndex<FormatT,Indices...>::stepSize(const IndexId<I>& id) const
     {
 	return iter<0,NI>
-	    ( [&](auto i) { return std::get<i>(mIPack)->stepSize(id) * format()[i]; },
+	    ( [&](auto i) { return mIPack[i]->stepSize(id) * format()[i]; },
 	      [](const auto&... ss) { return ( ss + ... ); });
     }
 
@@ -385,25 +386,25 @@ namespace CNORXZ
 	const String elim = ")";
 	const String dlim = ",";
 	return iter<1,NI>
-	    ( [&](auto i) { return std::get<i>(mIPack)->stringMeta(); },
+	    ( [&](auto i) { return mIPack[i]->stringMeta(); },
 	      [&](const auto&... xs) {
-		  return blim + std::get<0>(mIPack)->stringMeta() + ( (dlim + xs) + ... ) + elim;
+		  return blim + mIPack[std::integral_constant<SizeT,0>{}]->stringMeta() + ( (dlim + xs) + ... ) + elim;
 	      } );
     }
     
     template <class FormatT, class... Indices>
     typename GMIndex<FormatT,Indices...>::MetaType GMIndex<FormatT,Indices...>::meta() const
     {
-	return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->meta(); },
+	return iter<0,NI>( [&](auto i) { return mIPack[i]->meta(); },
 			   [](const auto&... xs) { return std::make_tuple(xs...); } );
     }
 
     template <class FormatT, class... Indices>
     GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::at(const MetaType& metaPos)
     {
-	iter<0,NI>( [&](auto i) { std::get<i>(mIPack)->at( std::get<i>(metaPos) ); }, NoF {} );
+	iter<0,NI>( [&](auto i) { mIPack[i]->at( std::get<i>(metaPos) ); }, NoF {} );
 	IB::mPos = iter<0,NI>
-	    ( [&](auto i) { return std::get<i>(mIPack)->pos()*format()[i].val(); },
+	    ( [&](auto i) { return mIPack[i]->pos()*format()[i].val(); },
 	      [](const auto&... xs) { return (xs + ...); });
 	return *this;
     }
@@ -431,7 +432,7 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
-    const typename GMIndex<FormatT,Indices...>::IndexPack& GMIndex<FormatT,Indices...>::pack() const
+    const SPack<Indices...>& GMIndex<FormatT,Indices...>::pack() const
     {
 	return mIPack;
     }

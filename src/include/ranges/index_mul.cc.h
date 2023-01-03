@@ -16,7 +16,7 @@ namespace CNORXZ
 					       Isq<Is...> is)
     {
 	static_assert(sizeof...(Is) == sizeof...(Indices), "inconsistent index sequence");
-	return MIndex<Indices...,I>( std::get<Is>(a.pack())...,
+	return MIndex<Indices...,I>( a.pack()[std::integral_constant<SizeT,Is>{}]...,
 				     std::make_shared<I>(b.THIS()) );
     }
     
@@ -27,7 +27,7 @@ namespace CNORXZ
     {
 	static_assert(sizeof...(Js) == sizeof...(Indices), "inconsistent index sequence");
 	return MIndex<Indices...,I>( std::make_shared<I>(a.THIS()),
-				     std::get<Js>(b.pack())... );
+				     b.pack()[std::integral_constant<SizeT,Js>{}]... );
     }
     
     template <class BlockT1, class... Indices1, class BlockT2, class... Indices2,
@@ -38,8 +38,8 @@ namespace CNORXZ
     {
 	static_assert(sizeof...(Is) == sizeof...(Indices1), "inconsistent index sequence");
 	static_assert(sizeof...(Js) == sizeof...(Indices2), "inconsistent index sequence");
-	return MIndex<Indices1...,Indices2...>( std::get<Is>(a.pack())...,
-						std::get<Js>(b.pack())... );
+	return MIndex<Indices1...,Indices2...>( a.pack()[std::integral_constant<SizeT,Is>{}]...,
+						b.pack()[std::integral_constant<SizeT,Js>{}]... );
     }
 
     /*********************
@@ -51,7 +51,7 @@ namespace CNORXZ
 					 const Sptr<I>& b, Isq<Is...> is)
     {
 	static_assert(sizeof...(Is) == sizeof...(Indices), "inconsistent index sequence");
-	return std::make_shared<MIndex<Indices...,I>>( std::get<Is>(a->pack())..., b );
+	return std::make_shared<MIndex<Indices...,I>>( a->pack()[std::integral_constant<SizeT,Is>{}]..., b );
     }
     
     template <class BlockT, class... Indices, class I, typename Meta, SizeT... Js>
@@ -60,7 +60,7 @@ namespace CNORXZ
 					 Isq<Js...> js)
     {
 	static_assert(sizeof...(Js) == sizeof...(Indices), "inconsistent index sequence");
-	return std::make_shared<MIndex<I,Indices...>>( a, std::get<Js>(b->pack())... );
+	return std::make_shared<MIndex<I,Indices...>>( a, b->pack()[std::integral_constant<SizeT,Js>{}]... );
     }
     
     template <class BlockT1, class... Indices1, class BlockT2, class... Indices2,
@@ -71,8 +71,8 @@ namespace CNORXZ
     {
 	static_assert(sizeof...(Is) == sizeof...(Indices1), "inconsistent index sequence");
 	static_assert(sizeof...(Js) == sizeof...(Indices2), "inconsistent index sequence");
-	return MIndex<Indices1...,Indices2...>( std::get<Is>(a->pack())...,
-						std::get<Js>(b->pack())... );
+	return MIndex<Indices1...,Indices2...>( a->pack()[std::integral_constant<SizeT,Is>{}]...,
+						b->pack()[std::integral_constant<SizeT,Js>{}]... );
     }
 
     
