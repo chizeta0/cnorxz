@@ -41,6 +41,7 @@ namespace CNORXZ
     public:
 	SP_DEFAULT_MEMBERS(constexpr,GMFormat);
 	explicit constexpr GMFormat(const Tuple<PosT...>& b);
+	explicit constexpr GMFormat(Tuple<PosT...>&& b);
 
 	template <class FormatT>
 	constexpr GMFormat(const FormatT& f);
@@ -58,6 +59,9 @@ namespace CNORXZ
 	Tuple<PosT...> mB;
     };
 
+    template <class... PosT>
+    constexpr decltype(auto) gmformat(const PosT&... ps);
+    
     template <class... PosT> struct is_static_format<GMFormat<PosT...>> { CXZ_CVAL_TRUE; };
 
     class YFormat

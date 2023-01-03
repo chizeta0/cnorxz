@@ -46,17 +46,14 @@ namespace CNORXZ
 	RangePtr range() const;
 
 	UPos stepSize(const IndexId<0>& id) const;
-	Vector<XIndexPtr> pack() const;
-	Vector<SizeT> blockSizes() const;
-	DIndex& setBlockSizes(const Vector<SizeT>& bs);
+	//Vector<XIndexPtr> pack() const;
+	//Vector<SizeT> format() const;
+	//DIndex& setBlockSizes(const Vector<SizeT>& bs);
 
 	String stringMeta() const;
 	DType meta() const;
 	DIndex& at(const DType& meta);
 
-	Sptr<DIndex> format(const Sptr<DIndex>& ind) const;
-	Sptr<DIndex> slice(const Sptr<DIndex>& ind) const;
-	
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	const XIndexPtr& xptr() const;

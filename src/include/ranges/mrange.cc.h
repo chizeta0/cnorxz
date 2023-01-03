@@ -10,9 +10,9 @@ namespace CNORXZ
      *   GMIndex (private)  *
      ************************/
 
-    template <class BlockType, class... Indices>
+    template <class FormatT, class... Indices>
     template <SizeT... Is>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkIPack(Isq<Is...> is) const
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkIPack(Isq<Is...> is) const
     {
 	static_assert(sizeof...(Is) == NI,
 		      "sequence sioze does not match number of indices");
@@ -21,36 +21,36 @@ namespace CNORXZ
 	return std::make_tuple( std::make_shared<Indices>( mRange->sub(Is) )... );
     }
 
-    template <class BlockType, class... Indices>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkLMax(const IndexPack& ipack)
+    template <class FormatT, class... Indices>
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkLMax(const IndexPack& ipack)
     {
 	return iter<0,NI>( [&](auto i) { return std::get<i>(ipack)->lmax(); },
 			   [](auto... e) { return (e * ...); });
     }
 
-    template <class BlockType, class... Indices>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkPMax(const IndexPack& ipack, const BlockType& blockSizes)
+    template <class FormatT, class... Indices>
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkPMax(const IndexPack& ipack, const FormatT& format)
     {
-	if constexpr(std::is_same<BlockType,None>::value){
+	if constexpr(std::is_same<FormatT,None>::value){
 	    return mkLMax(ipack);
 	}
 	else {
 	    return iter<0,NI>
 		( [&](auto i)
-		{ return (std::get<i>(ipack)->pmax() - SPos<1>()) * std::get<i>(blockSizes); },
+		{ return (std::get<i>(ipack)->pmax() - SPos<1>()) * format[i]; },
 		    [](auto... e) { return (e + ...); }) + SPos<1>();
 	}
     }
 
-    template <class BlockType, class... Indices>
-    inline void GMIndex<BlockType,Indices...>::mkPos()
+    template <class FormatT, class... Indices>
+    inline void GMIndex<FormatT,Indices...>::mkPos()
     {
 	mLex = iter<0,NI>
-	    ([&](auto i) { return std::get<i>(mIPack)->lex() * std::get<i>(mLexBlockSizes).val(); },
+	    ([&](auto i) { return std::get<i>(mIPack)->lex() * mLexFormat[i].val(); },
 	     [](const auto&... e) { return (e + ...); });
-	if constexpr(not std::is_same<BlockType,None>::value){
+	if constexpr(not std::is_same<FormatT,None>::value){
 	    IB::mPos = iter<0,NI>
-		([&](auto i) { return std::get<i>(mIPack)->pos() * std::get<i>(mBlockSizes).val(); },
+		([&](auto i) { return std::get<i>(mIPack)->pos() * mFormat[i].val(); },
 		 [](const auto&... e) { return (e + ...); });
 	}
 	else {
@@ -58,66 +58,68 @@ namespace CNORXZ
 	}
     }
 
-    template <class BlockType, class... Indices>
+    template <class FormatT, class... Indices>
     template <SizeT... Is>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkLexBlockSizes(const IndexPack& ipack, Isq<Is...> is)
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkLexFormat(const IndexPack& ipack, Isq<Is...> is)
     {
-	return std::make_tuple
+	return gmformat
 	    ( iter<Is,NI>
 	      ( [&](auto i) { return std::get<i>(ipack)->pmax(); },
 		[](const auto&... as) { return (as * ...); } )...,
 	      SPos<1>() );
     }
 
-    template <class BlockType, class... Indices>
+    template <class FormatT, class... Indices>
     template <SizeT I>
-    inline void GMIndex<BlockType,Indices...>::up()
+    inline void GMIndex<FormatT,Indices...>::up()
     {
-	auto& i = std::get<I>(mIPack);
+	std::integral_constant<SizeT,I> i;
+	auto& ind = std::get<I>(mIPack);
 	if constexpr(I != 0){
-	    if(i->lex() == i->lmax().val()-1){
-		IB::mPos -= std::get<I>(blockSizes()).val() * i->pos();
-		if constexpr(not std::is_same<BlockType,None>::value){
-		    mLex -= std::get<I>(lexBlockSizes()).val() * i->lex();
+	    if(ind->lex() == ind->lmax().val()-1){
+		IB::mPos -= format()[i].val() * ind->pos();
+		if constexpr(not std::is_same<FormatT,None>::value){
+		    mLex -= lexFormat()[i].val() * ind->lex();
 		}
-		(*i) = 0;
+		(*ind) = 0;
 		up<I-1>();
 		return;
 	    }
 	}
-	IB::mPos += std::get<I>(blockSizes()).val();
-	if constexpr(not std::is_same<BlockType,None>::value){
-	    mLex += std::get<I>(lexBlockSizes()).val();
+	IB::mPos += format()[i].val();
+	if constexpr(not std::is_same<FormatT,None>::value){
+	    mLex += lexFormat()[i].val();
 	}
-	++(*i);
+	++(*ind);
     }
 
-    template <class BlockType, class... Indices>
+    template <class FormatT, class... Indices>
     template <SizeT I>
-    inline void GMIndex<BlockType,Indices...>::down()
+    inline void GMIndex<FormatT,Indices...>::down()
     {
-	auto& i = std::get<I>(mIPack);
+	std::integral_constant<SizeT,I> i;
+	auto& ind = std::get<I>(mIPack);
 	if constexpr(I != 0){
-	    if(i->lex() == 0){
-		(*i) = i->lmax().val()-1;
-		IB::mPos += std::get<I>(blockSizes()).val() * i->pos();
-		if constexpr(not std::is_same<BlockType,None>::value){
-		    mLex += std::get<I>(lexBlockSizes()).val() * i->lex();
+	    if(ind->lex() == 0){
+		(*ind) = ind->lmax().val()-1;
+		IB::mPos += format()[i].val() * ind->pos();
+		if constexpr(not std::is_same<FormatT,None>::value){
+		    mLex += lexFormat()[i].val() * ind->lex();
 		}
 		down<I-1>();
 		return;
 	    }
 	}
-	IB::mPos -= std::get<I>(blockSizes()).val();
-	if constexpr(not std::is_same<BlockType,None>::value){
-	    mLex -= std::get<I>(lexBlockSizes()).val();
+	IB::mPos -= format()[i].val();
+	if constexpr(not std::is_same<FormatT,None>::value){
+	    mLex -= lexFormat()[i].val();
 	}
-	--(*i);
+	--(*ind);
     }
 
-    template <class BlockType, class... Indices>
+    template <class FormatT, class... Indices>
     template <SizeT I, class Xpr, class F>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::mkIFor(const Xpr& xpr, F&& f) const
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkIFor(const Xpr& xpr, F&& f) const
     {
 	if constexpr(I == sizeof...(Indices)-1){
 	    return std::get<I>(mIPack)->ifor(xpr,std::forward<F>(f));
@@ -133,129 +135,129 @@ namespace CNORXZ
      *   GMIndex   *
      ***************/
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const GMIndex& i) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const GMIndex& i) :
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(i.range())),
 	mIPack(mkIPack(Isqr<0,NI>{})),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(i.mBlockSizes),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(i.mFormat),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	*this = i.lex();
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator=(const GMIndex& i)
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator=(const GMIndex& i)
     {
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>::operator=(0);
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>::operator=(0);
 	mRange = rangeCast<RangeType>(i.range());
 	mIPack = mkIPack(Isqr<0,NI>{});
-	mLexBlockSizes = mkLexBlockSizes(mIPack,Isqr<1,NI>{});
-	mBlockSizes = i.mBlockSizes;
+	mLexFormat = mkLexFormat(mIPack,Isqr<1,NI>{});
+	mFormat = i.mFormat;
 	mLMax = mkLMax(mIPack);
-	mPMax = mkPMax(mIPack,mBlockSizes);
+	mPMax = mkPMax(mIPack,mFormat);
 	return *this = i.lex();
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const Indices&... is) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const Indices&... is) :
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is.range()...))),
 	mIPack(std::make_shared<Indices>(is)...),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	mkPos();
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const BlockType& bs, const Indices&... is) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const FormatT& bs, const Indices&... is) :
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is.range()...))),
 	mIPack(std::make_shared<Indices>(is)...),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(bs),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(bs),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	mkPos();
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const Sptr<Indices>&... is) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const Sptr<Indices>&... is) :
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is->range()...))),
 	mIPack(is...),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	mkPos();
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const BlockType& bs,
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const FormatT& bs,
 						     const Sptr<Indices>&... is) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is->range()...))),
 	mIPack(is...),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(bs),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(bs),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	mkPos();
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const RangePtr& range, SizeT lexpos) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const RangePtr& range, SizeT lexpos) :
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(range)),
 	mIPack(mkIPack(Isqr<0,NI>{})),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	*this = lexpos;
     }
 
-    template <class BlockType, class... Indices>
-    constexpr GMIndex<BlockType,Indices...>::GMIndex(const RangePtr& range, const BlockType& blockSizes, SizeT lexpos) :
-	IndexInterface<GMIndex<BlockType,Indices...>,Tuple<typename Indices::MetaType...>>(0),
+    template <class FormatT, class... Indices>
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const RangePtr& range, const FormatT& format, SizeT lexpos) :
+	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
 	mRange(rangeCast<RangeType>(range)),
 	mIPack(mkIPack(Isqr<0,NI>{})),
-	mLexBlockSizes(mkLexBlockSizes(mIPack,Isqr<1,NI>{})),
-	mBlockSizes(blockSizes),
+	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
+	mFormat(format),
 	mLMax(mkLMax(mIPack)),
-	mPMax(mkPMax(mIPack,mBlockSizes))
+	mPMax(mkPMax(mIPack,mFormat))
     {
 	*this = lexpos;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator=(SizeT lexpos)
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator=(SizeT lexpos)
     {
 	if(lexpos >= lmax().val()){
-	    if constexpr(not std::is_same<BlockType,None>::value){ mLex = lmax().val(); }
+	    if constexpr(not std::is_same<FormatT,None>::value){ mLex = lmax().val(); }
 	    IB::mPos = pmax().val();
 	    return *this;
 	}
-	if constexpr(not std::is_same<BlockType,None>::value){ mLex = lexpos; }
+	if constexpr(not std::is_same<FormatT,None>::value){ mLex = lexpos; }
 	IB::mPos = iter<0,NI>( [&](auto i) {
-	    *std::get<i>(mIPack) = (lex() / std::get<i>(lexBlockSizes()).val()) % std::get<i>(mIPack)->lmax().val();
-	    return std::get<i>(blockSizes()).val() * std::get<i>(mIPack)->pos();
+	    *std::get<i>(mIPack) = (lex() / lexFormat()[i].val()) % std::get<i>(mIPack)->lmax().val();
+	    return format()[i].val() * std::get<i>(mIPack)->pos();
 	}, [](const auto&... e) { return (e + ...); } );
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator++()
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator++()
     {
 	if(lex() == lmax().val()-1){
 	    return *this = lmax().val();
@@ -266,8 +268,8 @@ namespace CNORXZ
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator--()
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator--()
     {
 	if(lex() == lmax().val()){
 	    return *this = lmax().val()-1;
@@ -278,22 +280,22 @@ namespace CNORXZ
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...> GMIndex<BlockType,Indices...>::operator+(Int n) const
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...> GMIndex<FormatT,Indices...>::operator+(Int n) const
     {
 	GMIndex o(*this);
 	return o += n;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...> GMIndex<BlockType,Indices...>::operator-(Int n) const
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...> GMIndex<FormatT,Indices...>::operator-(Int n) const
     {
 	GMIndex o(*this);
 	return o -= n;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator+=(Int n)
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator+=(Int n)
     {
 	if(-n > static_cast<long int>(lex())){
 	    (*this) = 0;
@@ -306,8 +308,8 @@ namespace CNORXZ
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator-=(Int n)
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator-=(Int n)
     {
 	if(n > static_cast<long int>(lex())){
 	    (*this) = 0;
@@ -320,10 +322,10 @@ namespace CNORXZ
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    SizeT GMIndex<BlockType,Indices...>::lex() const
+    template <class FormatT, class... Indices>
+    SizeT GMIndex<FormatT,Indices...>::lex() const
     {
-	if constexpr(std::is_same<BlockType,None>::value){
+	if constexpr(std::is_same<FormatT,None>::value){
 	    return IB::mPos;
 	}
 	else {
@@ -331,53 +333,53 @@ namespace CNORXZ
 	}
     }
     
-    template <class BlockType, class... Indices>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::pmax() const
+    template <class FormatT, class... Indices>
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::pmax() const
     {
 	return mPMax;
     }
 
-    template <class BlockType, class... Indices>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::lmax() const
+    template <class FormatT, class... Indices>
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::lmax() const
     {
 	return mPMax;
     }
 
-    template <class BlockType, class... Indices>
-    IndexId<0> GMIndex<BlockType,Indices...>::id() const
+    template <class FormatT, class... Indices>
+    IndexId<0> GMIndex<FormatT,Indices...>::id() const
     {
 	return IndexId<0>(this->ptrId());
     }
 
-    template <class BlockType, class... Indices>
-    typename GMIndex<BlockType,Indices...>::MetaType GMIndex<BlockType,Indices...>::operator*() const
+    template <class FormatT, class... Indices>
+    typename GMIndex<FormatT,Indices...>::MetaType GMIndex<FormatT,Indices...>::operator*() const
     {
 	return meta();
     }
     
-    template <class BlockType, class... Indices>	
-    constexpr SizeT GMIndex<BlockType,Indices...>::dim() const
+    template <class FormatT, class... Indices>	
+    constexpr SizeT GMIndex<FormatT,Indices...>::dim() const
     {
 	return NI;
     }	
 
-    template <class BlockType, class... Indices>	
-    Sptr<typename GMIndex<BlockType,Indices...>::RangeType> GMIndex<BlockType,Indices...>::range() const
+    template <class FormatT, class... Indices>	
+    Sptr<typename GMIndex<FormatT,Indices...>::RangeType> GMIndex<FormatT,Indices...>::range() const
     {
 	return mRange;
     }
 
-    template <class BlockType, class... Indices>	
+    template <class FormatT, class... Indices>	
     template <SizeT I>
-    decltype(auto) GMIndex<BlockType,Indices...>::stepSize(const IndexId<I>& id) const
+    decltype(auto) GMIndex<FormatT,Indices...>::stepSize(const IndexId<I>& id) const
     {
 	return iter<0,NI>
-	    ( [&](auto i) { return std::get<i>(mIPack)->stepSize(id) * std::get<i>(blockSizes()); },
+	    ( [&](auto i) { return std::get<i>(mIPack)->stepSize(id) * format()[i]; },
 	      [](const auto&... ss) { return ( ss + ... ); });
     }
 
-    template <class BlockType, class... Indices>
-    String GMIndex<BlockType,Indices...>::stringMeta() const
+    template <class FormatT, class... Indices>
+    String GMIndex<FormatT,Indices...>::stringMeta() const
     {
 	const String blim = "(";
 	const String elim = ")";
@@ -389,156 +391,79 @@ namespace CNORXZ
 	      } );
     }
     
-    template <class BlockType, class... Indices>
-    typename GMIndex<BlockType,Indices...>::MetaType GMIndex<BlockType,Indices...>::meta() const
+    template <class FormatT, class... Indices>
+    typename GMIndex<FormatT,Indices...>::MetaType GMIndex<FormatT,Indices...>::meta() const
     {
 	return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->meta(); },
 			   [](const auto&... xs) { return std::make_tuple(xs...); } );
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::at(const MetaType& metaPos)
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::at(const MetaType& metaPos)
     {
 	iter<0,NI>( [&](auto i) { std::get<i>(mIPack)->at( std::get<i>(metaPos) ); }, NoF {} );
 	IB::mPos = iter<0,NI>
-	    ( [&](auto i) { return std::get<i>(mIPack)->pos()*std::get<i>(blockSizes()).val(); },
+	    ( [&](auto i) { return std::get<i>(mIPack)->pos()*format()[i].val(); },
 	      [](const auto&... xs) { return (xs + ...); });
 	return *this;
     }
-
-    template <class BlockType, class... Indices>	
-    template <class Index>
-    decltype(auto) GMIndex<BlockType,Indices...>::format(const Sptr<Index>& ind) const
-    {
-	static_assert(is_index<Index>::value, "got non-index type");
-	static_assert(has_sub<Index>::value, "try to format single index");
-	if constexpr(has_static_sub<Index>::value){
-	    static_assert(index_dim<Index>::value == NI, "got index with conflicting static dimension");
-	    return iter<0,NI>
-		( [&](auto i) {
-		    return std::get<i>(mIPack)->format(std::get<i>(ind->pack()));
-		},
-		    [&](const auto&... e) {
-			return gmindexPtr(mBlockSizes, e... );
-		    } );
-	}
-	else {
-	    auto pack = ind->pack();
-	    CXZ_ASSERT(pack.size() == NI, "attempt to format index of dimension " << NI
-		       << " using index of dimension " << pack.size());
-	    return iter<0,NI>
-		( [&](auto i) {
-		    return std::get<i>(mIPack)->format(pack[i]);
-		},
-		    [&](const auto&... e) {
-			return gmindexPtr(mBlockSizes, e... );
-		    } );
-	}
-    }
     
-    template <class BlockType, class... Indices>	
-    template <class Index>
-    decltype(auto) GMIndex<BlockType,Indices...>::slice(const Sptr<Index>& ind) const
-    {
-	static_assert(is_index<Index>::value, "got non-index type");
-	static_assert(has_sub<Index>::value, "try to slice single index");
-	if constexpr(has_static_sub<Index>::value and
-		     ((has_static_sub<Indices>::value and ...) or
-		      (not has_sub<Indices>::value and ...)) ){
-	    static_assert(index_dim<Index>::value == NI, "got index with conflicting static dimension");
-	    const auto bs = iterIf<0,NI>
-		( [&](auto i) { return std::get<i>(mBlockSizes); },
-		  [](const auto&... e) { std::make_tuple(e...); },
-		  [](auto i) {
-		      return std::is_same<typename TupleElem<i>::type,NIndex>::value;
-		  });
-	    return iterIf<0,NI>
-		( [&](auto i) { return std::get<i>(mIPack)->slice(std::get<i>(ind->pack())); },
-		    [&](const auto&... e) { return gmindex(bs, e... ); },
-		    [](auto i) {
-			return std::is_same<typename TupleElem<i>::type,NIndex>::value;
-		    } );
-	}
-	else {
-	    Vector<SizeT> bs;
-	    Vector<XIndexPtr> ivec;
-	    bs.reserve(NI);
-	    ivec.reserve(NI);
-	    auto pack = ind->pack();
-	    CXZ_ASSERT(pack.size() == NI, "attempt to slice index of dimension " << NI
-		       << " using index of dimension " << pack.size());
-	    iter<0,NI>
-		( [&](auto i) {
-		    if(std::get<i>(mIPack)->dim() == 0){
-			bs.push_back(std::get<i>(mBlockSizes).val());
-			if constexpr(has_static_sub<Index>::value){
-			    ivec.push_back( xindexPtr( std::get<i>(ind->pack()) ) );
-			}
-			else {
-			    ivec.push_back( xindexPtr( ind->pack()[i] ) );
-			}
-		    }
-		}, NoF {});
-	    return yindexPtr(bs, ivec);
-	}
-    }
-    
-    template <class BlockType, class... Indices>	
+    template <class FormatT, class... Indices>	
     template <class Xpr, class F>
-    constexpr decltype(auto) GMIndex<BlockType,Indices...>::ifor(const Xpr& xpr, F&& f) const
+    constexpr decltype(auto) GMIndex<FormatT,Indices...>::ifor(const Xpr& xpr, F&& f) const
     {
 	return mkIFor<0>(xpr, std::forward<F>(f));
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator()(const Sptr<MIndex<Indices...>>& mi)
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator()(const Sptr<MIndex<Indices...>>& mi)
     {
 	mIPack = mi.pack();
 	mkPos();
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::operator()()
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator()()
     {
 	mkPos();
 	return *this;
     }
 
-    template <class BlockType, class... Indices>
-    const typename GMIndex<BlockType,Indices...>::IndexPack& GMIndex<BlockType,Indices...>::pack() const
+    template <class FormatT, class... Indices>
+    const typename GMIndex<FormatT,Indices...>::IndexPack& GMIndex<FormatT,Indices...>::pack() const
     {
 	return mIPack;
     }
 
-    template <class BlockType, class... Indices>
-    const auto& GMIndex<BlockType,Indices...>::blockSizes() const
+    template <class FormatT, class... Indices>
+    const auto& GMIndex<FormatT,Indices...>::format() const
     {
-	if constexpr(std::is_same<BlockType,None>::value){
-	    return mLexBlockSizes;
+	if constexpr(std::is_same<FormatT,None>::value){
+	    return mLexFormat;
 	}
 	else {
-	    return mBlockSizes;
+	    return mFormat;
 	}
     }
 
-    template <class BlockType, class... Indices>
-    const auto& GMIndex<BlockType,Indices...>::lexBlockSizes() const
+    template <class FormatT, class... Indices>
+    const auto& GMIndex<FormatT,Indices...>::lexFormat() const
     {
-	return mLexBlockSizes;
+	return mLexFormat;
     }
 
-    template <class BlockType, class... Indices>
-    GMIndex<BlockType,Indices...>& GMIndex<BlockType,Indices...>::setBlockSizes(const BlockType& bs)
+    template <class FormatT, class... Indices>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::setFormat(const FormatT& bs)
     {
-	if constexpr(not std::is_same<BlockType,None>::value){
-	    mBlockSizes = bs;
+	if constexpr(not std::is_same<FormatT,None>::value){
+	    mFormat = bs;
 	}
 	return *this;
     }
 
     template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceBlockSizes(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi)
+    decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi)
     {
 	return iter<0,sizeof...(Indices)>
 	    ( [&](auto i) { return std::get<i>(gmi->pack()); },
@@ -558,10 +483,10 @@ namespace CNORXZ
 	return MIndex<Indices...>(is...);
     }    
 
-    template <class BlockType, class... Indices>
-    constexpr decltype(auto) gmindexPtr(const BlockType& bs, const Sptr<Indices>&... is)
+    template <class FormatT, class... Indices>
+    constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is)
     {
-	return std::make_shared<GMIndex<BlockType,Indices...>>(bs, is...);
+	return std::make_shared<GMIndex<FormatT,Indices...>>(bs, is...);
     }    
     
     /*********************

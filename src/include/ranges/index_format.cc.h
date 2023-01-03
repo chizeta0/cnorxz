@@ -60,6 +60,11 @@ namespace CNORXZ
     {}
 
     template <class... PosT>
+    constexpr GMFormat<PosT...>::GMFormat(Tuple<PosT...>&& b) :
+	mB(std::forward<Tuple<PosT...>>(b))
+    {}
+
+    template <class... PosT>
     template <class FormatT>
     constexpr GMFormat<PosT...>::GMFormat(const FormatT& f)
     {
@@ -91,6 +96,12 @@ namespace CNORXZ
     constexpr decltype(auto) GMFormat<PosT...>::operator[](std::integral_constant<SizeT,I> i) const
     {
 	return get(i);
+    }
+
+    template <class... PosT>
+    constexpr decltype(auto) gmformat(const PosT&... ps)
+    {
+	return GMFormat(std::move(std::make_tuple(ps...)));
     }
 
     /***************

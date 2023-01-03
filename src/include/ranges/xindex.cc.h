@@ -126,7 +126,7 @@ namespace CNORXZ
     {
 	return mI->stepSize(id);
     }
-
+    /*
     template <class Index, typename Meta>
     Vector<XIndexPtr> XIndex<Index,Meta>::pack() const
     {
@@ -188,7 +188,7 @@ namespace CNORXZ
 	    return nullptr;
 	}
     }
-    
+    */
     template <class Index, typename Meta>
     String XIndex<Index,Meta>::stringMeta() const
     {
@@ -207,22 +207,6 @@ namespace CNORXZ
 	// check!!!
 	mI->at(std::any_cast<const Meta&>(meta.get()));
 	return *this;
-    }
-
-    template <class Index, typename Meta>
-    Sptr<DIndex> XIndex<Index,Meta>::format(const Sptr<DIndex>& ind) const
-    {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return nullptr;
-	//return std::make_shared<DIndex>(xindexPtr(mI->format(ind)));
-    }
-    
-    template <class Index, typename Meta>
-    Sptr<DIndex> XIndex<Index,Meta>::slice(const Sptr<DIndex>& ind) const
-    {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return nullptr;
-	//return std::make_shared<DIndex>(xindexPtr(mI->slice(ind)));
     }
 
     template <class Index, typename Meta>

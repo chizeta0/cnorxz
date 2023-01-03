@@ -38,16 +38,13 @@ namespace CNORXZ
 	virtual SizeT dim() const = 0;
 	virtual RangePtr range() const = 0;
 	virtual UPos stepSize(const IndexId<0>& id) const = 0;
-	virtual Vector<XIndexPtr> pack() const = 0;
-	virtual Vector<SizeT> blockSizes() const = 0;
-	virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) = 0;
+	//virtual Vector<XIndexPtr> pack() const = 0;
+	//virtual Vector<SizeT> format() const = 0;
+	//virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) = 0;
 
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
-
-	virtual Sptr<DIndex> format(const Sptr<DIndex>& ind) const = 0;
-	virtual Sptr<DIndex> slice(const Sptr<DIndex>& ind) const = 0;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
@@ -93,16 +90,13 @@ namespace CNORXZ
 	virtual SizeT dim() const override final;
 	virtual RangePtr range() const override final;
 	virtual UPos stepSize(const IndexId<0>& id) const override final;
-	virtual Vector<XIndexPtr> pack() const override final;
-	virtual Vector<SizeT> blockSizes() const override final;
-	virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) override final;
+	//virtual Vector<XIndexPtr> pack() const override final;
+	//virtual Vector<SizeT> format() const override final;
+	//virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;
 	virtual XIndexBase& at(const DType& meta) override final;
-
-	virtual Sptr<DIndex> format(const Sptr<DIndex>& ind) const override final;
-	virtual Sptr<DIndex> slice(const Sptr<DIndex>& ind) const override final;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;

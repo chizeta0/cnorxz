@@ -54,11 +54,11 @@ namespace CNORXZ
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 
-	template <class Index>
-	decltype(auto) format(const Sptr<Index>& ind) const { return THIS().format(ind); }
+	//template <class Index>
+	//decltype(auto) format(const Sptr<Index>& ind) const { return THIS().format(ind); }
 
-	template <class Index>
-	decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }
+	//template <class Index>
+	//decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }
 	
 	template <class Xpr, class F = NoF>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const

@@ -6,19 +6,21 @@
 #include "base/base.h"
 #include "range_base.h"
 #include "index_base.h"
+#include "index_format.h"
+#include "index_pack.h"
 #include "xpr/xpr.h"
 
 namespace CNORXZ
 {
     // template <class FormatT, class... Indices>
     // -> Format + IndexTuple
-    template <class BlockType, class... Indices>
-    class GMIndex : public IndexInterface<GMIndex<BlockType,Indices...>,
+    template <class FormatT, class... Indices>
+    class GMIndex : public IndexInterface<GMIndex<FormatT,Indices...>,
 					  Tuple<typename Indices::MetaType...> >
     {
     public:
 	
-	typedef IndexInterface<GMIndex<BlockType,Indices...>,
+	typedef IndexInterface<GMIndex<FormatT,Indices...>,
 			       Tuple<typename Indices::MetaType...>> IB;
 	typedef Tuple<Sptr<Indices>...> IndexPack;
 	typedef Tuple<typename Indices::MetaType...> MetaType;
@@ -35,11 +37,11 @@ namespace CNORXZ
 	//constexpr GMIndex(const SPack<Indices...>& is);
 	//constexpr GMIndex(const FormatT& format, const SPack<Indices...>& is);
 	constexpr GMIndex(const Indices&... is);
-	constexpr GMIndex(const BlockType& blockSizes, const Indices&... is);
+	constexpr GMIndex(const FormatT& format, const Indices&... is);
 	constexpr GMIndex(const Sptr<Indices>&... is);
-	constexpr GMIndex(const BlockType& blockSizes, const Sptr<Indices>&... is);
+	constexpr GMIndex(const FormatT& format, const Sptr<Indices>&... is);
 	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
-	constexpr GMIndex(const RangePtr& range, const BlockType& blockSizes, SizeT lexpos = 0);
+	constexpr GMIndex(const RangePtr& range, const FormatT& format, SizeT lexpos = 0);
 
 	GMIndex& operator=(SizeT pos);
 	GMIndex& operator++();
@@ -66,18 +68,6 @@ namespace CNORXZ
 	MetaType meta() const;
 	GMIndex& at(const MetaType& metaPos);
 	
-	template <class Index>
-	decltype(auto) format(const Sptr<Index>& ind) const;
-	// -> IndexInterface;
-	// replace index instances xor replace blockSizes of ind by that of *this
-	// return result as new instance
-
-	template <class Index>
-	decltype(auto) slice(const Sptr<Index>& ind) const;
-	// -> IndexInterface;
-	// drop index instance or drop blockSize of ind if that of *this is not Null
-	// return result as new instance
-
 	template <class Xpr, class F>
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
@@ -86,17 +76,17 @@ namespace CNORXZ
 	GMIndex& operator()();
 
 	const IndexPack& pack() const;
-	const auto& blockSizes() const;
-	const auto& lexBlockSizes() const;
-	GMIndex& setBlockSizes(const BlockType& bs);
+	const auto& format() const;
+	const auto& lexFormat() const;
+	GMIndex& setFormat(const FormatT& bs);
 
     private:
 	template <SizeT... Is>
-	static constexpr decltype(auto) mkLexBlockSizes(const IndexPack& ipack, Isq<Is...> is);
+	static constexpr decltype(auto) mkLexFormat(const IndexPack& ipack, Isq<Is...> is);
 
 	static constexpr decltype(auto) mkLMax(const IndexPack& ipack);
 
-	static constexpr decltype(auto) mkPMax(const IndexPack& ipack, const BlockType& blockSizes);
+	static constexpr decltype(auto) mkPMax(const IndexPack& ipack, const FormatT& format);
 
 	inline void mkPos();
 	
@@ -114,18 +104,19 @@ namespace CNORXZ
 
 	Sptr<RangeType> mRange;
 	IndexPack mIPack;
-	typedef RemoveRef<decltype(mkLexBlockSizes(mIPack,Isqr<0,NI-1>{}))> LexBlockType;
-	LexBlockType mLexBlockSizes;
-	BlockType mBlockSizes; // -> FormatT
+	typedef RemoveRef<decltype(mkLexFormat(mIPack,Isqr<0,NI-1>{}))> LexFormatT;
+	LexFormatT mLexFormat;
+	FormatT mFormat;
+	//BlockType mFormat; // -> FormatT
 	SizeT mLex;
 	typedef RemoveRef<decltype(mkLMax(mIPack))> LMaxT;
 	LMaxT mLMax;
-	typedef RemoveRef<decltype(mkPMax(mIPack,mBlockSizes))> PMaxT;
+	typedef RemoveRef<decltype(mkPMax(mIPack,mFormat))> PMaxT;
 	PMaxT mPMax;
     };
 
     template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceBlockSizes(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
+    decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
 
     template <class BT1, class... Is1, class BT2, class... Is2>
     decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b);
@@ -155,8 +146,8 @@ namespace CNORXZ
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is);
 
-    template <class BlockType, class... Indices>
-    constexpr decltype(auto) gmindexPtr(const BlockType& bs, const Sptr<Indices>&... is);
+    template <class FormatT, class... Indices>
+    constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is);
     
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase
