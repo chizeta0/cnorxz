@@ -7,6 +7,8 @@
 #include "index_base.h"
 #include "xindex.h"
 #include "xpr/xpr.h"
+#include "index_format.h"
+#include "index_pack.h"
 
 namespace CNORXZ
 {
@@ -25,9 +27,9 @@ namespace CNORXZ
 	YIndex& operator=(const YIndex& i);
 
 	YIndex(const Vector<XIndexPtr>& is);
-	YIndex(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is);
+	YIndex(const YFormat& bs, const Vector<XIndexPtr>& is);
 	YIndex(const RangePtr& range, SizeT lexpos = 0);
-	YIndex(const RangePtr& range, const Vector<SizeT>& bs, SizeT lexpos = 0);
+	YIndex(const RangePtr& range, const YFormat& bs, SizeT lexpos = 0);
 
 	YIndex& operator=(SizeT lexpos);
 	YIndex& operator++();
@@ -52,22 +54,19 @@ namespace CNORXZ
 	DType meta() const;
 	YIndex& at(const DType& meta);
 
-	Sptr<DIndex> format(const Sptr<DIndex>& ind) const;
-	Sptr<DIndex> slice(const Sptr<DIndex>& ind) const;
-	
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	YIndex& operator()(const Sptr<YIndex>& i);
 	YIndex& operator()();
 
 	const Vector<XIndexPtr>& pack() const;
-	const Vector<SizeT>& blockSizes() const;
-	const Vector<SizeT>& lexBlockSizes() const;
-	YIndex& setBlockSizes(const Vector<SizeT>& bs);
+	const YFormat& format() const;
+	const YFormat& lexFormat() const;
+	YIndex& setFormat(const YFormat& bs);
 	
     private:
-	inline Vector<SizeT> mkBlockSizes() const;
-	inline Vector<SizeT> mkLexBlockSizes() const;
+	inline Vector<SizeT> mkFormat() const;
+	inline Vector<SizeT> mkLexFormat() const;
 	inline Vector<RangePtr> mkRangeVec(const Vector<XIndexPtr>& is) const;
 	inline void mkPos();
 	inline Vector<XIndexPtr> mkIndices() const;
@@ -81,8 +80,8 @@ namespace CNORXZ
 	
 	Sptr<YRange> mRange;
 	Vector<XIndexPtr> mIs;
-	Vector<SizeT> mBlockSizes; // dim() elements only!!!
-	Vector<SizeT> mLexBlockSizes; // dim() elements only!!!
+	YFormat mFormat; // dim() elements only!!!
+	YFormat mLexFormat; // dim() elements only!!!
 	SizeT mLex = 0;
 	UPos mPMax = 0;
 	UPos mLMax = 0;

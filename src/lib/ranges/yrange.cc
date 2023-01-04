@@ -18,7 +18,7 @@ namespace CNORXZ
 	return o;
     }
     
-    inline Vector<SizeT> YIndex::mkBlockSizes() const
+    inline Vector<SizeT> YIndex::mkFormat() const
     {
 	Vector<SizeT> o(mIs.size());
 	SizeT b = 1;
@@ -30,7 +30,7 @@ namespace CNORXZ
 	return o;
     }
 
-    inline Vector<SizeT> YIndex::mkLexBlockSizes() const
+    inline Vector<SizeT> YIndex::mkLexFormat() const
     {
 	Vector<SizeT> o(mIs.size());
 	SizeT b = 1;
@@ -54,8 +54,8 @@ namespace CNORXZ
 	mLex = 0;
 	IB::mPos = 0;
 	for(SizeT i = 0; i != dim(); ++i){
-	    mLex += mIs[i]->lex() * mLexBlockSizes[i];
-	    IB::mPos += mIs[i]->pos() * mBlockSizes[i];
+	    mLex += mIs[i]->lex() * mLexFormat[i].val();
+	    IB::mPos += mIs[i]->pos() * mFormat[i].val();
 	}
     }
     
@@ -65,14 +65,14 @@ namespace CNORXZ
 	// it is guaranteed that the last accessible position 
 	// is one less than the max position (=end)
 	if(i != 0 and idx->lex() == idx->lmax().val()-1){
-	    IB::mPos -= mBlockSizes[i] * idx->pos();
-	    mLex -= mLexBlockSizes[i] * idx->lex();
+	    IB::mPos -= mFormat[i].val() * idx->pos();
+	    mLex -= mLexFormat[i].val() * idx->lex();
 	    (*idx) = 0;
 	    up(i-1);
 	    return;
 	}
-	IB::mPos += mBlockSizes[i];
-	mLex += mLexBlockSizes[i];
+	IB::mPos += mFormat[i].val();
+	mLex += mLexFormat[i].val();
 	++(*idx);
     }
     
@@ -81,13 +81,13 @@ namespace CNORXZ
 	auto& idx = mIs[i];
 	if(i != 0 and idx->pos() == 0){
 	    (*idx) = idx->lmax().val()-1;
-	    IB::mPos += mBlockSizes[i] * idx->pos();
-	    mLex += mLexBlockSizes[i] * idx->lex();
+	    IB::mPos += mFormat[i].val() * idx->pos();
+	    mLex += mLexFormat[i].val() * idx->lex();
 	    down(i-1);
 	    return;
 	}
-	IB::mPos -= mBlockSizes[i];
-	mLex -= mLexBlockSizes[i];
+	IB::mPos -= mFormat[i].val();
+	mLex -= mLexFormat[i].val();
 	--(*idx);
     }
     
@@ -108,7 +108,7 @@ namespace CNORXZ
     {
 	SizeT o = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
-	    o += (mIs[i]->pmax().val()-1) * mBlockSizes[i];
+	    o += (mIs[i]->pmax().val()-1) * mFormat[i].val();
 	}
 	return o+1;
     }
@@ -128,8 +128,8 @@ namespace CNORXZ
 	IndexInterface<YIndex,DType>(i),
 	mRange(rangeCast<YRange>(i.range())),
 	mIs(mkIndices()),
-	mBlockSizes(mkBlockSizes()),
-	mLexBlockSizes(mkLexBlockSizes()),
+	mFormat(mkFormat()),
+	mLexFormat(mkLexFormat()),
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
@@ -141,8 +141,8 @@ namespace CNORXZ
 	IndexInterface<YIndex,DType>::operator=(i);
 	mRange = rangeCast<YRange>(i.range());
 	mIs = mkIndices();
-	mBlockSizes = mkBlockSizes();
-	mLexBlockSizes = mkLexBlockSizes();
+	mFormat = mkFormat();
+	mLexFormat = mkLexFormat();
 	mPMax = mkPMax();
 	mLMax = mkLMax();
 	return *this = i.lex();
@@ -152,20 +152,20 @@ namespace CNORXZ
 	IndexInterface<YIndex,DType>(0),
 	mRange(std::dynamic_pointer_cast<YRange>(yrange(mkRangeVec(is)))),
 	mIs(is),
-	mBlockSizes(mkBlockSizes()),
-	mLexBlockSizes(mkLexBlockSizes()),
+	mFormat(mkFormat()),
+	mLexFormat(mkLexFormat()),
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
 	mkPos();
     }
 	
-    YIndex::YIndex(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is) :
+    YIndex::YIndex(const YFormat& bs, const Vector<XIndexPtr>& is) :
 	IndexInterface<YIndex,DType>(0),
 	mRange(std::dynamic_pointer_cast<YRange>(yrange(mkRangeVec(is)))),
 	mIs(is),
-	mBlockSizes(bs),
-	mLexBlockSizes(mkLexBlockSizes()),
+	mFormat(bs),
+	mLexFormat(mkLexFormat()),
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
@@ -176,20 +176,20 @@ namespace CNORXZ
 	IndexInterface<YIndex,DType>(0),
 	mRange(rangeCast<YRange>(range)),
 	mIs(mkIndices()),
-	mBlockSizes(mkBlockSizes()),
-	mLexBlockSizes(mkLexBlockSizes()),
+	mFormat(mkFormat()),
+	mLexFormat(mkLexFormat()),
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
 	*this = lexpos;
     }
 
-    YIndex::YIndex(const RangePtr& range, const Vector<SizeT>& bs, SizeT lexpos) :
+    YIndex::YIndex(const RangePtr& range, const YFormat& bs, SizeT lexpos) :
 	IndexInterface<YIndex,DType>(0),
 	mRange(rangeCast<YRange>(range)),
 	mIs(mkIndices()),
-	mBlockSizes(bs),
-	mLexBlockSizes(mkLexBlockSizes()),
+	mFormat(bs),
+	mLexFormat(mkLexFormat()),
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
@@ -206,8 +206,8 @@ namespace CNORXZ
 	mLex = lexpos;
 	IB::mPos = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
-	    *mIs[i] = (lex() / mLexBlockSizes[i]) % mIs[i]->lmax().val();
-	    IB::mPos += mBlockSizes[i] * mIs[i]->pos();
+	    *mIs[i] = (lex() / mLexFormat[i].val()) % mIs[i]->lmax().val();
+	    IB::mPos += mFormat[i].val() * mIs[i]->pos();
 	}
 	return *this;
     }
@@ -301,7 +301,7 @@ namespace CNORXZ
     {
 	SizeT o = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
-	    const auto u = mIs[i]->stepSize(id) * UPos(mBlockSizes[i]);
+	    const auto u = mIs[i]->stepSize(id) * mFormat[i];
 	    o += u.val();
 	}
 	return UPos(o);
@@ -334,21 +334,9 @@ namespace CNORXZ
 	IB::mPos = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
 	    mIs[i]->at(v[i]);
-	    IB::mPos += mIs[i]->pos() * mBlockSizes[i];
+	    IB::mPos += mIs[i]->pos() * mFormat[i].val();
 	}
 	return *this;
-    }
-
-    Sptr<DIndex> YIndex::format(const Sptr<DIndex>& ind) const
-    {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return nullptr;
-    }
-    
-    Sptr<DIndex> YIndex::slice(const Sptr<DIndex>& ind) const
-    {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return nullptr;
     }
 
     DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
@@ -374,19 +362,19 @@ namespace CNORXZ
 	return mIs;
     }
 	
-    const Vector<SizeT>& YIndex::blockSizes() const
+    const YFormat& YIndex::format() const
     {
-	return mBlockSizes;
+	return mFormat;
     }
     
-    const Vector<SizeT>& YIndex::lexBlockSizes() const
+    const YFormat& YIndex::lexFormat() const
     {
-	return mLexBlockSizes;
+	return mLexFormat;
     }
 
-    YIndex& YIndex::setBlockSizes(const Vector<SizeT>& bs)
+    YIndex& YIndex::setFormat(const YFormat& bs)
     {
-	mBlockSizes = bs;
+	mFormat = bs;
 	return *this;
     }
 
