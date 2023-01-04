@@ -32,19 +32,19 @@ namespace CNORXZ
     template <SizeT N>
     constexpr decltype(auto) MFormat<N>::size() const
     {
-	return std::integral_constant<SizeT,N>{};
+	return CSizeT<N>{};
     }
 
     template <SizeT N>
     template <SizeT I>
-    constexpr decltype(auto) MFormat<N>::get(std::integral_constant<SizeT,I> i) const
+    constexpr decltype(auto) MFormat<N>::get(CSizeT<I> i) const
     {
 	return std::get<I>(mB);
     }
 
     template <SizeT N>
     template <SizeT I>
-    constexpr decltype(auto) MFormat<N>::operator[](std::integral_constant<SizeT,I> i) const
+    constexpr decltype(auto) MFormat<N>::operator[](CSizeT<I> i) const
     {
 	return get(i);
     }
@@ -81,19 +81,19 @@ namespace CNORXZ
     template <class... PosT>
     constexpr decltype(auto) GMFormat<PosT...>::size() const
     {
-	return std::integral_constant<SizeT,sizeof...(PosT)>{};
+	return CSizeT<sizeof...(PosT)>{};
     }
 
     template <class... PosT>
     template <SizeT I>
-    constexpr decltype(auto) GMFormat<PosT...>::get(std::integral_constant<SizeT,I> i) const
+    constexpr decltype(auto) GMFormat<PosT...>::get(CSizeT<I> i) const
     {
 	return std::get<I>(mB);
     }
 
     template <class... PosT>
     template <SizeT I>
-    constexpr decltype(auto) GMFormat<PosT...>::operator[](std::integral_constant<SizeT,I> i) const
+    constexpr decltype(auto) GMFormat<PosT...>::operator[](CSizeT<I> i) const
     {
 	return get(i);
     }
@@ -123,13 +123,13 @@ namespace CNORXZ
     }
 
     template <SizeT I>
-    const UPos& YFormat::get(std::integral_constant<SizeT,I> i) const
+    const UPos& YFormat::get(CSizeT<I> i) const
     {
 	return mB[i];
     }
 	
     template <SizeT I>
-    const UPos& YFormat::operator[](std::integral_constant<SizeT,I> i) const
+    const UPos& YFormat::operator[](CSizeT<I> i) const
     {
 	return mB[i];
     }

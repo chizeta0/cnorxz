@@ -73,7 +73,7 @@ namespace CNORXZ
     template <SizeT I>
     inline void GMIndex<FormatT,Indices...>::up()
     {
-	constexpr std::integral_constant<SizeT,I> i;
+	constexpr CSizeT<I> i;
 	auto& ind = mIPack[i];
 	if constexpr(I != 0){
 	    if(ind->lex() == ind->lmax().val()-1){
@@ -97,7 +97,7 @@ namespace CNORXZ
     template <SizeT I>
     inline void GMIndex<FormatT,Indices...>::down()
     {
-	constexpr std::integral_constant<SizeT,I> i;
+	constexpr CSizeT<I> i;
 	auto& ind = mIPack[i];
 	if constexpr(I != 0){
 	    if(ind->lex() == 0){
@@ -121,7 +121,7 @@ namespace CNORXZ
     template <SizeT I, class Xpr, class F>
     constexpr decltype(auto) GMIndex<FormatT,Indices...>::mkIFor(const Xpr& xpr, F&& f) const
     {
-	constexpr std::integral_constant<SizeT,I> i;
+	constexpr CSizeT<I> i;
 	if constexpr(I == sizeof...(Indices)-1){
 	    return mIPack[i]->ifor(xpr,std::forward<F>(f));
 	}
@@ -388,7 +388,7 @@ namespace CNORXZ
 	return iter<1,NI>
 	    ( [&](auto i) { return mIPack[i]->stringMeta(); },
 	      [&](const auto&... xs) {
-		  return blim + mIPack[std::integral_constant<SizeT,0>{}]->stringMeta() + ( (dlim + xs) + ... ) + elim;
+		  return blim + mIPack[CSizeT<0>{}]->stringMeta() + ( (dlim + xs) + ... ) + elim;
 	      } );
     }
     

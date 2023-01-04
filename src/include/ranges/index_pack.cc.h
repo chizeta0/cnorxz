@@ -24,14 +24,14 @@ namespace CNORXZ
     
     template <class... Indices>
     template <SizeT I>
-    constexpr decltype(auto) SPack<Indices...>::get(std::integral_constant<SizeT,I> i) const
+    constexpr decltype(auto) SPack<Indices...>::get(CSizeT<I> i) const
     {
 	return std::get<I>(mIs);
     }
     
     template <class... Indices>
     template <SizeT I>
-    constexpr decltype(auto) SPack<Indices...>::operator[](std::integral_constant<SizeT,I> i) const
+    constexpr decltype(auto) SPack<Indices...>::operator[](CSizeT<I> i) const
     {
 	return get(i);
     }

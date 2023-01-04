@@ -11,10 +11,10 @@ namespace CNORXZ
     constexpr decltype(auto) iteri(const G& g, const F& f, Isq<Is...> is)
     {
 	if constexpr(std::is_same<F,NoF>::value){
-	    ( g(std::integral_constant<SizeT,Is>{}), ... );
+	    ( g(CSizeT<Is>{}), ... );
 	}
 	else {
-	    return f( g(std::integral_constant<SizeT,Is>{}) ... );
+	    return f( g(CSizeT<Is>{}) ... );
 	}
     }
 
@@ -36,8 +36,8 @@ namespace CNORXZ
 	    }
 	}
 	else {
-	    if constexpr(c(std::integral_constant<SizeT,I>{})){
-		return iterIfi<E,I+1>(g, f, c, args..., g(std::integral_constant<SizeT,I>{}));
+	    if constexpr(c(CSizeT<I>{})){
+		return iterIfi<E,I+1>(g, f, c, args..., g(CSizeT<I>{}));
 	    }
 	    else {
 		return iterIfi<E,I+1>(g, f, c, args...);

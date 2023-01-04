@@ -20,10 +20,10 @@ namespace CNORXZ
 	constexpr SizeT size() const;
 	
 	template <SizeT I>
-	constexpr decltype(auto) get(std::integral_constant<SizeT,I> i) const;
+	constexpr decltype(auto) get(CSizeT<I> i) const;
 
 	template <SizeT I>
-	constexpr decltype(auto) operator[](std::integral_constant<SizeT,I> i) const;
+	constexpr decltype(auto) operator[](CSizeT<I> i) const;
 
 	template <class Index>
 	constexpr decltype(auto) rmul(const Sptr<Index>& i) const;

@@ -23,10 +23,10 @@ namespace CNORXZ
 	constexpr decltype(auto) size() const;
 	
 	template <SizeT I>
-	constexpr decltype(auto) get(std::integral_constant<SizeT,I> i) const;
+	constexpr decltype(auto) get(CSizeT<I> i) const;
 
 	template <SizeT I>
-	constexpr decltype(auto) operator[](std::integral_constant<SizeT,I> i) const;
+	constexpr decltype(auto) operator[](CSizeT<I> i) const;
 
     private:
 	Arr<UPos,N> mB;
@@ -50,10 +50,10 @@ namespace CNORXZ
 	constexpr decltype(auto) size() const;
 
 	template <SizeT I>
-	constexpr decltype(auto) get(std::integral_constant<SizeT,I> i) const;
+	constexpr decltype(auto) get(CSizeT<I> i) const;
 
 	template <SizeT I>
-	constexpr decltype(auto) operator[](std::integral_constant<SizeT,I> i) const;
+	constexpr decltype(auto) operator[](CSizeT<I> i) const;
 	
     private:
 	Tuple<PosT...> mB;
@@ -77,10 +77,10 @@ namespace CNORXZ
 	SizeT size() const;
 
 	template <SizeT I>
-	const UPos& get(std::integral_constant<SizeT,I> i) const;
+	const UPos& get(CSizeT<I> i) const;
 	
 	template <SizeT I>
-	const UPos& operator[](std::integral_constant<SizeT,I> i) const;
+	const UPos& operator[](CSizeT<I> i) const;
 
 	const UPos& get(SizeT i) const;
 	const UPos& operator[](SizeT i) const;

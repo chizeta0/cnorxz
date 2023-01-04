@@ -194,8 +194,8 @@ namespace
 	for(auto xxi = mrx->begin(); xxi != endxxi; ++xxi){
 	    EXPECT_EQ(xxi.pos(), cnt);
 	    EXPECT_EQ(xxi.lex(), cnt);
-	    auto ci = xxi.pack()[std::integral_constant<SizeT,0>{}];
-	    auto ui = xxi.pack()[std::integral_constant<SizeT,1>{}];
+	    auto ci = xxi.pack()[CSizeT<0>{}];
+	    auto ui = xxi.pack()[CSizeT<1>{}];
 	    Tuple<SizeT,String> meta(*(*ci),*(*ui));
 	    auto meta2 = mkm(cnt);
 	    EXPECT_EQ(meta, meta2);
@@ -252,9 +252,9 @@ namespace
 	for(auto xxi = mrx->begin(); xxi != endxxi; ++xxi){
 	    EXPECT_EQ(xxi.pos(), cnt);
 	    EXPECT_EQ(xxi.lex(), cnt);
-	    auto ci1 = xxi.pack()[std::integral_constant<SizeT,0>{}];
-	    auto ui = xxi.pack()[std::integral_constant<SizeT,1>{}];
-	    auto ci2 = xxi.pack()[std::integral_constant<SizeT,2>{}];
+	    auto ci1 = xxi.pack()[CSizeT<0>{}];
+	    auto ui = xxi.pack()[CSizeT<1>{}];
+	    auto ci2 = xxi.pack()[CSizeT<2>{}];
 	    Tuple<SizeT,String,SizeT> meta(*(*ci1),*(*ui),*(*ci2));
 	    auto meta2 = mkm(cnt);
 	    EXPECT_EQ(meta, meta2);
