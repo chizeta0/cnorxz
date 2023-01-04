@@ -63,6 +63,9 @@ namespace CNORXZ
 
     template <class... T>
     using Isqf = std::index_sequence_for<T...>;
+
+    template <SizeT N>
+    using CSizeT = std::integral_constant<SizeT,N>;
     
     /*********************
      *   library types   *
@@ -212,6 +215,24 @@ namespace CNORXZ
     template <class Index, SizeT L>
     class LIndex;
 
+    // definition: ranges/index_pack.h
+    template <class... Indices>
+    class SPack;
+
+    // definition: ranges/index_pack.h
+    class DPack;
+
+    // definition: ranges/index_format.h
+    template <SizeT N>
+    class MFormat;
+
+    // definition: ranges/index_format.h
+    template <class... PosT>
+    class GMFormat;
+
+    // definition: ranges/index_format.h
+    class YFormat;
+    
     // definition: array/array_base.h
     template <typename T>
     class CArrayBase;
