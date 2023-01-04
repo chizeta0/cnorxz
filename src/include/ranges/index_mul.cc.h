@@ -90,20 +90,21 @@ namespace CNORXZ
 	    }
 	    else if constexpr(std::is_same<I2,YIndex>::value){
 		auto p = b.THIS().pack();
-		p.insert(0, a.THIS().xptr());
-		return YIndex(p);
+		auto n = p.lmul( a.THIS().xptr() );
+		return YIndex(n.all());
 	    }
 	}
 	else if constexpr(std::is_same<I1,YIndex>::value){
 	    if constexpr(std::is_same<I2,DIndex>::value){
 		auto p = a.THIS().pack();
-		p.push_back(b.THIS().xptr());
-		return YIndex(p);
+		auto n = p.rmul( b.THIS().xptr() );
+		return YIndex(n.all());
 	    }
 	    else if constexpr(std::is_same<I2,YIndex>::value){
-		auto p = a.THIS().pack();
-		p.insert(p.end(), b.THIS().pack().begin(), b.THIS().pack().end());
-		return YIndex(p);
+		auto ap = a.THIS().pack().all();
+		const auto& bp = b.THIS().pack();
+		ap.insert(ap.end(), bp.all().begin(), bp.all().end());
+		return YIndex(ap);
 	    }
 	}
 	else {

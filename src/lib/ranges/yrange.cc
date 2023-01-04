@@ -7,7 +7,7 @@ namespace CNORXZ
      *   YIndex (private)    *
      *************************/
 
-    inline Vector<XIndexPtr> YIndex::mkIndices() const
+    inline DPack YIndex::mkIndices() const
     {
 	Vector<XIndexPtr> o(mRange->dim(), nullptr);
 	for(SizeT i = 0; i != mRange->dim(); ++i){
@@ -15,7 +15,7 @@ namespace CNORXZ
 	    CXZ_ASSERT(rp != nullptr, "subranges not available");
 	    o[i] = rp->begin().xptr();
 	}
-	return o;
+	return DPack(std::move(o));
     }
     
     inline Vector<SizeT> YIndex::mkFormat() const
@@ -115,7 +115,7 @@ namespace CNORXZ
     
     inline SizeT YIndex::mkLMax() const
     {
-	return std::accumulate(mIs.begin(), mIs.end(),1,
+	return std::accumulate(mIs.all().begin(), mIs.all().end(),1,
 			       [](const auto& res, const auto& el) { return res * el->lmax().val(); } );
     }
     
@@ -313,7 +313,7 @@ namespace CNORXZ
 	const String elim = "]";
 	const String dlim = ",";
 	return blim +
-	    std::accumulate(std::next(mIs.begin()), mIs.end(), mIs[0]->stringMeta(),
+	    std::accumulate(std::next(mIs.all().begin()), mIs.all().end(), mIs[0]->stringMeta(),
 			    [&](const auto& s, const auto& e)
 			    { return s + dlim + e->stringMeta(); } ) +
 	    elim;
@@ -322,7 +322,7 @@ namespace CNORXZ
     DType YIndex::meta() const
     {
 	Vector<DType> v(mIs.size());
-	std::transform(mIs.begin(), mIs.end(), v.begin(),
+	std::transform(mIs.all().begin(), mIs.all().end(), v.begin(),
 		       [](const auto& x) { return x->meta(); });
 	return DType(v);
     }
@@ -357,7 +357,7 @@ namespace CNORXZ
 	return *this;
     }
     
-    const Vector<XIndexPtr>& YIndex::pack() const
+    const DPack& YIndex::pack() const
     {
 	return mIs;
     }

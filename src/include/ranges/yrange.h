@@ -59,7 +59,7 @@ namespace CNORXZ
 	YIndex& operator()(const Sptr<YIndex>& i);
 	YIndex& operator()();
 
-	const Vector<XIndexPtr>& pack() const;
+	const DPack& pack() const;
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);
@@ -69,7 +69,7 @@ namespace CNORXZ
 	inline Vector<SizeT> mkLexFormat() const;
 	inline Vector<RangePtr> mkRangeVec(const Vector<XIndexPtr>& is) const;
 	inline void mkPos();
-	inline Vector<XIndexPtr> mkIndices() const;
+	inline DPack mkIndices() const;
 	inline void up(SizeT i);
 	inline void down(SizeT i);
 	inline decltype(auto) mkIFor(SizeT i, const DXpr<SizeT>& xpr,
@@ -79,7 +79,7 @@ namespace CNORXZ
 	inline SizeT mkLMax() const;
 	
 	Sptr<YRange> mRange;
-	Vector<XIndexPtr> mIs;
+	DPack mIs;
 	YFormat mFormat; // dim() elements only!!!
 	YFormat mLexFormat; // dim() elements only!!!
 	SizeT mLex = 0;
