@@ -105,7 +105,7 @@ namespace CNORXZ
     DPack::DPack(const SPack<Indices...>& p) :
 	mIs( iter<0,sizeof...(Indices)>
 	     ( [&](auto i) { return xindexPtr(p[i]); },
-	       [](const auto&... e) { return { e... }; } )
+	       [](const auto&... e) { return Vector<XIndexPtr>( { e... } ); } )
 	     )
     {}
 	
