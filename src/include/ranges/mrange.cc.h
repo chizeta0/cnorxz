@@ -163,10 +163,10 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
-    constexpr GMIndex<FormatT,Indices...>::GMIndex(const Indices&... is) :
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const SPack<Indices...>& pack) :
 	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
-	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is.range()...))),
-	mIPack(std::make_shared<Indices>(is)...),
+	mRange(std::dynamic_pointer_cast<RangeType>(pack.mkRange())),
+	mIPack(pack),
 	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
 	mFormat(),
 	mLMax(mkLMax(mIPack)),
@@ -176,10 +176,10 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
-    constexpr GMIndex<FormatT,Indices...>::GMIndex(const FormatT& bs, const Indices&... is) :
+    constexpr GMIndex<FormatT,Indices...>::GMIndex(const FormatT& bs, const SPack<Indices...>& pack) :
 	IndexInterface<GMIndex<FormatT,Indices...>,Tuple<typename Indices::MetaType...>>(0),
-	mRange(std::dynamic_pointer_cast<RangeType>(mrange(is.range()...))),
-	mIPack(std::make_shared<Indices>(is)...),
+	mRange(std::dynamic_pointer_cast<RangeType>(pack.mkRange())),
+	mIPack(pack),
 	mLexFormat(mkLexFormat(mIPack,Isqr<1,NI>{})),
 	mFormat(bs),
 	mLMax(mkLMax(mIPack)),
@@ -482,7 +482,13 @@ namespace CNORXZ
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is)
     {
 	return MIndex<Indices...>(is...);
-    }    
+    }
+
+    template <class... Indices>
+    constexpr decltype(auto) mindex(const SPack<Indices...>& pack)
+    {
+	return MIndex<Indices...>(pack);
+    }
 
     template <class FormatT, class... Indices>
     constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is)

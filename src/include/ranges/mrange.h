@@ -34,10 +34,8 @@ namespace CNORXZ
 	constexpr GMIndex(const GMIndex& i);
 	constexpr GMIndex& operator=(const GMIndex& i);
 
-	//constexpr GMIndex(const SPack<Indices...>& is);
-	//constexpr GMIndex(const FormatT& format, const SPack<Indices...>& is);
-	constexpr GMIndex(const Indices&... is);
-	constexpr GMIndex(const FormatT& format, const Indices&... is);
+	constexpr GMIndex(const SPack<Indices...>& pack);
+	constexpr GMIndex(const FormatT& format, const SPack<Indices...>& pack);
 	constexpr GMIndex(const Sptr<Indices>&... is);
 	constexpr GMIndex(const FormatT& format, const Sptr<Indices>&... is);
 	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
@@ -146,6 +144,9 @@ namespace CNORXZ
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is);
 
+    template <class... Indices>
+    constexpr decltype(auto) mindex(const SPack<Indices...>& pack);
+    
     template <class FormatT, class... Indices>
     constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is);
     

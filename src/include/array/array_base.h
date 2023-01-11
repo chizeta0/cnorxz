@@ -19,11 +19,6 @@ namespace CNORXZ
     public:
 	typedef AIndex<T> const_iterator;
 
-    protected:
-	RangePtr mRange;
-	
-    public:
-
 	CArrayBase(const RangePtr& range);
 	DEFAULT_MEMBERS(CArrayBase);
 
@@ -34,6 +29,15 @@ namespace CNORXZ
 
 	template <typename I, typename M>
 	const T& at(const IndexInterface<I,M>& i) const;
+
+	template <class... Indices>
+	const T& operator[](const SPack<Indices...>& pack) const;
+
+	template <class... Indices>
+	const T& at(const SPack<Indices...>& pack) const;
+
+	const T& operator[](const DPack& pack) const;
+	const T& at(const DPack& pack) const;
 
 	template <typename I, typename M>
 	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
@@ -52,6 +56,14 @@ namespace CNORXZ
 	template <class Index>
 	COpRoot<T,Index> operator()(const Sptr<Index>& i) const;
 
+    protected:
+	RangePtr mRange;
+
+	template <class Acc>
+	const_iterator itLex(const Acc& acc) const;
+
+	template <class Acc>
+	const_iterator itLexSave(const Acc& acc) const;
     };
 
     template <typename T>
@@ -80,6 +92,15 @@ namespace CNORXZ
 	template <typename I, typename M>
 	T& at(const IndexInterface<I,M>& i);
 
+	template <class... Indices>
+	T& operator[](const SPack<Indices...>& pack);
+
+	template <class... Indices>
+	T& at(const SPack<Indices...>& pack);
+
+	T& operator[](const DPack& pack);
+	T& at(const DPack& pack);
+
 	template <typename I, typename M>
 	Sptr<ArrayBase<T>> sl(const IndexInterface<I,M>& i);
 
@@ -91,6 +112,13 @@ namespace CNORXZ
 	template <class Index>
 	OpRoot<T,Index> operator()(const Sptr<Index>& i);
 
+    protected:
+	
+	template <class Acc>
+	iterator itLex(const Acc& acc);
+
+	template <class Acc>
+	iterator itLexSave(const Acc& acc);
     };
 
 }

@@ -1,5 +1,5 @@
 
-#include "ranges/index_pack.h"
+#include "ranges/ranges.h"
 
 namespace CNORXZ
 {
@@ -31,18 +31,18 @@ namespace CNORXZ
 	return get(i);
     }
     
-    DPack DPack::rmul(const XIndexPtr& i) const
+    DPack DPack::rmul(const Sptr<DIndex>& i) const
     {
 	auto o = mIs;
-	o.push_back(i);
+	o.push_back(i->xptr());
 	return DPack(std::move(o));
     }
     
-    DPack DPack::lmul(const XIndexPtr& i) const
+    DPack DPack::lmul(const Sptr<DIndex>& i) const
     {
 	Vector<XIndexPtr> o;
 	o.reserve(size()+1);
-	o.push_back(i);
+	o.push_back(i->xptr());
 	o.insert(o.end(), mIs.begin(), mIs.end());
 	return DPack(std::move(o));
     }
@@ -56,4 +56,25 @@ namespace CNORXZ
 	return DPack(std::move(o));
     }
 
+    RangePtr DPack::mkRange() const
+    {
+	Vector<RangePtr> o(mIs.size());
+	std::transform(mIs.begin(), mIs.end(), o.begin(),
+		       [](const auto& i) { return i->range(); } );
+	return yrange(o);
+    }
+    
+    SizeT DPack::lex() const
+    {
+	if(mIs.size() == 0) { return 0; }
+	const SizeT isizem1 = mIs.size()-1;
+	SizeT o = mIs[isizem1]->lex();
+	SizeT m = mIs[isizem1]->lmax().val();
+	for(SizeT i = isizem1; i != 0; --i){
+	    const SizeT j = i-1;
+	    o += mIs[j]->lex() * m;
+	    m *= mIs[j]->lmax().val();
+	}
+	return o;
+    }
 }

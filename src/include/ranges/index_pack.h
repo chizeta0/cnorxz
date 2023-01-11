@@ -33,29 +33,50 @@ namespace CNORXZ
 
 	template <class... Indices2>
 	constexpr decltype(auto) mul(const SPack<Indices2...>& p) const;
+
+	decltype(auto) mkRange() const;
+
+	SizeT lex() const;
 	
     private:
 	Tuple<Sptr<Indices>...> mIs;
     };
 
+    template <class... Indices>
+    constexpr decltype(auto) spack(const Indices&... inds);
+
+    template <class... Indices>
+    constexpr decltype(auto) spackp(const Sptr<Indices>&... inds);
+
     class DPack
     {
     public:
 	DEFAULT_MEMBERS(DPack);
-	DPack(const Vector<XIndexPtr>& is);
-	DPack(Vector<XIndexPtr>&& is);
+	explicit DPack(const Vector<XIndexPtr>& is);
+	explicit DPack(Vector<XIndexPtr>&& is);
 
+	template <class... Indices>
+	explicit DPack(const SPack<Indices...>& p);
+	
 	const Vector<XIndexPtr>& all() const;
 	SizeT size() const;
 	const XIndexPtr& get(SizeT i) const;
 	const XIndexPtr& operator[](SizeT i) const;
-	DPack rmul(const XIndexPtr& i) const;
-	DPack lmul(const XIndexPtr& i) const;
+	DPack rmul(const Sptr<DIndex>& i) const;
+	DPack lmul(const Sptr<DIndex>& i) const;
 	DPack mul(const DPack& p) const;
+	RangePtr mkRange() const;
+	SizeT lex() const;
 	
     private:
 	Vector<XIndexPtr> mIs;
     };
+
+    template <class... Indices>
+    DPack dpack(const Indices&... inds);
+
+    template <class... Indices>
+    DPack dpackp(const Sptr<Indices>&... inds);
 }
 
 #endif

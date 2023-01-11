@@ -382,6 +382,11 @@ namespace CNORXZ
      *   non-member functions   *
      ****************************/
 
+    YIndex yindex(const DPack& pack)
+    {
+	return YIndex(pack.all());
+    }
+
     YIndex yindex(const Vector<XIndexPtr>& is)
     {
 	return YIndex(is);

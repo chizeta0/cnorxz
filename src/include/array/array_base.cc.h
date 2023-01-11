@@ -20,7 +20,7 @@ namespace CNORXZ
     template <typename I, typename M>
     const T& CArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
-	auto ai = this->begin() + i.lex();
+	auto ai = itLex(i);
 	return *ai;
     }
     
@@ -28,11 +28,37 @@ namespace CNORXZ
     template <typename I, typename M>
     const T& CArrayBase<T>::at(const IndexInterface<I,M>& i) const
     {
-	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
-	auto beg = this->begin();
-	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
-	// check further compatibility of index/range format!!!
-	auto ai = beg + i.lex();
+	auto ai = itLexSave(i);
+	return *ai;
+    }
+
+    template <typename T>
+    template <class... Indices>
+    const T& CArrayBase<T>::operator[](const SPack<Indices...>& pack) const
+    {
+	auto ai = itLex(pack);
+	return *ai;
+    }
+    
+    template <typename T>
+    template <class... Indices>
+    const T& CArrayBase<T>::at(const SPack<Indices...>& pack) const
+    {
+	auto ai = itLexSave(pack);
+	return *ai;
+    }
+
+    template <typename T>
+    const T& CArrayBase<T>::operator[](const DPack& pack) const
+    {
+	auto ai = itLex(pack);
+	return *ai;
+    }
+    
+    template <typename T>
+    const T& CArrayBase<T>::at(const DPack& pack) const
+    {
+	auto ai = itLexSave(pack);
 	return *ai;
     }
 
@@ -78,6 +104,27 @@ namespace CNORXZ
 	return coproot(*this, i);
     }
 
+    /******************************
+     *   CArrayBase (protected)   *
+     ******************************/
+
+    template <typename T>
+    template <class Acc>
+    typename CArrayBase<T>::const_iterator CArrayBase<T>::itLex(const Acc& acc) const
+    {
+	return begin() + acc.lex();
+    }
+    
+    template <typename T>
+    template <class Acc>
+    typename CArrayBase<T>::const_iterator CArrayBase<T>::itLexSave(const Acc& acc) const
+    {
+	CXZ_ASSERT(acc.lex() < this->size(), "index out of range");
+	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
+	// check further compatibility of index/range format!!!
+	return begin() + acc.lex();
+    }
+
     /*****************
      *   ArrayBase   *
      *****************/
@@ -91,17 +138,45 @@ namespace CNORXZ
     template <typename I, typename M>
     T& ArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
-	auto ai = this->begin() + i.lex();
+	auto ai = itLex(i);
 	return *ai;
     }
-
+    
     template <typename T>
     template <typename I, typename M>
     T& ArrayBase<T>::at(const IndexInterface<I,M>& i)
     {
-	CXZ_ASSERT(i.lex() < this->size(), "index out of range");
-	// check further compatibility of index/range format!!!
-	auto ai = this->begin() + i.lex();
+	auto ai = itLexSave(i);
+	return *ai;
+    }
+
+    template <typename T>
+    template <class... Indices>
+    T& ArrayBase<T>::operator[](const SPack<Indices...>& pack)
+    {
+	auto ai = itLex(pack);
+	return *ai;
+    }
+    
+    template <typename T>
+    template <class... Indices>
+    T& ArrayBase<T>::at(const SPack<Indices...>& pack)
+    {
+	auto ai = itLexSave(pack);
+	return *ai;
+    }
+
+    template <typename T>
+    T& ArrayBase<T>::operator[](const DPack& pack)
+    {
+	auto ai = itLex(pack);
+	return *ai;
+    }
+    
+    template <typename T>
+    T& ArrayBase<T>::at(const DPack& pack)
+    {
+	auto ai = itLexSave(pack);
 	return *ai;
     }
 
@@ -133,6 +208,27 @@ namespace CNORXZ
     {
 	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
 	return oproot(*this, i);
+    }
+
+    /*****************************
+     *   ArrayBase (protected)   *
+     *****************************/
+
+    template <typename T>
+    template <class Acc>
+    typename ArrayBase<T>::iterator ArrayBase<T>::itLex(const Acc& acc)
+    {
+	return begin() + acc.lex();
+    }
+    
+    template <typename T>
+    template <class Acc>
+    typename ArrayBase<T>::iterator ArrayBase<T>::itLexSave(const Acc& acc)
+    {
+	CXZ_ASSERT(acc.lex() < this->size(), "index out of range");
+	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
+	// check further compatibility of index/range format!!!
+	return begin() + acc.lex();
     }
 
 }
