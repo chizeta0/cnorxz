@@ -72,6 +72,22 @@ namespace CNORXZ
 	return a.rmul(std::make_shared<I2>(b.THIS()));
     }
 
+    template <class Index, class... Indices>
+    inline decltype(auto) operator*(const Sptr<Index>& a,
+				    const SPack<Indices...>& b)
+    {
+	static_assert(is_index<Index>::value, "got non-index type");
+	return b.lmul(a);
+    }
+
+    template <class Index, class... Indices>
+    inline decltype(auto) operator*(const SPack<Indices...>& a,
+				    const Sptr<Index>& b)
+    {
+	static_assert(is_index<Index>::value, "got non-index type");
+	return a.rmul(b);
+    }
+
     template <class... Indices1, class... Indices2>
     inline decltype(auto) operator*(const SPack<Indices1...>& a, const SPack<Indices2...>& b)
     {
@@ -102,48 +118,13 @@ namespace CNORXZ
     template <class I1, class I2>
     decltype(auto) iptrMul(const Sptr<I1>& a, const Sptr<I2>& b)
     {
-	if constexpr(std::is_same<I1,DIndex>::value){
-	    if constexpr(std::is_same<I2,DIndex>::value){
-		return std::make_shared<YIndex>({ a->xptr(), b->xptr() });
-	    }
-	    else if constexpr(std::is_same<I2,YIndex>::value){
-		auto p = b->pack();
-		p.insert(0, a->xptr());
-		return std::make_shared<YIndex>(p);
-	    }
-	}
-	else if constexpr(std::is_same<I1,YIndex>::value){
-	    if constexpr(std::is_same<I2,DIndex>::value){
-		auto p = a->pack();
-		p.push_back(b->xptr());
-		return std::make_shared<YIndex>(p);
-	    }
-	    else if constexpr(std::is_same<I2,YIndex>::value){
-		auto p = a->pack();
-		p.insert(p.end(), b->pack().begin(), b->pack().end());
-		return std::make_shared<YIndex>(p);
-	    }
+	static_assert(is_index<I1>::value and is_index<I2>::value, "got non-index type");
+	if constexpr(std::is_same<I1,YIndex>::value or std::is_same<I2,YIndex>::value or
+		     std::is_same<I1,DIndex>::value or std::is_same<I2,DIndex>::value) {
+	    return dpackp(a, b);
 	}
 	else {
-	    constexpr SizeT I1D = index_dim<I1>::value;
-	    constexpr SizeT I2D = index_dim<I2>::value;
-	    if constexpr(I1D == 1){
-		if constexpr(index_dim<I2>::value == 1){
-		    return std::make_shared<MIndex<I1,I2>>(a, b);
-		}
-		else {
-		    return MIndexSptrMul::evalXM(a, b, std::make_index_sequence<I1D>{});
-		}
-	    }
-	    else {
-		if constexpr(index_dim<I2>::value == 1){
-		    return MIndexSptrMul::evalMX(a, b, std::make_index_sequence<I2D>{});
-		}
-		else {
-		    return MIndexSptrMul::evalMM(a, b, std::make_index_sequence<I1D>{},
-						 std::make_index_sequence<I2D>{});
-		}
-	    }
+	    return spackp(a, b);
 	}
     }
 

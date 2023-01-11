@@ -392,6 +392,11 @@ namespace CNORXZ
 	return YIndex(is);
     }
 
+    Sptr<YIndex> yindexPtr(const DPack& pack)
+    {
+	return std::make_shared<YIndex>(pack.all());
+    }
+
     Sptr<YIndex> yindexPtr(const Vector<XIndexPtr>& is)
     {
 	return std::make_shared<YIndex>(is);

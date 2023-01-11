@@ -105,7 +105,6 @@ namespace CNORXZ
 	typedef RemoveRef<decltype(mkLexFormat(mIPack,Isqr<0,NI-1>{}))> LexFormatT;
 	LexFormatT mLexFormat;
 	FormatT mFormat;
-	//BlockType mFormat; // -> FormatT
 	SizeT mLex;
 	typedef RemoveRef<decltype(mkLMax(mIPack))> LMaxT;
 	LMaxT mLMax;
@@ -116,11 +115,6 @@ namespace CNORXZ
     template <class BT1, class BT2, class... Indices>
     decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
 
-    template <class BT1, class... Is1, class BT2, class... Is2>
-    decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b);
-    
-    //template <class... Indices>
-    //using MIndex = GMIndex<None,Indices...>;
     template <class... Indices>
     struct index_has_const_size<MIndex<Indices...>>
     { static constexpr bool value = (index_has_const_size<Indices>::value and ...); };
@@ -146,7 +140,10 @@ namespace CNORXZ
 
     template <class... Indices>
     constexpr decltype(auto) mindex(const SPack<Indices...>& pack);
-    
+
+    template <class... Indices>
+    constexpr decltype(auto) mindexPtr(const SPack<Indices...>& pack);
+
     template <class FormatT, class... Indices>
     constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is);
     

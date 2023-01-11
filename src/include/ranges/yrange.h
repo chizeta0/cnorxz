@@ -89,6 +89,7 @@ namespace CNORXZ
 
     YIndex yindex(const DPack& pack);
     YIndex yindex(const Vector<XIndexPtr>& is);
+    Sptr<YIndex> yindexPtr(const DPack& is);
     Sptr<YIndex> yindexPtr(const Vector<XIndexPtr>& is);
     Sptr<YIndex> yindexPtr(const Vector<SizeT>& bs, const Vector<XIndexPtr>& is);
 

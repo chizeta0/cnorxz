@@ -63,8 +63,8 @@ namespace
 	    mCIa2 = std::make_shared<CIndex>(cra);
 	    mCIb1 = std::make_shared<CIndex>(crb);
 	    mCIb2 = std::make_shared<CIndex>(crb);
-	    mCCa1a2 = mCIa1*mCIa2;
-	    mCCa2a1 = mCIa2*mCIa1;
+	    mCCa1a2 = mindexPtr(mCIa1*mCIa2);
+	    mCCa2a1 = mindexPtr(mCIa2*mCIa1);
 	    mOCa1a2.init(mCCa1a2);
 	    mORa2a1.init(mData12.data(), mCCa2a1);
 	}

@@ -41,7 +41,15 @@ namespace CNORXZ
 
 	template <typename I, typename M>
 	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
-	
+
+	template <class Index>
+	COpRoot<T,Index> operator()(const Sptr<Index>& i) const;
+
+	template <class... Indices>
+	inline decltype(auto) operator()(const SPack<Indices...>& pack) const;
+
+	inline decltype(auto) operator()(const DPack& pack) const;
+
 	virtual const T* data() const = 0;
 	virtual SizeT size() const;
 	virtual RangePtr range() const;
@@ -52,9 +60,6 @@ namespace CNORXZ
 	virtual const_iterator cend() const = 0;
 
 	virtual bool isView() const = 0;
-
-	template <class Index>
-	COpRoot<T,Index> operator()(const Sptr<Index>& i) const;
 
     protected:
 	RangePtr mRange;
@@ -101,6 +106,14 @@ namespace CNORXZ
 	T& operator[](const DPack& pack);
 	T& at(const DPack& pack);
 
+	template <class Index>
+	OpRoot<T,Index> operator()(const Sptr<Index>& i);
+
+	template <class... Indices>
+	inline decltype(auto) operator()(const SPack<Indices...>& pack);
+
+	inline decltype(auto) operator()(const DPack& pack);
+
 	template <typename I, typename M>
 	Sptr<ArrayBase<T>> sl(const IndexInterface<I,M>& i);
 
@@ -109,9 +122,6 @@ namespace CNORXZ
 	virtual iterator begin();
 	virtual iterator end();
 	
-	template <class Index>
-	OpRoot<T,Index> operator()(const Sptr<Index>& i);
-
     protected:
 	
 	template <class Acc>

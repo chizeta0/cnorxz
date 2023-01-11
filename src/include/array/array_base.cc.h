@@ -104,6 +104,21 @@ namespace CNORXZ
 	return coproot(*this, i);
     }
 
+    template <typename T>
+    template <class... Indices>
+    inline decltype(auto) CArrayBase<T>::operator()(const SPack<Indices...>& pack) const
+    {
+	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	return coproot(*this, mindexPtr(pack));
+    }
+
+    template <typename T>
+    inline decltype(auto) CArrayBase<T>::operator()(const DPack& pack) const
+    {
+	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	return coproot(*this, yindexPtr(pack));
+    }
+
     /******************************
      *   CArrayBase (protected)   *
      ******************************/
@@ -208,6 +223,21 @@ namespace CNORXZ
     {
 	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
 	return oproot(*this, i);
+    }
+
+    template <typename T>
+    template <class... Indices>
+    inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
+    {
+	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	return oproot(*this, mindexPtr(pack));
+    }
+
+    template <typename T>
+    inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
+    {
+	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	return oproot(*this, yindexPtr(pack));
     }
 
     /*****************************

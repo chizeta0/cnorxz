@@ -472,12 +472,6 @@ namespace CNORXZ
 		    ( bs1, e... ); } );
     }
 
-    template <class BT1, class... Is1, class BT2, class... Is2>
-    decltype(auto) operator*(const Sptr<GMIndex<BT1,Is1...>>& a, const Sptr<GMIndex<BT2,Is2...>>& b)
-    {
-	return iptrMul(a, b);
-    }
-
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is)
     {
@@ -488,6 +482,12 @@ namespace CNORXZ
     constexpr decltype(auto) mindex(const SPack<Indices...>& pack)
     {
 	return MIndex<Indices...>(pack);
+    }
+
+    template <class... Indices>
+    constexpr decltype(auto) mindexPtr(const SPack<Indices...>& pack)
+    {
+	return std::make_shared<MIndex<Indices...>>(pack);
     }
 
     template <class FormatT, class... Indices>
