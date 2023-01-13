@@ -48,14 +48,14 @@ namespace CNORXZ
 	    return *this;
 	}
 	
-	MArray<ContentBase>* Group::get()
+	MArray<Sptr<ContentBase>>* Group::get()
 	{
-	    return mCont;
+	    return &mCont;
 	}
 	
-	const MArray<ContentBase>* Group::get() const
+	const MArray<Sptr<ContentBase>>* Group::get() const
 	{
-	    return mCont;
+	    return &mCont;
 	}
 	
 	String Group::path() const

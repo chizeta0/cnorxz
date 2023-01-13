@@ -22,8 +22,8 @@ namespace CNORXZ
 	    virtual File& load() override final;
 	    virtual File& write() override final;
 	    virtual File& close() override final;
-	    virtual MArray<ContentBase>* get() override final;
-	    virtual const MArray<ContentBase>* get() const override final;
+	    virtual MArray<Sptr<ContentBase>>* get() override final;
+	    virtual const MArray<Sptr<ContentBase>>* get() const override final;
 	    virtual String path() const override final;
 	    virtual String filename() const override final;
 

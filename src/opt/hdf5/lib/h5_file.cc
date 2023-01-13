@@ -1,5 +1,6 @@
 
 #include "h5_file.h"
+#include <fstream>
 
 namespace CNORXZ
 {
@@ -54,7 +55,7 @@ namespace CNORXZ
 	{
 	    CXZ_ASSERT( not mRo, "could not write to file: opened as read-only" );
 	    for(auto& x: mCont){
-		x.write();
+		x->write();
 	    }
 	    return *this;
 	}
@@ -62,7 +63,7 @@ namespace CNORXZ
 	File& File::close()
 	{
 	    for(auto& x: mCont){
-		x.close();
+		x->close();
 	    }
 	    if(mId != 0){
 		H5Fclose(mId);
@@ -70,12 +71,12 @@ namespace CNORXZ
 	    return *this;
 	}
 	
-	MArray<ContentBase>* File::get()
+	MArray<Sptr<ContentBase>>* File::get()
 	{
 	    return &mCont;
 	}
 	
-	const MArray<ContentBase>* File::get() const
+	const MArray<Sptr<ContentBase>>* File::get() const
 	{
 	    return &mCont;
 	}

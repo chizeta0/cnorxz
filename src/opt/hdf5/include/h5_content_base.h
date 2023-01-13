@@ -30,10 +30,10 @@ namespace CNORXZ
 	    virtual ContentBase& load() = 0;
 	    virtual ContentBase& write() = 0;
 	    virtual ContentBase& close() = 0;
-	    virtual MArray<ContentBase>* get() = 0;
-	    virtual const MArray<ContentBase>* get() const = 0;
+	    virtual MArray<Sptr<ContentBase>>* get() = 0;
+	    virtual const MArray<Sptr<ContentBase>>* get() const = 0;
 	    virtual String path() const = 0;
-	    virtual String file() const = 0;
+	    virtual String filename() const = 0;
 
 	    const String& name() const;
 	    const ContentBase* parent() const;
@@ -46,9 +46,10 @@ namespace CNORXZ
 	    RangePtr mRange;
 	    hid_t mId = 0;
 	};
-    }
 
-    typedef Sptr<ContentType> ContentPtr;
+	typedef Sptr<ContentBase> ContentPtr;
+
+    }
 }
 
 #endif
