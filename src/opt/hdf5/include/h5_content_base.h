@@ -3,6 +3,7 @@
 #define __cxz_h5_content_base_h__
 
 #include "cnorxz.h"
+#include <hdf5.h>
 
 namespace CNORXZ
 {
@@ -37,11 +38,13 @@ namespace CNORXZ
 	    const String& name() const;
 	    const ContentBase* parent() const;
 	    RangePtr range() const;
+	    hid_t id() const;
 	    
 	protected:
 	    String mName;
 	    const ContentBase* mParent = nullptr;
 	    RangePtr mRange;
+	    hid_t mId = 0;
 	};
     }
 

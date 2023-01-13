@@ -23,5 +23,10 @@ namespace CNORXZ
 	{
 	    return mRange;
 	}
+
+	hid_t ContentBase::id() const
+	{
+	    return mId;
+	}
     }
 }

@@ -36,4 +36,10 @@ else()
   message(FATAL_ERROR "Threads not found")
 endif()
 
+if(DEFINED ENABLE_hdf5)
+  set(ENABLE_hdf5 ${ENABLE_hdf5} CACHE BOOL "enable hdf5")
+else()
+  set(ENABLE_hdf5 TRUE CACHE BOOL "enable hdf5")
+endif()
+
 add_subdirectory(src)
