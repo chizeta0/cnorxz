@@ -62,8 +62,12 @@ namespace CNORXZ
 	
 	File& File::close()
 	{
-	    for(auto& x: mCont){
-		x->close();
+	    if(mCont.range() != nullptr){
+		for(auto& x: mCont){
+		    if(x != nullptr){
+			x->close();
+		    }
+		}
 	    }
 	    if(mId != 0){
 		H5Fclose(mId);
@@ -107,5 +111,41 @@ namespace CNORXZ
 	    return ex;
 	}
 	
+	File& File::set(const RangePtr& range)
+	{
+	    if(mCont.range() != nullptr){
+		CXZ_ERROR("IMPLEMENT");
+		// operator+ for RangePtr!!!
+	    }
+	    else {
+		mCont = MArray<ContentPtr>(range);
+	    }
+	    return *this;
+	}
+	
+	File& File::append(const String& cname)
+	{
+	    if(mCont.range() != nullptr){
+		auto oldrange = std::dynamic_pointer_cast<URange<String>>(mCont.range());
+		Vector<String> names(oldrange->size());
+		for(auto i = oldrange->begin(); i != oldrange->end(); ++i){
+		    names[i.lex()] = *i;
+		}
+		names[names.size()-1] = cname;
+		auto range = URangeFactory<String>( names ).create();
+		MArray<ContentPtr> ncont( range );
+		auto j = ncont.begin();
+		for(auto i = mCont.begin(); i != mCont.end(); ++i){
+		    j.at( i.meta() );
+		    ncont[j] = mCont[i];
+		}
+		mCont = ncont;
+	    }
+	    else {
+		auto range = URangeFactory<String>( Vector<String>({cname}) ).create();
+		mCont = MArray<ContentPtr>( range );
+	    }
+	    return *this;
+	}
     }
 }

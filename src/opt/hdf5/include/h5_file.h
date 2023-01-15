@@ -13,6 +13,8 @@ namespace CNORXZ
 	class File : public ContentBase
 	{
 	public:
+	    typedef URange<String> RangeT;
+	    
 	    DEFAULT_MEMBERS(File);
 	    File(const String& fname, bool _ro = true);
 	    ~File();
@@ -28,7 +30,8 @@ namespace CNORXZ
 	    virtual String filename() const override final;
 
 	    Int exists() const;
-	    File& append(const ContentPtr& c);
+	    File& set(const RangePtr& range);
+	    File& append(const String& cname);
 	    
 	private:
 	    bool mRo = true;

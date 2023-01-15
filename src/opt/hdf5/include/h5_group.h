@@ -18,6 +18,7 @@ namespace CNORXZ
 	    virtual ContentType type() const override final;
 	    virtual bool ro() const override final;
 	    virtual Group& load() override final;
+	    virtual Group& write() override final;
 	    virtual Group& close() override final;
 	    virtual MArray<Sptr<ContentBase>>* get() override final;
 	    virtual const MArray<Sptr<ContentBase>>* get() const override final;

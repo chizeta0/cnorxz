@@ -43,6 +43,12 @@ namespace CNORXZ
 	    return *this;
 	}
 	
+	Group& Group::write()
+	{
+	    // ...!!!
+	    return *this;
+	}
+
 	Group& Group::close()
 	{
 	    return *this;
