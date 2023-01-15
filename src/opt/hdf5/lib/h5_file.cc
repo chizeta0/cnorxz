@@ -13,7 +13,7 @@ namespace CNORXZ
 	    Int ex = this->exists();
 	    const String fn = this->filename();
 	    CXZ_ASSERT( ex != 2, "tried to open non-h5 file '" << fn << "'" );
-	    if(this->ro()){
+	    if(mRo){
 		CXZ_ASSERT( ex == 1, "could not open file as read-only: '"
 			    << fn << "' does not exist'");
 		mId = H5Fopen( fn.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
