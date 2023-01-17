@@ -15,21 +15,26 @@ namespace CNORXZ
 	    Group(const String& gname, const ContentBase* _parent);
 	    ~Group();
 
-	    virtual ContentType type() const override final;
-	    virtual bool ro() const override final;
-	    virtual Group& load() override final;
-	    virtual Group& write() override final;
-	    virtual Group& close() override final;
-	    virtual MArray<Sptr<ContentBase>>* get() override final;
-	    virtual const MArray<Sptr<ContentBase>>* get() const override final;
-	    virtual String path() const override final;
-	    virtual String filename() const override final;
+	    virtual ContentType type() const override;
+	    virtual bool ro() const override;
+	    virtual Group& open() override; // load group if existing, else create new group
+	    virtual Group& write() override;
+	    virtual Group& close() override;
+	    virtual String path() const override;
+	    virtual String filename() const override;
 
-	    bool exists() const;
-	    Group& append(const ContentPtr& c);
+	    virtual Int exists() const;
+
+	    const MArray<ContentPtr>& get() const;
+	    Group& addGroup(const String& name);
+
+	    template <typename T>
+	    Group& addData(const String& name, const ArrayBase<T>& data);
 	    
-	private:
+	protected:
 	    MArray<ContentPtr> mCont;
+
+	    void mkCont();
 	};
 	
     }

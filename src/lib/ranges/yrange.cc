@@ -484,6 +484,17 @@ namespace CNORXZ
 	return typeid(DType);
     }
 
+    RangePtr YRange::extend(const RangePtr& r) const
+    {
+	CXZ_ASSERT(r->dim() == this->dim(), "cannot extend range of dimension "
+		   << this->dim() << " by range of dimension " << r->dim());
+	Vector<RangePtr> rvec(this->dim());
+	for(SizeT i = 0; i != this->dim(); ++i){
+	    rvec[i] = mRVec[i]->extend( r->sub(i) );
+	}
+	return YRangeFactory( rvec ).create();
+    }
+    
     YRange::YRange(const Vector<RangePtr>& rvec) : mRVec(rvec) {}
     
     YRange::YRange(Vector<RangePtr>&& rvec) : mRVec(std::forward<Vector<RangePtr>>(rvec)) {}

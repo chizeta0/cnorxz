@@ -216,6 +216,18 @@ namespace CNORXZ
 	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)));
     }
 
+    template <class Index, typename Meta>
+    Index& XIndex<Index,Meta>::get()
+    {
+	return mI->THIS();
+    }
+    
+    template <class Index, typename Meta>
+    const Index& XIndex<Index,Meta>::get() const
+    {
+	return mI->THIS();
+    }
+
     template <class Index>
     inline XIndexPtr xindexPtr(const Sptr<Index>& i)
     {

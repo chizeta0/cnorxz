@@ -273,6 +273,15 @@ namespace CNORXZ
 	return typeid(MetaType);
     }
 
+    template <typename MetaType>
+    RangePtr URange<MetaType>::extend(const RangePtr& r) const
+    {
+	auto rx = rangeCast<URange<MetaType>>(r);
+	auto space = mSpace;
+	space.insert(space.end(), rx->mSpace.begin(), rx->mSpace.end());
+	return URangeFactory<MetaType>( space ).create();
+    }
+	
     /*******************
      *   Range Casts   *
      *******************/

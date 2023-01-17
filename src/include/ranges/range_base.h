@@ -53,6 +53,7 @@ namespace CNORXZ
 	virtual const TypeInfo& metaType() const = 0;
         virtual String stringMeta(SizeT pos) const = 0;
 	virtual DIndex index(SizeT pos = 0) const = 0;
+	virtual RangePtr extend(const RangePtr& r) const = 0;
 	
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;

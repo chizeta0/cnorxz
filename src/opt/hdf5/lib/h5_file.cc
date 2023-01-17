@@ -7,8 +7,26 @@ namespace CNORXZ
     namespace hdf5
     {
 	File::File(const String& fname, bool _ro) :
-	    ContentBase(fname),
+	    Group(fname, nullptr),
 	    mRo(_ro)
+	{}
+
+	File::~File()
+	{
+	    this->close();
+	}
+
+	ContentType File::type() const
+	{
+	    return ContentType::FILE;
+	}
+	
+	bool File::ro() const
+	{
+	    return mRo;
+	}
+	
+	File& File::open()
 	{
 	    Int ex = this->exists();
 	    const String fn = this->filename();
@@ -27,27 +45,7 @@ namespace CNORXZ
 		}
 	    }
 	    CXZ_ASSERT( mId > 0, "error while opening file '" << fn << "'" );
-	}
-
-	File::~File()
-	{
-	    this->close();
-	}
-
-	ContentType File::type() const
-	{
-	    return ContentType::FILE;
-	}
-	
-	bool File::ro() const
-	{
-	    return mRo;
-	}
-	
-	File& File::load()
-	{
-	    // !!!
-	    
+	    this->mkCont();
 	    return *this;
 	}
 	
@@ -75,16 +73,6 @@ namespace CNORXZ
 	    return *this;
 	}
 	
-	MArray<Sptr<ContentBase>>* File::get()
-	{
-	    return &mCont;
-	}
-	
-	const MArray<Sptr<ContentBase>>* File::get() const
-	{
-	    return &mCont;
-	}
-	    
 	String File::path() const
 	{
 	    return String("/");
@@ -111,41 +99,5 @@ namespace CNORXZ
 	    return ex;
 	}
 	
-	File& File::set(const RangePtr& range)
-	{
-	    if(mCont.range() != nullptr){
-		CXZ_ERROR("IMPLEMENT");
-		// operator+ for RangePtr!!!
-	    }
-	    else {
-		mCont = MArray<ContentPtr>(range);
-	    }
-	    return *this;
-	}
-	
-	File& File::append(const String& cname)
-	{
-	    if(mCont.range() != nullptr){
-		auto oldrange = std::dynamic_pointer_cast<URange<String>>(mCont.range());
-		Vector<String> names(oldrange->size());
-		for(auto i = oldrange->begin(); i != oldrange->end(); ++i){
-		    names[i.lex()] = *i;
-		}
-		names[names.size()-1] = cname;
-		auto range = URangeFactory<String>( names ).create();
-		MArray<ContentPtr> ncont( range );
-		auto j = ncont.begin();
-		for(auto i = mCont.begin(); i != mCont.end(); ++i){
-		    j.at( i.meta() );
-		    ncont[j] = mCont[i];
-		}
-		mCont = ncont;
-	    }
-	    else {
-		auto range = URangeFactory<String>( Vector<String>({cname}) ).create();
-		mCont = MArray<ContentPtr>( range );
-	    }
-	    return *this;
-	}
     }
 }

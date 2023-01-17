@@ -172,6 +172,12 @@ namespace CNORXZ
 	return typeid(SizeT);
     }
 
+    RangePtr CRange::extend(const RangePtr& r) const
+    {
+	auto rx = rangeCast<CRange>(r);
+	return CRangeFactory( this->size() + rx->size() ).create();
+    }
+    
     /*******************
      *   Range Casts   *
      *******************/

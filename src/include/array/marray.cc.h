@@ -26,6 +26,29 @@ namespace CNORXZ
     {}
 
     template <typename T>
+    MArray<T>& MArray<T>::init(const RangePtr& range)
+    {
+	AB::mRange = rangeCast<YRange>(range);
+	mCont.resize(AB::mRange->size());
+	return *this;
+    }
+
+    template <typename T>
+    MArray<T>& MArray<T>::extend(const RangePtr& range)
+    {
+	MArray<T> tmp(AB::mRange->extend(range));
+	auto ei = this->end();
+	auto ti = tmp.begin();
+	// this is not very efficient; remove by sub-index operation once available:
+	for(auto ii = this->begin(); ii != ei; ++ii){
+	    ti.at(ii.meta());
+	    *ti = *ii;
+	}
+	*this = std::move(tmp);
+	return *this;
+    }
+
+    template <typename T>
     const T* MArray<T>::data() const
     {
 	return mCont.data();

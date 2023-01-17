@@ -594,6 +594,19 @@ namespace CNORXZ
 	return i.at(metaPos).pos();
     }
 
+    template <class... Ranges>
+    RangePtr MRange<Ranges...>::extend(const RangePtr& r) const
+    {
+	CXZ_ASSERT( r->dim() == this->dim(), "cannot extend range of dimension "
+		    << this->dim() << " by range of dimension " << r->dim());
+	auto rs = iter<0,NR>( [&](auto i) {
+	    typedef typename std::remove_reference<decltype(*std::get<i>(mRs))>::type RType;
+	    return std::dynamic_pointer_cast<RType>( std::get<i>(mRs)->extend(r->sub(i)) ); },
+	    [](const auto&... e) { return std::make_tuple(e...); }
+	    );
+	return MRangeFactory<Ranges...>( rs ).create();
+    }
+    
     /************************
      *   MRange (private)   *
      ************************/

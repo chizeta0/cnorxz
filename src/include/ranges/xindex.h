@@ -101,6 +101,9 @@ namespace CNORXZ
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;
 
+	Index& get();
+	const Index& get() const;
+
     private:
 	IndexPtr<Index,Meta> mI;
 

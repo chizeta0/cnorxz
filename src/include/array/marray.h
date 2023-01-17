@@ -21,6 +21,8 @@ namespace CNORXZ
 	MArray(const RangePtr& range);
 	MArray(const RangePtr& range, const Vector<T>& vec);
 	MArray(const RangePtr& range, Vector<T>&& vec);
+	MArray& init(const RangePtr& range);
+	MArray& extend(const RangePtr& range);
 
 	virtual const T* data() const override;
 	virtual T* data() override;

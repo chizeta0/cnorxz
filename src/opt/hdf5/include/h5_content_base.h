@@ -27,11 +27,9 @@ namespace CNORXZ
 
 	    virtual ContentType type() const = 0;
 	    virtual bool ro() const = 0;
-	    virtual ContentBase& load() = 0;
+	    virtual ContentBase& open() = 0;
 	    virtual ContentBase& write() = 0;
 	    virtual ContentBase& close() = 0;
-	    virtual MArray<Sptr<ContentBase>>* get() = 0;
-	    virtual const MArray<Sptr<ContentBase>>* get() const = 0;
 	    virtual String path() const = 0;
 	    virtual String filename() const = 0;
 
@@ -39,6 +37,7 @@ namespace CNORXZ
 	    const ContentBase* parent() const;
 	    RangePtr range() const;
 	    hid_t id() const;
+	    inline bool isOpen() const { return mId != 0; }
 	    
 	protected:
 	    String mName;
