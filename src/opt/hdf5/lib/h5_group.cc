@@ -126,7 +126,11 @@ namespace CNORXZ
 	    ui.at(sname);
 	    index();
 	    H5O_info_t oinfo;
+#if H5_VERS_MINOR > 10
 	    H5Oget_info(id, &oinfo, H5O_INFO_BASIC);
+#else
+	    H5Oget_info(id, &oinfo);
+#endif
 	    switch (oinfo.type) {
 	    case H5O_TYPE_GROUP: {
 		*index = std::make_shared<Group>(sname, icd->parent);
