@@ -125,7 +125,7 @@ namespace CNORXZ
      ***************/
 
     YIndex::YIndex(const YIndex& i) :
-	IndexInterface<YIndex,DType>(i),
+	IndexInterface<YIndex,Vector<DType>>(i),
 	mRange(rangeCast<YRange>(i.range())),
 	mIs(mkIndices()),
 	mFormat(mkFormat()),
@@ -138,7 +138,7 @@ namespace CNORXZ
     
     YIndex& YIndex::operator=(const YIndex& i)
     {
-	IndexInterface<YIndex,DType>::operator=(i);
+	IndexInterface<YIndex,Vector<DType>>::operator=(i);
 	mRange = rangeCast<YRange>(i.range());
 	mIs = mkIndices();
 	mFormat = mkFormat();
@@ -149,7 +149,7 @@ namespace CNORXZ
     }
 
     YIndex::YIndex(const Vector<XIndexPtr>& is) :
-	IndexInterface<YIndex,DType>(0),
+	IndexInterface<YIndex,Vector<DType>>(0),
 	mRange(std::dynamic_pointer_cast<YRange>(yrange(mkRangeVec(is)))),
 	mIs(is),
 	mFormat(mkFormat()),
@@ -161,7 +161,7 @@ namespace CNORXZ
     }
 	
     YIndex::YIndex(const YFormat& bs, const Vector<XIndexPtr>& is) :
-	IndexInterface<YIndex,DType>(0),
+	IndexInterface<YIndex,Vector<DType>>(0),
 	mRange(std::dynamic_pointer_cast<YRange>(yrange(mkRangeVec(is)))),
 	mIs(is),
 	mFormat(bs),
@@ -173,7 +173,7 @@ namespace CNORXZ
     }
 
     YIndex::YIndex(const RangePtr& range, SizeT lexpos) :
-	IndexInterface<YIndex,DType>(0),
+	IndexInterface<YIndex,Vector<DType>>(0),
 	mRange(rangeCast<YRange>(range)),
 	mIs(mkIndices()),
 	mFormat(mkFormat()),
@@ -185,7 +185,7 @@ namespace CNORXZ
     }
 
     YIndex::YIndex(const RangePtr& range, const YFormat& bs, SizeT lexpos) :
-	IndexInterface<YIndex,DType>(0),
+	IndexInterface<YIndex,Vector<DType>>(0),
 	mRange(rangeCast<YRange>(range)),
 	mIs(mkIndices()),
 	mFormat(bs),
@@ -282,7 +282,7 @@ namespace CNORXZ
 	return IndexId<0>(this->ptrId());
     }
 
-    DType YIndex::operator*() const
+    Vector<DType> YIndex::operator*() const
     {
 	return meta();
     }
@@ -319,21 +319,20 @@ namespace CNORXZ
 	    elim;
     }
    
-    DType YIndex::meta() const
+    Vector<DType> YIndex::meta() const
     {
 	Vector<DType> v(mIs.size());
 	std::transform(mIs.all().begin(), mIs.all().end(), v.begin(),
 		       [](const auto& x) { return x->meta(); });
-	return DType(v);
+	return v;
     }
     
-    YIndex& YIndex::at(const DType& meta)
+    YIndex& YIndex::at(const Vector<DType>& meta)
     {
-	auto& v = std::any_cast<const Vector<DType>&>(meta.get());
-	assert(v.size() == mIs.size());
+	assert(meta.size() == mIs.size());
 	IB::mPos = 0;
 	for(SizeT i = 0; i != mIs.size(); ++i){
-	    mIs[i]->at(v[i]);
+	    mIs[i]->at(meta[i]);
 	    IB::mPos += mIs[i]->pos() * mFormat[i].val();
 	}
 	return *this;
@@ -481,7 +480,7 @@ namespace CNORXZ
 
     const TypeInfo& YRange::metaType() const
     {
-	return typeid(DType);
+	return typeid(Vector<DType>);
     }
 
     RangePtr YRange::extend(const RangePtr& r) const
@@ -489,8 +488,13 @@ namespace CNORXZ
 	CXZ_ASSERT(r->dim() == this->dim(), "cannot extend range of dimension "
 		   << this->dim() << " by range of dimension " << r->dim());
 	Vector<RangePtr> rvec(this->dim());
-	for(SizeT i = 0; i != this->dim(); ++i){
-	    rvec[i] = mRVec[i]->extend( r->sub(i) );
+	if(this->dim() == 1 and r->sub(0) == nullptr){
+	    rvec[0] = mRVec[0]->extend( r );
+	}
+	else {
+	    for(SizeT i = 0; i != this->dim(); ++i){
+		rvec[i] = mRVec[i]->extend( r->sub(i) );
+	    }
 	}
 	return YRangeFactory( rvec ).create();
     }

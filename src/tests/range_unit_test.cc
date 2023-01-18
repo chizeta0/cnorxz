@@ -342,7 +342,7 @@ namespace
 	    auto a = yi + i;
 	    EXPECT_EQ(a.lex(), i);
 	    EXPECT_EQ(a.pos(), i);
-	    auto mmi = DType(mkm(i));
+	    auto mmi = mkm(i);
 	    EXPECT_TRUE(a.meta() == mmi);
 	    EXPECT_TRUE(*a == mmi);
 	    EXPECT_EQ(a.stringMeta(), toString(mmi));
@@ -350,7 +350,7 @@ namespace
 	    for(SizeT j = 0; j != yr->size(); ++j){
 		const Int jj = static_cast<Int>(j) - static_cast<Int>(i);
 		auto b = a + jj;
-		auto mmj = DType(mkm(j));
+		auto mmj = mkm(j);
 		EXPECT_EQ(b.lex(), j);
 		EXPECT_EQ(b.pos(), j);
 		EXPECT_TRUE(*b == mmj);
@@ -386,7 +386,7 @@ namespace
 	    auto a = yi + i;
 	    EXPECT_EQ(a.lex(), i);
 	    EXPECT_EQ(a.pos(), i);
-	    auto mmi = DType(mkm(i));
+	    auto mmi = mkm(i);
 	    EXPECT_TRUE(a.meta() == mmi);
 	    EXPECT_TRUE(*a == mmi);
 	    EXPECT_EQ(a.stringMeta(), toString(mmi));
@@ -394,7 +394,7 @@ namespace
 	    for(SizeT j = 0; j != yr2->size(); ++j){
 		const Int jj = static_cast<Int>(j) - static_cast<Int>(i);
 		auto b = a + jj;
-		auto mmj = DType(mkm(j));
+		auto mmj = mkm(j);
 		EXPECT_EQ(b.lex(), j);
 		EXPECT_EQ(b.pos(), j);
 		EXPECT_TRUE(*b == mmj);

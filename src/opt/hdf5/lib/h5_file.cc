@@ -70,6 +70,7 @@ namespace CNORXZ
 	    if(mId != 0){
 		H5Fclose(mId);
 	    }
+	    mId = 0;
 	    return *this;
 	}
 	

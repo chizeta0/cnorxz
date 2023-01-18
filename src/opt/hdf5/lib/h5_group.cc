@@ -51,6 +51,7 @@ namespace CNORXZ
 	    if(mId != 0){
 		H5Gclose(mId);
 	    }
+	    mId = 0;
 	    return *this;
 	}
 	
@@ -80,6 +81,28 @@ namespace CNORXZ
 	    return mCont;
 	}
 
+	Group& Group::addGroup(const String& name)
+	{
+	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
+	    Vector<String> nvec({name});
+	    Vector<DType> dvec({DType(name)});
+	    auto extr = URangeFactory<String>( nvec ).create();
+	    mCont.extend(extr);
+	    auto ii = mCont.begin();
+	    ii.at(dvec); // 'at' returns YIndex&, so cannot use it inline...
+	    *ii = std::make_shared<Group>(name, this);
+	    (*ii)->open(); // create new group
+	    return *this;
+	}
+
+	template <typename T>
+	Group& Group::addData(const String& name, const ArrayBase<T>& data)
+	{
+	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
+	    CXZ_ERROR(name << data.size() << " NOT IMPLEMENTED!!!");
+	    return *this;
+	}
+	
 	struct InitContData
 	{
 	    const ContentBase* parent;

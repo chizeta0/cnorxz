@@ -37,7 +37,6 @@ namespace
 	Group_Test()
 	{
 	    mFileName = "test_file.h5";
-	    std::remove(mFileName.c_str());
 	    mGrps = { "gr1", "gr2" };
 	}
 
@@ -47,35 +46,35 @@ namespace
 
     TEST_F(NoFile_Test, NoFile)
     {
-	auto l = [&](){ return std::make_shared<File>(mNoFileName, true); };
-	EXPECT_THROW(l(), std::runtime_error);
+	File f(mNoFileName, true);
+	EXPECT_THROW(f.open(), std::runtime_error);
     }
 
     TEST_F(NoFile_Test, NoH5Format)
     {
-	auto l1 = [&](){ return std::make_shared<File>(mWrongFileName, true); };
-	auto l2 = [&](){ return std::make_shared<File>(mWrongFileName, false); };
-	EXPECT_THROW(l1(), std::runtime_error);
-	EXPECT_THROW(l2(), std::runtime_error);
+	File f1(mWrongFileName, true);
+	File f2(mWrongFileName, false);
+	EXPECT_THROW(f1.open(), std::runtime_error);
+	EXPECT_THROW(f2.open(), std::runtime_error);
     }
 
     TEST_F(Group_Test, Create)
     {
+	std::remove(mFileName.c_str());
 	File h5f(mFileName, false);
 	EXPECT_FALSE(h5f.ro());
-	//h5f.append("gr1");
-	auto grange = URangeFactory<String>( mGrps ).create();
-	h5f.set( grange );
-	for(auto i = grange->begin(); i != grange->end(); ++i){
-	    (*h5f.get())[i] = std::make_shared<Group>( i.meta().str(), &h5f );
-	}
+	h5f.open();
+	h5f.addGroup("gr1");
+	h5f.addGroup("gr2");
+	EXPECT_EQ(h5f.get().size(), 2u);
     }
 
     TEST_F(Group_Test, Read)
     {
 	File h5f(mFileName, true);
+	h5f.open();
 	EXPECT_TRUE(h5f.ro());
-	
+	EXPECT_EQ(h5f.get().size(), 2u);
     }
 }
 

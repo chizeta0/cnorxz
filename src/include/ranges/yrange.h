@@ -12,12 +12,12 @@
 
 namespace CNORXZ
 {
-    class YIndex : public IndexInterface<YIndex,DType>
+    class YIndex : public IndexInterface<YIndex,Vector<DType>>
     {
     public:
-	typedef IndexInterface<YIndex,DType> IB;
+	typedef IndexInterface<YIndex,Vector<DType>> IB;
 	typedef YRange RangeType;
-	typedef DType MetaType;
+	typedef Vector<DType> MetaType;
 	
 	YIndex() = default;
 	YIndex(YIndex&& i) = default;
@@ -44,15 +44,15 @@ namespace CNORXZ
 	UPos lmax() const;
 	IndexId<0> id() const;
 	
-	DType operator*() const;
+	Vector<DType> operator*() const;
 
 	SizeT dim() const;
 	Sptr<YRange> range() const;
 	UPos stepSize(const IndexId<0> id) const;
 
 	String stringMeta() const;
-	DType meta() const;
-	YIndex& at(const DType& meta);
+	Vector<DType> meta() const;
+	YIndex& at(const Vector<DType>& meta);
 
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 

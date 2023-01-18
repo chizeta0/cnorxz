@@ -36,6 +36,9 @@ namespace CNORXZ
     template <typename T>
     MArray<T>& MArray<T>::extend(const RangePtr& range)
     {
+	if(AB::mRange == nullptr) {
+	    return this->init(range);
+	}
 	MArray<T> tmp(AB::mRange->extend(range));
 	auto ei = this->end();
 	auto ti = tmp.begin();
