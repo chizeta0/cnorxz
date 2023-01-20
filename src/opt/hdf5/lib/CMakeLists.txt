@@ -16,7 +16,4 @@ add_library(cnorxzhdf5 SHARED
   )
 set_target_properties(cnorxzhdf5 PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-install(TARGETS cnorxz
-  ARCHIVE DESTINATION ${HDF5_INSTALL_PATH}/lib
-  LIBRARY DESTINATION ${HDF5_INSTALL_PATH}/lib
-  )
+install(TARGETS cnorxzhdf5 LIBRARY DESTINATION ${INSTALL_PATH}/lib)
