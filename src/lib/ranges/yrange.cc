@@ -338,6 +338,12 @@ namespace CNORXZ
 	return *this;
     }
 
+    DXpr<SizeT> YIndex::xpr(const Sptr<YIndex>& _this) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!" << _this->lmax().val());
+	return DXpr<SizeT>();
+    }
+
     DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
     {
 	return mkIFor(0, xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f));

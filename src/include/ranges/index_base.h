@@ -53,6 +53,7 @@ namespace CNORXZ
 	String stringMeta() const { return THIS().stringMeta(); }
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
+	decltype(auto) xpr(const Sptr<I>& _this) const { return THIS().xpr(_this); }
 
 	//template <class Index>
 	//decltype(auto) format(const Sptr<Index>& ind) const { return THIS().format(ind); }

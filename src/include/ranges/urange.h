@@ -46,6 +46,7 @@ namespace CNORXZ
 	String stringMeta() const;
 	const MetaT& meta() const;
 	UIndex& at(const MetaT& metaPos);
+	decltype(auto) xpr(const Sptr<UIndex<MetaType>>& _this) const;
 
 	template <class Index>
 	decltype(auto) format(const Sptr<Index>& ind) const;

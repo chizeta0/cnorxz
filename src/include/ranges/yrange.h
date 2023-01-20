@@ -53,6 +53,7 @@ namespace CNORXZ
 	String stringMeta() const;
 	Vector<DType> meta() const;
 	YIndex& at(const Vector<DType>& meta);
+	DXpr<SizeT> xpr(const Sptr<YIndex>& _this) const;
 
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 

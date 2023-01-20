@@ -210,6 +210,13 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
+    DXpr<SizeT> XIndex<Index,Meta>::xpr(const XIndexPtr& _this) const
+    {
+	auto xthis = std::dynamic_pointer_cast<Index>(_this);
+	return DXpr<SizeT>( mI->xpr(xthis) );
+    }
+
+    template <class Index, typename Meta>
     DXpr<SizeT> XIndex<Index,Meta>::ifor(const DXpr<SizeT>& xpr,
 					 std::function<SizeT(SizeT,SizeT)>&& f) const
     {

@@ -161,7 +161,12 @@ namespace CNORXZ
 	IB::mPos = mI->pos();
 	return *this;
     }
-    
+
+    DXpr<SizeT> DIndex::xpr(const Sptr<DIndex>& _this) const
+    {
+	return mI->xpr(_this->xptr());
+    }
+
     DXpr<SizeT> DIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
     {
 	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)) );

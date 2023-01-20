@@ -33,20 +33,20 @@ namespace CNORXZ
     }
 
     template <class F, class PosT, class OpTuple, class OpSizes, SizeT... Is>
-    inline void pos_unpack_args_i(const F& f, const PosT& pos, const OpTuple& args,
+    inline auto pos_unpack_args_i(const F& f, const PosT& pos, const OpTuple& args,
 				  OpSizes opsizes, std::index_sequence<Is...> is)
     {
-	f(std::get<Is>(args)(pos_get<sum_index_sequence<Is>(opsizes)>(pos))...);
+	return f(std::get<Is>(args)(pos_get<sum_index_sequence<Is>(opsizes)>(pos))...);
     }
 
     template <class F, class PosT, class... Ops>
-    inline void pos_unpack_args(const F& f, const PosT& pos, const Tuple<Ops...>& args)
+    inline auto pos_unpack_args(const F& f, const PosT& pos, const Tuple<Ops...>& args)
     {
 	static_assert(is_pos_type<PosT>::value, "got non-pos-type");
 	static_assert((is_operation<Ops>::value and ...), "got non-operation type");
 	typedef std::make_index_sequence<sizeof...(Ops)> Idxs;
 	typedef std::index_sequence<op_size<Ops>::value...> OpSizes;
-	pos_unpack_args_i(f, pos, args, OpSizes{}, Idxs{});
+	return pos_unpack_args_i(f, pos, args, OpSizes{}, Idxs{});
     }
 
 }

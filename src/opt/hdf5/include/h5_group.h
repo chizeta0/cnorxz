@@ -18,7 +18,6 @@ namespace CNORXZ
 	    virtual ContentType type() const override;
 	    virtual bool ro() const override;
 	    virtual Group& open() override; // load group if existing, else create new group
-	    virtual Group& write() override;
 	    virtual Group& close() override;
 	    virtual String path() const override;
 	    virtual String filename() const override;

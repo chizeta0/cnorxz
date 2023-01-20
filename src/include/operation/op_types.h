@@ -93,7 +93,10 @@ namespace CNORXZ
 
     template <typename T, class IndexT>
     constexpr decltype(auto) coproot(const CArrayBase<T>& a, const Sptr<IndexT>& ind);
-    
+
+    template <typename T, class IndexT>
+    constexpr decltype(auto) coproot(const T* a, const Sptr<IndexT>& ind);
+
     template <typename T, class IndexT>
     class OpCont : public OpInterface<OpCont<T,IndexT>>
     {
@@ -207,7 +210,7 @@ namespace CNORXZ
     };
 
     template <class F, class... Ops>
-    constexpr decltype(auto) mkOperation(F&& f, const Ops&... ops);
+    constexpr decltype(auto) operation(F&& f, const Ops&... ops);
 
     template <class F, class... Ops>
     struct op_size<Operation<F,Ops...>>
@@ -236,7 +239,10 @@ namespace CNORXZ
     };
 
     template <class F, class Op, class IndexT>
-    constexpr decltype(auto) mkContracion(F&& f, Op&& op, const Sptr<IndexT>& i);
+    constexpr decltype(auto) contracion(F&& f, Op&& op, const Sptr<IndexT>& i);
+
+    template <class IndexT>
+    constexpr decltype(auto) indexOp(const Sptr<IndexT>& i);
 }
 
 #endif

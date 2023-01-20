@@ -13,11 +13,11 @@ namespace CNORXZ
     constexpr SizeT sum_index_sequence(std::index_sequence<Is...> is);
 
     template <class F, class PosT, class OpTuple, class OpSizes, SizeT... Is>
-    inline void pos_unpack_args_i(const F& f, const PosT& pos, const OpTuple& args,
+    inline auto pos_unpack_args_i(const F& f, const PosT& pos, const OpTuple& args,
 				  OpSizes opsizes, std::index_sequence<Is...> is);
     
     template <class F, class PosT, class... Ops>
-    inline void pos_unpack_args(const F& f, const PosT& pos, const Tuple<Ops...>& args);
+    inline auto pos_unpack_args(const F& f, const PosT& pos, const Tuple<Ops...>& args);
     
 }
 

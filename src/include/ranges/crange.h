@@ -41,6 +41,7 @@ namespace CNORXZ
 	String stringMeta() const;
 	SizeT meta() const;
 	CIndex& at(const SizeT& metaPos);
+	COpRoot<SizeT,CIndex> xpr(const Sptr<CIndex>& _this) const;
 
 	template <class Index>
 	decltype(auto) format(const Sptr<Index>& ind) const;

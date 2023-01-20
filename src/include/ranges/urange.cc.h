@@ -8,6 +8,8 @@
 #include "urange.h"
 #include "index_mul.h"
 #include "xpr/for.h"
+#include "operation/op_types.h"
+#include "operation/op_types.cc.h"
 
 namespace CNORXZ
 {
@@ -116,6 +118,12 @@ namespace CNORXZ
     {
 	(*this) = mRangePtr->getMeta(metaPos);
 	return *this;
+    }
+
+    template <typename MetaType>
+    decltype(auto) UIndex<MetaType>::xpr(const Sptr<UIndex<MetaType>>& _this) const
+    {
+	return coproot(mMetaPtr,_this);
     }
 
     template <typename MetaType>

@@ -1,5 +1,6 @@
 
 #include "ranges/ranges.h"
+#include "operation/operation.h"
 
 namespace CNORXZ
 {
@@ -105,6 +106,19 @@ namespace CNORXZ
     {
 	IB::mPos = metaPos;
 	return *this;
+    }
+
+    COpRoot<SizeT,CIndex> CIndex::xpr(const Sptr<CIndex>& _this) const
+    {
+	// preliminary solution (TODO: implement xpr that simply returns PosT value):
+	static Vector<SizeT> m;
+	if(m.size() < _this->lmax().val()){
+	    m.resize(_this->lmax().val());
+	    for(SizeT i = 0; i != m.size(); ++i) {
+		m[i] = i;
+	    }
+	}
+	return coproot(m.data(), _this);
     }
     
     

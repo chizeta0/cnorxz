@@ -23,7 +23,6 @@ namespace CNORXZ
 	    virtual ContentType type() const override final;
 	    virtual bool ro() const override final;
 	    virtual File& open() override final;
-	    virtual File& write() override final;
 	    virtual File& close() override final;
 	    virtual String path() const override final;
 	    virtual String filename() const override final;

@@ -3,6 +3,9 @@
 #define __cxz_mrange_cc_h__
 
 #include "mrange.h"
+#include "operation/op_types.h"
+#include "operation/op_types.cc.h" // -> do .cc files
+#include "operation/op_utility.cc.h" // -> do .cc files
 
 namespace CNORXZ
 {
@@ -407,6 +410,17 @@ namespace CNORXZ
 	    ( [&](auto i) { return mIPack[i]->pos()*format()[i].val(); },
 	      [](const auto&... xs) { return (xs + ...); });
 	return *this;
+    }
+
+    template <class FormatT, class... Indices>	
+    decltype(auto) GMIndex<FormatT,Indices...>::xpr(const Sptr<MIndex<Indices...>>& _this) const
+    {
+	return iter<0,NI>( [&](auto i) { return _this->pack()[i]->xpr( _this->pack()[i] ); },
+			   [](const auto&... x) {
+			       return operation( [](const auto&... e) {
+				   return std::make_tuple(e...);
+			       }, x... );
+			   } );
     }
     
     template <class FormatT, class... Indices>	

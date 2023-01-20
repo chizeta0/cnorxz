@@ -53,7 +53,8 @@ namespace CNORXZ
 	String stringMeta() const;
 	DType meta() const;
 	DIndex& at(const DType& meta);
-
+	DXpr<SizeT> xpr(const Sptr<DIndex>& _this) const;
+	
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 
 	const XIndexPtr& xptr() const;

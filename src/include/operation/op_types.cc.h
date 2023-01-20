@@ -4,7 +4,7 @@
 
 #include "op_types.h"
 //#include "xpr/xpr.h"
-//#include "op_utility.h"
+#include "op_utility.h"
 #include "extensions/extensions.h"
 
 namespace CNORXZ
@@ -33,7 +33,7 @@ namespace CNORXZ
     template <class F, class... Args>
     constexpr decltype(auto) COpInterface<OpT>::o(F&& f, Args&&... args) const
     {
-	return mkOperation(std::forward<F>(f), THIS().r(), args...);
+	return operation(std::forward<F>(f), THIS().r(), args...);
     }
 
     
@@ -45,7 +45,7 @@ namespace CNORXZ
     template <class IndexT, class F, class... Args>
     constexpr decltype(auto) OpInterface<OpT>::ax(const Sptr<IndexT>& ind, F&& f, const Args&... args)
     {
-	return ind->ifor( mkOperation(f, OI::THIS().r(), args...), NoF {} );
+	return ind->ifor( operation(f, OI::THIS().r(), args...), NoF {} );
     }
 
     template <class OpT>
@@ -116,7 +116,13 @@ namespace CNORXZ
     {
 	return COpRoot<T,IndexT>(a, ind);
     }
-    
+
+    template <typename T, class IndexT>
+    constexpr decltype(auto) coproot(const T* a, const Sptr<IndexT>& ind)
+    {
+	return COpRoot<T,IndexT>(a, ind);
+    }
+
     /****************
      *   OpCont     *
      ****************/
@@ -364,7 +370,7 @@ namespace CNORXZ
     }
 
     template <class F, class... Ops>
-    constexpr decltype(auto) mkOperation(F&& f, const Ops&... ops)
+    constexpr decltype(auto) operation(F&& f, const Ops&... ops)
     {
 	return Operation<F,Ops...>(std::forward<F>(f), ops...);
     }
@@ -400,10 +406,20 @@ namespace CNORXZ
     }
 
     template <class F, class Op, class IndexT>
-    constexpr decltype(auto) mkContracion(F&& f, Op&& op, const Sptr<IndexT>& i)
+    constexpr decltype(auto) contracion(F&& f, Op&& op, const Sptr<IndexT>& i)
     {
 	typedef decltype(i->ifor( op, f )) CXprT; // TODO: implement ifor with func arg!!!
 	return Contraction<CXprT>( i->ifor( op, f ) );
+    }
+
+    /************************
+     *   various functions  *
+     ************************/
+    
+    template <class IndexT>
+    constexpr decltype(auto) indexOp(const Sptr<IndexT>& i)
+    {
+	return i->xpr(i);
     }
 }
 

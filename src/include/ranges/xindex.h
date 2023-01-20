@@ -45,6 +45,7 @@ namespace CNORXZ
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
 	virtual XIndexBase& at(const DType& meta) = 0;
+	virtual DXpr<SizeT> xpr(const XIndexPtr& _this) const = 0;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
@@ -97,6 +98,7 @@ namespace CNORXZ
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;
 	virtual XIndexBase& at(const DType& meta) override final;
+	virtual DXpr<SizeT> xpr(const XIndexPtr& _this) const override final;
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;

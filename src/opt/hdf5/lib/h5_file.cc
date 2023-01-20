@@ -49,15 +49,6 @@ namespace CNORXZ
 	    return *this;
 	}
 	
-	File& File::write()
-	{
-	    CXZ_ASSERT( not mRo, "could not write to file: opened as read-only" );
-	    for(auto& x: mCont){
-		x->write();
-	    }
-	    return *this;
-	}
-	
 	File& File::close()
 	{
 	    if(mCont.range() != nullptr){
