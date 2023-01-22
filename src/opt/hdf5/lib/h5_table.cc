@@ -56,6 +56,7 @@ namespace CNORXZ
 		}
 		mTypes = MArray<hid_t>(mFields, std::move(types));
 	    }
+	    mCheckedFile = true; // now an empty mRecords etc indicates that there is currently no table at the requested location
 	    return *this;
 	}
 	
@@ -87,5 +88,11 @@ namespace CNORXZ
 	    return *this;
 	}
 
+	Table& Table::initFieldNames(const Vector<String>& fnames)
+	{
+	    CXZ_ASSERT(mFields == nullptr, "fields already initialized");
+	    mFields = URangeFactory<String>(fnames).create();
+	    return *this;
+	}
     }
 }
