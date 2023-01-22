@@ -1,5 +1,6 @@
 
 #include "h5_group.h"
+#include "h5_table.h"
 
 namespace CNORXZ
 {
@@ -109,6 +110,26 @@ namespace CNORXZ
 	    names->push_back(String(name));
 	    return 0;
 	}
+
+	static bool isTable(hid_t id)
+	{
+	    if(not H5Aexists(id, "CLASS")){
+		return false;
+	    }
+	    hid_t attrid = H5Aopen(id, "CLASS", H5P_DEFAULT);
+	    const hid_t atype = H5Aget_type(attrid);
+	    const SizeT asize = H5Tget_size(atype);
+	    Vector<char> buff(asize);
+	    const herr_t ret = H5Aread(attrid, atype, buff.data());
+	    H5Tclose(atype);
+	    H5Aclose(attrid);
+	    if(ret != 0){
+		return false;
+	    }
+	    else {
+		return String(buff.data()) == "TABLE";
+	    }
+	}
 	
 	static herr_t initCont(hid_t id, const char* name, const H5L_info_t* info, void* x)
 	{
@@ -129,11 +150,17 @@ namespace CNORXZ
 	    case H5O_TYPE_GROUP: {
 		*index = std::make_shared<Group>(sname, icd->parent);
 		break;
-	    }/*
+	    }
 	    case H5O_TYPE_DATASET: {
-		*index = std::make_shared<DSet>(sname, );
+		if(isTable(id)){
+		    *index = std::make_shared<Table>(sname, icd->parent);
+		}
+		else {
+		    CXZ_ERROR("IMPLEMENT!!!");
+		    //*index = std::make_shared<DSet>(sname, icd->parent);
+		}
 		break;
-		}*/
+	    }
 	    default:
 		return 1;
 	    }
