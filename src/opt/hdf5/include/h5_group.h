@@ -29,6 +29,10 @@ namespace CNORXZ
 
 	    template <typename T>
 	    Group& addData(const String& name, const ArrayBase<T>& data);
+
+	    template <typename... Ts>
+	    Group& addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
+			    const RangePtr& fields);
 	    
 	protected:
 	    MArray<ContentPtr> mCont;

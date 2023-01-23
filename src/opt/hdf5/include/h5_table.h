@@ -22,12 +22,9 @@ namespace CNORXZ
 	    virtual String path() const override final;
 	    virtual String filename() const override final;
 
-	    Table& openDSet();
 	    Table& initFieldNames(const Vector<String>& fnames);
-	    
-	    template <class F>
-	    decltype(auto) iterRecords(F&& f) const;
-
+	    Table& appendRecord(SizeT n, const char* data);
+	    Table& readRecord(SizeT pos, SizeT n, char* data);
 
 	private:
 	    RangePtr mRecords;
@@ -35,7 +32,7 @@ namespace CNORXZ
 	    MArray<SizeT> mSizes;
 	    MArray<SizeT> mOffsets;
 	    MArray<hid_t> mTypes;
-	    hid_t mType;
+	    hid_t mType = 0;
 	    bool mCheckedFile = false;
 	};
 
@@ -44,11 +41,13 @@ namespace CNORXZ
 	{
 	public:
 	    DEFAULT_MEMBERS(STabel);
-	    STabel(const String& name, const ContentBase* _parent);
+	    STabel(const String& name, const ContentBase* _parent, const RangePtr& fields);
 
 	    Table& appendRecord(const Tuple<Ts...>& t);
 	    Table& appendRecord(const MArray<Tuple<Ts...>>& t);
 	    
+	    template <class F>
+	    decltype(auto) iterRecords(F&& f) const;
 	};
     }
 }

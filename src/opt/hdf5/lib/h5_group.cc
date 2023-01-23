@@ -90,14 +90,6 @@ namespace CNORXZ
 	    return *this;
 	}
 
-	template <typename T>
-	Group& Group::addData(const String& name, const ArrayBase<T>& data)
-	{
-	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
-	    CXZ_ERROR(name << data.size() << " NOT IMPLEMENTED!!!");
-	    return *this;
-	}
-	
 	struct InitContData
 	{
 	    const ContentBase* parent;

@@ -16,49 +16,54 @@ namespace CNORXZ
 	}
 
 	template <typename... Ts>
-	STabel<Ts...>::STabel(const String& name, const ContentBase* _parent) :
+	STabel<Ts...>::STabel(const String& name, const ContentBase* _parent, const RangePtr& fields) :
 	    Table(name, _parent)
 	{
-	    // checks..!!!!
+	    constexpr SizeT N = sizeof...(Ts);
+	    if(mFields == nullptr){
+		CXZ_ASSERT(fields != nullptr, "field names have to be initialized");
+		mFields = fields;
+	    }
+	    CXZ_ASSERT(mFields->size() == sizeof...(Ts), "expected tuple of size = " << mFields->size()
+		       << ", got: " << sizeof...(Ts));
+
+	    if(mRecords == nullptr) {
+		auto mOffsets = MArray<SizeT>( mFields, iter<0,N>
+		    ( [&](auto i) { return &std::get<i>(t) - &t; },
+		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
+		auto mSizes = MArray<SizeT>( mFields, iter<0,N>
+		    ( [&](auto i) { return sizeof(std::get<i>(t)); },
+		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
+		auto mTypes = MArray<hid_t>( mFields, iter<0,N>
+		    ( [&](auto i) { return getTypeId(std::get<i>(t)); },
+		      [](const auto&... e) { return Vector<hid_t>({e...}); }) );
+	    }
+	    else {
+		iter<0,N>( [&](auto i) { CXZ_ASSERT
+			    ( &std::get<i>(t) - &t == mOffsets.data()[i],
+			      "wrong offset for field " << i << ": " << &std::get<i>(t) - &t
+			      << " vs " << mOffsets.data()[i] ); }, NoF{} );
+		iter<0,N>( [&](auto i) { CXZ_ASSERT
+			    ( sizeof(std::get<i>(t)) == mSizes.data()[i],
+			      "wrong size for field " << i << ": " << sizeof(std::get<i>(t))
+			      << " vs " << mSizes.data()[i] ); }, NoF{} );
+		iter<0,N>( [&](auto i) { CXZ_ASSERT
+			    ( getTypeId(std::get<i>(t)) == mTypes.data()[i],
+			      "wrong type for field " << i << ": " << getTypeId(std::get<i>(t))
+			      << " vs " << mTypes.data()[i] ); }, NoF{} );
+	    }
 	}
 
 	template <typename... Ts>
 	STabel& STabel<Ts...>::appendRecord(const Tuple<Ts...>& t)
 	{
-	    if(not mCheckedFile){
-		this->open();
-	    }
-	    this->close(); // H5TB does not require an open dataset
-	    CXZ_ASSERT(mFields != nullptr,
-		       "field names have to be initialized before creating table");
-	    CXZ_ASSERT(mFields->size() == sizeof...(Ts),
-		       "expected tuple of size = " << mFields->size()
-		       << ", got: " << sizeof...(Ts));
-	    
 	    RangePtr appr = CRangeFactory(1).create();
-	    auto offsets = iter<0,sizeof...(Ts)>
-		( [&](auto i) { return &std::get<i>(t) - &t; },
-		  [](const auto&... e) { return Vector<SizeT>({e...}); });
-	    auto sizes = iter<0,sizeof...(Ts)>
-		( [&](auto i) { return sizeof(std::get<i>(t)); },
-		  [](const auto&... e) { return Vector<SizeT>({e...}); });
-	    auto types = iter<0,sizeof...(Ts)>
-		( [&](auto i) { return getTypeId(std::get<i>(t)); },
-		  [](const auto&... e) { return Vector<hid_t>({e...}); });
 	    if(mRecords == nullptr){
 		mRecords = appr;
-		mSizes = MArray<SizeT>(std::move(sizes));
-		mOffsets = MArray<SizeT>(std::move(offsets));
-		mTypes = MArray<hid_t>(std::move(types));
-		
-		    // init
 	    }
 	    else {
-		// check consistency
-
 		mRecords = mRecords->extend(appr);
 	    }
-	    // append
 	    H5TBappend_records(mParent->id(), mName, 1, sizeof(t),
 			       mOffsets.data(), mSizes.data(), &t);
 	    return *this;
