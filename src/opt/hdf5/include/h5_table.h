@@ -37,14 +37,14 @@ namespace CNORXZ
 	};
 
 	template <typename... Ts>
-	class STabel : public Table
+	class STable : public Table
 	{
 	public:
-	    DEFAULT_MEMBERS(STabel);
-	    STabel(const String& name, const ContentBase* _parent, const RangePtr& fields);
+	    DEFAULT_MEMBERS(STable);
+	    STable(const String& name, const ContentBase* _parent, const RangePtr& fields);
 
-	    Table& appendRecord(const Tuple<Ts...>& t);
-	    Table& appendRecord(const MArray<Tuple<Ts...>>& t);
+	    STable& appendRecord(const Tuple<Ts...>& t);
+	    STable& appendRecord(const MArray<Tuple<Ts...>>& t);
 	    
 	    template <class F>
 	    decltype(auto) iterRecords(F&& f) const;

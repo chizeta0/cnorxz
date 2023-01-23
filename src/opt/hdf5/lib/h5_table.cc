@@ -9,7 +9,7 @@ namespace CNORXZ
 	Table::Table(const String& name, const ContentBase* _parent) :
 	    ContentBase(name, _parent)
 	{
-	    if(H5Lexists_by_name(mParent->id(), mName.c_str(), H5P_DEFAULT)){
+	    if(H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT)){
 		hsize_t nfields = 0;
 		hsize_t nrecords = 0;
 		H5TBget_table_info(mParent->id(), mName.c_str(), &nfields, &nrecords);

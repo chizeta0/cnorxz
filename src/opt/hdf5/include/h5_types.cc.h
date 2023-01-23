@@ -6,22 +6,38 @@ namespace CNORXZ
 {
     namespace hdf5
     {
-	template <typename T, SizeT N>
-	inline hid_t TypeId<Arr<T,N>>::get(Arr<T,N> x)
+	template <typename T>
+	inline hid_t TypeId<T>::get()
 	{
-	    static hid_t arrtype = H5Tarray_create2(getTypeId(x[0]), 1, N);
+	    return 0;
+	}
+	
+	inline hid_t TypeId<SizeT>::get()
+	{
+	    return H5T_NATIVE_ULONG;
+	}
+
+	inline hid_t TypeId<Int>::get()
+	{
+	    return H5T_NATIVE_INT;
+	}
+
+	inline hid_t TypeId<Double>::get()
+	{
+	    return H5T_NATIVE_DOUBLE;
+	}
+
+	template <typename T, SizeT N>
+	inline hid_t TypeId<Arr<T,N>>::get()
+	{
+	    static hid_t arrtype = H5Tarray_create2(TypeId<T>::get(), 1, N);
 	    return arrtype;
 	}
 
 	template <typename T>
 	hid_t getTypeId(T x)
 	{
-	    if constexpr (TypeIsNative<T>::value){
-		return NativeTypeId<T>::value;
-	    }
-	    else {
-		return TypeId<T>::get(x);
-	    }
+	    return TypeId<T>::get();
 	}
 
     }
