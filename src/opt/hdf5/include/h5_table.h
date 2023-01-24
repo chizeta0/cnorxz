@@ -26,7 +26,7 @@ namespace CNORXZ
 	    Table& appendRecord(SizeT n, const char* data);
 	    Table& readRecord(SizeT pos, SizeT n, char* data);
 
-	private:
+	protected:
 	    RangePtr mRecords;
 	    RangePtr mFields; // -> FIndex (position -> offset)
 	    MArray<SizeT> mSizes;

@@ -244,6 +244,12 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
+    const MetaType* URange<MetaType>::get() const
+    {
+	return mSpace.data();
+    }
+
+    template <typename MetaType>
     SizeT URange<MetaType>::getMeta(const MetaType& meta) const
     {
 	auto b = mSpace.begin();

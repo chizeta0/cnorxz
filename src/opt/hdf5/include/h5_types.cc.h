@@ -2,10 +2,24 @@
 #ifndef __cxz_h5_types_cc_h__
 #define __cxz_h5_types_cc_h__
 
+#include "base/types.h"
+
 namespace CNORXZ
 {
     namespace hdf5
     {
+	template <SizeT N, typename... Ts>
+	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i)
+	{
+	    const PtrId beg = reinterpret_cast<PtrId>(&t);
+	    const PtrId pos = reinterpret_cast<PtrId>(&std::get<i>(t));
+	    return pos - beg;
+	}
+
+	/**************
+	 *   TypeId   *
+	 **************/
+
 	template <typename T>
 	inline hid_t TypeId<T>::get()
 	{
@@ -33,6 +47,10 @@ namespace CNORXZ
 	    static hid_t arrtype = H5Tarray_create2(TypeId<T>::get(), 1, N);
 	    return arrtype;
 	}
+
+	/*****************
+	 *   getTypeId   *
+	 *****************/
 
 	template <typename T>
 	hid_t getTypeId(T x)

@@ -67,6 +67,13 @@ namespace
 	h5f.addGroup("gr1");
 	h5f.addGroup("gr2");
 	EXPECT_EQ(h5f.get().size(), 2u);
+
+	// move to separate test:
+	RangePtr rs = CRangeFactory(2).create();
+	RangePtr fs = URangeFactory<String>(Vector<String>({"field1","second","real"})).create();
+	Vector<Tuple<SizeT,Int,Double>> v({ {0, -6, 3.141}, {3, -8, 0.789} });
+	MArray<Tuple<SizeT,Int,Double>> a(rs, std::move(v)); 
+	std::dynamic_pointer_cast<Group>(h5f.get().data()[0])->addTable("tab1", a, fs);
     }
 
     TEST_F(Group_Test, Read)

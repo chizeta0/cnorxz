@@ -31,20 +31,20 @@ namespace CNORXZ
 
 	    Tuple<Ts...> x;
 	    if(mRecords == nullptr) {
-		auto mOffsets = MArray<SizeT>( mFields, iter<0,N>
-		    ( [&](auto i) { return &std::get<i>(x) - &x; },
+		mOffsets = MArray<SizeT>( mFields, iter<0,N>
+		    ( [&](auto i) { return getTupleOffset(x, i); },
 		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
-		auto mSizes = MArray<SizeT>( mFields, iter<0,N>
+		mSizes = MArray<SizeT>( mFields, iter<0,N>
 		    ( [&](auto i) { return sizeof(std::get<i>(x)); },
 		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
-		auto mTypes = MArray<hid_t>( mFields, iter<0,N>
+		mTypes = MArray<hid_t>( mFields, iter<0,N>
 		    ( [&](auto i) { return getTypeId(std::get<i>(x)); },
 		      [](const auto&... e) { return Vector<hid_t>({e...}); }) );
 	    }
 	    else {
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
-			    ( &std::get<i>(x) - &x == mOffsets.data()[i],
-			      "wrong offset for field " << i << ": " << &std::get<i>(x) - &x
+			    ( getTupleOffset(x, i) == mOffsets.data()[i],
+			      "wrong offset for field " << i << ": " << getTupleOffset(x, i)
 			      << " vs " << mOffsets.data()[i] ); }, NoF{} );
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
 			    ( sizeof(std::get<i>(x)) == mSizes.data()[i],
@@ -60,15 +60,25 @@ namespace CNORXZ
 	template <typename... Ts>
 	STable<Ts...>& STable<Ts...>::appendRecord(const Tuple<Ts...>& t)
 	{
+	    constexpr hsize_t chunk_size = sizeof(t);
+	    constexpr Int compress = 0;
 	    RangePtr appr = CRangeFactory(1).create();
 	    if(mRecords == nullptr){
 		mRecords = appr;
+		Vector<const char*> fields(mFields->size());
+		auto fr = std::dynamic_pointer_cast<URange<String>>(mFields);
+		for(auto fi = fr->begin(); fi != fr->end(); ++fi){
+		    fields[fi.lex()] = (*fi).c_str();
+		}
+		H5TBmake_table(mName.c_str(), mParent->id(), mName.c_str(), mFields->size(),
+			       mRecords->size(), sizeof(t), fields.data(), mOffsets.data(),
+			       mTypes.data(), chunk_size, NULL, compress, &t);
 	    }
 	    else {
 		mRecords = mRecords->extend(appr);
+		H5TBappend_records(mParent->id(), mName.c_str(), 1, sizeof(t),
+				   mOffsets.data(), mSizes.data(), &t);
 	    }
-	    H5TBappend_records(mParent->id(), mName, 1, sizeof(t),
-			       mOffsets.data(), mSizes.data(), &t);
 	    return *this;
 	}
     }

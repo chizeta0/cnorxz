@@ -99,6 +99,7 @@ namespace CNORXZ
 	virtual RangePtr extend(const RangePtr& r) const override final;
 
 	const MetaType& get(SizeT pos) const;
+	const MetaType* get() const;
 	SizeT getMeta(const MetaType& metaPos) const;
 	
     private:

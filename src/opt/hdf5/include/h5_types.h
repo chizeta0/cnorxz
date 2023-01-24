@@ -6,6 +6,8 @@ namespace CNORXZ
 {
     namespace hdf5
     {
+	template <SizeT N, typename... Ts>
+	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i);
 
 	/**************
 	 *   TypeId   *
@@ -31,7 +33,7 @@ namespace CNORXZ
 	 *****************/
 
 	template <typename T>
-	hid_t getTypeId(const T& x);
+	hid_t getTypeId(T x);
     }
 }
 
