@@ -24,6 +24,8 @@ namespace CNORXZ
 
 	    virtual Int exists() const;
 
+	    const ContentPtr& get(const String& name) const;
+	    Sptr<Group> getGroup(const String& name) const;
 	    const MArray<ContentPtr>& get() const;
 	    Group& addGroup(const String& name);
 
@@ -39,7 +41,6 @@ namespace CNORXZ
 
 	    void mkCont();
 	};
-	
     }
 }
 

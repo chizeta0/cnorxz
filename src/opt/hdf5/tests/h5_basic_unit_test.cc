@@ -12,6 +12,8 @@ namespace
 {
     using namespace CNORXZ;
     using namespace CNORXZ::hdf5;
+
+    static const String testh5file = "test_file.h5";
     
     class NoFile_Test : public ::testing::Test
     {
@@ -36,14 +38,28 @@ namespace
 
 	Group_Test()
 	{
-	    mFileName = "test_file.h5";
+	    mFileName = testh5file;
 	    mGrps = { "gr1", "gr2" };
+	    mFs = URangeFactory<String>(Vector<String>({"field1","second","real"})).create();
+	    Vector<Tuple<SizeT,Int,Double>> v
+		( { {0, -6, 3.141},
+		    {3, -8, 0.789},
+		    {34, 4, 10.009},
+		    {2, -777, -9.77},
+		    {321, 0, -0.003}
+		} );
+	    RangePtr rs = CRangeFactory(v.size()).create();
+	    mTabA = MArray<Tuple<SizeT,Int,Double>>(rs, std::move(v)); 
 	}
 
 	String mFileName;
 	Vector<String> mGrps;
+
+	RangePtr mFs;
+	MArray<Tuple<SizeT,Int,Double>> mTabA; 
     };
 
+    
     TEST_F(NoFile_Test, NoFile)
     {
 	File f(mNoFileName, true);
@@ -67,15 +83,18 @@ namespace
 	h5f.addGroup("gr1");
 	h5f.addGroup("gr2");
 	EXPECT_EQ(h5f.get().size(), 2u);
-
-	// move to separate test:
-	RangePtr rs = CRangeFactory(2).create();
-	RangePtr fs = URangeFactory<String>(Vector<String>({"field1","second","real"})).create();
-	Vector<Tuple<SizeT,Int,Double>> v({ {0, -6, 3.141}, {3, -8, 0.789} });
-	MArray<Tuple<SizeT,Int,Double>> a(rs, std::move(v)); 
-	std::dynamic_pointer_cast<Group>(h5f.get().data()[0])->addTable("tab1", a, fs);
+	h5f.close();
     }
 
+    TEST_F(Group_Test, CreateTable)
+    {
+	File h5f(mFileName, false);
+	h5f.open();
+	h5f.getGroup("gr1")->open().addTable("tab1", mTabA, mFs);
+	h5f.getGroup("gr2")->open().addTable("tab1", mTabA, mFs);
+	h5f.close();
+    }
+    
     TEST_F(Group_Test, Read)
     {
 	File h5f(mFileName, true);

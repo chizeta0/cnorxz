@@ -71,8 +71,26 @@ namespace CNORXZ
 	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) != 0 ? 1 : 0;
 	}
 
+	const ContentPtr& Group::get(const String& name) const
+	{
+	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
+	    auto dvec = [](const String& n) { return Vector<DType>({DType(n)}); };
+	    auto i = mCont.begin();
+	    i.at(dvec(name));
+	    return *i;
+	}
+
+	Sptr<Group> Group::getGroup(const String& name) const
+	{
+	    auto group = this->get(name);
+	    CXZ_ASSERT(group->type() == ContentType::GROUP,
+		       "element '" << name << "' is not of type GROUP");
+	    return std::dynamic_pointer_cast<Group>( group );
+	}
+
 	const MArray<ContentPtr>& Group::get() const
 	{
+	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
 	    return mCont;
 	}
 
