@@ -2,10 +2,31 @@
 #ifndef __cxz_h5_group_cc_h__
 #define __cxz_h5_group_cc_h__
 
+#include "h5_group.h"
+
 namespace CNORXZ
 {
     namespace hdf5
     {
+	template <typename... Ts>
+	Sptr<STable<Ts...>> Group::getTable(const String& name, Tuple<Ts...> proto)
+	{
+	    auto i = this->getIndexTo(name);
+	    auto tab = std::dynamic_pointer_cast<Table>( *i );
+	    if(tab == nullptr){
+		auto stab = std::dynamic_pointer_cast<STable<Ts...>>(*i);
+		CXZ_ASSERT(stab != nullptr, "wrong format for table '" << name << "'");
+		return stab;
+	    }
+	    else {
+		const RangePtr fields = tab->fields();
+		(*i)->close();
+		*i = std::make_shared<STable<Ts...>>(name, this, fields);
+		return *i;
+	    }
+	}
+
+	
 	template <typename T>
 	Group& Group::addData(const String& name, const ArrayBase<T>& data)
 	{

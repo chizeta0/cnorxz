@@ -1,6 +1,6 @@
 
-#ifndef __cxz_h5_types_cc_h__
-#define __cxz_h5_types_cc_h__
+#ifndef __cxz_h5_type_id_cc_h__
+#define __cxz_h5_type_id_cc_h__
 
 #include "base/types.h"
 

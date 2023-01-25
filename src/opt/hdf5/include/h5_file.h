@@ -2,9 +2,9 @@
 #ifndef __cxz_h5_file_h__
 #define __cxz_h5_file_h__
 
+#include "h5_types.h"
 #include "h5_content_base.h"
 #include "h5_group.h"
-//#include <hdf5.h>
 
 namespace CNORXZ
 {
