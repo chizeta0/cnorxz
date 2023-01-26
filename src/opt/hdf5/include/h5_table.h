@@ -37,7 +37,6 @@ namespace CNORXZ
 	    MArray<SizeT> mOffsets;
 	    MArray<hid_t> mTypes;
 	    hid_t mType = 0;
-	    bool mCheckedFile = false;
 	};
 
 	template <typename... Ts>
