@@ -16,7 +16,7 @@ namespace CNORXZ
 
 	template <typename... Ts>
 	Group& Group::addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
-			       const RangePtr& fields)
+			       const Vector<String>& fnames)
 	{
 	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
 	    Vector<String> nvec({name});
@@ -25,7 +25,7 @@ namespace CNORXZ
 	    mCont.extend(extr);
 	    auto ii = mCont.begin();
 	    ii.at(dvec); // 'at' returns YIndex&, so cannot use it inline...
-	    auto tab = std::make_shared<STable<Ts...>>(name, this, fields);
+	    auto tab = std::make_shared<STable<Ts...>>(name, this, fnames);
 	    for(auto& d: data){
 		tab->appendRecord(d);
 	    }

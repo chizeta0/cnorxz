@@ -20,11 +20,12 @@ namespace CNORXZ
 		SizeT typesize = 0;
 		H5TBget_field_info(mParent->id(), mName.c_str(), fieldsptr.data(), sizes.data(),
 				   offsets.data(), &typesize);
-		Vector<String> fields(nfields);
+		Vector<FieldID> fields(nfields);
 		for(SizeT i = 0; i != nfields; ++i){
-		    fields[i] = fieldsptr[i];
+		    fields[i].first = i;
+		    fields[i].second = fieldsptr[i];
 		}
-		mFields = URangeFactory<String>( std::move(fields) ).create();
+		mFields = URangeFactory<FieldID>( std::move(fields) ).create();
 		mSizes = MArray<SizeT>(mFields, std::move(sizes));
 		mOffsets = MArray<SizeT>(mFields, std::move(offsets));
 		this->open();
@@ -87,7 +88,12 @@ namespace CNORXZ
 	Table& Table::initFieldNames(const Vector<String>& fnames)
 	{
 	    CXZ_ASSERT(mFields == nullptr, "fields already initialized");
-	    mFields = URangeFactory<String>(fnames).create();
+	    Vector<FieldID> fields(fnames.size());
+	    for(SizeT i = 0; i != fields.size(); ++i){
+		fields[i].first = i;
+		fields[i].second = fnames[i];
+	    }
+	    mFields = URangeFactory<FieldID>(fields).create();
 	    return *this;
 	}
     }

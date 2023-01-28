@@ -18,13 +18,19 @@ namespace CNORXZ
 	}
 
 	template <typename... Ts>
-	STable<Ts...>::STable(const String& name, const ContentBase* _parent, const RangePtr& fields) :
+	STable<Ts...>::STable(const String& name, const ContentBase* _parent,
+			      const Vector<String>& fnames) :
 	    Table(name, _parent)
 	{
 	    constexpr SizeT N = sizeof...(Ts);
 	    if(mFields == nullptr){
-		CXZ_ASSERT(fields != nullptr, "field names have to be initialized");
-		mFields = fields;
+		CXZ_ASSERT(fnames.size() != 0, "field names have to be initialized");
+		Vector<FieldID> fields(fnames.size());
+		for(SizeT i = 0; i != fields.size(); ++i){
+		    fields[i].first = i;
+		    fields[i].second = fnames[i];
+		}
+		mFields = URangeFactory<FieldID>(fields).create();
 	    }
 	    CXZ_ASSERT(mFields->size() == sizeof...(Ts), "expected tuple of size = " << mFields->size()
 		       << ", got: " << sizeof...(Ts));
@@ -66,9 +72,9 @@ namespace CNORXZ
 	    if(mRecords == nullptr){
 		mRecords = appr;
 		Vector<const char*> fields(mFields->size());
-		auto fr = std::dynamic_pointer_cast<URange<String>>(mFields);
+		auto fr = std::dynamic_pointer_cast<URange<FieldID>>(mFields);
 		for(auto fi = fr->begin(); fi != fr->end(); ++fi){
-		    fields[fi.lex()] = (*fi).c_str();
+		    fields[fi.lex()] = (*fi).second.c_str();
 		}
 		H5TBmake_table(mName.c_str(), mParent->id(), mName.c_str(), mFields->size(),
 			       mRecords->size(), sizeof(t), fields.data(), mOffsets.data(),
