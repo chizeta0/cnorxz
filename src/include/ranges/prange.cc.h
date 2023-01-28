@@ -1,0 +1,207 @@
+
+#ifndef __cxz_prange_cc_h__
+#define __cxz_prange_cc_h__
+
+#include "prange.h"
+
+namespace CNORXZ
+{
+    /**************
+     *   PIndex   *
+     **************/
+    
+    template <class Index>
+    PIndex<Index>::PIndex(const RangePtr& range, SizeT pos) :
+	IndexInterface<Index>(pos),
+	mRangePtr(rangeCast<RangeType>(range)),
+	mIndex(mRangePtr->orig(),mRangePtr->parts()[pos])
+    {}
+	
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator=(SizeT lexpos)
+    {
+	IB::mPos = lexpos;
+	*mOrig = mRangePtr->parts()[IB::mPos];
+	return *this;
+    }
+    
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator++()
+    {
+	++IB::mPos;
+	*mOrig = mRangePtr->parts()[IB::mPos];
+	return *this;
+    }
+    
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator--()
+    {
+	--IB::mPos;
+	*mOrig = mRangePtr->parts()[IB::mPos];
+	return *this;
+    }
+    
+    template <class Index>
+    PIndex<Index> PIndex<Index>::operator+(Int n) const
+    {
+	return PIndex(mRangePtr, IB::mPos + n);
+    }
+    
+    template <class Index>
+    PIndex<Index> PIndex<Index>::operator-(Int n) const
+    {
+	return PIndex(mRangePtr, IB::mPos - n);
+    }
+    
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator+=(Int n)
+    {
+	IB::mPos += n;
+	*mOrig = mRangePtr->parts()[IB::mPos];
+	return *this;
+    }
+    
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator-=(Int n)
+    {
+	IB::mPos -= n;
+	*mOrig = mRangePtr->parts()[IB::mPos];
+	return *this;
+    }
+
+    template <class Index>
+    SizeT PIndex<Index>::lex() const
+    {
+	return IB::mPos;
+    }
+    
+    template <class Index>
+    UPos PIndex<Index>::pmax() const
+    {
+	return UPos(mRangePtr->size());
+    }
+    
+    template <class Index>
+    UPos PIndex<Index>::lmax() const
+    {
+	return UPos(mRangePtr->size());
+    }
+    
+    template <class Index>
+    IndexId<0> PIndex<Index>::id() const
+    {
+	return IndexId<0>(this->ptrId());
+    }
+	
+    template <class Index>
+    const typename PIndex<Index>::MetaType& PIndex<Index>::operator*() const
+    {
+	return **mOrig;
+    }
+	
+    template <class Index>
+    SizeT PIndex<Index>::dim() const
+    {
+	return 1;
+    }
+    
+    template <class Index>
+    Sptr<RangeType> PIndex<Index>::range() const
+    {
+	return mRangePtr;
+    }
+
+    template <class Index>
+    template <SizeT I>
+    UPos PIndex<Index>::stepSize(const IndexId<I>& id) const
+    {
+	if(id == this->id()){
+	    return UPos(1);
+	}
+	else {
+	    return mOrig->stepSize(id);
+	}
+    }
+
+    template <class Index>
+    String PIndex<Index>::stringMeta() const
+    {
+	return mOrig->stringMeta();
+    }
+    
+    template <class Index>
+    const MetaT& PIndex<Index>::meta() const
+    {
+	return mOrig->meta();
+    }
+    
+    template <class Index>
+    PIndex& PIndex<Index>::at(const MetaT& metaPos)
+    {
+	mOrig->at(metaPos);
+	mkPos();
+	return *this;
+    }
+    
+    template <class Index>
+    decltype(auto) PIndex<Index>::xpr(const Sptr<PIndex<Index>>& _this) const
+    {
+	return poperation( mOrig->xpr(mOrig), mRangePtr->parts(), _this );
+    }
+
+    template <class Index>
+    template <class I>
+    decltype(auto) PIndex<Index>::format(const Sptr<I>& ind) const
+    {
+	/*!!!*/
+    }
+
+    template <class Index>
+    template <class I>
+    decltype(auto) PIndex<Index>::slice(const Sptr<I>& ind) const
+    {
+	/*!!!*/
+    }
+
+    template <class Index>
+    template <class Xpr, class F>
+    decltype(auto) PIndex<Index>::ifor(const Xpr& xpr, F&& f) const
+    {
+	/*return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));*/
+	/*!!!!!*/
+    }
+
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator()()
+    {
+	mkPos()
+	return *this;
+    }
+
+    template <class Index>
+    PIndex<Index>& PIndex<Index>::operator()(const Sptr<Index>& i)
+    {
+	mOrig = i;
+	mkPos();
+	return *this;
+    }
+
+    /************************
+     *   PIndex (private)   *
+     ************************/
+
+    template <class Index>
+    void PIndex<Index>::mkPos()
+    {
+	const SizeT opos = mOrig->lex();
+	IB::mPos = 0;
+	for(const auto& x: mRangePtr->parts()){
+	    if(x == opos){
+		return *this;
+	    }
+	    ++IB::mPos;
+	}
+	CXZ_ERROR("meta position '" << metaPos << "' not part of range");
+    }
+
+}
