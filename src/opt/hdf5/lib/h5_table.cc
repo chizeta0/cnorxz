@@ -96,5 +96,47 @@ namespace CNORXZ
 	    mFields = URangeFactory<FieldID>(fields).create();
 	    return *this;
 	}
+
+	Table& Table::initTable(SizeT n, const void* data, SizeT dsize, SizeT chunk_size)
+	{
+	    const Int compress = 0;
+	    mRecords = CRangeFactory(n).create();
+	    Vector<const char*> fields(mFields->size());
+	    auto fr = std::dynamic_pointer_cast<URange<String>>(mFields);
+	    for(auto fi = fr->begin(); fi != fr->end(); ++fi){
+		fields[fi.lex()] = (*fi).c_str();
+	    }
+	    const herr_t err = H5TBmake_table
+		(mName.c_str(), mParent->id(), mName.c_str(), mFields->size(), mRecords->size(), dsize,
+		 fields.data(), mOffsets.data(), mTypes.data(), chunk_size, NULL, compress, data);
+	    CXZ_ASSERT(err >= 0, "error while initialzing table: error code = " << err);
+	    return *this;
+	}
+	
+	Table& Table::appendRecord(SizeT n, const void* data, SizeT dsize)
+	{
+	    mRecords = mRecords->extend( CRangeFactory(1).create() );
+	    const herr_t err = H5TBappend_records(mParent->id(), mName.c_str(), n, dsize,
+						  mOffsets.data(), mSizes.data(), data);
+	    CXZ_ASSERT(err >= 0, "error while appending record to table: error code = " << err);
+	    return *this;
+	}
+	
+	Table& Table::readRecord(SizeT pos, SizeT n, char* data)
+	{
+	    CXZ_ERROR("not implemented!!!");
+	    return *this;
+	}
+	
+	const RangePtr& Table::fields() const
+	{
+	    return mFields;
+	}
+	
+	const RangePtr& Table::records() const
+	{
+	    return mRecords;
+	}
+
     }
 }

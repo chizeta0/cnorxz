@@ -2,6 +2,7 @@
 #ifndef __cxz_h5_group_h__
 #define __cxz_h5_group_h__
 
+#include "h5_types.h"
 #include "h5_content_base.h"
 
 namespace CNORXZ
@@ -26,6 +27,11 @@ namespace CNORXZ
 
 	    const ContentPtr& get(const String& name) const;
 	    Sptr<Group> getGroup(const String& name) const;
+	    Sptr<Table> getTable(const String& name) const;
+
+	    template <typename... Ts>
+	    Sptr<STable<Ts...>> getTable(const String& name, Tuple<Ts...> proto);
+	    
 	    const MArray<ContentPtr>& get() const;
 	    Group& addGroup(const String& name);
 
@@ -40,6 +46,8 @@ namespace CNORXZ
 	    MArray<ContentPtr> mCont;
 
 	    void mkCont();
+	    AIndex<ContentPtr> getIndexTo(const String& name) const;
+	    BIndex<ContentPtr> getIndexTo(const String& name);
 	};
     }
 }

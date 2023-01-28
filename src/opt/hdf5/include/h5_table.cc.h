@@ -3,7 +3,7 @@
 #define __cxz_h5_table_cc_h__
 
 #include "h5_table.h"
-#include "h5_types.h"
+#include "h5_type_id.h"
 
 namespace CNORXZ
 {
@@ -66,24 +66,12 @@ namespace CNORXZ
 	template <typename... Ts>
 	STable<Ts...>& STable<Ts...>::appendRecord(const Tuple<Ts...>& t)
 	{
-	    constexpr hsize_t chunk_size = sizeof(t);
-	    constexpr Int compress = 0;
 	    RangePtr appr = CRangeFactory(1).create();
 	    if(mRecords == nullptr){
-		mRecords = appr;
-		Vector<const char*> fields(mFields->size());
-		auto fr = std::dynamic_pointer_cast<URange<FieldID>>(mFields);
-		for(auto fi = fr->begin(); fi != fr->end(); ++fi){
-		    fields[fi.lex()] = (*fi).second.c_str();
-		}
-		H5TBmake_table(mName.c_str(), mParent->id(), mName.c_str(), mFields->size(),
-			       mRecords->size(), sizeof(t), fields.data(), mOffsets.data(),
-			       mTypes.data(), chunk_size, NULL, compress, &t);
+		initTable(1, &t, sizeof(t), sizeof(t));
 	    }
 	    else {
-		mRecords = mRecords->extend(appr);
-		H5TBappend_records(mParent->id(), mName.c_str(), 1, sizeof(t),
-				   mOffsets.data(), mSizes.data(), &t);
+		Table::appendRecord(1, &t, sizeof(t));
 	    }
 	    return *this;
 	}

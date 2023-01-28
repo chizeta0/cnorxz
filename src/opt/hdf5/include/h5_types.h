@@ -1,39 +1,27 @@
 
-#ifndef __cxz_h5_types_h__
-#define __cxz_h5_types_h__
+#ifndef __h5_types_h__
+#define __h5_types_h__
 
 namespace CNORXZ
 {
     namespace hdf5
     {
-	template <SizeT N, typename... Ts>
-	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i);
+	// definition -> h5_content_base.h
+	class ContentBase;
 
-	/**************
-	 *   TypeId   *
-	 **************/
- 
-	template <typename T>
-	struct TypeId { static inline hid_t get(); };
+	// definition -> h5_group.h
+	class Group;
 
-	template <>
-	struct TypeId<SizeT> { static inline hid_t get(); };
+	// definition -> h5_file.h
+	class File;
+
+	// definition -> h5_table.h
+	class Table;
+
+	// definition -> h5_table.h
+	template <typename... Ts>
+	class STable;
 	
-	template <>
-	struct TypeId<Int> { static inline hid_t get(); };
-
-	template <>
-	struct TypeId<Double> { static inline hid_t get(); };
-
-	template <typename T, SizeT N>
-	struct TypeId<Arr<T,N>> { static inline hid_t get(); };
-
-	/*****************
-	 *   getTypeId   *
-	 *****************/
-
-	template <typename T>
-	hid_t getTypeId(T x);
     }
 }
 

@@ -2,6 +2,7 @@
 #ifndef __cxz_h5_table_h__
 #define __cxz_h5_table_h__
 
+#include "h5_types.h"
 #include "h5_content_base.h"
 
 namespace CNORXZ
@@ -25,8 +26,11 @@ namespace CNORXZ
 	    virtual String filename() const override final;
 
 	    Table& initFieldNames(const Vector<String>& fnames);
-	    Table& appendRecord(SizeT n, const char* data);
+	    Table& initTable(SizeT n, const void* data, SizeT dsize, SizeT chunk_size);
+	    Table& appendRecord(SizeT n, const void* data, SizeT dsize);
 	    Table& readRecord(SizeT pos, SizeT n, char* data);
+	    const RangePtr& fields() const;
+	    const RangePtr& records() const;
 
 	protected:
 	    RangePtr mRecords;
@@ -35,7 +39,6 @@ namespace CNORXZ
 	    MArray<SizeT> mOffsets;
 	    MArray<hid_t> mTypes;
 	    hid_t mType = 0;
-	    bool mCheckedFile = false;
 	};
 
 	template <typename... Ts>

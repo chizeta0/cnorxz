@@ -73,10 +73,7 @@ namespace CNORXZ
 
 	const ContentPtr& Group::get(const String& name) const
 	{
-	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
-	    auto dvec = [](const String& n) { return Vector<DType>({DType(n)}); };
-	    auto i = mCont.begin();
-	    i.at(dvec(name));
+	    auto i = this->getIndexTo(name);
 	    return *i;
 	}
 
@@ -191,5 +188,23 @@ namespace CNORXZ
 			initCont, reinterpret_cast<void*>(&icd) );
 	}
 
+	AIndex<ContentPtr> Group::getIndexTo(const String& name) const
+	{
+	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
+	    auto dvec = [](const String& n) { return Vector<DType>({DType(n)}); };
+	    auto i = mCont.begin();
+	    i.at(dvec(name));
+	    return i;
+	}
+
+	BIndex<ContentPtr> Group::getIndexTo(const String& name)
+	{
+	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
+	    auto dvec = [](const String& n) { return Vector<DType>({DType(n)}); };
+	    auto i = mCont.begin();
+	    i.at(dvec(name));
+	    return i;
+	}
+	
     }
 }
