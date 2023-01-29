@@ -167,8 +167,7 @@ namespace CNORXZ
     template <class Xpr, class F>
     decltype(auto) PIndex<Index>::ifor(const Xpr& xpr, F&& f) const
     {
-	/*return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));*/
-	/*!!!!!*/
+	return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
     }
 
     template <class Index>

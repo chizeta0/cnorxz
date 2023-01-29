@@ -28,16 +28,16 @@ namespace CNORXZ
     {
 	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
 	    for(SizeT i = 0; i != mSize; ++i){
-		const auto pos = last + mExt * UPos(i);
+		const auto pos = last + mExt( UPos(i) );
 		mXpr(pos);
 	    }
 	}
 	else {
 	    typedef typename
-		std::remove_reference<decltype(mXpr(last + mExt * UPos(0)))>::type OutT;
+		std::remove_reference<decltype(mXpr(last + mExt( UPos(0) )))>::type OutT;
 	    auto o = OutT();
 	    for(SizeT i = 0; i != mSize; ++i){
-		const auto pos = last + mExt * UPos(i);
+		const auto pos = last + mExt( UPos(i) );
 		mF(o, mXpr(pos));
 	    }
 	    return o;
@@ -49,15 +49,15 @@ namespace CNORXZ
     {
 	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
 	    for(SizeT i = 0; i != mSize; ++i){
-		const auto pos = mExt * UPos(i);
+		const auto pos = mExt( UPos(i) );
 		mXpr(pos);
 	    }
 	}
 	else {
-	    typedef typename std::remove_reference<decltype(mXpr(mExt * UPos(0)))>::type OutT;
+	    typedef typename std::remove_reference<decltype(mXpr(mExt( UPos(0) )))>::type OutT;
 	    auto o = OutT();
 	    for(SizeT i = 0; i != mSize; ++i){
-		const auto pos = mExt * UPos(i);
+		const auto pos = mExt( UPos(i) );
 		mF(o, mXpr(pos));
 	    }
 	    return o;
@@ -136,7 +136,7 @@ namespace CNORXZ
     constexpr decltype(auto) SFor<N,L,Xpr,F>::exec(const PosT& last) const
     {
 	constexpr SPos<I> i;
-	const auto pos = last + mExt * i;
+	const auto pos = last + mExt( i );
 	if constexpr(I < N-1){
 	    return mF(mXpr(pos),exec<I+1>(last));
 	}
@@ -150,7 +150,7 @@ namespace CNORXZ
     constexpr decltype(auto) SFor<N,L,Xpr,F>::exec() const
     {
 	constexpr SPos<I> i;
-	const auto pos = mExt * i;
+	const auto pos = mExt( i );
 	if constexpr(I < N-1){
 	    return mF(mXpr(pos),exec<I+1>());
 	}
@@ -164,7 +164,7 @@ namespace CNORXZ
     inline void SFor<N,L,Xpr,F>::exec2(const PosT& last) const
     {
 	constexpr SPos<I> i;
-	const auto pos = last + mExt * i;
+	const auto pos = last + mExt( i );
 	if constexpr(I < N-1){
 	    mXpr(pos);
 	    exec2<I+1>(last);
@@ -180,7 +180,7 @@ namespace CNORXZ
     inline void SFor<N,L,Xpr,F>::exec2() const
     {
 	constexpr SPos<I> i;
-	const auto pos = mExt * i;
+	const auto pos = mExt( i );
 	if constexpr(I < N-1){
 	    mXpr(pos);
 	    exec2<I+1>();
@@ -232,7 +232,7 @@ namespace CNORXZ
     template <class PosT>
     inline decltype(auto) TFor<L,Xpr,F>::operator()(const PosT& last) const
     {
-	typedef typename std::remove_reference<decltype(mXpr(last + mExt * UPos(0)))>::type OutT;
+	typedef typename std::remove_reference<decltype(mXpr(last + mExt( UPos(0) )))>::type OutT;
 	int i = 0;
 	const int size = static_cast<int>(mSize);
 	Vector<OutT> ov;
@@ -245,7 +245,7 @@ namespace CNORXZ
 	    auto xpr = mXpr;
 #pragma omp for 
 	    for(i = 0; i < size; i++){
-		const auto pos = last + mExt * UPos(i);
+		const auto pos = last + mExt( UPos(i) );
 		xpr(pos);
 	    }
 	}
@@ -262,7 +262,7 @@ namespace CNORXZ
     template <SizeT L, class Xpr, class F>
     inline decltype(auto) TFor<L,Xpr,F>::operator()() const
     {
-	typedef typename std::remove_reference<decltype(mXpr(mExt * UPos(0)))>::type OutT;
+	typedef typename std::remove_reference<decltype(mXpr(mExt( UPos(0) )))>::type OutT;
 	int i = 0;
 	const int size = static_cast<int>(mSize);
 	Vector<OutT> ov;
@@ -275,7 +275,7 @@ namespace CNORXZ
 	    auto xpr = mXpr;
 #pragma omp for 
 	    for(i = 0; i < size; i++){
-		const auto pos = mExt * UPos(i);
+		const auto pos = mExt( UPos(i) );
 		xpr(pos);
 	    }
 	}
