@@ -158,10 +158,10 @@ namespace CNORXZ
     {
 	if(ind != nullptr){
 	    if(ind->dim() != 0) {
-		return Sptr<CIndex>();
+		return Sptr<UIndex<MetaType>>();
 	    }
 	}
-	return std::make_shared<CIndex>(*this);
+	return std::make_shared<UIndex<MetaType>>(*this);
     }
     
     template <typename MetaType>

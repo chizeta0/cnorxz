@@ -153,21 +153,26 @@ namespace CNORXZ
     template <class I>
     decltype(auto) PIndex<Index>::format(const Sptr<I>& ind) const
     {
-	/*!!!*/
+	return ind;
     }
 
     template <class Index>
     template <class I>
     decltype(auto) PIndex<Index>::slice(const Sptr<I>& ind) const
     {
-	/*!!!*/
+	if(ind != nullptr){
+	    if(ind->dim() != 0){
+		return Sptr<PIndex<Index>>();
+	    }
+	}
+	return std::make_shared<PIndex<Index>>(*this);
     }
 
     template <class Index>
     template <class Xpr, class F>
     decltype(auto) PIndex<Index>::ifor(const Xpr& xpr, F&& f) const
     {
-	return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
+	return PFor<0,0,Xpr,F>(this->lmax().val(), this->id(), mOrig->id(), xpr, std::forward<F>(f));
     }
 
     template <class Index>

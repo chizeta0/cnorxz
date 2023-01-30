@@ -208,6 +208,94 @@ namespace CNORXZ
     }
     
     /************
+     *   PFor   *
+     ************/
+    
+    template <SizeT L1, SizeT L2, class Xpr, class F>
+    constexpr PFor<L1,L2,Xpr,F>::PFor(SizeT size, const IndexId<L1>& id1, const IndexId<L2>& id2,
+				      const SizeT* map, const Xpr& xpr, F&& f) :
+	mSize(size),
+	mId1(id1),
+	mId2(id2),
+	mXpr(xpr),
+	mExt1(mXpr.rootSteps(mId1)),
+	mExt2(mXpr.rootSteps(mId2)),
+	mPart(1, map),
+	mF(f)
+    {}
+
+    template <SizeT L1, SizeT L2, class Xpr, class F>
+    template <class PosT>
+    inline decltype(auto) PFor<L1,L2,Xpr,F>::operator()(const PosT& last) const
+    {
+	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
+	    for(SizeT i = 0; i != mSize; ++i){
+		const auto pos1 = last + mExt1( UPos(i) );
+		const auto pos2 = pos1 + mExt2( mPart( UPos(i) ) );
+		mXpr(pos2);
+	    }
+	}
+	else {
+	    typedef typename
+		std::remove_reference<decltype(mXpr((last + mExt1( UPos(0) )) + mExt2( mPart( UPos(0) ) )))>::type OutT;
+	    auto o = OutT();
+	    for(SizeT i = 0; i != mSize; ++i){
+		const auto pos1 = last + mExt1( UPos(i) );
+		const auto pos2 = pos1 + mExt2( mPart( UPos(i) ) );
+		mF(o, mXpr(pos2));
+	    }
+	    return o;
+	}
+    }
+	
+    template <SizeT L1, SizeT L2, class Xpr, class F>
+    inline decltype(auto) PFor<L1,L2,Xpr,F>::operator()() const
+    {
+	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
+	    for(SizeT i = 0; i != mSize; ++i){
+		const auto pos1 = mExt1( UPos(i) );
+		const auto pos2 = pos1 + mExt2( mPart( UPos(i) ) );
+		mXpr(pos2);
+	    }
+	}
+	else {
+	    typedef typename std::remove_reference<decltype(mExt1( UPos(0) ) + mExt2( mPart( UPos(0) ) ))>::type OutT;
+	    auto o = OutT();
+	    for(SizeT i = 0; i != mSize; ++i){
+		const auto pos1 = mExt1( UPos(i) );
+		const auto pos2 = pos1 + mExt2( mPart( UPos(i) ) );
+		mF(o, mXpr(pos2));
+	    }
+	    return o;
+	}
+    }
+
+    template <SizeT L1, SizeT L2, class Xpr, class F>
+    template <SizeT I>
+    inline decltype(auto) PFor<L1,L2,Xpr,F>::rootSteps(const IndexId<I>& id) const
+    {
+	return mXpr.rootSteps(id);
+    }
+
+    /*************************
+     *   PFor (non-member)   *
+     *************************/
+
+    template <SizeT L1, SizeT L2, class Xpr, class F>
+    constexpr decltype(auto) mkPFor(SizeT size, const IndexId<L1>& id1, const IndexId<L2>& id2,
+				    const Xpr& xpr, F&& f)
+    {
+	return PFor<L1,L2,Xpr,F>(size, id1, id2, xpr, std::forward<F>(f));
+    }
+
+    template <SizeT L1, SizeT L2, class Xpr, class F>
+    constexpr decltype(auto) mkPFor(SizeT size, const IndexId<L1>& id1, const IndexId<L2>& id2,
+				    const Xpr& xpr)
+    {
+	return PFor<L1,L2,Xpr>(size, id1, id2, xpr, NoF {});
+    }
+
+    /************
      *   TFor   *
      ************/
 
