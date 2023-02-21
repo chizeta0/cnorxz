@@ -40,7 +40,7 @@ namespace
 	{
 	    mFileName = testh5file;
 	    mGrps = { "gr1", "gr2" };
-	    mFs = URangeFactory<String>(Vector<String>({"field1","second","real"})).create();
+	    mFs = {"field1","second","real"};
 	    Vector<Tuple<SizeT,Int,Double>> v
 		( { {0, -6, 3.141},
 		    {3, -8, 0.789},
@@ -55,7 +55,7 @@ namespace
 	String mFileName;
 	Vector<String> mGrps;
 
-	RangePtr mFs;
+	Vector<String> mFs;
 	MArray<Tuple<SizeT,Int,Double>> mTabA; 
     };
 

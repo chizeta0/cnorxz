@@ -158,10 +158,10 @@ namespace CNORXZ
     {
 	if(ind != nullptr){
 	    if(ind->dim() != 0) {
-		return Sptr<CIndex>();
+		return Sptr<UIndex<MetaType>>();
 	    }
 	}
-	return std::make_shared<CIndex>(*this);
+	return std::make_shared<UIndex<MetaType>>(*this);
     }
     
     template <typename MetaType>
@@ -233,7 +233,7 @@ namespace CNORXZ
     {
 	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());
 	auto itdupl = std::adjacent_find(mSpace.begin(), mSpace.end());
-	CXZ_ASSERT(itdupl == mSpace.end(), "found duplicate: " << *itdupl);
+	CXZ_ASSERT(itdupl == mSpace.end(), "found duplicate: " << toString(*itdupl));
     }
 
         

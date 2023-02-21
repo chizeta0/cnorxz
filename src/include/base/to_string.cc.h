@@ -55,6 +55,12 @@ namespace CNORXZ
 	      } );
     }
 
+    template <typename T, typename S>
+    String ToString<std::pair<T,S>>::func(const std::pair<T,S>& p)
+    {
+	return String("(") + toString(p.first) + "," + toString(p.second) + ")";
+    }
+
     template <typename T>
     String toString(const T& a)
     {

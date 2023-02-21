@@ -35,7 +35,13 @@ namespace CNORXZ
     {
 	static String func(const Tuple<Ts...>& t);
     };
-    
+
+    template <typename T, typename S>
+    struct ToString<std::pair<T,S>>
+    {
+	static String func(const std::pair<T,S>& t);
+    };
+
     template <>
     struct ToString<DType>
     {

@@ -85,6 +85,43 @@ namespace CNORXZ
     template <SizeT N, SizeT L, class Xpr>
     constexpr decltype(auto) mkSFor(const IndexId<L>& id, const Xpr& xpr);
 
+    // partial for:
+    template <SizeT L1, SizeT L2, class Xpr, class F = NoF>
+    class PFor : public XprInterface<PFor<L1,L2,Xpr,F>>
+    {
+    public:
+	DEFAULT_MEMBERS(PFor);
+
+	constexpr PFor(SizeT size, const IndexId<L1>& id1, const IndexId<L2>& id2,
+		       const SizeT* map, const Xpr& xpr, F&& f);
+
+	template <class PosT>
+	inline decltype(auto) operator()(const PosT& last) const;
+	
+	inline decltype(auto) operator()() const;
+
+	template <SizeT I>
+	inline decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+    private:
+	SizeT mSize = 0;
+	IndexId<L1> mId1;
+	IndexId<L2> mId2;
+	Xpr mXpr;
+	typedef decltype(mXpr.rootSteps(mId1)) XPosT1;
+	typedef decltype(mXpr.rootSteps(mId2)) XPosT2;
+	XPosT1 mExt1;
+	XPosT2 mExt2;
+	FPos mPart;
+	F mF;
+    };
+
+    template <SizeT L, class Xpr, class F>
+    constexpr decltype(auto) mkFor(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f);
+
+    template <SizeT L, class Xpr>
+    constexpr decltype(auto) mkFor(SizeT size, const IndexId<L>& id, const Xpr& xpr);
+
     // multi-threading
     template <SizeT L, class Xpr, class F = NoF>
     class TFor : public XprInterface<TFor<L,Xpr,F>>

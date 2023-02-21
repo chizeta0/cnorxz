@@ -40,7 +40,7 @@ namespace CNORXZ
 
 	    template <typename... Ts>
 	    Group& addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
-			    const RangePtr& fields);
+			    const Vector<String>& fnames);
 	    
 	protected:
 	    MArray<ContentPtr> mCont;

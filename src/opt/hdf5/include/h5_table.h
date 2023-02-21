@@ -12,6 +12,8 @@ namespace CNORXZ
 	class Table : public ContentBase
 	{
 	public:
+	    typedef std::pair<SizeT,String> FieldID;
+	    
 	    DEFAULT_MEMBERS(Table);
 	    Table(const String& name, const ContentBase* _parent);
 	    ~Table();
@@ -44,7 +46,7 @@ namespace CNORXZ
 	{
 	public:
 	    DEFAULT_MEMBERS(STable);
-	    STable(const String& name, const ContentBase* _parent, const RangePtr& fields);
+	    STable(const String& name, const ContentBase* _parent, const Vector<String>& fnames);
 
 	    STable& appendRecord(const Tuple<Ts...>& t);
 	    STable& appendRecord(const MArray<Tuple<Ts...>>& t);
