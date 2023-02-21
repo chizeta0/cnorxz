@@ -24,15 +24,15 @@ namespace CNORXZ
 
 	virtual void make() = 0;
 
-	RangePtr fromCreated(const TypeInfo& info, const Vector<PtrId>& rids) const;
-	void addToCreated(const TypeInfo& info, const Vector<PtrId>& rids, const RangePtr& r);
+	RangePtr fromCreated(const TypeInfo& info, const Vector<Uuid>& rids) const;
+	void addToCreated(const TypeInfo& info, const Vector<Uuid>& rids, const RangePtr& r);
 
 	RangePtr mProd;
 
     private:
 	// also add single ranges here (PtrId -> own)
 	// rangeCast: PtrId -> original Range
-	static Map<SizeT,Map<Vector<PtrId>,RangePtr>> sCreated;
+	static Map<SizeT,Map<Vector<Uuid>,RangePtr>> sCreated;
 	
     };
 
@@ -58,7 +58,7 @@ namespace CNORXZ
 	bool operator==(const RangeBase& in) const;
 	bool operator!=(const RangeBase& in) const;
 
-        PtrId id() const;
+        Uuid id() const;
 	DIndex begin() const;
 	DIndex end() const;
 	RangePtr orig() const;
@@ -67,9 +67,10 @@ namespace CNORXZ
 	
     protected:
 	
-	RangeBase() = default;
+	RangeBase();
 	RangeBase(const RangePtr& rel);
 	// delete copy/move???
+	Uuid mId = {0,0};
 	Wptr<RangeBase> mThis;
 	RangePtr mRel; // used, if created from another range, to point on it
     };

@@ -425,7 +425,7 @@ namespace CNORXZ
     
     void YRangeFactory::make()
     {
-	Vector<PtrId> key(mRVec.size());
+	Vector<Uuid> key(mRVec.size());
 	std::transform(mRVec.begin(), mRVec.end(), key.begin(),
 		       [&](const RangePtr& r) { return r->id(); } );
 	mProd = this->fromCreated(typeid(YRange), key);

@@ -8,7 +8,7 @@ namespace CNORXZ
      *   RangeFactoryBase    *
      *************************/
 
-    Map<SizeT,Map<Vector<PtrId>,RangePtr>> RangeFactoryBase::sCreated;
+    Map<SizeT,Map<Vector<Uuid>,RangePtr>> RangeFactoryBase::sCreated;
     
     RangePtr RangeFactoryBase::create()
     {
@@ -19,7 +19,7 @@ namespace CNORXZ
 	return mProd;
     }	
 
-    RangePtr RangeFactoryBase::fromCreated(const TypeInfo& info, const Vector<PtrId>& rids) const
+    RangePtr RangeFactoryBase::fromCreated(const TypeInfo& info, const Vector<Uuid>& rids) const
     {
 	RangePtr out = nullptr;
 	if(sCreated.count(info.hash_code()) != 0){
@@ -30,7 +30,7 @@ namespace CNORXZ
 	return out;
     }
 
-    void RangeFactoryBase::addToCreated(const TypeInfo& info, const Vector<PtrId>& rids, const RangePtr& r)
+    void RangeFactoryBase::addToCreated(const TypeInfo& info, const Vector<Uuid>& rids, const RangePtr& r)
     {
 	sCreated[info.hash_code()][rids] = r;
     }
@@ -39,6 +39,11 @@ namespace CNORXZ
      *   RangeBase    *
      ******************/
 
+    RangeBase::RangeBase()
+    {
+	mId = mkUuid();
+    }
+    
     RangePtr RangeBase::sub(SizeT num) const
     {
 	return nullptr;
@@ -54,9 +59,10 @@ namespace CNORXZ
 	return this != &in;
     }
     
-    PtrId RangeBase::id() const
+    Uuid RangeBase::id() const
     {
-        return reinterpret_cast<PtrId>(this);
+        //return reinterpret_cast<PtrId>(this);
+	return mId;
     }
 
     DIndex RangeBase::begin() const

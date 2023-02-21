@@ -1,6 +1,7 @@
 
 set(libcnorxz_a_SOURCES
   ${CMAKE_SOURCE_DIR}/src/lib/base/to_string.cc
+  ${CMAKE_SOURCE_DIR}/src/lib/base/uuid.cc
   ${CMAKE_SOURCE_DIR}/src/lib/memory/memcount.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/range_base.cc
   ${CMAKE_SOURCE_DIR}/src/lib/ranges/yrange.cc
