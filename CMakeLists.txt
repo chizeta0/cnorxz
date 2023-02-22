@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.0)
   
 project(cnorxz)
 
+execute_process(COMMAND bash "-c" "git rev-parse HEAD" OUTPUT_VARIABLE GIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash "-c" "git tag -l --sort=refname v* | tail -n1" OUTPUT_VARIABLE GIT_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND bash "-c" "git rev-parse ${GIT_TAG}" OUTPUT_VARIABLE GIT_TAG_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(SUBSTRING ${GIT_TAG} 1 -1 VERSION)
+if(NOT ${GIT_HASH} EQUAL ${GIT_TAG_HASH})
+  string(SUBSTRING ${GIT_HASH} 0 7 GIT_HASH_SHORT)
+  set(VERSION "${VERSION}-${GIT_HASH_SHORT}")
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7.0)
     message(FATAL_ERROR "require gcc version >= 7.0")
@@ -41,5 +50,9 @@ if(DEFINED ENABLE_hdf5)
 else()
   set(ENABLE_hdf5 TRUE CACHE BOOL "enable hdf5")
 endif()
+
+add_definitions(-DVERSION="${VERSION}")
+add_definitions(-DGIT_COMMIT="${GIT_HASH}")
+add_definitions(-DCXX_FLAGS="${CMAKE_CXX_FLAGS}")
 
 add_subdirectory(src)

@@ -25,6 +25,7 @@
 #include "isq.h"
 #include "iter.h"
 #include "uuid.h"
+#include "config.h"
 
 #include "base.cc.h"
 
