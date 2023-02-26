@@ -45,7 +45,8 @@ namespace CNORXZ
 	typedef DIndex IndexType;
 	
 	virtual ~RangeBase() = default;
-
+	
+	// virtual RangePtr sub() const; // Sptr<URange<RangePtr>> ; range of subranges (TODO!!!)
 	virtual RangePtr sub(SizeT num) const;
 	virtual SizeT size() const = 0;
 	virtual SizeT dim() const = 0;

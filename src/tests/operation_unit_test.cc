@@ -53,35 +53,45 @@ namespace
 	{
 	    mSize1 = 7;
 	    mSize2 = 11;
-	    const SizeT off = 20;
+	    SizeT off = 20;
 	    mData1 = Numbers::get(off, mSize1);
-	    mData2 = Numbers::get(off+mSize1, mSize2);
-	    mData12 = Numbers::get(off+mSize1+mSize2, mSize1*mSize2);
-	    auto cra = CRangeFactory(mSize1).create();
-	    auto crb = CRangeFactory(mSize2).create();
-	    mCIa1 = std::make_shared<CIndex>(cra);
-	    mCIa2 = std::make_shared<CIndex>(cra);
-	    mCIb1 = std::make_shared<CIndex>(crb);
-	    mCIb2 = std::make_shared<CIndex>(crb);
-	    mCCa1a2 = mindexPtr(mCIa1*mCIa2);
-	    mCCa2a1 = mindexPtr(mCIa2*mCIa1);
-	    mOCa1a2.init(mCCa1a2);
-	    mORa2a1.init(mData12.data(), mCCa2a1);
+	    mData2 = Numbers::get(off += mSize1 , mSize2);
+	    mData11 = Numbers::get(off += mSize2, mSize1*mSize1);
+	    mData12 = Numbers::get(off += mSize1*mSize1, mSize1*mSize2);
+	    auto cr1 = CRangeFactory(mSize1).create();
+	    auto cr2 = CRangeFactory(mSize2).create();
+	    mCI1i = std::make_shared<CIndex>(cr1);
+	    mCI1j = std::make_shared<CIndex>(cr1);
+	    mCI2i = std::make_shared<CIndex>(cr2);
+	    mCI2j = std::make_shared<CIndex>(cr2);
+	    mCC1i1j = mindexPtr(mCI1i*mCI1j);
+	    mCC1j1i = mindexPtr(mCI1j*mCI1i);
+	    //mCC1i2i = mindexPtr(mCI1i*mCI2i);
+	    //mCC1j2i = mindexPtr(mCI1j*mCI2i);
+	    mOC1i1j.init(mCC1i1j);
+	    mOR1j1i.init(mData11.data(), mCC1j1i);
+	    mOR1i1j.init(mData11.data(), mCC1i1j);
 	}
 
 	SizeT mSize1;
 	SizeT mSize2;
 	Vector<Double> mData1;
 	Vector<Double> mData2;
+	Vector<Double> mData11;
 	Vector<Double> mData12;
-	Sptr<CIndex> mCIa1;
-	Sptr<CIndex> mCIa2;
-	Sptr<CIndex> mCIb1;
-	Sptr<CIndex> mCIb2;
-	Sptr<MCCI> mCCa1a2;
-	Sptr<MCCI> mCCa2a1;
-	OpCont<double,MCCI> mOCa1a2;
-	COpRoot<double,MCCI> mORa2a1;
+	Sptr<CIndex> mCI1i;
+	Sptr<CIndex> mCI1j;
+	Sptr<CIndex> mCI2i;
+	Sptr<CIndex> mCI2j;
+	Sptr<MCCI> mCC1i1j;
+	Sptr<MCCI> mCC1j1i;
+	//Sptr<MCCI> mCC1i2i;
+	//Sptr<MCCI> mCC1j2i;
+	OpCont<double,MCCI> mOC1i1j;
+	COpRoot<double,MCCI> mOR1j1i;
+	COpRoot<double,MCCI> mOR1i1j;
+	//COpRoot<double,MCCI> mOR1j2i;
+	//COpRoot<double,MCCI> mOR1i2i;
     };
 
     TEST_F(OpCont_CR_Test, Basics)
@@ -145,20 +155,32 @@ namespace
 
     TEST_F(OpCont_CR_CR_Test, Basics)
     {
-	EXPECT_EQ(mOCa1a2.rootSteps(mCIa1->id()).val(), mCIa2->pmax().val());
-	EXPECT_EQ(mOCa1a2.rootSteps(mCIa2->id()).val(), 1u);
-	EXPECT_EQ(mORa2a1.rootSteps(mCIa1->id()).val(), 1u);
-	EXPECT_EQ(mORa2a1.rootSteps(mCIa2->id()).val(), mCIa1->pmax().val());
+	EXPECT_EQ(mOC1i1j.rootSteps(mCI1i->id()).val(), mCI1j->pmax().val());
+	EXPECT_EQ(mOC1i1j.rootSteps(mCI1j->id()).val(), 1u);
+	EXPECT_EQ(mOR1j1i.rootSteps(mCI1i->id()).val(), 1u);
+	EXPECT_EQ(mOR1j1i.rootSteps(mCI1j->id()).val(), mCI1i->pmax().val());
     }
 
     TEST_F(OpCont_CR_CR_Test, Assignment)
     {
-	mOCa1a2 = mORa2a1;
-	for(SizeT i = 0; i != mCIa1->pmax().val(); ++i){
-	    for(SizeT j = 0; j != mCIa2->pmax().val(); ++j){
-		const SizeT jS = mCIa2->pmax().val();
-		const SizeT iS = mCIa1->pmax().val();
-		EXPECT_EQ(mOCa1a2.data()[i*jS+j], mORa2a1.data()[j*iS+i]);
+	mOC1i1j = mOR1j1i;
+	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){
+	    for(SizeT j = 0; j != mCI1j->pmax().val(); ++j){
+		const SizeT jS = mCI1j->pmax().val();
+		const SizeT iS = mCI1i->pmax().val();
+		EXPECT_EQ(mOC1i1j.data()[i*jS+j], mOR1j1i.data()[j*iS+i]);
+	    }
+	}
+    }
+
+    TEST_F(OpCont_CR_CR_Test, Multiply)
+    {
+	mOC1i1j = mOR1j1i * mOR1i1j;
+	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){
+	    for(SizeT j = 0; j != mCI1j->pmax().val(); ++j){
+		const SizeT jS = mCI1j->pmax().val();
+		const SizeT iS = mCI1i->pmax().val();
+		EXPECT_EQ(mOC1i1j.data()[i*jS+j], mOR1j1i.data()[j*iS+i] * mOR1i1j.data()[i*jS+j]);
 	    }
 	}
     }

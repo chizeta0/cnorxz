@@ -243,6 +243,7 @@ namespace CNORXZ
 
     template <class IndexT>
     constexpr decltype(auto) indexOp(const Sptr<IndexT>& i);
+
 }
 
 #endif
