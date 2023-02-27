@@ -100,7 +100,11 @@ namespace CNORXZ
 	CRange(const CRange& in) = delete;
 	CRange(SizeT size);
 
+	virtual Vector<Uuid> key() const override final;
+	
 	SizeT mSize = 0; 
+
+	SERIALIZATION_FUNCTIONS_NOPUB;
     };
 
     template <>

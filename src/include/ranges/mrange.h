@@ -187,13 +187,15 @@ namespace CNORXZ
 	SizeT getMeta(const MetaType& metaPos) const;
 
     protected:
-	MRange() = delete;
+	MRange() = default;
 	MRange(const MRange& in) = delete;
 	MRange& operator=(const MRange& in) = delete;
 	MRange(const Tuple<Sptr<Ranges>...>& rs);
 	
 	Tuple<Sptr<Ranges>...> mRs;
 	Arr<RangePtr,NR> mA;
+
+	virtual Vector<Uuid> key() const override final;
     private:
 
 	decltype(auto) mkA() const;

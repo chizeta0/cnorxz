@@ -108,6 +108,7 @@ namespace CNORXZ
 
 	Vector<RangePtr> mRVec;
 	RangePtr mRef;
+
     };
 
     class YRange : public RangeInterface<YRange>
@@ -128,12 +129,16 @@ namespace CNORXZ
 
     private:
 
-	YRange() = delete;
+	YRange() = default;
 	YRange(const YRange& a) = delete;
 	YRange(const Vector<RangePtr>& rvec);
 	YRange(Vector<RangePtr>&& rvec);
 
 	Vector<RangePtr> mRVec;
+
+	virtual Vector<Uuid> key() const override final;
+	
+	SERIALIZATION_FUNCTIONS_NOPUB;
     };
 
     RangePtr yrange(const Vector<RangePtr>& rs);

@@ -35,6 +35,15 @@ namespace CNORXZ
 	sCreated[info.hash_code()][rids] = r;
     }
     
+    RangePtr RangeFactoryBase::getRegistered(const TypeInfo& info, const RangePtr& r)
+    {
+	auto& rx = sCreated[info.hash_code()][r->key()];
+	if(rx == nullptr){
+	    rx = r;
+	}
+	return rx;
+    }
+
     /******************
      *   RangeBase    *
      ******************/

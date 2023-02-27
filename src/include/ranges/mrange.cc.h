@@ -529,15 +529,15 @@ namespace CNORXZ
     template <class... Ranges>
     void MRangeFactory<Ranges...>::make()
     {
+	Vector<Uuid> key = iter<0,sizeof...(Ranges)>
+	    ( [&](auto i) { return std::get<i>( mRs ); },
+	      [](const auto&... e) { return Vector<Uuid> { e->id()... }; } );
 	const auto& info = typeid(MRange<Ranges...>);
-	if(mRef != nullptr) {
-	    mProd = this->fromCreated(info, {mRef->id()});
-	}
+	mProd = this->fromCreated(info, key);
 	if(mProd == nullptr) {
-	    RangePtr key = mProd = std::shared_ptr<MRange<Ranges...>>
+	    mProd = std::shared_ptr<MRange<Ranges...>>
 		( new MRange<Ranges...>( mRs ) );
-	    if(mRef != nullptr) { key = mRef; }
-	    this->addToCreated(info, { key->id() }, mProd);
+	    this->addToCreated(info, key, mProd);
 	}
     }
     
@@ -620,7 +620,16 @@ namespace CNORXZ
 	    );
 	return MRangeFactory<Ranges...>( rs ).create();
     }
-    
+
+    template <class... Ranges>
+    Vector<Uuid> MRange<Ranges...>::key() const
+    {
+    	Vector<Uuid> key = iter<0,sizeof...(Ranges)>
+	    ( [&](auto i) { return std::get<i>( mRs ); },
+	      [](const auto&... e) { return Vector<Uuid> { e->id()... }; } );
+	return key;
+    }
+
     /************************
      *   MRange (private)   *
      ************************/

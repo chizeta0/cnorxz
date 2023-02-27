@@ -8,6 +8,10 @@
 #include "memory/memory.h"
 #include "memory/memory.cc.h"
 
+#ifdef HAVE_CEREAL
+#include <cereal/access.hpp>
+#endif
+
 namespace CNORXZ
 {
 
@@ -17,9 +21,12 @@ namespace CNORXZ
 
 	RangeFactoryBase() = default;
 	virtual ~RangeFactoryBase() = default;
-
+	
 	RangePtr create();
 	
+	static RangePtr getRegistered(const TypeInfo& info, const RangePtr& r);
+	// check if range with uuid of r exists; if yes, return existing one, else add r and return it
+
     protected:
 
 	virtual void make() = 0;
@@ -35,9 +42,6 @@ namespace CNORXZ
 	static Map<SizeT,Map<Vector<Uuid>,RangePtr>> sCreated;
 	
     };
-
-    Sptr<RangeFactoryBase> createRangeFactory(const char** dp);
-    Sptr<RangeFactoryBase> createSingleRangeFactory(const Vector<char>*& d, int metaType, SizeT size);
 
     class RangeBase
     {
@@ -70,6 +74,9 @@ namespace CNORXZ
 	
 	RangeBase();
 	RangeBase(const RangePtr& rel);
+
+	virtual Vector<Uuid> key() const = 0;
+	
 	// delete copy/move???
 	Uuid mId = {0,0};
 	Wptr<RangeBase> mThis;

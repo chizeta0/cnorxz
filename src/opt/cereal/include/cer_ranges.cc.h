@@ -1,0 +1,91 @@
+
+#ifndef __cxz_cereal_ranges_cc_h__
+#define __cxz_cereal_ranges_cc_h__
+
+#include <cereal/cereal.hpp>
+#include <cereal/types/vector.hpp>
+
+#include "base/base.h"
+#include "ranges/crange.h"
+#include "ranges/urange.h"
+#include "ranges/yrange.h"
+
+namespace CNORXZ
+{
+    /**************
+     *    save    *
+     **************/
+
+    template <class Archive>
+    void save(Archive& ar, const Uuid& id)
+    {
+	ar(CEREAL_NVP(id.i1));
+	ar(CEREAL_NVP(id.i2));
+    }
+    
+    template <class Archive>
+    void CRange::save(Archive& ar) const
+    {
+	ar(cereal::make_nvp("uuid", RB::mId));
+	ar(cereal::make_nvp("this", RB::mThis));
+	ar(cereal::make_nvp("size", mSize));
+    }
+
+    template <class MetaT>
+    template <class Archive>
+    void URange<MetaT>::save(Archive& ar) const
+    {
+	ar(cereal::make_nvp("uuid", RB::mId));
+	ar(cereal::make_nvp("this", RB::mThis));
+	ar(cereal::make_nvp("meta", mSpace));
+    }
+    
+    template <class Archive>
+    void YRange::save(Archive& ar) const
+    {
+	ar(cereal::make_nvp("uuid", RB::mId));
+	ar(cereal::make_nvp("this", RB::mThis));
+	ar(cereal::make_nvp("sub", mRVec));
+    }
+
+    /**************
+     *    load    *
+     **************/
+    
+    template <class Archive>
+    void load(Archive& ar, Uuid& id)
+    {
+	ar(CEREAL_NVP(id.i1));
+	ar(CEREAL_NVP(id.i2));
+    }
+
+    template <class Archive>
+    void CRange::load(Archive& ar)
+    {
+	ar(cereal::make_nvp("uuid", RB::mId));
+	ar(cereal::make_nvp("this", RB::mThis));
+	ar(cereal::make_nvp("size", mSize));
+	CXZ_ASSERT(RangePtr(RB::mThis).get() == this, "got corrupted range data"); // yes, cereal is that awesome! :)
+    }
+
+    template <class MetaT>
+    template <class Archive>
+    void URange<MetaT>::load(Archive& ar)
+    {
+	ar(cereal::make_nvp("uuid", RB::mId));
+	ar(cereal::make_nvp("this", RB::mThis));
+	ar(cereal::make_nvp("meta", mSpace));
+	CXZ_ASSERT(RangePtr(RB::mThis).get() == this, "got corrupted range data");
+    }
+    
+    template <class Archive>
+    void YRange::load(Archive& ar)
+    {
+	ar(cereal::make_nvp("uuid", RB::mId));
+	ar(cereal::make_nvp("this", RB::mThis));
+	ar(cereal::make_nvp("sub", mRVec));
+	CXZ_ASSERT(RangePtr(RB::mThis).get() == this, "got corrupted range data");
+    }
+}
+
+#endif

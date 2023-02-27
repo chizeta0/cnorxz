@@ -38,4 +38,15 @@
 #define IS_SAME(a,b) std::is_same<a,b>::value
 #define IS_NOT_SAME(a,b) (not std::is_same<a,b>::value)
 
+#ifdef HAVE_CEREAL
+#define SERIALIZATION_FUNCTIONS template <class Archive> void save(Archive& ar) const; \
+    template <class Archive> void load(Archive& ar)
+#define SERIALIZATION_FUNCTIONS_NOPUB friend class cereal::access; \
+    template <class Archive> void save(Archive& ar) const; \
+    template <class Archive> void load(Archive& ar)
+#else
+#define SERIALIZATION_FUNCTIONS
+#define SERIALIZATION_FUNCTIONS_NOPUB
+#endif
+
 #endif

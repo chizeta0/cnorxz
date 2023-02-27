@@ -505,6 +505,14 @@ namespace CNORXZ
 	return YRangeFactory( rvec ).create();
     }
     
+    Vector<Uuid> YRange::key() const
+    {
+	Vector<Uuid> key(mRVec.size());
+	std::transform(mRVec.begin(), mRVec.end(), key.begin(),
+		       [&](const RangePtr& r) { return r->id(); } );
+	return key;
+    }
+
     YRange::YRange(const Vector<RangePtr>& rvec) : mRVec(rvec) {}
     
     YRange::YRange(Vector<RangePtr>&& rvec) : mRVec(std::forward<Vector<RangePtr>>(rvec)) {}

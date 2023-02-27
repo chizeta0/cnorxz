@@ -191,6 +191,11 @@ namespace CNORXZ
 	auto rx = rangeCast<CRange>(r);
 	return CRangeFactory( this->size() + rx->size() ).create();
     }
+
+    Vector<Uuid> CRange::key() const
+    {
+	return Vector<Uuid> { this->id() };
+    }
     
     /*******************
      *   Range Casts   *

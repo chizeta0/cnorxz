@@ -295,7 +295,13 @@ namespace CNORXZ
 	space.insert(space.end(), rx->mSpace.begin(), rx->mSpace.end());
 	return URangeFactory<MetaType>( space ).create();
     }
-	
+
+    template <typename MetaType>
+    Vector<Uuid> URange<MetaType>::key() const
+    {
+	return Vector<Uuid> { this->id() };
+    }
+
     /*******************
      *   Range Casts   *
      *******************/

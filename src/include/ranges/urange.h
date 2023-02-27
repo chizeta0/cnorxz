@@ -104,12 +104,16 @@ namespace CNORXZ
 	
     private:
 
-	URange() = delete;
+	URange() = default;
 	URange(const URange& in) = delete;
 	URange(const Vector<MetaType>& space);
         URange(Vector<MetaType>&& space);
 
 	Vector<MetaType> mSpace;
+
+	virtual Vector<Uuid> key() const override final;
+	
+	SERIALIZATION_FUNCTIONS_NOPUB;
     };
 
     template <typename MetaType>
