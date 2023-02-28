@@ -68,6 +68,8 @@ namespace CNORXZ
 	DIndex end() const;
 	RangePtr orig() const;
 	
+	//virtual Vector<Uuid> key2() const { return Vector<Uuid>(); }
+
 	friend RangeFactoryBase;
 	
     protected:
@@ -75,8 +77,8 @@ namespace CNORXZ
 	RangeBase();
 	RangeBase(const RangePtr& rel);
 
-	virtual Vector<Uuid> key() const = 0;
 	
+	virtual Vector<Uuid> key() const = 0;
 	// delete copy/move???
 	Uuid mId = {0,0};
 	Wptr<RangeBase> mThis;

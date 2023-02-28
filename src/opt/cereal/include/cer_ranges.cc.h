@@ -85,6 +85,10 @@ namespace CNORXZ
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("sub", mRVec));
 	CXZ_ASSERT(RangePtr(RB::mThis).get() == this, "got corrupted range data");
+	// register range:
+	for(auto& r: mRVec){
+	    r = RangeFactoryBase::getRegistered(r->type(), r);
+	}
     }
 }
 

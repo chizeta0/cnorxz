@@ -20,7 +20,8 @@ namespace CNORXZ
     template <class Archive>
     void MArray<T>::load(Archive& ar)
     {
-	ar(cereal::make_nvp("range", AB::mRange));
+	save_load("range", AB::mRange);
+	//ar(cereal::make_nvp("range", AB::mRange));
 	ar(cereal::make_nvp("data", mCont));
     }
 }

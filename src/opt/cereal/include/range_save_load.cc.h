@@ -4,15 +4,16 @@
 
 #include "ranges/range_base.h"
 #include "range_save_load.h"
+#include <cereal/cereal.hpp>
 
 namespace CNORXZ
 {
     namespace cer
     {
 	template <class Archive>
-	RangePtr save_load(Archive& ar, RangePtr& r)
+	RangePtr save_load(Archive& ar, const String& name, RangePtr& r)
 	{
-	    ar(r);
+	    ar(cereal::make_nvp(name, r));
 	    return r = RangeFactoryBase::getRegistered(r->type(), r);
 	}
     }

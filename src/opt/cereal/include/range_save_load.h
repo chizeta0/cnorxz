@@ -8,8 +8,10 @@ namespace CNORXZ
 {
     namespace cer
     {
+	// use this function to register the range in the map of the range factories
+	// (otherwise there might be more than one instance of the same range)
 	template <class Archive>
-	RangePtr save_load(Archive& ar, RangePtr& r);
+	RangePtr save_load(Archive& ar, const String& name, RangePtr& r);
     }
 }
 

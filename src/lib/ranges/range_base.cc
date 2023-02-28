@@ -37,6 +37,7 @@ namespace CNORXZ
     
     RangePtr RangeFactoryBase::getRegistered(const TypeInfo& info, const RangePtr& r)
     {
+	CXZ_ASSERT(r != nullptr, "got range ptr to null");
 	auto& rx = sCreated[info.hash_code()][r->key()];
 	if(rx == nullptr){
 	    rx = r;

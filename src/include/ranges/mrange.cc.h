@@ -624,10 +624,10 @@ namespace CNORXZ
     template <class... Ranges>
     Vector<Uuid> MRange<Ranges...>::key() const
     {
-    	Vector<Uuid> key = iter<0,sizeof...(Ranges)>
+    	Vector<Uuid> k = iter<0,sizeof...(Ranges)>
 	    ( [&](auto i) { return std::get<i>( mRs ); },
 	      [](const auto&... e) { return Vector<Uuid> { e->id()... }; } );
-	return key;
+	return k;
     }
 
     /************************

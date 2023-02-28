@@ -425,14 +425,14 @@ namespace CNORXZ
     
     void YRangeFactory::make()
     {
-	Vector<Uuid> key(mRVec.size());
-	std::transform(mRVec.begin(), mRVec.end(), key.begin(),
+	Vector<Uuid> k(mRVec.size());
+	std::transform(mRVec.begin(), mRVec.end(), k.begin(),
 		       [&](const RangePtr& r) { return r->id(); } );
-	mProd = this->fromCreated(typeid(YRange), key);
+	mProd = this->fromCreated(typeid(YRange), k);
 	if(mProd == nullptr){
 	    mProd = std::shared_ptr<YRange>
 		( new YRange( std::move(mRVec) ) );
-	    this->addToCreated(typeid(YRange), key, mProd);
+	    this->addToCreated(typeid(YRange), k, mProd);
 	}
     }
 
@@ -507,10 +507,10 @@ namespace CNORXZ
     
     Vector<Uuid> YRange::key() const
     {
-	Vector<Uuid> key(mRVec.size());
-	std::transform(mRVec.begin(), mRVec.end(), key.begin(),
+	Vector<Uuid> k(mRVec.size());
+	std::transform(mRVec.begin(), mRVec.end(), k.begin(),
 		       [&](const RangePtr& r) { return r->id(); } );
-	return key;
+	return k;
     }
 
     YRange::YRange(const Vector<RangePtr>& rvec) : mRVec(rvec) {}
