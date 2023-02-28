@@ -24,8 +24,9 @@ namespace CNORXZ
     }
     
     template <class Archive>
-    void CRange::save(Archive& ar) const
+    void CRange::save(Archive& ar, const std::uint32_t version) const
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("uuid", RB::mId));
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("size", mSize));
@@ -33,16 +34,18 @@ namespace CNORXZ
 
     template <class MetaT>
     template <class Archive>
-    void URange<MetaT>::save(Archive& ar) const
+    void URange<MetaT>::save(Archive& ar, const std::uint32_t version) const
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("uuid", RB::mId));
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("meta", mSpace));
     }
     
     template <class Archive>
-    void YRange::save(Archive& ar) const
+    void YRange::save(Archive& ar, const std::uint32_t version) const
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("uuid", RB::mId));
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("sub", mRVec));
@@ -60,8 +63,9 @@ namespace CNORXZ
     }
 
     template <class Archive>
-    void CRange::load(Archive& ar)
+    void CRange::load(Archive& ar, const std::uint32_t version)
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("uuid", RB::mId));
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("size", mSize));
@@ -70,8 +74,9 @@ namespace CNORXZ
 
     template <class MetaT>
     template <class Archive>
-    void URange<MetaT>::load(Archive& ar)
+    void URange<MetaT>::load(Archive& ar, const std::uint32_t version)
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("uuid", RB::mId));
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("meta", mSpace));
@@ -79,8 +84,9 @@ namespace CNORXZ
     }
     
     template <class Archive>
-    void YRange::load(Archive& ar)
+    void YRange::load(Archive& ar, const std::uint32_t version)
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("uuid", RB::mId));
 	ar(cereal::make_nvp("this", RB::mThis));
 	ar(cereal::make_nvp("sub", mRVec));

@@ -10,17 +10,19 @@ namespace CNORXZ
 {
     template <typename T>
     template <class Archive>
-    void MArray<T>::save(Archive& ar) const
+    void MArray<T>::save(Archive& ar, const std::uint32_t version) const
     {
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	ar(cereal::make_nvp("range", AB::mRange));
 	ar(cereal::make_nvp("data", mCont));
     }
 
     template <typename T>
     template <class Archive>
-    void MArray<T>::load(Archive& ar)
+    void MArray<T>::load(Archive& ar, const std::uint32_t version)
     {
-	save_load("range", AB::mRange);
+	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
+	cer::save_load(ar, "range", AB::mRange);
 	//ar(cereal::make_nvp("range", AB::mRange));
 	ar(cereal::make_nvp("data", mCont));
     }

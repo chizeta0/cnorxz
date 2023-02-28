@@ -8,6 +8,7 @@
 #include "cnorxz.h"
 #include "cnorxz_cereal.h"
 #include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
 
 namespace
 {
@@ -65,13 +66,40 @@ namespace
 	std::stringstream mS2;
     };
 
+    class CerMArray_Test : public ::testing::Test
+    {
+    protected:
+
+	CerMArray_Test()
+	{
+	    mSize = 7;
+	    mMeta = { "some", "random", "words", "with", "no", "meaning" };
+	    mR1 = CRangeFactory(mSize).create();
+	    mR2 = URangeFactory(mMeta).create();
+	    mR = YRangeFactory({mR1,mR2}).create();
+	    mData.resize(mR->size());
+	    for(SizeT i = 0; i != mData.size(); ++i){
+		mData[i] = static_cast<Double>(i)/static_cast<Double>(mData.size());
+	    }
+	    mArr = MArray(mR, mData);
+	}
+
+	SizeT mSize;
+	Vector<String> mMeta;
+	RangePtr mR1;
+	RangePtr mR2;
+	RangePtr mR;
+	Vector<Double> mData;
+	MArray<Double> mArr;
+	std::stringstream mS;
+    };
+
     TEST_F(CerCRange_Test, Serialize)
     {
 	{
 	    cereal::JSONOutputArchive ar(mS);
 	    ar(mR);
 	}
-	std::cout << mS.str() << std::endl;
 	RangePtr r = nullptr;
 	{
 	    cereal::JSONInputArchive ar(mS);
@@ -94,7 +122,6 @@ namespace
 	    cereal::JSONOutputArchive ar(mS);
 	    ar(mR);
 	}
-	std::cout << mS.str() << std::endl;
 	RangePtr r = nullptr;
 	{
 	    cereal::JSONInputArchive ar(mS);
@@ -116,12 +143,32 @@ namespace
 	{
 	    cereal::JSONOutputArchive ar(mS);
 	    ar(cereal::make_nvp("mR",mR));
-	    //ar(mR);
 	}
-	std::cout << mS.str() << std::endl;
 	RangePtr r = nullptr;
 	{
 	    cereal::JSONInputArchive ar(mS);
+	    cer::save_load(ar, "mR", r);
+	}
+	EXPECT_EQ(r->size(), mR->size());
+	EXPECT_EQ(r->dim(), mR->dim());
+	auto i1 = r->begin();
+	auto i2 = mR->begin();
+	auto i1e = r->end();
+	auto i2e = mR->end();
+	for(; i1 != i1e; ++i1, ++i2){
+	    EXPECT_TRUE(*i1 == *i2);
+	}
+    }
+
+    TEST_F(CerYRange_Test, Binary)
+    {
+	{
+	    cereal::BinaryOutputArchive ar(mS);
+	    ar(cereal::make_nvp("mR",mR));
+	}
+	RangePtr r = nullptr;
+	{
+	    cereal::BinaryInputArchive ar(mS);
 	    cer::save_load(ar, "mR", r);
 	}
 	EXPECT_EQ(r->size(), mR->size());
@@ -145,17 +192,14 @@ namespace
 	    cereal::JSONOutputArchive ar(mS2);
 	    ar(cereal::make_nvp("mR",mR));
 	}
-	std::cout << mS.str() << std::endl;
 	RangePtr r = nullptr;
 	{
 	    cereal::JSONInputArchive ar(mS);
-	    //ar(r);
 	    cer::save_load(ar, "mR", r);
 	}
 	RangePtr r2 = nullptr;
 	{
 	    cereal::JSONInputArchive ar(mS2);
-	    //ar(r2);
 	    cer::save_load(ar, "mR", r2);
 	}
 
@@ -171,6 +215,58 @@ namespace
 	auto i2e = r2->end();
 	for(; i1 != i1e; ++i1, ++i2){
 	    EXPECT_TRUE(*i1 == *i2);
+	}
+    }
+
+    TEST_F(CerMArray_Test, ToStream)
+    {
+	cer::write<cer::Format::JSON>(mS, mArr);
+	//std::cout << mS.str() << std::endl;
+	MArray<Double> arr;
+	cer::read<cer::Format::JSON>(mS, arr);
+
+	auto i1 = mArr.begin();
+	auto i2 = arr.begin();
+	auto i1e = mArr.end();
+	auto i2e = arr.end();
+
+	for(; i1 != i1e; ++i1, ++i2){
+	    EXPECT_TRUE(i1.meta() == i2.meta());
+	    EXPECT_EQ(*i1, *i2);
+	}
+    }
+
+    TEST_F(CerMArray_Test, ToTxtFile)
+    {
+	cer::writeFile<cer::Format::JSON>("cxzcer.testfile.json", mArr);
+	MArray<Double> arr;
+	cer::readFile<cer::Format::JSON>("cxzcer.testfile.json", arr);
+
+	auto i1 = mArr.begin();
+	auto i2 = arr.begin();
+	auto i1e = mArr.end();
+	auto i2e = arr.end();
+
+	for(; i1 != i1e; ++i1, ++i2){
+	    EXPECT_TRUE(i1.meta() == i2.meta());
+	    EXPECT_EQ(*i1, *i2);
+	}
+    }
+
+    TEST_F(CerMArray_Test, ToBinaryFile)
+    {
+	cer::writeFile<cer::Format::BINARY>("cxzcer.testfile.bin", mArr);
+	MArray<Double> arr;
+	cer::readFile<cer::Format::BINARY>("cxzcer.testfile.bin", arr);
+
+	auto i1 = mArr.begin();
+	auto i2 = arr.begin();
+	auto i1e = mArr.end();
+	auto i2e = arr.end();
+
+	for(; i1 != i1e; ++i1, ++i2){
+	    EXPECT_TRUE(i1.meta() == i2.meta());
+	    EXPECT_EQ(*i1, *i2);
 	}
     }
 }
