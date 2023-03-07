@@ -18,15 +18,15 @@ namespace CNORXZ
     template <class F, class IndexT>
     constexpr decltype(auto) COpInterface<OpT>::c(F&& f, const Sptr<IndexT>& ind) const
     {
-	return mkContraction(std::forward<F>(f), THIS().r(), ind);
+	return contraction(std::forward<F>(f), THIS().r(), ind);
     }
 
     template <class OpT>
     template <class IndexT>
     constexpr decltype(auto) COpInterface<OpT>::c(const Sptr<IndexT>& ind) const
     {
-	return mkContraction([](auto& a, const auto& b) { a += b; },
-			     THIS(), ind);
+	return contraction([](auto& a, const auto& b) { a += b; },
+			   THIS(), ind);
     }
 
     template <class OpT>
@@ -406,7 +406,7 @@ namespace CNORXZ
     }
 
     template <class F, class Op, class IndexT>
-    constexpr decltype(auto) contracion(F&& f, Op&& op, const Sptr<IndexT>& i)
+    constexpr decltype(auto) contraction(F&& f, Op&& op, const Sptr<IndexT>& i)
     {
 	typedef decltype(i->ifor( op, f )) CXprT; // TODO: implement ifor with func arg!!!
 	return Contraction<CXprT>( i->ifor( op, f ) );

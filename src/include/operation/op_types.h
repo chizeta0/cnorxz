@@ -239,7 +239,7 @@ namespace CNORXZ
     };
 
     template <class F, class Op, class IndexT>
-    constexpr decltype(auto) contracion(F&& f, Op&& op, const Sptr<IndexT>& i);
+    constexpr decltype(auto) contraction(F&& f, Op&& op, const Sptr<IndexT>& i);
 
     template <class IndexT>
     constexpr decltype(auto) indexOp(const Sptr<IndexT>& i);

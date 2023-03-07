@@ -40,7 +40,9 @@ namespace CNORXZ
 	void writeFile(const String& name, const MArray<T>& data)
 	{
 	    std::fstream os(name, std::ios::binary | std::ios::out);
+	    CXZ_ASSERT(os.good(), "could not open output file " << name);
 	    write<F>(os, data);
+	    CXZ_ASSERT(os.good(), "an error occurred while writing data to file " << name);
 	    os.close();
 	}
 
@@ -48,7 +50,9 @@ namespace CNORXZ
 	void readFile(const String& name, MArray<T>& data)
 	{
 	    std::fstream is(name, std::ios::binary | std::ios::in);
+	    CXZ_ASSERT(is.good(), "could not open input file " << name);
 	    read<F>(is, data);
+	    //CXZ_ASSERT(not is.fail(), "an error occurred reading data from file " << name);
 	    is.close();
 	}
 	
