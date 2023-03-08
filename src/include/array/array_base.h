@@ -80,6 +80,7 @@ namespace CNORXZ
 	typedef BIndex<T> iterator;
 
 	using CAB::operator[];
+	using CAB::operator();
 	using CAB::at;
 	using CAB::data;
 	using CAB::begin;
