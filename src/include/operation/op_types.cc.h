@@ -62,20 +62,20 @@ namespace CNORXZ
 
     template <typename T, class IndexT>
     constexpr COpRoot<T,IndexT>::COpRoot(const CArrayBase<T>& a, const Sptr<IndexT>& ind) :
-	mData(a.data()),
+	mData(a.data()+ind->pos()),
 	mIndex(ind)
     {}
 
     template <typename T, class IndexT>
     constexpr COpRoot<T,IndexT>::COpRoot(const T* data, const Sptr<IndexT>& ind) :
-	mData(data),
+	mData(data+ind->pos()),
 	mIndex(ind)
     {}
 
     template <typename T, class IndexT>
     constexpr COpRoot<T,IndexT>& COpRoot<T,IndexT>::init(const T* data, const Sptr<IndexT>& ind)
     {
-	mData = data;
+	mData = data+ind->pos();
 	mIndex = ind;
 	return *this;
     }
@@ -239,20 +239,20 @@ namespace CNORXZ
     
     template <typename T, class IndexT>
     constexpr OpRoot<T,IndexT>::OpRoot(ArrayBase<T>& a, const Sptr<IndexT>& ind) :
-	mData(a.data()),
+	mData(a.data()+ind->pos()),
 	mIndex(ind)
     {}
 
     template <typename T, class IndexT>
     constexpr OpRoot<T,IndexT>::OpRoot(T* data, const Sptr<IndexT>& ind) :
-	mData(data),
+	mData(data+ind->pos()),
 	mIndex(ind)
     {}
     
     template <typename T, class IndexT>
     constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::init(T* data, const Sptr<IndexT>& ind)
     {
-	mData = data;
+	mData = data+ind->pos();
 	mIndex = ind;
 	return *this;
     }
