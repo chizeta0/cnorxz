@@ -8,6 +8,9 @@
 #include "cer_array.cc.h"
 #include <cereal/types/polymorphic.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 CEREAL_CLASS_VERSION(CNORXZ::Uuid, CXZ_CEREAL_FORMAT_VERION);
 CEREAL_CLASS_VERSION(CNORXZ::cer::Header, CXZ_CEREAL_FORMAT_VERION);
 
@@ -50,6 +53,8 @@ CEREAL_CLASS_VERSION(CNORXZ::URange<CNORXZ::Vector<CNORXZ::String>>, CXZ_CEREAL_
 CEREAL_REGISTER_TYPE(CNORXZ::YRange);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(CNORXZ::RangeBase, CNORXZ::YRange);
 CEREAL_CLASS_VERSION(CNORXZ::YRange, CXZ_CEREAL_FORMAT_VERION);
+
+#pragma GCC diagnostic pop
 
 namespace cereal
 {
