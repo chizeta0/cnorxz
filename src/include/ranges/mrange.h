@@ -203,6 +203,12 @@ namespace CNORXZ
 
     template <class... Ranges>
     RangePtr mrange(const Sptr<Ranges>&... rs);
+
+    template <class... Ranges>
+    struct RangeCast<MRange<Ranges...>>
+    {
+	static Sptr<MRange<Ranges...>> func(const RangePtr& r);
+    };
 }
 
 #endif

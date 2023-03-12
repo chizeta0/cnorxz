@@ -651,6 +651,17 @@ namespace CNORXZ
 	return MRangeFactory<Ranges...>(std::make_tuple(rs...)).create();
     }
     
+    template <class... Ranges>
+    Sptr<MRange<Ranges...>> RangeCast<MRange<Ranges...>>::func(const RangePtr& r)
+    {
+	CXZ_ASSERT(r->dim() == sizeof...(Ranges), "expect range of dimension "
+		   << sizeof...(Ranges) << ", got " << r->dim());
+	return std::dynamic_pointer_cast<MRange<Ranges...>>( MRangeFactory
+	    ( iter<0,sizeof...(Ranges)>
+	      ( [&](auto i) {
+		  return rangeCast<typename std::tuple_element<i,Tuple<Ranges...>>::type> (r->sub(i)); },
+		  [](const auto&... e){ return std::make_tuple( e... ); } ) ).create() );
+    }
 }
 
 #endif
