@@ -109,8 +109,17 @@ namespace CNORXZ
     template <class Range>
     Sptr<Range> rangeCast(const RangePtr r);
 
-    RangePtr operator*(const RangePtr& a, const RangePtr& b); // -> Ptr to YRange
 
+    struct RangePack
+    {
+	Vector<RangePtr> mRs;
+	operator RangePtr() const; // -> Ptr to YRange
+    };
+
+    RangePack operator*(const RangePtr& a, const RangePtr& b);
+    RangePack operator*(const RangePtr& a, const RangePack& b);
+    RangePack operator*(const RangePack& a, const RangePtr& b);
+    RangePack operator*(const RangePack& a, const RangePack& b);
 }
 
 #endif

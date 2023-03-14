@@ -96,38 +96,44 @@ namespace CNORXZ
     /****************************
      *   Non-member functions   *
      ****************************/
+
+    RangePack::operator RangePtr() const
+    {
+	return YRangeFactory(mRs).create();
+    }
     
-    RangePtr operator*(const RangePtr& a, const RangePtr& b)
+    RangePack operator*(const RangePtr& a, const RangePtr& b)
     {
 	CXZ_ASSERT(a != nullptr, "first operand not initialized");
 	CXZ_ASSERT(b != nullptr, "second operand not initialized");
 	
-	Vector<RangePtr> rvec;
-	rvec.reserve(a->dim() + b->dim());
+	return RangePack { Vector<RangePtr> { a, b } };
+	//return YRangeFactory(rvec).create();
+    }
 
-	if(a->sub(0) != nullptr){
-	    for(SizeT i = 0; i != a->dim(); ++i){
-		CXZ_ASSERT(a->sub(i) != nullptr,
-			   "sub range " << i << " of first operand not available");
-		rvec.push_back(a->sub(i));
-	    }
-	}
-	else {
-	    rvec.push_back(a);
-	}
+    RangePack operator*(const RangePtr& a, const RangePack& b)
+    {
+	CXZ_ASSERT(a != nullptr, "first operand not initialized");
 
-	if(b->sub(0) != nullptr){
-	    for(SizeT i = 0; i != b->dim(); ++i){
-		CXZ_ASSERT(b->sub(i) != nullptr,
-			   "sub range " << i << " of second operand not available");
-		rvec.push_back(b->sub(i));
-	    }
-	}
-	else {
-	    rvec.push_back(b);
-	}
+	RangePack o { { a } };
+	o.mRs.insert(o.mRs.end(), b.mRs.begin(), b.mRs.end());
+	return o;
+    }
 
-	return YRangeFactory(rvec).create();
+    RangePack operator*(const RangePack& a, const RangePtr& b)
+    {
+	CXZ_ASSERT(b != nullptr, "first operand not initialized");
+
+	RangePack o = a;
+	o.mRs.push_back(b);
+	return o;
+    }
+
+    RangePack operator*(const RangePack& a, const RangePack& b)
+    {
+	RangePack o = a;
+	o.mRs.insert(o.mRs.end(), b.mRs.begin(), b.mRs.end());
+	return o;
     }
 
 } // end namespace CNORXZ
