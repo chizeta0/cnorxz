@@ -224,7 +224,7 @@ namespace CNORXZ
 	const auto& info = typeid(PRange<Range>);
 	mProd = this->fromCreated(info, key);
 	if(mProd == nullptr) {
-	    mProd = std::make_shared<PRange<Range>>( new PRange(mRange, mParts) );
+	    mProd = std::make_shared<PRange<Range>>( new PRange<Range>(mRange, mParts) );
 	    this->addToCreated(info, key, mProd);
 	}
     }
