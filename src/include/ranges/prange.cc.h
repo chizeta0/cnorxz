@@ -12,9 +12,9 @@ namespace CNORXZ
     
     template <class Index>
     PIndex<Index>::PIndex(const RangePtr& range, SizeT pos) :
-	IndexInterface<Index>(pos),
+	IndexInterface<Index,typename Index::MetaType>(pos),
 	mRangePtr(rangeCast<RangeType>(range)),
-	mIndex(mRangePtr->orig(),mRangePtr->parts()[pos])
+	mOrig(mRangePtr->orig(),mRangePtr->parts()[pos])
     {}
 	
     template <class Index>
@@ -106,7 +106,7 @@ namespace CNORXZ
     }
     
     template <class Index>
-    Sptr<RangeType> PIndex<Index>::range() const
+    Sptr<typename PIndex<Index>::RangeType> PIndex<Index>::range() const
     {
 	return mRangePtr;
     }
@@ -130,13 +130,13 @@ namespace CNORXZ
     }
     
     template <class Index>
-    const MetaT& PIndex<Index>::meta() const
+    const typename PIndex<Index>::MetaType& PIndex<Index>::meta() const
     {
 	return mOrig->meta();
     }
     
     template <class Index>
-    PIndex& PIndex<Index>::at(const MetaT& metaPos)
+    PIndex<Index>& PIndex<Index>::at(const MetaType& metaPos)
     {
 	mOrig->at(metaPos);
 	mkPos();
@@ -178,7 +178,7 @@ namespace CNORXZ
     template <class Index>
     PIndex<Index>& PIndex<Index>::operator()()
     {
-	mkPos()
+	mkPos();
 	return *this;
     }
 
@@ -201,11 +201,13 @@ namespace CNORXZ
 	IB::mPos = 0;
 	for(const auto& x: mRangePtr->parts()){
 	    if(x == opos){
-		return *this;
+		return;
 	    }
 	    ++IB::mPos;
 	}
-	CXZ_ERROR("meta position '" << metaPos << "' not part of range");
+	CXZ_ERROR("meta position '" << mOrig->meta() << "' not part of range");
     }
 
 }
+
+#endif

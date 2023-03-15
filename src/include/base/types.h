@@ -164,6 +164,14 @@ namespace CNORXZ
     template <typename Meta>
     class UIndex;
 
+    // definition: ranges/prange.h
+    template <class Range>
+    class PRange;
+
+    // definition: ranges/prange.h
+    template <class Index>
+    class PIndex;
+
     // definition: ranges/crange.h
     class CRange; // classic range, trivial meta data
 

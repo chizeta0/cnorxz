@@ -15,7 +15,7 @@ namespace CNORXZ
     {
     public:
 
-	typedef public IndexInterface<Index,typename Index::MetaType> IB;
+	typedef IndexInterface<Index,typename Index::MetaType> IB;
 	typedef PRange<typename Index::RangeType> RangeType;
 	typedef typename Index::MetaType MetaType;
 
@@ -34,7 +34,7 @@ namespace CNORXZ
 	UPos lmax() const;
 	IndexId<0> id() const;
 	
-	const MetaT& operator*() const;
+	const MetaType& operator*() const;
 	
 	SizeT dim() const;
 	Sptr<RangeType> range() const;
@@ -43,8 +43,8 @@ namespace CNORXZ
 	UPos stepSize(const IndexId<I>& id) const;
 
 	String stringMeta() const;
-	const MetaT& meta() const;
-	PIndex& at(const MetaT& metaPos);
+	const MetaType& meta() const;
+	PIndex& at(const MetaType& metaPos);
 	decltype(auto) xpr(const Sptr<PIndex<Index>>& _this) const;
 
 	template <class I>
