@@ -14,7 +14,7 @@ namespace CNORXZ
     PIndex<Index>::PIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<Index,typename Index::MetaType>(pos),
 	mRangePtr(rangeCast<RangeType>(range)),
-	mOrig(mRangePtr->orig(),mRangePtr->parts()[pos])
+	mOrig(std::make_shared<Index>(mRangePtr->orig(),mRangePtr->parts()[pos]))
     {}
 	
     template <class Index>
@@ -207,6 +207,101 @@ namespace CNORXZ
 	}
 	CXZ_ERROR("meta position '" << mOrig->meta() << "' not part of range");
     }
+
+    /*********************
+     *   PRangeFactory   *
+     *********************/
+
+    template <class Range>
+    PRangeFactory<Range>::PRangeFactory(const Sptr<Range>& range, const Vector<SizeT>& _parts) :
+	mRange(range), mParts(_parts)
+    {}
+
+    template <class Range>
+    void PRangeFactory<Range>::make()
+    {
+	const Vector<Uuid> key = { mRange->id() };
+	const auto& info = typeid(PRange<Range>);
+	mProd = this->fromCreated(info, key);
+	if(mProd == nullptr) {
+	    mProd = std::make_shared<PRange<Range>>( new PRange(mRange, mParts) );
+	    this->addToCreated(info, key, mProd);
+	}
+    }
+
+    /**************
+     *   PRange   *
+     **************/
+
+    template <class Range>
+    SizeT PRange<Range>::size() const
+    {
+	return mParts.size();
+    }
+    
+    template <class Range>
+    SizeT PRange<Range>::dim() const
+    {
+	return 1;
+    }
+    
+    template <class Range>
+    String PRange<Range>::stringMeta(SizeT pos) const
+    {
+	return mRange->stringMeta( mParts[pos] );
+    }
+    
+    template <class Range>
+    const TypeInfo& PRange<Range>::type() const
+    {
+	return typeid(PRange<Range>);
+    }
+    
+    template <class Range>
+    const TypeInfo& PRange<Range>::metaType() const
+    {
+	return mRange->metaType();
+    }
+    
+    template <class Range>
+    RangePtr PRange<Range>::extend(const RangePtr& r) const
+    {
+	CXZ_ERROR("implement!!!");
+	return nullptr;
+    }
+
+    template <class Range>
+    RangePtr PRange<Range>::orig() const
+    {
+	return mRange;
+    }
+    
+    template <class Range>
+    const Vector<SizeT>& PRange<Range>::parts() const
+    {
+	return mParts;
+    }
+    
+    template <class Range>
+    RangePtr PRange<Range>::derive() const
+    {
+	Vector<MetaType> meta(this->size());
+	auto i = mRange->begin();
+	for(const auto& p: mParts){
+	    meta = *(i = p);
+	}
+	return URangeFactory<MetaType>( meta ).create();
+    }
+
+    
+    /************************
+     *   PRange (private)   *
+     ************************/
+
+    template <class Range>
+    PRange<Range>::PRange(const Sptr<Range>& range, const Vector<SizeT>& _parts) :
+	mRange(range), mParts(_parts)
+    {}
 
 }
 

@@ -77,7 +77,8 @@ namespace CNORXZ
 	PRangeFactory() = default;
 	virtual void make() override final;
 
-	RangePtr mRef;
+	RangePtr mRange;
+	Vector<SizeT> mParts;
     };
     
     template <class Range>
@@ -86,6 +87,7 @@ namespace CNORXZ
     public:
 	typedef RangeBase RB;
 	typedef PIndex<typename Range::IndexType> IndexType;
+	typedef typename Range::MetaType MetaType;
 	
 	friend PRangeFactory<Range>;
 
