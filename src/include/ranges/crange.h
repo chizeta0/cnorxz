@@ -80,6 +80,7 @@ namespace CNORXZ
     public:
 	typedef RangeBase RB;
 	typedef CIndex IndexType;
+	typedef SizeT MetaType;
         typedef CRangeFactory FType; 
         
 	friend CRangeFactory;

@@ -10,110 +10,110 @@ namespace CNORXZ
      *   PIndex   *
      **************/
     
-    template <class Index>
-    PIndex<Index>::PIndex(const RangePtr& range, SizeT pos) :
-	IndexInterface<Index,typename Index::MetaType>(pos),
+    template <class IndexT>
+    PIndex<IndexT>::PIndex(const RangePtr& range, SizeT pos) :
+	IndexInterface<PIndex<IndexT>,typename IndexT::MetaType>(pos),
 	mRangePtr(rangeCast<RangeType>(range)),
-	mOrig(std::make_shared<Index>(mRangePtr->orig(),mRangePtr->parts()[pos]))
+	mOrig(std::make_shared<IndexT>(mRangePtr->orig(),mRangePtr->parts()[pos]))
     {}
 	
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator=(SizeT lexpos)
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator=(SizeT lexpos)
     {
 	IB::mPos = lexpos;
 	*mOrig = mRangePtr->parts()[IB::mPos];
 	return *this;
     }
     
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator++()
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator++()
     {
 	++IB::mPos;
 	*mOrig = mRangePtr->parts()[IB::mPos];
 	return *this;
     }
     
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator--()
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator--()
     {
 	--IB::mPos;
 	*mOrig = mRangePtr->parts()[IB::mPos];
 	return *this;
     }
     
-    template <class Index>
-    PIndex<Index> PIndex<Index>::operator+(Int n) const
+    template <class IndexT>
+    PIndex<IndexT> PIndex<IndexT>::operator+(Int n) const
     {
 	return PIndex(mRangePtr, IB::mPos + n);
     }
     
-    template <class Index>
-    PIndex<Index> PIndex<Index>::operator-(Int n) const
+    template <class IndexT>
+    PIndex<IndexT> PIndex<IndexT>::operator-(Int n) const
     {
 	return PIndex(mRangePtr, IB::mPos - n);
     }
     
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator+=(Int n)
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator+=(Int n)
     {
 	IB::mPos += n;
 	*mOrig = mRangePtr->parts()[IB::mPos];
 	return *this;
     }
     
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator-=(Int n)
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator-=(Int n)
     {
 	IB::mPos -= n;
 	*mOrig = mRangePtr->parts()[IB::mPos];
 	return *this;
     }
 
-    template <class Index>
-    SizeT PIndex<Index>::lex() const
+    template <class IndexT>
+    SizeT PIndex<IndexT>::lex() const
     {
 	return IB::mPos;
     }
     
-    template <class Index>
-    UPos PIndex<Index>::pmax() const
+    template <class IndexT>
+    UPos PIndex<IndexT>::pmax() const
     {
 	return UPos(mRangePtr->size());
     }
     
-    template <class Index>
-    UPos PIndex<Index>::lmax() const
+    template <class IndexT>
+    UPos PIndex<IndexT>::lmax() const
     {
 	return UPos(mRangePtr->size());
     }
     
-    template <class Index>
-    IndexId<0> PIndex<Index>::id() const
+    template <class IndexT>
+    IndexId<0> PIndex<IndexT>::id() const
     {
 	return IndexId<0>(this->ptrId());
     }
 	
-    template <class Index>
-    const typename PIndex<Index>::MetaType& PIndex<Index>::operator*() const
+    template <class IndexT>
+    decltype(auto) PIndex<IndexT>::operator*() const
     {
 	return **mOrig;
     }
 	
-    template <class Index>
-    SizeT PIndex<Index>::dim() const
+    template <class IndexT>
+    SizeT PIndex<IndexT>::dim() const
     {
 	return 1;
     }
     
-    template <class Index>
-    Sptr<typename PIndex<Index>::RangeType> PIndex<Index>::range() const
+    template <class IndexT>
+    Sptr<typename PIndex<IndexT>::RangeType> PIndex<IndexT>::range() const
     {
 	return mRangePtr;
     }
 
-    template <class Index>
+    template <class IndexT>
     template <SizeT I>
-    UPos PIndex<Index>::stepSize(const IndexId<I>& id) const
+    UPos PIndex<IndexT>::stepSize(const IndexId<I>& id) const
     {
 	if(id == this->id()){
 	    return UPos(1);
@@ -123,67 +123,70 @@ namespace CNORXZ
 	}
     }
 
-    template <class Index>
-    String PIndex<Index>::stringMeta() const
+    template <class IndexT>
+    String PIndex<IndexT>::stringMeta() const
     {
 	return mOrig->stringMeta();
     }
     
-    template <class Index>
-    const typename PIndex<Index>::MetaType& PIndex<Index>::meta() const
+    template <class IndexT>
+    decltype(auto) PIndex<IndexT>::meta() const
     {
 	return mOrig->meta();
     }
     
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::at(const MetaType& metaPos)
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::at(const MetaType& metaPos)
     {
 	mOrig->at(metaPos);
 	mkPos();
 	return *this;
     }
     
-    template <class Index>
-    decltype(auto) PIndex<Index>::xpr(const Sptr<PIndex<Index>>& _this) const
+    template <class IndexT>
+    decltype(auto) PIndex<IndexT>::xpr(const Sptr<PIndex<IndexT>>& _this) const
     {
-	return poperation( mOrig->xpr(mOrig), mRangePtr->parts(), _this );
+	CXZ_ERROR("implement!!!");
+	//return poperation( _this, mOrig, mRangePtr->parts(), mOrig->xpr(mOrig) );
+	return mOrig->xpr(mOrig);
     }
 
-    template <class Index>
+    template <class IndexT>
     template <class I>
-    decltype(auto) PIndex<Index>::format(const Sptr<I>& ind) const
+    decltype(auto) PIndex<IndexT>::format(const Sptr<I>& ind) const
     {
 	return ind;
     }
 
-    template <class Index>
+    template <class IndexT>
     template <class I>
-    decltype(auto) PIndex<Index>::slice(const Sptr<I>& ind) const
+    decltype(auto) PIndex<IndexT>::slice(const Sptr<I>& ind) const
     {
 	if(ind != nullptr){
 	    if(ind->dim() != 0){
-		return Sptr<PIndex<Index>>();
+		return Sptr<PIndex<IndexT>>();
 	    }
 	}
-	return std::make_shared<PIndex<Index>>(*this);
+	return std::make_shared<PIndex<IndexT>>(*this);
     }
 
-    template <class Index>
+    template <class IndexT>
     template <class Xpr, class F>
-    decltype(auto) PIndex<Index>::ifor(const Xpr& xpr, F&& f) const
+    decltype(auto) PIndex<IndexT>::ifor(const Xpr& xpr, F&& f) const
     {
-	return PFor<0,0,Xpr,F>(this->lmax().val(), this->id(), mOrig->id(), xpr, std::forward<F>(f));
+	return PFor<0,0,Xpr,F>(this->lmax().val(), this->id(), mOrig->id(),
+			       mRangePtr->parts().data(), xpr, std::forward<F>(f));
     }
 
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator()()
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator()()
     {
 	mkPos();
 	return *this;
     }
 
-    template <class Index>
-    PIndex<Index>& PIndex<Index>::operator()(const Sptr<Index>& i)
+    template <class IndexT>
+    PIndex<IndexT>& PIndex<IndexT>::operator()(const Sptr<IndexT>& i)
     {
 	mOrig = i;
 	mkPos();
@@ -194,8 +197,8 @@ namespace CNORXZ
      *   PIndex (private)   *
      ************************/
 
-    template <class Index>
-    void PIndex<Index>::mkPos()
+    template <class IndexT>
+    void PIndex<IndexT>::mkPos()
     {
 	const SizeT opos = mOrig->lex();
 	IB::mPos = 0;
@@ -208,23 +211,38 @@ namespace CNORXZ
 	CXZ_ERROR("meta position '" << mOrig->meta() << "' not part of range");
     }
 
+    /***************************
+     *   PIndex (non-member)   *
+     ***************************/
+
+    template <class I, class I1>
+    decltype(auto) operator*(const Sptr<PIndex<I>>& a, const Sptr<I1>& b)
+    {
+	return iptrMul(a, b);
+    }
+
     /*********************
      *   PRangeFactory   *
      *********************/
 
-    template <class Range>
-    PRangeFactory<Range>::PRangeFactory(const Sptr<Range>& range, const Vector<SizeT>& _parts) :
+    template <class RangeT>
+    PRangeFactory<RangeT>::PRangeFactory(const Sptr<RangeT>& range, const Vector<SizeT>& _parts) :
 	mRange(range), mParts(_parts)
     {}
 
-    template <class Range>
-    void PRangeFactory<Range>::make()
+    template <class RangeT>
+    PRangeFactory<RangeT>::PRangeFactory(const RangePtr& range, const Vector<SizeT>& _parts) :
+	mRange(rangeCast<RangeT>(range)), mParts(_parts)
+    {}
+
+    template <class RangeT>
+    void PRangeFactory<RangeT>::make()
     {
 	const Vector<Uuid> key = { mRange->id() };
-	const auto& info = typeid(PRange<Range>);
+	const auto& info = typeid(PRange<RangeT>);
 	mProd = this->fromCreated(info, key);
 	if(mProd == nullptr) {
-	    mProd = std::make_shared<PRange<Range>>( new PRange<Range>(mRange, mParts) );
+	    mProd = std::shared_ptr<PRange<RangeT>>( new PRange<RangeT>(mRange, mParts) );
 	    this->addToCreated(info, key, mProd);
 	}
     }
@@ -233,57 +251,57 @@ namespace CNORXZ
      *   PRange   *
      **************/
 
-    template <class Range>
-    SizeT PRange<Range>::size() const
+    template <class RangeT>
+    SizeT PRange<RangeT>::size() const
     {
 	return mParts.size();
     }
     
-    template <class Range>
-    SizeT PRange<Range>::dim() const
+    template <class RangeT>
+    SizeT PRange<RangeT>::dim() const
     {
 	return 1;
     }
     
-    template <class Range>
-    String PRange<Range>::stringMeta(SizeT pos) const
+    template <class RangeT>
+    String PRange<RangeT>::stringMeta(SizeT pos) const
     {
 	return mRange->stringMeta( mParts[pos] );
     }
     
-    template <class Range>
-    const TypeInfo& PRange<Range>::type() const
+    template <class RangeT>
+    const TypeInfo& PRange<RangeT>::type() const
     {
-	return typeid(PRange<Range>);
+	return typeid(PRange<RangeT>);
     }
     
-    template <class Range>
-    const TypeInfo& PRange<Range>::metaType() const
+    template <class RangeT>
+    const TypeInfo& PRange<RangeT>::metaType() const
     {
 	return mRange->metaType();
     }
     
-    template <class Range>
-    RangePtr PRange<Range>::extend(const RangePtr& r) const
+    template <class RangeT>
+    RangePtr PRange<RangeT>::extend(const RangePtr& r) const
     {
 	CXZ_ERROR("implement!!!");
 	return nullptr;
     }
 
-    template <class Range>
-    RangePtr PRange<Range>::orig() const
+    template <class RangeT>
+    RangePtr PRange<RangeT>::orig() const
     {
 	return mRange;
     }
     
-    template <class Range>
-    const Vector<SizeT>& PRange<Range>::parts() const
+    template <class RangeT>
+    const Vector<SizeT>& PRange<RangeT>::parts() const
     {
 	return mParts;
     }
     
-    template <class Range>
-    RangePtr PRange<Range>::derive() const
+    template <class RangeT>
+    RangePtr PRange<RangeT>::derive() const
     {
 	Vector<MetaType> meta(this->size());
 	auto i = mRange->begin();
@@ -298,11 +316,16 @@ namespace CNORXZ
      *   PRange (private)   *
      ************************/
 
-    template <class Range>
-    PRange<Range>::PRange(const Sptr<Range>& range, const Vector<SizeT>& _parts) :
+    template <class RangeT>
+    PRange<RangeT>::PRange(const Sptr<RangeT>& range, const Vector<SizeT>& _parts) :
 	mRange(range), mParts(_parts)
     {}
 
+    template <class RangeT>
+    Vector<Uuid> PRange<RangeT>::key() const
+    {
+	return Vector<Uuid> { mRange->id() };
+    }
 }
 
 #endif

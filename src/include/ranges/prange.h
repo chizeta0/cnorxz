@@ -10,14 +10,14 @@
 namespace CNORXZ
 {
 
-    template <class Index>
-    class PIndex : public IndexInterface<Index,typename Index::MetaType>
+    template <class IndexT>
+    class PIndex : public IndexInterface<PIndex<IndexT>,typename IndexT::MetaType>
     {
     public:
 
-	typedef IndexInterface<Index,typename Index::MetaType> IB;
-	typedef PRange<typename Index::RangeType> RangeType;
-	typedef typename Index::MetaType MetaType;
+	typedef IndexInterface<PIndex<IndexT>,typename IndexT::MetaType> IB;
+	typedef PRange<typename IndexT::RangeType> RangeType;
+	typedef typename IndexT::MetaType MetaType;
 
 	PIndex(const RangePtr& range, SizeT pos = 0);
 	
@@ -34,7 +34,7 @@ namespace CNORXZ
 	UPos lmax() const;
 	IndexId<0> id() const;
 	
-	const MetaType& operator*() const;
+	decltype(auto) operator*() const;
 	
 	SizeT dim() const;
 	Sptr<RangeType> range() const;
@@ -43,9 +43,9 @@ namespace CNORXZ
 	UPos stepSize(const IndexId<I>& id) const;
 
 	String stringMeta() const;
-	const MetaType& meta() const;
+	decltype(auto) meta() const;
 	PIndex& at(const MetaType& metaPos);
-	decltype(auto) xpr(const Sptr<PIndex<Index>>& _this) const;
+	decltype(auto) xpr(const Sptr<PIndex<IndexT>>& _this) const;
 
 	template <class I>
 	decltype(auto) format(const Sptr<I>& ind) const;
@@ -57,39 +57,43 @@ namespace CNORXZ
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
 	PIndex& operator()();
-	PIndex& operator()(const Sptr<Index>& i);
-	const Sptr<Index>& orig() const;
+	PIndex& operator()(const Sptr<IndexT>& i);
+	const Sptr<IndexT>& orig() const;
 	
     private:
 	Sptr<RangeType> mRangePtr;
-	Sptr<Index> mOrig;
+	Sptr<IndexT> mOrig;
 
 	void mkPos();
     };
 
-    template <class Range>
+    template <class I, class I1>
+    decltype(auto) operator*(const Sptr<PIndex<I>>& a, const Sptr<I1>& b);
+
+    template <class RangeT>
     class PRangeFactory : public RangeFactoryBase
     {
     public:
-	PRangeFactory(const Sptr<Range>& range, const Vector<SizeT>& _parts);
+	PRangeFactory(const Sptr<RangeT>& range, const Vector<SizeT>& _parts);
+	PRangeFactory(const RangePtr& range, const Vector<SizeT>& _parts);
 	
     private:
 	PRangeFactory() = default;
 	virtual void make() override final;
 
-	RangePtr mRange;
+	Sptr<RangeT> mRange;
 	Vector<SizeT> mParts;
     };
     
-    template <class Range>
-    class PRange : public RangeInterface<PRange<Range>>
+    template <class RangeT>
+    class PRange : public RangeInterface<PRange<RangeT>>
     {
     public:
 	typedef RangeBase RB;
-	typedef PIndex<typename Range::IndexType> IndexType;
-	typedef typename Range::MetaType MetaType;
+	typedef PIndex<typename RangeT::IndexType> IndexType;
+	typedef typename RangeT::MetaType MetaType;
 	
-	friend PRangeFactory<Range>;
+	friend PRangeFactory<RangeT>;
 
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
@@ -106,9 +110,11 @@ namespace CNORXZ
 
 	PRange() = delete;
 	PRange(const PRange& in) = delete;
-	PRange(const Sptr<Range>& range, const Vector<SizeT>& _parts);
+	PRange(const Sptr<RangeT>& range, const Vector<SizeT>& _parts);
 
-	Sptr<Range> mRange;
+	virtual Vector<Uuid> key() const override final;
+	
+	Sptr<RangeT> mRange;
 	Vector<SizeT> mParts;
     };
     

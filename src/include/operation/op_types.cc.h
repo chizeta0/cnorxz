@@ -402,7 +402,7 @@ namespace CNORXZ
     template <SizeT I>
     constexpr decltype(auto) Contraction<CXpr>::rootSteps(const IndexId<I>& id) const
     {
-	return mCXpr.stepSize(id);
+	return mCXpr.rootSteps(id);
     }
 
     template <class F, class Op, class IndexT>
