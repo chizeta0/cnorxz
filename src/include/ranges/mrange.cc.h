@@ -254,7 +254,7 @@ namespace CNORXZ
 	}
 	if constexpr(not std::is_same<FormatT,None>::value){ mLex = lexpos; }
 	IB::mPos = iter<0,NI>( [&](auto i) {
-	    *mIPack[i] = (lex() / lexFormat()[i].val()) % mIPack[i]->lmax().val();
+	    *mIPack[i] = (lexpos / lexFormat()[i].val()) % mIPack[i]->lmax().val();
 	    return format()[i].val() * mIPack[i]->pos();
 	}, [](const auto&... e) { return (e + ...); } );
 	return *this;
@@ -510,6 +510,12 @@ namespace CNORXZ
 	return std::make_shared<GMIndex<FormatT,Indices...>>(bs, is...);
     }    
     
+    template <class I1, class FormatT, class... Indices>
+    decltype(auto) operator*(const Sptr<GMIndex<FormatT,Indices...>>& a, const Sptr<I1>& b)
+    {
+	return iptrMul(a, b);
+    }
+
     /*********************
      *   MRangeFactory   *
      *********************/

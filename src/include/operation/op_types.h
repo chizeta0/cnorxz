@@ -214,7 +214,7 @@ namespace CNORXZ
 
     template <class F, class... Ops>
     struct op_size<Operation<F,Ops...>>
-    { static constexpr SizeT value = sizeof...(Ops); };
+    { static constexpr SizeT value = ( op_size<Ops>::value + ... ); };
     
     template <class CXpr>
     class Contraction : public OpInterface<Contraction<CXpr>>
@@ -237,6 +237,10 @@ namespace CNORXZ
     private:
 	CXpr mCXpr;
     };
+
+    template <class CXpr>
+    struct op_size<Contraction<CXpr>>
+    { static constexpr SizeT value = op_size<CXpr>::value; };
 
     template <class F, class Op, class IndexT>
     constexpr decltype(auto) contraction(F&& f, Op&& op, const Sptr<IndexT>& i);

@@ -148,6 +148,9 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is);
     
+    template <class I1, class FormatT, class... Indices>
+    decltype(auto) operator*(const Sptr<GMIndex<FormatT,Indices...>>& a, const Sptr<I1>& b);
+
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase
     {
