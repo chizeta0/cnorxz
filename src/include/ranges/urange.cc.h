@@ -307,10 +307,113 @@ namespace CNORXZ
      *******************/
 
     template <typename MetaType>
+    struct URangeCast
+    {
+	template <typename T>
+	static inline Sptr<URange<MetaType>> transform(const RangePtr& r)
+	{
+	    if(r->type() == typeid(URange<T>)){
+		auto rr = std::dynamic_pointer_cast<URange<T>>(r);
+		Vector<MetaType> v(rr->size());
+		std::transform(rr->begin(), rr->end(), v.begin(),
+			       [](const T& x) { return static_cast<MetaType>(x); } );
+		return std::dynamic_pointer_cast<URange<MetaType>>
+		    ( URangeFactory<MetaType>(std::move(v)).create() );
+	    }
+	    else {
+		return nullptr;
+	    }
+	}
+	
+	static inline Sptr<URange<MetaType>> cast(const RangePtr& r)
+	{
+	    static_assert(std::is_fundamental<MetaType>::value, "got non-fundamental type");
+	    CXZ_ASSERT(r->dim() == 1, "range cast into URange<Int>: source range must have dim = 1, got " << r->dim());
+	    Sptr<URange<MetaType>> o = nullptr;
+	    o = transform<SizeT>(r); if(o) return o;
+	    o = transform<Int>(r); if(o) return o;
+	    o = transform<LInt>(r); if(o) return o;
+	    o = transform<Double>(r); if(o) return o;
+	    // else general transform using DType (better than nothing), to be implemented!!!
+	    CXZ_ERROR("no range cast available for input range '" << r->type().name() << "'");
+	    return nullptr;
+	}
+    };
+
+    template <typename T> struct is_vector : std::false_type {};
+    template <typename T, typename A> struct is_vector<std::vector<T,A>> : std::true_type {};
+
+    template <typename U>
+    struct URangeCast<Vector<U>>
+    {
+	template <typename T>
+	static inline Sptr<URange<Vector<U>>> transform(const RangePtr& r)
+	{
+	    if(r->type() == typeid(URange<T>)){
+		auto rr = std::dynamic_pointer_cast<URange<T>>(r);
+		Vector<Vector<U>> v(rr->size());
+		std::transform(rr->begin(), rr->end(), v.begin(),
+			       [](const T& x) { return Vector<U> { static_cast<U>(x) }; } );
+		return std::dynamic_pointer_cast<URange<Vector<U>>>
+		    ( URangeFactory<Vector<U>>(std::move(v)).create() );
+	    }
+	    else {
+		return nullptr;
+	    }
+	}
+
+	template <typename T, SizeT N>
+	static inline Sptr<URange<Vector<U>>> atransform(const RangePtr& r)
+	{
+	    if(r->type() == typeid(URange<Arr<T,N>>)){
+		auto rr = std::dynamic_pointer_cast<URange<Arr<T,N>>>(r);
+		Vector<Vector<U>> v(rr->size());
+		std::transform(rr->begin(), rr->end(), v.begin(),
+			       [](const Arr<T,N>& x) {
+				   return iter<0,N>( [&](auto i) { return static_cast<U>(x[i]); },
+						     [](const auto&... e) { return Vector<U>{ e... }; });
+			       } );
+		return std::dynamic_pointer_cast<URange<Vector<U>>>
+		    ( URangeFactory<Vector<U>>(std::move(v)).create() );
+	    }
+	    else {
+		return nullptr;
+	    }
+	}
+
+	static inline Sptr<URange<Vector<U>>> cast(const RangePtr& r)
+	{
+	    Sptr<URange<Vector<U>>> o = nullptr;
+	    if constexpr(std::is_fundamental<U>::value){
+		o = transform<SizeT>(r); if(o) return o;
+		o = transform<Int>(r); if(o) return o;
+		o = transform<LInt>(r); if(o) return o;
+		o = transform<Double>(r); if(o) return o;
+		o = atransform<SizeT,2>(r); if(o) return o;
+		o = atransform<Int,2>(r); if(o) return o;
+		o = atransform<LInt,2>(r); if(o) return o;
+		o = atransform<Double,2>(r); if(o) return o;
+		o = atransform<SizeT,3>(r); if(o) return o;
+		o = atransform<Int,3>(r); if(o) return o;
+		o = atransform<LInt,3>(r); if(o) return o;
+		o = atransform<Double,3>(r); if(o) return o;
+	    }
+	    // else general transform using DType (better than nothing), to be implemented!!!
+	    CXZ_ERROR("no range cast available for input range '" << r->type().name() << "'");
+	}
+    };
+
+    
+    template <typename MetaType>
     Sptr<URange<MetaType>> RangeCast<URange<MetaType>>::func(const RangePtr& r)
     {
-	CXZ_ERROR("to be implemented...");
-	return nullptr;
+	if constexpr(std::is_fundamental<MetaType>::value or is_vector<MetaType>::value){
+	    return URangeCast<MetaType>::cast(r);
+	}
+	else {
+	    CXZ_ERROR("no range cast available for input range '" << r->type().name() << "'");
+	    return nullptr;
+	}
     }
     
 }
