@@ -12,6 +12,7 @@
 #include <typeinfo>
 #include <utility>
 #include <numeric>
+#include <cstdint>
 
 namespace CNORXZ
 {
