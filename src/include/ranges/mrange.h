@@ -178,6 +178,7 @@ namespace CNORXZ
 	friend MRangeFactory<Ranges...>;
 
 	virtual RangePtr sub(SizeT num) const override final;
+	virtual MArray<RangePtr> sub() const override final;
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
 	virtual String stringMeta(SizeT pos) const override final;

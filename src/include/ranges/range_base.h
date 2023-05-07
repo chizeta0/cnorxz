@@ -52,6 +52,7 @@ namespace CNORXZ
 	
 	// virtual RangePtr sub() const; // Sptr<URange<RangePtr>> ; range of subranges (TODO!!!)
 	virtual RangePtr sub(SizeT num) const;
+	virtual MArray<RangePtr> sub() const;
 	virtual SizeT size() const = 0;
 	virtual SizeT dim() const = 0;
 	virtual const TypeInfo& type() const = 0;
@@ -120,6 +121,9 @@ namespace CNORXZ
     RangePack operator*(const RangePtr& a, const RangePack& b);
     RangePack operator*(const RangePack& a, const RangePtr& b);
     RangePack operator*(const RangePack& a, const RangePack& b);
+
+    RangePtr getSub(const RangePtr& r, SizeT num);
+    MArray<RangePtr> getSub(const RangePtr& r);
 }
 
 #endif

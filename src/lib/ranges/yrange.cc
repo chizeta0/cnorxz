@@ -1,5 +1,6 @@
 
 #include "ranges/ranges.h"
+#include "array/array.h"
 
 namespace CNORXZ
 {
@@ -443,6 +444,14 @@ namespace CNORXZ
     RangePtr YRange::sub(SizeT i) const
     {
 	return mRVec[i];
+    }
+
+    MArray<RangePtr> YRange::sub() const
+    {
+	if(mRVec.size() == 0){
+	    return MArray<RangePtr>();
+	}
+	return MArray<RangePtr>( CRangeFactory(mRVec.size()).create(), mRVec );
     }
 
     SizeT YRange::size() const

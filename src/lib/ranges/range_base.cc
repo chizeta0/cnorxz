@@ -1,5 +1,6 @@
 
 #include "ranges/ranges.h"
+#include "array/array.h"
 
 namespace CNORXZ
 {
@@ -57,6 +58,11 @@ namespace CNORXZ
     RangePtr RangeBase::sub(SizeT num) const
     {
 	return nullptr;
+    }
+
+    MArray<RangePtr> RangeBase::sub() const
+    {
+	return MArray<RangePtr>();
     }
 
     bool RangeBase::operator==(const RangeBase& in) const
@@ -133,6 +139,20 @@ namespace CNORXZ
     {
 	RangePack o = a;
 	o.mRs.insert(o.mRs.end(), b.mRs.begin(), b.mRs.end());
+	return o;
+    }
+
+    RangePtr getSub(const RangePtr& r, SizeT num)
+    {
+	RangePtr o = r->sub(num);
+	CXZ_ASSERT(o != nullptr, "try to access empty subrange at position " << num);
+	return o;
+    }
+
+    MArray<RangePtr> getSub(const RangePtr& r)
+    {
+	MArray<RangePtr> o = r->sub();
+	CXZ_ASSERT(o.range() != nullptr, "try to access subrange of single range");
 	return o;
     }
 

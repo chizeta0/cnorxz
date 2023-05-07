@@ -6,6 +6,7 @@
 #include "operation/op_types.h"
 #include "operation/op_types.cc.h" // -> do .cc files
 #include "operation/op_utility.cc.h" // -> do .cc files
+#include "array/marray.h"
 
 namespace CNORXZ
 {
@@ -562,6 +563,13 @@ namespace CNORXZ
     {
 	CXZ_ASSERT(num < this->dim(), "index out of range");
 	return mA[num];
+    }
+
+    template <class... Ranges>
+    MArray<RangePtr> MRange<Ranges...>::sub() const
+    {
+	CXZ_ERROR("not implemented (SRange missing!!)"); //!!!
+	return MArray<RangePtr>();
     }
 
     template <class... Ranges>
