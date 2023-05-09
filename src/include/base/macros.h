@@ -45,8 +45,8 @@
     template <class Archive> void save(Archive& ar, const std::uint32_t version) const; \
     template <class Archive> void load(Archive& ar, const std::uint32_t version)
 #else
-#define SERIALIZATION_FUNCTIONS
-#define SERIALIZATION_FUNCTIONS_NOPUB
+#define SERIALIZATION_FUNCTIONS static const int v = 0
+#define SERIALIZATION_FUNCTIONS_NOPUB static const int v = 0
 #endif
 
 #endif
