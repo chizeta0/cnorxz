@@ -58,6 +58,24 @@ namespace CNORXZ
 
     	template <Format F, typename T>
 	void readFile(const String& name, MArray<T>& data);
+
+	template <typename T>
+	void writeBINARYFile(const String& name, const MArray<T>& data) { writeFile<Format::BINARY>(name, data); }
+
+    	template <typename T>
+	void readBINARYFile(const String& name, MArray<T>& data) { readFile<Format::BINARY>(name, data); }
+
+	template <typename T>
+	void writeJSONFile(const String& name, const MArray<T>& data) { writeFile<Format::JSON>(name, data); }
+
+    	template <typename T>
+	void readJSONFile(const String& name, MArray<T>& data) { readFile<Format::JSON>(name, data); }
+
+	template <typename T>
+	void writeXMLFile(const String& name, const MArray<T>& data) { writeFile<Format::XML>(name, data); }
+
+    	template <typename T>
+	void readXMLFile(const String& name, MArray<T>& data) { readFile<Format::XML>(name, data); }
     }
 }
 
