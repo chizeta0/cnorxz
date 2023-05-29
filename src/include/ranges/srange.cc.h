@@ -289,6 +289,28 @@ namespace CNORXZ
 	return Vector<Uuid> { this->id() };
     }
 
+    /*******************
+     *   Range Casts   *
+     *******************/
+
+    template <typename MetaType, SizeT S>
+    Sptr<SRange<MetaType,S>> RangeCast<SRange<MetaType,S>>::func(const RangePtr& r)
+    {
+	Sptr<URange<MetaType>> tmp;
+	if(r->type() != typeid(URange<MetaType>)){
+	    tmp = castRange<URange<MetaType>>(r);
+	}
+	else {
+	    tmp = r;
+	}
+	CXZ_ASSERT(tmp->size() == S, "cannot cast range of size " << tmp->size()
+		   << " into static range of size " << S);
+	Arr<MetaType,S> space;
+	std::copy(tmp->begin(), tmp->end(), space.begin());
+	return std::dynamic_pointer_cast<SRange<MetaType,S>>
+	    ( SRangeFactory<MetaType,S>(std::move(space)).create() );
+    }
+    
 }
 
 #endif
