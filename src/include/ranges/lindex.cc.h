@@ -7,17 +7,15 @@
 namespace CNORXZ
 {
     template <class Index, SizeT L>
-    LIndex<Index,L>::LIndex(const Index& i) :
-	Index(i) {}
-
-    template <class Index, SizeT L>
-    LIndex<Index,L>::LIndex(Index&& i) :
-	Index(i) {}
+    LIndex<Index,L>::LIndex(const Sptr<Index>& i) :
+	Index(*i),
+	mI(i)
+    {}
 
     template <class Index, SizeT L>
     IndexId<L> LIndex<Index,L>::id() const
     {
-	return IndexId<L>(this->ptrId());
+	return IndexId<L>(mI->ptrId());
     }
 
     template <class Index, SizeT L>
@@ -25,13 +23,35 @@ namespace CNORXZ
     decltype(auto) LIndex<Index,L>::stepSize(const IndexId<I>& id) const
     {
 	if constexpr(L == 0 or I == 0){
-	    return UPos(this->id() == id ? 1 : 0);
+	    return UPos(mI->id() == id ? 1 : 0);
 	}
 	else {
-	    return this->id() == id ? SPos<1>() : SPos<0>();
+	    if constexpr(L == I) {
+		return SPos<1>();
+	    }
+	    else {
+		return SPos<0>();
+	    }
 	}
     }
 
+    template <class Index, SizeT L, class I1>
+    decltype(auto) operator*(const Sptr<LIndex<Index,L>>& a, const Sptr<I1>& b)
+    {
+	return iptrMul(a, b);
+    }
+
+    template <SizeT L, class Index>
+    decltype(auto) lindexPtr(const Sptr<Index>& i)
+    {
+	return LIndex<Index,L>( i );
+    }
+
+    template <class Index, SizeT L>
+    decltype(auto) lindexPtr(const Sptr<Index>& i, CSizeT<L> l)
+    {
+	return lindexPtr<l>( i );
+    }
 }
 
 #endif

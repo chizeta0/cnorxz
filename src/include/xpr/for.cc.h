@@ -393,7 +393,7 @@ namespace CNORXZ
     constexpr EFor<N,L,Xpr,F>::EFor(const IndexId<L>& id, const Xpr& xpr, F&& f) :
 	mId(id),
 	mXpr(xpr),
-	mExt(mXpr.RootSteps(mId)),
+	mExt(mXpr.rootSteps(mId)),
 	mF(std::forward<F>(f))
     {}
 

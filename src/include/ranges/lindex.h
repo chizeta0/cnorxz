@@ -18,15 +18,26 @@ namespace CNORXZ
 	typedef typename Index::RangeType RangeType;
 
 	DEFAULT_MEMBERS(LIndex);
-	LIndex(const Index& i);
-	LIndex(Index&& i);
+	LIndex(const Sptr<Index>& i);
 
 	IndexId<L> id() const;
 	
 	template <SizeT I>
 	decltype(auto) stepSize(const IndexId<I>& id) const;
 
+    private:
+	Sptr<Index> mI;
     };
+
+
+    template <class Index, SizeT L, class I1>
+    decltype(auto) operator*(const Sptr<LIndex<Index,L>>& a, const Sptr<I1>& b);
+
+    template <SizeT L, class Index>
+    decltype(auto) lindexPtr(const Sptr<Index>& i);
+
+    template <class Index, SizeT L>
+    decltype(auto) lindexPtr(const Sptr<Index>& i, CSizeT<L> l);
 }
 
 #endif
