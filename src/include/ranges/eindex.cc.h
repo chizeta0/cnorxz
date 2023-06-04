@@ -19,8 +19,7 @@ namespace CNORXZ
     template <class Xpr, class F>
     decltype(auto) EIndex<MetaT,S>::ifor(const Xpr& xpr, F&& f) const
     {
-	// TODO: EFor Function argument; meanwhile ignore unused function error!!!
-	return EFor<S,0,Xpr>(this->id(), xpr);
+	return EFor<S,0,Xpr>(this->id(), xpr, std::forward<F>(f));
     }
 
 }

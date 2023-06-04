@@ -389,31 +389,52 @@ namespace CNORXZ
      *   EFor   *
      ************/
 
-    template <SizeT N, SizeT L, class Xpr>
-    constexpr EFor<N,L,Xpr>::EFor(const IndexId<L>& id, const Xpr& xpr) :
+    template <SizeT N, SizeT L, class Xpr, class F>
+    constexpr EFor<N,L,Xpr,F>::EFor(const IndexId<L>& id, const Xpr& xpr, F&& f) :
 	mId(id),
 	mXpr(xpr),
-	mExt(mXpr.RootSteps(mId))
+	mExt(mXpr.RootSteps(mId)),
+	mF(std::forward<F>(f))
     {}
 
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F>
     template <class PosT>
-    constexpr decltype(auto) EFor<N,L,Xpr>::operator()(const PosT& last) const
+    constexpr decltype(auto) EFor<N,L,Xpr,F>::operator()(const PosT& last) const
     {
-	auto pos = mkEPos<N>(last, mExt);
-	return mXpr(pos);
+	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
+	    const auto pos = mkEPos<N>(last, mExt);
+	    mXpr(pos);
+	}
+	else {
+	    typedef typename
+		std::remove_reference<decltype(mXpr(mkEPos<N>(SPos<0>(), mExt)))>::type OutT;
+	    auto o = OutT();
+	    const auto pos = mkEPos<N>(last, mExt);
+	    mF(o, mXpr(pos));
+	    return o;
+	}
     }
 	
-    template <SizeT N, SizeT L, class Xpr>
-    constexpr decltype(auto) EFor<N,L,Xpr>::operator()() const
+    template <SizeT N, SizeT L, class Xpr, class F>
+    constexpr decltype(auto) EFor<N,L,Xpr,F>::operator()() const
     {
-	auto pos = mkEPos<N>(SPos<0>(), mExt);
-	return mXpr(pos);
+	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
+	    const auto pos = mkEPos<N>(SPos<0>(), mExt);
+	    mXpr(pos);
+	}
+	else {
+	    typedef typename
+		std::remove_reference<decltype(mXpr(mkEPos<N>(SPos<0>(), mExt)))>::type OutT;
+	    auto o = OutT();
+	    const auto pos = mkEPos<N>(SPos<0>(), mExt);
+	    mF(o, mXpr(pos));
+	    return o;
+	}
     }
 
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F>
     template <SizeT I>
-    constexpr decltype(auto) EFor<N,L,Xpr>::rootSteps(const IndexId<I>& id) const
+    constexpr decltype(auto) EFor<N,L,Xpr,F>::rootSteps(const IndexId<I>& id) const
     {
 	return mXpr.rootSteps(id);
     }

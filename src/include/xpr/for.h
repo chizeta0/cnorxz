@@ -149,13 +149,13 @@ namespace CNORXZ
     };
 
     // Extension For (Vectorization)
-    template <SizeT N, SizeT L, class Xpr>
+    template <SizeT N, SizeT L, class Xpr, class F = NoF>
     class EFor : public XprInterface<EFor<N,L,Xpr>>
     {
     public:
 	DEFAULT_MEMBERS(EFor);
 
-	constexpr EFor(const IndexId<L>& id, const Xpr& xpr);
+	constexpr EFor(const IndexId<L>& id, const Xpr& xpr, F&& f);
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& last) const;
@@ -170,6 +170,7 @@ namespace CNORXZ
 	Xpr mXpr;
 	typedef decltype(mXpr.rootSteps(mId)) XPosT;
 	XPosT mExt;
+	F mF;
     };
     
 }
