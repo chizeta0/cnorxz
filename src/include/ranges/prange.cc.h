@@ -153,7 +153,7 @@ namespace CNORXZ
 
     template <class IndexT>
     template <class I>
-    decltype(auto) PIndex<IndexT>::format(const Sptr<I>& ind) const
+    decltype(auto) PIndex<IndexT>::reformat(const Sptr<I>& ind) const
     {
 	return ind;
     }

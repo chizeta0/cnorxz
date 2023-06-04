@@ -49,7 +49,7 @@ namespace CNORXZ
 	decltype(auto) xpr(const Sptr<UIndex<MetaType>>& _this) const;
 
 	template <class Index>
-	decltype(auto) format(const Sptr<Index>& ind) const;
+	decltype(auto) reformat(const Sptr<Index>& ind) const;
 
 	template <class Index>
 	decltype(auto) slice(const Sptr<Index>& ind) const;

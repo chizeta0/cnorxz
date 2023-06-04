@@ -143,7 +143,7 @@ namespace CNORXZ
 
     template <typename Meta, SizeT S>
     template <class Index>
-    decltype(auto) SIndex<Meta,S>::format(const Sptr<Index>& ind) const
+    decltype(auto) SIndex<Meta,S>::reformat(const Sptr<Index>& ind) const
     {
 	return ind;
     }

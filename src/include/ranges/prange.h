@@ -48,7 +48,7 @@ namespace CNORXZ
 	decltype(auto) xpr(const Sptr<PIndex<IndexT>>& _this) const;
 
 	template <class I>
-	decltype(auto) format(const Sptr<I>& ind) const;
+	decltype(auto) reformat(const Sptr<I>& ind) const;
 
 	template <class I>
 	decltype(auto) slice(const Sptr<I>& ind) const;

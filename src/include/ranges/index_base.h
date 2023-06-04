@@ -56,7 +56,7 @@ namespace CNORXZ
 	decltype(auto) xpr(const Sptr<I>& _this) const { return THIS().xpr(_this); }
 
 	//template <class Index>
-	//decltype(auto) format(const Sptr<Index>& ind) const { return THIS().format(ind); }
+	//decltype(auto) reformat(const Sptr<Index>& ind) const { return THIS().format(ind); }
 
 	//template <class Index>
 	//decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }

@@ -8,7 +8,7 @@
 namespace CNORXZ
 {
     template <class Index>
-    decltype(auto) CIndex::format(const Sptr<Index>& ind) const
+    decltype(auto) CIndex::reformat(const Sptr<Index>& ind) const
     {
 	return ind;
     }
