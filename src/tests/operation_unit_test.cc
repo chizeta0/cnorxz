@@ -70,7 +70,7 @@ namespace
 	    //mCC1j2i = mindexPtr(mCI1j*mCI2i);
 	    mOC1i1j.init(mCC1i1j);
 	    mOR1j1i.init(mData11.data(), mCC1j1i);
-	    mOR1i1j.init(mData11.data(), mCC1i1j);
+	    mOR1i1j.init(mData12.data(), mCC1i1j);
 	}
 
 	SizeT mSize1;
@@ -120,7 +120,7 @@ namespace
 	    mCC1j1i = mindexPtr(eplex<4,1,2>(mCI1j)*mCI1i);
 	    mOC1i1j.init(mCC1i1j);
 	    mOR1j1i.init(mData11.data(), mCC1j1i);
-	    mOR1i1j.init(mData11.data(), mCC1i1j);
+	    mOR1i1j.init(mData12.data(), mCC1i1j);
 	}
 
 	SizeT mSize1;
@@ -220,6 +220,30 @@ namespace
     }
 
     TEST_F(OpCont_CR_CR_Test, Multiply)
+    {
+	mOC1i1j = mOR1j1i * mOR1i1j;
+	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){
+	    for(SizeT j = 0; j != mCI1j->pmax().val(); ++j){
+		const SizeT jS = mCI1j->pmax().val();
+		const SizeT iS = mCI1i->pmax().val();
+		EXPECT_EQ(mOC1i1j.data()[i*jS+j], mOR1j1i.data()[j*iS+i] * mOR1i1j.data()[i*jS+j]);
+	    }
+	}
+    }
+
+    TEST_F(OpCont_CR_CR_Test2, Assignment)
+    {
+	mOC1i1j = mOR1j1i;
+	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){
+	    for(SizeT j = 0; j != mCI1j->pmax().val(); ++j){
+		const SizeT jS = mCI1j->pmax().val();
+		const SizeT iS = mCI1i->pmax().val();
+		EXPECT_EQ(mOC1i1j.data()[i*jS+j], mOR1j1i.data()[j*iS+i]);
+	    }
+	}
+    }
+
+    TEST_F(OpCont_CR_CR_Test2, Multiply)
     {
 	mOC1i1j = mOR1j1i * mOR1i1j;
 	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){

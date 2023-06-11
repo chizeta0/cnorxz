@@ -7,6 +7,12 @@
 
 namespace CNORXZ
 {
+    template <SizeT I>
+    UPos CIndex::stepSize(const IndexId<I>& id) const
+    {
+	return UPos(id == this->id() ? 1 : 0);
+    }
+
     template <class Index>
     decltype(auto) CIndex::reformat(const Sptr<Index>& ind) const
     {

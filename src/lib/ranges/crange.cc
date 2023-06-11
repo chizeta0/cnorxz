@@ -87,11 +87,6 @@ namespace CNORXZ
 	return mRangePtr;
     }
     
-    UPos CIndex::stepSize(const IndexId<0>& id) const
-    {
-	return UPos(id == this->id() ? 1 : 0);
-    }
-
     String CIndex::stringMeta() const
     {
 	return toString(IB::mPos);

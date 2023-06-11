@@ -308,7 +308,7 @@ namespace CNORXZ
     template <class PosT>
     struct epos_size
     {
-	static constexpr SizeT value = 0;
+	static constexpr SizeT value = 1;
     };
     
     template <class OPosT1, class OPosT2, class... OPosTs>
@@ -339,10 +339,22 @@ namespace CNORXZ
     
     template <class PosT> struct pos_type_is_consecutive { CXZ_CVAL_TRUE; };
 
+    template <class BPosT, class OPosT, SizeT N>
+    struct MkEPos
+    {
+	static decltype(auto) mk(const BPosT& a, const OPosT& b);
+    };
+
+    template <class BPosT, class NPosT, class OPosT, SizeT N>
+    struct MkEPos<MPos<BPosT,NPosT>,OPosT,N>
+    {
+	static decltype(auto) mk(const MPos<BPosT,NPosT>& a, const OPosT& b);
+    };
+
     template <SizeT N, class BPosT, class OPosT>
     decltype(auto) mkEPos(const BPosT& a, const OPosT& b);
-
-    template <SizeT N, class BPosT, class OPosT, SizeT... Is>
+    
+    template <class BPosT, class OPosT, SizeT... Is>
     decltype(auto) mkiEPos(const BPosT& a, const OPosT& b, std::index_sequence<Is...> is);
 
     /**************************************************
@@ -376,7 +388,9 @@ namespace CNORXZ
     template <class BPosT, class... OPosTs> struct is_static_pos_type<EPos<BPosT,OPosTs...>>
     { static constexpr bool value = is_static_pos_type<BPosT>::value and (is_static_pos_type<OPosTs>::value and ...); };
     template <class BPosT, class... OPosTs> struct is_epos_type<EPos<BPosT,OPosTs...>> { CXZ_CVAL_TRUE; };
-    
+
+    template <class BPosT, class NPosT> struct is_epos_type<MPos<BPosT,NPosT>> { static constexpr bool value = is_epos_type<BPosT>::value or is_epos_type<NPosT>::value; };
+
     template <class BPosT, class NPosT>
     struct static_pos_size<MPos<BPosT,NPosT>>
     {
@@ -388,7 +402,13 @@ namespace CNORXZ
     {
 	static constexpr SizeT value = sizeof...(OPosTs);
     };
-    
+
+    template <class BPosT, class NPosT>
+    struct epos_size<MPos<BPosT,NPosT>>
+    {
+	static constexpr SizeT value = epos_size<BPosT>::value * epos_size<NPosT>::value;
+    };
+
     template <class BPosT, class... OPosTs>
     struct pos_type_is_consecutive<EPos<BPosT,OPosTs...>>
     {

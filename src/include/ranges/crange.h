@@ -38,7 +38,9 @@ namespace CNORXZ
 	
 	SizeT dim() const; // = 1
 	Sptr<RangeType> range() const;
-	UPos stepSize(const IndexId<0>& id) const;
+
+	template <SizeT I>
+	UPos stepSize(const IndexId<I>& id) const;
 	
 	String stringMeta() const;
 	SizeT meta() const;

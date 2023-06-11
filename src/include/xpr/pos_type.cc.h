@@ -629,13 +629,26 @@ namespace CNORXZ
      *   Traits and Helper-Classes   *
      *********************************/
 
-    template <SizeT N, class BPosT, class OPosT>
-    decltype(auto) mkEPos(const BPosT& a, const OPosT& b)
+    template <class BPosT, class OPosT, SizeT N>
+    decltype(auto) MkEPos<BPosT,OPosT,N>::mk(const BPosT& a, const OPosT& b)
     {
 	return mkiEPos(a, b, std::make_index_sequence<N>{});
     }
 
-    template <SizeT N, class BPosT, class OPosT, SizeT... Is>
+    template <class BPosT, class NPosT, class OPosT, SizeT N>
+    decltype(auto) MkEPos<MPos<BPosT,NPosT>,OPosT,N>::mk(const MPos<BPosT,NPosT>& a, const OPosT& b)
+    {
+	const BPosT& ax = static_cast<const BPosT&>(a);
+	return MPos<decltype(mkEPos<N>(ax,b)),NPosT>(mkEPos<N>(ax,b), a.next());
+    }
+
+    template <SizeT N, class BPosT, class OPosT>
+    decltype(auto) mkEPos(const BPosT& a, const OPosT& b)
+    {
+	return MkEPos<BPosT,OPosT,N>::mk(a,b);
+    }
+
+    template <class BPosT, class OPosT, SizeT... Is>
     decltype(auto) mkiEPos(const BPosT& a, const OPosT& b, std::index_sequence<Is...> is)
     {
 	return EPos<BPosT,decltype(b*SPos<Is>())...>(a, b*SPos<Is>()...);
