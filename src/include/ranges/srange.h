@@ -10,7 +10,7 @@
 
 namespace CNORXZ
 {
-    template <typename Meta, SizeT S>
+    template <typename MetaT, SizeT S>
     class SIndex : public IndexInterface<SIndex<MetaT,S>,MetaT>
     {
     public:
@@ -18,6 +18,8 @@ namespace CNORXZ
 	typedef SRange<MetaT,S> RangeType;
 	typedef MetaT MetaType;
 
+	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
+	DEFAULT_MEMBERS(SIndex);
 	SIndex(const RangePtr& range, SizeT pos = 0);
 
 	SIndex& operator=(SizeT lexpos);
@@ -119,6 +121,7 @@ namespace CNORXZ
     {
 	static Sptr<SRange<MetaType,S>> func(const RangePtr& r);
     };
+    
 }
 
 #endif

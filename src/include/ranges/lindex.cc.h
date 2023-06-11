@@ -44,7 +44,7 @@ namespace CNORXZ
     template <SizeT L, class Index>
     decltype(auto) lindexPtr(const Sptr<Index>& i)
     {
-	return LIndex<Index,L>( i );
+	return std::make_shared<LIndex<Index,L>>( i );
     }
 
     template <class Index, SizeT L>

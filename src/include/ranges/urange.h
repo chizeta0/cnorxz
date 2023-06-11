@@ -8,6 +8,8 @@
 #include "ranges/range_base.h"
 #include "xpr/xpr.h"
 
+#include <iterator>
+
 namespace CNORXZ
 {
     
@@ -20,13 +22,18 @@ namespace CNORXZ
 	typedef URange<MetaT> RangeType;
 	typedef MetaT MetaType;
 
+	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
+	DEFAULT_MEMBERS(UIndex);
 	UIndex(const RangePtr& range, SizeT pos = 0);
+
+	void swap(UIndex& i) {}; // !!!
 	
 	UIndex& operator=(SizeT lexpos);
 	UIndex& operator++();
 	UIndex& operator--();
 	UIndex operator+(Int n) const;
 	UIndex operator-(Int n) const;
+	SizeT operator-(const UIndex& i) const { return lex() - i.lex(); } // !!!
 	UIndex& operator+=(Int n);
 	UIndex& operator-=(Int n);
 
@@ -62,6 +69,9 @@ namespace CNORXZ
 	const MetaT* mMetaPtr;
     };
 
+    template <typename MetaT>
+    void swap(UIndex<MetaT>& a, UIndex<MetaT>& b) { a.swap(b); } 
+    
     template <typename MetaType, class I1>
     decltype(auto) operator*(const Sptr<UIndex<MetaType>>& a, const Sptr<I1>& b);
     

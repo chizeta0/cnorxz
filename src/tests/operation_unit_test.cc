@@ -98,9 +98,10 @@ namespace
     {
     protected:
 
-	typedef MIndex<CIndex,LIndex<CIndex,2>,EIndex<SizeT,4,1>> MCCI;
+	typedef MIndex<CIndex,LIndex<CIndex,2>,EIndex<SizeT,4,1>> MCCI1;
+	typedef MIndex<LIndex<CIndex,2>,EIndex<SizeT,4,1>,CIndex> MCCI2;
 	
-	OpCont_CR_CR_Test()
+	OpCont_CR_CR_Test2()
 	{
 	    mSize1 = 12;
 	    mSize2 = 11;
@@ -115,8 +116,8 @@ namespace
 	    mCI1j = std::make_shared<CIndex>(cr1);
 	    mCI2i = std::make_shared<CIndex>(cr2);
 	    mCI2j = std::make_shared<CIndex>(cr2);
-	    mCC1i1j = mindexPtr(mCI1i*eplex(mCI1j,4,1,2));
-	    mCC1j1i = mindexPtr(eplex(mCI1j,4,1,2)*mCI1i);
+	    mCC1i1j = mindexPtr(mCI1i*eplex<4,1,2>(mCI1j));
+	    mCC1j1i = mindexPtr(eplex<4,1,2>(mCI1j)*mCI1i);
 	    mOC1i1j.init(mCC1i1j);
 	    mOR1j1i.init(mData11.data(), mCC1j1i);
 	    mOR1i1j.init(mData11.data(), mCC1i1j);
@@ -132,11 +133,11 @@ namespace
 	Sptr<CIndex> mCI1j;
 	Sptr<CIndex> mCI2i;
 	Sptr<CIndex> mCI2j;
-	Sptr<MCCI> mCC1i1j;
-	Sptr<MCCI> mCC1j1i;
-	OpCont<double,MCCI> mOC1i1j;
-	COpRoot<double,MCCI> mOR1j1i;
-	COpRoot<double,MCCI> mOR1i1j;
+	Sptr<MCCI1> mCC1i1j;
+	Sptr<MCCI2> mCC1j1i;
+	OpCont<double,MCCI1> mOC1i1j;
+	COpRoot<double,MCCI2> mOR1j1i;
+	COpRoot<double,MCCI1> mOR1i1j;
     };
 
     TEST_F(OpCont_CR_Test, Basics)

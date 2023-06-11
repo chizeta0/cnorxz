@@ -29,6 +29,11 @@ namespace CNORXZ
 	Sptr<Index> mI;
     };
 
+    template <class Index, SizeT L>
+    struct is_index<LIndex<Index,L>>
+    {
+	static constexpr bool value = is_index<Index>::value; 
+    };
 
     template <class Index, SizeT L, class I1>
     decltype(auto) operator*(const Sptr<LIndex<Index,L>>& a, const Sptr<I1>& b);

@@ -32,6 +32,12 @@
 #define SP_DEFAULT_MEMBERS_X(__spec__,__class_name__) SP_DEFAULT_COPY(__spec__,__class_name__); SP_DEFAULT_MOVE(__spec__,__class_name__)
 #define SP_DEFAULT_MEMBERS(__spec__,__class_name__) SP_DEFAULT_C(__spec__,__class_name__); SP_DEFAULT_MEMBERS_X(__spec__,__class_name__)
 
+#define INDEX_RANDOM_ACCESS_ITERATOR_DEFS(__meta_type__) typedef std::random_access_iterator_tag iterator_category; \
+    typedef SizeT difference_type; \
+    typedef __meta_type__ value_type; \
+    typedef const __meta_type__* pointer; \
+    typedef const __meta_type__& reference
+
 #define CXZ_CVAL_FALSE static constexpr bool value = false
 #define CXZ_CVAL_TRUE static constexpr bool value = true
 

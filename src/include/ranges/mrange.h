@@ -27,10 +27,11 @@ namespace CNORXZ
 	typedef MRange<typename Indices::RangeType...> RangeType;
 	static constexpr SizeT NI = sizeof...(Indices);
 
+	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
 	constexpr GMIndex() = default;
 	constexpr GMIndex(GMIndex&& i) = default;
 	constexpr GMIndex& operator=(GMIndex&& i) = default;
-
+	// no defaults:
 	constexpr GMIndex(const GMIndex& i);
 	constexpr GMIndex& operator=(const GMIndex& i);
 
@@ -103,7 +104,7 @@ namespace CNORXZ
 
 	Sptr<RangeType> mRange;
 	SPack<Indices...> mIPack;
-	typedef RemoveRef<decltype(mkLexFormat(mIPack,Isqr<0,NI-1>{}))> LexFormatT;
+	typedef RemoveRef<decltype(mkLexFormat(mIPack,Isqr<1,NI>{}))> LexFormatT;
 	LexFormatT mLexFormat;
 	FormatT mFormat;
 	SizeT mLex;

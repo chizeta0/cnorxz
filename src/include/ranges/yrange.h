@@ -19,10 +19,11 @@ namespace CNORXZ
 	typedef YRange RangeType;
 	typedef Vector<DType> MetaType;
 	
+	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
 	YIndex() = default;
 	YIndex(YIndex&& i) = default;
 	YIndex& operator=(YIndex&& i) = default;
-
+	// no defaults:
 	YIndex(const YIndex& i);
 	YIndex& operator=(const YIndex& i);
 

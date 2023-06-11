@@ -17,6 +17,8 @@ namespace CNORXZ
 	typedef CRange RangeType;
 	typedef SizeT MetaType;
 
+	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
+	DEFAULT_MEMBERS(CIndex);
 	CIndex(const RangePtr& range, SizeT pos = 0);
 	
 	CIndex& operator=(SizeT lexpos);

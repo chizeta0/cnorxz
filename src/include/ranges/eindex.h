@@ -18,8 +18,7 @@ namespace CNORXZ
 	typedef typename LIndex<SIndex<MetaT,S>,L>::RangeType RangeType;
 
 	DEFAULT_MEMBERS(EIndex);
-	EIndex(const LIndex<SIndex<MetaT,S>,L>& i);
-	EIndex(LIndex<SIndex<MetaT,S>,L>&& i);
+	EIndex(const Sptr<LIndex<SIndex<MetaT,S>,L>>& i);
 
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
@@ -28,16 +27,22 @@ namespace CNORXZ
 	Sptr<LIndex<SIndex<MetaT,S>,L>> mLI;
     };
 
-    template <typename MetaType, SizeT S, SizeT L, class I1>
-    decltype(auto) operator*(const Sptr<EIndex<MetaType,S>>& a, const Sptr<I1>& b);
+    template <typename MetaT, SizeT S, SizeT L>
+    struct is_index<EIndex<MetaT,S,L>>
+    {
+	static constexpr bool value = true;
+    };
+    
+    template <typename MetaT, SizeT S, SizeT L, class I1>
+    decltype(auto) operator*(const Sptr<EIndex<MetaT,S,L>>& a, const Sptr<I1>& b);
 
-    template <typename MetaType, SizeT S, SizeT L>
+    template <typename MetaT, SizeT S, SizeT L>
     decltype(auto) eindexPtr(const Sptr<LIndex<SIndex<MetaT,S>,L>>& i);
 
-    template <SizeT L, typename MetaType, SizeT S>
+    template <SizeT L, typename MetaT, SizeT S>
     decltype(auto) eindexPtr(const Sptr<SIndex<MetaT,S>>& i);
 
-    template <typename MetaType, SizeT S, SizeT L>
+    template <typename MetaT, SizeT S, SizeT L>
     decltype(auto) eindexPtr(const Sptr<SIndex<MetaT,S>>& i, CSizeT<L> l);
 
     template <SizeT S, SizeT L1, SizeT L2, class Index>

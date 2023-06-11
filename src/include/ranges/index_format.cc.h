@@ -68,10 +68,10 @@ namespace CNORXZ
     template <class FormatT>
     constexpr GMFormat<PosT...>::GMFormat(const FormatT& f)
     {
-	static_assert(f.size() == size(), "try to assign format of wrong dimension");
-	iter<0,sizeof...(PosT)>( [&](auto i) { mB[i] = f[i]; }, NoF{} );
+	CXZ_ASSERT(f.size() == size(), "try to assign format of wrong dimension");
+	iter<0,sizeof...(PosT)>( [&](auto i) { std::get<i>(mB) = f[i].val(); }, NoF{} );
     }
-
+    
     template <class... PosT>
     const Tuple<PosT...>& GMFormat<PosT...>::all() const
     {
