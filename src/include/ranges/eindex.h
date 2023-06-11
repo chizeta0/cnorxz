@@ -35,10 +35,19 @@ namespace CNORXZ
     decltype(auto) eindexPtr(const Sptr<LIndex<SIndex<MetaT,S>,L>>& i);
 
     template <SizeT L, typename MetaType, SizeT S>
-    decltype(auto) eindexPtr(const Sptr<SIndex<MetaT,S>,L>& i);
+    decltype(auto) eindexPtr(const Sptr<SIndex<MetaT,S>>& i);
 
     template <typename MetaType, SizeT S, SizeT L>
-    decltype(auto) eindexPtr(const Sptr<SIndex<MetaT,S>,L>& i, CSizeT<L> l);
+    decltype(auto) eindexPtr(const Sptr<SIndex<MetaT,S>>& i, CSizeT<L> l);
+
+    template <SizeT S, SizeT L1, SizeT L2, class Index>
+    decltype(auto) eplex(const Sptr<Index>& i);
+
+    template <class Index, SizeT S, SizeT L>
+    decltype(auto) eplex(const Sptr<Index>& i, CSizeT<S> s, CSizeT<L> l);
+
+    template <class Index, SizeT S, SizeT L1, SizeT L2>
+    decltype(auto) eplex(const Sptr<Index>& i, CSizeT<S> s, CSizeT<L1> l1, CSizeT<L2> l2);
 
 }
 
