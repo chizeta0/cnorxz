@@ -56,8 +56,8 @@ namespace
 	    SizeT off = 20;
 	    mData1 = Numbers::get(off, mSize1);
 	    mData2 = Numbers::get(off += mSize1 , mSize2);
-	    mData11 = Numbers::get(off += mSize2, mSize1*mSize1);
-	    mData12 = Numbers::get(off += mSize1*mSize1, mSize1*mSize2);
+	    mData11 = Numbers::get(off += mSize2, mSize1*mSize2);
+	    mData12 = Numbers::get(off += mSize1*mSize2, mSize1*mSize2);
 	    auto cr1 = CRangeFactory(mSize1).create();
 	    auto cr2 = CRangeFactory(mSize2).create();
 	    mCI1i = std::make_shared<CIndex>(cr1);
@@ -108,8 +108,8 @@ namespace
 	    SizeT off = 20;
 	    mData1 = Numbers::get(off, mSize1);
 	    mData2 = Numbers::get(off += mSize1 , mSize2);
-	    mData11 = Numbers::get(off += mSize2, mSize1*mSize1);
-	    mData12 = Numbers::get(off += mSize1*mSize1, mSize1*mSize2);
+	    mData11 = Numbers::get(off += mSize2, mSize1*mSize2);
+	    mData12 = Numbers::get(off += mSize1*mSize2, mSize1*mSize2);
 	    auto cr1 = CRangeFactory(mSize1).create();
 	    auto cr2 = CRangeFactory(mSize2).create();
 	    mCI1i = std::make_shared<CIndex>(cr1);

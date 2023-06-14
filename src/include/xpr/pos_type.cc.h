@@ -587,6 +587,37 @@ namespace CNORXZ
     {}
 
     template <class BPosT, class... OPosTs>
+    template <class PosT>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::operator+(const PosT& a) const
+    {
+	return iter<0,sizeof...(OPosTs)>
+	    ( [&](auto i) { return std::get<i>(mP); },
+	      [&](const auto&... e) { return EPos<decltype(BPosT::operator+(a)),OPosTs...>
+		    (BPosT::operator+(a),e...); } );
+    }
+    
+    template <class BPosT, class... OPosTs>
+    template <class PosT>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::operator*(const PosT& a) const
+    {
+	return iter<0,sizeof...(OPosTs)>
+	    ( [&](auto i) { return std::get<i>(mP); },
+	      [&](const auto&... e) { return EPos<decltype(BPosT::operator*(a)),OPosTs...>
+		    (BPosT::operator*(a),e...); } );
+    }
+
+    template <class BPosT, class... OPosTs>
+    template <class PosT>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::operator()(const PosT& a) const
+    {
+	return iter<0,sizeof...(OPosTs)>
+	    ( [&](auto i) { return std::get<i>(mP); },
+	      [&](const auto&... e) { return EPos<decltype(BPosT::operator()(a)),OPosTs...>
+		    (BPosT::operator()(a),e...); } );
+    }
+
+
+    template <class BPosT, class... OPosTs>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::val() const
     {
 	return ival(std::index_sequence_for<OPosTs...>{});
@@ -635,11 +666,13 @@ namespace CNORXZ
 	return mkiEPos(a, b, std::make_index_sequence<N>{});
     }
 
-    template <class BPosT, class NPosT, class OPosT, SizeT N>
-    decltype(auto) MkEPos<MPos<BPosT,NPosT>,OPosT,N>::mk(const MPos<BPosT,NPosT>& a, const OPosT& b)
+    template <class BPosT, class NPosT, class OPosT, class ONPosT, SizeT N>
+    decltype(auto) MkEPos<MPos<BPosT,NPosT>,MPos<OPosT,ONPosT>,N>::mk(const MPos<BPosT,NPosT>& a, const MPos<OPosT,ONPosT>& b)
     {
 	const BPosT& ax = static_cast<const BPosT&>(a);
-	return MPos<decltype(mkEPos<N>(ax,b)),NPosT>(mkEPos<N>(ax,b), a.next());
+	const OPosT& bx = static_cast<const OPosT&>(b);
+	return MPos<decltype(mkEPos<N>(ax,bx)),decltype(mkEPos<N>(a.next(),b.next()))>
+	    (mkEPos<N>(ax,bx), mkEPos<N>(a.next(),b.next()));
     }
 
     template <SizeT N, class BPosT, class OPosT>

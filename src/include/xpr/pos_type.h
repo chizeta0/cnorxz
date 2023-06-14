@@ -276,6 +276,15 @@ namespace CNORXZ
 	constexpr EPos(const BPosT& b, const OPosTs&... os);
 	constexpr EPos(BPosT&& b, OPosTs&&... os);
 
+	template <class PosT>
+	constexpr decltype(auto) operator+(const PosT& a) const;
+
+	template <class PosT>
+	constexpr decltype(auto) operator*(const PosT& a) const;
+
+	template <class PosT>
+	constexpr decltype(auto) operator()(const PosT& a) const;
+
 	constexpr decltype(auto) val() const;
 	constexpr decltype(auto) next() const;
 
@@ -345,10 +354,10 @@ namespace CNORXZ
 	static decltype(auto) mk(const BPosT& a, const OPosT& b);
     };
 
-    template <class BPosT, class NPosT, class OPosT, SizeT N>
-    struct MkEPos<MPos<BPosT,NPosT>,OPosT,N>
+    template <class BPosT, class NPosT, class OPosT, class ONPosT, SizeT N>
+    struct MkEPos<MPos<BPosT,NPosT>,MPos<OPosT,ONPosT>,N>
     {
-	static decltype(auto) mk(const MPos<BPosT,NPosT>& a, const OPosT& b);
+	static decltype(auto) mk(const MPos<BPosT,NPosT>& a, const MPos<OPosT,ONPosT>& b);
     };
 
     template <SizeT N, class BPosT, class OPosT>
@@ -406,7 +415,7 @@ namespace CNORXZ
     template <class BPosT, class NPosT>
     struct epos_size<MPos<BPosT,NPosT>>
     {
-	static constexpr SizeT value = epos_size<BPosT>::value * epos_size<NPosT>::value;
+	static constexpr SizeT value = epos_size<BPosT>::value;
     };
 
     template <class BPosT, class... OPosTs>
