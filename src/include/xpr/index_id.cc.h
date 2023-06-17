@@ -22,7 +22,7 @@ namespace CNORXZ
     template <SizeT J>
     constexpr decltype(auto) IndexId<I>::operator==(const IndexId<J>& a) const
     {
-	if constexpr(I != 0 and J != 0){
+	if constexpr(I != 0 or J != 0){
 	    if constexpr(I == J){
 		CXZ_ASSERT(mId == a.id(),
 			   "got different index ids for equal static index label");

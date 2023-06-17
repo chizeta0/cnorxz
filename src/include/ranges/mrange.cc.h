@@ -506,9 +506,9 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
-    constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is)
+    constexpr decltype(auto) gmindexPtr(const FormatT& bs, const SPack<Indices...>& pack)
     {
-	return std::make_shared<GMIndex<FormatT,Indices...>>(bs, is...);
+	return std::make_shared<GMIndex<FormatT,Indices...>>(bs, pack);
     }    
     
     template <class I1, class FormatT, class... Indices>

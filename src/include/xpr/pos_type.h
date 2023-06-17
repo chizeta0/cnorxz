@@ -21,6 +21,8 @@ namespace CNORXZ
 	template <SizeT N1>
 	constexpr auto operator+(const SPos<N1>& a) const;
 	template <SizeT N1>
+	constexpr auto operator-(const SPos<N1>& a) const;
+	template <SizeT N1>
 	constexpr auto operator*(const SPos<N1>& a) const;
 	template <SizeT N1>
 	constexpr auto operator()(const SPos<N1>& a) const;
@@ -288,6 +290,8 @@ namespace CNORXZ
 	constexpr decltype(auto) val() const;
 	constexpr decltype(auto) next() const;
 
+	constexpr decltype(auto) scal() const;
+
 	template <SizeT I>
 	constexpr decltype(auto) get() const;
     };
@@ -422,6 +426,12 @@ namespace CNORXZ
     struct pos_type_is_consecutive<EPos<BPosT,OPosTs...>>
     {
 	static constexpr bool value = pos_types_consecutive<OPosTs...>::value;
+    };
+
+    template <class BPosT, class NPosT>
+    struct pos_type_is_consecutive<MPos<BPosT,NPosT>>
+    {
+	static constexpr bool value = pos_type_is_consecutive<BPosT>::value;
     };
 
 } // end namespace CNORXZInternal

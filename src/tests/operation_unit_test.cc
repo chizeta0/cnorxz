@@ -99,16 +99,17 @@ namespace
     protected:
 
 	typedef MIndex<CIndex,LIndex<CIndex,2>,EIndex<SizeT,4,1>> MCCI1;
+	typedef GMIndex<GMFormat<UPos,UPos,SPos<1>>,CIndex,LIndex<CIndex,2>,EIndex<SizeT,4,1>> MCCI1x;
 	typedef MIndex<LIndex<CIndex,2>,EIndex<SizeT,4,1>,CIndex> MCCI2;
 	
 	OpCont_CR_CR_Test2()
 	{
-	    mSize1 = 12;
-	    mSize2 = 11;
+	    mSize1 = 11;
+	    mSize2 = 12;
 	    SizeT off = 20;
-	    mData1 = Numbers::get(off, mSize1);
-	    mData2 = Numbers::get(off += mSize1 , mSize2);
-	    mData11 = Numbers::get(off += mSize2, mSize1*mSize2);
+	    //mData1 = Numbers::get(off, mSize1);
+	    //mData2 = Numbers::get(off += mSize1 , mSize2);
+	    mData21 = Numbers::get(off += mSize2, mSize1*mSize2);
 	    mData12 = Numbers::get(off += mSize1*mSize2, mSize1*mSize2);
 	    auto cr1 = CRangeFactory(mSize1).create();
 	    auto cr2 = CRangeFactory(mSize2).create();
@@ -116,28 +117,31 @@ namespace
 	    mCI1j = std::make_shared<CIndex>(cr1);
 	    mCI2i = std::make_shared<CIndex>(cr2);
 	    mCI2j = std::make_shared<CIndex>(cr2);
-	    mCC1i1j = mindexPtr(mCI1i*eplex<4,1,2>(mCI1j));
-	    mCC1j1i = mindexPtr(eplex<4,1,2>(mCI1j)*mCI1i);
-	    mOC1i1j.init(mCC1i1j);
-	    mOR1j1i.init(mData11.data(), mCC1j1i);
-	    mOR1i1j.init(mData12.data(), mCC1i1j);
+	    auto ipack1 = mCI1i*eplex<4,1,2>(mCI2j);
+	    auto iform1 = gmformat(UPos(mCI2j->lmax().val()),UPos(4),SPos<1>());
+	    mCC1i2j = gmindexPtr( iform1, ipack1 );
+	    //mCC1i2j = mindexPtr(mCI1i*eplex<4,1,2>(mCI2j));
+	    mCC2j1i = mindexPtr(eplex<4,1,2>(mCI2j)*mCI1i);
+	    mOC1i2j.init(mCC1i2j);
+	    mOR2j1i.init(mData21.data(), mCC2j1i);
+	    mOR1i2j.init(mData12.data(), mCC1i2j);
 	}
 
 	SizeT mSize1;
 	SizeT mSize2;
-	Vector<Double> mData1;
-	Vector<Double> mData2;
-	Vector<Double> mData11;
 	Vector<Double> mData12;
+	Vector<Double> mData21;
+	Vector<Double> mData11_1;
+	Vector<Double> mData11_2;
 	Sptr<CIndex> mCI1i;
 	Sptr<CIndex> mCI1j;
 	Sptr<CIndex> mCI2i;
 	Sptr<CIndex> mCI2j;
-	Sptr<MCCI1> mCC1i1j;
-	Sptr<MCCI2> mCC1j1i;
-	OpCont<double,MCCI1> mOC1i1j;
-	COpRoot<double,MCCI2> mOR1j1i;
-	COpRoot<double,MCCI1> mOR1i1j;
+	Sptr<MCCI1x> mCC1i2j;
+	Sptr<MCCI2> mCC2j1i;
+	OpCont<double,MCCI1x> mOC1i2j;
+	COpRoot<double,MCCI2> mOR2j1i;
+	COpRoot<double,MCCI1x> mOR1i2j;
     };
 
     TEST_F(OpCont_CR_Test, Basics)
@@ -233,24 +237,38 @@ namespace
 
     TEST_F(OpCont_CR_CR_Test2, Assignment)
     {
-	mOC1i1j = mOR1j1i;
+	EXPECT_EQ( mCC2j1i->stepSize( mCC1i2j->pack()[CSizeT<0>{}]->id() ).val(), 1u );
+	EXPECT_EQ( mCC2j1i->stepSize( mCC1i2j->pack()[CSizeT<1>{}]->id() ).val(), 44u );
+	EXPECT_EQ( mCC2j1i->stepSize( mCC1i2j->pack()[CSizeT<2>{}]->id() ).val(), 11u );
+
+	mOC1i2j = mOR2j1i;
+	
 	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){
-	    for(SizeT j = 0; j != mCI1j->pmax().val(); ++j){
-		const SizeT jS = mCI1j->pmax().val();
+	    for(SizeT j = 0; j != mCI2j->pmax().val(); ++j){
+		const SizeT jS = mCI2j->pmax().val();
 		const SizeT iS = mCI1i->pmax().val();
-		EXPECT_EQ(mOC1i1j.data()[i*jS+j], mOR1j1i.data()[j*iS+i]);
+		EXPECT_EQ(mOC1i2j.data()[i*jS+j], mOR2j1i.data()[j*iS+i]);
 	    }
 	}
+	
     }
 
     TEST_F(OpCont_CR_CR_Test2, Multiply)
     {
-	mOC1i1j = mOR1j1i * mOR1i1j;
+	EXPECT_EQ( mCC2j1i->stepSize( mCC1i2j->pack()[CSizeT<0>{}]->id() ).val(), 1u );
+	EXPECT_EQ( mCC2j1i->stepSize( mCC1i2j->pack()[CSizeT<1>{}]->id() ).val(), 44u );
+	EXPECT_EQ( mCC2j1i->stepSize( mCC1i2j->pack()[CSizeT<2>{}]->id() ).val(), 11u );
+
+	EXPECT_EQ( mCC1i2j->stepSize( mCC1i2j->pack()[CSizeT<0>{}]->id() ).val(), 12u );
+	EXPECT_EQ( mCC1i2j->stepSize( mCC1i2j->pack()[CSizeT<1>{}]->id() ).val(), 4u );
+	EXPECT_EQ( mCC1i2j->stepSize( mCC1i2j->pack()[CSizeT<2>{}]->id() ).val(), 1u );
+
+	mOC1i2j = mOR2j1i * mOR1i2j;
 	for(SizeT i = 0; i != mCI1i->pmax().val(); ++i){
-	    for(SizeT j = 0; j != mCI1j->pmax().val(); ++j){
-		const SizeT jS = mCI1j->pmax().val();
+	    for(SizeT j = 0; j != mCI2j->pmax().val(); ++j){
+		const SizeT jS = mCI2j->pmax().val();
 		const SizeT iS = mCI1i->pmax().val();
-		EXPECT_EQ(mOC1i1j.data()[i*jS+j], mOR1j1i.data()[j*iS+i] * mOR1i1j.data()[i*jS+j]);
+		EXPECT_EQ(mOC1i2j.data()[i*jS+j], mOR2j1i.data()[j*iS+i] * mOR1i2j.data()[i*jS+j]);
 	    }
 	}
     }

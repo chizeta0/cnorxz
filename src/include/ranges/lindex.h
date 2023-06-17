@@ -25,6 +25,9 @@ namespace CNORXZ
 	template <SizeT I>
 	decltype(auto) stepSize(const IndexId<I>& id) const;
 
+	template <class Xpr, class F>
+	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
+
     private:
 	Sptr<Index> mI;
     };

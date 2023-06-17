@@ -30,7 +30,14 @@ namespace CNORXZ
     {
 	return SPos<N+N1>();
     }
-    
+
+    template <SizeT N>
+    template <SizeT N1>
+    constexpr auto SPos<N>::operator-(const SPos<N1>& a) const
+    {
+	return SPos<N-N1>();
+    }
+
     template <SizeT N>
     template <SizeT N1>
     constexpr auto SPos<N>::operator*(const SPos<N1>& a) const
@@ -54,13 +61,23 @@ namespace CNORXZ
     template <SizeT N>
     constexpr auto SPos<N>::operator*(const UPos& a) const
     {
-	return UPos(N*a.val());
+	if constexpr(N == 0){
+	    return SPos<0>();
+	}
+	else {
+	    return UPos(N*a.val());
+	}
     }
 
     template <SizeT N>
     constexpr auto SPos<N>::operator()(const UPos& a) const
     {
-	return UPos(N*a.val());
+	if constexpr(N == 0){
+	    return SPos<0>();
+	}
+	else {
+	    return UPos(N*a.val());
+	}
     }
 
     template <SizeT N>
@@ -603,7 +620,7 @@ namespace CNORXZ
 	return iter<0,sizeof...(OPosTs)>
 	    ( [&](auto i) { return std::get<i>(mP); },
 	      [&](const auto&... e) { return EPos<decltype(BPosT::operator*(a)),OPosTs...>
-		    (BPosT::operator*(a),e...); } );
+		    (BPosT::operator*(a),e*a...); } );
     }
 
     template <class BPosT, class... OPosTs>
@@ -613,7 +630,7 @@ namespace CNORXZ
 	return iter<0,sizeof...(OPosTs)>
 	    ( [&](auto i) { return std::get<i>(mP); },
 	      [&](const auto&... e) { return EPos<decltype(BPosT::operator()(a)),OPosTs...>
-		    (BPosT::operator()(a),e...); } );
+		    (BPosT::operator()(a),e*a...); } );
     }
 
 
@@ -630,10 +647,16 @@ namespace CNORXZ
     }
 
     template <class BPosT, class... OPosTs>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::scal() const
+    {
+	return static_cast<const BPosT&>(*this);
+    }
+
+    template <class BPosT, class... OPosTs>
     template <SizeT I>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::get() const
     {
-	return std::get<I>(mP);
+	return scal()+std::get<I>(mP);
     }
 
     template <class BPosT, class... OPosTs>
@@ -644,7 +667,7 @@ namespace CNORXZ
 	    return std::index_sequence<std::get<Is>(mP).val()...>{};
 	}
 	else {
-	    return Arr<SizeT,is.size()> { std::get<Is>(mP).val()... };
+	    return Arr<SizeT,is.size()> { (BPosT::val()+std::get<Is>(mP).val())... };
 	}
     }
 
@@ -653,7 +676,7 @@ namespace CNORXZ
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::inext(std::index_sequence<Is...> is) const
     {
 	typedef EPos<decltype(next()),decltype(std::get<Is>(mP).next())...> OEPosT;
-	return OEPosT(next(), std::get<Is>(mP).next()...);
+	return OEPosT(BPosT::next(), std::get<Is>(mP).next()...);
     }
 
     /*********************************

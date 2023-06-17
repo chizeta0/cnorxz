@@ -40,7 +40,7 @@ namespace CNORXZ
 	Sptr<RangeType> range() const;
 
 	template <SizeT I>
-	UPos stepSize(const IndexId<I>& id) const;
+	decltype(auto) stepSize(const IndexId<I>& id) const;
 	
 	String stringMeta() const;
 	SizeT meta() const;

@@ -22,7 +22,7 @@ namespace CNORXZ
     template <SizeT I>
     decltype(auto) LIndex<Index,L>::stepSize(const IndexId<I>& id) const
     {
-	if constexpr(L == 0 or I == 0){
+	if constexpr(L == 0 and I == 0){
 	    return UPos(mI->id() == id ? 1 : 0);
 	}
 	else {
@@ -35,6 +35,13 @@ namespace CNORXZ
 	}
     }
 
+    template <class Index, SizeT L>
+    template <class Xpr, class F>
+    decltype(auto) LIndex<Index,L>::ifor(const Xpr& xpr, F&& f) const
+    {
+	return For<L,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
+    }
+    
     template <class Index, SizeT L, class I1>
     decltype(auto) operator*(const Sptr<LIndex<Index,L>>& a, const Sptr<I1>& b)
     {

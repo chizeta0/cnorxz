@@ -8,9 +8,14 @@
 namespace CNORXZ
 {
     template <SizeT I>
-    UPos CIndex::stepSize(const IndexId<I>& id) const
+    decltype(auto) CIndex::stepSize(const IndexId<I>& id) const
     {
-	return UPos(id == this->id() ? 1 : 0);
+	if constexpr(I != 0){
+	    return SPos<0>();
+	}
+	else {
+	    return UPos(id == this->id() ? 1 : 0);
+	}
     }
 
     template <class Index>

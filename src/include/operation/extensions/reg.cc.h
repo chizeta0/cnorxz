@@ -21,7 +21,7 @@ namespace CNORXZ
 	constexpr SizeT N = epos_size<EPosT>::value;
 	static_assert(is_epos_type<EPosT>::value, "got non-epos-type");
 	if constexpr(pos_type_is_consecutive<EPosT>::value){
-	    return *reinterpret_cast<const Consecutive<T,N>*>(d);
+	    return *reinterpret_cast<const Consecutive<T,N>*>(d+pos.scal().val());
 	}
 	else {
 	    return vregi(d, pos, std::make_index_sequence<N>{});
@@ -35,7 +35,7 @@ namespace CNORXZ
 	static_assert(is_epos_type<EPosT>::value, "got non-epos-type");
 	static_assert(pos_type_is_consecutive<EPosT>::value, "no write access for non-consecutive");
 	if constexpr(pos_type_is_consecutive<EPosT>::value){
-	    return *reinterpret_cast<Consecutive<T,N>*>(d);
+	    return *reinterpret_cast<Consecutive<T,N>*>(d+pos.scal().val());
 	}
 	else {
 	    return vregi(d, pos, std::make_index_sequence<N>{});

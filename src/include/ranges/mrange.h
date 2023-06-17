@@ -147,7 +147,7 @@ namespace CNORXZ
     constexpr decltype(auto) mindexPtr(const SPack<Indices...>& pack);
 
     template <class FormatT, class... Indices>
-    constexpr decltype(auto) gmindexPtr(const FormatT& bs, const Sptr<Indices>&... is);
+    constexpr decltype(auto) gmindexPtr(const FormatT& bs, const SPack<Indices...>& pack);
     
     template <class I1, class FormatT, class... Indices>
     decltype(auto) operator*(const Sptr<GMIndex<FormatT,Indices...>>& a, const Sptr<I1>& b);
