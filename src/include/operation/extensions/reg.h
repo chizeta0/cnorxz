@@ -13,13 +13,6 @@ namespace CNORXZ
     struct Consecutive
     {
 	T mD[N];
-	Consecutive& operator=(const Consecutive& a)
-	{
-	    iter<0,N>([&](auto i) { mD[i] = a.mD[i]; VCHECK(mD[i]); }, NoF{} );
-	    return *this;
-	}
-
-	Consecutive& operator=(Consecutive&& a) = delete;
     };
 
     template <typename T>
