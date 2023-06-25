@@ -143,9 +143,9 @@ namespace CNORXZ
 
     template <typename MetaT, SizeT S>
     template <class Index>
-    decltype(auto) SIndex<MetaT,S>::reformat(const Sptr<Index>& ind) const
+    decltype(auto) SIndex<MetaT,S>::formatFrom(const Index& ind) const
     {
-	return ind;
+	return *this;
     }
 
     template <typename MetaT, SizeT S>

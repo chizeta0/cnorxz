@@ -62,6 +62,9 @@ namespace CNORXZ
 
 	template <SizeT I>
 	decltype(auto) stepSize(const IndexId<I>& id) const;
+
+	template <class Index>
+	decltype(auto) formatFrom(const Index& ind) const;
 	
 	String stringMeta() const;
 	MetaType meta() const;
@@ -135,6 +138,10 @@ namespace CNORXZ
 
     template <class... Indices>
     struct has_static_sub<MIndex<Indices...>>
+    { static constexpr bool value = true; };
+
+    template <class... Indices>
+    struct index_is_multi<MIndex<Indices...>>
     { static constexpr bool value = true; };
 
     template <class... Indices>

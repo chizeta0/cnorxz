@@ -19,9 +19,9 @@ namespace CNORXZ
     }
 
     template <class Index>
-    decltype(auto) CIndex::reformat(const Sptr<Index>& ind) const
+    decltype(auto) CIndex::formatFrom(const Index& ind) const
     {
-	return ind;
+	return *this;
     }
 
     template <class Index>

@@ -152,9 +152,9 @@ namespace CNORXZ
 
     template <typename MetaType>
     template <class Index>
-    decltype(auto) UIndex<MetaType>::reformat(const Sptr<Index>& ind) const
+    decltype(auto) UIndex<MetaType>::formatFrom(const Index& ind) const
     {
-	return ind;
+	return *this;
     }
 
     template <typename MetaType>

@@ -55,9 +55,14 @@ namespace CNORXZ
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 	decltype(auto) xpr(const Sptr<I>& _this) const { return THIS().xpr(_this); }
 
-	//template <class Index>
-	//decltype(auto) reformat(const Sptr<Index>& ind) const { return THIS().format(ind); }
+	template <class Index>
+	decltype(auto) formatTo(const Sptr<Index>& ind) const { return ind->formatFrom(THIS()); }
 
+	template <class Index>
+	decltype(auto) formatFrom(const Index& ind) const // yes this is const,
+	// changes only MIndex/YIndex format, in this case we can just copy the pointers to the sub-index instances
+	{ return THIS().formatFrom(ind); }
+	
 	//template <class Index>
 	//decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }
 	
@@ -106,6 +111,10 @@ namespace CNORXZ
     struct has_static_sub
     { static constexpr bool value = false; };
 
+    template <class I>
+    struct index_is_multi
+    { static constexpr bool value = false; };
+
     template <class I, typename MetaType>
     IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i);
 
@@ -119,6 +128,8 @@ namespace CNORXZ
     template <class I, typename MetaType>
     IndexPtr<I,MetaType> operator-(const IndexPtr<I,MetaType>& i, Int n);
 
+    template <class I>
+    Sptr<I> moveToPtr(I&& i) { return std::make_shared<I>(std::forward(i)); }
 }
 
 #endif

@@ -51,6 +51,9 @@ namespace CNORXZ
 	Sptr<YRange> range() const;
 	UPos stepSize(const IndexId<0> id) const;
 
+	template <class Index>
+	YIndex formatFrom(const Index& ind) const;
+
 	String stringMeta() const;
 	Vector<DType> meta() const;
 	YIndex& at(const Vector<DType>& meta);
@@ -88,6 +91,10 @@ namespace CNORXZ
 	UPos mPMax = 0;
 	UPos mLMax = 0;
     };
+
+    template <>
+    struct index_is_multi<YIndex>
+    { static constexpr bool value = true; };
 
     YIndex yindex(const DPack& pack);
     YIndex yindex(const Vector<XIndexPtr>& is);
@@ -150,6 +157,7 @@ namespace CNORXZ
     {
 	static Sptr<YRange> func(const RangePtr& r);
     };
+
 }
 
 #endif

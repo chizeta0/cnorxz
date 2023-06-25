@@ -384,6 +384,22 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
+    template <class Index>
+    decltype(auto) GMIndex<FormatT,Indices...>::formatFrom(const Index& ind) const
+    {
+	if constexpr(index_is_multi<Index>::value){
+	    // controll compatibility, coherent blocks etc...
+	    // two possibilities: single index (CIndex, UIndex, DIndex)
+	    //    or multi index (MIndex,YIndex)
+	    
+	}
+	else {
+	    // no input format, keep the original format
+	    return *this
+	}
+    }
+
+    template <class FormatT, class... Indices>
     String GMIndex<FormatT,Indices...>::stringMeta() const
     {
 	const String blim = "(";

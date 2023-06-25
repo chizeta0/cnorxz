@@ -221,23 +221,26 @@ namespace CNORXZ
     template <class Index>
     OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
-	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return oproot(*this, i);
+	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	auto j = moveToPtr( begin()->reformat(i) ); // moveToPtr: keep original instance of sub indices
+	return oproot(*this, j);
     }
 
     template <typename T>
     template <class... Indices>
     inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
     {
-	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return oproot(*this, mindexPtr(pack));
+	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	auto j = moveToPtr( begin()->reformat(mindexPtr(pack)) );
+	return oproot(*this, j);
     }
 
     template <typename T>
     inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
     {
-	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return oproot(*this, yindexPtr(pack));
+	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	auto j = moveToPtr( begin()->reformat(yindexPtr(pack)) );
+	return oproot(*this, j);
     }
 
     /*****************************
