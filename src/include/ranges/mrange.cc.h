@@ -387,16 +387,45 @@ namespace CNORXZ
     template <class Index>
     decltype(auto) GMIndex<FormatT,Indices...>::formatFrom(const Index& ind) const
     {
+	static_assert(is_index<Index>::value, "got non-index");
+	CXZ_ASSERT(ind.dim() >= dim(), "for formatting index of dimension " << dim()
+		   << " need index of at least the same dimension, got " << ind.dim());
+	
 	if constexpr(index_is_multi<Index>::value){
-	    // controll compatibility, coherent blocks etc...
-	    // two possibilities: single index (CIndex, UIndex, DIndex)
-	    //    or multi index (MIndex,YIndex)
-	    
+	    if constexpr(has_static_sub<Index>::value){ // static dim (GMIndex)
+		// assert either same dim, dim == 1, or static sizes
+		CXZ_WARNING("not implemented!");
+	    }
+	    else { // YIndex
+		SizeT j = 0;
+		iter<0,NI>
+		    ( [&](auto i){
+			CXZ_ASSERT(j < ind.dim(), "no sub indices left");
+			const auto isize = pack()[i]->size();
+			SizeT ssize = 1;
+			for(; j < ind.dim() and ssize < isize; ++j){
+			    ssize *= ind.pack()[j];
+			}
+			CXZ_ASSERT(ssize == isize, "incompatible sizes: " << ssize
+				   << " vs " << isize);
+		    },
+			
+			);
+	    }
 	}
 	else {
-	    // no input format, keep the original format
-	    return *this
+	    if(ind.dim() > 1) { // DIndex to YIndex
+		
+	    }
+	    else { // this->dim() == 1 and ind.dim() == 1
+		static_assert
+		    (std::is_same<FormatT,std::remove_reference<decltype(ind.format())>>::type,
+		     "got incompatible static index format types");
+		mFormat = ind.format();
+		// assert that all lower indices in ind have dim == 1!!!
+	    }
 	}
+	return *this;
     }
 
     template <class FormatT, class... Indices>

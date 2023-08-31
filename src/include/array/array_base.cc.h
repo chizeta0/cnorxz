@@ -222,7 +222,7 @@ namespace CNORXZ
     OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
 	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	auto j = moveToPtr( begin()->reformat(i) ); // moveToPtr: keep original instance of sub indices
+	auto j = moveToPtr( begin()->formatTo(i) ); // moveToPtr: keep original instance of sub indices
 	return oproot(*this, j);
     }
 
@@ -231,7 +231,7 @@ namespace CNORXZ
     inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
     {
 	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	auto j = moveToPtr( begin()->reformat(mindexPtr(pack)) );
+	auto j = moveToPtr( begin()->formatTo(mindexPtr(pack)) );
 	return oproot(*this, j);
     }
 
@@ -239,7 +239,7 @@ namespace CNORXZ
     inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
     {
 	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	auto j = moveToPtr( begin()->reformat(yindexPtr(pack)) );
+	auto j = moveToPtr( begin()->formatTo(yindexPtr(pack)) );
 	return oproot(*this, j);
     }
 
