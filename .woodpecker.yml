@@ -7,12 +7,12 @@ steps:
             - source /opt/rh/gcc-toolset-9/enable
             - mkdir build-gcc
             - cd build-gcc
-            - cmake3 ..
+            - cmake3 -DRUN_PIPELINE ..
             - make -j2
             - make test
             - cd ..
             - mkdir build-clang
             - cd build-clang
-            - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 ..
+            - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 -DRUN_PIPELINE ..
             - make -j2
             - make test
