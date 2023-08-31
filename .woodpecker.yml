@@ -1,0 +1,18 @@
+---
+
+steps:
+    build:
+        image: chizeta/centos:8
+	commands:
+	    - source /opt/rh/gcc-toolset-9/enable
+      	    - mkdir build-gcc
+      	    - cd build-gcc
+      	    - cmake3 ..
+      	    - make -j2
+      	    - make test
+      	    - cd ..
+      	    - mkdir build-clang
+      	    - cd build-clang
+      	    - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 ..
+      	    - make -j2
+      	    - make test
