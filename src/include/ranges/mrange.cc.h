@@ -390,41 +390,6 @@ namespace CNORXZ
 	static_assert(is_index<Index>::value, "got non-index");
 	CXZ_ASSERT(ind.dim() >= dim(), "for formatting index of dimension " << dim()
 		   << " need index of at least the same dimension, got " << ind.dim());
-	
-	if constexpr(index_is_multi<Index>::value){
-	    if constexpr(has_static_sub<Index>::value){ // static dim (GMIndex)
-		// assert either same dim, dim == 1, or static sizes
-		CXZ_WARNING("not implemented!");
-	    }
-	    else { // YIndex
-		SizeT j = 0;
-		iter<0,NI>
-		    ( [&](auto i){
-			CXZ_ASSERT(j < ind.dim(), "no sub indices left");
-			const auto isize = pack()[i]->size();
-			SizeT ssize = 1;
-			for(; j < ind.dim() and ssize < isize; ++j){
-			    ssize *= ind.pack()[j];
-			}
-			CXZ_ASSERT(ssize == isize, "incompatible sizes: " << ssize
-				   << " vs " << isize);
-		    },
-			
-			);
-	    }
-	}
-	else {
-	    if(ind.dim() > 1) { // DIndex to YIndex
-		
-	    }
-	    else { // this->dim() == 1 and ind.dim() == 1
-		static_assert
-		    (std::is_same<FormatT,std::remove_reference<decltype(ind.format())>>::type,
-		     "got incompatible static index format types");
-		mFormat = ind.format();
-		// assert that all lower indices in ind have dim == 1!!!
-	    }
-	}
 	return *this;
     }
 
@@ -512,6 +477,13 @@ namespace CNORXZ
     const auto& GMIndex<FormatT,Indices...>::lexFormat() const
     {
 	return mLexFormat;
+    }
+
+    template <class FormatT, class... Indices>
+    auto GMIndex<FormatT,Indices...>::deepFormat() const
+    {
+	return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->deepFormat(); },
+			   [&](const auto&... e) { return (e * ...); } );
     }
 
     template <class FormatT, class... Indices>

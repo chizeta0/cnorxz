@@ -81,6 +81,7 @@ namespace CNORXZ
 	const SPack<Indices...>& pack() const;
 	const auto& format() const;
 	const auto& lexFormat() const;
+	auto deepFormat() const;
 	GMIndex& setFormat(const FormatT& bs);
 
     private:
