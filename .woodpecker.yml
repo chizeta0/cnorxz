@@ -13,6 +13,6 @@ steps:
             - cd ..
             - mkdir build-clang
             - cd build-clang
-            - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 -DRUN_PIPELINE ..
+            - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 -DRUN_PIPELINE=on ..
             - make -j2
             - make test
