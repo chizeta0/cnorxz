@@ -126,6 +126,13 @@ namespace CNORXZ
     {
 	return mI->stepSize(id);
     }
+
+    template <class Index, typename Meta>
+    Vector<SizeT> XIndex<Index,Meta>::deepFormat() const
+    {
+	return toVec( mI->deepFormat() );
+    }
+    
     /*
     template <class Index, typename Meta>
     Vector<XIndexPtr> XIndex<Index,Meta>::pack() const

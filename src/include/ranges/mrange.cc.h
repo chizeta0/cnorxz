@@ -482,8 +482,8 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     auto GMIndex<FormatT,Indices...>::deepFormat() const
     {
-	return iter<0,NI>( [&](auto i) { return std::get<i>(mIPack)->deepFormat(); },
-			   [&](const auto&... e) { return (e * ...); } );
+	return iter<0,NI>( [&](auto i) { return mul(std::get<i>(mIPack)->deepFormat(), mFormat[i]); },
+			   [&](const auto&... e) { return concat(e, ...); } );
     }
 
     template <class FormatT, class... Indices>

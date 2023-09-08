@@ -100,7 +100,7 @@ namespace CNORXZ
     template <class Index>
     COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
-	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	this->checkFormatCompatibility(i->deepFormat());
 	return coproot(*this, i);
     }
 
@@ -108,15 +108,17 @@ namespace CNORXZ
     template <class... Indices>
     inline decltype(auto) CArrayBase<T>::operator()(const SPack<Indices...>& pack) const
     {
-	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return coproot(*this, mindexPtr(pack));
+	auto i = mindexPtr(pack);
+	this->checkFormatCompatibility(i->deepFormat());
+	return coproot(*this, i);
     }
 
     template <typename T>
     inline decltype(auto) CArrayBase<T>::operator()(const DPack& pack) const
     {
-	CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return coproot(*this, yindexPtr(pack));
+	auto i = yindexPtr(pack);
+	this->checkFormatCompatibility(i->deepFormat());
+	return coproot(*this, i);
     }
 
     /******************************

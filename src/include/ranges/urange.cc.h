@@ -127,6 +127,12 @@ namespace CNORXZ
     }
 
     template <typename MetaType>
+    SizeT UIndex<MetaType>::deepFormat() const
+    {
+	return 1;
+    }
+
+    template <typename MetaType>
     size_t UIndex<MetaType>::dim() const // = 1
     {
 	return 1;

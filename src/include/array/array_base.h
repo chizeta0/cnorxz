@@ -69,6 +69,8 @@ namespace CNORXZ
 
 	template <class Acc>
 	const_iterator itLexSave(const Acc& acc) const;
+
+	void checkFormatCompatibility(const Vector<SizeT>& f) const { CXZ_WARNING("FORMAT / BLOCKSIZES!!!"); }
     };
 
     template <typename T>
