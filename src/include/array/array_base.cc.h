@@ -100,7 +100,7 @@ namespace CNORXZ
     template <class Index>
     COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
-	//this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return coproot(*this, i);
     }
 
@@ -109,7 +109,7 @@ namespace CNORXZ
     inline decltype(auto) CArrayBase<T>::operator()(const SPack<Indices...>& pack) const
     {
 	auto i = mindexPtr(pack);
-	//this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return coproot(*this, i);
     }
 
@@ -117,7 +117,7 @@ namespace CNORXZ
     inline decltype(auto) CArrayBase<T>::operator()(const DPack& pack) const
     {
 	auto i = yindexPtr(pack);
-	//this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return coproot(*this, i);
     }
 
@@ -223,7 +223,7 @@ namespace CNORXZ
     template <class Index>
     OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
-	//this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return oproot(*this, i);
     }
 
@@ -232,7 +232,7 @@ namespace CNORXZ
     inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
     {
 	auto i = mindexPtr(pack);
-	//this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return oproot(*this, i);
     }
 
@@ -240,7 +240,7 @@ namespace CNORXZ
     inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
     {
 	auto i = yindexPtr(pack);
-	//this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return oproot(*this, i);
     }
 
