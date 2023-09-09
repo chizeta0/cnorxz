@@ -142,6 +142,12 @@ namespace CNORXZ
     }
 
     template <typename MetaT, SizeT S>
+    SizeT SIndex<MetaT,S>::deepFormat() const
+    {
+	return 1;
+    }
+    
+    template <typename MetaT, SizeT S>
     template <class Index>
     decltype(auto) SIndex<MetaT,S>::formatFrom(const Index& ind) const
     {

@@ -100,7 +100,7 @@ namespace CNORXZ
     template <class Index>
     COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
-	this->checkFormatCompatibility(i->deepFormat());
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return coproot(*this, i);
     }
 
@@ -109,7 +109,7 @@ namespace CNORXZ
     inline decltype(auto) CArrayBase<T>::operator()(const SPack<Indices...>& pack) const
     {
 	auto i = mindexPtr(pack);
-	this->checkFormatCompatibility(i->deepFormat());
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return coproot(*this, i);
     }
 
@@ -117,7 +117,7 @@ namespace CNORXZ
     inline decltype(auto) CArrayBase<T>::operator()(const DPack& pack) const
     {
 	auto i = yindexPtr(pack);
-	this->checkFormatCompatibility(i->deepFormat());
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return coproot(*this, i);
     }
 
@@ -223,7 +223,7 @@ namespace CNORXZ
     template <class Index>
     OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
-	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
 	return oproot(*this, i);
     }
 
@@ -231,15 +231,17 @@ namespace CNORXZ
     template <class... Indices>
     inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
     {
-	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return oproot(*this, mindexPtr(pack));
+	auto i = mindexPtr(pack);
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	return oproot(*this, i);
     }
 
     template <typename T>
     inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
     {
-	//CXZ_WARNING("FORMAT / BLOCKSIZES!!!");
-	return oproot(*this, yindexPtr(pack));
+	auto i = yindexPtr(pack);
+	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	return oproot(*this, i);
     }
 
     /*****************************

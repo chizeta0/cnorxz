@@ -39,7 +39,7 @@ namespace CNORXZ
     {
 	return iter<0,N1>
 	    ( [&](auto i) { return std::get<i>(a1); },
-	      [](const auto&... e) { return Arr<T,N1+1> { e..., a2 }; } );
+	      [&](const auto&... e) { return Arr<T,N1+1> { e..., a2 }; } );
     }
 
     template <typename T, SizeT N1>
@@ -47,7 +47,7 @@ namespace CNORXZ
     {
 	return iter<0,N1>
 	    ( [&](auto i) { return std::get<i>(a2); },
-	      [](const auto&... e) { return Arr<T,N1+1> { a1, e... }; } );
+	      [&](const auto&... e) { return Arr<T,N1+1> { a1, e... }; } );
     }
 
     template <typename T>
@@ -113,7 +113,7 @@ namespace CNORXZ
     template <typename T, SizeT N>
     constexpr Arr<T,N> mul(const Arr<T,N>& a, const T& b)
     {
-	return iter<0,N>( [&](auto i) { return std::get<i>(a) * b },
+	return iter<0,N>( [&](auto i) { return std::get<i>(a) * b; },
 			  [](const auto&... e) { return Arr<T,N> { e... }; } );
     }
 

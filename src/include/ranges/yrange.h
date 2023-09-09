@@ -65,7 +65,7 @@ namespace CNORXZ
 	YIndex& operator()();
 
 	const DPack& pack() const;
-	Vector<SizeT> deepFormat() const;
+	Vector<SizeT> deepFormat() const { CXZ_ERROR("implement!!!"); return Vector<SizeT> {1}; }
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);

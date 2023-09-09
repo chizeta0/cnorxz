@@ -48,6 +48,8 @@ namespace CNORXZ
 	SIndex& at(const MetaT& metaPos);
 	decltype(auto) xpr(const Sptr<SIndex<MetaType,S>>& _this) const;
 
+	SizeT deepFormat() const;
+	
 	template <class Index>
 	decltype(auto) formatFrom(const Index& ind) const;
 

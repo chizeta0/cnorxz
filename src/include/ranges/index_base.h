@@ -62,6 +62,8 @@ namespace CNORXZ
 	decltype(auto) formatFrom(const Index& ind) const // yes this is const,
 	// changes only MIndex/YIndex format, in this case we can just copy the pointers to the sub-index instances
 	{ return THIS().formatFrom(ind); }
+
+	decltype(auto) deepFormat() const { return THIS().deepFormat(); }
 	
 	//template <class Index>
 	//decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }
