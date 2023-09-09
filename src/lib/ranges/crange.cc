@@ -116,6 +116,10 @@ namespace CNORXZ
 	return coproot(m.data(), _this);
     }
     
+    SizeT CIndex::deepFormat() const
+    {
+	return 1;
+    }
     
     /**********************
      *   CRangeFactory    *

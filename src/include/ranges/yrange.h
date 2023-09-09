@@ -51,8 +51,8 @@ namespace CNORXZ
 	Sptr<YRange> range() const;
 	UPos stepSize(const IndexId<0> id) const;
 
-	template <class Index>
-	YIndex formatFrom(const Index& ind) const;
+	//template <class Index>
+	//YIndex formatFrom(const Index& ind) const;
 
 	String stringMeta() const;
 	Vector<DType> meta() const;
@@ -65,7 +65,7 @@ namespace CNORXZ
 	YIndex& operator()();
 
 	const DPack& pack() const;
-	Vector<SizeT> deepFormat() const { CXZ_ERROR("implement!!!"); return Vector<SizeT> {1}; }
+	Vector<SizeT> deepFormat() const;
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);

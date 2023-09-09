@@ -54,8 +54,7 @@ namespace CNORXZ
 	DType meta() const;
 	DIndex& at(const DType& meta);
 	DXpr<SizeT> xpr(const Sptr<DIndex>& _this) const;
-
-	Vector<SizeT> deepFormat() const { return mI->deepFormat(); }
+	Vector<SizeT> deepFormat() const;
 	
 	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
 

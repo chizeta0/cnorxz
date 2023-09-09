@@ -367,6 +367,12 @@ namespace CNORXZ
     {
 	return mIs;
     }
+
+    Vector<SizeT> YIndex::deepFormat() const
+    {
+	CXZ_ERROR("implement!!!");
+	return Vector<SizeT> {1};
+    }
 	
     const YFormat& YIndex::format() const
     {

@@ -17,7 +17,7 @@ namespace CNORXZ
 	    return UPos(id == this->id() ? 1 : 0);
 	}
     }
-
+    /*
     template <class Index>
     decltype(auto) CIndex::formatFrom(const Index& ind) const
     {
@@ -34,7 +34,7 @@ namespace CNORXZ
 	}
 	return std::make_shared<CIndex>(*this);
     }
-
+    */
     template <class Xpr, class F>
     decltype(auto) CIndex::ifor(const Xpr& xpr, F&& f) const
     {

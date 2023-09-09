@@ -146,7 +146,7 @@ namespace CNORXZ
     {
 	return 1;
     }
-    
+    /*
     template <typename MetaT, SizeT S>
     template <class Index>
     decltype(auto) SIndex<MetaT,S>::formatFrom(const Index& ind) const
@@ -165,7 +165,7 @@ namespace CNORXZ
 	}
 	return std::make_shared<SIndex<MetaType,S>>(*this);
     }
-
+    */
     template <typename MetaT, SizeT S>
     template <class Xpr, class F>
     decltype(auto) SIndex<MetaT,S>::ifor(const Xpr& xpr, F&& f) const

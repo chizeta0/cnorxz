@@ -382,7 +382,7 @@ namespace CNORXZ
 	    ( [&](auto i) { return mIPack[i]->stepSize(id) * format()[i]; },
 	      [](const auto&... ss) { return ( ss + ... ); });
     }
-
+    /*
     template <class FormatT, class... Indices>
     template <class Index>
     decltype(auto) GMIndex<FormatT,Indices...>::formatFrom(const Index& ind) const
@@ -392,7 +392,7 @@ namespace CNORXZ
 		   << " need index of at least the same dimension, got " << ind.dim());
 	return *this;
     }
-
+    */
     template <class FormatT, class... Indices>
     String GMIndex<FormatT,Indices...>::stringMeta() const
     {

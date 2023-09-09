@@ -54,7 +54,7 @@ namespace CNORXZ
 	decltype(auto) meta() const { return THIS().meta(); }
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 	decltype(auto) xpr(const Sptr<I>& _this) const { return THIS().xpr(_this); }
-
+	/*
 	template <class Index>
 	decltype(auto) formatTo(const Sptr<Index>& ind) const { return ind->formatFrom(THIS()); }
 
@@ -62,7 +62,7 @@ namespace CNORXZ
 	decltype(auto) formatFrom(const Index& ind) const // yes this is const,
 	// changes only MIndex/YIndex format, in this case we can just copy the pointers to the sub-index instances
 	{ return THIS().formatFrom(ind); }
-
+	*/
 	decltype(auto) deepFormat() const { return THIS().deepFormat(); }
 	
 	//template <class Index>

@@ -155,7 +155,7 @@ namespace CNORXZ
 	    return UPos(id == this->id() ? 1 : 0);
 	}
     }
-
+    /*
     template <typename MetaType>
     template <class Index>
     decltype(auto) UIndex<MetaType>::formatFrom(const Index& ind) const
@@ -174,7 +174,7 @@ namespace CNORXZ
 	}
 	return std::make_shared<UIndex<MetaType>>(*this);
     }
-    
+    */
     template <typename MetaType>
     template <class Xpr, class F>
     decltype(auto) UIndex<MetaType>::ifor(const Xpr& xpr, F&& f) const

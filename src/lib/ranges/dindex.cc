@@ -167,6 +167,11 @@ namespace CNORXZ
 	return mI->xpr(_this->xptr());
     }
 
+    Vector<SizeT> DIndex::deepFormat() const
+    {
+	return mI->deepFormat();
+    }
+    
     DXpr<SizeT> DIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
     {
 	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)) );
