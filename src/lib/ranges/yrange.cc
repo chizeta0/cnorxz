@@ -370,8 +370,19 @@ namespace CNORXZ
 
     Vector<SizeT> YIndex::deepFormat() const
     {
-	CXZ_ERROR("implement!!!");
-	return Vector<SizeT> {1};
+	Vector<Vector<SizeT>> dfv(mIs.size());
+	SizeT osize = 0;
+	for(SizeT j = 0; j != dfv.size(); ++j){
+	    dfv[j] = mIs[j]->deepFormat();
+	    osize += dfv[j].size();
+	}
+	Vector<SizeT> o(osize);
+	SizeT off = 0;
+	for(SizeT j = 0; j != dfv.size(); ++j){
+	    std::copy(dfv[j].begin(), dfv[j].end(), o.begin()+off);
+	    off += dfv[j].size();
+	}	
+	return o;
     }
 	
     const YFormat& YIndex::format() const
