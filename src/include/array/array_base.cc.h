@@ -100,7 +100,7 @@ namespace CNORXZ
     template <class Index>
     COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
-	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(*i);
 	return coproot(*this, i);
     }
 
@@ -109,7 +109,7 @@ namespace CNORXZ
     inline decltype(auto) CArrayBase<T>::operator()(const SPack<Indices...>& pack) const
     {
 	auto i = mindexPtr(pack);
-	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(*i);
 	return coproot(*this, i);
     }
 
@@ -117,7 +117,7 @@ namespace CNORXZ
     inline decltype(auto) CArrayBase<T>::operator()(const DPack& pack) const
     {
 	auto i = yindexPtr(pack);
-	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(*i);
 	return coproot(*this, i);
     }
 
@@ -140,6 +140,38 @@ namespace CNORXZ
 	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
 	// check further compatibility of index/range format!!!
 	return begin() + acc.lex();
+    }
+
+    template <typename T>
+    template <class Acc>
+    void CArrayBase<T>::checkFormatCompatibility(const Acc& acc) const
+    {
+	auto j = begin();
+	CXZ_ASSERT(acc.lmax().val() == j.lmax().val(),
+		   "got index of iteration space size = " << acc.lmax().val()
+		   << ", expected size = " << acc.lmax().val());
+	Vector<SizeT> f1 = toVec(acc.deepFormat());
+	Vector<SizeT> f2 = j.deepFormat();
+	std::sort(f1.begin(),f1.end());
+	std::sort(f2.begin(),f2.end());
+	SizeT i1 = 0;
+	SizeT i2 = 0;
+	CXZ_ASSERT(f1[i1] == f2[i2], "obtained format " << toString(f1)
+		   << ", which is incompatible to target format " << toString(f2));
+	++i1;
+	++i2;
+	while(i1 < f1.size() and i2 < f2.size()){
+	    if(f1[i1] < f2[i2]) {
+		if(++i1 == f1.size()) break;
+		CXZ_ASSERT(f1[i1] <= f2[i2], "obtained format " << toString(f1)
+			   << ", which is incompatible to target format " << toString(f2));
+	    }
+	    else if(f1[i1] > f2[i2]) {
+		if(++i2 == f2.size()) break;
+		CXZ_ASSERT(f1[i1] >= f2[i2], "obtained format " << toString(f1)
+			   << ", which is incompatible to target format " << toString(f2));
+	    }
+	}
     }
 
     /*****************
@@ -223,7 +255,7 @@ namespace CNORXZ
     template <class Index>
     OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
-	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(*i);
 	return oproot(*this, i);
     }
 
@@ -232,7 +264,7 @@ namespace CNORXZ
     inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
     {
 	auto i = mindexPtr(pack);
-	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(*i);
 	return oproot(*this, i);
     }
 
@@ -240,7 +272,7 @@ namespace CNORXZ
     inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
     {
 	auto i = yindexPtr(pack);
-	this->checkFormatCompatibility(toVec(i->deepFormat()));
+	this->checkFormatCompatibility(*i);
 	return oproot(*this, i);
     }
 
