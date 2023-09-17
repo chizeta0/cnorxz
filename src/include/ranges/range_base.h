@@ -124,6 +124,7 @@ namespace CNORXZ
 
     RangePtr getSub(const RangePtr& r, SizeT num);
     MArray<RangePtr> getSub(const RangePtr& r);
+    
 }
 
 #endif

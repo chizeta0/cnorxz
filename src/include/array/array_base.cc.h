@@ -64,12 +64,12 @@ namespace CNORXZ
 
     template <typename T>
     template <typename I, typename M>
-    Sptr<CArrayBase<T>> CArrayBase<T>::sl(const IndexInterface<I,M>& i) const
+    Sptr<CArrayBase<T>> CArrayBase<T>::sl(const IndexInterface<I,M>& begin,
+					  const IndexInterface<I,M>& end) const
     {
-	auto beg = std::make_shared<const_iterator>(this->begin());
-	auto si = i.slice(beg);
-	auto it = *beg + i.lex();
-	return std::make_shared<CSlice>(this, *si, it.pos());
+	auto ai = itLexSave(begin);
+	auto aj = itLexSave(end);
+	return std::make_shared<CSlice>(subcube(ai,aj), this, ai.format(), ai.pos());
     }
 
     template <typename T>

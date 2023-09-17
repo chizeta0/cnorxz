@@ -117,6 +117,9 @@ namespace CNORXZ
 	Sptr<RangeT> mRange;
 	Vector<SizeT> mParts;
     };
+
+    template <class I, typename M>
+    RangePtr prange(const IndexInterface<I,M>& begin, const IndexInterface<I,M>& end);
     
 } // namespace CNORXZ
 

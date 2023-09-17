@@ -326,6 +326,23 @@ namespace CNORXZ
     {
 	return Vector<Uuid> { mRange->id() };
     }
+
+
+    /****************************
+     *   non-member functions   *
+     ****************************/
+    
+    template <class I, typename M>
+    RangePtr prange(const IndexInterface<I,M>& begin, const IndexInterface<I,M>& end)
+    {
+	Vector<SizeT> parts(end-begin);
+	const SizeT off = begin.pos();
+	for(auto i = begin.THIS(); i != end.THIS(); ++i){
+	    parts[i.pos()-off] = i.pos();
+	}
+	return begin.range()->partial(parts); // implement!!!!
+	//return PRangeFactory<typename I::RangeType>(begin.range(), parts).create();
+    }
 }
 
 #endif

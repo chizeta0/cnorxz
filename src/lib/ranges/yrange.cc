@@ -560,4 +560,18 @@ namespace CNORXZ
     {
 	return std::dynamic_pointer_cast<YRange>( YRangeFactory({r}).create() );
     }
+
+    template <>
+    RangePtr prange(const IndexInterface<YIndex,Vector<DType>>& begin,
+		    const IndexInterface<YIndex,Vector<DType>>& end)
+    {
+	CXZ_WARNING("YRange specialization"); // test
+	const SizeT dim = begin.range()->dim();
+	Vector<RangePtr> v(dim);
+	for(SizeT i = 0; i != dim; ++i){
+	    v[i] = prange( DIndex(begin.THIS().pack()[i]), DIndex(end.THIS().pack()[i]) );
+	}
+	return YRangeFactory(v).create();
+    }
+
 }

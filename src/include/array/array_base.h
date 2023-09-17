@@ -40,7 +40,8 @@ namespace CNORXZ
 	const T& at(const DPack& pack) const;
 
 	template <typename I, typename M>
-	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& i) const;
+	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& begin,
+			       const IndexInterface<I,M>& end) const;
 
 	template <class Index>
 	COpRoot<T,Index> operator()(const Sptr<Index>& i) const;

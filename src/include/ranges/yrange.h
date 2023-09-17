@@ -9,6 +9,7 @@
 #include "xpr/xpr.h"
 #include "index_format.h"
 #include "index_pack.h"
+#include "prange.h"
 
 namespace CNORXZ
 {
@@ -159,6 +160,10 @@ namespace CNORXZ
 	static Sptr<YRange> func(const RangePtr& r);
     };
 
+    template <>
+    RangePtr prange(const IndexInterface<YIndex,Vector<DType>>& begin,
+		    const IndexInterface<YIndex,Vector<DType>>& end);
+    
 }
 
 #endif
