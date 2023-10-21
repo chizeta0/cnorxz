@@ -104,7 +104,7 @@ namespace CNORXZ
 	virtual const TypeInfo& metaType() const override final;
 	virtual RangePtr extend(const RangePtr& r) const override final;
 
-	RangePtr orig() const;
+	Sptr<RangeT> orig() const;
 	const Vector<SizeT>& parts() const;
 	RangePtr derive() const;
 	

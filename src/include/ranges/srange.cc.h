@@ -3,6 +3,7 @@
 #define __cxz_range_cc_h__
 
 #include "srange.h"
+#include "prange.h"
 
 namespace CNORXZ
 {
@@ -144,8 +145,13 @@ namespace CNORXZ
     template <typename MetaT, SizeT S>
     RangePtr SIndex<MetaT,S>::prange(const SIndex<MetaType,S>& end) const
     {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return nullptr;
+	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	const SizeT beginPos = lex();
+	Vector<SizeT> parts(end.lex()-beginPos);
+	for(auto i = *this; i != end; ++i){
+	    parts[i.lex()-beginPos] = i.lex();
+	}
+	return CNORXZ::prange(mRangePtr, parts);
     }
     
     template <typename MetaT, SizeT S>

@@ -65,34 +65,35 @@ namespace CNORXZ
 	const MetaT* mMetaPtr;
     };
 
-    template <typename MetaType, SizeT S, class I1>
-    decltype(auto) operator*(const Sptr<SIndex<MetaType,S>>& a, const Sptr<I1>& b);
+    template <typename MetaT, SizeT S, class I1>
+    decltype(auto) operator*(const Sptr<SIndex<MetaT,S>>& a, const Sptr<I1>& b);
 
-    template <typename MetaType, SizeT S>
+    template <typename MetaT, SizeT S>
     class SRangeFactory : public RangeFactoryBase
     {
     public:
-	SRangeFactory(const Arr<MetaType,S>& space);
-        SRangeFactory(Arr<MetaType,S>&& space);
-	SRangeFactory(const Arr<MetaType,S>& space, const RangePtr& ref);
-        SRangeFactory(Arr<MetaType,S>&& space, const RangePtr& ref);
+	SRangeFactory(const Arr<MetaT,S>& space);
+        SRangeFactory(Arr<MetaT,S>&& space);
+	SRangeFactory(const Arr<MetaT,S>& space, const RangePtr& ref);
+        SRangeFactory(Arr<MetaT,S>&& space, const RangePtr& ref);
 	
     private:
 	SRangeFactory() = default;
 	virtual void make() override final;
 
-	Arr<MetaType,S> mSpace;
+	Arr<MetaT,S> mSpace;
 	RangePtr mRef;
     };
 
-    template <typename MetaType, SizeT S>
-    class SRange : public RangeInterface<SRange<MetaType,S>>
+    template <typename MetaT, SizeT S>
+    class SRange : public RangeInterface<SRange<MetaT,S>>
     {
     public:
 	typedef RangeBase RB;
-	typedef SIndex<MetaType,S> IndexType;
+	typedef SIndex<MetaT,S> IndexType;
+	typedef MetaT MetaType;
 
-	friend SRangeFactory<MetaType,S>;
+	friend SRangeFactory<MetaT,S>;
 
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
@@ -101,28 +102,28 @@ namespace CNORXZ
 	virtual const TypeInfo& metaType() const override final;
 	virtual RangePtr extend(const RangePtr& r) const override final;
 
-	const MetaType& get(SizeT pos) const;
-	const MetaType* get() const;
-	SizeT getMeta(const MetaType& metaPos) const;
+	const MetaT& get(SizeT pos) const;
+	const MetaT* get() const;
+	SizeT getMeta(const MetaT& metaPos) const;
 
     private:
 
 	SRange() = default;
 	SRange(const SRange& in) = delete;
-	SRange(const Arr<MetaType,S>& space);
-	SRange(Arr<MetaType,S>&& space);
+	SRange(const Arr<MetaT,S>& space);
+	SRange(Arr<MetaT,S>&& space);
 
-	Arr<MetaType,S> mSpace;
+	Arr<MetaT,S> mSpace;
 
 	virtual Vector<Uuid> key() const override final;
 
 	SERIALIZATION_FUNCTIONS_NOPUB;
     };
 
-    template <typename MetaType, SizeT S>
-    struct RangeCast<SRange<MetaType,S>>
+    template <typename MetaT, SizeT S>
+    struct RangeCast<SRange<MetaT,S>>
     {
-	static Sptr<SRange<MetaType,S>> func(const RangePtr& r);
+	static Sptr<SRange<MetaT,S>> func(const RangePtr& r);
     };
     
 }

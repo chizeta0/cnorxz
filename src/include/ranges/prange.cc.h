@@ -126,8 +126,15 @@ namespace CNORXZ
     template <class IndexT>
     RangePtr PIndex<IndexT>::prange(const PIndex<IndexT>& end) const
     {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return nullptr;
+	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	auto oi = *orig();
+	auto oend = *end.orig();
+	const SizeT beginPos = oi.lex();
+	Vector<SizeT> parts(oend.lex()-beginPos);
+	for(auto i = oi; i != oend; ++i){
+	    parts[i.lex()-beginPos] = i.lex();
+	}
+	return CNORXZ::prange(mRangePtr->orig(), parts);
     }
 
     template <class IndexT>
@@ -204,6 +211,12 @@ namespace CNORXZ
 	mOrig = i;
 	mkPos();
 	return *this;
+    }
+
+    template <class IndexT>
+    const Sptr<IndexT>& PIndex<IndexT>::orig() const
+    {
+	return mOrig;
     }
 
     /************************
@@ -302,7 +315,7 @@ namespace CNORXZ
     }
 
     template <class RangeT>
-    RangePtr PRange<RangeT>::orig() const
+    Sptr<RangeT> PRange<RangeT>::orig() const
     {
 	return mRange;
     }
