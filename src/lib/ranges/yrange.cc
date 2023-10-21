@@ -368,13 +368,13 @@ namespace CNORXZ
 	return mIs;
     }
 
-    RangePtr YIndex::prange(const YIndex& end) const
+    RangePtr YIndex::prange(const YIndex& last) const
     {
-	CXZ_ASSERT(dim() == end.dim(), "end index has different number of dimensions ("
-		   << end.dim() << ") than begin index (" << dim() << ")");
+	CXZ_ASSERT(dim() == last.dim(), "end index has different number of dimensions ("
+		   << last.dim() << ") than begin index (" << dim() << ")");
 	Vector<RangePtr> v(dim());
 	for(SizeT i = 0; i != dim(); ++i){
-	    v[i] = mIs[i]->prange( end.pack()[i] );
+	    v[i] = mIs[i]->prange( last.pack()[i] );
 	}
 	return YRangeFactory(v).create();
     }

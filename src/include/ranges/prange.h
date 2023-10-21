@@ -41,7 +41,7 @@ namespace CNORXZ
 
 	template <SizeT I>
 	UPos stepSize(const IndexId<I>& id) const;
-	RangePtr prange(const PIndex<IndexT>& end) const;
+	RangePtr prange(const PIndex<IndexT>& last) const;
 	decltype(auto) deepFormat() const;
 
 	String stringMeta() const;

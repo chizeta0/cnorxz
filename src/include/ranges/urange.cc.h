@@ -128,12 +128,12 @@ namespace CNORXZ
     }
 
     template <typename MetaT>
-    RangePtr UIndex<MetaT>::prange(const UIndex<MetaT>& end) const
+    RangePtr UIndex<MetaT>::prange(const UIndex<MetaT>& last) const
     {
-	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	CXZ_ASSERT(last > *this, "got last index position smaller than begin index position");
 	const SizeT beginPos = lex();
-	Vector<SizeT> parts(end.lex()-beginPos);
-	for(auto i = *this; i != end; ++i){
+	Vector<SizeT> parts(last.lex()-beginPos+1);
+	for(auto i = *this; i != last+1; ++i){
 	    parts[i.lex()-beginPos] = i.lex();
 	}
 	return CNORXZ::prange(mRangePtr, parts);

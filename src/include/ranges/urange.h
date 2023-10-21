@@ -55,7 +55,7 @@ namespace CNORXZ
 	UIndex& at(const MetaT& metaPos);
 	decltype(auto) xpr(const Sptr<UIndex<MetaType>>& _this) const;
 
-	RangePtr prange(const UIndex<MetaType>& end) const;
+	RangePtr prange(const UIndex<MetaType>& last) const;
 
 	SizeT deepFormat() const;
 	/*

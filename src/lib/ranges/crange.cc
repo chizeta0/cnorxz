@@ -117,12 +117,13 @@ namespace CNORXZ
 	return coproot(m.data(), _this);
     }
 
-    RangePtr CIndex::prange(const CIndex& end) const
+    RangePtr CIndex::prange(const CIndex& last) const
     {
-	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	CXZ_ASSERT(last > *this, "got last index position (" << last.lex()
+		   << ") smaller than begin index position (" << lex() << ")");
 	const SizeT beginPos = lex();
-	Vector<SizeT> parts(end.lex() - beginPos);
-	for(auto i = *this; i != end; ++i){
+	Vector<SizeT> parts(last.lex() - beginPos + 1);
+	for(auto i = *this; i != last+1; ++i){
 	    parts[i.lex()-beginPos] = i.lex();
 	}
 	return CNORXZ::prange(mRangePtr, parts);

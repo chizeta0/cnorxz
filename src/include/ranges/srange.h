@@ -48,7 +48,7 @@ namespace CNORXZ
 	SIndex& at(const MetaT& metaPos);
 	decltype(auto) xpr(const Sptr<SIndex<MetaType,S>>& _this) const;
 
-	RangePtr prange(const SIndex<MetaType,S>& end) const;
+	RangePtr prange(const SIndex<MetaType,S>& last) const;
 	SizeT deepFormat() const;
 	/*
 	template <class Index>

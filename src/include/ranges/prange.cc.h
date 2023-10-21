@@ -13,9 +13,13 @@ namespace CNORXZ
     template <class IndexT>
     PIndex<IndexT>::PIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<PIndex<IndexT>,typename IndexT::MetaType>(pos),
-	mRangePtr(rangeCast<RangeType>(range)),
-	mOrig(std::make_shared<IndexT>(mRangePtr->orig(),mRangePtr->parts()[pos]))
-    {}
+	mRangePtr(rangeCast<RangeType>(range))//,
+	//mOrig(std::make_shared<IndexT>(mRangePtr->orig(),mRangePtr->parts()[pos]))
+    {
+	auto o = mRangePtr->orig();
+	auto p = mRangePtr->parts()[pos];
+	mOrig = std::make_shared<IndexT>(o,p);
+    }
 	
     template <class IndexT>
     PIndex<IndexT>& PIndex<IndexT>::operator=(SizeT lexpos)
@@ -124,14 +128,14 @@ namespace CNORXZ
     }
 
     template <class IndexT>
-    RangePtr PIndex<IndexT>::prange(const PIndex<IndexT>& end) const
+    RangePtr PIndex<IndexT>::prange(const PIndex<IndexT>& last) const
     {
-	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	CXZ_ASSERT(last > *this, "got last index position smaller than begin index position");
 	auto oi = *orig();
-	auto oend = *end.orig();
+	auto olast = *last.orig();
 	const SizeT beginPos = oi.lex();
-	Vector<SizeT> parts(oend.lex()-beginPos);
-	for(auto i = oi; i != oend; ++i){
+	Vector<SizeT> parts(olast.lex()-beginPos+1);
+	for(auto i = oi; i != olast+1; ++i){
 	    parts[i.lex()-beginPos] = i.lex();
 	}
 	return CNORXZ::prange(mRangePtr->orig(), parts);
@@ -280,7 +284,7 @@ namespace CNORXZ
     template <class RangeT>
     SizeT PRange<RangeT>::size() const
     {
-	return mParts.size();
+	return mParts.size()-1;
     }
     
     template <class RangeT>
@@ -345,7 +349,10 @@ namespace CNORXZ
     template <class RangeT>
     PRange<RangeT>::PRange(const Sptr<RangeT>& range, const Vector<SizeT>& _parts) :
 	mRange(range), mParts(_parts)
-    {}
+    {
+	const auto max = std::max_element( mParts.begin(), mParts.end() );
+	mParts.push_back( *max );
+    }
 
     template <class RangeT>
     Vector<Uuid> PRange<RangeT>::key() const

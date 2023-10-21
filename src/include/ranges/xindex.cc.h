@@ -128,9 +128,9 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    RangePtr XIndex<Index,Meta>::prange(const XIndexPtr& end) const
+    RangePtr XIndex<Index,Meta>::prange(const XIndexPtr& last) const
     {
-	return mI->prange( *std::dynamic_pointer_cast<Index>(end) );
+	return mI->prange( std::dynamic_pointer_cast<XIndex<Index,Meta>>(last)->get() );
     }
 
     template <class Index, typename Meta>

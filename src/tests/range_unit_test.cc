@@ -120,9 +120,32 @@ namespace
 	for(auto x: *crx){
 	    EXPECT_EQ(x, cnt2++);
 	}
-	
     }
 
+    TEST_F(CR_Test, prange)
+    {
+	auto crx = std::dynamic_pointer_cast<CRange>(cr);
+	auto beg = crx->begin();
+	auto end = crx->end();
+
+	const SizeT begPos = 1;
+	const SizeT endPos = mSize-2;
+	const SizeT pSize = endPos - begPos;
+	beg += begPos;
+	end -= mSize-endPos+1;
+	auto pr = beg.prange(end);
+	auto prx = std::dynamic_pointer_cast<PRange<CRange>>(pr);
+
+	EXPECT_EQ(pr->size(), pSize);
+	EXPECT_EQ(prx->size(), pSize);
+
+	for(auto i = prx->begin(); i != prx->end(); ++i){
+	    EXPECT_EQ(*i, i.lex()+begPos);
+	}
+
+	EXPECT_EQ(prx->orig(),cr);
+    }
+    
     TEST_F(UR_Test, Basics)
     {
 	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
@@ -153,6 +176,29 @@ namespace
 	for(const auto& x: *urx){
 	    EXPECT_EQ(x, mMeta[cnt2++]);
 	}
+    }
+
+    TEST_F(UR_Test, prange)
+    {
+	auto urx = std::dynamic_pointer_cast<URange<String>>(ur);
+	auto beg = urx->begin();
+	auto end = urx->end();
+
+	const SizeT begPos = 1;
+	const SizeT endPos = mMeta.size() - 2;
+	const SizeT pSize = endPos - begPos;
+	beg += begPos;
+	end -= mMeta.size() - endPos + 1;
+	auto pr = beg.prange(end);
+	auto prx = std::dynamic_pointer_cast<PRange<URange<String>>>(pr);
+
+	EXPECT_EQ(pr->size(), pSize);
+	EXPECT_EQ(prx->size(), pSize);
+
+	for(auto i = prx->begin(); i != prx->end(); ++i){
+	    EXPECT_EQ(*i, mMeta[i.lex()+begPos]);
+	}
+	EXPECT_EQ(prx->orig(),ur);
     }
 
     TEST_F(MR_Test, Basics2d)
@@ -437,7 +483,38 @@ namespace
 	    }
 	}
     }
-    
+
+    TEST_F(YR_Test, prange)
+    {
+	auto yrx = std::dynamic_pointer_cast<YRange>(yr);
+	auto beg = yrx->begin();
+	auto last = yrx->end();
+
+	const SizeT begI = 1;
+	const SizeT lastI = mSize - 2 - 1;
+	const SizeT begJ = 1;
+	const SizeT lastJ = mMeta.size() - 1;
+
+	const SizeT begPos = begI * mMeta.size() + begJ;
+	const SizeT lastPos = lastI * mMeta.size() + lastJ;
+	const SizeT pSize = (lastI-begI+1)*(lastJ-begJ+1);
+	beg += begPos;
+	last = lastPos;
+	auto pr = beg.prange(last);
+	auto prx = std::dynamic_pointer_cast<YRange>(pr);
+
+	EXPECT_EQ(pr->size(), pSize);
+	EXPECT_EQ(prx->size(), pSize);
+
+	const SizeT mmsize = lastJ-begJ+1;
+	auto mkm = [&](SizeT i) {
+	    return Vector<DType>({DType(i/mmsize+begI),DType(mMeta[i % mmsize+begJ])}); };
+
+	for(auto i = prx->begin(); i != prx->end(); ++i){
+	    EXPECT_TRUE(*i == mkm(i.lex()));
+	}
+    }
+
 // RCast_Test
 }
 
