@@ -167,6 +167,11 @@ namespace CNORXZ
 	return mI->xpr(_this->xptr());
     }
 
+    RangePtr DIndex::prange(const DIndex& end) const
+    {
+	return mI->prange( end.xptr() );
+    }
+
     Vector<SizeT> DIndex::deepFormat() const
     {
 	return mI->deepFormat();

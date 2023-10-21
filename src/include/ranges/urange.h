@@ -55,6 +55,8 @@ namespace CNORXZ
 	UIndex& at(const MetaT& metaPos);
 	decltype(auto) xpr(const Sptr<UIndex<MetaType>>& _this) const;
 
+	RangePtr prange(const UIndex<MetaType>& end) const;
+
 	SizeT deepFormat() const;
 	/*
 	template <class Index>
@@ -94,12 +96,13 @@ namespace CNORXZ
 	RangePtr mRef;
     };
 
-    template <typename MetaType>
-    class URange : public RangeInterface<URange<MetaType>>
+    template <typename MetaT>
+    class URange : public RangeInterface<URange<MetaT>>
     {
     public:
 	typedef RangeBase RB;
-	typedef UIndex<MetaType> IndexType;
+	typedef UIndex<MetaT> IndexType;
+	typedef MetaT MetaType;
 	
 	friend URangeFactory<MetaType>;
 

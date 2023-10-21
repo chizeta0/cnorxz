@@ -142,6 +142,13 @@ namespace CNORXZ
     }
 
     template <typename MetaT, SizeT S>
+    RangePtr SIndex<MetaT,S>::prange(const SIndex<MetaType,S>& end) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+    }
+    
+    template <typename MetaT, SizeT S>
     SizeT SIndex<MetaT,S>::deepFormat() const
     {
 	return 1;

@@ -1,5 +1,6 @@
 
 #include "ranges/ranges.h"
+#include "ranges/prange.h"
 #include "operation/operation.h"
 
 namespace CNORXZ
@@ -114,6 +115,17 @@ namespace CNORXZ
 	    }
 	}
 	return coproot(m.data(), _this);
+    }
+
+    RangePtr CIndex::prange(const CIndex& end) const
+    {
+	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	const SizeT beginPos = lex();
+	Vector<SizeT> parts(end.lex() - beginPos);
+	for(auto i = *this; i != end; ++i){
+	    parts[i.lex()-beginPos] = i.lex();
+	}
+	return CNORXZ::prange(mRangePtr, parts);
     }
     
     SizeT CIndex::deepFormat() const

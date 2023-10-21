@@ -66,6 +66,7 @@ namespace CNORXZ
 	YIndex& operator()();
 
 	const DPack& pack() const;
+	RangePtr prange(const YIndex& end) const;
 	Vector<SizeT> deepFormat() const;
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
@@ -160,10 +161,7 @@ namespace CNORXZ
 	static Sptr<YRange> func(const RangePtr& r);
     };
 
-    template <>
-    RangePtr prange(const IndexInterface<YIndex,Vector<DType>>& begin,
-		    const IndexInterface<YIndex,Vector<DType>>& end);
-    
+   
 }
 
 #endif

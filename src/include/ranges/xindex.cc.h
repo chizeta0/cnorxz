@@ -128,6 +128,12 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
+    RangePtr XIndex<Index,Meta>::prange(const XIndexPtr& end) const
+    {
+	return mI->prange( *std::dynamic_pointer_cast<Index>(end) );
+    }
+
+    template <class Index, typename Meta>
     Vector<SizeT> XIndex<Index,Meta>::deepFormat() const
     {
 	return toVec( mI->deepFormat() );

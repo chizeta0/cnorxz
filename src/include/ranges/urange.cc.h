@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include "urange.h"
+#include "prange.h"
 #include "index_mul.h"
 #include "xpr/for.h"
 #include "operation/op_types.h"
@@ -17,136 +18,148 @@ namespace CNORXZ
      *    UIndex     *	     
      *****************/
 
-    template <typename MetaType>
-    UIndex<MetaType>::UIndex(const RangePtr& range, SizeT pos) :
-	IndexInterface<UIndex<MetaType>,MetaType>(pos),
+    template <typename MetaT>
+    UIndex<MetaT>::UIndex(const RangePtr& range, SizeT pos) :
+	IndexInterface<UIndex<MetaT>,MetaT>(pos),
 	mRangePtr(rangeCast<RangeType>(range)),
 	mMetaPtr(&mRangePtr->get(0))
     {}
 
-    template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::operator=(size_t lexpos)
+    template <typename MetaT>
+    UIndex<MetaT>& UIndex<MetaT>::operator=(size_t lexpos)
     {
 	IB::mPos = lexpos;
 	return *this;
     }
 
-    template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::operator++()
+    template <typename MetaT>
+    UIndex<MetaT>& UIndex<MetaT>::operator++()
     {
 	++IB::mPos;
 	return *this;
     }
 
-    template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::operator--()
+    template <typename MetaT>
+    UIndex<MetaT>& UIndex<MetaT>::operator--()
     {
 	--IB::mPos;
 	return *this;
     }
 
-    template <typename MetaType>
-    UIndex<MetaType> UIndex<MetaType>::operator+(Int n) const
+    template <typename MetaT>
+    UIndex<MetaT> UIndex<MetaT>::operator+(Int n) const
     {
 	return UIndex(mRangePtr, IB::mPos + n);
     }
     
-    template <typename MetaType>
-    UIndex<MetaType> UIndex<MetaType>::operator-(Int n) const
+    template <typename MetaT>
+    UIndex<MetaT> UIndex<MetaT>::operator-(Int n) const
     {
 	return UIndex(mRangePtr, IB::mPos - n);
     }
     
-    template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::operator+=(Int n)
+    template <typename MetaT>
+    UIndex<MetaT>& UIndex<MetaT>::operator+=(Int n)
     {
 	IB::mPos += n;
 	return *this;
     }
     
-    template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::operator-=(Int n)
+    template <typename MetaT>
+    UIndex<MetaT>& UIndex<MetaT>::operator-=(Int n)
     {
 	IB::mPos -= n;
 	return *this;
     }
 
-    template <typename MetaType>
-    SizeT UIndex<MetaType>::lex() const
+    template <typename MetaT>
+    SizeT UIndex<MetaT>::lex() const
     {
 	return IB::mPos;
     }
     
-    template <typename MetaType>
-    UPos UIndex<MetaType>::pmax() const
+    template <typename MetaT>
+    UPos UIndex<MetaT>::pmax() const
     {
 	return UPos(mRangePtr->size());
     }
 
-    template <typename MetaType>
-    UPos UIndex<MetaType>::lmax() const
+    template <typename MetaT>
+    UPos UIndex<MetaT>::lmax() const
     {
 	return UPos(mRangePtr->size());
     }
 
-    template <typename MetaType>
-    IndexId<0> UIndex<MetaType>::id() const
+    template <typename MetaT>
+    IndexId<0> UIndex<MetaT>::id() const
     {
 	return IndexId<0>(this->ptrId());
     }
 
-    template <typename MetaType>
-    const MetaType& UIndex<MetaType>::operator*() const
+    template <typename MetaT>
+    const MetaT& UIndex<MetaT>::operator*() const
     {
 	return mMetaPtr[IB::mPos];
     }
     
-    template <typename MetaType>
-    String UIndex<MetaType>::stringMeta() const
+    template <typename MetaT>
+    String UIndex<MetaT>::stringMeta() const
     {
 	return toString(this->meta());
     }
     
-    template <typename MetaType>
-    const MetaType& UIndex<MetaType>::meta() const
+    template <typename MetaT>
+    const MetaT& UIndex<MetaT>::meta() const
     {
 	return mMetaPtr[IB::mPos];
     }
     
-    template <typename MetaType>
-    UIndex<MetaType>& UIndex<MetaType>::at(const MetaType& metaPos)
+    template <typename MetaT>
+    UIndex<MetaT>& UIndex<MetaT>::at(const MetaT& metaPos)
     {
 	(*this) = mRangePtr->getMeta(metaPos);
 	return *this;
     }
 
-    template <typename MetaType>
-    decltype(auto) UIndex<MetaType>::xpr(const Sptr<UIndex<MetaType>>& _this) const
+    template <typename MetaT>
+    decltype(auto) UIndex<MetaT>::xpr(const Sptr<UIndex<MetaT>>& _this) const
     {
 	return coproot(mMetaPtr,_this);
     }
 
-    template <typename MetaType>
-    SizeT UIndex<MetaType>::deepFormat() const
+    template <typename MetaT>
+    RangePtr UIndex<MetaT>::prange(const UIndex<MetaT>& end) const
+    {
+	CXZ_ASSERT(end > *this, "got end index position smaller than begin index position");
+	const SizeT beginPos = lex();
+	Vector<SizeT> parts(end.lex()-beginPos);
+	for(auto i = *this; i != end; ++i){
+	    parts[i.lex()-beginPos] = i.lex();
+	}
+	return CNORXZ::prange(mRangePtr, parts);
+    }
+
+    template <typename MetaT>
+    SizeT UIndex<MetaT>::deepFormat() const
     {
 	return 1;
     }
 
-    template <typename MetaType>
-    size_t UIndex<MetaType>::dim() const // = 1
+    template <typename MetaT>
+    size_t UIndex<MetaT>::dim() const // = 1
     {
 	return 1;
     }
 
-    template <typename MetaType>
-    Sptr<URange<MetaType>> UIndex<MetaType>::range() const
+    template <typename MetaT>
+    Sptr<URange<MetaT>> UIndex<MetaT>::range() const
     {
 	return mRangePtr;
     }
 
-    template <typename MetaType>
+    template <typename MetaT>
     template <SizeT I>
-    decltype(auto) UIndex<MetaType>::stepSize(const IndexId<I>& id) const
+    decltype(auto) UIndex<MetaT>::stepSize(const IndexId<I>& id) const
     {
 	if constexpr(I != 0){
 	    return SPos<0>();
@@ -156,34 +169,34 @@ namespace CNORXZ
 	}
     }
     /*
-    template <typename MetaType>
+    template <typename MetaT>
     template <class Index>
-    decltype(auto) UIndex<MetaType>::formatFrom(const Index& ind) const
+    decltype(auto) UIndex<MetaT>::formatFrom(const Index& ind) const
     {
 	return *this;
     }
 
-    template <typename MetaType>
+    template <typename MetaT>
     template <class Index>
-    decltype(auto) UIndex<MetaType>::slice(const Sptr<Index>& ind) const
+    decltype(auto) UIndex<MetaT>::slice(const Sptr<Index>& ind) const
     {
 	if(ind != nullptr){
 	    if(ind->dim() != 0) {
-		return Sptr<UIndex<MetaType>>();
+		return Sptr<UIndex<MetaT>>();
 	    }
 	}
-	return std::make_shared<UIndex<MetaType>>(*this);
+	return std::make_shared<UIndex<MetaT>>(*this);
     }
     */
-    template <typename MetaType>
+    template <typename MetaT>
     template <class Xpr, class F>
-    decltype(auto) UIndex<MetaType>::ifor(const Xpr& xpr, F&& f) const
+    decltype(auto) UIndex<MetaT>::ifor(const Xpr& xpr, F&& f) const
     {
 	return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
     }
     
-    template <typename MetaType, class I1>
-    decltype(auto) operator*(const Sptr<UIndex<MetaType>>& a, const Sptr<I1>& b)
+    template <typename MetaT, class I1>
+    decltype(auto) operator*(const Sptr<UIndex<MetaT>>& a, const Sptr<I1>& b)
     {
 	return iptrMul(a, b);
     }
@@ -192,32 +205,32 @@ namespace CNORXZ
      *   URangeFactory    *
      **********************/
 
-    template <typename MetaType>
-    URangeFactory<MetaType>::URangeFactory(const Vector<MetaType>& space) :
+    template <typename MetaT>
+    URangeFactory<MetaT>::URangeFactory(const Vector<MetaT>& space) :
 	mSpace(space) {}
 
-    template <typename MetaType>
-    URangeFactory<MetaType>::URangeFactory(Vector<MetaType>&& space) :
+    template <typename MetaT>
+    URangeFactory<MetaT>::URangeFactory(Vector<MetaT>&& space) :
 	mSpace(space) {}
 
-    template <typename MetaType>
-    URangeFactory<MetaType>::URangeFactory(const Vector<MetaType>& space, const RangePtr& ref) :
+    template <typename MetaT>
+    URangeFactory<MetaT>::URangeFactory(const Vector<MetaT>& space, const RangePtr& ref) :
 	mSpace(space), mRef(ref) {}
 
-    template <typename MetaType>
-    URangeFactory<MetaType>::URangeFactory(Vector<MetaType>&& space, const RangePtr& ref) :
+    template <typename MetaT>
+    URangeFactory<MetaT>::URangeFactory(Vector<MetaT>&& space, const RangePtr& ref) :
 	mSpace(space), mRef(ref) {}
 
-    template <typename MetaType>
-    void URangeFactory<MetaType>::make()
+    template <typename MetaT>
+    void URangeFactory<MetaT>::make()
     {
-	const auto& info = typeid(URange<MetaType>);
+	const auto& info = typeid(URange<MetaT>);
 	if(mRef != nullptr) {
 	    mProd = this->fromCreated(info, {mRef->id()});
 	}
 	if(mProd == nullptr){
-	    RangePtr key = mProd = std::shared_ptr<URange<MetaType>>
-		( new URange<MetaType>( std::move(mSpace) ) );
+	    RangePtr key = mProd = std::shared_ptr<URange<MetaT>>
+		( new URange<MetaT>( std::move(mSpace) ) );
 	    if(mRef != nullptr) { key = mRef; }
 	    this->addToCreated(info, { key->id() }, mProd);
 	}
@@ -227,88 +240,88 @@ namespace CNORXZ
      *   URange    *
      ***************/
     
-    template <typename MetaType>
-    URange<MetaType>::URange(const Vector<MetaType>& space) :
-	RangeInterface<URange<MetaType>>(),
+    template <typename MetaT>
+    URange<MetaT>::URange(const Vector<MetaT>& space) :
+	RangeInterface<URange<MetaT>>(),
 	mSpace(space)
     {
-	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());
+	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaT>());
 	auto itdupl = std::adjacent_find(mSpace.begin(), mSpace.end());
 	CXZ_ASSERT(itdupl == mSpace.end(), "found duplicate: " << *itdupl);
     }
 
-    template <typename MetaType>
-    URange<MetaType>::URange(Vector<MetaType>&& space) :
-	RangeInterface<URange<MetaType>>(),
+    template <typename MetaT>
+    URange<MetaT>::URange(Vector<MetaT>&& space) :
+	RangeInterface<URange<MetaT>>(),
 	mSpace(space)
     {
-	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaType>());
+	std::sort(mSpace.begin(), mSpace.end(), std::less<MetaT>());
 	auto itdupl = std::adjacent_find(mSpace.begin(), mSpace.end());
 	CXZ_ASSERT(itdupl == mSpace.end(), "found duplicate: " << toString(*itdupl));
     }
 
         
-    template <typename MetaType>
-    const MetaType& URange<MetaType>::get(SizeT pos) const
+    template <typename MetaT>
+    const MetaT& URange<MetaT>::get(SizeT pos) const
     {
 	return mSpace[pos];
     }
 
-    template <typename MetaType>
-    const MetaType* URange<MetaType>::get() const
+    template <typename MetaT>
+    const MetaT* URange<MetaT>::get() const
     {
 	return mSpace.data();
     }
 
-    template <typename MetaType>
-    SizeT URange<MetaType>::getMeta(const MetaType& meta) const
+    template <typename MetaT>
+    SizeT URange<MetaT>::getMeta(const MetaT& meta) const
     {
 	auto b = mSpace.begin();
 	auto e = mSpace.end();
-	return std::lower_bound(b, e, meta, std::less<MetaType>()) - b;
+	return std::lower_bound(b, e, meta, std::less<MetaT>()) - b;
     }
 
-    template <typename MetaType>
-    SizeT URange<MetaType>::size() const
+    template <typename MetaT>
+    SizeT URange<MetaT>::size() const
     {
 	return mSpace.size();
     }
 
-    template <typename MetaType>
-    SizeT URange<MetaType>::dim() const
+    template <typename MetaT>
+    SizeT URange<MetaT>::dim() const
     {
 	return 1;
     }
 
-    template <typename MetaType>
-    String URange<MetaType>::stringMeta(SizeT pos) const
+    template <typename MetaT>
+    String URange<MetaT>::stringMeta(SizeT pos) const
     {
 	return toString(this->get(pos));
     }
     
-    template <typename MetaType>
-    const TypeInfo& URange<MetaType>::type() const
+    template <typename MetaT>
+    const TypeInfo& URange<MetaT>::type() const
     {
-	return typeid(URange<MetaType>);
+	return typeid(URange<MetaT>);
     }
     
-    template <typename MetaType>
-    const TypeInfo& URange<MetaType>::metaType() const
+    template <typename MetaT>
+    const TypeInfo& URange<MetaT>::metaType() const
     {
-	return typeid(MetaType);
+	return typeid(MetaT);
     }
 
-    template <typename MetaType>
-    RangePtr URange<MetaType>::extend(const RangePtr& r) const
+    template <typename MetaT>
+    RangePtr URange<MetaT>::extend(const RangePtr& r) const
     {
-	auto rx = rangeCast<URange<MetaType>>(r);
+	auto rx = rangeCast<URange<MetaT>>(r);
 	auto space = mSpace;
 	space.insert(space.end(), rx->mSpace.begin(), rx->mSpace.end());
-	return URangeFactory<MetaType>( space ).create();
+	return URangeFactory<MetaT>( space ).create();
     }
 
-    template <typename MetaType>
-    Vector<Uuid> URange<MetaType>::key() const
+    template <typename MetaT>
+    Vector<Uuid> URange<MetaT>::key() const
     {
 	return Vector<Uuid> { this->id() };
     }
@@ -317,30 +330,30 @@ namespace CNORXZ
      *   Range Casts   *
      *******************/
 
-    template <typename MetaType>
+    template <typename MetaT>
     struct URangeCast
     {
 	template <typename T>
-	static inline Sptr<URange<MetaType>> transform(const RangePtr& r)
+	static inline Sptr<URange<MetaT>> transform(const RangePtr& r)
 	{
 	    if(r->type() == typeid(URange<T>)){
 		auto rr = std::dynamic_pointer_cast<URange<T>>(r);
-		Vector<MetaType> v(rr->size());
+		Vector<MetaT> v(rr->size());
 		std::transform(rr->begin(), rr->end(), v.begin(),
-			       [](const T& x) { return static_cast<MetaType>(x); } );
-		return std::dynamic_pointer_cast<URange<MetaType>>
-		    ( URangeFactory<MetaType>(std::move(v)).create() );
+			       [](const T& x) { return static_cast<MetaT>(x); } );
+		return std::dynamic_pointer_cast<URange<MetaT>>
+		    ( URangeFactory<MetaT>(std::move(v)).create() );
 	    }
 	    else {
 		return nullptr;
 	    }
 	}
 	
-	static inline Sptr<URange<MetaType>> cast(const RangePtr& r)
+	static inline Sptr<URange<MetaT>> cast(const RangePtr& r)
 	{
-	    static_assert(std::is_fundamental<MetaType>::value, "got non-fundamental type");
+	    static_assert(std::is_fundamental<MetaT>::value, "got non-fundamental type");
 	    CXZ_ASSERT(r->dim() == 1, "range cast into URange<Int>: source range must have dim = 1, got " << r->dim());
-	    Sptr<URange<MetaType>> o = nullptr;
+	    Sptr<URange<MetaT>> o = nullptr;
 	    o = transform<SizeT>(r); if(o) return o;
 	    o = transform<Int>(r); if(o) return o;
 	    o = transform<LInt>(r); if(o) return o;
@@ -415,11 +428,11 @@ namespace CNORXZ
     };
 
     
-    template <typename MetaType>
-    Sptr<URange<MetaType>> RangeCast<URange<MetaType>>::func(const RangePtr& r)
+    template <typename MetaT>
+    Sptr<URange<MetaT>> RangeCast<URange<MetaT>>::func(const RangePtr& r)
     {
-	if constexpr(std::is_fundamental<MetaType>::value or is_vector<MetaType>::value){
-	    return URangeCast<MetaType>::cast(r);
+	if constexpr(std::is_fundamental<MetaT>::value or is_vector<MetaT>::value){
+	    return URangeCast<MetaT>::cast(r);
 	}
 	else {
 	    CXZ_ERROR("no range cast available for input range '" << r->type().name() << "'");

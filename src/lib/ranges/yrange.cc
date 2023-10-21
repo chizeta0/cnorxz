@@ -368,6 +368,17 @@ namespace CNORXZ
 	return mIs;
     }
 
+    RangePtr YIndex::prange(const YIndex& end) const
+    {
+	CXZ_ASSERT(dim() == end.dim(), "end index has different number of dimensions ("
+		   << end.dim() << ") than begin index (" << dim() << ")");
+	Vector<RangePtr> v(dim());
+	for(SizeT i = 0; i != dim(); ++i){
+	    v[i] = mIs[i]->prange( end.pack()[i] );
+	}
+	return YRangeFactory(v).create();
+    }
+
     Vector<SizeT> YIndex::deepFormat() const
     {
 	Vector<Vector<SizeT>> dfv(mIs.size());
@@ -559,19 +570,6 @@ namespace CNORXZ
     Sptr<YRange> RangeCast<YRange>::func(const RangePtr& r)
     {
 	return std::dynamic_pointer_cast<YRange>( YRangeFactory({r}).create() );
-    }
-
-    template <>
-    RangePtr prange(const IndexInterface<YIndex,Vector<DType>>& begin,
-		    const IndexInterface<YIndex,Vector<DType>>& end)
-    {
-	CXZ_WARNING("YRange specialization"); // test
-	const SizeT dim = begin.range()->dim();
-	Vector<RangePtr> v(dim);
-	for(SizeT i = 0; i != dim; ++i){
-	    v[i] = prange( DIndex(begin.THIS().pack()[i]), DIndex(end.THIS().pack()[i]) );
-	}
-	return YRangeFactory(v).create();
     }
 
 }

@@ -41,6 +41,8 @@ namespace CNORXZ
 
 	template <SizeT I>
 	UPos stepSize(const IndexId<I>& id) const;
+	RangePtr prange(const PIndex<IndexT>& end) const;
+	decltype(auto) deepFormat() const;
 
 	String stringMeta() const;
 	decltype(auto) meta() const;
@@ -118,8 +120,8 @@ namespace CNORXZ
 	Vector<SizeT> mParts;
     };
 
-    template <class I, typename M>
-    RangePtr prange(const IndexInterface<I,M>& begin, const IndexInterface<I,M>& end);
+    template <class RangeT>
+    RangePtr prange(const Sptr<RangeT>& range, const Vector<SizeT>& parts);
     
 } // namespace CNORXZ
 

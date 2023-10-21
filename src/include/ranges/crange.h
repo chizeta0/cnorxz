@@ -47,6 +47,8 @@ namespace CNORXZ
 	CIndex& at(const SizeT& metaPos);
 	COpRoot<SizeT,CIndex> xpr(const Sptr<CIndex>& _this) const;
 
+	RangePtr prange(const CIndex& end) const;
+
 	SizeT deepFormat() const;
 	/*
 	template <class Index>

@@ -124,6 +124,19 @@ namespace CNORXZ
     }
 
     template <class IndexT>
+    RangePtr PIndex<IndexT>::prange(const PIndex<IndexT>& end) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+    }
+
+    template <class IndexT>
+    decltype(auto) PIndex<IndexT>::deepFormat() const
+    {
+	return mOrig->deepFormat();
+    }
+
+    template <class IndexT>
     String PIndex<IndexT>::stringMeta() const
     {
 	return mOrig->stringMeta();
@@ -208,7 +221,7 @@ namespace CNORXZ
 	    }
 	    ++IB::mPos;
 	}
-	CXZ_ERROR("meta position '" << mOrig->meta() << "' not part of range");
+	CXZ_ERROR("meta position '" << toString(mOrig->meta()) << "' not part of range");
     }
 
     /***************************
@@ -327,22 +340,16 @@ namespace CNORXZ
 	return Vector<Uuid> { mRange->id() };
     }
 
-
     /****************************
      *   non-member functions   *
      ****************************/
-    
-    template <class I, typename M>
-    RangePtr prange(const IndexInterface<I,M>& begin, const IndexInterface<I,M>& end)
+
+    template <class RangeT>
+    RangePtr prange(const Sptr<RangeT>& range, const Vector<SizeT>& parts)
     {
-	Vector<SizeT> parts(end-begin);
-	const SizeT off = begin.pos();
-	for(auto i = begin.THIS(); i != end.THIS(); ++i){
-	    parts[i.pos()-off] = i.pos();
-	}
-	return begin.range()->partial(parts); // implement!!!!
-	//return PRangeFactory<typename I::RangeType>(begin.range(), parts).create();
+	return PRangeFactory<RangeT>(range,parts).create();
     }
+
 }
 
 #endif

@@ -69,7 +69,7 @@ namespace CNORXZ
     {
 	auto ai = itLexSave(begin);
 	auto aj = itLexSave(end);
-	return std::make_shared<CSlice>(subcube(ai,aj), this, ai.format(), ai.pos());
+	return std::make_shared<CSlice>(ai.prange(aj), this, ai.format(), ai.pos());
     }
 
     template <typename T>

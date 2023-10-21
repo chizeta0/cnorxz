@@ -480,6 +480,22 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
+    RangePtr GMIndex<FormatT,Indices...>::prange(const MIndex<Indices...>& end) const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return nullptr;
+	/*
+	return ifor<0,NI>
+	    ( [&](auto i) {
+		typedef typename std::remove_reference<decltype(mIPack[i])>::type::RangeType RangeT;
+		return std::dynamic_pointer_cast<RangeT>( mIPack[i]->prange( *end.pack()[i] ) );
+	        },
+		[](const auto&... e) { return mrange(e...); }
+	    );
+	*/
+    }
+
+    template <class FormatT, class... Indices>
     auto GMIndex<FormatT,Indices...>::deepFormat() const
     {
 	return iter<0,NI>( [&](auto i) { return mul(mIPack[i]->deepFormat(), format()[i].val()); },
