@@ -3,6 +3,7 @@
 #define __cxz_prange_cc_h__
 
 #include "prange.h"
+#include "urange.h"
 
 namespace CNORXZ
 {
@@ -130,7 +131,8 @@ namespace CNORXZ
     template <class IndexT>
     RangePtr PIndex<IndexT>::prange(const PIndex<IndexT>& last) const
     {
-	CXZ_ASSERT(last > *this, "got last index position smaller than begin index position");
+	CXZ_ASSERT(last >= *this, "got last index position (" << last.lex()
+		   << ") smaller than begin index position (" << lex() << ")");
 	auto oi = *orig();
 	auto olast = *last.orig();
 	const SizeT beginPos = oi.lex();
@@ -138,7 +140,8 @@ namespace CNORXZ
 	for(auto i = oi; i != olast+1; ++i){
 	    parts[i.lex()-beginPos] = i.lex();
 	}
-	return CNORXZ::prange(mRangePtr->orig(), parts);
+	auto x = CNORXZ::prange(mRangePtr->orig(), parts);
+	return x;
     }
 
     template <class IndexT>
@@ -268,7 +271,8 @@ namespace CNORXZ
     template <class RangeT>
     void PRangeFactory<RangeT>::make()
     {
-	const Vector<Uuid> key = { mRange->id() };
+	RangePtr purange = urange(mParts);
+	const Vector<Uuid> key = { mRange->id(), purange->id() };
 	const auto& info = typeid(PRange<RangeT>);
 	mProd = this->fromCreated(info, key);
 	if(mProd == nullptr) {
@@ -351,7 +355,7 @@ namespace CNORXZ
 	mRange(range), mParts(_parts)
     {
 	const auto max = std::max_element( mParts.begin(), mParts.end() );
-	mParts.push_back( *max );
+	mParts.push_back( *max+1 );
     }
 
     template <class RangeT>

@@ -513,6 +513,35 @@ namespace
 	for(auto i = prx->begin(); i != prx->end(); ++i){
 	    EXPECT_TRUE(*i == mkm(i.lex()));
 	}
+
+	const SizeT begI2 = 1;
+	const SizeT lastI2 = 3;
+	const SizeT begJ2 = 0;
+	const SizeT lastJ2 = 0;
+
+	const SizeT begPos2 = begI2 * (lastJ-begJ+1) + begJ2;
+	const SizeT lastPos2 = lastI2 * (lastJ-begJ+1) + lastJ2;
+	const SizeT pSize2 = (lastI2-begI2+1)*(lastJ2-begJ2+1);
+
+	auto beg2 = prx->begin();
+	auto last2 = prx->begin();
+
+	beg2 = begPos2;
+	last2 = lastPos2;
+	auto pr2 = beg2.prange(last2);
+	auto prx2 = std::dynamic_pointer_cast<YRange>(pr2);
+
+	EXPECT_EQ(pr2->size(), pSize2);
+	EXPECT_EQ(prx2->size(), pSize2);
+	
+	const SizeT mmsize2 = lastJ2-begJ2+1;
+	auto mkm2 = [&](SizeT i) {
+	    return Vector<DType>({DType(i/mmsize2+begI2+begI),DType(mMeta[i % mmsize2+begJ2+begJ])}); };
+
+	for(auto i = prx2->begin(); i != prx2->end(); ++i){
+	    EXPECT_TRUE(*i == mkm2(i.lex()));
+	}
+	
     }
 
 // RCast_Test

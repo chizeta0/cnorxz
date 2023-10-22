@@ -130,7 +130,8 @@ namespace CNORXZ
     template <typename MetaT>
     RangePtr UIndex<MetaT>::prange(const UIndex<MetaT>& last) const
     {
-	CXZ_ASSERT(last > *this, "got last index position smaller than begin index position");
+	CXZ_ASSERT(last >= *this, "got last index position (" << last.lex()
+		   << ") smaller than begin index position (" << lex() << ")");
 	const SizeT beginPos = lex();
 	Vector<SizeT> parts(last.lex()-beginPos+1);
 	for(auto i = *this; i != last+1; ++i){
@@ -438,6 +439,12 @@ namespace CNORXZ
 	    CXZ_ERROR("no range cast available for input range '" << r->type().name() << "'");
 	    return nullptr;
 	}
+    }
+
+    template <typename MetaT>
+    RangePtr urange(const Vector<MetaT>& space)
+    {
+	return URangeFactory<MetaT>(space).create();
     }
     
 }

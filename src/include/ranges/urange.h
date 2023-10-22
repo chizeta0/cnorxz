@@ -136,6 +136,9 @@ namespace CNORXZ
     {
 	static Sptr<URange<MetaType>> func(const RangePtr& r);
     };
+
+    template <typename MetaT>
+    RangePtr urange(const Vector<MetaT>& space);
 }
 
 #endif

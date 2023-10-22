@@ -119,7 +119,7 @@ namespace CNORXZ
 
     RangePtr CIndex::prange(const CIndex& last) const
     {
-	CXZ_ASSERT(last > *this, "got last index position (" << last.lex()
+	CXZ_ASSERT(last >= *this, "got last index position (" << last.lex()
 		   << ") smaller than begin index position (" << lex() << ")");
 	const SizeT beginPos = lex();
 	Vector<SizeT> parts(last.lex() - beginPos + 1);
