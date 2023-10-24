@@ -16,13 +16,13 @@ namespace CNORXZ
 
     protected:
 	const CArrayBase<T>* mCParent = nullptr;
-	Vector<SizeT> mBlockSizes;
+	YFormat mBlockSizes;
 	SizeT mOff = 0;
 	
     public:
 	DEFAULT_MEMBERS(CSlice);
 	CSlice(const RangePtr& range, const CArrayBase<T>* parent,
-	       const Vector<SizeT>& blockSizes, SizeT off);
+	       const YFormat& blockSizes, SizeT off);
 	
 	virtual const T* data() const override;
 	virtual const_iterator cbegin() const override;
@@ -31,22 +31,28 @@ namespace CNORXZ
     };
 
     template <typename T>
-    class Slice : public virtual ArrayBase<T>,
-		  public virtual CSlice<T>
+    class Slice : public ArrayBase<T>
     {
     public:
 	typedef CArrayBase<T> AB;
+	//typedef CSlice<T> CS;
 	typedef typename AB::const_iterator const_iterator;
 
     private:
 	ArrayBase<T>* mParent = nullptr;
+	YFormat mBlockSizes;
+	SizeT mOff = 0;
 
     public:
 	DEFAULT_MEMBERS(Slice);
 	Slice(const RangePtr& range, ArrayBase<T>* parent,
-	      const Vector<SizeT>& blockSizes, SizeT off);
+	      const YFormat& blockSizes, SizeT off);
 
+	virtual const T* data() const override;
 	virtual T* data() override;
+	virtual const_iterator cbegin() const override;
+	virtual const_iterator cend() const override;
+	virtual bool isView() const override final;
     };
 }
 

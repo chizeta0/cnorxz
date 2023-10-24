@@ -512,7 +512,7 @@ namespace CNORXZ
     decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi)
     {
 	return iter<0,sizeof...(Indices)>
-	    ( [&](auto i) { return std::get<i>(gmi->pack()); },
+	    ( [&](auto i) { return gmi->pack()[CSizeT<i>{}]; },
 	      [&](const auto&... e) { return std::make_shared<GMIndex<BT1,Indices...>>
 		    ( bs1, e... ); } );
     }

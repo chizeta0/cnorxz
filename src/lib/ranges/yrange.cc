@@ -129,8 +129,8 @@ namespace CNORXZ
 	IndexInterface<YIndex,Vector<DType>>(i),
 	mRange(rangeCast<YRange>(i.range())),
 	mIs(mkIndices()),
-	mFormat(mkFormat()),
-	mLexFormat(mkLexFormat()),
+	mFormat(i.mFormat),
+	mLexFormat(i.mLexFormat),
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
@@ -142,8 +142,8 @@ namespace CNORXZ
 	IndexInterface<YIndex,Vector<DType>>::operator=(i);
 	mRange = rangeCast<YRange>(i.range());
 	mIs = mkIndices();
-	mFormat = mkFormat();
-	mLexFormat = mkLexFormat();
+	mFormat = i.mFormat;
+	mLexFormat = i.mLexFormat;
 	mPMax = mkPMax();
 	mLMax = mkLMax();
 	return *this = i.lex();

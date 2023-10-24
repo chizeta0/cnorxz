@@ -91,6 +91,7 @@ namespace CNORXZ
 	using CAB::end;
 	using CAB::cbegin;
 	using CAB::cend;
+	using CAB::sl;
 	//using CAB::operator();
 
 	ArrayBase(const RangePtr& range);
@@ -120,7 +121,8 @@ namespace CNORXZ
 	inline decltype(auto) operator()(const DPack& pack);
 
 	template <typename I, typename M>
-	Sptr<ArrayBase<T>> sl(const IndexInterface<I,M>& i);
+	Sptr<ArrayBase<T>> sl(const IndexInterface<I,M>& begin,
+			      const IndexInterface<I,M>& end);
 
 	virtual T* data() = 0;
 	

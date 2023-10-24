@@ -12,7 +12,7 @@ namespace CNORXZ
     
     template <typename T>
     CSlice<T>::CSlice(const RangePtr& range, const CArrayBase<T>* parent,
-		      const Vector<SizeT>& blockSizes, SizeT off) :
+		      const YFormat& blockSizes, SizeT off) :
 	CArrayBase<T>(range),
 	mCParent(parent),
 	mBlockSizes(blockSizes),
@@ -28,13 +28,13 @@ namespace CNORXZ
     template <typename T>
     typename CSlice<T>::const_iterator CSlice<T>::cbegin() const
     {
-	return const_iterator(YIndex(AB::mRange, mBlockSizes, 0));
+	return const_iterator(data(),YIndex(AB::mRange, mBlockSizes, 0));
     }
     
     template <typename T>
     typename CSlice<T>::const_iterator CSlice<T>::cend() const
     {
-	return const_iterator(YIndex(AB::mRange, mBlockSizes, AB::mRange->size()));
+	return const_iterator(data(),YIndex(AB::mRange, mBlockSizes, AB::mRange->size()));
     }
     
     template <typename T>
@@ -49,15 +49,41 @@ namespace CNORXZ
 
     template <typename T>
     Slice<T>::Slice(const RangePtr& range, ArrayBase<T>* parent,
-		    const Vector<SizeT>& blockSizes, SizeT off) :
-	CSlice<T>(range, parent, blockSizes, off),
-	mParent(parent)
+		    const YFormat& blockSizes, SizeT off) :
+	ArrayBase<T>(range),
+	mParent(parent),
+	mBlockSizes(blockSizes),
+	mOff(off)
     {}
 
     template <typename T>
     T* Slice<T>::data()
     {
-	return mParent->data();
+	return mParent->data() + mOff;
+    }
+
+    template <typename T>
+    const T* Slice<T>::data() const
+    {
+	return mParent->data() + mOff;
+    }
+    
+    template <typename T>
+    typename Slice<T>::const_iterator Slice<T>::cbegin() const
+    {
+	return const_iterator(data(),YIndex(AB::mRange, mBlockSizes, 0));
+    }
+    
+    template <typename T>
+    typename Slice<T>::const_iterator Slice<T>::cend() const
+    {
+	return const_iterator(data(),YIndex(AB::mRange, mBlockSizes, AB::mRange->size()));
+    }
+    
+    template <typename T>
+    bool Slice<T>::isView() const
+    {
+	return true;
     }
 }
 

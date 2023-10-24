@@ -69,7 +69,7 @@ namespace CNORXZ
     {
 	auto ai = itLexSave(begin);
 	auto aj = itLexSave(end);
-	return std::make_shared<CSlice>(ai.prange(aj), this, ai.format(), ai.pos());
+	return std::make_shared<CSlice<T>>(ai.prange(aj), this, ai.format(), ai.pos());
     }
 
     template <typename T>
@@ -231,12 +231,12 @@ namespace CNORXZ
 
     template <typename T>
     template <typename I, typename M>
-    Sptr<ArrayBase<T>> ArrayBase<T>::sl(const IndexInterface<I,M>& i)
+    Sptr<ArrayBase<T>> ArrayBase<T>::sl(const IndexInterface<I,M>& begin,
+					const IndexInterface<I,M>& end)
     {
-	auto beg = std::make_shared<const_iterator>(this->cbegin());
-	auto si = i.slice(beg);
-	auto it = *beg + i.lex();
-	return std::make_shared<Slice>(this, *si, it.pos());
+	auto ai = itLexSave(begin);
+	auto aj = itLexSave(end);
+	return std::make_shared<Slice<T>>(ai.prange(aj), this, ai.format(), ai.pos());
     }
 
     template <typename T>

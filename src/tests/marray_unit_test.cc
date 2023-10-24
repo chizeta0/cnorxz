@@ -12,7 +12,7 @@ namespace
 {
     using namespace CNORXZ;
     using Test::Numbers;
-    
+
     class MA_1D_Test : public ::testing::Test
     {
     protected:
@@ -52,7 +52,7 @@ namespace
 	MArray<Double> mA;
 	MArray<Double> mA2;
     };
-    
+
     TEST_F(MA_1D_Test, Basics)
     {
 	auto crx = std::dynamic_pointer_cast<CRange>(mCR1);
@@ -67,6 +67,28 @@ namespace
 	    EXPECT_EQ(mA.at(i), mA.data()[i.lex()]);
 	}
 	EXPECT_THROW({mA.at(ei);}, std::runtime_error);
+    }
+
+    TEST_F(MA_1D_Test, Slice)
+    {
+	auto crx = std::dynamic_pointer_cast<CRange>(mCR1);
+	auto beg = crx->begin() + 2;
+	auto last = crx->begin() + 5;
+
+	//const auto& a = mA;
+	auto sl = mA.sl(beg,last);
+	EXPECT_EQ(sl->size(), last.lex()-beg.lex()+1);
+
+	SizeT c = 0;
+	auto ii = crx->begin();
+	for(auto i = sl->begin() ; i != sl->end(); ++i, ++c, ++ii){
+	    EXPECT_EQ(i.lex(), c);
+	    EXPECT_EQ(ii.lex(), c);
+	    EXPECT_EQ((*sl)[i], mA.data()[i.lex()+beg.lex()]);
+	    EXPECT_EQ((*sl)[ii], mA.data()[i.lex()+beg.lex()]);
+	    EXPECT_EQ(sl->at(i), mA.data()[i.lex()+beg.lex()]);
+	    EXPECT_EQ(sl->at(ii), mA.data()[i.lex()+beg.lex()]);
+	}
     }
 
     TEST_F(MA_2D_Test, Basics)
@@ -99,6 +121,36 @@ namespace
 	}
     }
     
+    TEST_F(MA_2D_Test, Slice)
+    {
+	auto crx = std::dynamic_pointer_cast<CRange>(mCR1);
+	auto beg = crx->begin() + 2;
+	auto last = crx->begin() + 5;
+
+	auto uip1 = std::make_shared<UIndex<String>>(mUR1);
+	auto cip1 = std::make_shared<CIndex>(mCR1);
+	auto beg1 = (*cip1)+1;
+	auto last1 = (*cip1)+3;
+	auto beg2 = (*uip1)+2;
+	auto last2 = (*uip1)+5;
+	
+	auto sl = mA.sl(mindex(beg1*beg2),mindex(last1*last2));
+	EXPECT_EQ(sl->size(), (last1.lex()-beg1.lex()+1)*(last2.lex()-beg2.lex()+1));
+
+	MIndex<PIndex<CIndex>,PIndex<UIndex<String>>> mi(sl->range());
+	EXPECT_EQ(mi.lmax().val(), sl->size());
+	auto i1 = *mi.pack()[CSizeT<0>{}];
+	auto i2 = *mi.pack()[CSizeT<1>{}];
+	EXPECT_EQ(i1.lmax().val(), last1.lex()-beg1.lex()+1);
+	EXPECT_EQ(i2.lmax().val(), last2.lex()-beg2.lex()+1);
+	for(i1 = 0; i1.lex() != i1.lmax().val(); ++ i1){
+	    for(i2 = 0; i2.lex() != i2.lmax().val(); ++i2){
+		const SizeT p = (i1.lex()+beg1.lex())*uip1->lmax().val() + i2.lex()+beg2.lex();
+		EXPECT_EQ((*sl)[i1*i2], mA.data()[p]);
+	    }
+	}
+    }
+
 } // end namespace 
 
 int main(int argc, char** argv)

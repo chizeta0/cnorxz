@@ -79,6 +79,12 @@ namespace CNORXZ
 	    get(CSizeT<sizeof...(Indices)-1>{})->lex() ;
     }
 
+    template <class... Indices>
+    SizeT SPack<Indices...>::pos() const
+    {
+	return lex();
+    }
+
     /**************************
      *   SPack (non-member)   *
      **************************/

@@ -37,6 +37,7 @@ namespace CNORXZ
 	decltype(auto) mkRange() const;
 
 	SizeT lex() const;
+	SizeT pos() const;
 	
     private:
 	Tuple<Sptr<Indices>...> mIs;
@@ -67,6 +68,7 @@ namespace CNORXZ
 	DPack mul(const DPack& p) const;
 	RangePtr mkRange() const;
 	SizeT lex() const;
+	SizeT pos() const;
 	
     private:
 	Vector<XIndexPtr> mIs;

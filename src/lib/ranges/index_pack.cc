@@ -77,4 +77,9 @@ namespace CNORXZ
 	}
 	return o;
     }
+
+    SizeT DPack::pos() const
+    {
+	return lex();
+    }
 }

@@ -20,6 +20,13 @@ namespace CNORXZ
     {}
 
     template <typename T>
+    AIndex<T>::AIndex(const T* data, const AIndex<T>& aindex) :
+	AIndex<T>(aindex)
+    {
+	mCData = data;
+    }
+
+    template <typename T>
     AIndex<T> AIndex<T>::operator+(Int n) const
     {
 	AIndex<T> o = *this;
@@ -55,7 +62,7 @@ namespace CNORXZ
 
     template <typename T>
     BIndex<T>::BIndex(T* data, const AIndex<T>& ai) :
-	AIndex<T>(data, ai.range(), ai.lex()),
+	AIndex<T>(data, ai),
 	mData(data)
     {}
 

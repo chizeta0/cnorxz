@@ -21,6 +21,7 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(AIndex);
 	AIndex(const T* data, const RangePtr& range, SizeT lexpos = 0);
 	AIndex(const T* data, const YIndex& yindex);
+	AIndex(const T* data, const AIndex<T>& aindex);
 	
 	AIndex operator+(Int n) const;
 	AIndex operator-(Int n) const;
