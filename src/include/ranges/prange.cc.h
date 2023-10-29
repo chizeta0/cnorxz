@@ -51,6 +51,12 @@ namespace CNORXZ
     {
 	return PIndex(mRangePtr, IB::mPos + n);
     }
+
+    template <class IndexT>
+    SizeT PIndex<IndexT>::operator-(const PIndex& i) const
+    {
+	return lex() - i.lex();
+    }
     
     template <class IndexT>
     PIndex<IndexT> PIndex<IndexT>::operator-(Int n) const

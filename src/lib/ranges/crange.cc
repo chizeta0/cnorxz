@@ -40,6 +40,11 @@ namespace CNORXZ
     {
 	return CIndex(mRangePtr, IB::mPos - n);
     }
+
+    SizeT CIndex::operator-(const CIndex& i) const
+    {
+	return lex() - i.lex();
+    }
     
     CIndex& CIndex::operator+=(Int n)
     {

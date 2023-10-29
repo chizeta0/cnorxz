@@ -32,6 +32,7 @@ namespace CNORXZ
 	DIndex& operator--();
 	DIndex operator+(Int n) const;
 	DIndex operator-(Int n) const;
+	SizeT operator-(const DIndex& i) const;
 	DIndex& operator+=(Int n);
 	DIndex& operator-=(Int n);
 

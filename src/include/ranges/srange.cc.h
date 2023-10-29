@@ -55,6 +55,12 @@ namespace CNORXZ
     }
 
     template <typename MetaT, SizeT S>
+    SizeT SIndex<MetaT,S>::operator-(const SIndex& i) const
+    {
+	return lex() - i.lex();
+    }
+
+    template <typename MetaT, SizeT S>
     SIndex<MetaT,S>& SIndex<MetaT,S>::operator+=(Int n)
     {
 	IB::mPos += n;

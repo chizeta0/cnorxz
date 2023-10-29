@@ -246,6 +246,11 @@ namespace CNORXZ
 	YIndex o(*this);
 	return o -= n;
     }
+
+    SizeT YIndex::operator-(const YIndex& i) const
+    {
+	return lex() - i.lex();
+    }
     
     YIndex& YIndex::operator+=(Int n)
     {

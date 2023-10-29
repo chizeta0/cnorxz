@@ -26,14 +26,12 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(UIndex);
 	UIndex(const RangePtr& range, SizeT pos = 0);
 
-	void swap(UIndex& i) {}; // !!!
-	
 	UIndex& operator=(SizeT lexpos);
 	UIndex& operator++();
 	UIndex& operator--();
 	UIndex operator+(Int n) const;
 	UIndex operator-(Int n) const;
-	SizeT operator-(const UIndex& i) const { return lex() - i.lex(); } // !!!
+	SizeT operator-(const UIndex& i) const;
 	UIndex& operator+=(Int n);
 	UIndex& operator-=(Int n);
 

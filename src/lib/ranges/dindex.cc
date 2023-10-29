@@ -74,6 +74,11 @@ namespace CNORXZ
     {
 	return (*mI) - n;
     }
+
+    SizeT DIndex::operator-(const DIndex& i) const
+    {
+	return (*mI) - (*i.mI);
+    }
     
     DIndex& DIndex::operator+=(Int n)
     {

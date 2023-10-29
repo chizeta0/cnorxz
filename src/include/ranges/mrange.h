@@ -47,6 +47,7 @@ namespace CNORXZ
 	GMIndex& operator--();
 	GMIndex operator+(Int n) const;
 	GMIndex operator-(Int n) const;
+	SizeT operator-(const GMIndex& i) const;
 	GMIndex& operator+=(Int n);
 	GMIndex& operator-=(Int n);
 

@@ -38,6 +38,7 @@ namespace CNORXZ
 	YIndex& operator--();
 	YIndex operator+(Int n) const; // equivalent to applying n times ++
 	YIndex operator-(Int n) const;
+	SizeT operator-(const YIndex& i) const;
 	YIndex& operator+=(Int n);
 	YIndex& operator-=(Int n);
 

@@ -25,6 +25,7 @@ namespace CNORXZ
 	virtual XIndexBase& operator--() = 0;
 	virtual XIndexPtr operator+(Int n) const = 0;
 	virtual XIndexPtr operator-(Int n) const = 0;
+	virtual SizeT operator-(const XIndexBase& i) const = 0;
 	virtual XIndexBase& operator+=(Int n) = 0;
 	virtual XIndexBase& operator-=(Int n) = 0;
 
@@ -80,6 +81,7 @@ namespace CNORXZ
 	virtual XIndex& operator--() override final;
 	virtual XIndexPtr operator+(Int n) const override final;
 	virtual XIndexPtr operator-(Int n) const override final;
+	virtual SizeT operator-(const XIndexBase& i) const override final;
 	virtual XIndex& operator+=(Int n) override final;
 	virtual XIndex& operator-=(Int n) override final;
 

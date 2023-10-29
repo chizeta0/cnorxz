@@ -26,6 +26,7 @@ namespace CNORXZ
 	PIndex& operator--();
 	PIndex operator+(Int n) const;
 	PIndex operator-(Int n) const;
+	SizeT operator-(const PIndex& i) const;
 	PIndex& operator+=(Int n);
 	PIndex& operator-=(Int n);
 

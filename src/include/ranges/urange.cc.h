@@ -57,6 +57,12 @@ namespace CNORXZ
     {
 	return UIndex(mRangePtr, IB::mPos - n);
     }
+
+    template <typename MetaT>
+    SizeT UIndex<MetaT>::operator-(const UIndex& i) const
+    {
+	return lex() - i.lex();
+    }
     
     template <typename MetaT>
     UIndex<MetaT>& UIndex<MetaT>::operator+=(Int n)

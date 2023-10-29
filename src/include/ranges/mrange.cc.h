@@ -300,6 +300,12 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
+    SizeT GMIndex<FormatT,Indices...>::operator-(const GMIndex& i) const
+    {
+	return lex() - i.lex();
+    }
+
+    template <class FormatT, class... Indices>
     GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator+=(Int n)
     {
 	if(-n > static_cast<long int>(lex())){

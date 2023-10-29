@@ -66,6 +66,14 @@ namespace CNORXZ
     }
     
     template <class Index, typename Meta>
+    SizeT XIndex<Index,Meta>::operator-(const XIndexBase& i) const
+    {
+	const XIndex<Index,Meta>* ip = dynamic_cast<const XIndex<Index,Meta>*>(&i);
+	CXZ_ASSERT(ip != nullptr, "bad index type");
+	return (*mI) - (*ip->mI);
+    }
+    
+    template <class Index, typename Meta>
     XIndex<Index,Meta>& XIndex<Index,Meta>::operator+=(Int n)
     {
 	(*mI) += n;
