@@ -2,7 +2,7 @@
 
 ## Description
 
-This library provides a framework for handling multi dimensional containers. This includes the basic container class template `ArrayBase` and their derivates, the Range class templates on which the containers are defined, as well as some operation class templates, which allow comfortable calling of operations on the containers.
+This library provides a framework for handling multi dimensional containers, their meta data, and several kinds of operations on one or more of them.
 
 ## Build instructions
 
@@ -15,106 +15,56 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> <SOURCE_DIR>
 make install
 ```
 
-## Usage and Examples
+To build the doxygen:
+
+```bash
+cd <SOURCE_DIR>/doc/doxy
+doxygen Doxyfile
+```
+
+## Linking
 
 To use the features of the libraries one has to include `cnorxz.h` and link against the `libcnorxz.so`.
-The tools of the library are accessible within the namespace `CONORXZ`.
+The tools of the library are accessible within the namespace `CNORXZ`.
 
-### Some Terms
+## Documentation
 
-* Ranges: A set of meta data which is mapped onto the linear position. Every container is supposed to be defined on at least one Range. In the simplest case a Range space "containes" the numbers [0,...,rangesize]. Ranges have to be created via the corresponding factory and only exist within a shared pointer. They cannot be copied. The reason is, that every operation performed on the containers, has to identify common sets of ranges, on which the containers are defined. Every range inherits the `RangeBase` class.
+(Also consider doxygen)
 
-* Indices: They can be thought of as iterators of the range space. In the special case of the `ContainerIndex` it is also an iterator over the corresponding container. The index type must be known at compile time (static polymorphism). Indices on a range can be obtained by `getIndex( range )`. For Container Indices call the `begin()` function of a `Array`. Indices are crucial for defining operations.
+### Basics
 
-* `Array<T,Ranges...>`: Contains data of type `T` and is defined on `Ranges...`.
-* `[Const]Slice<T,Ranges...>`: Views data of type `T` and acts as an Array defined on `Ranges...`.
-* `FunctionalArray`: Additional template argument indicating the funtion. The value at some position is then defined by the function value obtained from the meta data of the indices/ranges.
+This library consists of several building blocks. For simple usage, the most important building blocks are [ranges](#ranges), [indices](#indices) and [array types](#arrays).
 
-On each of these types one can perform an operation by calling `operator(...)` where within the braces the corresponding indices have to be specified (see example below).
+#### Ranges
 
-### Example
+Basically, a *range* defines a meta data space. There are several range class types, which are derived from the abstract base class `RangeBase`. Ranges can only be created by the corresponding factory and exclusively exist within a shared pointer; they cannot be copied. Available range class types are:
 
-```c++
+* `CRange` : Classic one-dimensional range. The meta data space is simply given by integer numbers running from `0` to `size-1`. The range size is determined at runtime.
 
-#include "cnorxz.h"
+* `URange<MetaT>` : Generic One-dimensional range. The meta data space is user defined, the meta data type is passed as template argument. The range size is determined at runtime.
 
-namespace cnx = CNORXZ;
+* `SRange<MetaT,S>` : The same as `URange`, but the range length is fixed at compile time by the template integer variable `S`.
 
-typedef cnx::SingleRange<double,cnx::SpaceType::ANY> DRange;
-typedef cnx::SingleRangeFactory<double,cnx::SpaceType::ANY> DRangeF;
-typedef cnx::SingleRange<std::string,cnx::SpaceType::ANY> SRange;
-typedef cnx::SingleRangeFactory<std::string,cnx::SpaceType::ANY> SRangeF;
-typedef cnx::SingleRange<size_t,cnx::SpaceType::NONE> CRange; // also provided as 'ClassicR'
-typedef cnx::SingleRangeFactory<size_t,cnx::SpaceType::NONE> CRangeF;
+* `PRange<RangeT>` : Partial or sub-range, i.e. a user-defined subspace of another range. The type of the range must be known at compile time, the subspace can be specified at runtime.
 
-/*create ranges*/
-std::vector<double> meta1({...});
-std::vector<double> meta2({...});
-std::vector<std::string> meta3({...});
+* `MRange<RangeTs...>` : Multi-dimensional range, spanned by a set of ranges. The number of ranges, as well as their types must be known at compile time.
 
-DRangeF drf1(meta1);
-DRangeF drf2(meta2);
-SRangeF srf(meta3);
-CRangeF crf(10); // specialized in this case; only size needed.
+* `YRange` : The same as `MRange` but the number of ranges and their types can be specified at runtime.
 
-auto dr1 = cnx::createExplicit( drf1 );
-auto dr2 = cnx::createExplicit( drf2 );
-auto sr = cnx::createExplicit( srf );
-auto cr = cnx::createExplicit( crf );
+#### Indices
 
-cnx::Array<double,DRange,DRange,SRange,CRange> ma_a(dr1,dr2,sr,cr,0);
-cnx::Array<double,SRange,SRange> ma_b(sr,sr,0);
+For each range type there is a corresponding index type (`CIndex`, `UIndex<MetaT>`, `SIndex<MetaT,S>`, `PIndex<IndexT>`, `MIndex<IndexTs...>`, `YIndex`). They act as const iterators on the ranges and are a crucial component to define operations on containers. In contrast to the ranges, all index types must be known at compile time (static polymorphism, `IndexInterface<Index,MetaT>`). 
 
-/* assign some values... */
-double val = 1.;
-for(auto& x: ma_a){
-    x = val += 1;
-}
+Apart from range specific indices, there exist also special indices:
 
-for(auto& x: ma_b){
-    x = val /= 2.;
-}
+* `DIndex` : Dynamic index wrapper, for the case that the index type cannot be determined at compile time.
 
-cnx::FunctionalArray<double,plus<double>,DRange,DRange> fma(dr1,dr2);
-cnx::Array<double,DRange,DRange> res1(dr1,dr2);
-cnx::Array<double,DRange,DRange> res2(dr1,dr2);
+* `AIndex<T>` : Array index. Const iterators pointing to the data of an array-type object with data type `T`.
 
-/* get indices... */
-auto i1 = cnx::getIndex( dr1 );
-auto i2 = cnx::getIndex( dr2 );
-auto i3 = cnx::getIndex( sr );
-auto i4 = cnx::getIndex( sr );
-auto i5 = cnx::getIndex( cr );
+* `BIndex<T>` : The same as `AIndex`, but not const.
 
-i3->at(<metaString>);
-i5->at(<metaNum>);
+#### Arrays
 
-/* performs plus operation on each element in hypercube spanned by i1,i2,i4
-* and sums up resulting values by iterating over i4. i3 and i5 are fixed to the positions
-* given by the meta data above : */
-res1(i1,i2) += (ma_a(i1,i2,i4,i5) + ma_b(i4,i3)).c(i4); 
+Finally, there are the container classes (arrays), which are derived from `CArrayBase<T>` (const) or `ArrayBase<T>` for a given data type `T`. All arrays are defined on a range, their data can be accessed or iterated over using suitable indices. The array-type actually containing data is called `MArray<T>`. Moreover, there exist array-types that do not contain data, but view the data of other arrays or at least parts of the data. These are called `CSlice<T>` (const view) or `Slice`.
 
-/* calculates i2.meta() + i1.meta() and divide res1 at the corresponding entry by the result */
-res2(i1,i2) = res1(i1,i2) / fma(i2,i1)
-```
 
-Further examples will follow; you can also look in the test executable source files in `./src/test/*.cc`
-
-# Multithreading
-
-Multithreading can be enabled by the operation class member function `par()`, which will parallelize the top loop. E.g. for the operation in the example above:
-```c++
-/* Enable multithreading for the loop over i1 */
-res1(i1,i2).par() = (ma_a(i1,i2,i4,i5) + ma_b(i4,i3)).c(i4);
-```
-Caution: If you want to multithread operations over functional arrays, you have to make sure by yourself that involved functors are either static or const (const member variables).
-
-# Planned features
-
-Basically the structure of the operation routines allows in some cases (at least in those, where it is possible for simple c++ for loops) vectorization. So far the necessary implamentations are not done, but it is planned to enable these features.
-
-# Known Issues
-
-I didn't care that much about error handling because of missing time. There it might happen that you declare a `Array` or `Slice` and an operation on it yields a segfault because it was forgotten to instancate the underlying container. Of course, there should be some mechanism, that catches such things, but due to the afore mentioned lack of time, it has not been implemented in every case. If you encounter such problems, pleas tell me, but be aware, that I won't fix it very soon.
-
-There are unit tests, which cover the all crucial parts of this library, but probably not every special case. Hence, there is no warranty, that, if you do something fancy I didn't consider, everything works fine.
