@@ -434,7 +434,7 @@ namespace CNORXZ
 	static constexpr bool value = pos_type_is_consecutive<BPosT>::value;
     };
 
-} // end namespace CNORXZInternal
+} // end namespace CNORXZ
 
 
 #endif

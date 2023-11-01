@@ -1,6 +1,7 @@
 /**
    
-   File: include/base/base.h
+   @file include/base/base.h
+   @brief basic headers
 
    Include basic headers containing defintions and macros
    used throughout this library

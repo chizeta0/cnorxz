@@ -1,3 +1,15 @@
+/**
+   
+   @file include/base/macros.h
+   @brief useful macros
+
+   Define useful macros that are used throughout this library for convenience,
+   briefnes and/or debugging.
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_macros_h__
 #define __cxz_macros_h__
