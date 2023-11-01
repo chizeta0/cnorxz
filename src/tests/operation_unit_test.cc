@@ -6,6 +6,7 @@
 
 #include "ranges/ranges.h"
 #include "operation/operation.h"
+#include "array/array.h"
 #include "test_numbers.h"
 
 namespace

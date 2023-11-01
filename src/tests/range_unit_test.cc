@@ -6,6 +6,7 @@
 
 //#include "cnorxz.h"
 #include "ranges/ranges.h"
+#include "array/array.h"
 
 namespace
 {

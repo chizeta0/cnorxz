@@ -604,8 +604,20 @@ namespace CNORXZ
     template <class... Ranges>
     MArray<RangePtr> MRange<Ranges...>::sub() const
     {
-	CXZ_ERROR("not implemented (SRange missing!!)"); //!!!
-	return MArray<RangePtr>();
+	// TODO: ZRange (meta and index pos static!)
+	if constexpr(NR == 0) {
+	    return MArray<RangePtr>();
+	}
+	else {
+	    RangePtr sr = SRangeFactory<SizeT,NR>
+		( iter<0,NR>
+		  ( [](auto i) { return i; },
+		    [](auto... x) { return Arr<SizeT,NR> { x... }; } ) ).create();
+	    return MArray<RangePtr>
+		( sr, iter<0,NR>
+		  ( [&](auto i) { return std::get<i>(mRs); },
+		    [](auto... x) { return Vector<RangePtr> ({ x... }); } ) );
+	}
     }
 
     template <class... Ranges>

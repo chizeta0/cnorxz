@@ -179,7 +179,7 @@ namespace CNORXZ
 	constexpr decltype(auto) operator<<(const PosT& a) const;
     };
 
-    // treat as scalar pos!!!
+    // treat as scalar pos!
     class DPos : public ObjHandle<VPosBase>
     {
     public:

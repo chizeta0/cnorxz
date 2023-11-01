@@ -325,6 +325,8 @@ namespace CNORXZ
     RangePtr PRange<RangeT>::extend(const RangePtr& r) const
     {
 	CXZ_ERROR("implement!!!");
+	// if r is PRange of same Range, then just add parts
+	// else derive and add meta of r
 	return nullptr;
     }
 

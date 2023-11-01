@@ -147,69 +147,6 @@ namespace CNORXZ
 	return toVec( mI->deepFormat() );
     }
     
-    /*
-    template <class Index, typename Meta>
-    Vector<XIndexPtr> XIndex<Index,Meta>::pack() const
-    {
-	if constexpr(has_static_sub<Index>::value){
-	    constexpr SizeT D = index_dim<Index>::value;
-	    return iter<0,D>
-		( [&](auto i) { return xindexPtr(std::get<i>(mI->THIS().pack())); },
-		  [](const auto&... e) { return Vector<XIndexPtr>({ e ... }); } );
-	}
-	else if constexpr(has_sub<Index>::value){
-	    return mI->THIS().pack();
-	}
-	else {
-	    return Vector<XIndexPtr>();
-	}
-    }
-
-    template <class Index, typename Meta>
-    Vector<SizeT> XIndex<Index,Meta>::blockSizes() const
-    {
-	if constexpr(has_static_sub<Index>::value){
-	    constexpr SizeT D = index_dim<Index>::value;
-	    const auto& bs = mI->THIS().blockSizes();
-	    return iter<0,D>
-		( [&](auto i) { return std::get<i>(bs); },
-		  [](const auto&... e) { return Vector<SizeT>( { static_cast<SizeT>(e)... } ); } );
-	}
-	else if constexpr(has_sub<Index>::value) {
-	    return mI->THIS().blockSizes();
-	}
-	else {
-	    return Vector<SizeT>();
-	}
-    }
-
-    template <class Index, typename Meta>
-    XIndexPtr XIndex<Index,Meta>::setBlockSizes(const Vector<SizeT>& bs)
-    {
-	if constexpr(has_static_sub<Index>::value){
-	    constexpr SizeT D = index_dim<Index>::value;
-	    CXZ_ASSERT(bs.size() == D,
-		       "got block sizes of wrong dimension: " << bs.size() << " vs " << D);
-	    typedef decltype(mI->THIS().blockSizes()) BT;
-	    Arr<UPos,D> arr;
-	    std::copy_n(bs.begin(), D, arr.begin());
-	    if constexpr(std::is_same<BT,Arr<UPos,D>>::value){
-		mI->THIS().setBlockSizes(arr);
-		return nullptr;
-	    }
-	    else {
-		return xindexPtr(replaceBlockSizes(arr, std::static_pointer_cast<Index>(mI)));
-	    }
-	}
-	else if constexpr(has_sub<Index>::value) {
-	    mI->THIS().setBlockSizes(bs);
-	    return nullptr;
-	}
-	else {
-	    return nullptr;
-	}
-    }
-    */
     template <class Index, typename Meta>
     String XIndex<Index,Meta>::stringMeta() const
     {
@@ -225,7 +162,6 @@ namespace CNORXZ
     template <class Index, typename Meta>
     XIndexBase& XIndex<Index,Meta>::at(const DType& meta)
     {
-	// check!!!
 	mI->at(std::any_cast<const Meta&>(meta.get()));
 	return *this;
     }

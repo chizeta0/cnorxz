@@ -56,19 +56,8 @@ namespace CNORXZ
 	decltype(auto) xpr(const Sptr<I>& _this) const { return THIS().xpr(_this); }
 
 	RangePtr prange(const IndexInterface& end) const { return THIS().prange(end.THIS()); }
-	/*
-	template <class Index>
-	decltype(auto) formatTo(const Sptr<Index>& ind) const { return ind->formatFrom(THIS()); }
 
-	template <class Index>
-	decltype(auto) formatFrom(const Index& ind) const // yes this is const,
-	// changes only MIndex/YIndex format, in this case we can just copy the pointers to the sub-index instances
-	{ return THIS().formatFrom(ind); }
-	*/
 	decltype(auto) deepFormat() const { return THIS().deepFormat(); }
-	
-	//template <class Index>
-	//decltype(auto) slice(const Sptr<Index>& ind) const { return THIS().slice(ind); }
 	
 	template <class Xpr, class F = NoF>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const

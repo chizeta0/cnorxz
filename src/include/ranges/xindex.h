@@ -41,9 +41,6 @@ namespace CNORXZ
 	virtual UPos stepSize(const IndexId<0>& id) const = 0;
 	virtual RangePtr prange(const XIndexPtr& last) const = 0;
 	virtual Vector<SizeT> deepFormat() const = 0;
-	//virtual Vector<XIndexPtr> pack() const = 0;
-	//virtual Vector<SizeT> format() const = 0;
-	//virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) = 0;
 
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
@@ -97,9 +94,6 @@ namespace CNORXZ
 	virtual UPos stepSize(const IndexId<0>& id) const override final;
 	virtual RangePtr prange(const XIndexPtr& last) const override final;
 	virtual Vector<SizeT> deepFormat() const override final;
-	//virtual Vector<XIndexPtr> pack() const override final;
-	//virtual Vector<SizeT> format() const override final;
-	//virtual XIndexPtr setBlockSizes(const Vector<SizeT>& bs) override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;
