@@ -90,14 +90,6 @@ namespace CNORXZ
     {
 	return this->index(this->size());
     }
-    
-    RangePtr RangeBase::orig() const
-    {
-	if(mRel) return mRel;
-	else return RangePtr(mThis);
-    }
-
-    RangeBase::RangeBase(const RangePtr& rel) : mRel(rel) {}
 
     /****************************
      *   Non-member functions   *

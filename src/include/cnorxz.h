@@ -1,4 +1,26 @@
 // -*- C++ -*-
+/**
+   
+   @file include/cnorxz.h
+   @brief cnorxz main header
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
+
+/**
+    @mainpage CNORXZ Documentation
+
+    ## Library organization
+    
+    ## Ranges and Indices
+
+    ## Array types
+
+    ## Expressions and Operations
+    
+ **/
 
 #ifndef __cxz_cnorxz_h__
 #define __cxz_cnorxz_h__

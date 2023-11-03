@@ -1,3 +1,14 @@
+/**
+   
+   @file include/base/isq.h
+   @brief Integer sequence range and creation functions
+
+   Declaration of integer sequence range and corresponding creating function templates 
+   
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_isq_h__
 #define __cxz_isq_h__

@@ -1,3 +1,14 @@
+/**
+   
+   @file include/base/dtype.cc.h
+   @brief DType template member function definitions
+
+   Definitions of the template member functions of the DType class.
+   
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_dtype_cc_h__
 #define __cxz_dtype_cc_h__

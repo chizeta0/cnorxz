@@ -1,3 +1,14 @@
+/**
+   
+   @file include/base/iter.h
+   @brief Static for-loops
+
+   Declaration of function templates that can be used to implement a static for-loop
+   
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_iter_h__
 #define __cxz_iter_h__

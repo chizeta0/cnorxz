@@ -1,8 +1,16 @@
+/**
+   
+   @file include/base/uuid.h
+   @brief uuid implementation
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_uuid_h__
 #define __cxz_uuid_h__
 
-//#include <cstdlib>
 #include <stdint.h>
 #include <functional>
 

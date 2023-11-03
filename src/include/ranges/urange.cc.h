@@ -175,26 +175,7 @@ namespace CNORXZ
 	    return UPos(id == this->id() ? 1 : 0);
 	}
     }
-    /*
-    template <typename MetaT>
-    template <class Index>
-    decltype(auto) UIndex<MetaT>::formatFrom(const Index& ind) const
-    {
-	return *this;
-    }
 
-    template <typename MetaT>
-    template <class Index>
-    decltype(auto) UIndex<MetaT>::slice(const Sptr<Index>& ind) const
-    {
-	if(ind != nullptr){
-	    if(ind->dim() != 0) {
-		return Sptr<UIndex<MetaT>>();
-	    }
-	}
-	return std::make_shared<UIndex<MetaT>>(*this);
-    }
-    */
     template <typename MetaT>
     template <class Xpr, class F>
     decltype(auto) UIndex<MetaT>::ifor(const Xpr& xpr, F&& f) const

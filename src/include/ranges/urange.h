@@ -56,13 +56,7 @@ namespace CNORXZ
 	RangePtr prange(const UIndex<MetaType>& last) const;
 
 	SizeT deepFormat() const;
-	/*
-	template <class Index>
-	decltype(auto) formatFrom(const Index& ind) const;
 
-	template <class Index>
-	decltype(auto) slice(const Sptr<Index>& ind) const;
-	*/
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 

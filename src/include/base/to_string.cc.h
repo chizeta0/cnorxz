@@ -1,3 +1,14 @@
+/**
+   
+   @file include/base/to_string.cc.h
+   @brief String converter implementation
+
+   Implementation of functions that convert a given object/type to a string
+   
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_to_string_cc_h__
 #define __cxz_to_string_cc_h__
