@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/ranges/yrange.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_yrange_h__
 #define __cxz_yrange_h__

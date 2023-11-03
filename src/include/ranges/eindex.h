@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/ranges/eindex.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_eindex_h__
 #define __cxz_eindex_h__

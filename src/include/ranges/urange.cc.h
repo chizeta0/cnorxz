@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/ranges/urange.cc.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_urange_cc_h__
 #define __cxz_urange_cc_h__

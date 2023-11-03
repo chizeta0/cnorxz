@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/ranges/index_mul.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_index_mul_h__
 #define __cxz_index_mul_h__

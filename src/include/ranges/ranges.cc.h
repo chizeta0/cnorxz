@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/ranges/ranges.cc.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include "index_base.cc.h"
 #include "range_base.cc.h"

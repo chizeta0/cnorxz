@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/ranges/crange.cc.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_crange_cc_h__
 #define __cxz_crange_cc_h__
@@ -17,24 +28,7 @@ namespace CNORXZ
 	    return UPos(id == this->id() ? 1 : 0);
 	}
     }
-    /*
-    template <class Index>
-    decltype(auto) CIndex::formatFrom(const Index& ind) const
-    {
-	return *this;
-    }
 
-    template <class Index>
-    decltype(auto) CIndex::slice(const Sptr<Index>& ind) const
-    {
-	if(ind != nullptr){
-	    if(ind->dim() != 0) {
-		return Sptr<CIndex>();
-	    }
-	}
-	return std::make_shared<CIndex>(*this);
-    }
-    */
     template <class Xpr, class F>
     decltype(auto) CIndex::ifor(const Xpr& xpr, F&& f) const
     {
