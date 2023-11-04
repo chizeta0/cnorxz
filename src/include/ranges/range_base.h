@@ -80,16 +80,16 @@ namespace CNORXZ
 	
     };
 
-    /**
-       Abstract range base class
+    /** ******
+	Abstract range base class
 
-       A range defines a parameter space containers and operations are defined on.
-       Indices can be used to iterate over that space.
-
-       Ranges have to be created though a corresponding factory.
-       @see RangeFactoryBase
-
-       Ranges always exist within a shared pointer and cannot be copied.
+	A range defines a parameter space containers and operations are defined on.
+	Indices can be used to iterate over that space.
+	
+	Ranges have to be created though a corresponding factory.
+	@see RangeFactoryBase
+	
+	Ranges always exist within a shared pointer and cannot be copied.
      */
     class RangeBase
     {
@@ -173,40 +173,95 @@ namespace CNORXZ
 	Wptr<RangeBase> mThis; /**< weak pointer to this range */
     };
 
+    /** ******
+	Interface template for ranges
+
+	Provides begin() and end() returning indices of
+	corresponding type
+
+	@tparam Range specify the range type
+     */
     template <class Range>
     class RangeInterface : public RangeBase
     {
     public:
 
 	typedef RangeBase RB;
-	
+
+	/** return index pointing to range's first element */
 	decltype(auto) begin() const;
+
+	/** return index pointing to element after range's last element */
 	decltype(auto) end() const;
+
 	virtual DIndex index(SizeT pos) const override final;
 
     protected:
+	/** default constructor */
 	RangeInterface() = default;
     };
 
+    /** ******
+	Generic range case template
+
+	Cast range of any type into range of type
+	specified by the template argument
+
+	@tparam Range specify the range type to cast into
+     */
     template <class Range>
     struct RangeCast
     {
+	/** cast the range
+	    @param r pointer to range to be casted
+	 */
 	static Sptr<Range> func(const RangePtr& r);
     };
-    
+
+    /** wrapps RangeCast::func
+	@param r pointer to range to be casted
+	@tparam Range specify the range type to cast into
+	@see RangeCast
+     */
     template <class Range>
     Sptr<Range> rangeCast(const RangePtr r);
 
+    /** *****
+	Pack of ranges
 
+	Helper struct for the construction of
+	multi-dimensional ranges
+     */
     struct RangePack
     {
-	Vector<RangePtr> mRs;
-	operator RangePtr() const; // -> Ptr to YRange
+	Vector<RangePtr> mRs; /**< the ranges contained in the pack */
+
+	/** return YRange containig the ranges of the pack */
+	operator RangePtr() const;
     };
 
+    /** create a pack consisting of ranges a and b
+	@param a pointer to first range
+	@param b pointer to second range
+     */
     RangePack operator*(const RangePtr& a, const RangePtr& b);
+
+    /** create a pack consisting of ranges a and the ranges of b
+	@param a pointer to first range
+	@param b pack of ranges
+     */
     RangePack operator*(const RangePtr& a, const RangePack& b);
+
+    /** create a pack consisting of the ranges of a and the range b
+	@param a pack of ranges
+	@param b pointer to first range
+     */
     RangePack operator*(const RangePack& a, const RangePtr& b);
+
+    /** create a pack consisting of the ranges of a and b
+	@param a pack of ranges
+	@param b pack of ranges
+     */
     RangePack operator*(const RangePack& a, const RangePack& b);
 
     RangePtr getSub(const RangePtr& r, SizeT num);
