@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /**
    
    @file include/base/dtype.cc.h

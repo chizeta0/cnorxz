@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /**
    
    @file include/base/config.h
@@ -20,10 +21,13 @@ namespace CNORXZ
 {
     namespace Config
     {
+	/** return cnorxz version */
 	String version();
 
+	/** return git hash */
 	String commit();
 
+	/** return compile flags */
 	String flags();
     }
 }

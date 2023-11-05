@@ -74,9 +74,6 @@ namespace CNORXZ
 	template <SizeT I>
 	decltype(auto) stepSize(const IndexId<I>& id) const;
 
-	//template <class Index>
-	//decltype(auto) formatFrom(const Index& ind) const;
-	
 	String stringMeta() const;
 	MetaType meta() const;
 	GMIndex& at(const MetaType& metaPos);

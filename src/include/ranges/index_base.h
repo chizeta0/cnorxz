@@ -110,27 +110,27 @@ namespace CNORXZ
 	 */
 	bool operator==(const IndexInterface& i) const;
 
-	/** check if indices are non-equal
+	/** check if indices are not equal
 	    @param i Index to compare with
 	 */
 	bool operator!=(const IndexInterface& i) const;
 
-	/** check if index is smaller than i
+	/** check if index position is less than that of i
 	    @param i Index to compare with
 	 */
 	bool operator<(const IndexInterface& i) const;
 
-	/** check if index is greater than i
+	/** check if index position is greater than that of i
 	    @param i Index to compare with
 	 */
 	bool operator>(const IndexInterface& i) const;
 
-	/** check if index is not greater than i
+	/** check if index position is less or equal than that of i
 	    @param i Index to compare with
 	 */
 	bool operator<=(const IndexInterface& i) const;
 
-	/** check if index is not smaller than i
+	/** check if index position is greater or equal than that of i
 	    @param i Index to compare with
 	 */
 	bool operator>=(const IndexInterface& i) const;

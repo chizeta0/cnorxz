@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /**
    
    @file include/base/macros.h
@@ -24,26 +25,90 @@
   << " in " << __func__ << ": " << #a << " = " << a << std::endl;
 #endif
 
+/** shortcut for defining default constructor */
 #define DEFAULT_C(__class_name__) __class_name__() = default
+
+/** shortcut for defining default copy constructor */
 #define DEFAULT_COPY_C(__class_name__) __class_name__(const __class_name__& a) = default
+
+/** shortcut for defining default copy assignment */
 #define DEFAULT_COPY_A(__class_name__) __class_name__& operator=(const __class_name__& a) = default
+
+/** shortcut for defining default move constructor */
 #define DEFAULT_MOVE_C(__class_name__) __class_name__(__class_name__&& a) = default
+
+/** shortcut for defining default move assignment */
 #define DEFAULT_MOVE_A(__class_name__) __class_name__& operator=(__class_name__&& a) = default
+
+/** shortcut for defining default copy constructor and assignment */
 #define DEFAULT_COPY(__class_name__) DEFAULT_COPY_C(__class_name__); DEFAULT_COPY_A(__class_name__)
+
+/** shortcut for defining default move constructor and assignment */
 #define DEFAULT_MOVE(__class_name__) DEFAULT_MOVE_C(__class_name__); DEFAULT_MOVE_A(__class_name__)
+
+/** shortcut for defining default copy and move constructor and assignment */
 #define DEFAULT_MEMBERS_X(__class_name__) DEFAULT_COPY(__class_name__); DEFAULT_MOVE(__class_name__)
+
+/** shortcut for defining default constructor, default copy and move constructor and assignment */
 #define DEFAULT_MEMBERS(__class_name__) DEFAULT_C(__class_name__); DEFAULT_MEMBERS_X(__class_name__)
 
+/** shortcut for defining default constructor
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_C(__spec__,__class_name__) __spec__ __class_name__() = default
+
+/** shortcut for defining default copy constructor
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_COPY_C(__spec__,__class_name__) __spec__ __class_name__(const __class_name__& a) = default
+
+/** shortcut for defining default copy assignment
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_COPY_A(__spec__,__class_name__) __spec__ __class_name__& operator=(const __class_name__& a) = default
+
+/** shortcut for defining default move constructor
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_MOVE_C(__spec__,__class_name__) __spec__ __class_name__(__class_name__&& a) = default
+
+/** shortcut for defining default move assignment
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_MOVE_A(__spec__,__class_name__) __spec__ __class_name__& operator=(__class_name__&& a) = default
+
+/** shortcut for defining default copy constructor and assignment
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_COPY(__spec__,__class_name__) SP_DEFAULT_COPY_C(__spec__,__class_name__); SP_DEFAULT_COPY_A(__spec__,__class_name__)
+
+/** shortcut for defining default move constructor and assignment
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_MOVE(__spec__,__class_name__) SP_DEFAULT_MOVE_C(__spec__,__class_name__); SP_DEFAULT_MOVE_A(__spec__,__class_name__)
+
+/** shortcut for defining default copy and move constructor and assignment
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_MEMBERS_X(__spec__,__class_name__) SP_DEFAULT_COPY(__spec__,__class_name__); SP_DEFAULT_MOVE(__spec__,__class_name__)
+
+/** shortcut for defining default constructor, default copy and move constructor and assignment
+    @param __spec__ specifier
+    @param __class_name__ class name
+ */
 #define SP_DEFAULT_MEMBERS(__spec__,__class_name__) SP_DEFAULT_C(__spec__,__class_name__); SP_DEFAULT_MEMBERS_X(__spec__,__class_name__)
 
+/** shortcut for all typedefs needed to use a class as iterator
+    @param __meta_type__ meta data type
+ */
 #define INDEX_RANDOM_ACCESS_ITERATOR_DEFS(__meta_type__) typedef std::random_access_iterator_tag iterator_category; \
     typedef SizeT difference_type; \
     typedef __meta_type__ value_type; \

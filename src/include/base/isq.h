@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /**
    
    @file include/base/isq.h
@@ -19,6 +20,7 @@
 
 namespace CNORXZ
 {
+    /** @cond 0 */
     template <SizeT O, SizeT... Is>
     std::index_sequence<(Is+O)...> mkIsqAdd(std::index_sequence<Is...> is) { return {}; }
 
@@ -33,7 +35,12 @@ namespace CNORXZ
 
 	typedef decltype(make()) type;
     };
+    /** @endcond */
     
+    /** static consecutive integer sequence
+	@tparam B begin integer
+	@tparam E end integer
+     */
     template <SizeT B, SizeT E>
     using Isqr = typename MkIsq<B,E>::type;
 }

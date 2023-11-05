@@ -5,10 +5,10 @@
 
 namespace CNORXZ
 {
-    /***************
-     *   CIndex    *
-     ***************/
-
+    /*=====================================================+
+     |    Implementations of member functions of CIndex    |
+     +=====================================================*/
+    
     CIndex::CIndex(const RangePtr& range, SizeT pos) :
 	IndexInterface<CIndex,SizeT>(pos), mRangePtr(rangeCast<RangeType>(range))
     {}
@@ -139,9 +139,9 @@ namespace CNORXZ
 	return 1;
     }
     
-    /**********************
-     *   CRangeFactory    *
-     **********************/
+    /*============================================================+
+     |    Implementations of member functions of CRangeFactory    |
+     +============================================================*/
 
     CRangeFactory::CRangeFactory(SizeT size) :
 	mSize(size) {}
@@ -162,9 +162,9 @@ namespace CNORXZ
 	}
     }
     
-    /***************
-     *   CRange    *
-     ***************/
+    /*=====================================================+
+     |    Implementations of member functions of CRange    |
+     +=====================================================*/
 
     CRange::CRange(SizeT size) : mSize(size) {}
     
@@ -214,9 +214,9 @@ namespace CNORXZ
 	return Vector<Uuid> { this->id() };
     }
     
-    /*******************
-     *   Range Casts   *
-     *******************/
+    /*======================================+
+     |    Implementations of range casts    |
+     +======================================*/
 
     Sptr<CRange> RangeCast<CRange>::func(const RangePtr& r)
     {

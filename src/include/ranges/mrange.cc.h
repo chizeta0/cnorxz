@@ -399,17 +399,7 @@ namespace CNORXZ
 	    ( [&](auto i) { return mIPack[i]->stepSize(id) * format()[i]; },
 	      [](const auto&... ss) { return ( ss + ... ); });
     }
-    /*
-    template <class FormatT, class... Indices>
-    template <class Index>
-    decltype(auto) GMIndex<FormatT,Indices...>::formatFrom(const Index& ind) const
-    {
-	static_assert(is_index<Index>::value, "got non-index");
-	CXZ_ASSERT(ind.dim() >= dim(), "for formatting index of dimension " << dim()
-		   << " need index of at least the same dimension, got " << ind.dim());
-	return *this;
-    }
-    */
+
     template <class FormatT, class... Indices>
     String GMIndex<FormatT,Indices...>::stringMeta() const
     {

@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /**
    
    @file include/base/to_string.cc.h
