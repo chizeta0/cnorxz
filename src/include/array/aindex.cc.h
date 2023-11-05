@@ -1,3 +1,14 @@
+// -*- C++ -*-
+/**
+   
+   @file include/array/aindex.cc.h
+   @brief ...
+
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_aindex_cc_h__
 #define __cxz_aindex_cc_h__
