@@ -17,9 +17,9 @@
 
 namespace CNORXZ
 {
-    /**************
-     *   CSlice   *
-     **************/
+    /*========================================================+
+     |    Implementation of public CSlice member functions    |
+     +========================================================*/
     
     template <typename T>
     CSlice<T>::CSlice(const RangePtr& range, const CArrayBase<T>* parent,
@@ -54,9 +54,19 @@ namespace CNORXZ
 	return true;
     }
 
-    /*************
-     *   Slice   *
-     *************/
+    /*===========================================================+
+     |    Implementation of protected CSlice member functions    |
+     +===========================================================*/
+
+    template <typename T>
+    bool CSlice<T>::formatIsTrivial() const
+    {
+	return cbegin().formatIsTrivial();
+    }
+
+    /*=======================================================+
+     |    Implementation of public Slice member functions    |
+     +=======================================================*/
 
     template <typename T>
     Slice<T>::Slice(const RangePtr& range, ArrayBase<T>* parent,
@@ -95,6 +105,16 @@ namespace CNORXZ
     bool Slice<T>::isView() const
     {
 	return true;
+    }
+
+    /*==========================================================+
+     |    Implementation of protected Slice member functions    |
+     +==========================================================*/
+
+    template <typename T>
+    bool Slice<T>::formatIsTrivial() const
+    {
+	return cbegin().formatIsTrivial();
     }
 }
 

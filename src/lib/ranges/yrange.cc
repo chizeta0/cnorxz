@@ -400,7 +400,13 @@ namespace CNORXZ
 	}	
 	return o;
     }
-	
+
+    bool YIndex::formatIsTrivial() const
+    {
+	CXZ_ERROR("IMPLEMENT!!!");
+	return true;
+    }
+    
     const YFormat& YIndex::format() const
     {
 	return mFormat;

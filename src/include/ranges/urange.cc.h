@@ -193,6 +193,12 @@ namespace CNORXZ
     {
 	return For<0,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
     }
+
+    template <typename MetaT>
+    bool UIndex<MetaT>::formatIsTrivial() const
+    {
+	return true;
+    }
     
     template <typename MetaT, class I1>
     decltype(auto) operator*(const Sptr<UIndex<MetaT>>& a, const Sptr<I1>& b)

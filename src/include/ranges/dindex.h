@@ -73,6 +73,9 @@ namespace CNORXZ
 
 	const XIndexPtr& xptr() const;
 	
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+
     private:
 	XIndexPtr mI;
     };

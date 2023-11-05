@@ -93,6 +93,9 @@ namespace CNORXZ
 	auto deepFormat() const;
 	GMIndex& setFormat(const FormatT& bs);
 
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+
     private:
 	template <SizeT... Is>
 	static constexpr decltype(auto) mkLexFormat(const SPack<Indices...>& ipack, Isq<Is...> is);

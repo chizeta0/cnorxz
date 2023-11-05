@@ -111,6 +111,9 @@ namespace CNORXZ
 	template <class Xpr, class F = NoF>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+	
     private:
 	Sptr<RangeType> mRangePtr;
     };

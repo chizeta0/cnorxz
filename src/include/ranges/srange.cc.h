@@ -176,31 +176,18 @@ namespace CNORXZ
     {
 	return 1;
     }
-    /*
-    template <typename MetaT, SizeT S>
-    template <class Index>
-    decltype(auto) SIndex<MetaT,S>::formatFrom(const Index& ind) const
-    {
-	return *this;
-    }
 
-    template <typename MetaT, SizeT S>
-    template <class Index>
-    decltype(auto) SIndex<MetaT,S>::slice(const Sptr<Index>& ind) const
-    {
-	if(ind != nullptr){
-	    if(ind->dim() != 0) {
-		return Sptr<SIndex<MetaType,S>>();
-	    }
-	}
-	return std::make_shared<SIndex<MetaType,S>>(*this);
-    }
-    */
     template <typename MetaT, SizeT S>
     template <class Xpr, class F>
     decltype(auto) SIndex<MetaT,S>::ifor(const Xpr& xpr, F&& f) const
     {
 	return SFor<S,0,Xpr,F>(this->id(), xpr, std::forward<F>(f));
+    }
+
+    template <typename MetaT, SizeT S>
+    bool SIndex<MetaT,S>::formatIsTrivial() const
+    {
+	return true;
     }
 
     template <typename MetaType, SizeT S, class I1>

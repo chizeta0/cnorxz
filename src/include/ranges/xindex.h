@@ -61,6 +61,7 @@ namespace CNORXZ
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
 
+	virtual bool formatIsTrivial() const = 0;
     };
 
     //Sptr<XIndexBase>& operator++(Sptr<XIndexBase>& i);
@@ -113,6 +114,8 @@ namespace CNORXZ
 
 	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
 				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;
+
+	virtual bool formatIsTrivial() const override final;
 
 	Index& get();
 	const Index& get() const;

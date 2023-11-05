@@ -18,9 +18,9 @@
 
 namespace CNORXZ
 {
-    /******************
-     *   CArrayBase   *
-     ******************/
+    /*=======================================================+
+     |    Implementations for CArrayBase member functions    |
+     +=======================================================*/
 
     template <typename T>
     CArrayBase<T>::CArrayBase(const RangePtr& range) :
@@ -31,6 +31,11 @@ namespace CNORXZ
     template <typename I, typename M>
     const T& CArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
+	/*
+	  TODO: check if container format is trivial:
+	  if yes, just return data[i.lex()], in case of at() check extensions
+	  if not, do what is done now
+	 */
 	auto ai = itLex(i);
 	return *ai;
     }
@@ -111,6 +116,13 @@ namespace CNORXZ
     template <class Index>
     COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
+	/*
+	  TODO: check if container format is trivial
+	  if yes, assert that index format is trivial and has correct extensions
+	  if not, check if index format is trivial
+	  - if yes: try to apply container format
+	  - if not: check if format is compatible
+	 */
 	this->checkFormatCompatibility(*i);
 	return coproot(*this, i);
     }
@@ -132,9 +144,9 @@ namespace CNORXZ
 	return coproot(*this, i);
     }
 
-    /******************************
-     *   CArrayBase (protected)   *
-     ******************************/
+    /*=================================================================+
+     |    Implementations for protected CArrayBase member functions    |
+     +=================================================================*/
 
     template <typename T>
     template <class Acc>
@@ -185,9 +197,9 @@ namespace CNORXZ
 	}
     }
 
-    /*****************
-     *   ArrayBase   *
-     *****************/
+    /*======================================================+
+     |    Implementations for ArrayBase member functions    |
+     +======================================================*/
 
     template <typename T>
     ArrayBase<T>::ArrayBase(const RangePtr& range) :
@@ -287,9 +299,9 @@ namespace CNORXZ
 	return oproot(*this, i);
     }
 
-    /*****************************
-     *   ArrayBase (protected)   *
-     *****************************/
+    /*================================================================+
+     |    Implementations for protected ArrayBase member functions    |
+     +================================================================*/
 
     template <typename T>
     template <class Acc>

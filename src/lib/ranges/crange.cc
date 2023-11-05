@@ -138,6 +138,11 @@ namespace CNORXZ
     {
 	return 1;
     }
+
+    bool CIndex::formatIsTrivial() const
+    {
+	return true;
+    }
     
     /*============================================================+
      |    Implementations of member functions of CRangeFactory    |

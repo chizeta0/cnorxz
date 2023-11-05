@@ -84,6 +84,9 @@ namespace CNORXZ
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);
 	
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+
     private:
 	inline Vector<SizeT> mkFormat() const;
 	inline Vector<SizeT> mkLexFormat() const;

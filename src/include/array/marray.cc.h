@@ -17,9 +17,9 @@
 
 namespace CNORXZ
 {
-    /****************
-     *    MArray    *
-     ***************/
+    /*=======================================================+
+     |    Implementation of MArray public member functions   |
+     +=======================================================*/
     
     template <typename T>
     MArray<T>::MArray(const RangePtr& range) :
@@ -92,6 +92,15 @@ namespace CNORXZ
 	return false;
     }
     
+    /*==========================================================+
+     |    Implementation of MArray protected member functions   |
+     +==========================================================*/
+
+    template <typename T>
+    bool MArray<T>::formatIsTrivial() const
+    {
+	return true;
+    }
 }
 
 #endif

@@ -181,6 +181,11 @@ namespace CNORXZ
     {
 	return mI->deepFormat();
     }
+
+    bool DIndex::formatIsTrivial() const
+    {
+	return true;
+    }
     
     DXpr<SizeT> DIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
     {

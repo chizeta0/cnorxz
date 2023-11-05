@@ -61,12 +61,6 @@ namespace CNORXZ
 	PIndex& at(const MetaType& metaPos);
 	decltype(auto) xpr(const Sptr<PIndex<IndexT>>& _this) const;
 
-	template <class I>
-	decltype(auto) reformat(const Sptr<I>& ind) const;
-
-	template <class I>
-	decltype(auto) slice(const Sptr<I>& ind) const;
-
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 
@@ -74,6 +68,9 @@ namespace CNORXZ
 	PIndex& operator()(const Sptr<IndexT>& i);
 	const Sptr<IndexT>& orig() const;
 	
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+
     private:
 	Sptr<RangeType> mRangePtr;
 	Sptr<IndexT> mOrig;

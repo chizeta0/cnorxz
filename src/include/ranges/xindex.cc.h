@@ -192,6 +192,12 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
+    bool XIndex<Index,Meta>::formatIsTrivial() const
+    {
+	return mI->formatIsTrivial();
+    }
+
+    template <class Index, typename Meta>
     Index& XIndex<Index,Meta>::get()
     {
 	return mI->THIS();

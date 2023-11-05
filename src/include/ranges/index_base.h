@@ -189,12 +189,15 @@ namespace CNORXZ
 	template <class Xpr, class F = NoF>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const
 	{ return THIS().ifor(xpr,std::forward<F>(f)); }
+
+	/** check is format is trivial */
+	bool formatIsTrivial() const { return THIS().formatIsTrivial(); }
 	
     protected:
 	SizeT mPos = 0; /**< the memory position */
 	
     private:
-	friend I; // why not protected???!!!
+	friend I; // not protected; I should really be something that is derived from IndexInterface
 	
 	// NO DEFAULT CONSTRUCTORS/ASSIGNMENTS!
 	IndexInterface();

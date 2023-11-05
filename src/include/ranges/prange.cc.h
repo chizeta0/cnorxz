@@ -196,30 +196,17 @@ namespace CNORXZ
     }
 
     template <class IndexT>
-    template <class I>
-    decltype(auto) PIndex<IndexT>::reformat(const Sptr<I>& ind) const
-    {
-	return ind;
-    }
-
-    template <class IndexT>
-    template <class I>
-    decltype(auto) PIndex<IndexT>::slice(const Sptr<I>& ind) const
-    {
-	if(ind != nullptr){
-	    if(ind->dim() != 0){
-		return Sptr<PIndex<IndexT>>();
-	    }
-	}
-	return std::make_shared<PIndex<IndexT>>(*this);
-    }
-
-    template <class IndexT>
     template <class Xpr, class F>
     decltype(auto) PIndex<IndexT>::ifor(const Xpr& xpr, F&& f) const
     {
 	return PFor<0,0,Xpr,F>(this->lmax().val(), this->id(), mOrig->id(),
 			       mRangePtr->parts().data(), xpr, std::forward<F>(f));
+    }
+
+    template <class IndexT>
+    bool PIndex<IndexT>::formatIsTrivial() const
+    {
+	return mOrig->formatIsTrivial();
     }
 
     template <class IndexT>
