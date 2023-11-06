@@ -451,8 +451,26 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     bool GMIndex<FormatT,Indices...>::formatIsTrivial() const
     {
-	CXZ_ERROR("IMPLEMENT!!!");
-	return true;
+	if constexpr(std::is_same<FormatT,None>::value){
+	    return true;
+	}
+	else {
+	    const bool ret1 = iter<0,NI>
+		( [&](auto i) { return mIPack[i]->formatIsTrivial(); },
+		  [](const auto&... x) { return (x and ...); } );
+	    if(not ret1){
+		return false;
+	    }
+	    const bool ret2 = iter<0,NI-1>
+		( [&](auto j) { return mFormat[CSizeT<j>{}].val() == mIPack[CSizeT<j+1>{}].lmax().val() * mFormat[CSizeT<j+1>{}].val(); },
+		  [](const auto&... x) { return (x and ...); });
+	    if(ret2 and mFormat[CSizeT<NI-1>{}].val() == 1){
+		return true;
+	    }
+	    else {
+		return false;
+	    }
+	}
     }
 
     template <class FormatT, class... Indices>

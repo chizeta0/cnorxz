@@ -403,7 +403,19 @@ namespace CNORXZ
 
     bool YIndex::formatIsTrivial() const
     {
-	CXZ_ERROR("IMPLEMENT!!!");
+	for(SizeT i = 0; i != mIs.size(); ++i){
+	    if(not mIs[i]->formatIsTrivial()){
+		return false;
+	    }
+	}
+	SizeT b = 1;
+	for(SizeT i = mFormat.size(); i != 0; --i){
+	    const SizeT j = i-1;
+	    if(mFormat[j].val() != b){
+		return false;
+	    }
+	    b *= mIs[j]->pmax().val();
+	}
 	return true;
     }
     
