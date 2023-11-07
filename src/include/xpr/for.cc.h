@@ -259,7 +259,7 @@ namespace CNORXZ
 	    }
 	}
 	else {
-	    typedef typename std::remove_reference<decltype(mExt1( UPos(0) ) + mExt2( mPart( UPos(0) ) ))>::type OutT;
+	    typedef typename std::remove_reference<decltype(mXpr(mExt1( UPos(0) ) + mExt2( mPart( UPos(0) ) )))>::type OutT;
 	    auto o = OutT();
 	    for(SizeT i = 0; i != mSize; ++i){
 		const auto pos1 = mExt1( UPos(i) );
