@@ -22,6 +22,25 @@ namespace CNORXZ
 	IndexInterface<DIndex,DType>(i.pos()),
 	mI(std::make_shared<XIndex<Index,Meta>>(i))
     {}
+
+    template <class Xpr, class F>
+    decltype(auto) DIndex::ifor(const Xpr& xpr, F&& f) const
+    {
+	typedef typename std::remove_reference<decltype(Xpr()())>::type R;
+	if constexpr(std::is_same<F,NoF>::value) {
+	    if constexpr(std::is_same<R,None>::value or std::is_same<R,void>::value){
+		return mI->ifor( DXpr<None>(xpr), std::forward<F>(f) );
+	    }
+	    else {
+		CXZ_ERROR("IMPLEMENT!!!");
+		return DXpr<R>();
+	    }
+	}
+	else {
+	    CXZ_ERROR("IMPLEMENT!!!");
+	    return DXpr<R>();
+	}
+    }
 }
 
 #endif

@@ -92,11 +92,10 @@ namespace CNORXZ
 	--(*idx);
     }
     
-    inline decltype(auto) YIndex::mkIFor(SizeT i, const DXpr<SizeT>& xpr,
-					 std::function<SizeT(SizeT,SizeT)>&& f) const
+    inline decltype(auto) YIndex::mkIFor(SizeT i, const DXpr<None>& xpr, NoF&& f) const
     {
 	if(i == mIs.size()-1){
-	    return mIs[i]->ifor( xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f) );
+	    return mIs[i]->ifor( xpr, std::forward<NoF>(f) );
 	}
 	else {
 	    auto f1 = f;
@@ -350,9 +349,9 @@ namespace CNORXZ
 	return DXpr<SizeT>();
     }
 
-    DXpr<SizeT> YIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
+    DXpr<None> YIndex::ifor(const DXpr<None>& xpr, NoF&& f) const
     {
-	return mkIFor(0, xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f));
+	return mkIFor(0, xpr, std::forward<NoF>(f));
     }
 
     YIndex& YIndex::operator()(const Sptr<YIndex>& i)

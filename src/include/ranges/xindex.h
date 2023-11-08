@@ -58,8 +58,7 @@ namespace CNORXZ
 	virtual XIndexBase& at(const DType& meta) = 0;
 	virtual DXpr<SizeT> xpr(const XIndexPtr& _this) const = 0;
 
-	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
-				 std::function<SizeT(SizeT,SizeT)>&& f) const = 0;
+	virtual DXpr<None> ifor(const DXpr<None>& xpr, NoF&& f) const = 0;
 
 	virtual bool formatIsTrivial() const = 0;
     };
@@ -112,8 +111,7 @@ namespace CNORXZ
 	virtual XIndexBase& at(const DType& meta) override final;
 	virtual DXpr<SizeT> xpr(const XIndexPtr& _this) const override final;
 
-	virtual DXpr<SizeT> ifor(const DXpr<SizeT>& xpr,
-				 std::function<SizeT(SizeT,SizeT)>&& f) const override final;
+	virtual DXpr<None> ifor(const DXpr<None>& xpr, NoF&& f) const override final;
 
 	virtual bool formatIsTrivial() const override final;
 

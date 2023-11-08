@@ -64,15 +64,12 @@ namespace CNORXZ
 	Sptr<YRange> range() const;
 	UPos stepSize(const IndexId<0> id) const;
 
-	//template <class Index>
-	//YIndex formatFrom(const Index& ind) const;
-
 	String stringMeta() const;
 	Vector<DType> meta() const;
 	YIndex& at(const Vector<DType>& meta);
 	DXpr<SizeT> xpr(const Sptr<YIndex>& _this) const;
 
-	DXpr<SizeT> ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const;
+	DXpr<None> ifor(const DXpr<None>& xpr, NoF&& f) const;
 
 	YIndex& operator()(const Sptr<YIndex>& i);
 	YIndex& operator()();
@@ -95,8 +92,7 @@ namespace CNORXZ
 	inline DPack mkIndices() const;
 	inline void up(SizeT i);
 	inline void down(SizeT i);
-	inline decltype(auto) mkIFor(SizeT i, const DXpr<SizeT>& xpr,
-				     std::function<SizeT(SizeT,SizeT)>&& f) const;
+	inline decltype(auto) mkIFor(SizeT i, const DXpr<None>& xpr, NoF&& f) const;
 
 	inline SizeT mkPMax() const;
 	inline SizeT mkLMax() const;

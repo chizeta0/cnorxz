@@ -186,12 +186,12 @@ namespace CNORXZ
     {
 	return true;
     }
-    
-    DXpr<SizeT> DIndex::ifor(const DXpr<SizeT>& xpr, std::function<SizeT(SizeT,SizeT)>&& f) const
+    /*
+    DXpr<None> DIndex::ifor(const DXpr<None>& xpr, NoF&& f) const
     {
-	return DXpr<SizeT>(mI->ifor(xpr, std::forward<std::function<SizeT(SizeT,SizeT)>>(f)) );
+	return mI->ifor(xpr, std::forward<NoF>(f));
     }
-    
+    */
     const XIndexPtr& DIndex::xptr() const
     {
 	return mI;
