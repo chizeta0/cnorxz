@@ -31,6 +31,7 @@ namespace CNORXZ
 		const auto pos = last + mExt( UPos(i) );
 		mXpr(pos);
 	    }
+	    return None {};
 	}
 	else {
 	    typedef typename
@@ -52,6 +53,7 @@ namespace CNORXZ
 		const auto pos = mExt( UPos(i) );
 		mXpr(pos);
 	    }
+	    return None {};
 	}
 	else {
 	    typedef typename std::remove_reference<decltype(mXpr(mExt( UPos(0) )))>::type OutT;
@@ -105,7 +107,7 @@ namespace CNORXZ
     {
 	if constexpr(std::is_same<F,NoF>::value){
 	    exec2<0>(last);
-	    return;
+	    return None {};
 	}
 	else {
 	    return exec<0>(last);
@@ -117,7 +119,7 @@ namespace CNORXZ
     {
 	if constexpr(std::is_same<F,NoF>::value){
 	    exec2<0>();
-	    return;
+	    return None {};
 	}
 	else {
 	    return exec<0>();
@@ -234,6 +236,7 @@ namespace CNORXZ
 		const auto pos2 = pos1 + mExt2( mPart( UPos(i) ) );
 		mXpr(pos2);
 	    }
+	    return None {};
 	}
 	else {
 	    typedef typename
@@ -257,6 +260,7 @@ namespace CNORXZ
 		const auto pos2 = pos1 + mExt2( mPart( UPos(i) ) );
 		mXpr(pos2);
 	    }
+	    return None {};
 	}
 	else {
 	    typedef typename std::remove_reference<decltype(mXpr(mExt1( UPos(0) ) + mExt2( mPart( UPos(0) ) )))>::type OutT;
@@ -404,6 +408,7 @@ namespace CNORXZ
 	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
 	    const auto pos = mkEPos<N>(last, mExt);
 	    mXpr(pos);
+	    return None {};
 	}
 	else {
 	    typedef typename
@@ -421,6 +426,7 @@ namespace CNORXZ
 	if constexpr(std::is_same<typename std::remove_reference<F>::type,NoF>::value){
 	    const auto pos = mkEPos<N>(SPos<0>(), mExt);
 	    mXpr(pos);
+	    return None {};
 	}
 	else {
 	    typedef typename
