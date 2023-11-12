@@ -32,13 +32,11 @@ namespace CNORXZ
 		return mI->ifor( DXpr<None>(xpr), std::forward<F>(f) );
 	    }
 	    else {
-		CXZ_ERROR("IMPLEMENT!!!");
-		return DXpr<R>();
+		return DXpr<R>( bufxpr([&](auto x){ return mI->ifor( DXpr<None>( assignxpr(x, xpr) ), NoF {} ); }) );
 	    }
 	}
 	else {
-	    CXZ_ERROR("IMPLEMENT!!!");
-	    return DXpr<R>();
+	    return DXpr<R>( bufxpr([&](auto x){ return mI->ifor( DXpr<None>( assignxpr(x, xpr) ), NoF {} ); }) );
 	}
     }
 }

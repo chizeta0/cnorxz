@@ -212,6 +212,12 @@ namespace CNORXZ
     template <class F, class... Ops>
     constexpr decltype(auto) operation(F&& f, const Ops&... ops);
 
+    template <class Tar, class Src>
+    constexpr decltype(auto) assignxpr(const Tar& tar, const Src& src);
+
+    template <class Tar, class Src>
+    constexpr decltype(auto) assignxpr(Tar& tar, const Src& src);
+
     template <class F, class... Ops>
     struct op_size<Operation<F,Ops...>>
     { static constexpr SizeT value = ( op_size<Ops>::value + ... ); };

@@ -75,6 +75,12 @@ namespace CNORXZ
 	template <SizeT I>
 	inline DPos rootSteps(const IndexId<I>& id) const;
     };
+
+    template <class X>
+    struct is_xpr
+    {
+	static constexpr bool value = std::is_base_of<XprInterface<X>,X>::value;
+    };
 }
 
 #endif

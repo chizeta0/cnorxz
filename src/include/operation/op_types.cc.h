@@ -170,6 +170,9 @@ namespace CNORXZ
     template <class Op>
     constexpr OpCont<T,IndexT>& OpCont<T,IndexT>::operator=(const Op& o)
     {
+	// TODO: build and execute assign expression forwarding outer index
+	// if a1 and a2 are non-expression types (like it is the case now),
+	// just do what is currently implemented
 	OI::a(mIndex, [](auto& a1, const auto& a2) { a1 = a2; }, o);
         return *this;
     }
@@ -375,7 +378,39 @@ namespace CNORXZ
 	return Operation<F,Ops...>(std::forward<F>(f), ops...);
     }
 
-    
+    template <class Tar, class Src>
+    constexpr decltype(auto) assignxpr(const Tar& tar, const Src& src)
+    {
+	static_assert(is_xpr<Tar>::value, "expected expression");
+	if constexpr(is_xpr<Src>::value){
+	    return operation([](auto& a, const auto& b) { a = b; }, tar, src);
+	}
+	else {
+	    return operation([&](auto& a) { a = src; }, tar);
+	}
+    }
+
+    template <class Tar, class Src>
+    constexpr decltype(auto) assignxpr(Tar& tar, const Src& src)
+    {
+	if constexpr(is_xpr<Tar>::value){
+	    if constexpr(is_xpr<Src>::value){
+		return operation([](auto& a, const auto& b) { a = b; }, tar, src);
+	    }
+	    else {
+		return operation([&](auto& a) { a = src; }, tar);
+	    }
+	}
+	else {
+	    if constexpr(is_xpr<Src>::value){
+		return operation([&](const auto& b) { tar = b; }, src);
+	    }
+	    else {
+		return operation([&]() { tar = src; });
+	    }
+	}
+    }
+
     /*********************
      *   Contraction     *
      *********************/
