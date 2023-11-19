@@ -99,8 +99,8 @@ namespace CNORXZ
 	
 	Sptr<YRange> mRange;
 	DPack mIs;
-	YFormat mFormat; // dim() elements only!!!
-	YFormat mLexFormat; // dim() elements only!!!
+	YFormat mFormat; // dim() elements only!
+	YFormat mLexFormat; // dim() elements only!
 	SizeT mLex = 0;
 	UPos mPMax = 0;
 	UPos mLMax = 0;

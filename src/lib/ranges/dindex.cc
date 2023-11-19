@@ -186,12 +186,7 @@ namespace CNORXZ
     {
 	return true;
     }
-    /*
-    DXpr<None> DIndex::ifor(const DXpr<None>& xpr, NoF&& f) const
-    {
-	return mI->ifor(xpr, std::forward<NoF>(f));
-    }
-    */
+
     const XIndexPtr& DIndex::xptr() const
     {
 	return mI;
