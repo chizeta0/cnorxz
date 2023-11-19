@@ -108,7 +108,7 @@ namespace CNORXZ
 	virtual Uptr<VPosBase> vexec(const VPosBase* a) const override final;
     };
 
-    
+    /*
     // defined as empty since they should never instanciated
     template <SizeT N>
     class VPos<SPos<N>>
@@ -118,7 +118,7 @@ namespace CNORXZ
     template <SizeT N>
     class VPosRef<SPos<N>>
     {};
-
+    */
     // defined as empty since they should never instanciated
     template <SizeT N, SizeT... Ms>
     class VPos<SFPos<N,Ms...>>

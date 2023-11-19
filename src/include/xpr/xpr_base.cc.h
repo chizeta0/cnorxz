@@ -33,9 +33,7 @@ namespace CNORXZ
     template <typename T, class Xpr>
     T VXpr<T,Xpr>::vexec() const
     {
-	CXZ_ERROR("IMPLEMENT!!!");
-	//(*this)();
-	return T();
+	return (*this)();
     }
     
     template <typename T, class Xpr>

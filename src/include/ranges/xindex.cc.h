@@ -180,8 +180,10 @@ namespace CNORXZ
     template <class Index, typename Meta>
     DXpr<SizeT> XIndex<Index,Meta>::xpr(const XIndexPtr& _this) const
     {
+	CXZ_ERROR("IMPLEMENT!!!");
 	auto xthis = std::dynamic_pointer_cast<Index>(_this);
-	return DXpr<SizeT>( mI->xpr(xthis) );
+	//mI->xpr(xthis)
+	return DXpr<SizeT>(  );
     }
 
     template <class Index, typename Meta>
