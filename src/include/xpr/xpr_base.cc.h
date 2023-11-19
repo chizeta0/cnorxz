@@ -25,9 +25,7 @@ namespace CNORXZ
     template <typename T, class Xpr>
     T VXpr<T,Xpr>::vexec(const DPos& last) const
     {
-	CXZ_ERROR("IMPLEMENT!!!" << last.val());
-	//(*this)(last);
-	return T();
+	return (*this)(last);
     }
 
     template <typename T, class Xpr>
