@@ -9,6 +9,7 @@
 #include <cassert>
 #include <iostream>
 #include "base/types.h"
+#include "base/intrin.h"
 
 #define MIB_SIZE 1024*1024 // 1MiB
 #define WARN_SIZE MIB_SIZE*100 // 100 MiB
@@ -24,7 +25,7 @@ namespace CNORXZ
 	typedef T value_type;
 	
 	static constexpr SizeT type_size = sizeof(T);	
-	static constexpr SizeT N = 32; // get from environment!!!
+	static constexpr SizeT N = MAX_VSIZE;
 
         struct VX
         {

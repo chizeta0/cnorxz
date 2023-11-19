@@ -29,6 +29,7 @@
 #include "uuid.h"
 #include "utils.h"
 #include "config.h"
+#include "intrin.h"
 
 #include "base.cc.h"
 

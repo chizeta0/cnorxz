@@ -6,105 +6,104 @@
 
 #include "base/base.h"
 
-#define AVX_VSIZE (256/8)
-
 namespace CNORXZ
 {
     namespace AVX
     {
 	static constexpr SizeT ND = AVX_VSIZE/sizeof(Double);
+	static constexpr SizeT NF = AVX_VSIZE/sizeof(float);
     }
-    
-    template <>
-    struct PlusCC<Double,Double,ND>
-    {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+    template <>
+    struct PlusCC<Double,Double,AVX::ND>
+    {
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
+
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <typename X>
-    struct PlusCX<Double,X,ND>
+    struct PlusCX<Double,X,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const X& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const X& b);
 
-    	static constexpr decltype(auto)
-	eval(const X& a, const Consecutive<Double,ND>& b);
+    	static inline decltype(auto)
+	eval(const X& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <>
-    struct MinusCC<Double,Double,ND>
+    struct MinusCC<Double,Double,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <typename X>
-    struct MinusCX<Double,X,ND>
+    struct MinusCX<Double,X,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const X& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const X& b);
 
-    	static constexpr decltype(auto)
-	eval(const X& a, const Consecutive<Double,ND>& b);
+    	static inline decltype(auto)
+	eval(const X& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <>
-    struct MultipliesCC<Double,Double,ND>
+    struct MultipliesCC<Double,Double,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <typename X>
-    struct MultipliesCX<Double,X,ND>
+    struct MultipliesCX<Double,X,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const X& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const X& b);
 
-    	static constexpr decltype(auto)
-	eval(const X& a, const Consecutive<Double,ND>& b);
+    	static inline decltype(auto)
+	eval(const X& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <>
-    struct DividesCC<Double,Double,ND>
+    struct DividesCC<Double,Double,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const Consecutive<Double,ND>& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const Consecutive<Double,AVX::ND>& b);
     };
 
     template <typename X>
-    struct DividesCX<Double,X,ND>
+    struct DividesCX<Double,X,AVX::ND>
     {
-	static constexpr decltype(auto)
-	eval(const Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	eval(const Consecutive<Double,AVX::ND>& a, const X& b);
 
-	static constexpr decltype(auto)
-	aeval(Consecutive<Double,ND>& a, const X& b);
+	static inline decltype(auto)
+	aeval(Consecutive<Double,AVX::ND>& a, const X& b);
 
-    	static constexpr decltype(auto)
-	eval(const X& a, const Consecutive<Double,ND>& b);
+    	static inline decltype(auto)
+	eval(const X& a, const Consecutive<Double,AVX::ND>& b);
     };
 }
 

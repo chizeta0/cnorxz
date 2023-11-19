@@ -6,7 +6,6 @@ include/array/array_base.cc.h@120: "TODO: check if container format is trivial" 
 include/array/array_base.cc.h@164: "check further compatibility of index/range format" [check]
 include/array/array_base.cc.h@319: "check further compatibility of index/range format" [check]
 include/base/dtype.cc.h@23: "for tuple use vector<DType>" [comment]
-include/memory/allocator.h@27: "get from environment" [urgent]
 include/ranges/index_base.cc.h@110: "if this assert never applies, remove mPtrId (-> Defaults)" [long]
 include/ranges/mrange.cc.h@633: "TODO: ZRange (meta and index pos static!)" [long]
 include/ranges/urange.cc.h@366: "else general transform using DType (better than nothing), to be implemented" [urgent]
