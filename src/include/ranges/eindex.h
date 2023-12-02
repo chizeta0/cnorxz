@@ -43,6 +43,16 @@ namespace CNORXZ
     {
 	static constexpr bool value = true;
     };
+
+    /** ***
+	EIndex can be used as expression
+	@see index_expression_exists
+     */    
+    template <typename MetaT, SizeT S, SizeT L>
+    struct index_expression_exists<EIndex<MetaT,S,L>>
+    {
+	static constexpr bool value = true;
+    };
     
     template <typename MetaT, SizeT S, SizeT L, class I1>
     decltype(auto) operator*(const Sptr<EIndex<MetaT,S,L>>& a, const Sptr<I1>& b);

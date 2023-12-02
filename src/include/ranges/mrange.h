@@ -234,6 +234,16 @@ namespace CNORXZ
     {
 	static Sptr<MRange<Ranges...>> func(const RangePtr& r);
     };
+
+    /** ***
+	MIndex can be used as expression if all its sub-indices can be used as expression
+	@see index_expression_exists
+     */    
+    template <class... Indices>
+    struct index_expression_exists<MIndex<Indices...>>
+    {
+	static constexpr bool value = (index_expression_exists<Indices>::value and ...);
+    };
 }
 
 #endif

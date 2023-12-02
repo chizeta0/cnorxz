@@ -143,6 +143,19 @@ namespace CNORXZ
 	return std::make_shared<IndexInterface<I,MetaType>>( *i - n );
     }
 
+    template <class I>
+    Sptr<I> moveToPtr(I&& i)
+    {
+	return std::make_shared<I>(std::forward(i));
+    }
+
+    template <class I>
+    decltype(auto) xpr(const Sptr<I>& i)
+    {
+	static_assert(is_index<I>::value, "got non-index type");
+	static_assert(index_expression_exists<I>::value, "expression for given index type does not exist");
+	return i->xpr(i);
+    }
 }
 
 #endif

@@ -134,6 +134,15 @@ namespace CNORXZ
 	static Sptr<SRange<MetaT,S>> func(const RangePtr& r);
     };
     
+    /** ***
+	SIndex can be used as expression
+	@see index_expression_exists
+     */    
+    template <typename MetaT, SizeT S>
+    struct index_expression_exists<SIndex<MetaT,S>>
+    {
+	static constexpr bool value = true;
+    };
 }
 
 #endif

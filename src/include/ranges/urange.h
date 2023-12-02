@@ -144,6 +144,16 @@ namespace CNORXZ
 
     template <typename MetaT>
     RangePtr urange(const Vector<MetaT>& space);
+
+    /** ***
+	UIndex can be used as expression
+	@see index_expression_exists
+     */    
+    template <typename MetaT>
+    struct index_expression_exists<UIndex<MetaT>>
+    {
+	static constexpr bool value = true;
+    };
 }
 
 #endif

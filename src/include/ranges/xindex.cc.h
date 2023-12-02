@@ -178,15 +178,6 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    DXpr<SizeT> XIndex<Index,Meta>::xpr(const XIndexPtr& _this) const
-    {
-	CXZ_ERROR("IMPLEMENT!!!");
-	auto xthis = std::dynamic_pointer_cast<Index>(_this);
-	//mI->xpr(xthis)
-	return DXpr<SizeT>(  );
-    }
-
-    template <class Index, typename Meta>
     DXpr<None> XIndex<Index,Meta>::ifor(const DXpr<None>& xpr, NoF&& f) const
     {
 	return DXpr<None>(mI->ifor(xpr, std::forward<NoF>(f)));

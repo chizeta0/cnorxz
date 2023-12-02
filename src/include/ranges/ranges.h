@@ -12,6 +12,7 @@
 
 #include "range_base.h"
 #include "index_base.h"
+#include "index_traits.h"
 #include "mrange.h"
 #include "xindex.h"
 #include "yrange.h"

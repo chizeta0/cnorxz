@@ -215,6 +215,16 @@ namespace CNORXZ
 	/** cast the range */
 	static Sptr<CRange> func(const RangePtr& r);
     };
+
+    /** ***
+	CIndex can be used as expression
+	@see index_expression_exists
+     */    
+    template <>
+    struct index_expression_exists<CIndex>
+    {
+	static constexpr bool value = true;
+    };
 }
 
 #endif

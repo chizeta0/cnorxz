@@ -167,11 +167,6 @@ namespace CNORXZ
 	return *this;
     }
 
-    DXpr<SizeT> DIndex::xpr(const Sptr<DIndex>& _this) const
-    {
-	return mI->xpr(_this->xptr());
-    }
-
     RangePtr DIndex::prange(const DIndex& end) const
     {
 	return mI->prange( end.xptr() );

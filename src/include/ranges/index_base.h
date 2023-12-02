@@ -164,12 +164,6 @@ namespace CNORXZ
 	 */
 	I& at(const MetaType& meta) { return THIS().at(meta); }
 
-	/** create expression on this index
-
-	    @param _this pointer to this index
-	 */
-	decltype(auto) xpr(const Sptr<I>& _this) const { return THIS().xpr(_this); }
-
 	/** create partial range starting at this index' position and ending
 	    at the position of input index. The end position is included!
 	    @param end end index
@@ -210,34 +204,7 @@ namespace CNORXZ
 	PtrId mPtrId = 0;
     };
 
-    template <class I>
-    struct is_index
-    { static constexpr bool value = std::is_base_of<IndexInterface<I,typename I::MetaType>,I>::value; };
     
-    template <class I>
-    struct index_has_const_size
-    { static constexpr bool value = false; };
-
-    template <class I>
-    struct index_const_size
-    { static constexpr SizeT value = 0; };
-
-    template <class I>
-    struct index_dim
-    { static constexpr SizeT value = 1; };
-
-    template <class T>
-    struct has_sub
-    { static constexpr bool value = false; };
-
-    template <class T>
-    struct has_static_sub
-    { static constexpr bool value = false; };
-
-    template <class I>
-    struct index_is_multi
-    { static constexpr bool value = false; };
-
     template <class I, typename MetaType>
     IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i);
 
@@ -252,7 +219,10 @@ namespace CNORXZ
     IndexPtr<I,MetaType> operator-(const IndexPtr<I,MetaType>& i, Int n);
 
     template <class I>
-    Sptr<I> moveToPtr(I&& i) { return std::make_shared<I>(std::forward(i)); }
+    Sptr<I> moveToPtr(I&& i);
+
+    template <class I>
+    decltype(auto) xpr(const Sptr<I>& i);
 }
 
 #endif

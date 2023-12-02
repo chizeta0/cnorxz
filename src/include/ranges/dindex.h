@@ -62,12 +62,9 @@ namespace CNORXZ
 	String stringMeta() const;
 	DType meta() const;
 	DIndex& at(const DType& meta);
-	DXpr<SizeT> xpr(const Sptr<DIndex>& _this) const;
 	RangePtr prange(const DIndex& end) const;
 	Vector<SizeT> deepFormat() const;
 	
-	//DXpr<None> ifor(const DXpr<None>& xpr, NoF&& f) const;
-
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 	

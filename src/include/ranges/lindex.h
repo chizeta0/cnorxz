@@ -49,6 +49,16 @@ namespace CNORXZ
 	static constexpr bool value = is_index<Index>::value; 
     };
 
+    /** ***
+	LIndex can be used as expression if this is case for its base type
+	@see index_expression_exists
+     */    
+    template <class Index, SizeT L>
+    struct index_expression_exists<LIndex<Index,L>>
+    {
+	static constexpr bool value = index_expression_exists<Index>::value;
+    };
+
     template <class Index, SizeT L, class I1>
     decltype(auto) operator*(const Sptr<LIndex<Index,L>>& a, const Sptr<I1>& b);
 
