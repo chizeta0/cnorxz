@@ -206,6 +206,10 @@ namespace CNORXZ
 		CXZ_ASSERT(f1[i1] >= f2[i2], "obtained format " << toString(f1)
 			   << ", which is incompatible to target format " << toString(f2));
 	    }
+	    else {
+		++i1;
+		++i2;
+	    }
 	}
     }
 

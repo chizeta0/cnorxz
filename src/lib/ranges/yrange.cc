@@ -383,6 +383,8 @@ namespace CNORXZ
 	SizeT osize = 0;
 	for(SizeT j = 0; j != dfv.size(); ++j){
 	    dfv[j] = mIs[j]->deepFormat();
+	    std::for_each(dfv[j].begin(), dfv[j].end(),
+	    		  [&](SizeT& x) { x *= mFormat[j].val(); } );
 	    osize += dfv[j].size();
 	}
 	Vector<SizeT> o(osize);
@@ -390,8 +392,42 @@ namespace CNORXZ
 	for(SizeT j = 0; j != dfv.size(); ++j){
 	    std::copy(dfv[j].begin(), dfv[j].end(), o.begin()+off);
 	    off += dfv[j].size();
-	}	
+	}
 	return o;
+    }
+
+    YIndex& YIndex::setFormat(const Vector<SizeT>& f, const Vector<SizeT>& s)
+    {
+	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
+	// f: input format
+	// s: input sizes
+	SizeT j = 0;
+	SizeT j0 = 0;
+	Vector<UPos> nformat(dim());
+	for(SizeT i = 0; i != dim(); ++i){
+	    SizeT si = 1;
+	    if(mIs[i]->lmax().val() == 1){
+		continue;
+	    }
+	    for(; si < mIs[i]->lmax().val(); ++j){
+		si *= s[i];
+		CXZ_ASSERT(j < f.size(), "incompatible index formats");
+	    }
+	    CXZ_ASSERT(si == mIs[i]->lmax().val(),
+		       "incompatible index formats: " << toString(s) << " vs " //!!!
+		       );
+	    Vector<SizeT> nf(j-j0);
+	    Vector<SizeT> ns(j-j0);
+	    std::copy(f.begin()+j0,f.begin()+j,nf.begin());
+	    nformat[i] = *std::min_element(nf.begin(), nf.end());
+	    std::for_each(nf.begin(), nf.end(), [&](SizeT& x)
+	    { CXZ_ASSERT(x % mFormat[i].val() == 0, "incompatible"); x /= nformat[i].val(); } );
+	    std::copy(s.begin()+j0,s.begin()+j,ns.begin());
+	    CXZ_ERROR("implement for all indices!!!");
+	    //mIs[i]->setFormat(nf,ns);
+	}
+	mFormat = nformat;
+	return *this;
     }
 
     bool YIndex::formatIsTrivial() const
