@@ -174,7 +174,7 @@ namespace CNORXZ
 	void checkFormatCompatibility(const Acc& acc) const;
 
 	/** check if format is trivial
-	    @return true is container is data owning array, else return
+	    @return true if container is data owning array, else return
 	    result of the corresponding container index
 	 */
 	virtual bool formatIsTrivial() const = 0;

@@ -31,13 +31,13 @@ namespace CNORXZ
     template <typename I, typename M>
     const T& CArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
-	/*
-	  TODO: check if container format is trivial:
-	  if yes, just return data[i.lex()], in case of at() check extensions
-	  if not, do what is done now
-	 */
-	auto ai = itLex(i);
-	return *ai;
+	if(formatIsTrivial()){
+	    return data()[i.lex()];
+	}
+	else {
+	    auto ai = itLex(i);
+	    return *ai;
+	}
     }
     
     template <typename T>
@@ -52,8 +52,13 @@ namespace CNORXZ
     template <class... Indices>
     const T& CArrayBase<T>::operator[](const SPack<Indices...>& pack) const
     {
-	auto ai = itLex(pack);
-	return *ai;
+	if(formatIsTrivial()){
+	    return data()[pack.lex()];
+	}
+	else {
+	    auto ai = itLex(pack);
+	    return *ai;
+	}
     }
     
     template <typename T>
@@ -116,32 +121,39 @@ namespace CNORXZ
     template <class Index>
     COpRoot<T,Index> CArrayBase<T>::operator()(const Sptr<Index>& i) const
     {
-	/*
-	  TODO: check if container format is trivial
-	  if yes, assert that index format is trivial and has correct extensions
-	  if not, check if index format is trivial
-	  - if yes: try to apply container format
-	  - if not: check if format is compatible
-	 */
-	this->checkFormatCompatibility(*i);
-	return coproot(*this, i);
+	if(formatIsTrivial()){
+	    // assert that index format is trivial and has correct extensions
+	    CXZ_ASSERT(i->formatIsTrivial(),
+		       "got non-trivial index for container with trivial format");
+	    this->checkFormatCompatibility(*i);
+	    return coproot(*this, i);
+	}
+	else {
+	    if(i->formatIsTrivial()){
+		// try to apply container format
+		auto aformat = begin().deepFormat();
+		CXZ_ERROR("IMPLEMENT " << toString(aformat));
+		return coproot(*this, i);
+	    }
+	    else {
+		// check if format is compatible
+		this->checkFormatCompatibility(*i);
+		return coproot(*this, i);
+	    }
+	}
     }
 
     template <typename T>
     template <class... Indices>
     inline decltype(auto) CArrayBase<T>::operator()(const SPack<Indices...>& pack) const
     {
-	auto i = mindexPtr(pack);
-	this->checkFormatCompatibility(*i);
-	return coproot(*this, i);
+	return operator()(mindexPtr(pack));
     }
 
     template <typename T>
     inline decltype(auto) CArrayBase<T>::operator()(const DPack& pack) const
     {
-	auto i = yindexPtr(pack);
-	this->checkFormatCompatibility(*i);
-	return coproot(*this, i);
+	return operator()(yindexPtr(pack));
     }
 
     /*=================================================================+
@@ -210,8 +222,13 @@ namespace CNORXZ
     template <typename I, typename M>
     T& ArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
-	auto ai = itLex(i);
-	return *ai;
+	if(this->formatIsTrivial()){
+	    return data()[i.lex()];
+	}
+	else {
+	    auto ai = itLex(i);
+	    return *ai;
+	}
     }
     
     template <typename T>
@@ -226,8 +243,13 @@ namespace CNORXZ
     template <class... Indices>
     T& ArrayBase<T>::operator[](const SPack<Indices...>& pack)
     {
-	auto ai = itLex(pack);
-	return *ai;
+	if(this->formatIsTrivial()){
+	    return data()[pack.lex()];
+	}
+	else {
+	    auto ai = itLex(pack);
+	    return *ai;
+	}
     }
     
     template <typename T>
@@ -278,25 +300,39 @@ namespace CNORXZ
     template <class Index>
     OpRoot<T,Index> ArrayBase<T>::operator()(const Sptr<Index>& i)
     {
-	this->checkFormatCompatibility(*i);
-	return oproot(*this, i);
+	if(this->formatIsTrivial()){
+	    // assert that index format is trivial and has correct extensions
+	    CXZ_ASSERT(i->formatIsTrivial(),
+		       "got non-trivial index for container with trivial format");
+	    this->checkFormatCompatibility(*i);
+	    return oproot(*this, i);
+	}
+	else {
+	    if(i->formatIsTrivial()){
+		// try to apply container format
+		auto aformat = begin().deepFormat();
+		CXZ_ERROR("IMPLEMENT " << toString(aformat));
+		return oproot(*this, i);
+	    }
+	    else {
+		// check if format is compatible
+		this->checkFormatCompatibility(*i);
+		return oproot(*this, i);
+	    }
+	}
     }
 
     template <typename T>
     template <class... Indices>
     inline decltype(auto) ArrayBase<T>::operator()(const SPack<Indices...>& pack)
     {
-	auto i = mindexPtr(pack);
-	this->checkFormatCompatibility(*i);
-	return oproot(*this, i);
+	return operator()(mindexPtr(pack));
     }
 
     template <typename T>
     inline decltype(auto) ArrayBase<T>::operator()(const DPack& pack)
     {
-	auto i = yindexPtr(pack);
-	this->checkFormatCompatibility(*i);
-	return oproot(*this, i);
+	return operator()(yindexPtr(pack));
     }
 
     /*================================================================+

@@ -18,6 +18,10 @@
 namespace CNORXZ
 {
 
+    /** ***
+	Generic multi-dimensional array class
+	This class owns the data that can be accessed through it
+     **/
     template <typename T>
     class MArray : public ArrayBase<T>
     {
