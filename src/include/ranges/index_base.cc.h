@@ -146,7 +146,7 @@ namespace CNORXZ
     template <class I>
     Sptr<I> moveToPtr(I&& i)
     {
-	return std::make_shared<I>(std::forward(i));
+	return std::make_shared<I>(std::forward<I>(i));
     }
 
     template <class I>

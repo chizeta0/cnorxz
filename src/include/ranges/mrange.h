@@ -91,6 +91,10 @@ namespace CNORXZ
 	const auto& lexFormat() const;
 	RangePtr prange(const MIndex<Indices...>& last) const;
 	auto deepFormat() const;
+
+	/** @copydoc IndexInterface::reformat() */
+	decltype(auto) reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+
 	GMIndex& setFormat(const FormatT& bs);
 
 	/** @copydoc IndexInterface::formatIsTrivial() */

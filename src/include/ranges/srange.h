@@ -62,6 +62,9 @@ namespace CNORXZ
 	RangePtr prange(const SIndex<MetaType,S>& last) const;
 	SizeT deepFormat() const;
 
+	/** @copydoc IndexInterface::reformat() */
+	SIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 

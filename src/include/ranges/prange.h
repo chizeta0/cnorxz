@@ -56,6 +56,9 @@ namespace CNORXZ
 	RangePtr prange(const PIndex<IndexT>& last) const;
 	decltype(auto) deepFormat() const;
 
+	/** @copydoc IndexInterface::reformat() */
+	PIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+
 	String stringMeta() const;
 	decltype(auto) meta() const;
 	PIndex& at(const MetaType& metaPos);

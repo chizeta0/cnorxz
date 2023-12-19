@@ -168,6 +168,17 @@ namespace CNORXZ
     }
 
     template <class IndexT>
+    PIndex<IndexT> PIndex<IndexT>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    {
+	CXZ_ASSERT(f.size() == 1, "expected format of dimension 1, got " << toString(f));
+	CXZ_ASSERT(s.size() == 1, "expected sizes of dimension 1, got " << toString(s));
+	CXZ_ASSERT(f[0] == 1, "trivial format ([1]), got " << toString(f));
+	CXZ_ASSERT(s[0] == lmax().val(), "expected size to be equal to index size (" << 
+		   lmax().val() << "), got " << s[0]);
+	return *this;
+    }
+
+    template <class IndexT>
     String PIndex<IndexT>::stringMeta() const
     {
 	return mOrig->stringMeta();

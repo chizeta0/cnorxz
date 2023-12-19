@@ -177,6 +177,11 @@ namespace CNORXZ
 	return mI->deepFormat();
     }
 
+    DIndex DIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    {
+	return DIndex(mI->reformat(f,s));
+    }
+
     bool DIndex::formatIsTrivial() const
     {
 	return true;

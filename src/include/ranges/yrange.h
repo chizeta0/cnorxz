@@ -76,10 +76,10 @@ namespace CNORXZ
 	const DPack& pack() const;
 	RangePtr prange(const YIndex& last) const;
 	Vector<SizeT> deepFormat() const;
-	YIndex& setFormat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);
+	YIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
 	
 	/** @copydoc IndexInterface::formatIsTrivial() */
 	bool formatIsTrivial() const;

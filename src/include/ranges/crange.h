@@ -107,6 +107,9 @@ namespace CNORXZ
 	/** @copydoc IndexInterface::deepFormat() */
 	SizeT deepFormat() const;
 
+	/** @copydoc IndexInterface::reformat() */
+	CIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+	
 	/** @copydoc IndexInterface::ifor() */
 	template <class Xpr, class F = NoF>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;

@@ -173,6 +173,12 @@ namespace CNORXZ
 	/** recursive index format */
 	decltype(auto) deepFormat() const { return THIS().deepFormat(); }
 
+	/** reformat index, return new index instance
+	    @param f new format
+	    @param s new sub-index sizes
+	 */
+	decltype(auto) reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const { return THIS().reformat(f,s); }
+	
 	/** create a for-loop expression
 
 	    @tparam Xpr loop internal expression

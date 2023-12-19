@@ -532,6 +532,44 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
+    decltype(auto)
+    GMIndex<FormatT,Indices...>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    {
+	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
+	// f: input format
+	// s: input sizes
+	SizeT j = 0;
+	SizeT j0 = 0;
+	Arr<UPos,NI> nformat;
+	auto npack = iter<0,NI>( [&](auto i) {
+	    SizeT si = 1;
+	    //if(mIPack[i]->lmax().val() == 1){
+	    //std::get<i>(npack) = mIPack[i];
+	    //}
+	    // CHECK!!!
+	    // TODO: DO NOT COPY SINGLE INDEX INSTANCES!!!
+	    for(; si < mIPack[i]->lmax().val(); ++j){
+		si *= s[i];
+		CXZ_ASSERT(j < f.size(), "incompatible index formats");
+	    }
+	    CXZ_ASSERT(si == mIPack[i]->lmax().val(),
+		       "incompatible index formats: " << toString(s) << " vs " //!!!
+		       );
+	    Vector<SizeT> nf(j-j0);
+	    Vector<SizeT> ns(j-j0);
+	    std::copy(f.begin()+j0,f.begin()+j,nf.begin());
+	    nformat[i] = *std::min_element(nf.begin(), nf.end());
+	    std::for_each(nf.begin(), nf.end(), [&](SizeT& x)
+	    { CXZ_ASSERT(x % nformat[i].val() == 0, "incompatible"); x /= nformat[i].val(); } );
+	    std::copy(s.begin()+j0,s.begin()+j,ns.begin());
+	    return moveToPtr( mIPack[i]->reformat(nf,ns) );
+	}, [](auto&... e) { return std::make_tuple( e... ); } );
+	GMIndex<MFormat<NI>,Indices...> oi { MFormat<NI>(nformat),SPack<Indices...>(npack) };
+	oi = lex();
+	return oi;
+    }
+
+    template <class FormatT, class... Indices>
     GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::setFormat(const FormatT& bs)
     {
 	if constexpr(not std::is_same<FormatT,None>::value){
