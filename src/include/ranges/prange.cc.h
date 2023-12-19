@@ -168,6 +168,12 @@ namespace CNORXZ
     }
 
     template <class IndexT>
+    decltype(auto) PIndex<IndexT>::deepMax() const
+    {
+	return mOrig->deepMax();
+    }
+
+    template <class IndexT>
     PIndex<IndexT> PIndex<IndexT>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {
 	CXZ_ASSERT(f.size() == 1, "expected format of dimension 1, got " << toString(f));

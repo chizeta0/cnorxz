@@ -61,6 +61,7 @@ namespace CNORXZ
 
 	RangePtr prange(const SIndex<MetaType,S>& last) const;
 	SizeT deepFormat() const;
+	SizeT deepMax() const;
 
 	/** @copydoc IndexInterface::reformat() */
 	SIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;

@@ -177,6 +177,11 @@ namespace CNORXZ
 	return mI->deepFormat();
     }
 
+    Vector<SizeT> DIndex::deepMax() const
+    {
+	return mI->deepMax();
+    }
+
     DIndex DIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {
 	return DIndex(mI->reformat(f,s));

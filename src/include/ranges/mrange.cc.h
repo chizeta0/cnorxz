@@ -462,7 +462,7 @@ namespace CNORXZ
 		return false;
 	    }
 	    const bool ret2 = iter<0,NI-1>
-		( [&](auto j) { return mFormat[CSizeT<j>{}].val() == mIPack[CSizeT<j+1>{}].lmax().val() * mFormat[CSizeT<j+1>{}].val(); },
+		( [&](auto j) { return mFormat[CSizeT<j>{}].val() == mIPack[CSizeT<j+1>{}]->lmax().val() * mFormat[CSizeT<j+1>{}].val(); },
 		  [](const auto&... x) { return (x and ...); });
 	    if(ret2 and mFormat[CSizeT<NI-1>{}].val() == 1){
 		return true;
@@ -512,7 +512,7 @@ namespace CNORXZ
     }
 
     template <class FormatT, class... Indices>
-    RangePtr GMIndex<FormatT,Indices...>::prange(const MIndex<Indices...>& last) const
+    RangePtr GMIndex<FormatT,Indices...>::prange(const GMIndex<FormatT,Indices...>& last) const
     {
 	return iter<0,NI>
 	    ( [&](auto i) {
@@ -528,6 +528,13 @@ namespace CNORXZ
     auto GMIndex<FormatT,Indices...>::deepFormat() const
     {
 	return iter<0,NI>( [&](auto i) { return mul(mIPack[i]->deepFormat(), format()[i].val()); },
+			   [&](const auto&... e) { return concat(e...); } );
+    }
+
+    template <class FormatT, class... Indices>
+    auto GMIndex<FormatT,Indices...>::deepMax() const
+    {
+	return iter<0,NI>( [&](auto i) { return mIPack[i]->deepMax(); },
 			   [&](const auto&... e) { return concat(e...); } );
     }
 
@@ -563,7 +570,7 @@ namespace CNORXZ
 	    { CXZ_ASSERT(x % nformat[i].val() == 0, "incompatible"); x /= nformat[i].val(); } );
 	    std::copy(s.begin()+j0,s.begin()+j,ns.begin());
 	    return moveToPtr( mIPack[i]->reformat(nf,ns) );
-	}, [](auto&... e) { return std::make_tuple( e... ); } );
+	}, [](const auto&... e) { return std::make_tuple( e... ); } );
 	GMIndex<MFormat<NI>,Indices...> oi { MFormat<NI>(nformat),SPack<Indices...>(npack) };
 	oi = lex();
 	return oi;

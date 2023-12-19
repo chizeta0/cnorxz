@@ -164,13 +164,24 @@ namespace CNORXZ
     }
 
     template <typename MetaT>
+    SizeT UIndex<MetaT>::deepMax() const
+    {
+	return lmax().val();
+    }
+
+    template <typename MetaT>
     UIndex<MetaT> UIndex<MetaT>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {
+	// can also get multi dim stuff, but:
+	// * overall extension must match
+	// * f must be trivial
+	/*
 	CXZ_ASSERT(f.size() == 1, "expected format of dimension 1, got " << toString(f));
 	CXZ_ASSERT(s.size() == 1, "expected sizes of dimension 1, got " << toString(s));
 	CXZ_ASSERT(f[0] == 1, "trivial format ([1]), got " << toString(f));
 	CXZ_ASSERT(s[0] == lmax().val(), "expected size to be equal to index size (" << 
 		   lmax().val() << "), got " << s[0]);
+	*/
 	return *this;
     }
 

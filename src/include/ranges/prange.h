@@ -55,6 +55,7 @@ namespace CNORXZ
 	UPos stepSize(const IndexId<I>& id) const;
 	RangePtr prange(const PIndex<IndexT>& last) const;
 	decltype(auto) deepFormat() const;
+	decltype(auto) deepMax() const;
 
 	/** @copydoc IndexInterface::reformat() */
 	PIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;

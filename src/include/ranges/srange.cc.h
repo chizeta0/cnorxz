@@ -178,6 +178,12 @@ namespace CNORXZ
     }
 
     template <typename MetaT, SizeT S>
+    SizeT SIndex<MetaT,S>::deepMax() const
+    {
+	return lmax().val();
+    }
+
+    template <typename MetaT, SizeT S>
     SIndex<MetaT,S> SIndex<MetaT,S>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {
 	CXZ_ASSERT(f.size() == 1, "expected format of dimension 1, got " << toString(f));

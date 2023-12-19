@@ -76,6 +76,7 @@ namespace CNORXZ
 	const DPack& pack() const;
 	RangePtr prange(const YIndex& last) const;
 	Vector<SizeT> deepFormat() const;
+	Vector<SizeT> deepMax() const;
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);

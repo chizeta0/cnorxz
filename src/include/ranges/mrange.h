@@ -89,8 +89,9 @@ namespace CNORXZ
 	const SPack<Indices...>& pack() const;
 	const auto& format() const;
 	const auto& lexFormat() const;
-	RangePtr prange(const MIndex<Indices...>& last) const;
+	RangePtr prange(const GMIndex<FormatT,Indices...>& last) const;
 	auto deepFormat() const;
+	auto deepMax() const;
 
 	/** @copydoc IndexInterface::reformat() */
 	decltype(auto) reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
@@ -248,6 +249,7 @@ namespace CNORXZ
     {
 	static constexpr bool value = (index_expression_exists<Indices>::value and ...);
     };
+
 }
 
 #endif

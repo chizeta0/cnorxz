@@ -107,6 +107,9 @@ namespace CNORXZ
 	/** @copydoc IndexInterface::deepFormat() */
 	SizeT deepFormat() const;
 
+	/** @copydoc IndexInterface::deepMax() */
+	SizeT deepMax() const;
+
 	/** @copydoc IndexInterface::reformat() */
 	CIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
 	

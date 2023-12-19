@@ -395,6 +395,23 @@ namespace CNORXZ
 	}
 	return o;
     }
+    
+    Vector<SizeT> YIndex::deepMax() const
+    {
+	Vector<Vector<SizeT>> dmv(mIs.size());
+	SizeT osize = 0;
+	for(SizeT j = 0; j != dmv.size(); ++j){
+	    dmv[j] = mIs[j]->deepMax();
+	    osize += dmv[j].size();
+	}
+	Vector<SizeT> o(osize);
+	SizeT off = 0;
+	for(SizeT j = 0; j != dmv.size(); ++j){
+	    std::copy(dmv[j].begin(), dmv[j].end(), o.begin()+off);
+	    off += dmv[j].size();
+	}
+	return o;
+    }
 
     YIndex YIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {

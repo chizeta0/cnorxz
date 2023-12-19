@@ -130,10 +130,20 @@ namespace CNORXZ
 	}
 	else {
 	    if(i->formatIsTrivial()){
-		// try to apply container format
-		auto aformat = begin().deepFormat();
-		CXZ_ERROR("IMPLEMENT " << toString(aformat));
-		return coproot(*this, i);
+		// try to apply container format.
+		// if the reformat changes the index type in any manner
+		// the format is not applicable:
+		if constexpr(std::is_same<decltype(i->reformat( Vector<SizeT>(), Vector<SizeT>() )),Index>::value){
+		    auto beg = begin();
+		    auto aformat = beg.deepFormat();
+		    auto amax = beg.deepMax();
+		    auto fi = i->reformat( aformat, amax );
+		    return coproot(*this, moveToPtr( fi ) );
+		}
+		else {
+		    this->checkFormatCompatibility(*i);
+		    return coproot(*this, i);
+		}
 	    }
 	    else {
 		// check if format is compatible
@@ -313,10 +323,20 @@ namespace CNORXZ
 	}
 	else {
 	    if(i->formatIsTrivial()){
-		// try to apply container format
-		auto aformat = begin().deepFormat();
-		CXZ_ERROR("IMPLEMENT " << toString(aformat));
-		return oproot(*this, i);
+		// try to apply container format.
+		// if the reformat changes the index type in any manner
+		// the format is not applicable:
+		if constexpr(std::is_same<decltype(i->reformat( Vector<SizeT>(), Vector<SizeT>() )),Index>::value){
+		    auto beg = begin();
+		    auto aformat = beg.deepFormat();
+		    auto amax = beg.deepMax();
+		    auto fi = i->reformat( aformat, amax );
+		    return oproot(*this, moveToPtr( fi ) );
+		}
+		else {
+		    this->checkFormatCompatibility(*i);
+		    return oproot(*this, i);
+		}
 	    }
 	    else {
 		// check if format is compatible

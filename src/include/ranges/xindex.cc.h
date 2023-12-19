@@ -159,6 +159,12 @@ namespace CNORXZ
     }
     
     template <class Index, typename Meta>
+    Vector<SizeT> XIndex<Index,Meta>::deepMax() const
+    {
+	return toVec( mI->deepMax() );
+    }
+
+    template <class Index, typename Meta>
     XIndexPtr XIndex<Index,Meta>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {
 	return xindexPtr( moveToPtr( mI->reformat(f,s) ) );

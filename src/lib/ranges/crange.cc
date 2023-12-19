@@ -139,6 +139,11 @@ namespace CNORXZ
 	return 1;
     }
 
+    SizeT CIndex::deepMax() const
+    {
+	return lmax().val();
+    }
+
     CIndex CIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
     {
 	CXZ_ASSERT(f.size() == 1, "expected format of dimension 1, got " << toString(f));
