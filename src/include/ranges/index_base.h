@@ -233,6 +233,10 @@ namespace CNORXZ
 
     template <class I>
     decltype(auto) xpr(const Sptr<I>& i);
+
+    // do not copy single-indices:
+    template <class I>
+    decltype(auto) reformat(const Sptr<I>& i, const Vector<SizeT>& f, const Vector<SizeT>& s);
 }
 
 #endif

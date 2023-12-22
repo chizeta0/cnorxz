@@ -69,7 +69,7 @@ namespace CNORXZ
     { static constexpr bool value = false; };
 
     /** *****
-	check if given type is a statically multi-index-type 
+	check if given type is a multi-index-type 
 
 	@tparam I type to be checked
      **/

@@ -111,6 +111,10 @@ namespace CNORXZ
     struct index_is_multi<YIndex>
     { static constexpr bool value = true; };
 
+    template <>
+    struct has_sub<YIndex>
+    { static constexpr bool value = true; };
+
     YIndex yindex(const DPack& pack);
     YIndex yindex(const Vector<XIndexPtr>& is);
     Sptr<YIndex> yindexPtr(const DPack& is);

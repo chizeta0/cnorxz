@@ -550,11 +550,11 @@ namespace CNORXZ
 	Arr<UPos,NI> nformat;
 	auto npack = iter<0,NI>( [&](auto i) {
 	    SizeT si = 1;
-	    //if(mIPack[i]->lmax().val() == 1){
-	    //std::get<i>(npack) = mIPack[i];
-	    //}
+	    if(mIPack[i]->lmax().val() == 1){
+		//std::get<i>(npack) = mIPack[i];
+		return mIPack[i];
+	    }
 	    // CHECK!!!
-	    // TODO: DO NOT COPY SINGLE INDEX INSTANCES!!!
 	    for(; si < mIPack[i]->lmax().val(); ++j){
 		si *= s[i];
 		CXZ_ASSERT(j < f.size(), "incompatible index formats");
@@ -569,7 +569,7 @@ namespace CNORXZ
 	    std::for_each(nf.begin(), nf.end(), [&](SizeT& x)
 	    { CXZ_ASSERT(x % nformat[i].val() == 0, "incompatible"); x /= nformat[i].val(); } );
 	    std::copy(s.begin()+j0,s.begin()+j,ns.begin());
-	    return moveToPtr( mIPack[i]->reformat(nf,ns) );
+	    return CNORXZ::reformat(mIPack[i],nf,ns);
 	}, [](const auto&... e) { return std::make_tuple( e... ); } );
 	GMIndex<MFormat<NI>,Indices...> oi { MFormat<NI>(nformat),SPack<Indices...>(npack) };
 	oi = lex();

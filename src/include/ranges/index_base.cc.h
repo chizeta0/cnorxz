@@ -156,6 +156,18 @@ namespace CNORXZ
 	static_assert(index_expression_exists<I>::value, "expression for given index type does not exist");
 	return i->xpr(i);
     }
+
+    template <class I>
+    decltype(auto) reformat(const Sptr<I>& i, const Vector<SizeT>& f, const Vector<SizeT>& s)
+    {
+	if constexpr(has_sub<I>::value){
+	    return moveToPtr( i->reformat(f,s) );
+	}
+	else {
+	    i->reformat(f,s); // checks
+	    return i;
+	}
+    }
 }
 
 #endif
