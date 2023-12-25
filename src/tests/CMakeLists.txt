@@ -17,6 +17,11 @@ add_dependencies(rutest cnorxz)
 target_link_libraries(rutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
 add_test(NAME rutest COMMAND rutest)
 
+add_executable(iftest index_format_test.cc)
+add_dependencies(iftest cnorxz)
+target_link_libraries(iftest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
+add_test(NAME iftest COMMAND iftest)
+
 add_executable(mautest marray_unit_test.cc)
 add_dependencies(mautest cnorxz)
 target_link_libraries(mautest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)

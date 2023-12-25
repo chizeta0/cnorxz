@@ -99,6 +99,8 @@ namespace CNORXZ
     private:
 	Vector<UPos> mB;
     };
+
+    bool formatIsTrivial(const Vector<SizeT>& f, const Vector<SizeT>& s);
 }
 
 #endif
