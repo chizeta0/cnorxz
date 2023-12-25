@@ -144,7 +144,7 @@ namespace CNORXZ
 	return lmax().val();
     }
 
-    CIndex CIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    CIndex& CIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
 	CXZ_ASSERT(f[0]*s[0] == lmax().val(), "got wrong extension: " << f[0]*s[0]
 		   << " vs " << lmax().val());

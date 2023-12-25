@@ -179,9 +179,8 @@ namespace CNORXZ
 	/** reformat index, create new index instance
 	    @param f new format
 	    @param s new sub-index sizes
-	    @return new reformatted index instance
 	 */
-	decltype(auto) reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const { return THIS().reformat(f,s); }
+	I& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) { return THIS().reformat(f,s); }
 	
 	/** create a for-loop expression
 
@@ -234,9 +233,6 @@ namespace CNORXZ
     template <class I>
     decltype(auto) xpr(const Sptr<I>& i);
 
-    // do not copy single-indices:
-    template <class I>
-    decltype(auto) reformat(const Sptr<I>& i, const Vector<SizeT>& f, const Vector<SizeT>& s);
 }
 
 #endif

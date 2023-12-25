@@ -182,9 +182,10 @@ namespace CNORXZ
 	return mI->deepMax();
     }
 
-    DIndex DIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    DIndex& DIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
-	return DIndex(mI->reformat(f,s));
+	mI->reformat(f,s);
+	return *this;
     }
 
     bool DIndex::formatIsTrivial() const

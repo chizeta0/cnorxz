@@ -94,7 +94,7 @@ namespace CNORXZ
 	auto deepMax() const;
 
 	/** @copydoc IndexInterface::reformat() */
-	decltype(auto) reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+	GMIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 
 	GMIndex& setFormat(const FormatT& bs);
 

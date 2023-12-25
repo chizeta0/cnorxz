@@ -58,7 +58,7 @@ namespace CNORXZ
 	decltype(auto) deepMax() const;
 
 	/** @copydoc IndexInterface::reformat() */
-	PIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+	PIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 
 	String stringMeta() const;
 	decltype(auto) meta() const;

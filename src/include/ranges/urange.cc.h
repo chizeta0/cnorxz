@@ -170,7 +170,7 @@ namespace CNORXZ
     }
 
     template <typename MetaT>
-    UIndex<MetaT> UIndex<MetaT>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    UIndex<MetaT>& UIndex<MetaT>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
 	CXZ_ASSERT(f[0]*s[0] == lmax().val(), "got wrong extension: " << f[0]*s[0]
 		   << " vs " << lmax().val());

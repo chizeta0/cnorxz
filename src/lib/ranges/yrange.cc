@@ -413,27 +413,25 @@ namespace CNORXZ
 	return o;
     }
 
-    YIndex YIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    YIndex& YIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
 	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
 	// f: input format
 	// s: input sizes
 	SizeT j = 0;
 	SizeT j0 = 0;
-	Vector<UPos> nformat(dim());
-	Vector<XIndexPtr> npack(dim());
+	Vector<UPos> nformat;
 	for(SizeT i = 0; i != dim(); ++i){
 	    SizeT si = 1;
 	    if(mIs[i]->lmax().val() == 1){
-		npack[i] = mIs[i];
+		continue;
 	    }
 	    for(; si < mIs[i]->lmax().val(); ++j){
 		si *= s[i];
 		CXZ_ASSERT(j < f.size(), "incompatible index formats");
 	    }
 	    CXZ_ASSERT(si == mIs[i]->lmax().val(),
-		       "incompatible index formats: " << toString(s) << " vs " //!!!
-		       );
+		       "incompatible index formats: " << toString(s) << " vs " /*!!!*/);
 	    Vector<SizeT> nf(j-j0);
 	    Vector<SizeT> ns(j-j0);
 	    std::copy(f.begin()+j0,f.begin()+j,nf.begin());
@@ -441,11 +439,10 @@ namespace CNORXZ
 	    std::for_each(nf.begin(), nf.end(), [&](SizeT& x)
 	    { CXZ_ASSERT(x % nformat[i].val() == 0, "incompatible"); x /= nformat[i].val(); } );
 	    std::copy(s.begin()+j0,s.begin()+j,ns.begin());
-	    npack[i] = mIs[i]->reformat(nf,ns);
+	    mIs[i]->reformat(nf,ns);
 	}
-	YIndex oi ( YFormat(nformat), npack );
-	oi = lex();
-	return oi;
+	mFormat = YFormat(nformat);
+	return *this;
     }
 
     bool YIndex::formatIsTrivial() const

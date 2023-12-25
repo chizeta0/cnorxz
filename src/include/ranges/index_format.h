@@ -24,6 +24,8 @@ namespace CNORXZ
     class MFormat
     {
     public:
+	typedef Arr<UPos,N> InputType;
+	
 	SP_DEFAULT_MEMBERS(constexpr,MFormat);
 	explicit constexpr MFormat(const Arr<UPos,N>& b);
 
@@ -50,6 +52,8 @@ namespace CNORXZ
     class GMFormat
     {
     public:
+	typedef Tuple<PosT...> InputType;
+
 	SP_DEFAULT_MEMBERS(constexpr,GMFormat);
 	explicit constexpr GMFormat(const Tuple<PosT...>& b);
 	explicit constexpr GMFormat(Tuple<PosT...>&& b);
@@ -78,6 +82,8 @@ namespace CNORXZ
     class YFormat
     {
     public:
+	typedef Vector<UPos> InputType;
+	
 	DEFAULT_MEMBERS(YFormat);
 	explicit YFormat(const Vector<UPos>& b);
 

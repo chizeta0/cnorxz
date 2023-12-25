@@ -184,7 +184,7 @@ namespace CNORXZ
     }
 
     template <typename MetaT, SizeT S>
-    SIndex<MetaT,S> SIndex<MetaT,S>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    SIndex<MetaT,S>& SIndex<MetaT,S>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
 	CXZ_ASSERT(f[0]*s[0] == lmax().val(), "got wrong extension: " << f[0]*s[0]
 		   << " vs " << lmax().val());

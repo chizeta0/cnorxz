@@ -70,7 +70,7 @@ namespace CNORXZ
 	SizeT deepMax() const;
 	
 	/** @copydoc IndexInterface::reformat() */
-	UIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+	UIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;

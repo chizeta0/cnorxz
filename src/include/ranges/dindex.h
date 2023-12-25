@@ -67,7 +67,7 @@ namespace CNORXZ
 	Vector<SizeT> deepMax() const;
 
 	/** @copydoc IndexInterface::reformat() */
-	DIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+	DIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 	
 	template <class Xpr, class F>
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;

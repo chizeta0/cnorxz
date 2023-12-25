@@ -53,7 +53,7 @@ namespace CNORXZ
 	virtual RangePtr prange(const XIndexPtr& last) const = 0;
 	virtual Vector<SizeT> deepFormat() const = 0;
 	virtual Vector<SizeT> deepMax() const = 0;
-	virtual XIndexPtr reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const = 0;
+	virtual XIndexBase& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) = 0;
 
 	virtual String stringMeta() const = 0;
 	virtual DType meta() const = 0;
@@ -107,7 +107,7 @@ namespace CNORXZ
 	virtual RangePtr prange(const XIndexPtr& last) const override final;
 	virtual Vector<SizeT> deepFormat() const override final;
 	virtual Vector<SizeT> deepMax() const override final;
-	virtual XIndexPtr reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const override final;
+	virtual XIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) override final;
 
 	virtual String stringMeta() const override final;
 	virtual DType meta() const override final;

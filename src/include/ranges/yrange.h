@@ -80,7 +80,7 @@ namespace CNORXZ
 	const YFormat& format() const;
 	const YFormat& lexFormat() const;
 	YIndex& setFormat(const YFormat& bs);
-	YIndex reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const;
+	YIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 	
 	/** @copydoc IndexInterface::formatIsTrivial() */
 	bool formatIsTrivial() const;

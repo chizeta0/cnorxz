@@ -165,9 +165,10 @@ namespace CNORXZ
     }
 
     template <class Index, typename Meta>
-    XIndexPtr XIndex<Index,Meta>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s) const
+    XIndex<Index,Meta>& XIndex<Index,Meta>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
-	return xindexPtr( moveToPtr( mI->reformat(f,s) ) );
+	mI->reformat(f,s);
+	return *this;
     }
 
     template <class Index, typename Meta>
