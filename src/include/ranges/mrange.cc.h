@@ -187,6 +187,9 @@ namespace CNORXZ
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mFormat))
     {
+	if constexpr(not std::is_same<None,FormatT>::value){
+	    mFormat = mLexFormat;
+	}
 	mkPos();
     }
 
@@ -213,6 +216,9 @@ namespace CNORXZ
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mFormat))
     {
+	if constexpr(not std::is_same<None,FormatT>::value){
+	    mFormat = mLexFormat;
+	}
 	mkPos();
     }
 
@@ -240,6 +246,9 @@ namespace CNORXZ
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mFormat))
     {
+	if constexpr(not std::is_same<None,FormatT>::value){
+	    mFormat = mLexFormat;
+	}
 	*this = lexpos;
     }
 
@@ -364,7 +373,7 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     constexpr decltype(auto) GMIndex<FormatT,Indices...>::lmax() const
     {
-	return mPMax;
+	return mLMax;
     }
 
     template <class FormatT, class... Indices>
@@ -554,7 +563,13 @@ namespace CNORXZ
 	    SizeT j = 0;
 	    SizeT j0 = 0;
 	    typename FormatT::InputType nformat;
-	    auto npack = iter<0,NI>( [&](auto i) {
+	    auto mkFv = [&]() {
+		Vector<SizeT> o(NI);
+		SizeT i = 0;
+		for(const auto& y:mFormat.all()) { o[i++] = y.val(); }
+		return o;
+	    };
+	    iter<0,NI>( [&](auto i) {
 		SizeT si = 1;
 		if(mIPack[i]->lmax().val() != 1){
 		    // CHECK!!!
@@ -563,7 +578,9 @@ namespace CNORXZ
 			CXZ_ASSERT(j < f.size(), "incompatible index formats");
 		    }
 		    CXZ_ASSERT(si == mIPack[i]->lmax().val(),
-			       "incompatible index formats: " << toString(s) << " vs " /*!!!*/);
+			       "incompatible index formats: " << toString(f) << " vs "
+			       << toString(mkFv()) << " ( " << si << " != "
+			       << mIPack[i]->lmax().val() << " ) ");
 		    Vector<SizeT> nf(j-j0);
 		    Vector<SizeT> ns(j-j0);
 		    std::copy(f.begin()+j0,f.begin()+j,nf.begin());

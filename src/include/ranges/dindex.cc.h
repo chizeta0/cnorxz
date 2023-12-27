@@ -39,6 +39,13 @@ namespace CNORXZ
 	    return DXpr<R>( bufxpr([&](auto x){ return mI->ifor( DXpr<None>( assignxpr(x, xpr) ), NoF {} ); }) );
 	}
     }
+
+    template <class I>
+    I indexAs(const DIndex& i)
+    {
+	static_assert(is_index<I>::value, "expected index type");
+	return std::dynamic_pointer_cast<XIndex<I,typename I::MetaType>>( i.xptr() )->get();
+    }
 }
 
 #endif

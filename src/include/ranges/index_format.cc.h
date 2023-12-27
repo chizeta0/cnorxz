@@ -30,8 +30,8 @@ namespace CNORXZ
     template <class FormatT>
     constexpr MFormat<N>::MFormat(const FormatT& f)
     {
-	static_assert(f.size() == N, "try to assign format of wrong dimension");
-	iter<0,N>( [&](auto i) { mB[i] = f[i]; }, NoF{} );
+	CXZ_ASSERT(f.size() == N, "try to assign format of wrong dimension");
+	iter<0,N>( [&](auto i) { mB[i] = f[i].val(); }, NoF{} );
     }
 
     template <SizeT N>

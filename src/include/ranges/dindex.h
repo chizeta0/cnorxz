@@ -73,7 +73,7 @@ namespace CNORXZ
 	decltype(auto) ifor(const Xpr& xpr, F&& f) const;
 	
 	const XIndexPtr& xptr() const;
-	
+
 	/** @copydoc IndexInterface::formatIsTrivial() */
 	bool formatIsTrivial() const;
 
@@ -84,6 +84,9 @@ namespace CNORXZ
     template <>
     struct has_sub<DIndex>
     { static constexpr bool value = true; };
+
+    template <class I>
+    I indexAs(const DIndex& i);
 }
 
 #endif
