@@ -420,18 +420,27 @@ namespace CNORXZ
 	// s: input sizes
 	SizeT j = 0;
 	SizeT j0 = 0;
+	SizeT xi = 1;
 	Vector<UPos> nformat;
 	for(SizeT i = 0; i != dim(); ++i){
-	    SizeT si = 1;
-	    if(mIs[i]->lmax().val() == 1){
+	    CXZ_ASSERT(j != s.size(), "incompatible index formats");
+	    xi *= mIs[i]->lmax().val();
+	    SizeT xj = s[j];
+	    if(xi < xj) {
+		// check trivial format in this partition
+		CXZ_ERROR("...");
 		continue;
 	    }
-	    for(; si < mIs[i]->lmax().val(); ++j){
-		si *= s[i];
-		CXZ_ASSERT(j < f.size(), "incompatible index formats");
+	    j0 = j;
+	    while(xj < xi){
+		++j;
+		CXZ_ASSERT(j != s.size(), "incompatible index formats");
+		xj *= s[j];
 	    }
-	    CXZ_ASSERT(si == mIs[i]->lmax().val(),
-		       "incompatible index formats: " << toString(s) << " vs " /*!!!*/);
+	    CXZ_ASSERT(xj == xi, "incompatible index formats");
+	    xi = 1;
+	    ++j;
+
 	    Vector<SizeT> nf(j-j0);
 	    Vector<SizeT> ns(j-j0);
 	    std::copy(f.begin()+j0,f.begin()+j,nf.begin());

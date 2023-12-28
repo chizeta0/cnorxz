@@ -562,25 +562,23 @@ namespace CNORXZ
 	    // s: input sizes
 	    SizeT j = 0;
 	    SizeT j0 = 0;
+	    SizeT xi = 1;
 	    typename FormatT::InputType nformat;
-	    auto mkFv = [&]() {
-		Vector<SizeT> o(NI);
-		SizeT i = 0;
-		for(const auto& y:mFormat.all()) { o[i++] = y.val(); }
-		return o;
-	    };
 	    iter<0,NI>( [&](auto i) {
-		SizeT si = 1;
-		if(mIPack[i]->lmax().val() != 1){
-		    // CHECK!!!
-		    for(; si < mIPack[i]->lmax().val(); ++j){
-			si *= s[i];
-			CXZ_ASSERT(j < f.size(), "incompatible index formats");
+		CXZ_ASSERT(j != s.size(), "incompatible format");
+		xi *= mIPack[i]->lmax().val();
+		SizeT xj = s[j];
+		if(xi >= xj){
+		    j0 = j;
+		    while(xj < xi){
+			++j;
+			CXZ_ASSERT(j != s.size(), "incompatible format");
+			xj *= s[j];
 		    }
-		    CXZ_ASSERT(si == mIPack[i]->lmax().val(),
-			       "incompatible index formats: " << toString(f) << " vs "
-			       << toString(mkFv()) << " ( " << si << " != "
-			       << mIPack[i]->lmax().val() << " ) ");
+		    CXZ_ASSERT(xj == xi, "incompatible format");
+		    xi = 1;
+		    ++j;
+
 		    Vector<SizeT> nf(j-j0);
 		    Vector<SizeT> ns(j-j0);
 		    std::copy(f.begin()+j0,f.begin()+j,nf.begin());
@@ -590,6 +588,11 @@ namespace CNORXZ
 			x /= std::get<i>(nformat).val(); } );
 		    std::copy(s.begin()+j0,s.begin()+j,ns.begin());
 		    mIPack[i]->reformat(nf,ns);
+		}
+		else {
+		    //!!!
+		    // check that format is trivial in this partition
+		    CXZ_ERROR("...");
 		}
 	    }, NoF {});
 	    mFormat = FormatT(nformat);
