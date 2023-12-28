@@ -590,9 +590,9 @@ namespace CNORXZ
 		    mIPack[i]->reformat(nf,ns);
 		}
 		else {
-		    //!!!
-		    // check that format is trivial in this partition
-		    CXZ_ERROR("...");
+		    // TODO: IMPLEMENT!!!
+		    // check trivial format in this partition
+		    CXZ_ERROR("reformating with lower-dimensional formats has not yet been implemented");
 		}
 	    }, NoF {});
 	    mFormat = FormatT(nformat);

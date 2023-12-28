@@ -427,8 +427,9 @@ namespace CNORXZ
 	    xi *= mIs[i]->lmax().val();
 	    SizeT xj = s[j];
 	    if(xi < xj) {
+		// TODO: IMPLEMENT!!!
 		// check trivial format in this partition
-		CXZ_ERROR("...");
+		CXZ_ERROR("reformating with lower-dimensional formats has not yet been implemented");
 		continue;
 	    }
 	    j0 = j;
