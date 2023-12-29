@@ -1,5 +1,7 @@
 # Container with Native Operation Routines by XZ (CNORXZ)
 
+![Image](./cnorxz_logo.png)
+
 ## Description
 
 This library provides a framework for handling multi dimensional containers, their meta data, and several kinds of operations on one or more of them.
@@ -9,9 +11,10 @@ This library provides a framework for handling multi dimensional containers, the
 The library can be installed by the following procedure (`gtest` required):
 
 ```bash
-git clone git@git.f3l.de:chizeta/cnorxz.git <SOURCE_DIR>
+git clone git@git.f3l.de:chizeta/cnorxz.git <LIBRARY_ROOT_DIR>
+mkdir <BUILD_DIR>
 cd <BUILD_DIR>
-cmake -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> <SOURCE_DIR>
+cmake -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> <LIBRARY_ROOT_DIR>
 make install
 ```
 
@@ -31,7 +34,7 @@ The tools of the library are accessible within the namespace `CNORXZ`.
 
 (Also consider doxygen)
 
-### Basics
+### Basics and Library organization
 
 This library consists of several building blocks. For simple usage, the most important building blocks are [ranges](#ranges), [indices](#indices) and [array types](#arrays).
 
@@ -63,8 +66,11 @@ Apart from range specific indices, there exist also special indices:
 
 * `BIndex<T>` : The same as `AIndex`, but not const.
 
-#### Arrays
+#### Array types
 
 Finally, there are the container classes (arrays), which are derived from `CArrayBase<T>` (const) or `ArrayBase<T>` for a given data type `T`. All arrays are defined on a range, their data can be accessed or iterated over using suitable indices. The array-type actually containing data is called `MArray<T>`. Moreover, there exist array-types that do not contain data, but view the data of other arrays or at least parts of the data. These are called `CSlice<T>` (const view) or `Slice`.
 
+#### Expressions and Operations
+
+...
 

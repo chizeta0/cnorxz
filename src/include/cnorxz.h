@@ -9,19 +9,6 @@
    
 **/
 
-/**
-    @mainpage CNORXZ Documentation
-
-    ## Library organization
-    
-    ## Ranges and Indices
-
-    ## Array types
-
-    ## Expressions and Operations
-    
- **/
-
 #ifndef __cxz_cnorxz_h__
 #define __cxz_cnorxz_h__
 

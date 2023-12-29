@@ -21,7 +21,7 @@
 namespace CNORXZ
 {
     /** ****
-	specific index for CRange
+	Specific index for CRange.
      */
     class CIndex : public IndexInterface<CIndex,SizeT>
     {
@@ -34,7 +34,7 @@ namespace CNORXZ
 	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
 	DEFAULT_MEMBERS(CIndex); /**< default constructors and assignments */
 
-	/** constrcut index from range and position
+	/** Construct index from range and position.
 	    @param range Range to iterate over
 	    @param pos lexicographic position
 	 */
@@ -98,9 +98,6 @@ namespace CNORXZ
 	/** @copydoc IndexInterface::at() */
 	CIndex& at(const SizeT& metaPos);
 
-	/** @copydoc IndexInterface::xpr() */
-	COpRoot<SizeT,CIndex> xpr(const Sptr<CIndex>& _this) const;
-
 	/** @copydoc IndexInterface::prange() */
 	RangePtr prange(const CIndex& last) const;
 
@@ -120,6 +117,9 @@ namespace CNORXZ
 	/** @copydoc IndexInterface::formatIsTrivial() */
 	bool formatIsTrivial() const;
 	
+	/** @copydoc IndexInterface::xpr() */
+	COpRoot<SizeT,CIndex> xpr(const Sptr<CIndex>& _this) const;
+
     private:
 	Sptr<RangeType> mRangePtr;
     };
