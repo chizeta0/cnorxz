@@ -44,7 +44,9 @@ namespace CNORXZ
     I indexAs(const DIndex& i)
     {
 	static_assert(is_index<I>::value, "expected index type");
-	return std::dynamic_pointer_cast<XIndex<I,typename I::MetaType>>( i.xptr() )->get();
+	auto ptr = std::dynamic_pointer_cast<XIndex<I,typename I::MetaType>>( i.xptr() );
+	CXZ_ASSERT(ptr, "invalid cast");
+	return ptr->get();
     }
 }
 
