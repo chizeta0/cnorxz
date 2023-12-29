@@ -1,5 +1,7 @@
 # Container with Native Operation Routines by XZ (CNORXZ)
 
+![Image](./cnorxz_logo.png)
+
 ## Description
 
 This library provides a framework for handling multi dimensional containers, their meta data, and several kinds of operations on one or more of them.
