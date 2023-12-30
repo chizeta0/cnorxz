@@ -2,8 +2,7 @@
 /**
    
    @file include/ranges/crange.h
-   @brief ...
-
+   @brief CRange and CIndex declaration.
 
    Copyright (c) 2022 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
@@ -80,7 +79,7 @@ namespace CNORXZ
 	SizeT operator*() const;
 	
 	/** @copydoc IndexInterface::dim() */
-	SizeT dim() const; // = 1
+	SizeT dim() const;
 
 	/** @copydoc IndexInterface::range() */
 	Sptr<RangeType> range() const;
@@ -140,14 +139,14 @@ namespace CNORXZ
     public:
 	typedef CRange oType;
 
-	/** construct and setup factory
-	    @param size size of the range to be constructed
+	/** Construct and setup factory
+	    @param size Size of the range to be constructed
 	 */
 	CRangeFactory(SizeT size);
 
-	/** construct and setup factory
-	    @param size size of the range to be constructed
-	    @param ref range the range to be constructed is related to
+	/** Construct and setup factory
+	    @param size Size of the range to be constructed
+	    @param ref Range the range to be constructed is related to
 	 */
 	CRangeFactory(SizeT size, RangePtr ref);
 
