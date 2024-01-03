@@ -551,6 +551,12 @@ namespace CNORXZ
     GMIndex<FormatT,Indices...>&
     GMIndex<FormatT,Indices...>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
+	if(f.size() == 1){
+	    CXZ_ASSERT(s.size() == 1, "f.size() != s.size()");
+	    CXZ_ASSERT(s[0] == lmax().val(), "got inconsistent size; expeected "
+		       << lmax().val() << ", got " << s[0]);
+	    return *this;
+	}
 	if constexpr(std::is_same<FormatT,None>::value){
 	    CXZ_ASSERT(CNORXZ::formatIsTrivial(f,s),
 		       "cannot reformat MIndex with format type = None");
@@ -590,9 +596,7 @@ namespace CNORXZ
 		    mIPack[i]->reformat(nf,ns);
 		}
 		else {
-		    // TODO: IMPLEMENT!!!
-		    // check trivial format in this partition
-		    CXZ_ERROR("reformating with lower-dimensional formats has not yet been implemented");
+		    CXZ_ERROR("reformating with lower-dimensional formats is not possible; use sub-indices instead");
 		}
 	    }, NoF {});
 	    mFormat = FormatT(nformat);

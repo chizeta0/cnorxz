@@ -66,6 +66,7 @@ namespace
     {
 	GMIndex<MFormat<4>,CIndex,CIndex,CIndex,CIndex> mi(mRange);
 	MIndex<CIndex,CIndex,CIndex,CIndex,CIndex> mi2(mRange2);
+	GMIndex<MFormat<4>,CIndex,GMIndex<MFormat<3>,CIndex,CIndex,CIndex>,CIndex,CIndex> mi32(mRange);
 	EXPECT_EQ(mi.lmax().val(), mRange->size());
 	EXPECT_EQ(mi2.lmax().val(), mRange2->size());
 	auto yi = indexAs<YIndex>( mRange->begin() );
@@ -79,9 +80,20 @@ namespace
 	
 	yi.setFormat( YFormat( Vector<SizeT>{ mi2.format()[CSizeT<0>{}].val(), mi2.format()[CSizeT<1>{}].val(), mi2.format()[CSizeT<2>{}].val(), mi2.format()[CSizeT<4>{}].val() } ) );
 	VCHECK(toString(yi.deepFormat()));
-
 	mi.reformat( yi.deepFormat(), yi.deepMax() );
 	VCHECK(toString(mi.deepFormat()));
 	VCHECK(toString(mi.deepMax()));
+
+	yi.setFormat( YFormat( Vector<SizeT>{ 13, 143, 1, 15015 } ) );
+	VCHECK(toString(yi.deepFormat()));
+	mi.reformat( yi.deepFormat(), yi.deepMax() );
+	VCHECK(toString(mi.deepFormat()));
+	VCHECK(toString(mi.deepMax()));
+
+	mi32.reformat( Vector<SizeT> { 105,1,2310,1155 }, Vector<SizeT> { 11,105,13,2 } );
+	VCHECK(toString(yi.deepFormat()));
+	mi32.reformat( yi.deepFormat(), yi.deepMax() );
+	VCHECK(toString(mi32.deepFormat()));
+	VCHECK(toString(mi32.deepMax()));
     }
 }
