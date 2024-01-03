@@ -551,21 +551,21 @@ namespace CNORXZ
     GMIndex<FormatT,Indices...>&
     GMIndex<FormatT,Indices...>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
+	// f: input format
+	// s: input sizes
+	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
 	if(f.size() == 1){
-	    CXZ_ASSERT(s.size() == 1, "f.size() != s.size()");
 	    CXZ_ASSERT(s[0] == lmax().val(), "got inconsistent size; expeected "
 		       << lmax().val() << ", got " << s[0]);
 	    return *this;
 	}
+
 	if constexpr(std::is_same<FormatT,None>::value){
 	    CXZ_ASSERT(CNORXZ::formatIsTrivial(f,s),
 		       "cannot reformat MIndex with format type = None");
 	    return *this;
 	}
 	else {
-	    CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
-	    // f: input format
-	    // s: input sizes
 	    SizeT j = 0;
 	    SizeT j0 = 0;
 	    SizeT xi = 1;
