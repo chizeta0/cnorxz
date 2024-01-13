@@ -2,10 +2,15 @@
 /**
    
    @file include/ranges/mrange.h
-   @brief ...
+   @brief MRange, GMIndex and MIndex declaration
 
+   MRange is a multi-range consisting of of a compile-time fixed number of sub-ranges.
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   GMIndex and MIndex are multi-index consisting of a compile-time fixed number of sub-indices.
+   The difference between the two index types is that MIndex has a statically trivial format,
+   while GMIndex can have an arbitrary format (MFormat or GMFormat).
+   
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -22,8 +27,13 @@
 
 namespace CNORXZ
 {
-    // template <class FormatT, class... Indices>
-    // -> Format + IndexTuple
+    
+    /** ****
+	Multi-index with fixed number of sub-indices of arbitrary type
+	and arbitrary index format.
+	@tparam FormatT Index format type.
+	@tparam Indices Sub-index types.
+     */
     template <class FormatT, class... Indices>
     class GMIndex : public IndexInterface<GMIndex<FormatT,Indices...>,
 					  Tuple<typename Indices::MetaType...> >
@@ -32,7 +42,6 @@ namespace CNORXZ
 	
 	typedef IndexInterface<GMIndex<FormatT,Indices...>,
 			       Tuple<typename Indices::MetaType...>> IB;
-	//typedef Tuple<Sptr<Indices>...> IndexPack;
 	typedef Tuple<typename Indices::MetaType...> MetaType;
 	typedef MRange<typename Indices::RangeType...> RangeType;
 	static constexpr SizeT NI = sizeof...(Indices);
@@ -52,35 +61,85 @@ namespace CNORXZ
 	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
 	constexpr GMIndex(const RangePtr& range, const FormatT& format, SizeT lexpos = 0);
 
+	/** @copydoc IndexInterface::operator=(SizeT) */
 	GMIndex& operator=(SizeT pos);
+
+	/** @copydoc IndexInterface::operator++() */
 	GMIndex& operator++();
+
+	/** @copydoc IndexInterface::operator--() */
 	GMIndex& operator--();
+
+	/** @copydoc IndexInterface::operator+() */
 	GMIndex operator+(Int n) const;
+
+	/** @copydoc IndexInterface::operator-() */
 	GMIndex operator-(Int n) const;
+
+	/** @copydoc IndexInterface::operator-(CIndex) */
 	SizeT operator-(const GMIndex& i) const;
+
+	/** @copydoc IndexInterface::operator+=() */
 	GMIndex& operator+=(Int n);
+
+	/** @copydoc IndexInterface::operator-=() */
 	GMIndex& operator-=(Int n);
 
+	/** @copydoc IndexInterface::lex() */
 	SizeT lex() const;
+
+	/** @copydoc IndexInterface::pmax() */
 	constexpr decltype(auto) pmax() const;
+
+	/** @copydoc IndexInterface::lmax() */
 	constexpr decltype(auto) lmax() const;
+
+	/** @copydoc IndexInterface::id() */
 	IndexId<0> id() const;
 
+	/** @copydoc IndexInterface::operator*() */
 	MetaType operator*() const;
 	
+	/** @copydoc IndexInterface::dim() */
 	constexpr SizeT dim() const;
+
+	/** @copydoc IndexInterface::range() */
 	Sptr<RangeType> range() const;
 
+	/** @copydoc IndexInterface::stepSize() */
 	template <SizeT I>
 	decltype(auto) stepSize(const IndexId<I>& id) const;
 
+	/** @copydoc IndexInterface::stringMeta() */
 	String stringMeta() const;
+
+	/** @copydoc IndexInterface::meta() */
 	MetaType meta() const;
+
+	/** @copydoc IndexInterface::at() */
 	GMIndex& at(const MetaType& metaPos);
-	decltype(auto) xpr(const Sptr<MIndex<Indices...>>& _this) const;
-	
+
+	/** @copydoc IndexInterface::prange() */
+	RangePtr prange(const GMIndex<FormatT,Indices...>& last) const;
+
+	/** @copydoc IndexInterface::deepFormat() */
+	auto deepFormat() const;
+
+	/** @copydoc IndexInterface::deepMax() */
+	auto deepMax() const;
+
+	/** @copydoc IndexInterface::reformat() */
+	GMIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
+
+	/** @copydoc IndexInterface::ifor() */
 	template <class Xpr, class F>
 	constexpr decltype(auto) ifor(const Xpr& xpr, F&& f) const;
+
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+
+	/** @copydoc IndexInterface::xpr() */
+	decltype(auto) xpr(const Sptr<MIndex<Indices...>>& _this) const;
 
 	// replace sub-index instances; only use if you know what you are doing!
 	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
@@ -89,17 +148,8 @@ namespace CNORXZ
 	const SPack<Indices...>& pack() const;
 	const auto& format() const;
 	const auto& lexFormat() const;
-	RangePtr prange(const GMIndex<FormatT,Indices...>& last) const;
-	auto deepFormat() const;
-	auto deepMax() const;
-
-	/** @copydoc IndexInterface::reformat() */
-	GMIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
 
 	GMIndex& setFormat(const FormatT& bs);
-
-	/** @copydoc IndexInterface::formatIsTrivial() */
-	bool formatIsTrivial() const;
 
     private:
 	template <SizeT... Is>
