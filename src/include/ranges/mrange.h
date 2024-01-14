@@ -2,7 +2,7 @@
 /**
    
    @file include/ranges/mrange.h
-   @brief MRange, GMIndex and MIndex declaration
+   @brief MRange, GMIndex and MIndex declaration.
 
    MRange is a multi-range consisting of of a compile-time fixed number of sub-ranges.
 
@@ -47,18 +47,38 @@ namespace CNORXZ
 	static constexpr SizeT NI = sizeof...(Indices);
 
 	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
+
+	/** Default constructor. */
 	constexpr GMIndex() = default;
+
+	/** Move constructor (default). */
 	constexpr GMIndex(GMIndex&& i) = default;
+
+	/** Move assignment (default). */
 	constexpr GMIndex& operator=(GMIndex&& i) = default;
-	// no defaults:
+
+	/** Copy constructor (no default, copy sub-index instances). */
 	constexpr GMIndex(const GMIndex& i);
+
+	/** Copy assignment (no default, copy sub-index instances). */
 	constexpr GMIndex& operator=(const GMIndex& i);
 
+	/** Construct from index pack. */
 	constexpr GMIndex(const SPack<Indices...>& pack);
+
+	/** Construct from index pack and format. */
 	constexpr GMIndex(const FormatT& format, const SPack<Indices...>& pack);
+
+	/** Construct from index pointers. */
 	constexpr GMIndex(const Sptr<Indices>&... is);
+
+	/** Construct from index pointers and format. */
 	constexpr GMIndex(const FormatT& format, const Sptr<Indices>&... is);
+
+	/** Construct from range. */
 	constexpr GMIndex(const RangePtr& range, SizeT lexpos = 0);
+
+	/** Construct from range and format. */
 	constexpr GMIndex(const RangePtr& range, const FormatT& format, SizeT lexpos = 0);
 
 	/** @copydoc IndexInterface::operator=(SizeT) */
@@ -142,13 +162,24 @@ namespace CNORXZ
 	decltype(auto) xpr(const Sptr<MIndex<Indices...>>& _this) const;
 
 	// replace sub-index instances; only use if you know what you are doing!
+	/** Replace sub-index instances and update index position correspondingly.
+	    @param new index instances.
+	 */
 	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
+
+	/** Update index position according to the sub-indices. */
 	GMIndex& operator()();
 
+	/** Get index pack. */
 	const SPack<Indices...>& pack() const;
+
+	/** Get index format. */
 	const auto& format() const;
+
+	/** Get lexicographic index format. */
 	const auto& lexFormat() const;
 
+	/** Assign new index format. */
 	GMIndex& setFormat(const FormatT& bs);
 
     private:
@@ -185,53 +216,114 @@ namespace CNORXZ
 	PMaxT mPMax;
     };
 
-    template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi);
-
-    template <class... Indices>
-    struct index_has_const_size<MIndex<Indices...>>
+    /** ****
+	Specialization of index_has_const_size for GMIndex.
+	@see index_has_const_size
+     */
+    template <class FormatT, class... Indices>
+    struct index_has_const_size<GMIndex<FormatT,Indices...>>
     { static constexpr bool value = (index_has_const_size<Indices>::value and ...); };
 
-    template <class... Indices>
-    struct index_const_size<MIndex<Indices...>>
+    /** ****
+	Specialization of index_const_size for GMIndex.
+	@see index_const_size
+     */
+    template <class FormatT, class... Indices>
+    struct index_const_size<GMIndex<FormatT,Indices...>>
     { static constexpr SizeT value = (index_const_size<Indices>::value * ...); };
 
-    template <class... Indices>
-    struct index_dim<MIndex<Indices...>>
+    /** ****
+	Specialization of index_dim for GMIndex.
+	@see index_dim
+     */
+    template <class FormatT, class... Indices>
+    struct index_dim<GMIndex<FormatT,Indices...>>
     { static constexpr SizeT value = sizeof...(Indices); };
 
-    template <class... Indices>
-    struct has_sub<MIndex<Indices...>>
+    /** ****
+	Specialization of has_sub for GMIndex.
+	@see has_sub
+     */
+    template <class FormatT, class... Indices>
+    struct has_sub<GMIndex<FormatT,Indices...>>
     { static constexpr bool value = true; };
 
-    template <class... Indices>
-    struct has_static_sub<MIndex<Indices...>>
+    /** ****
+	Specialization of has_static_sub for GMIndex.
+	@see has_static_sub
+     */
+    template <class FormatT, class... Indices>
+    struct has_static_sub<GMIndex<FormatT,Indices...>>
     { static constexpr bool value = true; };
 
-    template <class... Indices>
-    struct index_is_multi<MIndex<Indices...>>
+    /** ****
+	Specialization of index_is_multi for GMIndex.
+	@see index_is_multi
+     */
+    template <class FormatT, class... Indices>
+    struct index_is_multi<GMIndex<FormatT,Indices...>>
     { static constexpr bool value = true; };
 
+    /** ***
+	MIndex can be used as expression if all its sub-indices can be used as expression
+	@see index_expression_exists
+     */    
+    template <class... Indices>
+    struct index_expression_exists<MIndex<Indices...>>
+    {
+	static constexpr bool value = (index_expression_exists<Indices>::value and ...);
+    };
+
+    /** Create MIndex from index pointers.
+	@param is Input index pointers.
+     */
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is);
 
+    /** Create MIndex from index pack.
+	@param pack Pack of input indices.
+     */
     template <class... Indices>
     constexpr decltype(auto) mindex(const SPack<Indices...>& pack);
 
+    /** Create pointer to MIndex from index pack.
+	@param pack Pack of input indices.
+     */
     template <class... Indices>
     constexpr decltype(auto) mindexPtr(const SPack<Indices...>& pack);
 
+    /** Create pointer to GMIndex from index pack and format.
+	@param bs Index format.
+	@param pack Pack of input indices.
+     */
     template <class FormatT, class... Indices>
     constexpr decltype(auto) gmindexPtr(const FormatT& bs, const SPack<Indices...>& pack);
-    
+
+    /** Specialization for index multiplication with GMIndex on the l.h.s.
+	@param a First index of type GMIndex.
+	@param b Second index of arbitrary type.
+     */
     template <class I1, class FormatT, class... Indices>
     decltype(auto) operator*(const Sptr<GMIndex<FormatT,Indices...>>& a, const Sptr<I1>& b);
 
+    /** ****
+	Specific factory for MRange.
+	@tparam Ranges Types of the sub-ranges.
+     */
     template <class... Ranges>
     class MRangeFactory : public RangeFactoryBase
     {
     public:
+
+	/** Construct and setup factory.
+	    @param rs Tuple of sub-ranges.
+	 */
 	MRangeFactory(const Tuple<Sptr<Ranges>...>& rs);
+
+	/** Construct and setup factory.
+	    @param rs Tuple of sub-ranges.
+	    @param ref Range the range to be constructed is related to.
+	 */
 	MRangeFactory(const Tuple<Sptr<Ranges>...>& rs, const RangePtr& ref);
 	
     private:
@@ -241,7 +333,11 @@ namespace CNORXZ
 	Tuple<Sptr<Ranges>...> mRs;
 	RangePtr mRef;
     };
-    
+
+    /** ****
+	Multi Range with compile-time fixed number of sub-ranges
+	of compile-time fixed type.
+     */
     template <class... Ranges>
     class MRange : public RangeInterface<MRange<Ranges...>>
     {
@@ -261,19 +357,35 @@ namespace CNORXZ
 	virtual const TypeInfo& type() const override final;
 	virtual const TypeInfo& metaType() const override final;
 	virtual RangePtr extend(const RangePtr& r) const override final;
-	
+
+	/** Get sub-ranges. */
 	decltype(auto) space() const;
+
+	/** Get sub-range.
+	    @param pos Position of the sub-range.
+	 */
 	const MetaType get(SizeT pos) const;
+
+	/** Get lexicographic position according to the given meta data value.
+	    @param metaPos Meta data value.
+	 */
 	SizeT getMeta(const MetaType& metaPos) const;
 
     protected:
+
+	/** Dafault constructor */
 	MRange() = default;
+	
 	MRange(const MRange& in) = delete;
 	MRange& operator=(const MRange& in) = delete;
+
+	/** Construct from sub-ranges
+	    @param rs Tuple of pointers to sub-ranges.
+	 */
 	MRange(const Tuple<Sptr<Ranges>...>& rs);
 	
-	Tuple<Sptr<Ranges>...> mRs;
-	Arr<RangePtr,NR> mA;
+	Tuple<Sptr<Ranges>...> mRs; /**< Tuple of pointers to sub-ranges. */
+	Arr<RangePtr,NR> mA; /**< Array of abstract base pointers to sub-ranges. Redundant to mRs */
 
 	virtual Vector<Uuid> key() const override final;
     private:
@@ -281,24 +393,22 @@ namespace CNORXZ
 	decltype(auto) mkA() const;
     };
 
+    /** Create MRange pointer.
+	@param rs Pointer to sub-ranges. 
+     */
     template <class... Ranges>
     RangePtr mrange(const Sptr<Ranges>&... rs);
 
+    /** ****
+	Specialization of RangeCast for MRange.
+	@see RangeCast.
+     */
     template <class... Ranges>
     struct RangeCast<MRange<Ranges...>>
     {
 	static Sptr<MRange<Ranges...>> func(const RangePtr& r);
     };
 
-    /** ***
-	MIndex can be used as expression if all its sub-indices can be used as expression
-	@see index_expression_exists
-     */    
-    template <class... Indices>
-    struct index_expression_exists<MIndex<Indices...>>
-    {
-	static constexpr bool value = (index_expression_exists<Indices>::value and ...);
-    };
 
 }
 

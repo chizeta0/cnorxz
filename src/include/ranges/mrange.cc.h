@@ -2,10 +2,10 @@
 /**
    
    @file include/ranges/mrange.cc.h
-   @brief ...
+   @brief MRange, GMIndex and MIndex, member definition.
 
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -21,9 +21,9 @@
 
 namespace CNORXZ
 {
-    /************************
-     *   GMIndex (private)  *
-     ************************/
+    /*=========================+
+     |    GMIndex (private)    |
+     +=========================*/
 
     template <class FormatT, class... Indices>
     template <SizeT... Is>
@@ -147,9 +147,9 @@ namespace CNORXZ
 	}
     }
 
-    /***************
-     *   GMIndex   *
-     ***************/
+    /*===============+
+     |    GMIndex    |
+     +===============*/
 
     template <class FormatT, class... Indices>
     constexpr GMIndex<FormatT,Indices...>::GMIndex(const GMIndex& i) :
@@ -613,15 +613,6 @@ namespace CNORXZ
 	return *this;
     }
 
-    template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi)
-    {
-	return iter<0,sizeof...(Indices)>
-	    ( [&](auto i) { return gmi->pack()[CSizeT<i>{}]; },
-	      [&](const auto&... e) { return std::make_shared<GMIndex<BT1,Indices...>>
-		    ( bs1, e... ); } );
-    }
-
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is)
     {
@@ -652,9 +643,9 @@ namespace CNORXZ
 	return iptrMul(a, b);
     }
 
-    /*********************
-     *   MRangeFactory   *
-     *********************/
+    /*=====================+
+     |    MRangeFactory    |
+     +=====================*/
 
     template <class... Ranges>
     MRangeFactory<Ranges...>::MRangeFactory(const Tuple<Sptr<Ranges>...>& rs) :
@@ -683,9 +674,9 @@ namespace CNORXZ
 	}
     }
     
-    /**************
-     *   MRange   *
-     **************/
+    /*==============+
+     |    MRange    |
+     +==============*/
 
     template <class... Ranges>
     MRange<Ranges...>::MRange(const Tuple<Sptr<Ranges>...>& rs) :
@@ -703,7 +694,6 @@ namespace CNORXZ
     template <class... Ranges>
     MArray<RangePtr> MRange<Ranges...>::sub() const
     {
-	// TODO: ZRange (meta and index pos static!)
 	if constexpr(NR == 0) {
 	    return MArray<RangePtr>();
 	}
@@ -791,9 +781,9 @@ namespace CNORXZ
 	return k;
     }
 
-    /************************
-     *   MRange (private)   *
-     ************************/
+    /*========================+
+     |    MRange (private)    |
+     +========================*/
 
     template <class... Ranges>
     decltype(auto) MRange<Ranges...>::mkA() const
@@ -802,9 +792,9 @@ namespace CNORXZ
 			  [](const auto&... xs) { return Arr<RangePtr,NR> { xs... }; } );
     }
 
-    /****************************
-     *   non-member functions   *
-     ****************************/
+    /*============================+
+     |    non-member functions    |
+     +============================*/
 
     template <class... Ranges>
     RangePtr mrange(const Sptr<Ranges>&... rs)

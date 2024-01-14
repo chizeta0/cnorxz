@@ -36,9 +36,9 @@ The tools of the library are accessible within the namespace `CNORXZ`.
 
 ### Basics and Library organization
 
-This library consists of several building blocks. For simple usage, the most important building blocks are [ranges](#ranges), [indices](#indices) and [array types](#arrays).
+This library consists of several building blocks. For simple usage, the most important building blocks are [ranges](#sec-ranges), [indices](#sec-indices) and [arrays](#sec-array-types).
 
-#### Ranges
+#### Ranges {#sec-ranges}
 
 Basically, a *range* defines a meta data space. There are several range class types, which are derived from the abstract base class `RangeBase`. Ranges can only be created by the corresponding factory and exclusively exist within a shared pointer; they cannot be copied. Available range class types are:
 
@@ -54,7 +54,7 @@ Basically, a *range* defines a meta data space. There are several range class ty
 
 * `YRange` : The same as `MRange` but the number of ranges and their types can be specified at runtime.
 
-#### Indices
+#### Indices {#sec-indices}
 
 For each range type there is a corresponding index type (`CIndex`, `UIndex<MetaT>`, `SIndex<MetaT,S>`, `PIndex<IndexT>`, `MIndex<IndexTs...>`, `YIndex`). They act as const iterators on the ranges and are a crucial component to define operations on containers. In contrast to the ranges, all index types must be known at compile time (static polymorphism, `IndexInterface<Index,MetaT>`). 
 
@@ -66,7 +66,7 @@ Apart from range specific indices, there exist also special indices:
 
 * `BIndex<T>` : The same as `AIndex`, but not const.
 
-#### Array types
+#### Array types {#sec-array-types}
 
 Finally, there are the container classes (arrays), which are derived from `CArrayBase<T>` (const) or `ArrayBase<T>` for a given data type `T`. All arrays are defined on a range, their data can be accessed or iterated over using suitable indices. The array-type actually containing data is called `MArray<T>`. Moreover, there exist array-types that do not contain data, but view the data of other arrays or at least parts of the data. These are called `CSlice<T>` (const view) or `Slice`.
 
