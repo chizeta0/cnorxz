@@ -123,8 +123,7 @@ namespace CNORXZ
 	Sptr<RangeType> mRangePtr;
     };
 
-    /** make index pack of a CIndex and another index.
-	@tparam type of the second index.
+    /** Make index pack of a CIndex and another index.
 	@param a pointer to CIndex.
 	@param b pointer to another index.
      */
