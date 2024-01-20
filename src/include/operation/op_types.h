@@ -97,6 +97,36 @@ namespace CNORXZ
     template <typename T, class IndexT>
     constexpr decltype(auto) coproot(const T* a, const Sptr<IndexT>& ind);
 
+    template <class IndexT, class Op>
+    class POpRoot : public COpInterface<POpRoot<IndexT,Op>>
+    {
+    public:
+	typedef COpInterface<POpRoot<IndexT,Op>> OI;
+
+	constexpr POpRoot() = default;
+
+	constexpr POpRoot(const Sptr<IndexT>& ind, const SizeT* parts, Op&& op);
+
+	template <class PosT>
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
+
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+	constexpr decltype(auto) data() const;
+
+    private:
+
+	Sptr<IndexT> mIndex;
+	FPos mFp;
+	Op mOp;
+    };
+
+    template <class IndexT, class Op>
+    constexpr decltype(auto) poproot(const Sptr<IndexT>& ind, const SizeT* parts, Op&& op);
+    
     template <typename T, class IndexT>
     class OpCont : public OpInterface<OpCont<T,IndexT>>
     {
