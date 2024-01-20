@@ -338,10 +338,19 @@ namespace CNORXZ
     template <class RangeT>
     RangePtr PRange<RangeT>::extend(const RangePtr& r) const
     {
-	CXZ_ERROR("implement!!!");
-	// if r is PRange of same Range, then just add parts
-	// else derive and add meta of r
-	return nullptr;
+	if(r->type() == type()){
+	    Sptr<PRange<RangeT>> rx = std::dynamic_pointer_cast<PRange<RangeT>>(r);
+	    if(rx->orig() == orig()){
+		Vector<SizeT> p(parts());
+		for(auto i: rx->parts()){
+		    if(find(p.begin(), p.end(), i) != p.end()){
+			p.push_back(i);
+		    }
+		}
+		return prange(orig(), p);
+	    }
+	}
+	return derive()->extend(r);
     }
 
     template <class RangeT>
@@ -361,8 +370,9 @@ namespace CNORXZ
     {
 	Vector<MetaType> meta(this->size());
 	auto i = mRange->begin();
+	SizeT j = 0;
 	for(const auto& p: mParts){
-	    meta = *(i = p);
+	    meta[j++] = *(i = p);
 	}
 	return URangeFactory<MetaType>( meta ).create();
     }
