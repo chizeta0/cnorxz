@@ -101,6 +101,14 @@ namespace
 	h5f.open();
 	EXPECT_TRUE(h5f.ro());
 	EXPECT_EQ(h5f.get().size(), 2u);
+	
+	EXPECT_THROW(h5f.getGroup("gr0"), std::runtime_error);
+	auto gr1 = h5f.getGroup("gr1");
+	gr1->open();
+	auto tab = gr1->getTable("tab1");
+	EXPECT_EQ(tab->fields()->size(), 3u);
+	EXPECT_EQ(tab->records()->size(), 5u);
+	h5f.close();
     }
 }
 

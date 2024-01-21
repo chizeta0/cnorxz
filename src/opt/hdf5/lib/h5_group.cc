@@ -85,6 +85,14 @@ namespace CNORXZ
 	    return std::dynamic_pointer_cast<Group>( group );
 	}
 
+	Sptr<Table> Group::getTable(const String& name) const
+	{
+	    auto table = this->get(name);
+	    CXZ_ASSERT(table->type() == ContentType::TABLE,
+		       "element '" << name << "' is not of type TABLE");
+	    return std::dynamic_pointer_cast<Table>( table );
+	}
+
 	const MArray<ContentPtr>& Group::get() const
 	{
 	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
@@ -118,10 +126,12 @@ namespace CNORXZ
 	    return 0;
 	}
 
-	static bool isTable(hid_t id)
+	static bool isTable(hid_t loc_id, const char* name)
 	{
+	    const hid_t id = H5Dopen(loc_id, name, H5P_DEFAULT);
 	    if(not H5Aexists(id, "CLASS")){
 		return false;
+		H5Dclose(id);
 	    }
 	    hid_t attrid = H5Aopen(id, "CLASS", H5P_DEFAULT);
 	    const hid_t atype = H5Aget_type(attrid);
@@ -130,6 +140,7 @@ namespace CNORXZ
 	    const herr_t ret = H5Aread(attrid, atype, buff.data());
 	    H5Tclose(atype);
 	    H5Aclose(attrid);
+	    H5Dclose(id);
 	    if(ret != 0){
 		return false;
 	    }
@@ -149,7 +160,8 @@ namespace CNORXZ
 	    index();
 	    H5O_info_t oinfo;
 #if H5_VERS_MINOR > 10
-	    H5Oget_info(id, &oinfo, H5O_INFO_BASIC);
+	    //H5Oget_info(id, &oinfo, H5O_INFO_BASIC);
+	    H5Oget_info_by_name(id, name, &oinfo, H5O_INFO_BASIC, H5P_DEFAULT);
 #else
 	    H5Oget_info(id, &oinfo);
 #endif
@@ -159,7 +171,7 @@ namespace CNORXZ
 		break;
 	    }
 	    case H5O_TYPE_DATASET: {
-		if(isTable(id)){
+		if(isTable(id, name)){
 		    *index = std::make_shared<Table>(sname, icd->parent);
 		}
 		else {

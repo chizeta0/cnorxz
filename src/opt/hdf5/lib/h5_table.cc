@@ -14,7 +14,11 @@ namespace CNORXZ
 		hsize_t nrecords = 0;
 		H5TBget_table_info(mParent->id(), mName.c_str(), &nfields, &nrecords);
 		mRecords = CRangeFactory( nrecords ).create();
+		Vector<Arr<char,256>> fieldnames(nfields);
 		Vector<char*> fieldsptr(nfields);
+		for(SizeT i = 0; i != nfields; ++i){
+		    fieldsptr[i] = fieldnames[i].data();
+		}
 		Vector<SizeT> offsets(nfields);
 		Vector<SizeT> sizes(nfields);
 		SizeT typesize = 0;
@@ -71,6 +75,7 @@ namespace CNORXZ
 	    if(mId != 0){
 		H5Tclose(mType);
 		H5Dclose(mId);
+		mId = 0;
 	    }
 	    return *this;
 	}

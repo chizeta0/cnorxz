@@ -334,12 +334,13 @@ namespace CNORXZ
     
     YIndex& YIndex::at(const Vector<DType>& meta)
     {
-	assert(meta.size() == mIs.size());
-	IB::mPos = 0;
+	CXZ_ASSERT(meta.size() == mIs.size(), "input meta size ("
+		   << meta.size() << ") different from expected size ("
+		   << mIs.size() << ")");
 	for(SizeT i = 0; i != mIs.size(); ++i){
 	    mIs[i]->at(meta[i]);
-	    IB::mPos += mIs[i]->pos() * mFormat[i].val();
 	}
+	mkPos();
 	return *this;
     }
 
