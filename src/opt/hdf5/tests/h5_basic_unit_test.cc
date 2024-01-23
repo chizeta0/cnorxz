@@ -39,7 +39,7 @@ namespace
 	Group_Test()
 	{
 	    mFileName = testh5file;
-	    mGrps = { "gr1", "gr2" };
+	    //mGrps = { "gr1", "gr2", "foo", "bar", "moregroups" };
 	    mFs = {"field1","second","real"};
 	    Vector<Tuple<SizeT,Int,Double>> v
 		( { {0, -6, 3.141},
@@ -53,7 +53,7 @@ namespace
 	}
 
 	String mFileName;
-	Vector<String> mGrps;
+	//Vector<String> mGrps;
 
 	Vector<String> mFs;
 	MArray<Tuple<SizeT,Int,Double>> mTabA; 
@@ -82,7 +82,15 @@ namespace
 	h5f.open();
 	h5f.addGroup("gr1");
 	h5f.addGroup("gr2");
-	EXPECT_EQ(h5f.get().size(), 2u);
+	h5f.addGroup("foo");
+	h5f.addGroup("moregroups");
+	h5f.addGroup("bar");
+	h5f.getGroup("moregroups")->open().addGroup("evenmore");
+	h5f.getGroup("moregroups")->getGroup("evenmore")->open().addGroup("we");
+	h5f.getGroup("moregroups")->getGroup("evenmore")->addGroup("need");
+	h5f.getGroup("moregroups")->getGroup("evenmore")->addGroup("more");
+	h5f.getGroup("moregroups")->getGroup("evenmore")->addGroup("groups");
+	EXPECT_EQ(h5f.get().size(), 5u);
 	h5f.close();
     }
 
@@ -100,14 +108,17 @@ namespace
 	File h5f(mFileName, true);
 	h5f.open();
 	EXPECT_TRUE(h5f.ro());
-	EXPECT_EQ(h5f.get().size(), 2u);
+	EXPECT_EQ(h5f.get().size(), 5u);
 	
 	EXPECT_THROW(h5f.getGroup("gr0"), std::runtime_error);
 	auto gr1 = h5f.getGroup("gr1");
 	gr1->open();
 	auto tab = gr1->getTable("tab1");
+	VCHECK(tab->path());
 	EXPECT_EQ(tab->fields()->size(), 3u);
 	EXPECT_EQ(tab->records()->size(), 5u);
+	h5f.iter( [](const auto& c) { VCHECK(c->path()); } )();
+	h5f.iterRecursive( [](const auto& c) { VCHECK(c->path()); } )();
 	h5f.close();
     }
 }

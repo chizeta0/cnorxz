@@ -3,6 +3,7 @@
 #define __cxz_h5_group_cc_h__
 
 #include "h5_group.h"
+#include "xpr/for.h"
 
 namespace CNORXZ
 {
@@ -54,6 +55,22 @@ namespace CNORXZ
 	    return *this;
 	}
 
+	template <class F>
+	decltype(auto) Group::iter(F&& f) const
+	{
+	    RangePtr gr = *mCont.range()->sub().begin();
+	    auto gi = std::make_shared<UIndex<String>>(gr);
+	    return gi->ifor( operation(std::forward<F>(f), mCont(gi)), NoF{} );
+	}
+
+	template <class F>
+	decltype(auto) Group::iterRecursive(F&& f) const
+	{
+	    return iter( [&](const auto& c) {
+		f(c);
+		recursion(c, std::forward<F>(f));
+	    });
+	}
     }
 }
 

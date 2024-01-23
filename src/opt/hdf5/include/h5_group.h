@@ -41,8 +41,27 @@ namespace CNORXZ
 	    template <typename... Ts>
 	    Group& addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
 			    const Vector<String>& fnames);
+
+	    template <class F>
+	    decltype(auto) iter(F&& f) const;
+
+	    template <class F>
+	    decltype(auto) iterRecursive(F&& f) const;
 	    
 	protected:
+
+	    template <typename C, class F>
+	    static void recursion(const C& c, F&& f)
+	    {
+		if(c->type() == ContentType::GROUP){
+		    auto cx = std::dynamic_pointer_cast<Group>(c);
+		    cx->open();
+		    if(cx->get().range() != nullptr){
+			cx->iterRecursive(std::forward<F>(f))();
+		    }
+		}
+	    }
+	    
 	    MArray<ContentPtr> mCont;
 
 	    void mkCont();

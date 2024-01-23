@@ -67,7 +67,8 @@ namespace CNORXZ
 	
 	String File::path() const
 	{
-	    return String("/");
+	    //return String("/");
+	    return "";
 	}
 	
 	String File::filename() const

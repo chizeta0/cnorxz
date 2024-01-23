@@ -38,6 +38,13 @@ namespace CNORXZ
 	    RangePtr range() const;
 	    hid_t id() const;
 	    inline bool isOpen() const { return mId != 0; }
+
+	    template <typename T>
+	    ContentBase& addAttribute(const String& name, const T& value);
+	    DType getAttribute(const String& name) const;
+	    bool isAttribute(const String& name) const;
+	    String getAttributesAsString() const;
+	    String getRecursiveAttributesAsString() const; // + all parent's attributes
 	    
 	protected:
 	    String mName;
