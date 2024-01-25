@@ -10,6 +10,8 @@ namespace CNORXZ
 {
     namespace hdf5
     {
+	// TODO: IO save error handling !!!
+	
 	enum class ContentType {
 	    ATTR = 1,
 	    FILE = 2,
@@ -42,9 +44,9 @@ namespace CNORXZ
 	    template <typename T>
 	    ContentBase& addAttribute(const String& name, const T& value);
 	    DType getAttribute(const String& name) const;
-	    bool isAttribute(const String& name) const;
-	    String getAttributesAsString() const;
-	    String getRecursiveAttributesAsString() const; // + all parent's attributes
+	    bool attributeExists(const String& name) const;
+	    Vector<DType> getAttributes() const;
+	    Vector<DType> getRecursiveAttributes() const; // + all parent's attributes
 	    
 	protected:
 	    String mName;
