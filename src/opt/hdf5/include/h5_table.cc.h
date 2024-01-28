@@ -22,25 +22,24 @@ namespace CNORXZ
 	    Table(name, _parent)
 	{
 	    constexpr SizeT N = sizeof...(Ts);
-	    if(mFields == nullptr){
+	    if(mFields != nullptr){
 
+		CXZ_ASSERT(mFields->size() == N, "expected tuple of size = " << mFields->size()
+			   << ", got: " << N);
 		Tuple<Ts...> x;
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
 			    ( getTupleOffset(x, i) == mOffsets.data()[i],
 			      "wrong offset for field " << i << ": " << getTupleOffset(x, i)
 			      << " vs " << mOffsets.data()[i] ); }, NoF{} );
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
-			    ( sizeof(std::get<i>(x)) == mSizes.data()[i],
-			      "wrong size for field " << i << ": " << sizeof(std::get<i>(x))
+			    ( sizeof(tget<i>(x)) == mSizes.data()[i],
+			      "wrong size for field " << i << ": " << sizeof(tget<i>(x))
 			      << " vs " << mSizes.data()[i] ); }, NoF{} );
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
-			    ( getTypeId(std::get<i>(x)) == mTypes.data()[i],
-			      "wrong type for field " << i << ": " << getTypeId(std::get<i>(x))
+			    ( H5Tget_class(getTypeId(tget<i>(x))) == mTypes.data()[i],
+			      "wrong type for field " << i
+			      << ": " << H5Tget_class(getTypeId(tget<i>(x)))
 			      << " vs " << mTypes.data()[i] ); }, NoF{} );
-	    }
-	    else {
-		CXZ_ASSERT(mFields->size() == N, "expected tuple of size = " << mFields->size()
-			   << ", got: " << N);
 	    }
 	}
 
@@ -73,11 +72,11 @@ namespace CNORXZ
 		    [](const auto&... e) { return Vector<SizeT>({e...}); }) );
 	    mSizes = MArray<SizeT>
 		( mFields, iter<0,N>
-		  ( [&](auto i) { return sizeof(std::get<i>(x)); },
+		  ( [&](auto i) { return sizeof(tget<i>(x)); },
 		    [](const auto&... e) { return Vector<SizeT>({e...}); }) );
 	    mTypes = MArray<hid_t>
 		( mFields, iter<0,N>
-		  ( [&](auto i) { return getTypeId(std::get<i>(x)); },
+		  ( [&](auto i) { return getTypeId(tget<i>(x)); },
 		    [](const auto&... e) { return Vector<hid_t>({e...}); }) );
 	    return *this;
 	}
@@ -96,10 +95,12 @@ namespace CNORXZ
 	}
 
 	template <typename... Ts>
-	MArray<Tuple<Ts...>> STable<Ts...>::read()
+	MArray<Tuple<Ts...>> STable<Ts...>::read() const
 	{
+	    CXZ_ASSERT(isOpen(), "attempt to read table that has not been opened");
 	    MArray<Tuple<Ts...>> out(mRecords);
-	    //...!!!
+	    H5TBread_table(mParent->id(), mName.c_str(), mTypesize, mOffsets.data(),
+			   mSizes.data(), out.data());
 	    return out;
 	}
     }

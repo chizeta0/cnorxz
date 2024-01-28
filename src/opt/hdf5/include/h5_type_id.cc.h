@@ -8,11 +8,31 @@ namespace CNORXZ
 {
     namespace hdf5
     {
+	template <typename... Ts>
+	decltype(auto) reverseTuple(const Tuple<Ts...>& t)
+	{
+	    return iter<0,sizeof...(Ts)>
+		( [&](auto i) { return tget<i>(t); },
+		  [](const auto&... e) { return std::make_tuple(e...); } );
+	}
+
+	template <SizeT I, typename... Ts>
+	constexpr const auto& tget(const Tuple<Ts...>& t)
+	{
+	    return std::get<sizeof...(Ts)-I-1>(t);
+	}
+
+	template <SizeT I, typename... Ts>
+	constexpr auto& tget(Tuple<Ts...>& t)
+	{
+	    return std::get<sizeof...(Ts)-I-1>(t);
+	}
+
 	template <SizeT N, typename... Ts>
 	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i)
 	{
 	    const PtrId beg = reinterpret_cast<PtrId>(&t);
-	    const PtrId pos = reinterpret_cast<PtrId>(&std::get<i>(t));
+	    const PtrId pos = reinterpret_cast<PtrId>(&tget<i>(t));
 	    return pos - beg;
 	}
 

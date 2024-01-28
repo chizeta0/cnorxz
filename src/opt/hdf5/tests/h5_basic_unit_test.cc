@@ -39,24 +39,32 @@ namespace
 	Group_Test()
 	{
 	    mFileName = testh5file;
-	    //mGrps = { "gr1", "gr2", "foo", "bar", "moregroups" };
 	    mFs = {"field1","second","real"};
-	    Vector<Tuple<SizeT,Int,Double>> v
-		( { {0, -6, 3.141},
-		    {3, -8, 0.789},
-		    {34, 4, 10.009},
-		    {2, -777, -9.77},
-		    {321, 0, -0.003}
+	    // Tuple has reverse (!) memory ordering:
+	    Vector<Tuple<Double,Int,SizeT>> v
+		( { { 3.141, -6, 0 },
+		    { 0.789, -8, 3 },
+		    { 10.009, 4, 34 },
+		    { -9.77, -777, 2 },
+		    { -0.003, 0, 321 }
 		} );
 	    RangePtr rs = CRangeFactory(v.size()).create();
-	    mTabA = MArray<Tuple<SizeT,Int,Double>>(rs, std::move(v)); 
+	    RangePtr fs = CRangeFactory(mFs.size()).create();
+	    mTabA = MArray<Tuple<Double,Int,SizeT>>(rs, std::move(v));
+	    mTabD = MArray<DType>(rs*fs);
+	    CIndex i(rs);
+	    CIndex j(fs);
+	    for(i = 0; i.lex() != rs->size(); ++i){
+		iter<0,3>( [&](auto jj)
+		{ j = jj; mTabD[i*j] = DType(tget<jj>(v[i.lex()])); }, NoF{} );
+	    }
 	}
 
 	String mFileName;
-	//Vector<String> mGrps;
 
 	Arr<String,3> mFs;
-	MArray<Tuple<SizeT,Int,Double>> mTabA; 
+	MArray<Tuple<Double,Int,SizeT>> mTabA;
+	MArray<DType> mTabD;
     };
 
     
@@ -142,14 +150,29 @@ namespace
 
     TEST_F(Group_Test, ReadTable)
     {
-	typedef Tuple<SizeT,Int,Double> RecType;
+	typedef Tuple<Double,Int,SizeT> RecType;
 	
 	File h5f(mFileName, true);
 	h5f.open();
 	auto tab = h5f.getGroup("gr1")->open().getTable("tab1", RecType());
 	EXPECT_EQ(tab->fields()->size(), 3u);
 	EXPECT_EQ(tab->records()->size(), 5u);
-	
+	tab->open();
+	auto cont = tab->read();
+	EXPECT_EQ(cont.size(), mTabA.size());
+	CIndex i(mTabA.range());
+	for(; i.lex() != i.lmax().val(); ++i){
+	    EXPECT_EQ( cont[i], mTabA[i] );
+	}
+	auto dtab = h5f.getGroup("gr1")->open().getTable("tab1");
+	auto dcont = dtab->read();
+	EXPECT_EQ(dcont.range()->dim(), 2u);
+	EXPECT_EQ(dcont.range()->sub(0)->size(), 5u);
+	EXPECT_EQ(dcont.range()->sub(1)->size(), 3u);
+	for(auto ai = dcont.begin(); ai != dcont.end(); ++ai){
+	    EXPECT_EQ(dcont[ai].str(), mTabD[ai].str());
+	}
+	h5f.close();
     }
 }
 

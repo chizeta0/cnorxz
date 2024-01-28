@@ -29,6 +29,8 @@ namespace CNORXZ
 	    Table& initTable(SizeT n, const void* data, SizeT dsize, SizeT chunk_size);
 	    Table& appendRecord(SizeT n, const void* data, SizeT dsize);
 	    Table& readRecord(SizeT pos, SizeT n, char* data);
+	    MArray<DType> read() const;
+	    
 	    const RangePtr& fields() const;
 	    const RangePtr& records() const;
 
@@ -39,8 +41,11 @@ namespace CNORXZ
 	    MArray<SizeT> mOffsets;
 	    MArray<hid_t> mTypes;
 	    hid_t mType = 0;
+	    SizeT mTypesize = 0;
 	};
 
+	// caution: the memory ordering is the only thing that counts;
+	// std::tuple has REVERSE ordering!
 	template <typename... Ts>
 	class STable : public Table
 	{
@@ -51,11 +56,11 @@ namespace CNORXZ
 		   const Arr<String,sizeof...(Ts)>& fnames);
 
 	    STable& initFields(const Arr<String,sizeof...(Ts)>& fnames);
-	    
+
 	    STable& appendRecord(const Tuple<Ts...>& t);
 	    STable& appendRecord(const MArray<Tuple<Ts...>>& t);
 
-	    MArray<Tuple<Ts...>> read();
+	    MArray<Tuple<Ts...>> read() const;
 	    
 	    template <class F>
 	    decltype(auto) iterRecords(F&& f) const;

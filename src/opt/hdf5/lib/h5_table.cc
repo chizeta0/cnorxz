@@ -21,9 +21,8 @@ namespace CNORXZ
 		}
 		Vector<SizeT> offsets(nfields);
 		Vector<SizeT> sizes(nfields);
-		SizeT typesize = 0;
 		H5TBget_field_info(mParent->id(), mName.c_str(), fieldsptr.data(), sizes.data(),
-				   offsets.data(), &typesize);
+				   offsets.data(), &mTypesize);
 		Vector<FieldID> fields(nfields);
 		for(SizeT i = 0; i != nfields; ++i){
 		    fields[i].first = i;
@@ -131,6 +130,59 @@ namespace CNORXZ
 	{
 	    CXZ_ERROR("not implemented!!!");
 	    return *this;
+	}
+
+	MArray<DType> Table::read() const
+	{
+	    Vector<char> buf(mTypesize*mRecords->size());
+	    H5TBread_table(mParent->id(), mName.c_str(), mTypesize, mOffsets.data(),
+			   mSizes.data(), buf.data());
+	    const hid_t dset_id = H5Dopen(mParent->id(), mName.c_str(), H5P_DEFAULT);
+	    const hid_t type_id = H5Dget_type(dset_id);
+	    MArray<DType> out(mRecords*mFields);
+	    CIndex fi(mFields);
+	    CIndex ri(mRecords);
+	    const char* b = nullptr;
+	    for(fi = 0; fi.lex() != mFields->size(); ++fi){
+		const SizeT off = mOffsets[fi];
+		const hid_t tp = H5Tget_member_type( type_id, fi.lex() );
+		const hid_t tc = H5Tget_class(tp);
+		const size_t ts = H5Tget_size(tp);
+		//const bool sig = H5Tget_sign(tp);
+		DType x;
+		switch(tc){
+		case H5T_INTEGER: {
+		    if(ts == 4){
+			for(ri = 0, b = buf.data(); ri.lex() != mRecords->size(); ++ri, b += mTypesize){
+			    const Int xi = *reinterpret_cast<const Int*>(b+off);
+			    out[ri*fi] = DType(xi);
+			}
+			break;
+		    }
+		    else if(ts == 8){
+ 			for(ri = 0, b = buf.data(); ri.lex() != mRecords->size(); ++ri, b += mTypesize){
+			    const LInt xi = *reinterpret_cast<const LInt*>(b+off);
+			    out[ri*fi] = DType(xi);
+			}
+			break;
+		    }
+		}
+		case H5T_FLOAT: {
+		    if(ts == 8){
+ 			for(ri = 0, b = buf.data(); ri.lex() != mRecords->size(); ++ri, b += mTypesize){
+			    const Double xi = *reinterpret_cast<const Double*>(b+off);
+			    out[ri*fi] = DType(xi);
+			}
+			break;
+		    }
+		}
+		default:
+		    CXZ_ERROR("type " << tp << " not supported");
+		}
+	    }
+	    H5Tclose(type_id);
+	    H5Dclose(dset_id);
+	    return out;
 	}
 	
 	const RangePtr& Table::fields() const
