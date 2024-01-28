@@ -14,19 +14,20 @@ namespace CNORXZ
 	{
 	    auto i = this->getIndexTo(name);
 	    auto tab = std::dynamic_pointer_cast<Table>( *i );
+	    CXZ_ASSERT(tab->type() == ContentType::TABLE,
+		       "element '" << name << "' is not of type TABLE");
 	    if(tab == nullptr){
 		auto stab = std::dynamic_pointer_cast<STable<Ts...>>(*i);
 		CXZ_ASSERT(stab != nullptr, "wrong format for table '" << name << "'");
 		return stab;
 	    }
 	    else {
-		const RangePtr fields = tab->fields();
 		(*i)->close();
-		*i = std::make_shared<STable<Ts...>>(name, this, fields);
-		return *i;
+		auto stab = std::make_shared<STable<Ts...>>(name, this);
+		*i = stab;
+		return stab;
 	    }
 	}
-
 	
 	template <typename T>
 	Group& Group::addData(const String& name, const ArrayBase<T>& data)
@@ -38,7 +39,7 @@ namespace CNORXZ
 
 	template <typename... Ts>
 	Group& Group::addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
-			       const Vector<String>& fnames)
+			       const Arr<String,sizeof...(Ts)>& fnames)
 	{
 	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
 	    Vector<String> nvec({name});

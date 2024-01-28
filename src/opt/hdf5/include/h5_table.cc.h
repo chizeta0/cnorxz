@@ -18,36 +18,13 @@ namespace CNORXZ
 	}
 
 	template <typename... Ts>
-	STable<Ts...>::STable(const String& name, const ContentBase* _parent,
-			      const Vector<String>& fnames) :
+	STable<Ts...>::STable(const String& name, const ContentBase* _parent) :
 	    Table(name, _parent)
 	{
 	    constexpr SizeT N = sizeof...(Ts);
 	    if(mFields == nullptr){
-		CXZ_ASSERT(fnames.size() != 0, "field names have to be initialized");
-		Vector<FieldID> fields(fnames.size());
-		for(SizeT i = 0; i != fields.size(); ++i){
-		    fields[i].first = i;
-		    fields[i].second = fnames[i];
-		}
-		mFields = URangeFactory<FieldID>(fields).create();
-	    }
-	    CXZ_ASSERT(mFields->size() == sizeof...(Ts), "expected tuple of size = " << mFields->size()
-		       << ", got: " << sizeof...(Ts));
 
-	    Tuple<Ts...> x;
-	    if(mRecords == nullptr) {
-		mOffsets = MArray<SizeT>( mFields, iter<0,N>
-		    ( [&](auto i) { return getTupleOffset(x, i); },
-		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
-		mSizes = MArray<SizeT>( mFields, iter<0,N>
-		    ( [&](auto i) { return sizeof(std::get<i>(x)); },
-		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
-		mTypes = MArray<hid_t>( mFields, iter<0,N>
-		    ( [&](auto i) { return getTypeId(std::get<i>(x)); },
-		      [](const auto&... e) { return Vector<hid_t>({e...}); }) );
-	    }
-	    else {
+		Tuple<Ts...> x;
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
 			    ( getTupleOffset(x, i) == mOffsets.data()[i],
 			      "wrong offset for field " << i << ": " << getTupleOffset(x, i)
@@ -61,6 +38,48 @@ namespace CNORXZ
 			      "wrong type for field " << i << ": " << getTypeId(std::get<i>(x))
 			      << " vs " << mTypes.data()[i] ); }, NoF{} );
 	    }
+	    else {
+		CXZ_ASSERT(mFields->size() == N, "expected tuple of size = " << mFields->size()
+			   << ", got: " << N);
+	    }
+	}
+
+	template <typename... Ts>
+	STable<Ts...>::STable(const String& name, const ContentBase* _parent,
+			      const Arr<String,sizeof...(Ts)>& fnames) :
+	    Table(name, _parent)
+	{
+	    initFields(fnames);
+	}
+
+	template <typename... Ts>
+	STable<Ts...>& STable<Ts...>::initFields(const Arr<String,sizeof...(Ts)>& fnames)
+	{
+	    constexpr SizeT N = sizeof...(Ts);
+	    CXZ_ASSERT(mFields == nullptr and mRecords == nullptr,
+		       "tried to initialize an existing table");
+
+	    Vector<FieldID> fields(fnames.size());
+	    for(SizeT i = 0; i != fields.size(); ++i){
+		fields[i].first = i;
+		fields[i].second = fnames[i];
+	    }
+	    mFields = URangeFactory<FieldID>(fields).create();
+
+	    Tuple<Ts...> x;
+	    mOffsets = MArray<SizeT>
+		( mFields, iter<0,N>
+		  ( [&](auto i) { return getTupleOffset(x, i); },
+		    [](const auto&... e) { return Vector<SizeT>({e...}); }) );
+	    mSizes = MArray<SizeT>
+		( mFields, iter<0,N>
+		  ( [&](auto i) { return sizeof(std::get<i>(x)); },
+		    [](const auto&... e) { return Vector<SizeT>({e...}); }) );
+	    mTypes = MArray<hid_t>
+		( mFields, iter<0,N>
+		  ( [&](auto i) { return getTypeId(std::get<i>(x)); },
+		    [](const auto&... e) { return Vector<hid_t>({e...}); }) );
+	    return *this;
 	}
 
 	template <typename... Ts>
@@ -74,6 +93,14 @@ namespace CNORXZ
 		Table::appendRecord(1, &t, sizeof(t));
 	    }
 	    return *this;
+	}
+
+	template <typename... Ts>
+	MArray<Tuple<Ts...>> STable<Ts...>::read()
+	{
+	    MArray<Tuple<Ts...>> out(mRecords);
+	    //...!!!
+	    return out;
 	}
     }
 }

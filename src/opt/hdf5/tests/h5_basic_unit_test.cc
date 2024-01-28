@@ -55,7 +55,7 @@ namespace
 	String mFileName;
 	//Vector<String> mGrps;
 
-	Vector<String> mFs;
+	Arr<String,3> mFs;
 	MArray<Tuple<SizeT,Int,Double>> mTabA; 
     };
 
@@ -142,12 +142,13 @@ namespace
 
     TEST_F(Group_Test, ReadTable)
     {
+	typedef Tuple<SizeT,Int,Double> RecType;
+	
 	File h5f(mFileName, true);
 	h5f.open();
-	auto tab = h5f.getGroup("gr1")->open().getTable("tab1");
+	auto tab = h5f.getGroup("gr1")->open().getTable("tab1", RecType());
 	EXPECT_EQ(tab->fields()->size(), 3u);
 	EXPECT_EQ(tab->records()->size(), 5u);
-
 	
     }
 }

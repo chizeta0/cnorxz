@@ -46,8 +46,12 @@ namespace CNORXZ
 	{
 	public:
 	    DEFAULT_MEMBERS(STable);
-	    STable(const String& name, const ContentBase* _parent, const Vector<String>& fnames);
+	    STable(const String& name, const ContentBase* _parent);
+	    STable(const String& name, const ContentBase* _parent,
+		   const Arr<String,sizeof...(Ts)>& fnames);
 
+	    STable& initFields(const Arr<String,sizeof...(Ts)>& fnames);
+	    
 	    STable& appendRecord(const Tuple<Ts...>& t);
 	    STable& appendRecord(const MArray<Tuple<Ts...>>& t);
 

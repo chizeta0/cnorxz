@@ -40,7 +40,7 @@ namespace CNORXZ
 
 	    template <typename... Ts>
 	    Group& addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
-			    const Vector<String>& fnames);
+			    const Arr<String,sizeof...(Ts)>& fnames);
 
 	    template <class F>
 	    decltype(auto) iter(F&& f) const;
