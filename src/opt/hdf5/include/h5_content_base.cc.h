@@ -78,9 +78,9 @@ namespace CNORXZ
 
 
 	    template <typename T>
-	    inline herr_t writeAttr(hid_t id, const String& name, const T& v, hid_t space_id)
+	    inline herr_t writeAttr(hid_t id, const String& name, const T& v)
 	    {
-		return CreateAttribute<T>::write(id, name, v, space_id);
+		return CreateAttribute<T>::write(id, name, v);
 	    }
 	}
 	

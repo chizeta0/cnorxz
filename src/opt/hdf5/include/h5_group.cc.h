@@ -71,6 +71,23 @@ namespace CNORXZ
 		recursion(c, std::forward<F>(f));
 	    });
 	}
+
+	template <class F>
+	decltype(auto) Group::iter(F&& f)
+	{
+	    RangePtr gr = *mCont.range()->sub().begin();
+	    auto gi = std::make_shared<UIndex<String>>(gr);
+	    return gi->ifor( operation(std::forward<F>(f), mCont(gi)), NoF{} );
+	}
+
+	template <class F>
+	decltype(auto) Group::iterRecursive(F&& f)
+	{
+	    return iter( [&](const auto& c) {
+		f(c);
+		recursion(c, std::forward<F>(f));
+	    });
+	}
     }
 }
 

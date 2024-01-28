@@ -50,10 +50,13 @@ namespace CNORXZ
 
 	    STable& appendRecord(const Tuple<Ts...>& t);
 	    STable& appendRecord(const MArray<Tuple<Ts...>>& t);
+
+	    MArray<Tuple<Ts...>> read();
 	    
 	    template <class F>
 	    decltype(auto) iterRecords(F&& f) const;
 	};
+
     }
 }
 

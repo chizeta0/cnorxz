@@ -80,16 +80,27 @@ namespace
 	File h5f(mFileName, false);
 	EXPECT_FALSE(h5f.ro());
 	h5f.open();
+	h5f.addAttribute("fprop", static_cast<Double>(3.141));
 	h5f.addGroup("gr1");
+	h5f.getGroup("gr1")->addAttribute("att1", String("text"));
 	h5f.addGroup("gr2");
 	h5f.addGroup("foo");
-	h5f.addGroup("moregroups");
 	h5f.addGroup("bar");
-	h5f.getGroup("moregroups")->open().addGroup("evenmore");
-	h5f.getGroup("moregroups")->getGroup("evenmore")->open().addGroup("we");
-	h5f.getGroup("moregroups")->getGroup("evenmore")->addGroup("need");
-	h5f.getGroup("moregroups")->getGroup("evenmore")->addGroup("more");
-	h5f.getGroup("moregroups")->getGroup("evenmore")->addGroup("groups");
+	h5f.addGroup("moregroups");
+	auto moregroups = h5f.getGroup("moregroups");
+	moregroups->open().addGroup("evenmore");
+	auto evenmore = moregroups->getGroup("evenmore");
+	evenmore->open();
+	evenmore->addAttribute("moreatt", static_cast<Int>(12));
+	evenmore->addGroup("we");
+	evenmore->getGroup("we")->addAttribute("wex", static_cast<Int>(9));
+	evenmore->getGroup("we")->addAttribute("xy", String("xys"));
+	evenmore->addGroup("need");
+	evenmore->getGroup("need")->addAttribute("wex", static_cast<Int>(7));
+	evenmore->addGroup("more");
+	evenmore->getGroup("more")->addAttribute("wex", static_cast<Int>(4));
+	evenmore->addGroup("groups");
+	evenmore->getGroup("groups")->addAttribute("wex", static_cast<Int>(2));
 	EXPECT_EQ(h5f.get().size(), 5u);
 	h5f.close();
     }
@@ -100,6 +111,7 @@ namespace
 	h5f.open();
 	h5f.getGroup("gr1")->open().addTable("tab1", mTabA, mFs);
 	h5f.getGroup("gr2")->open().addTable("tab1", mTabA, mFs);
+	h5f.getGroup("moregroups")->open().getGroup("evenmore")->open().getGroup("need")->open().addTable("tab1", mTabA, mFs);
 	h5f.close();
     }
     
@@ -114,12 +126,29 @@ namespace
 	auto gr1 = h5f.getGroup("gr1");
 	gr1->open();
 	auto tab = gr1->getTable("tab1");
+	DType att = gr1->getAttribute("att1");
+	EXPECT_EQ(att.str(), "text");
 	VCHECK(tab->path());
 	EXPECT_EQ(tab->fields()->size(), 3u);
 	EXPECT_EQ(tab->records()->size(), 5u);
 	h5f.iter( [](const auto& c) { VCHECK(c->path()); } )();
 	h5f.iterRecursive( [](const auto& c) { VCHECK(c->path()); } )();
+	h5f.iterRecursive( [](const auto& c) { c->open(); VCHECK(toString(c->getRecursiveAttributes())); } )();
+	h5f.iterRecursive( [](const auto& c) {
+	    if(c->type() == ContentType::TABLE) { c->open(); VCHECK(toString(c->getRecursiveAttributes())); }
+	} )();
 	h5f.close();
+    }
+
+    TEST_F(Group_Test, ReadTable)
+    {
+	File h5f(mFileName, true);
+	h5f.open();
+	auto tab = h5f.getGroup("gr1")->open().getTable("tab1");
+	EXPECT_EQ(tab->fields()->size(), 3u);
+	EXPECT_EQ(tab->records()->size(), 5u);
+
+	
     }
 }
 

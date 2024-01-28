@@ -56,9 +56,35 @@ namespace CNORXZ
 	    }
 	    case H5T_STRING: {
 		const SizeT asize = H5Tget_size(atype_id);
-		Vector<char> v(asize);
+		Vector<char> v(asize+1);
 		H5Aread(attr, atype_id, v.data());
 		o = DType( String( v.data() ) );
+		break;
+	    }
+	    case H5T_ARRAY: {
+		const int ndims = H5Tget_array_ndims(atype_id);
+		CXZ_ASSERT(ndims, "array of dimension " << ndims << " not supported");
+		hsize_t dims;
+		H5Tget_array_dims(atype_id, &dims);
+		const hid_t att_id = H5Tget_super(atype_id);
+		const H5T_class_t atc = H5Tget_class(att_id);
+		switch(atc){
+		case H5T_INTEGER: {
+		    Vector<Int> v(dims);
+		    H5Aread(attr, atype_id, v.data());
+		    o = DType(v);
+		    break;
+		}
+		case H5T_FLOAT: {
+		    Vector<Double> v(dims);
+		    H5Aread(attr, atype_id, v.data());
+		    o = DType(v);
+		    break;
+		}
+		default:
+		    CXZ_ERROR("attribute type id " << atype_id << " not supported");
+		}
+		H5Tclose(att_id);
 		break;
 	    }
 	    default:
@@ -78,12 +104,12 @@ namespace CNORXZ
 	    return ret;
 	}
 	
-	Vector<DType> ContentBase::getAttributes() const
+	std::map<String,DType> ContentBase::getAttributes() const
 	{
 	    CXZ_ASSERT(isOpen(), "tried to get attribute of closed object");
 	    struct ItData
 	    {
-		Vector<DType> d;
+		std::map<String,DType> d;
 		const ContentBase* _this;
 	    } itdata;
 	    itdata._this = this;
@@ -91,7 +117,8 @@ namespace CNORXZ
 			   const H5A_info_t* ainfo, void *op_data)
 	    {
 		ItData* x = reinterpret_cast<ItData*>(op_data);
-		x->d.push_back( x->_this->getAttribute( String(attr_name) ) );
+		const String n = attr_name;
+		x->d[n] = x->_this->getAttribute( String(attr_name) );
 		return static_cast<herr_t>(0);
 	    };
 	    H5Aiterate(id(), H5_INDEX_NAME, H5_ITER_NATIVE, nullptr,
@@ -99,12 +126,12 @@ namespace CNORXZ
 	    return itdata.d;
 	}
 	
-	Vector<DType> ContentBase::getRecursiveAttributes() const
+	std::map<String,DType> ContentBase::getRecursiveAttributes() const
 	{
-	    Vector<DType> out = getAttributes();
+	    std::map<String,DType> out = getAttributes();
 	    if(mParent){
-		Vector<DType> par = mParent->getRecursiveAttributes();
-		out.insert(out.begin(), par.begin(), par.end());
+		std::map<String,DType> par = mParent->getRecursiveAttributes();
+		out.insert(par.begin(), par.end());
 	    }
 	    return out;
 	}

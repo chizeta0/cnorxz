@@ -30,14 +30,16 @@ namespace CNORXZ
 	
 	Group& Group::open()
 	{
-	    if(this->exists()){
-		mId = H5Gopen( mParent->id(), mName.c_str(), H5P_DEFAULT );
+	    if(not isOpen()){
+		if(this->exists()){
+		    mId = H5Gopen( mParent->id(), mName.c_str(), H5P_DEFAULT );
+		}
+		else {
+		    mId = H5Gcreate( mParent->id(), mName.c_str(),
+				     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+		}
+		this->mkCont();
 	    }
-	    else {
-		mId = H5Gcreate( mParent->id(), mName.c_str(),
-				 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
-	    }
-	    this->mkCont();
 	    return *this;
 	}
 	

@@ -28,6 +28,9 @@ namespace CNORXZ
 	
 	File& File::open()
 	{
+	    if(isOpen()){
+		return *this;
+	    }
 	    Int ex = this->exists();
 	    const String fn = this->filename();
 	    CXZ_ASSERT( ex != 2, "tried to open non-h5 file '" << fn << "'" );

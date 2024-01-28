@@ -45,8 +45,8 @@ namespace CNORXZ
 	    ContentBase& addAttribute(const String& name, const T& value);
 	    DType getAttribute(const String& name) const;
 	    bool attributeExists(const String& name) const;
-	    Vector<DType> getAttributes() const;
-	    Vector<DType> getRecursiveAttributes() const; // + all parent's attributes
+	    std::map<String,DType> getAttributes() const;
+	    std::map<String,DType> getRecursiveAttributes() const; // + all parent's attributes
 	    
 	protected:
 	    String mName;

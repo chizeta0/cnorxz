@@ -47,7 +47,13 @@ namespace CNORXZ
 
 	    template <class F>
 	    decltype(auto) iterRecursive(F&& f) const;
-	    
+
+	    template <class F>
+	    decltype(auto) iter(F&& f);
+
+	    template <class F>
+	    decltype(auto) iterRecursive(F&& f);
+
 	protected:
 
 	    template <typename C, class F>
