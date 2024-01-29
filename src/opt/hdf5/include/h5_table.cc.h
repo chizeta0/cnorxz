@@ -89,7 +89,7 @@ namespace CNORXZ
 		initTable(1, &t, sizeof(t), sizeof(t));
 	    }
 	    else {
-		Table::appendRecord(1, &t, sizeof(t));
+		Table::appendRecords(1, &t);
 	    }
 	    return *this;
 	}

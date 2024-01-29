@@ -27,8 +27,9 @@ namespace CNORXZ
 
 	    Table& initFieldNames(const Vector<String>& fnames);
 	    Table& initTable(SizeT n, const void* data, SizeT dsize, SizeT chunk_size);
-	    Table& appendRecord(SizeT n, const void* data, SizeT dsize);
-	    Table& readRecord(SizeT pos, SizeT n, char* data);
+	    Table& appendRecords(SizeT n, const void* data);
+	    Table& readRecords(SizeT pos, SizeT n, char* data);
+	    MArray<DType> readRecord(SizeT pos) const;
 	    MArray<DType> read() const;
 	    
 	    const RangePtr& fields() const;
@@ -42,6 +43,9 @@ namespace CNORXZ
 	    MArray<hid_t> mTypes;
 	    hid_t mType = 0;
 	    SizeT mTypesize = 0;
+	    MArray<std::function<DType(const char*)>> mInterpret;
+
+	    void mkTypes();
 	};
 
 	// caution: the memory ordering is the only thing that counts;
