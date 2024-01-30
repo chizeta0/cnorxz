@@ -59,6 +59,7 @@ namespace CNORXZ
 	template <class F>
 	decltype(auto) Group::iter(F&& f) const
 	{
+	    CXZ_ASSERT(isOpen(), "try to iterate over closed object");
 	    RangePtr gr = *mCont.range()->sub().begin();
 	    auto gi = std::make_shared<UIndex<String>>(gr);
 	    return gi->ifor( operation(std::forward<F>(f), mCont(gi)), NoF{} );
@@ -76,6 +77,7 @@ namespace CNORXZ
 	template <class F>
 	decltype(auto) Group::iter(F&& f)
 	{
+	    CXZ_ASSERT(isOpen(), "try to iterate over closed object");
 	    RangePtr gr = *mCont.range()->sub().begin();
 	    auto gi = std::make_shared<UIndex<String>>(gr);
 	    return gi->ifor( operation(std::forward<F>(f), mCont(gi)), NoF{} );

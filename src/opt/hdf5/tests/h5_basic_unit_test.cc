@@ -174,6 +174,59 @@ namespace
 	}
 	h5f.close();
     }
+
+    TEST_F(Group_Test, Read2)
+    {
+	File h5f(mFileName, true);
+	h5f.open();
+	Vector<String> paths;
+	Vector<String> attrs;
+
+	auto checkatt = [](const std::map<String,DType>& m,
+			   const std::map<String,DType>& cs) {
+	    for(const auto& c: cs){
+		if(m.count(c.first)){
+		    if(m.at(c.first).str() != c.second.str()){
+			return false;
+		    }
+		}
+		else {
+		    return false;
+		}
+	    }
+	    return true;
+	};
+	std::map<String,DType> constr;
+	constr["wex"] = DType(Vector<Int>{7});
+	constr["second"] = DType(static_cast<Int>(-777));
+	h5f.iterRecursive( [&](const auto& c) {
+	    if(c->type() == ContentType::TABLE) {
+		c->open();
+		auto av = c->getRecursiveAttributes();
+		auto cx = std::dynamic_pointer_cast<Table>(c);
+		SizeT cnt = 0;
+		cx->iterRecords( [&](const MArray<DType>& r) {
+		    auto ax = av;
+		    auto fi = UIndex<std::pair<SizeT,String>>(r.range()->sub(0));
+		    for(; fi.lex() != fi.lmax().val(); ++fi) { ax[fi.meta().second] = r[fi]; }
+		    attrs.push_back(toString(ax));
+		    if(checkatt(ax,constr)){
+			paths.push_back(c->path()+"/@"+toString(cnt));
+		    }
+		    ++cnt;
+		} )();
+	    }
+	} )();
+	for(const auto& x: attrs){
+	    VCHECK(x);
+	}
+	for(const auto& p: paths){
+	    VCHECK(p);
+	}
+	EXPECT_EQ(paths.size(), 1u);
+	EXPECT_EQ(paths[0], "/moregroups/evenmore/need/tab1/@3");
+	h5f.close();
+    }
 }
 
 // check write to new file

@@ -9,6 +9,16 @@ namespace CNORXZ
 {
     namespace hdf5
     {
+	template <class F>
+	decltype(auto) Table::iterRecords(F&& f) const
+	{
+	    auto ri = std::make_shared<CIndex>(mRecords);
+	    return ri->ifor
+		( operation( std::forward<F>(f),
+			     operation( [&](const SizeT pos) { return readRecord(pos); } ,
+					xpr(ri) ) ), NoF{} );
+	}
+
 	template <typename... Ts>
 	template <class F>
 	decltype(auto) STable<Ts...>::iterRecords(F&& f) const

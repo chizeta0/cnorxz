@@ -31,6 +31,9 @@ namespace CNORXZ
 	    Table& readRecords(SizeT pos, SizeT n, char* data);
 	    MArray<DType> readRecord(SizeT pos) const;
 	    MArray<DType> read() const;
+
+	    template <class F>
+	    decltype(auto) iterRecords(F&& f) const;
 	    
 	    const RangePtr& fields() const;
 	    const RangePtr& records() const;
