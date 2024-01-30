@@ -4,6 +4,7 @@ set(libcnorxzhdf5_a_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/h5_file.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/h5_group.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/h5_table.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/h5_dataset.cc
   )
 
 add_library(cnorxzhdf5_obj OBJECT
