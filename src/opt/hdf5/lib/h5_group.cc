@@ -75,7 +75,16 @@ namespace CNORXZ
 
 	const ContentPtr& Group::get(const String& name) const
 	{
-	    auto i = this->getIndexTo(name);
+	    const String delim = "/";
+	    const SizeT delimpos = name.find(delim);
+	    const String thisname = name.substr(0, delimpos);
+	    if(delimpos != String::npos and delimpos+1 < name.size()){
+		const String next = name.substr(delimpos+1);
+		auto g = getGroup(thisname);
+		g->open();
+		return g->get(next);
+	    }
+	    auto i = this->getIndexTo(thisname);
 	    return *i;
 	}
 

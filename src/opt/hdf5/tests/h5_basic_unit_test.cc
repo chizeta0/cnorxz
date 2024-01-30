@@ -139,6 +139,12 @@ namespace
 	VCHECK(tab->path());
 	EXPECT_EQ(tab->fields()->size(), 3u);
 	EXPECT_EQ(tab->records()->size(), 5u);
+
+	EXPECT_THROW(h5f.getTable("moregroups/evenmore/need/tab1/a"), std::runtime_error);
+	auto tab2 = h5f.getTable("moregroups/evenmore/need/tab1/");
+	EXPECT_EQ(tab2->fields()->size(), 3u);
+	EXPECT_EQ(tab2->records()->size(), 5u);
+	
 	h5f.iter( [](const auto& c) { VCHECK(c->path()); } )();
 	h5f.iterRecursive( [](const auto& c) { VCHECK(c->path()); } )();
 	h5f.iterRecursive( [](const auto& c) { c->open(); VCHECK(toString(c->getRecursiveAttributes())); } )();
