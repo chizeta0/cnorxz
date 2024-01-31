@@ -26,7 +26,10 @@ namespace CNORXZ
 	    bool exists() const;
 
 	    Dataset& init(const RangePtr& dataRange, hid_t type);
-	    
+
+	    template <typename T>
+	    Dataset& init(const ArrayBase<T>& data);
+
 	    const RangePtr& dataRange() const;
 	    
 	protected:

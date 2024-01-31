@@ -81,11 +81,16 @@ namespace CNORXZ
 
 	Dataset& Dataset::init(const RangePtr& dataRange, hid_t type)
 	{
-	    // check if type is valid type!!!
+	    CXZ_ASSERT(not open(), "tried to initialize dataset that is already extisting");
+	    const H5T_class_t tc = H5Tget_class(type);
+	    CXZ_ASSERT(tc != H5T_NO_CLASS, "id does not correspond to a data type"); // (did not found anythng better to check if type id is valid)...
 	    const hid_t dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
 	    // TODO: all sub-ranges explicity!!!:
 	    const SizeT ndim = dataRange->dim();
 	    Vector<hsize_t> exts(ndim);
+	    for(SizeT i = 0; i != ndim; ++i){
+		exts[i] = static_cast<hsize_t>( dataRange->sub(i)->size() );
+	    }
 	    mFilespace = H5Screate_simple(ndim, exts.data(), NULL);
 	    mType = type;
 	    mId = H5Dcreate(mParent->id(), mName.c_str(), mType, mFilespace,
