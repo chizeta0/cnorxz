@@ -28,19 +28,23 @@ namespace CNORXZ
 	    const ContentPtr& get(const String& name) const;
 	    Sptr<Group> getGroup(const String& name) const;
 	    Sptr<Table> getTable(const String& name) const;
+	    Sptr<Dataset> getDataset(const String& name) const;
 
 	    template <typename... Ts>
 	    Sptr<STable<Ts...>> getTable(const String& name, Tuple<Ts...> proto);
-	    
-	    const MArray<ContentPtr>& get() const;
-	    Group& addGroup(const String& name);
 
 	    template <typename T>
-	    Group& addData(const String& name, const ArrayBase<T>& data);
+	    Sptr<SDataset<T>> getDataset(const String& name, T proto);
+
+	    const MArray<ContentPtr>& get() const;
+	    Group& addGroup(const String& name);
 
 	    template <typename... Ts>
 	    Group& addTable(const String& name, const ArrayBase<Tuple<Ts...>>& data,
 			    const Arr<String,sizeof...(Ts)>& fnames);
+
+	    template <typename T>
+	    Group& addDataset(const String& name, const ArrayBase<T>& data);
 
 	    template <class F>
 	    decltype(auto) iter(F&& f) const;

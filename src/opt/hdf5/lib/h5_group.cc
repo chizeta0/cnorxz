@@ -1,6 +1,7 @@
 
 #include "h5_group.h"
 #include "h5_table.h"
+#include "h5_dataset.h"
 
 namespace CNORXZ
 {
@@ -104,6 +105,14 @@ namespace CNORXZ
 	    return std::dynamic_pointer_cast<Table>( table );
 	}
 
+	Sptr<Dataset> Group::getDataset(const String& name) const
+	{
+	    auto dset = this->get(name);
+	    CXZ_ASSERT(dset->type() == ContentType::DSET,
+		       "element '" << name << "' is not of type DSET");
+	    return std::dynamic_pointer_cast<Dataset>( dset );
+	}
+
 	const MArray<ContentPtr>& Group::get() const
 	{
 	    CXZ_ASSERT(this->isOpen(), "tried to get content of closed group");
@@ -186,8 +195,7 @@ namespace CNORXZ
 		    *index = std::make_shared<Table>(sname, icd->parent);
 		}
 		else {
-		    CXZ_ERROR("IMPLEMENT!!!");
-		    //*index = std::make_shared<DSet>(sname, icd->parent);
+		    *index = std::make_shared<Dataset>(sname, icd->parent);
 		}
 		break;
 	    }

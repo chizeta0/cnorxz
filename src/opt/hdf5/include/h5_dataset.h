@@ -47,6 +47,14 @@ namespace CNORXZ
 	    SDataset(const String& name, const ContentBase* _parent);
 
 	    MArray<T> read() const;
+
+	    template <class I, typename M>
+	    MArray<T> read(const IndexInterface<I,M>& beg, const IndexInterface<I,M>& end) const;
+
+	private:
+
+	    template <class I, typename M>
+	    Vector<hsize_t> mkFPos(const IndexInterface<I,M>& beg) const;
 	};
     }
 }

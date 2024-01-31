@@ -21,7 +21,14 @@ namespace CNORXZ
 	// definition -> h5_table.h
 	template <typename... Ts>
 	class STable;
-	
+
+	// definition -> h5_dataset.h
+	class Dataset;
+
+	// definition -> h5_dataset.h
+	template <typename T>
+	class SDataset;
+
     }
 }
 

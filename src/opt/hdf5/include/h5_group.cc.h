@@ -13,9 +13,9 @@ namespace CNORXZ
 	Sptr<STable<Ts...>> Group::getTable(const String& name, Tuple<Ts...> proto)
 	{
 	    auto i = this->getIndexTo(name);
-	    auto tab = std::dynamic_pointer_cast<Table>( *i );
-	    CXZ_ASSERT(tab->type() == ContentType::TABLE,
+	    CXZ_ASSERT((*i)->type() == ContentType::TABLE,
 		       "element '" << name << "' is not of type TABLE");
+	    auto tab = std::dynamic_pointer_cast<Table>( *i );
 	    if(tab == nullptr){
 		auto stab = std::dynamic_pointer_cast<STable<Ts...>>(*i);
 		CXZ_ASSERT(stab != nullptr, "wrong format for table '" << name << "'");
@@ -28,12 +28,37 @@ namespace CNORXZ
 		return stab;
 	    }
 	}
-	
+
 	template <typename T>
-	Group& Group::addData(const String& name, const ArrayBase<T>& data)
+	Sptr<SDataset<T>> Group::getDataset(const String& name, T proto)
+	{
+	    auto i = this->getIndexTo(name);
+	    CXZ_ASSERT((*i)->type() == ContentType::DSET,
+		       "element '" << name << "' is not of type DSET");
+	    auto dset = std::dynamic_pointer_cast<Dataset>( *i );
+	    if(dset == nullptr){
+		auto sdset = std::dynamic_pointer_cast<SDataset<T>>(*i);
+		CXZ_ASSERT(sdset != nullptr, "wrong format for dataset '" << name << "'");
+		return sdset;
+	    }
+	    else {
+		(*i)->close();
+		auto sdset = std::make_shared<SDataset<T>>(name, this);
+		*i = sdset;
+		return sdset;
+	    }
+	}
+
+	template <typename T>
+	Group& Group::addDataset(const String& name, const ArrayBase<T>& data)
 	{
 	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
-	    CXZ_ERROR("not implemented!!!");
+	    Vector<String> nvec({name});
+	    mCont.extend( URangeFactory<String>( nvec ).create() );
+	    auto ii = getIndexTo(name);
+	    auto dset = std::make_shared<SDataset<T>>(name, this);
+	    dset->init(data);
+	    *ii = dset;
 	    return *this;
 	}
 
@@ -43,11 +68,8 @@ namespace CNORXZ
 	{
 	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
 	    Vector<String> nvec({name});
-	    Vector<DType> dvec({DType(name)});
-	    auto extr = URangeFactory<String>( nvec ).create();
-	    mCont.extend(extr);
-	    auto ii = mCont.begin();
-	    ii.at(dvec); // 'at' returns YIndex&, so cannot use it inline...
+	    mCont.extend( URangeFactory<String>( nvec ).create() );
+	    auto ii = getIndexTo(name);
 	    auto tab = std::make_shared<STable<Ts...>>(name, this, fnames);
 	    for(auto& d: data){
 		tab->appendRecord(d);

@@ -44,10 +44,6 @@ namespace CNORXZ
 		    rs[i] = CRangeFactory(dims[i]).create();
 		}
 		mDataRange = yrange(rs);
-
-		// use when reading!!!:
-		//hid_t mem_space_id = H5Screate_simple(static_cast<hsize_t>(ndims), dims.data(), nullptr);
-		//hid_t xfer_plist_id = H5Pcreate(H5P_DATASET_XFER);
 	    }
 	    return *this;
 	}
@@ -55,7 +51,6 @@ namespace CNORXZ
 	Dataset& Dataset::close()
 	{
 	    if(mId != 0){
-		//!!!
 		H5Sclose(mFilespace);
 		H5Tclose(mType);
 		H5Dclose(mId);
@@ -81,7 +76,7 @@ namespace CNORXZ
 
 	Dataset& Dataset::init(const RangePtr& dataRange, hid_t type)
 	{
-	    CXZ_ASSERT(not open(), "tried to initialize dataset that is already extisting");
+	    CXZ_ASSERT(not isOpen(), "tried to initialize dataset that is already extisting");
 	    const H5T_class_t tc = H5Tget_class(type);
 	    CXZ_ASSERT(tc != H5T_NO_CLASS, "id does not correspond to a data type"); // (did not found anythng better to check if type id is valid)...
 	    const hid_t dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
