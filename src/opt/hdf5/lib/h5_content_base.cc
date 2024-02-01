@@ -1,3 +1,15 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/lib/h5_content_base.cc
+   @brief Content base member function implementation.
+
+   Implementation of all non-virtual member functions of ContentBase.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #include "h5_content_base.h"
 
@@ -19,14 +31,14 @@ namespace CNORXZ
 	    return mParent;
 	}
 
-	RangePtr ContentBase::range() const
-	{
-	    return mRange;
-	}
-
 	hid_t ContentBase::id() const
 	{
 	    return mId;
+	}
+
+	bool isOpen() const
+	{
+	    return mId != 0;
 	}
 
 	DType ContentBase::getAttribute(const String& name) const

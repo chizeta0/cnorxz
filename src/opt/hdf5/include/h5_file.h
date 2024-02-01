@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/include/h5_file.h
+   @brief Group declaration.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_h5_file_h__
 #define __cxz_h5_file_h__
@@ -10,14 +20,25 @@ namespace CNORXZ
 {
     namespace hdf5
     {
-	// maybe introduce abstraction layer between as base for File and Group
+	/** ****
+	    Class to handle hdf5 file objects.
+	    Objects of this type usually serve as root object
+	    so they don't have any parent.
+	 */
 	class File : public Group
 	{
 	public:
 	    typedef URange<String> RangeT;
 	    
-	    DEFAULT_MEMBERS(File);
+	    DEFAULT_MEMBERS(File); /**< Default constructors and assignments. */
+
+	    /** Construct the class.
+		@param _name Path to the hdf5 file to be handled.
+		@param _ro Open in read-only mode if true, otherwise have write access.
+	     */
 	    File(const String& fname, bool _ro = true);
+
+	    /** Destructor. Release all involved hdf5 ids. */
 	    ~File();
 
 	    virtual ContentType type() const override final;
