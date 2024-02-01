@@ -5,7 +5,7 @@
    @brief ...
 
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -38,6 +38,12 @@ namespace CNORXZ
 	else {
 	    return DXpr<R>( bufxpr([&](auto x){ return mI->ifor( DXpr<None>( assignxpr(x, xpr) ), NoF {} ); }) );
 	}
+    }
+
+    template <class I>
+    decltype(auto) operator*(const Sptr<DIndex>& a, const Sptr<I>& b)
+    {
+	return iptrMul(a, b);
     }
 
     template <class I>

@@ -77,6 +77,7 @@ namespace CNORXZ
 	Dataset& Dataset::init(const RangePtr& dataRange, hid_t type)
 	{
 	    CXZ_ASSERT(not isOpen(), "tried to initialize dataset that is already extisting");
+	    mDataRange = dataRange;
 	    const H5T_class_t tc = H5Tget_class(type);
 	    CXZ_ASSERT(tc != H5T_NO_CLASS, "id does not correspond to a data type"); // (did not found anythng better to check if type id is valid)...
 	    const hid_t dcpl_id = H5Pcreate(H5P_DATASET_CREATE);

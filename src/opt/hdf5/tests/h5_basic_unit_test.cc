@@ -7,11 +7,13 @@
 #include "gtest/gtest.h"
 
 #include "cnorxz_hdf5.h"
+#include "test_numbers.h"
 
 namespace
 {
     using namespace CNORXZ;
     using namespace CNORXZ::hdf5;
+    using Test::Numbers;
 
     static const String testh5file = "test_file.h5";
     
@@ -58,6 +60,16 @@ namespace
 		iter<0,3>( [&](auto jj)
 		{ j = jj; mTabD[i*j] = DType(tget<jj>(v[i.lex()])); }, NoF{} );
 	    }
+
+	    const SizeT ddim = 5;
+	    Vector<RangePtr> dranges(ddim);
+	    dranges[0] = CRangeFactory(7).create();
+	    dranges[1] = CRangeFactory(3).create();
+	    dranges[2] = CRangeFactory(13).create();
+	    dranges[3] = CRangeFactory(5).create();
+	    dranges[4] = CRangeFactory(2).create();
+	    const RangePtr drange = yrange(dranges);
+	    mData = MArray<Double>( drange, Numbers::get(0,drange->size()) );
 	}
 
 	String mFileName;
@@ -65,6 +77,7 @@ namespace
 	Arr<String,3> mFs;
 	MArray<Tuple<Double,Int,SizeT>> mTabA;
 	MArray<DType> mTabD;
+	MArray<Double> mData;
     };
 
     
@@ -118,8 +131,16 @@ namespace
 	File h5f(mFileName, false);
 	h5f.open();
 	h5f.getGroup("gr1")->open().addTable("tab1", mTabA, mFs);
-	h5f.getGroup("gr2")->open().addTable("tab1", mTabA, mFs);
+	//h5f.getGroup("gr2")->open().addTable("tab1", mTabA, mFs);
 	h5f.getGroup("moregroups")->open().getGroup("evenmore")->open().getGroup("need")->open().addTable("tab1", mTabA, mFs);
+	h5f.close();
+    }
+
+    TEST_F(Group_Test, CreateDataset)
+    {
+	File h5f(mFileName, false);
+	h5f.open();
+	h5f.getGroup("gr2")->open().addDataset("dat1", mData);
 	h5f.close();
     }
     
@@ -181,6 +202,42 @@ namespace
 	h5f.close();
     }
 
+    TEST_F(Group_Test, ReadDataset)
+    {
+	File h5f(mFileName, true);
+	h5f.open();
+	auto dset = h5f.getGroup("gr2")->open().getDataset("dat1", Double{});
+	auto data = dset->read();
+	EXPECT_EQ(data.range()->dim(), 5u);
+	for(SizeT i = 0; i != 5u; ++i){
+	    EXPECT_EQ( data.range()->sub(i)->size(), mData.range()->sub(i)->size() );
+	}
+	auto i = std::make_shared<CIndex>(data.range());
+	i->ifor( operation( [](Double a, Double b) { EXPECT_EQ(a,b); }, data(i), mData(i) ), NoF{} )();
+	h5f.close();
+    }
+    
+    TEST_F(Group_Test, ReadDatasetPart)
+    {
+	File h5f(mFileName, true);
+	h5f.open();
+	auto dset = h5f.getGroup("gr2")->open().getDataset("dat1", Double{});
+	YIndex beg(dset->dataRange());
+	beg.setSub(0,2);
+	YIndex end = beg - 1;
+	end.setSub(0,2);
+	auto data = dset->read(beg,end);
+	EXPECT_EQ( data.range()->dim(), 5u );
+	EXPECT_EQ( data.range()->sub(0)->size(), 1u );
+	for(SizeT i = 1; i != 5u; ++i){
+	    EXPECT_EQ( data.range()->sub(i)->size(), mData.range()->sub(i)->size() );
+	}
+	auto i = std::make_shared<CIndex>(data.range());
+	auto j = std::make_shared<DIndex>( beg.pack().get(0) );
+	i->ifor( operation( [](Double a, Double b) { EXPECT_EQ(a,b); }, data(i), mData(j*i) ), NoF{} )();
+	h5f.close();
+    }
+    
     TEST_F(Group_Test, Read2)
     {
 	File h5f(mFileName, true);

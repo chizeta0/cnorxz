@@ -12,6 +12,7 @@ namespace CNORXZ
 	Dataset& Dataset::init(const ArrayBase<T>& data)
 	{
 	    const hid_t tid = getTypeId(*data.data());
+	    VCHECK(tid);
 	    init(data.range(), tid);
 	    if(data.begin().formatIsTrivial()){
 		Vector<hsize_t> dims(mDataRange->dim());
@@ -83,11 +84,11 @@ namespace CNORXZ
 	{
 	    Vector<hsize_t> fpos(beg.dim());
 	    if constexpr(has_static_sub<I>::value){
-		iter<0,index_dim<I>::value> ( [&](auto i) { fpos[i] = beg.pack().get(i).lex(); }, NoF{} );
+		iter<0,index_dim<I>::value> ( [&](auto i) { fpos[i] = beg.THIS().pack().get(i)->lex(); }, NoF{} );
 	    }
 	    else if constexpr(has_sub<I>::value){
 		for(SizeT i = 0; i != beg.dim(); ++i){
-		    fpos[i] = beg.pack().get(i).lex();
+		    fpos[i] = beg.THIS().pack().get(i)->lex();
 		}
 	    }
 	    else {

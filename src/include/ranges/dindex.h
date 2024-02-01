@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/dindex.h
-   @brief ...
+   @brief DIndex declaration
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -153,6 +152,13 @@ namespace CNORXZ
     private:
 	XIndexPtr mI;
     };
+
+    /** Make index pack of a DIndex and another index.
+	@param a pointer to DIndex.
+	@param b pointer to another index.
+     */
+    template <class I>
+    decltype(auto) operator*(const Sptr<DIndex>& a, const Sptr<I>& b);
 
     /** Trait-specialization:
 	DIndex can have sub-indices

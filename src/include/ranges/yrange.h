@@ -186,6 +186,12 @@ namespace CNORXZ
 	 */
 	YIndex& setFormat(const YFormat& bs);
 
+	/** Set position of given sub index and update total index position.
+	    @param ind Sub-index number [0,dim()-1].
+	    @param lex Lexicographic position to be assigned to the index.
+	 */
+	YIndex& setSub(SizeT ind, SizeT lex);
+	
     private:
 	inline Vector<SizeT> mkFormat() const;
 	inline Vector<SizeT> mkLexFormat() const;

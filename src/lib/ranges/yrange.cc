@@ -494,6 +494,19 @@ namespace CNORXZ
 	return *this;
     }
 
+    YIndex& YIndex::setSub(SizeT ind, SizeT lex)
+    {
+	CXZ_ASSERT(ind < dim(), "got index number (" << ind << ") larger than dimension ("
+		   << dim() << ")");
+	auto& idx = mIs[ind];
+	CXZ_ASSERT(lex < idx->lmax().val(), "tried to set sub-index position " << lex
+		   << ", which is out of scope; maximum position in range is " << idx->lmax().val() );
+	(*idx) = lex;
+	(*this)();
+	return *this;
+    }
+
+
     /****************************
      *   non-member functions   *
      ****************************/

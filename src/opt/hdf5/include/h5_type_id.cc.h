@@ -48,17 +48,17 @@ namespace CNORXZ
 	
 	inline hid_t TypeId<SizeT>::get()
 	{
-	    return H5T_NATIVE_ULONG;
+	    return H5Tcopy( H5T_NATIVE_ULONG );
 	}
 
 	inline hid_t TypeId<Int>::get()
 	{
-	    return H5T_NATIVE_INT;
+	    return H5Tcopy( H5T_NATIVE_INT );
 	}
 
 	inline hid_t TypeId<Double>::get()
 	{
-	    return H5T_NATIVE_DOUBLE;
+	    return H5Tcopy( H5T_NATIVE_DOUBLE );
 	}
 
 	template <typename T, SizeT N>
