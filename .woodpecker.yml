@@ -7,7 +7,7 @@ steps:
             - source /opt/rh/gcc-toolset-9/enable
             - mkdir build-gcc
             - cd build-gcc
-            - cmake3 -DRUN_PIPELINE=on -DSCALAR_BUILD=on ..
+            - cmake3 -DSCALAR_BUILD=on ..
             - make -j2
             - make test
             - cd ..

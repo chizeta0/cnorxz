@@ -98,6 +98,20 @@ namespace CNORXZ
     };
 
     /** ***
+	Specialization of ToString for maps
+	@tparam T key type
+	@tparam S value type
+     */
+    template <typename T, typename S>
+    struct ToString<std::map<T,S>>
+    {
+	/** cast to string
+	    @param a map to be casted
+	 */
+	static String func(const std::map<T,S>& t);
+    };
+
+    /** ***
 	Specialization of ToString for DType
      */
     template <>

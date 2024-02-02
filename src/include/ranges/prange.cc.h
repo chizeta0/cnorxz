@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/prange.cc.h
-   @brief ...
+   @brief PRange, PRangeFactory and PIndex implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -18,9 +17,9 @@
 
 namespace CNORXZ
 {
-    /**************
-     *   PIndex   *
-     **************/
+    /*============+
+     |   PIndex   |
+     +============*/
     
     template <class IndexT>
     PIndex<IndexT>::PIndex(const RangePtr& range, SizeT pos) :
@@ -206,9 +205,7 @@ namespace CNORXZ
     template <class IndexT>
     decltype(auto) PIndex<IndexT>::xpr(const Sptr<PIndex<IndexT>>& _this) const
     {
-	CXZ_ERROR("implement!!!");
-	//return poperation( _this, mOrig, mRangePtr->parts(), mOrig->xpr(mOrig) );
-	return mOrig->xpr(mOrig);
+	return poproot( _this, mRangePtr->parts(), mOrig->xpr(mOrig) );
     }
 
     template <class IndexT>
@@ -246,9 +243,9 @@ namespace CNORXZ
 	return mOrig;
     }
 
-    /************************
-     *   PIndex (private)   *
-     ************************/
+    /*======================+
+     |   PIndex (private)   |
+     +======================*/
 
     template <class IndexT>
     void PIndex<IndexT>::mkPos()
@@ -264,9 +261,9 @@ namespace CNORXZ
 	CXZ_ERROR("meta position '" << toString(mOrig->meta()) << "' not part of range");
     }
 
-    /***************************
-     *   PIndex (non-member)   *
-     ***************************/
+    /*=========================+
+     |   PIndex (non-member)   |
+     +=========================*/
 
     template <class I, class I1>
     decltype(auto) operator*(const Sptr<PIndex<I>>& a, const Sptr<I1>& b)
@@ -274,9 +271,9 @@ namespace CNORXZ
 	return iptrMul(a, b);
     }
 
-    /*********************
-     *   PRangeFactory   *
-     *********************/
+    /*===================+
+     |   PRangeFactory   |
+     +===================*/
 
     template <class RangeT>
     PRangeFactory<RangeT>::PRangeFactory(const Sptr<RangeT>& range, const Vector<SizeT>& _parts) :
@@ -301,9 +298,9 @@ namespace CNORXZ
 	}
     }
 
-    /**************
-     *   PRange   *
-     **************/
+    /*============+
+     |   PRange   |
+     +============*/
 
     template <class RangeT>
     SizeT PRange<RangeT>::size() const
@@ -338,10 +335,19 @@ namespace CNORXZ
     template <class RangeT>
     RangePtr PRange<RangeT>::extend(const RangePtr& r) const
     {
-	CXZ_ERROR("implement!!!");
-	// if r is PRange of same Range, then just add parts
-	// else derive and add meta of r
-	return nullptr;
+	if(r->type() == type()){
+	    Sptr<PRange<RangeT>> rx = std::dynamic_pointer_cast<PRange<RangeT>>(r);
+	    if(rx->orig() == orig()){
+		Vector<SizeT> p(parts());
+		for(auto i: rx->parts()){
+		    if(find(p.begin(), p.end(), i) != p.end()){
+			p.push_back(i);
+		    }
+		}
+		return prange(orig(), p);
+	    }
+	}
+	return derive()->extend(r);
     }
 
     template <class RangeT>
@@ -361,16 +367,17 @@ namespace CNORXZ
     {
 	Vector<MetaType> meta(this->size());
 	auto i = mRange->begin();
+	SizeT j = 0;
 	for(const auto& p: mParts){
-	    meta = *(i = p);
+	    meta[j++] = *(i = p);
 	}
 	return URangeFactory<MetaType>( meta ).create();
     }
 
     
-    /************************
-     *   PRange (private)   *
-     ************************/
+    /*======================+
+     |   PRange (private)   |
+     +======================*/
 
     template <class RangeT>
     PRange<RangeT>::PRange(const Sptr<RangeT>& range, const Vector<SizeT>& _parts) :
@@ -386,9 +393,9 @@ namespace CNORXZ
 	return Vector<Uuid> { mRange->id() };
     }
 
-    /****************************
-     *   non-member functions   *
-     ****************************/
+    /*==========================+
+     |   non-member functions   |
+     +==========================*/
 
     template <class RangeT>
     RangePtr prange(const Sptr<RangeT>& range, const Vector<SizeT>& parts)

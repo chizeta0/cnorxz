@@ -33,11 +33,16 @@ namespace CNORXZ
     {
 	std::stringstream ss;
 	ss << "[";
-	auto it = a.begin();
-	for(; it != a.end()-1; ++it){
-	    ss << toString(*it) << ",";
+	if(a.size() == 0){
+	    ss << "]";
 	}
-	ss << toString(*it) << "]";
+	else {
+	    auto it = a.begin();
+	    for(; it != a.end()-1; ++it){
+		ss << toString(*it) << ",";
+	    }
+	    ss << toString(*it) << "]";
+	}
 	return ss.str();
     }
 
@@ -46,11 +51,16 @@ namespace CNORXZ
     {
 	std::stringstream ss;
 	ss << "(";
-	auto it = a.begin();
-	for(; it != a.end()-1; ++it){
-	    ss << toString(*it) << ",";
+	if constexpr(N == 0){
+	    ss << ")";
 	}
-	ss << toString(*it) << ")";
+	else {
+	    auto it = a.begin();
+	    for(; it != a.end()-1; ++it){
+		ss << toString(*it) << ",";
+	    }
+	    ss << toString(*it) << ")";
+	}
 	return ss.str();
     }
 
@@ -71,6 +81,26 @@ namespace CNORXZ
     String ToString<std::pair<T,S>>::func(const std::pair<T,S>& p)
     {
 	return String("(") + toString(p.first) + "," + toString(p.second) + ")";
+    }
+
+    template <typename T, typename S>
+    String ToString<std::map<T,S>>::func(const std::map<T,S>& p)
+    {
+	std::stringstream ss;
+	ss << "{";
+	if(p.size() == 0){
+	    ss << "}";
+	}
+	else {
+	    auto it = p.begin();
+	    auto e = p.end();
+	    e--;
+	    for(; it != e; ++it){
+		ss << toString(it->first) << ":" << toString(it->second) << ",";
+	    }
+	    ss << toString(it->first) << ":" << toString(it->second) << "}";
+	}
+	return ss.str();
     }
 
     template <typename T>

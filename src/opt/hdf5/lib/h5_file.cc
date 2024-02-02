@@ -28,9 +28,12 @@ namespace CNORXZ
 	
 	File& File::open()
 	{
+	    if(isOpen()){
+		return *this;
+	    }
 	    Int ex = this->exists();
 	    const String fn = this->filename();
-	    CXZ_ASSERT( ex != 2, "tried to open non-h5 file '" << fn << "'" );
+	    CXZ_ASSERT( ishdf5(), "tried to open non-h5 file '" << fn << "'" );
 	    if(mRo){
 		CXZ_ASSERT( ex == 1, "could not open file as read-only: '"
 			    << fn << "' does not exist'");
@@ -67,7 +70,7 @@ namespace CNORXZ
 	
 	String File::path() const
 	{
-	    return String("/");
+	    return "";
 	}
 	
 	String File::filename() const
@@ -75,21 +78,25 @@ namespace CNORXZ
 	    return name();
 	}
 
-	Int File::exists() const
+	bool File::exists() const
 	{
-	    Int ex = 0;
+	    bool ex = false;
 	    std::ifstream fs(this->filename().c_str(), std::ios_base::binary);
 	    if(fs.good()){
-		ex = 1; // file exists
+		ex = true; // file exists
 	    }
 	    fs.close();
-	    if(ex != 0){
-		if(H5Fis_hdf5(this->filename().c_str()) <= 0){
-		    ex = 2; // file not in h5 format
-		}
-	    }
 	    return ex;
 	}
-	
+
+	bool File::ishdf5() const
+	{
+	    if(exists()){
+		if(H5Fis_hdf5(this->filename().c_str()) <= 0){
+		    return false;
+		}
+	    }
+	    return true; // a non-existing file can be created in hdf5 format
+	}
     }
 }

@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/include/h5_table.cc.h
+   @brief Implementation of template member functions of Table and STable.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_h5_table_cc_h__
 #define __cxz_h5_table_cc_h__
@@ -9,6 +19,16 @@ namespace CNORXZ
 {
     namespace hdf5
     {
+	template <class F>
+	decltype(auto) Table::iterRecords(F&& f) const
+	{
+	    auto ri = std::make_shared<CIndex>(mRecords);
+	    return ri->ifor
+		( operation( std::forward<F>(f),
+			     operation( [&](const SizeT pos) { return readRecord(pos); } ,
+					xpr(ri) ) ), NoF{} );
+	}
+
 	template <typename... Ts>
 	template <class F>
 	decltype(auto) STable<Ts...>::iterRecords(F&& f) const
@@ -18,49 +38,67 @@ namespace CNORXZ
 	}
 
 	template <typename... Ts>
-	STable<Ts...>::STable(const String& name, const ContentBase* _parent,
-			      const Vector<String>& fnames) :
+	STable<Ts...>::STable(const String& name, const ContentBase* _parent) :
 	    Table(name, _parent)
 	{
 	    constexpr SizeT N = sizeof...(Ts);
-	    if(mFields == nullptr){
-		CXZ_ASSERT(fnames.size() != 0, "field names have to be initialized");
-		Vector<FieldID> fields(fnames.size());
-		for(SizeT i = 0; i != fields.size(); ++i){
-		    fields[i].first = i;
-		    fields[i].second = fnames[i];
-		}
-		mFields = URangeFactory<FieldID>(fields).create();
-	    }
-	    CXZ_ASSERT(mFields->size() == sizeof...(Ts), "expected tuple of size = " << mFields->size()
-		       << ", got: " << sizeof...(Ts));
+	    if(mFields != nullptr){
 
-	    Tuple<Ts...> x;
-	    if(mRecords == nullptr) {
-		mOffsets = MArray<SizeT>( mFields, iter<0,N>
-		    ( [&](auto i) { return getTupleOffset(x, i); },
-		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
-		mSizes = MArray<SizeT>( mFields, iter<0,N>
-		    ( [&](auto i) { return sizeof(std::get<i>(x)); },
-		      [](const auto&... e) { return Vector<SizeT>({e...}); }) );
-		mTypes = MArray<hid_t>( mFields, iter<0,N>
-		    ( [&](auto i) { return getTypeId(std::get<i>(x)); },
-		      [](const auto&... e) { return Vector<hid_t>({e...}); }) );
-	    }
-	    else {
+		CXZ_ASSERT(mFields->size() == N, "expected tuple of size = " << mFields->size()
+			   << ", got: " << N);
+		Tuple<Ts...> x;
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
 			    ( getTupleOffset(x, i) == mOffsets.data()[i],
 			      "wrong offset for field " << i << ": " << getTupleOffset(x, i)
 			      << " vs " << mOffsets.data()[i] ); }, NoF{} );
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
-			    ( sizeof(std::get<i>(x)) == mSizes.data()[i],
-			      "wrong size for field " << i << ": " << sizeof(std::get<i>(x))
+			    ( sizeof(tget<i>(x)) == mSizes.data()[i],
+			      "wrong size for field " << i << ": " << sizeof(tget<i>(x))
 			      << " vs " << mSizes.data()[i] ); }, NoF{} );
 		iter<0,N>( [&](auto i) { CXZ_ASSERT
-			    ( getTypeId(std::get<i>(x)) == mTypes.data()[i],
-			      "wrong type for field " << i << ": " << getTypeId(std::get<i>(x))
+			    ( H5Tget_class(getTypeId(tget<i>(x))) == mTypes.data()[i],
+			      "wrong type for field " << i
+			      << ": " << H5Tget_class(getTypeId(tget<i>(x)))
 			      << " vs " << mTypes.data()[i] ); }, NoF{} );
 	    }
+	}
+
+	template <typename... Ts>
+	STable<Ts...>::STable(const String& name, const ContentBase* _parent,
+			      const Arr<String,sizeof...(Ts)>& fnames) :
+	    Table(name, _parent)
+	{
+	    initFields(fnames);
+	}
+
+	template <typename... Ts>
+	STable<Ts...>& STable<Ts...>::initFields(const Arr<String,sizeof...(Ts)>& fnames)
+	{
+	    constexpr SizeT N = sizeof...(Ts);
+	    CXZ_ASSERT(mFields == nullptr and mRecords == nullptr,
+		       "tried to initialize an existing table");
+
+	    Vector<FieldID> fields(fnames.size());
+	    for(SizeT i = 0; i != fields.size(); ++i){
+		fields[i].first = i;
+		fields[i].second = fnames[i];
+	    }
+	    mFields = URangeFactory<FieldID>(fields).create();
+
+	    Tuple<Ts...> x;
+	    mOffsets = MArray<SizeT>
+		( mFields, iter<0,N>
+		  ( [&](auto i) { return getTupleOffset(x, i); },
+		    [](const auto&... e) { return Vector<SizeT>({e...}); }) );
+	    mSizes = MArray<SizeT>
+		( mFields, iter<0,N>
+		  ( [&](auto i) { return sizeof(tget<i>(x)); },
+		    [](const auto&... e) { return Vector<SizeT>({e...}); }) );
+	    mTypes = MArray<hid_t>
+		( mFields, iter<0,N>
+		  ( [&](auto i) { return getTypeId(tget<i>(x)); },
+		    [](const auto&... e) { return Vector<hid_t>({e...}); }) );
+	    return *this;
 	}
 
 	template <typename... Ts>
@@ -71,9 +109,19 @@ namespace CNORXZ
 		initTable(1, &t, sizeof(t), sizeof(t));
 	    }
 	    else {
-		Table::appendRecord(1, &t, sizeof(t));
+		Table::appendRecords(1, &t);
 	    }
 	    return *this;
+	}
+
+	template <typename... Ts>
+	MArray<Tuple<Ts...>> STable<Ts...>::read() const
+	{
+	    CXZ_ASSERT(isOpen(), "attempt to read table that has not been opened");
+	    MArray<Tuple<Ts...>> out(mRecords);
+	    H5TBread_table(mParent->id(), mName.c_str(), mTypesize, mOffsets.data(),
+			   mSizes.data(), out.data());
+	    return out;
 	}
     }
 }

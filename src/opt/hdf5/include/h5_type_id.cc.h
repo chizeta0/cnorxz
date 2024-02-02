@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/include/h5_type_id.h
+   @brief TypeId template implementation.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_h5_type_id_cc_h__
 #define __cxz_h5_type_id_cc_h__
@@ -8,17 +18,9 @@ namespace CNORXZ
 {
     namespace hdf5
     {
-	template <SizeT N, typename... Ts>
-	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i)
-	{
-	    const PtrId beg = reinterpret_cast<PtrId>(&t);
-	    const PtrId pos = reinterpret_cast<PtrId>(&std::get<i>(t));
-	    return pos - beg;
-	}
-
-	/**************
-	 *   TypeId   *
-	 **************/
+	/*============+
+	 |   TypeId   |
+	 +============*/
 
 	template <typename T>
 	inline hid_t TypeId<T>::get()
@@ -28,17 +30,17 @@ namespace CNORXZ
 	
 	inline hid_t TypeId<SizeT>::get()
 	{
-	    return H5T_NATIVE_ULONG;
+	    return H5Tcopy( H5T_NATIVE_ULONG );
 	}
 
 	inline hid_t TypeId<Int>::get()
 	{
-	    return H5T_NATIVE_INT;
+	    return H5Tcopy( H5T_NATIVE_INT );
 	}
 
 	inline hid_t TypeId<Double>::get()
 	{
-	    return H5T_NATIVE_DOUBLE;
+	    return H5Tcopy( H5T_NATIVE_DOUBLE );
 	}
 
 	template <typename T, SizeT N>
@@ -48,9 +50,9 @@ namespace CNORXZ
 	    return arrtype;
 	}
 
-	/*****************
-	 *   getTypeId   *
-	 *****************/
+	/*===============+
+	 |   getTypeId   |
+	 +===============*/
 
 	template <typename T>
 	hid_t getTypeId(T x)

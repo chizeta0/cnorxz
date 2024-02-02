@@ -299,7 +299,10 @@ namespace CNORXZ
     {
 	auto b = mSpace.begin();
 	auto e = mSpace.end();
-	return std::lower_bound(b, e, meta, std::less<MetaT>()) - b;
+	auto i = std::lower_bound(b, e, meta, std::less<MetaT>());
+	CXZ_ASSERT(i != e, "element with meta data = " << toString(meta) << " not in range"); // check this first, otherwise the next test may potentially result in a seg fault!
+	CXZ_ASSERT(*i == meta, "element with meta data = " << toString(meta) << " not in range");
+	return i - b;
     }
 
     template <typename MetaT>

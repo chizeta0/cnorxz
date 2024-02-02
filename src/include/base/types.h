@@ -6,7 +6,7 @@
 
    This file contains the declaration of all library types
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -28,9 +28,9 @@
 
 namespace CNORXZ
 {
-    /**********************
-     *   standard types   *
-     **********************/
+    /*====================+
+     |   standard types   |
+     =====================*/
 
     typedef std::intptr_t PtrId;
     typedef int32_t Int;
@@ -80,9 +80,9 @@ namespace CNORXZ
     template <SizeT N>
     using CSizeT = std::integral_constant<SizeT,N>;
     
-    /*********************
-     *   library types   *
-     *********************/
+    /*===================+
+     |   library types   |
+     +===================*/
 
     /***
 	Naming Prefixes:
@@ -302,9 +302,9 @@ namespace CNORXZ
     template <class CXpr>
     class Contraction;
     
-    /*********************
-     *   derived types   *
-     *********************/
+    /*===================+
+     |   derived types   |
+     +===================*/
     
     template <typename T>
     using Vector = std::vector<T,Allocator<T>>;

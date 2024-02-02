@@ -1,6 +1,7 @@
 
 #include "h5_group.h"
 #include "h5_table.h"
+#include "h5_dataset.h"
 
 namespace CNORXZ
 {
@@ -30,14 +31,16 @@ namespace CNORXZ
 	
 	Group& Group::open()
 	{
-	    if(this->exists()){
-		mId = H5Gopen( mParent->id(), mName.c_str(), H5P_DEFAULT );
+	    if(not isOpen()){
+		if(this->exists()){
+		    mId = H5Gopen( mParent->id(), mName.c_str(), H5P_DEFAULT );
+		}
+		else {
+		    mId = H5Gcreate( mParent->id(), mName.c_str(),
+				     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
+		}
+		this->mkCont();
 	    }
-	    else {
-		mId = H5Gcreate( mParent->id(), mName.c_str(),
-				 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT );
-	    }
-	    this->mkCont();
 	    return *this;
 	}
 	
@@ -66,14 +69,23 @@ namespace CNORXZ
 	    return String();
 	}
 	
-	Int Group::exists() const
+	bool Group::exists() const
 	{
-	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) != 0 ? 1 : 0;
+	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) > 0;
 	}
 
 	const ContentPtr& Group::get(const String& name) const
 	{
-	    auto i = this->getIndexTo(name);
+	    const String delim = "/";
+	    const SizeT delimpos = name.find(delim);
+	    const String thisname = name.substr(0, delimpos);
+	    if(delimpos != String::npos and delimpos+1 < name.size()){
+		const String next = name.substr(delimpos+1);
+		auto g = getGroup(thisname);
+		g->open();
+		return g->get(next);
+	    }
+	    auto i = this->getIndexTo(thisname);
 	    return *i;
 	}
 
@@ -83,6 +95,22 @@ namespace CNORXZ
 	    CXZ_ASSERT(group->type() == ContentType::GROUP,
 		       "element '" << name << "' is not of type GROUP");
 	    return std::dynamic_pointer_cast<Group>( group );
+	}
+
+	Sptr<Table> Group::getTable(const String& name) const
+	{
+	    auto table = this->get(name);
+	    CXZ_ASSERT(table->type() == ContentType::TABLE,
+		       "element '" << name << "' is not of type TABLE");
+	    return std::dynamic_pointer_cast<Table>( table );
+	}
+
+	Sptr<Dataset> Group::getDataset(const String& name) const
+	{
+	    auto dset = this->get(name);
+	    CXZ_ASSERT(dset->type() == ContentType::DSET,
+		       "element '" << name << "' is not of type DSET");
+	    return std::dynamic_pointer_cast<Dataset>( dset );
 	}
 
 	const MArray<ContentPtr>& Group::get() const
@@ -118,10 +146,12 @@ namespace CNORXZ
 	    return 0;
 	}
 
-	static bool isTable(hid_t id)
+	static bool isTable(hid_t loc_id, const char* name)
 	{
+	    const hid_t id = H5Dopen(loc_id, name, H5P_DEFAULT);
 	    if(not H5Aexists(id, "CLASS")){
 		return false;
+		H5Dclose(id);
 	    }
 	    hid_t attrid = H5Aopen(id, "CLASS", H5P_DEFAULT);
 	    const hid_t atype = H5Aget_type(attrid);
@@ -130,6 +160,7 @@ namespace CNORXZ
 	    const herr_t ret = H5Aread(attrid, atype, buff.data());
 	    H5Tclose(atype);
 	    H5Aclose(attrid);
+	    H5Dclose(id);
 	    if(ret != 0){
 		return false;
 	    }
@@ -149,9 +180,9 @@ namespace CNORXZ
 	    index();
 	    H5O_info_t oinfo;
 #if H5_VERS_MINOR > 10
-	    H5Oget_info(id, &oinfo, H5O_INFO_BASIC);
+	    H5Oget_info_by_name(id, name, &oinfo, H5O_INFO_BASIC, H5P_DEFAULT);
 #else
-	    H5Oget_info(id, &oinfo);
+	    H5Oget_info_by_name(id, name, &oinfo, H5P_DEFAULT);
 #endif
 	    switch (oinfo.type) {
 	    case H5O_TYPE_GROUP: {
@@ -159,12 +190,11 @@ namespace CNORXZ
 		break;
 	    }
 	    case H5O_TYPE_DATASET: {
-		if(isTable(id)){
+		if(isTable(id, name)){
 		    *index = std::make_shared<Table>(sname, icd->parent);
 		}
 		else {
-		    CXZ_ERROR("IMPLEMENT!!!");
-		    //*index = std::make_shared<DSet>(sname, icd->parent);
+		    *index = std::make_shared<Dataset>(sname, icd->parent);
 		}
 		break;
 	    }

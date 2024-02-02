@@ -2,10 +2,10 @@
 /**
    
    @file include/ranges/mrange.cc.h
-   @brief ...
+   @brief MRange, GMIndex and MIndex, member definition.
 
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -21,9 +21,9 @@
 
 namespace CNORXZ
 {
-    /************************
-     *   GMIndex (private)  *
-     ************************/
+    /*=========================+
+     |    GMIndex (private)    |
+     +=========================*/
 
     template <class FormatT, class... Indices>
     template <SizeT... Is>
@@ -147,9 +147,9 @@ namespace CNORXZ
 	}
     }
 
-    /***************
-     *   GMIndex   *
-     ***************/
+    /*===============+
+     |    GMIndex    |
+     +===============*/
 
     template <class FormatT, class... Indices>
     constexpr GMIndex<FormatT,Indices...>::GMIndex(const GMIndex& i) :
@@ -551,15 +551,21 @@ namespace CNORXZ
     GMIndex<FormatT,Indices...>&
     GMIndex<FormatT,Indices...>::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
+	// f: input format
+	// s: input sizes
+	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
+	if(f.size() == 1){
+	    CXZ_ASSERT(s[0] == lmax().val(), "got inconsistent size; expeected "
+		       << lmax().val() << ", got " << s[0]);
+	    return *this;
+	}
+
 	if constexpr(std::is_same<FormatT,None>::value){
 	    CXZ_ASSERT(CNORXZ::formatIsTrivial(f,s),
 		       "cannot reformat MIndex with format type = None");
 	    return *this;
 	}
 	else {
-	    CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
-	    // f: input format
-	    // s: input sizes
 	    SizeT j = 0;
 	    SizeT j0 = 0;
 	    SizeT xi = 1;
@@ -590,9 +596,7 @@ namespace CNORXZ
 		    mIPack[i]->reformat(nf,ns);
 		}
 		else {
-		    // TODO: IMPLEMENT!!!
-		    // check trivial format in this partition
-		    CXZ_ERROR("reformating with lower-dimensional formats has not yet been implemented");
+		    CXZ_ERROR("reformating with lower-dimensional formats is not possible; use sub-indices instead");
 		}
 	    }, NoF {});
 	    mFormat = FormatT(nformat);
@@ -607,15 +611,6 @@ namespace CNORXZ
 	    mFormat = bs;
 	}
 	return *this;
-    }
-
-    template <class BT1, class BT2, class... Indices>
-    decltype(auto) replaceFormat(const BT1& bs1, const Sptr<GMIndex<BT2,Indices...>>& gmi)
-    {
-	return iter<0,sizeof...(Indices)>
-	    ( [&](auto i) { return gmi->pack()[CSizeT<i>{}]; },
-	      [&](const auto&... e) { return std::make_shared<GMIndex<BT1,Indices...>>
-		    ( bs1, e... ); } );
     }
 
     template <class... Indices>
@@ -648,9 +643,9 @@ namespace CNORXZ
 	return iptrMul(a, b);
     }
 
-    /*********************
-     *   MRangeFactory   *
-     *********************/
+    /*=====================+
+     |    MRangeFactory    |
+     +=====================*/
 
     template <class... Ranges>
     MRangeFactory<Ranges...>::MRangeFactory(const Tuple<Sptr<Ranges>...>& rs) :
@@ -679,9 +674,9 @@ namespace CNORXZ
 	}
     }
     
-    /**************
-     *   MRange   *
-     **************/
+    /*==============+
+     |    MRange    |
+     +==============*/
 
     template <class... Ranges>
     MRange<Ranges...>::MRange(const Tuple<Sptr<Ranges>...>& rs) :
@@ -699,7 +694,6 @@ namespace CNORXZ
     template <class... Ranges>
     MArray<RangePtr> MRange<Ranges...>::sub() const
     {
-	// TODO: ZRange (meta and index pos static!)
 	if constexpr(NR == 0) {
 	    return MArray<RangePtr>();
 	}
@@ -787,9 +781,9 @@ namespace CNORXZ
 	return k;
     }
 
-    /************************
-     *   MRange (private)   *
-     ************************/
+    /*========================+
+     |    MRange (private)    |
+     +========================*/
 
     template <class... Ranges>
     decltype(auto) MRange<Ranges...>::mkA() const
@@ -798,9 +792,9 @@ namespace CNORXZ
 			  [](const auto&... xs) { return Arr<RangePtr,NR> { xs... }; } );
     }
 
-    /****************************
-     *   non-member functions   *
-     ****************************/
+    /*============================+
+     |    non-member functions    |
+     +============================*/
 
     template <class... Ranges>
     RangePtr mrange(const Sptr<Ranges>&... rs)

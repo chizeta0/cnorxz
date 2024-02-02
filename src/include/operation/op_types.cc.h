@@ -10,9 +10,9 @@
 namespace CNORXZ
 {
     
-    /**********************
-     *   COpInterface     *
-     **********************/
+    /*====================+
+     |   COpInterface     |
+     +====================*/
 
     template <class OpT>
     template <class F, class IndexT>
@@ -37,9 +37,9 @@ namespace CNORXZ
     }
 
     
-    /*********************
-     *   OpInterface     *
-     *********************/
+    /*===================+
+     |   OpInterface     |
+     +===================*/
 
     template <class OpT>
     template <class IndexT, class F, class... Args>
@@ -56,9 +56,9 @@ namespace CNORXZ
     }
 
     
-    /***************
-     *   COpRoot   *
-     ***************/
+    /*=============+
+     |   COpRoot   |
+     +=============*/
 
     template <typename T, class IndexT>
     constexpr COpRoot<T,IndexT>::COpRoot(const CArrayBase<T>& a, const Sptr<IndexT>& ind) :
@@ -123,9 +123,52 @@ namespace CNORXZ
 	return COpRoot<T,IndexT>(a, ind);
     }
 
-    /****************
-     *   OpCont     *
-     ****************/
+    /*=============+
+     |   POpRoot   |
+     +=============*/
+
+    template <class IndexT, class Op>
+    constexpr POpRoot<IndexT,Op>::POpRoot(const Sptr<IndexT>& ind, const SizeT* parts, Op&& op) :
+	mIndex(ind),
+	mFp(1,parts),
+	mOp(std::forward<Op>(op))
+    {}
+
+    template <class IndexT, class Op>
+    template <class PosT>
+    constexpr decltype(auto) POpRoot<IndexT,Op>::operator()(const PosT& pos) const
+    {
+	return mOp(mFp(pos));
+    }
+
+    template <class IndexT, class Op>
+    constexpr decltype(auto) POpRoot<IndexT,Op>::operator()() const
+    {
+	return mOp(mFp(SPos<0>()));
+    }
+
+    template <class IndexT, class Op>
+    template <SizeT I>
+    constexpr decltype(auto) POpRoot<IndexT,Op>::rootSteps(const IndexId<I>& id) const
+    {
+	return mIndex->stepSize(id);
+    }
+
+    template <class IndexT, class Op>
+    constexpr decltype(auto) POpRoot<IndexT,Op>::data() const
+    {
+	return mOp->data();
+    }
+
+    template <class IndexT, class Op>
+    constexpr decltype(auto) poproot(const Sptr<IndexT>& ind, const SizeT* parts, Op&& op)
+    {
+	return POpRoot(ind, parts, std::forward<Op>(op));
+    }
+
+    /*==============+
+     |   OpCont     |
+     +==============*/
 
     template <typename T, class IndexT>
     constexpr OpCont<T,IndexT>::OpCont(const Sptr<IndexT>& ind) :
@@ -236,9 +279,9 @@ namespace CNORXZ
 	return mC.data();
     }
     
-    /****************
-     *   OpRoot     *
-     ****************/
+    /*==============+
+     |   OpRoot     |
+     +==============*/
     
     template <typename T, class IndexT>
     constexpr OpRoot<T,IndexT>::OpRoot(ArrayBase<T>& a, const Sptr<IndexT>& ind) :
@@ -327,9 +370,9 @@ namespace CNORXZ
 	return OpRoot<T,IndexT>(a, ind);
     }
 
-    /*******************
-     *   Operation     *
-     *******************/
+    /*=================+
+     |   Operation     |
+     +=================*/
     
     template <class F, class... Ops>
     constexpr Operation<F,Ops...>::Operation(F&& f, const Ops&... ops) :
@@ -411,9 +454,9 @@ namespace CNORXZ
 	}
     }
 
-    /*********************
-     *   Contraction     *
-     *********************/
+    /*===================+
+     |   Contraction     |
+     +===================*/
 
     template <class CXpr>
     constexpr Contraction<CXpr>::Contraction(CXpr&& cxpr) :
@@ -447,9 +490,9 @@ namespace CNORXZ
 	return Contraction<CXprT>( i->ifor( op, f ) );
     }
 
-    /************************
-     *   various functions  *
-     ************************/
+    /*======================+
+     |   various functions  |
+     +======================*/
     
     template <class IndexT>
     constexpr decltype(auto) indexOp(const Sptr<IndexT>& i)

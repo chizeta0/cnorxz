@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/crange.h
-   @brief ...
+   @brief CRange and CIndex declaration.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -35,8 +34,8 @@ namespace CNORXZ
 	DEFAULT_MEMBERS(CIndex); /**< default constructors and assignments */
 
 	/** Construct index from range and position.
-	    @param range Range to iterate over
-	    @param pos lexicographic position
+	    @param range Range to iterate over.
+	    @param pos lexicographic position.
 	 */
 	CIndex(const RangePtr& range, SizeT pos = 0);
 
@@ -80,7 +79,7 @@ namespace CNORXZ
 	SizeT operator*() const;
 	
 	/** @copydoc IndexInterface::dim() */
-	SizeT dim() const; // = 1
+	SizeT dim() const;
 
 	/** @copydoc IndexInterface::range() */
 	Sptr<RangeType> range() const;
@@ -124,30 +123,29 @@ namespace CNORXZ
 	Sptr<RangeType> mRangePtr;
     };
 
-    /** make index pack of a CIndex and another index
-	@tparam type of the second index
-	@param a pointer to CIndex
-	@param b pointer to another index
+    /** Make index pack of a CIndex and another index.
+	@param a pointer to CIndex.
+	@param b pointer to another index.
      */
     template <class I>
     decltype(auto) operator*(const Sptr<CIndex>& a, const Sptr<I>& b);
 
     /** ****
-	specific factory for CRange
+	Specific factory for CRange.
      */
     class CRangeFactory : public RangeFactoryBase
     {
     public:
 	typedef CRange oType;
 
-	/** construct and setup factory
-	    @param size size of the range to be constructed
+	/** Construct and setup factory.
+	    @param size Size of the range to be constructed.
 	 */
 	CRangeFactory(SizeT size);
 
-	/** construct and setup factory
-	    @param size size of the range to be constructed
-	    @param ref range the range to be constructed is related to
+	/** Construct and setup factory.
+	    @param size Size of the range to be constructed.
+	    @param ref Range the range to be constructed is related to.
 	 */
 	CRangeFactory(SizeT size, RangePtr ref);
 

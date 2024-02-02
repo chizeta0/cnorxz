@@ -334,12 +334,13 @@ namespace CNORXZ
     
     YIndex& YIndex::at(const Vector<DType>& meta)
     {
-	assert(meta.size() == mIs.size());
-	IB::mPos = 0;
+	CXZ_ASSERT(meta.size() == mIs.size(), "input meta size ("
+		   << meta.size() << ") different from expected size ("
+		   << mIs.size() << ")");
 	for(SizeT i = 0; i != mIs.size(); ++i){
 	    mIs[i]->at(meta[i]);
-	    IB::mPos += mIs[i]->pos() * mFormat[i].val();
 	}
+	mkPos();
 	return *this;
     }
 
@@ -415,9 +416,15 @@ namespace CNORXZ
 
     YIndex& YIndex::reformat(const Vector<SizeT>& f, const Vector<SizeT>& s)
     {
-	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
 	// f: input format
 	// s: input sizes
+	CXZ_ASSERT(f.size() == s.size(), "input error: f.size() != s.size()");
+	if(f.size() == 1){
+	    CXZ_ASSERT(s[0] == lmax().val(), "got inconsistent size; expeected "
+		       << lmax().val() << ", got " << s[0]);
+	    return *this;
+	}
+
 	SizeT j = 0;
 	SizeT j0 = 0;
 	SizeT xi = 1;
@@ -427,9 +434,7 @@ namespace CNORXZ
 	    xi *= mIs[i]->lmax().val();
 	    SizeT xj = s[j];
 	    if(xi < xj) {
-		// TODO: IMPLEMENT!!!
-		// check trivial format in this partition
-		CXZ_ERROR("reformating with lower-dimensional formats has not yet been implemented");
+		CXZ_ERROR("reformating with lower-dimensional formats is not possible; use sub-indices instead");
 		continue;
 	    }
 	    j0 = j;
@@ -488,6 +493,19 @@ namespace CNORXZ
 	mFormat = bs;
 	return *this;
     }
+
+    YIndex& YIndex::setSub(SizeT ind, SizeT lex)
+    {
+	CXZ_ASSERT(ind < dim(), "got index number (" << ind << ") larger than dimension ("
+		   << dim() << ")");
+	auto& idx = mIs[ind];
+	CXZ_ASSERT(lex < idx->lmax().val(), "tried to set sub-index position " << lex
+		   << ", which is out of scope; maximum position in range is " << idx->lmax().val() );
+	(*idx) = lex;
+	(*this)();
+	return *this;
+    }
+
 
     /****************************
      *   non-member functions   *
