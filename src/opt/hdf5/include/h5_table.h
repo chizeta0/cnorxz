@@ -44,6 +44,7 @@ namespace CNORXZ
 	    virtual Table& close() override final;
 	    virtual String path() const override final;
 	    virtual String filename() const override final;
+	    virtual bool exists() const override final;
 
 	    /** Ininitialize table field names.
 		@param fnames Table field names.

@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/include/h5_dataset.cc.h
+   @brief Implementation of template member functions of Dataset and SDataset.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_h5_dataset_cc_h__
 #define __cxz_h5_dataset_cc_h__

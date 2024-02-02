@@ -81,6 +81,11 @@ namespace CNORXZ
 	     */
 	    virtual String filename() const = 0;
 
+	    /** Check if group exists in the parent object.
+		@return True if object exists, else false.
+	     */
+	    virtual bool exists() const = 0;
+
 	    /** Get object name.
 		@return The name of this object.
 	     */

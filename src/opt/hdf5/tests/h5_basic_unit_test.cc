@@ -58,7 +58,7 @@ namespace
 	    CIndex j(fs);
 	    for(i = 0; i.lex() != rs->size(); ++i){
 		iter<0,3>( [&](auto jj)
-		{ j = jj; mTabD[i*j] = DType(tget<jj>(v[i.lex()])); }, NoF{} );
+		{ j = jj; mTabD[i*j] = DType(std::get<3-jj-1>(v[i.lex()])); }, NoF{} );
 	    }
 
 	    const SizeT ddim = 5;

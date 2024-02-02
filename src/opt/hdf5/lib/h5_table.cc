@@ -9,7 +9,7 @@ namespace CNORXZ
 	Table::Table(const String& name, const ContentBase* _parent) :
 	    ContentBase(name, _parent)
 	{
-	    if(H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT)){
+	    if(exists()){
 		hsize_t nfields = 0;
 		hsize_t nrecords = 0;
 		H5TBget_table_info(mParent->id(), mName.c_str(), &nfields, &nrecords);
@@ -90,6 +90,13 @@ namespace CNORXZ
 	    return mParent->filename();
 	}
 
+	bool Table::exists() const
+	{
+	    htri_t x = H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT);
+	    VCHECK(x);
+	    return x;
+	}
+	
 	Table& Table::initFieldNames(const Vector<String>& fnames)
 	{
 	    CXZ_ASSERT(mFields == nullptr, "fields already initialized");

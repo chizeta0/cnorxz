@@ -42,11 +42,7 @@ namespace CNORXZ
 	    virtual Group& close() override;
 	    virtual String path() const override;
 	    virtual String filename() const override;
-
-	    /** Check if group exists in the parent object.
-		@return 1 if group exists, 0 if not, -1 if an error occured.
-	     */
-	    virtual Int exists() const; // TODO: virtual function of base class
+	    virtual bool exists() const override;
 
 	    /** Get object contained by this group.
 		@param name Object name.

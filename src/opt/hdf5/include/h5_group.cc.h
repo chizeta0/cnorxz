@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/include/h5_group.cc.h
+   @brief Implementation of template member functions of Group.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_h5_group_cc_h__
 #define __cxz_h5_group_cc_h__
@@ -9,6 +19,26 @@ namespace CNORXZ
 {
     namespace hdf5
     {
+	template <SizeT I, typename... Ts>
+	constexpr const auto& tget(const Tuple<Ts...>& t)
+	{
+	    return std::get<sizeof...(Ts)-I-1>(t);
+	}
+
+	template <SizeT I, typename... Ts>
+	constexpr auto& tget(Tuple<Ts...>& t)
+	{
+	    return std::get<sizeof...(Ts)-I-1>(t);
+	}
+
+	template <SizeT N, typename... Ts>
+	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i)
+	{
+	    const PtrId beg = reinterpret_cast<PtrId>(&t);
+	    const PtrId pos = reinterpret_cast<PtrId>(&tget<i>(t));
+	    return pos - beg;
+	}
+
 	template <typename... Ts>
 	Sptr<STable<Ts...>> Group::getTable(const String& name, Tuple<Ts...> proto)
 	{

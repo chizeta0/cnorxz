@@ -47,9 +47,13 @@ namespace CNORXZ
 	    virtual File& close() override final;
 	    virtual String path() const override final;
 	    virtual String filename() const override final;
+	    virtual bool exists() const override final;
 
-	    virtual Int exists() const override final;
-	    
+	    /** Check if handled file is in hdf5 format.
+		@return True if file is in hdf5 format, else false.
+	     */
+	    bool ishdf5() const;
+
 	private:
 	    bool mRo = true;
 	};

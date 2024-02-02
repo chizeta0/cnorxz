@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/include/h5_type_id.h
+   @brief TypeId template implementation.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_h5_type_id_cc_h__
 #define __cxz_h5_type_id_cc_h__
@@ -8,37 +18,9 @@ namespace CNORXZ
 {
     namespace hdf5
     {
-	template <typename... Ts>
-	decltype(auto) reverseTuple(const Tuple<Ts...>& t)
-	{
-	    return iter<0,sizeof...(Ts)>
-		( [&](auto i) { return tget<i>(t); },
-		  [](const auto&... e) { return std::make_tuple(e...); } );
-	}
-
-	template <SizeT I, typename... Ts>
-	constexpr const auto& tget(const Tuple<Ts...>& t)
-	{
-	    return std::get<sizeof...(Ts)-I-1>(t);
-	}
-
-	template <SizeT I, typename... Ts>
-	constexpr auto& tget(Tuple<Ts...>& t)
-	{
-	    return std::get<sizeof...(Ts)-I-1>(t);
-	}
-
-	template <SizeT N, typename... Ts>
-	SizeT getTupleOffset(const Tuple<Ts...>& t, CSizeT<N> i)
-	{
-	    const PtrId beg = reinterpret_cast<PtrId>(&t);
-	    const PtrId pos = reinterpret_cast<PtrId>(&tget<i>(t));
-	    return pos - beg;
-	}
-
-	/**************
-	 *   TypeId   *
-	 **************/
+	/*============+
+	 |   TypeId   |
+	 +============*/
 
 	template <typename T>
 	inline hid_t TypeId<T>::get()
@@ -68,9 +50,9 @@ namespace CNORXZ
 	    return arrtype;
 	}
 
-	/*****************
-	 *   getTypeId   *
-	 *****************/
+	/*===============+
+	 |   getTypeId   |
+	 +===============*/
 
 	template <typename T>
 	hid_t getTypeId(T x)
