@@ -28,7 +28,7 @@ namespace CNORXZ
 	    DEFAULT_MEMBERS(Dataset); /**< Default constructors and assignments. */
 
 	    /** Construct the class.
-		@param _name Dataset name.
+		@param name Dataset name.
 		@param _parent Parent content object.
 	     */
 	    Dataset(const String& name, const ContentBase* _parent);
@@ -79,7 +79,7 @@ namespace CNORXZ
 	    DEFAULT_MEMBERS(SDataset); /**< Default constructors and assignments. */
 
 	    /** Construct the class.
-		@param _name Dataset name.
+		@param name Dataset name.
 		@param _parent Parent content object.
 	     */
 	    SDataset(const String& name, const ContentBase* _parent);

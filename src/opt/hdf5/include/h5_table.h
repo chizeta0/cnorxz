@@ -25,12 +25,12 @@ namespace CNORXZ
 	class Table : public ContentBase
 	{
 	public:
-	    typedef std::pair<SizeT,String> FieldID;
+	    typedef std::pair<SizeT,String> FieldID; /**< Meta data type of fields range. */
 	    
 	    DEFAULT_MEMBERS(Table); /**< Default constructors and assignments. */
 
 	    /** Construct the class.
-		@param _name Table name.
+		@param name Table name.
 		@param _parent Parent content object.
 	     */
 	    Table(const String& name, const ContentBase* _parent);
@@ -84,7 +84,7 @@ namespace CNORXZ
 	    MArray<DType> read() const;
 
 	    /** Iterate over table records.
-		@param F function object to be executed on each table record.
+		@param f function object to be executed on each table record.
 	     */
 	    template <class F>
 	    decltype(auto) iterRecords(F&& f) const;
@@ -128,13 +128,13 @@ namespace CNORXZ
 	    DEFAULT_MEMBERS(STable); /**< Default constructors and assignments. */
 
 	    /** Construct the class.
-		@param _name Table name.
+		@param name Table name.
 		@param _parent Parent content object.
 	     */
 	    STable(const String& name, const ContentBase* _parent);
 
 	    /** Construct the class.
-		@param _name Table name.
+		@param name Table name.
 		@param _parent Parent content object.
 		@param fnames Field names.
 	     */

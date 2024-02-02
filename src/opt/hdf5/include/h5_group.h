@@ -28,7 +28,7 @@ namespace CNORXZ
 	    DEFAULT_MEMBERS(Group); /**< Default constructors and assignments. */
 
 	    /** Construct the class.
-		@param _name Group name.
+		@param gname Group name.
 		@param _parent Parent content object.
 	     */
 	    Group(const String& gname, const ContentBase* _parent);
@@ -120,25 +120,25 @@ namespace CNORXZ
 	    Group& addDataset(const String& name, const ArrayBase<T>& data);
 
 	    /** Iterate over all group elements (const).
-		@param F function object to be executed on each group element.
+		@param f function object to be executed on each group element.
 	     */
 	    template <class F>
 	    decltype(auto) iter(F&& f) const;
 
 	    /** Iterate recursively over all group elements (const).
-		@param F function object to be executed on each group element.
+		@param f function object to be executed on each group element.
 	     */
 	    template <class F>
 	    decltype(auto) iterRecursive(F&& f) const;
 
 	    /** Iterate over all group elements.
-		@param F function object to be executed on each group element.
+		@param f function object to be executed on each group element.
 	     */
 	    template <class F>
 	    decltype(auto) iter(F&& f);
 
 	    /** Iterate recursively over all group elements.
-		@param F function object to be executed on each group element.
+		@param f function object to be executed on each group element.
 	     */
 	    template <class F>
 	    decltype(auto) iterRecursive(F&& f);
@@ -147,6 +147,10 @@ namespace CNORXZ
 
 	    MArray<ContentPtr> mCont; /**< Group elements. */
 
+	    /** Recursion helper functon.
+		@param c Group element.
+		@param f Function to be executed.
+	     */
 	    template <typename C, class F>
 	    static void recursion(const C& c, F&& f)
 	    {
@@ -158,9 +162,18 @@ namespace CNORXZ
 		    }
 		}
 	    }
-	    
+
+	    /** Setup group content. */
 	    void mkCont();
+
+	    /** Get index to requested group element (const).
+		@param name Element name.
+	     */
 	    AIndex<ContentPtr> getIndexTo(const String& name) const;
+
+	    /** Get index to requested group element.
+		@param name Element name.
+	     */
 	    BIndex<ContentPtr> getIndexTo(const String& name);
 	};
     }

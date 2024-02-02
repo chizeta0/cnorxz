@@ -28,12 +28,10 @@ namespace CNORXZ
 	class File : public Group
 	{
 	public:
-	    typedef URange<String> RangeT;
-	    
 	    DEFAULT_MEMBERS(File); /**< Default constructors and assignments. */
 
 	    /** Construct the class.
-		@param _name Path to the hdf5 file to be handled.
+		@param fname Path to the hdf5 file to be handled.
 		@param _ro Open in read-only mode if true, otherwise have write access.
 	     */
 	    File(const String& fname, bool _ro = true);
