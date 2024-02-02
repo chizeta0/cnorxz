@@ -71,7 +71,7 @@ namespace CNORXZ
 
 	bool Dataset::exists() const
 	{
-	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT);
+	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) > 0;
 	}
 
 	Dataset& Dataset::init(const RangePtr& dataRange, hid_t type)

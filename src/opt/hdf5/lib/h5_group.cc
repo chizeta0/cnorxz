@@ -71,7 +71,7 @@ namespace CNORXZ
 	
 	bool Group::exists() const
 	{
-	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) != 0;
+	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) > 0;
 	}
 
 	const ContentPtr& Group::get(const String& name) const

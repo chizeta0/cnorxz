@@ -131,7 +131,6 @@ namespace
 	File h5f(mFileName, false);
 	h5f.open();
 	h5f.getGroup("gr1")->open().addTable("tab1", mTabA, mFs);
-	//h5f.getGroup("gr2")->open().addTable("tab1", mTabA, mFs);
 	h5f.getGroup("moregroups")->open().getGroup("evenmore")->open().getGroup("need")->open().addTable("tab1", mTabA, mFs);
 	h5f.close();
     }

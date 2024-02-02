@@ -92,9 +92,7 @@ namespace CNORXZ
 
 	bool Table::exists() const
 	{
-	    htri_t x = H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT);
-	    VCHECK(x);
-	    return x;
+	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) > 0;
 	}
 	
 	Table& Table::initFieldNames(const Vector<String>& fnames)

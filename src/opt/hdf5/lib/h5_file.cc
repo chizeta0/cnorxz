@@ -70,7 +70,6 @@ namespace CNORXZ
 	
 	String File::path() const
 	{
-	    //return String("/");
 	    return "";
 	}
 	
