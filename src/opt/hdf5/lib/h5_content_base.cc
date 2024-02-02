@@ -36,7 +36,7 @@ namespace CNORXZ
 	    return mId;
 	}
 
-	bool isOpen() const
+	bool ContentBase::isOpen() const
 	{
 	    return mId != 0;
 	}
