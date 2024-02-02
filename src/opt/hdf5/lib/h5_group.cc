@@ -180,10 +180,9 @@ namespace CNORXZ
 	    index();
 	    H5O_info_t oinfo;
 #if H5_VERS_MINOR > 10
-	    //H5Oget_info(id, &oinfo, H5O_INFO_BASIC);
 	    H5Oget_info_by_name(id, name, &oinfo, H5O_INFO_BASIC, H5P_DEFAULT);
 #else
-	    H5Oget_info(id, &oinfo);
+	    H5Oget_info_by_name(id, name, &oinfo, H5P_DEFAULT);
 #endif
 	    switch (oinfo.type) {
 	    case H5O_TYPE_GROUP: {
