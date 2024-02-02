@@ -99,36 +99,70 @@ namespace CNORXZ
 	    const RangePtr& records() const;
 
 	protected:
-	    RangePtr mRecords;
-	    RangePtr mFields; // -> FIndex (position -> offset)
-	    MArray<SizeT> mSizes;
-	    MArray<SizeT> mOffsets;
-	    MArray<hid_t> mTypes;
-	    hid_t mType = 0;
-	    SizeT mTypesize = 0;
-	    MArray<std::function<DType(const char*)>> mInterpret;
+	    RangePtr mRecords; /**< Records range. */
+	    RangePtr mFields; /**< Fields range. */ // -> FIndex (position -> offset)
+	    MArray<SizeT> mSizes; /**< Field element type sizes. */
+	    MArray<SizeT> mOffsets; /**< Field element offsets. */
+	    MArray<hid_t> mTypes; /**< Field element type ids. */
+	    hid_t mType = 0; /**< Record type id. */
+	    SizeT mTypesize = 0; /**< Record type size. */
+	    MArray<std::function<DType(const char*)>> mInterpret; /**< Field element type interpreting functions. */
 
-	    void mkTypes();
+	    void mkTypes(); /**< Type setup function. */
 	};
 
-	// caution: the memory ordering is the only thing that counts;
-	// std::tuple has REVERSE ordering!
+	/** ****
+	    Class to handle hdf5 tables, the record type is known at compile time.
+	    The records are accessed by a std tuple.
+	    Caution: The ordering of the record entries is fixed by their memory location.
+	    The std tuple has a reverse ordering w.r.t. the memory location, i.e. a record
+	    with element types T1-T2-T3 (memory ordering) and field names "T1", "T2", "T3",
+	    requires template argumens <T3,T2,T1>.
+	    @tparam Ts Record element types.
+	 */
 	template <typename... Ts>
 	class STable : public Table
 	{
 	public:
-	    DEFAULT_MEMBERS(STable);
+	    DEFAULT_MEMBERS(STable); /**< Default constructors and assignments. */
+
+	    /** Construct the class.
+		@param _name Table name.
+		@param _parent Parent content object.
+	     */
 	    STable(const String& name, const ContentBase* _parent);
+
+	    /** Construct the class.
+		@param _name Table name.
+		@param _parent Parent content object.
+		@param fnames Field names.
+	     */
 	    STable(const String& name, const ContentBase* _parent,
 		   const Arr<String,sizeof...(Ts)>& fnames);
 
+	    /** Ininitialize and setup table fields.
+		@param fnames Table field names.
+	     */
 	    STable& initFields(const Arr<String,sizeof...(Ts)>& fnames);
 
+	    /** Append record to the table.
+		@param t Tuple containing the record entries.
+	     */
 	    STable& appendRecord(const Tuple<Ts...>& t);
+
+	    /** Append records to the table.
+		@param t Array of tuples containing the records.
+	     */
 	    STable& appendRecord(const MArray<Tuple<Ts...>>& t);
 
+	    /** Read the table.
+		@return Array of tuples containing the records.
+	     */
 	    MArray<Tuple<Ts...>> read() const;
-	    
+
+	    /** Iterate over all table records.
+		@param f Function object to be executed on each record.
+	     */
 	    template <class F>
 	    decltype(auto) iterRecords(F&& f) const;
 	};
