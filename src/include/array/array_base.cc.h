@@ -181,7 +181,6 @@ namespace CNORXZ
     typename CArrayBase<T>::const_iterator CArrayBase<T>::itLexSave(const Acc& acc) const
     {
 	CXZ_ASSERT(acc.lex() < this->size(), "index out of range");
-	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
 	// check further compatibility of index/range format!!!
 	return begin() + acc.lex();
     }
@@ -374,7 +373,6 @@ namespace CNORXZ
     typename ArrayBase<T>::iterator ArrayBase<T>::itLexSave(const Acc& acc)
     {
 	CXZ_ASSERT(acc.lex() < this->size(), "index out of range");
-	//CXZ_ASSERT(false, "IMPLEMENT CHECKS!!");
 	// check further compatibility of index/range format!!!
 	return begin() + acc.lex();
     }
