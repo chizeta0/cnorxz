@@ -2,7 +2,7 @@
 /**
    
    @file include/ranges/index_pack.h
-   @brief Index pack declaration
+   @brief Index pack declarations.
 
    Index packs are sets of indices. In contrast to multi-indices like
    (G)MIndex or YIndex, there is no format that can be used to determine
@@ -10,7 +10,7 @@
    Nevertheless, a function pos() is implemented, which just returns
    the same value as lex().
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
 
 **/

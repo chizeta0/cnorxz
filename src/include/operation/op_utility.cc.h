@@ -1,10 +1,19 @@
+// -*- C++ -*-
+/**
+   
+   @file include/operation/op_utility.cc.h
+   @brief Operation utilities template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_op_utility_cc_h__
 #define __cxz_op_utility_cc_h__
 
 #include "op_utility.h"
 #include "xpr/pos_type.h"
-//#include "operation/op_types.h"
 
 namespace CNORXZ
 {

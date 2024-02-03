@@ -34,7 +34,7 @@ namespace CNORXZ
 		H5Sclose(memspace);
 	    }
 	    else {
-		CXZ_ERROR("IMPLEMENT!!!");
+		CXZ_ERROR("Got array type with non-trivial format; non-contiguous data formats are not supported yet!");
 	    }
 	    return *this;
 	}

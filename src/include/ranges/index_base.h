@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/index_base.h
-   @brief ...
+   @brief Index base declaration.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -28,7 +27,7 @@ namespace CNORXZ
 	all indices are supposed to be derived from the corresponding
 	template instance
 
-	Indices are act as iterators over parameter spaces (ranges) and/or
+	Indices act as iterators over parameter spaces (ranges) and/or
 	the containers (arrays) defined on them
 
 	Moreover, indices are used to define operations on the

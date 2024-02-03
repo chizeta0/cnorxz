@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file include/operation/basic_operations.cc.h
+   @brief Basic operations implementation
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+ **/
 
 #ifndef __cxz_basic_operations_cc_h__
 #define __cxz_basic_operations_cc_h__
@@ -6,9 +16,9 @@
 
 namespace CNORXZ
 {
-    /************************************
-     *   standard operatrions (unary)   *
-     ************************************/
+    /*==================================+
+     |   standard operatrions (unary)   |
+     +==================================*/
 
     template <class Op>
     constexpr decltype(auto) minus(const COpInterface<Op>& op)
@@ -16,9 +26,9 @@ namespace CNORXZ
 	return operation( [](const auto& a) { return -a; }, op.THIS() );
     }
 
-    /*************************************
-     *   standard operatrions (binary)   *
-     *************************************/
+    /*===================================+
+     |   standard operatrions (binary)   |
+     +===================================*/
 
     template <class Op1, class Op2>
     constexpr decltype(auto) plus(const COpInterface<Op1>& op1, const COpInterface<Op2>& op2)
@@ -55,9 +65,9 @@ namespace CNORXZ
 			  op1.THIS(), op2.THIS() );
     }
 
-    /*****************************************
-     *   operators for standard operations   *
-     *****************************************/
+    /*=======================================+
+     |   operators for standard operations   |
+     +=======================================*/
 
     template <class Op>
     constexpr decltype(auto) operator-(const COpInterface<Op>& op)

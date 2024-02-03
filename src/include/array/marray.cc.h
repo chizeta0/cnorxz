@@ -2,10 +2,9 @@
 /**
    
    @file include/array/marray.cc.h
-   @brief ...
+   @brief MArray implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/

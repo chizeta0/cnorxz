@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/cereal/include/cer_header.cc.h
+   @brief Load and save implementation for CNORXZ cereal data header.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_cereal_header_cc_h__
 #define __cxz_cereal_header_cc_h__

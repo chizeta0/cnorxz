@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file opt/cereal/tests/cereal_unit_test.cc
+   @brief cnorxz cereal unit tests.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include <cstdlib>
 #include <iostream>

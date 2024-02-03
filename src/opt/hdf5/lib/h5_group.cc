@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/lib/h5_group.cc
+   @brief Group implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #include "h5_group.h"
 #include "h5_table.h"
@@ -133,11 +143,13 @@ namespace CNORXZ
 	    return *this;
 	}
 
+	/** @cond 0 */
 	struct InitContData
 	{
 	    const ContentBase* parent;
 	    BIndex<ContentPtr> index;
 	};
+	/** @endcond */
 
 	static herr_t addName(hid_t id, const char* name, const H5L_info_t* info, void* x)
 	{

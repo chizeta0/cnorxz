@@ -2,7 +2,7 @@
 /**
    
    @file include/base/uuid.h
-   @brief uuid implementation
+   @brief cnorxz uuid declaration.
 
    Copyright (c) 2022 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de

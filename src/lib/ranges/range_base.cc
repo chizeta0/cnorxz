@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file lib/ranges/range_base.cc
+   @brief RangeBase implementation.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include "ranges/ranges.h"
 #include "array/array.h"
@@ -5,9 +15,9 @@
 namespace CNORXZ
 {
     
-    /*************************
-     *   RangeFactoryBase    *
-     *************************/
+    /*=======================+
+     |   RangeFactoryBase    |
+     +=======================*/
 
     Map<SizeT,Map<Vector<Uuid>,RangePtr>> RangeFactoryBase::sCreated;
     
@@ -46,9 +56,9 @@ namespace CNORXZ
 	return rx;
     }
 
-    /******************
-     *   RangeBase    *
-     ******************/
+    /*================+
+     |   RangeBase    |
+     +================*/
 
     RangeBase::RangeBase()
     {
@@ -91,9 +101,9 @@ namespace CNORXZ
 	return this->index(this->size());
     }
 
-    /****************************
-     *   Non-member functions   *
-     ****************************/
+    /*==========================+
+     |   Non-member functions   |
+     +==========================*/
 
     RangePack::operator RangePtr() const
     {

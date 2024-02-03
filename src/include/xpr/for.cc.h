@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/xpr/for.cc.h
+   @brief For expressions template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_for_cc_h__
 #define __cxz_for_cc_h__
@@ -9,9 +19,9 @@
 namespace CNORXZ
 {
 
-    /***********
-     *   For   *
-     ***********/
+    /*=========+
+     |   For   |
+     +=========*/
     
     template <SizeT L, class Xpr, class F>
     constexpr For<L,Xpr,F>::For(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f) :
@@ -73,9 +83,9 @@ namespace CNORXZ
 	return mXpr.rootSteps(id);
     }
 
-    /************************
-     *   For (non-member)   *
-     ************************/
+    /*======================+
+     |   For (non-member)   |
+     +======================*/
 
     template <SizeT L, class Xpr, class F>
     constexpr decltype(auto) mkFor(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f)
@@ -89,9 +99,9 @@ namespace CNORXZ
 	return For<L,Xpr>(size, id, xpr, NoF {});
     }
 
-    /************
-     *   SFor   *
-     ************/
+    /*==========+
+     |   SFor   |
+     +==========*/
 
     template <SizeT N, SizeT L, class Xpr, class F>
     constexpr SFor<N,L,Xpr,F>::SFor(const IndexId<L>& id, const Xpr& xpr, F&& f) :
@@ -193,9 +203,9 @@ namespace CNORXZ
 	return;
     }
 
-    /*************************
-     *   SFor (non-member)   *
-     *************************/
+    /*=======================+
+     |   SFor (non-member)   |
+     +=======================*/
 
     template <SizeT N, SizeT L, class Xpr, class F>
     constexpr decltype(auto) mkSFor(const IndexId<L>& id, const Xpr& xpr, F&& f)
@@ -209,9 +219,9 @@ namespace CNORXZ
 	return SFor<N,L,Xpr>(id, xpr, NoF {});
     }
     
-    /************
-     *   PFor   *
-     ************/
+    /*==========+
+     |   PFor   |
+     +==========*/
     
     template <SizeT L1, SizeT L2, class Xpr, class F>
     constexpr PFor<L1,L2,Xpr,F>::PFor(SizeT size, const IndexId<L1>& id1, const IndexId<L2>& id2,
@@ -281,9 +291,9 @@ namespace CNORXZ
 	return mXpr.rootSteps(id);
     }
 
-    /*************************
-     *   PFor (non-member)   *
-     *************************/
+    /*=======================+
+     |   PFor (non-member)   |
+     +=======================*/
 
     template <SizeT L1, SizeT L2, class Xpr, class F>
     constexpr decltype(auto) mkPFor(SizeT size, const IndexId<L1>& id1, const IndexId<L2>& id2,
@@ -299,9 +309,9 @@ namespace CNORXZ
 	return PFor<L1,L2,Xpr>(size, id1, id2, xpr, NoF {});
     }
 
-    /************
-     *   TFor   *
-     ************/
+    /*==========+
+     |   TFor   |
+     +==========*/
 
     template <SizeT L, class Xpr, class F>
     constexpr TFor<L,Xpr,F>::TFor(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f) :
@@ -389,9 +399,9 @@ namespace CNORXZ
     }
 
 
-    /************
-     *   EFor   *
-     ************/
+    /*==========+
+     |   EFor   |
+     +==========*/
 
     template <SizeT N, SizeT L, class Xpr, class F>
     constexpr EFor<N,L,Xpr,F>::EFor(const IndexId<L>& id, const Xpr& xpr, F&& f) :

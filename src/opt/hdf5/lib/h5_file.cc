@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/hdf5/lib/h5_file.cc
+   @brief Group implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #include "h5_file.h"
 #include <fstream>

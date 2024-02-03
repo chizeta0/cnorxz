@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/xpr/xpr_base.h
+   @brief Xpression base declarations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_xpr_base_h__
 #define __cxz_xpr_base_h__

@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/cereal/include/utilities.cc.h
+   @brief CNORXZ Cereal utilities implementation.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_cereal_utilities_cc_h__
 #define __cxz_cereal_utilities_cc_h__

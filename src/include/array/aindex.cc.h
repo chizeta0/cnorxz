@@ -2,10 +2,9 @@
 /**
    
    @file include/array/aindex.cc.h
-   @brief ...
+   @brief Array index template implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/

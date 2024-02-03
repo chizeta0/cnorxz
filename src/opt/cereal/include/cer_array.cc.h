@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/cereal/include/cer_array.cc.h
+   @brief Load and save implementation for MArray.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_cereal_array_cc_h__
 #define __cxz_cereal_array_cc_h__
@@ -23,7 +33,6 @@ namespace CNORXZ
     {
 	CXZ_ASSERT(version == 1u, "format version = " << version << " not supported");
 	cer::save_load(ar, "range", AB::mRange);
-	//ar(cereal::make_nvp("range", AB::mRange));
 	ar(cereal::make_nvp("data", mCont));
     }
 }

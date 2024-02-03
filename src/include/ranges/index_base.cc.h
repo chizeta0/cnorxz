@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/index_base.cc.h
-   @brief ...
+   @brief Index base template implementation.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -17,9 +16,9 @@
 
 namespace CNORXZ
 {
-    /**********************
-     *   IndexInterface   *
-     **********************/
+    /*====================+
+     |   IndexInterface   |
+     +====================*/
 
     template <class I, typename MetaType>
     IndexInterface<I,MetaType>::IndexInterface()
@@ -113,9 +112,9 @@ namespace CNORXZ
     }
 
 
-    /****************************
-     *   Non-member functions   *
-     ****************************/
+    /*==========================+
+     |   Non-member functions   |
+     +==========================*/
     
     template <class I, typename MetaType>
     IndexPtr<I,MetaType>& operator++(const IndexPtr<I,MetaType>& i)

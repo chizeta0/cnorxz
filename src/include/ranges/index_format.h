@@ -2,8 +2,7 @@
 /**
    
    @file include/ranges/index_format.h
-   @brief ...
-
+   @brief Index formats declaration.
 
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de

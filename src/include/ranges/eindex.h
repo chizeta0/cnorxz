@@ -2,8 +2,7 @@
 /**
    
    @file include/ranges/eindex.h
-   @brief ...
-
+   @brief Extension index declaration.
 
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de

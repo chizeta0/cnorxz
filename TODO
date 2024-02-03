@@ -1,19 +1,14 @@
 
-include/operation/op_types.cc.h@173: "build and execute assign expression forwarding outer index" [long]
-include/operation/op_types.cc.h@446: "TODO: implement ifor with func arg" [long]
-include/array/array_base.cc.h@35: "TODO: check if container format is trivial" [check]
-include/array/array_base.cc.h@120: "TODO: check if container format is trivial" [check]
-include/array/array_base.cc.h@164: "check further compatibility of index/range format" [check]
-include/array/array_base.cc.h@319: "check further compatibility of index/range format" [check]
-include/base/dtype.cc.h@23: "for tuple use vector<DType>" [comment]
-include/ranges/index_base.cc.h@110: "if this assert never applies, remove mPtrId (-> Defaults)" [long]
-include/ranges/mrange.cc.h@633: "TODO: ZRange (meta and index pos static!)" [long]
-include/ranges/urange.cc.h@366: "else general transform using DType (better than nothing), to be implemented" [urgent]
-include/ranges/urange.cc.h@430: "else general transform using DType (better than nothing), to be implemented" [urgent]
-include/xpr/for.cc.h@314: "check for write access" [check]
-include/ranges/srange.cc.h@292: "TODO: check for selected static sizes of SRange -> return SRange" [long]
-lib/ranges/crange.cc@114: "preliminary solution (TODO: implement xpr that simply returns PosT value)" [long]
-
-opt/hdf5/lib/h5_group.cc@166: "IMPLEMENT" [urgent]
-opt/hdf5/include/h5_group.cc.h@34: "not implemented" [urgent]
-opt/hdf5/lib/h5_table.cc@127: "not implemented" [urgent]
+include/operation/op_types.cc.h@225:    "build and execute assign expression forwarding outer index"
+include/operation/op_types.cc.h@498:    "implement ifor with func arg"
+opt/hdf5/include/h5_content_base.h@23:  "IO save error handling"
+opt/hdf5/lib/h5_dataset.cc@124:         "all sub-ranges explicity"
+lib/ranges/crange.cc@94:                "preliminary solution (TODO: implement xpr that simply returns PosT value)"
+include/ranges/srange.cc.h@307:         "check for selected static sizes of SRange -> return SRange"
+include/xpr/for.cc.h@324:               "check for write access"
+include/base/dtype.cc.h@23:             "for tuple use vector<DType>"
+include/ranges/urange.cc.h@384:         "else general transform using DType (better than nothing), to be implemented"
+include/ranges/urange.cc.h@448:         "else general transform using DType (better than nothing), to be implemented"
+include/array/array_base.cc.h@184:      "check further compatibility of index/range format"
+include/array/array_base.cc.h@376:      "check further compatibility of index/range format"
+include/ranges/index_base.cc.h@109:     "if this assert never applies, remove mPtrId (-> Defaults)"

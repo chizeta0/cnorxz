@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/index_format.cc.h
-   @brief ...
+   @brief Index formats implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -17,9 +16,9 @@
 
 namespace CNORXZ
 {
-    /***************
-     *   MFormat   *
-     ***************/
+    /*=============+
+     |   MFormat   |
+     +=============*/
     
     template <SizeT N>
     constexpr MFormat<N>::MFormat(const Arr<UPos,N>& b) :
@@ -61,9 +60,9 @@ namespace CNORXZ
     }
 
     
-    /****************
-     *   GMFormat   *
-     ****************/
+    /*==============+
+     |   GMFormat   |
+     +==============*/
 
     template <class... PosT>
     constexpr GMFormat<PosT...>::GMFormat(const Tuple<PosT...>& b) :
@@ -115,9 +114,9 @@ namespace CNORXZ
 	return GMFormat(std::move(std::make_tuple(ps...)));
     }
 
-    /***************
-     *   YFormat   *
-     ***************/
+    /*=============+
+     |   YFormat   |
+     +=============*/
 
     template <class FormatT>
     YFormat::YFormat(const FormatT& f) : mB(f.size())

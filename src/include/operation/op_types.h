@@ -1,4 +1,13 @@
 // -*- C++ -*-
+/**
+   
+   @file include/operation/op_types.h
+   @brief Operation types declarations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_op_types_h__
 #define __cxz_op_types_h__

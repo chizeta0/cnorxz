@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/operation/extensions/reg.h
+   @brief Register type declaration.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_reg_h__
 #define __cxz_reg_h__
@@ -33,9 +43,9 @@ namespace CNORXZ
     template <typename T, SizeT N>
     struct consecutive_size<Consecutive<T,N>> { static constexpr SizeT value = N; };
 
-    /****************************************
-     *   consecutive generating functions   *
-     ****************************************/
+    /*======================================+
+     |   consecutive generating functions   |
+     +======================================*/
 
     template <typename T, class EPosT, SizeT... Is>
     inline decltype(auto) vregi(const T* d, const EPosT& pos, std::index_sequence<Is...> is);
@@ -46,9 +56,9 @@ namespace CNORXZ
     template <typename T, class EPosT>
     inline decltype(auto) vreg(T* d, const EPosT& pos);
 
-    /******************
-     *   ConsecFunc   *
-     ******************/
+    /*================+
+     |   ConsecFunc   |
+     +================*/
 
     template <SizeT I, typename T>
     constexpr decltype(auto) consecGet(const T& a);
@@ -76,9 +86,9 @@ namespace CNORXZ
     template <SizeT N, class F, typename Dst, typename... Args>
     constexpr Dst& consecFuncA(const F& f, Dst& dst, const Args&... args);
 
-    /******************************
-     *   basic operations: plus   *
-     ******************************/
+    /*============================+
+     |   basic operations: plus   |
+     +============================*/
 
     template <typename T, typename U, SizeT N>
     struct PlusCC
@@ -123,9 +133,9 @@ namespace CNORXZ
     constexpr Consecutive<T,N>& operator+=(Consecutive<T,N>& o, const U& a)
     { return PlusCX<T,U,N>::aeval(o,a); }
 
-    /*******************************
-     *   basic operations: minus   *
-     *******************************/
+    /*=============================+
+     |   basic operations: minus   |
+     +=============================*/
 
     template <typename T, typename U, SizeT N>
     struct MinusCC
@@ -170,9 +180,9 @@ namespace CNORXZ
     constexpr Consecutive<T,N>& operator-=(Consecutive<T,N>& o, const U& a)
     { return MinusCX<T,U,N>::eval(o,a); }
 
-    /***********************************
-     *   basic operations: muliplies   *
-     ***********************************/
+    /*=================================+
+     |   basic operations: muliplies   |
+     +=================================*/
 
     template <typename T, typename U, SizeT N>
     struct MultipliesCC
@@ -217,9 +227,9 @@ namespace CNORXZ
     constexpr Consecutive<T,N>& operator*=(Consecutive<T,N>& o, const U& a)
     { return MultipliesCX<T,U,N>::eval(o,a); }
 
-    /*********************************
-     *   basic operations: divides   *
-     *********************************/
+    /*===============================+
+     |   basic operations: divides   |
+     +===============================*/
 
     template <typename T, typename U, SizeT N>
     struct DividesCC

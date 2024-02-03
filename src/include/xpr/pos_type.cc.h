@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/xpr/pos_type.cc.h
+   @brief Position types template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_pos_type_cc_h__
 #define __cxz_pos_type_cc_h__
@@ -8,9 +18,9 @@
 namespace CNORXZ
 {
 
-    /************
-     *   SPos   *
-     ************/
+    /*==========+
+     |   SPos   |
+     +==========*/
 
     template <SizeT N>
     constexpr SizeT SPos<N>::size() const
@@ -106,9 +116,9 @@ namespace CNORXZ
 	return val();
     }
 
-    /************
-     *   UPos   *
-     ************/
+    /*==========+
+     |   UPos   |
+     +==========*/
 
     constexpr UPos::UPos(SizeT ext) : mExt(ext) {}
     
@@ -173,9 +183,9 @@ namespace CNORXZ
 	return val();
     }
 
-    /************
-     *   FPos   *
-     ************/
+    /*==========+
+     |   FPos   |
+     +==========*/
 
     inline FPos::FPos(SizeT ext, const SizeT* map) : mExt(ext), mMap(map) {}
     
@@ -224,9 +234,9 @@ namespace CNORXZ
 	return val();
     }
 
-    /*************
-     *   SFPos   *
-     *************/
+    /*===========+
+     |   SFPos   |
+     +===========*/
 
     template <SizeT N, SizeT... Ms>
     Arr<SizeT,sizeof...(Ms)> SFPos<N,Ms...>::sMs = { Ms... };
@@ -310,9 +320,9 @@ namespace CNORXZ
 	return val();
     }
 
-    /************
-     *   MPos   *
-     ************/
+    /*==========+
+     |   MPos   |
+     +==========*/
 
     template <class BPosT, class NPosT>
     constexpr MPos<BPosT,NPosT>::MPos()
@@ -401,9 +411,9 @@ namespace CNORXZ
 	return extend(a);
     }
     
-    /************
-     *   DPos   *
-     ************/
+    /*==========+
+     |   DPos   |
+     +==========*/
 
     inline DPos::DPos(Uptr<VPosBase>&& a) :
 	ObjHandle<VPosBase>(std::forward<Uptr<VPosBase>>(a))
@@ -506,9 +516,9 @@ namespace CNORXZ
 	return val();
     }
 
-    /***************
-     *   DPosRef   *
-     ***************/
+    /*=============+
+     |   DPosRef   |
+     +=============*/
 
     inline DPosRef::DPosRef(const VPosBase* p) : mP(p) {}
 
@@ -587,9 +597,9 @@ namespace CNORXZ
 	return val();
     }
     
-    /************
-     *   EPos   *
-     ************/
+    /*==========+
+     |   EPos   |
+     +==========*/
 
     template <class BPosT, class... OPosTs>
     constexpr EPos<BPosT,OPosTs...>::EPos(const BPosT& b, const OPosTs&... os) :
@@ -679,9 +689,9 @@ namespace CNORXZ
 	return OEPosT(BPosT::next(), std::get<Is>(mP).next()...);
     }
 
-    /*********************************
-     *   Traits and Helper-Classes   *
-     *********************************/
+    /*===============================+
+     |   Traits and Helper-Classes   |
+     +===============================*/
 
     template <class BPosT, class OPosT, SizeT N>
     decltype(auto) MkEPos<BPosT,OPosT,N>::mk(const BPosT& a, const OPosT& b)

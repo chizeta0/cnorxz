@@ -2,10 +2,9 @@
 /**
    
    @file include/array/array.cc.h
-   @brief ...
+   @brief Array main header for template implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/

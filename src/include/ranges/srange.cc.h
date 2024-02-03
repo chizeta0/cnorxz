@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/srange.cc.h
-   @brief ...
+   @brief SRange, SRangeFactory and SIndex implementation.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -18,9 +17,9 @@
 
 namespace CNORXZ
 {
-    /**************
-     *   SIndex   *
-     **************/
+    /*============+
+     |   SIndex   |
+     +============*/
 
     template <typename MetaT, SizeT S>
     SIndex<MetaT,S>::SIndex(const RangePtr& range, SizeT pos) :
@@ -213,9 +212,9 @@ namespace CNORXZ
     }
 
     
-    /*********************
-     *   SRangeFactory   *
-     *********************/
+    /*===================+
+     |   SRangeFactory   |
+     +===================*/
 
     template <typename MetaType, SizeT S>
     SRangeFactory<MetaType,S>::SRangeFactory(const Arr<MetaType,S>& space) :
@@ -248,9 +247,9 @@ namespace CNORXZ
 	}
     }
 
-    /**************
-     *   SRange   *
-     **************/
+    /*============+
+     |   SRange   |
+     +============*/
     
     template <typename MetaType, SizeT S>
     SRange<MetaType,S>::SRange(const Arr<MetaType,S>& space) :
@@ -338,9 +337,9 @@ namespace CNORXZ
 	return Vector<Uuid> { this->id() };
     }
 
-    /*******************
-     *   Range Casts   *
-     *******************/
+    /*=================+
+     |   Range Casts   |
+     +=================*/
 
     template <typename MetaType, SizeT S>
     Sptr<SRange<MetaType,S>> RangeCast<SRange<MetaType,S>>::func(const RangePtr& r)

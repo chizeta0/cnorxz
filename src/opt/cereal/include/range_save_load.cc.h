@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/cereal/include/range_save_load.cc.h
+   @brief CNORXZ Cereal range save load implementation.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __range_save_load_cc_h__
 #define __range_save_load_cc_h__

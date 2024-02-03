@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/operation/extensions/reg.cc.h
+   @brief Register type template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_reg_cc_h__
 #define __cxz_reg_cc_h__
@@ -110,9 +120,9 @@ namespace CNORXZ
 	return consecFuncAI<F,Dst,Args...>(f, dst, args..., std::make_index_sequence<N>{});
     }
 
-    /******************************
-     *   basic operations: plus   *
-     ******************************/
+    /*============================+
+     |   basic operations: plus   |
+     +============================*/
 
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto)
@@ -146,9 +156,9 @@ namespace CNORXZ
 	return consecFuncA<N>( [](auto& x, const auto& y) { return x += y; }, o, a );
     }
 
-    /*******************************
-     *   basic operations: minus   *
-     *******************************/
+    /*=============================+
+     |   basic operations: minus   |
+     +=============================*/
 
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto) MinusCC<T,U,N>::eval(const Consecutive<T,N>& a, const Consecutive<U,N>& b)
@@ -180,9 +190,9 @@ namespace CNORXZ
 	return consecFuncA<N>( [](auto& x, const auto& y) { return x -= y; }, o, a );
     }
 
-    /***********************************
-     *   basic operations: muliplies   *
-     ***********************************/
+    /*=================================+
+     |   basic operations: muliplies   |
+     +=================================*/
 
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto) MultipliesCC<T,U,N>::eval(const Consecutive<T,N>& a, const Consecutive<U,N>& b)
@@ -214,9 +224,9 @@ namespace CNORXZ
 	return consecFuncA<N>( [](const auto& x, const auto& y) { return x *= y; }, o, a );
     }
 
-    /*********************************
-     *   basic operations: divides   *
-     *********************************/
+    /*===============================+
+     |   basic operations: divides   |
+     +===============================*/
 
     template <typename T, typename U, SizeT N>
     constexpr decltype(auto) DividesCC<T,U,N>::eval(const Consecutive<T,N>& a, const Consecutive<U,N>& b)

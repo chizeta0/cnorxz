@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/urange.cc.h
-   @brief ...
+   @brief URange, URangeFactory and UIndex implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -25,9 +24,9 @@
 
 namespace CNORXZ
 {
-    /*****************
-     *    UIndex     *	     
-     *****************/
+    /*===============+
+     |    UIndex     |	     
+     +===============*/
 
     template <typename MetaT>
     UIndex<MetaT>::UIndex(const RangePtr& range, SizeT pos) :
@@ -222,9 +221,9 @@ namespace CNORXZ
 	return iptrMul(a, b);
     }
 
-    /**********************
-     *   URangeFactory    *
-     **********************/
+    /*====================+
+     |   URangeFactory    |
+     +====================*/
 
     template <typename MetaT>
     URangeFactory<MetaT>::URangeFactory(const Vector<MetaT>& space) :
@@ -257,9 +256,9 @@ namespace CNORXZ
 	}
     }
     
-    /***************
-     *   URange    *
-     ***************/
+    /*=============+
+     |   URange    |
+     +=============*/
     
     template <typename MetaT>
     URange<MetaT>::URange(const Vector<MetaT>& space) :
@@ -350,9 +349,9 @@ namespace CNORXZ
 	return Vector<Uuid> { this->id() };
     }
 
-    /*******************
-     *   Range Casts   *
-     *******************/
+    /*=================+
+     |   Range Casts   |
+     +=================*/
 
     template <typename MetaT>
     struct URangeCast

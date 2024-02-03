@@ -1,7 +1,7 @@
 // -*- C++ -*-
 /**
    
-   @file opt/hdf5/include/types.h
+   @file opt/hdf5/include/h5_types.h
    @brief Declaration of hdf5 related library types
 
    This file contains the declaration of all hdf5 related library types

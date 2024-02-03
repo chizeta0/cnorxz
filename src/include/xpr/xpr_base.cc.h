@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/xpr/xpr_base.cc.h
+   @brief Xpression base template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_xpr_base_cc_h__
 #define __cxz_xpr_base_cc_h__
@@ -7,9 +17,9 @@
 namespace CNORXZ
 {
     
-    /************
-     *   VXpr   *
-     ************/
+    /*==========+
+     |   VXpr   |
+     +==========*/
     
     template <typename T, class Xpr>
     VXpr<T,Xpr>::VXpr(const XprInterface<Xpr>& a) :
@@ -40,9 +50,9 @@ namespace CNORXZ
 	return DPos(this->rootSteps(id));
     }
     
-    /************
-     *   DXpr   *
-     ************/
+    /*==========+
+     |   DXpr   |
+     +==========*/
 
     template <typename T>
     template <class Xpr>

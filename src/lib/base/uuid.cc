@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file lib/base/uuid.cc
+   @brief cnorxz uuid implementation.
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include <random>
 #include <ctime>

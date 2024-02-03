@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/cereal/include/cer_ranges.cc.h
+   @brief Load and save implementation for cnorxz ranges.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_cereal_ranges_cc_h__
 #define __cxz_cereal_ranges_cc_h__
@@ -12,9 +22,9 @@
 
 namespace CNORXZ
 {
-    /**************
-     *    save    *
-     **************/
+    /*============+
+     |    save    |
+     +============*/
 
     template <class Archive>
     void save(Archive& ar, const Uuid& id)
@@ -51,9 +61,9 @@ namespace CNORXZ
 	ar(cereal::make_nvp("sub", mRVec));
     }
 
-    /**************
-     *    load    *
-     **************/
+    /*============+
+     |    load    |
+     +============*/
     
     template <class Archive>
     void load(Archive& ar, Uuid& id)
