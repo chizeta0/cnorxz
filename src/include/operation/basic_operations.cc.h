@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file include/operation/basic_operations.cc.h
+   @brief Basic operations implementation
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+ **/
 
 #ifndef __cxz_basic_operations_cc_h__
 #define __cxz_basic_operations_cc_h__

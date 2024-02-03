@@ -11,6 +11,7 @@ namespace CNORXZ
 {
     namespace Test
     {
+	/** @cond 0 */
 	class Numbers
 	{
 	private:
@@ -51,6 +52,7 @@ namespace CNORXZ
 		return Vector<Double>(b,e);
 	    }
 	};
+	/** @endcond */
     }
 }
 

@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/memory/allocator.cc.h
+   @brief Allocator template member function implementation
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_allocator_cc_h__
 #define __cxz_allocator_cc_h__

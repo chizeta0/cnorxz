@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+
+   @file opt/cereal/include/cer_ranges.cc.h
+   @brief Load and save implementation for cnorxz ranges.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+ **/
 
 #ifndef __cxz_cereal_ranges_cc_h__
 #define __cxz_cereal_ranges_cc_h__
