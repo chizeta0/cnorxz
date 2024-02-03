@@ -306,9 +306,9 @@ namespace CNORXZ
 	constexpr decltype(auto) get() const;
     };
 
-    /*********************************
-     *   Traits and Helper-Classes   *
-     *********************************/
+    /*===============================+
+     |   Traits and Helper-Classes   |
+     +===============================*/
     
     template <class T>
     struct is_pos_type { CXZ_CVAL_FALSE; };
@@ -380,9 +380,9 @@ namespace CNORXZ
     template <class BPosT, class OPosT, SizeT... Is>
     decltype(auto) mkiEPos(const BPosT& a, const OPosT& b, std::index_sequence<Is...> is);
 
-    /**************************************************
-     *   Traits and Helper-Classes: Specializations   *
-     **************************************************/
+    /*================================================+
+     |   Traits and Helper-Classes: Specializations   |
+     +================================================*/
 
     template <SizeT N> struct is_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };
     template <SizeT N> struct is_scalar_pos_type<SPos<N>> { CXZ_CVAL_TRUE; };

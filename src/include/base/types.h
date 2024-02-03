@@ -84,7 +84,7 @@ namespace CNORXZ
      |   library types   |
      +===================*/
 
-    /***
+    /*
 	Naming Prefixes:
 	D = Y = Dynamic
 	V = X = Virtual
@@ -100,7 +100,7 @@ namespace CNORXZ
 	A = (const) Array
 	B = (mutable) Array
 	F = Functional, Map,...
-     ***/
+     */
 
     // default template parameter
     class None {};

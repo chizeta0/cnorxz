@@ -17,9 +17,9 @@
 namespace CNORXZ
 {
     
-    /************
-     *   VXpr   *
-     ************/
+    /*==========+
+     |   VXpr   |
+     +==========*/
     
     template <typename T, class Xpr>
     VXpr<T,Xpr>::VXpr(const XprInterface<Xpr>& a) :
@@ -50,9 +50,9 @@ namespace CNORXZ
 	return DPos(this->rootSteps(id));
     }
     
-    /************
-     *   DXpr   *
-     ************/
+    /*==========+
+     |   DXpr   |
+     +==========*/
 
     template <typename T>
     template <class Xpr>

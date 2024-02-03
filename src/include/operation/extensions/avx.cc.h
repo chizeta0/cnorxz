@@ -16,9 +16,9 @@
 
 namespace CNORXZ
 {
-    /***********************
-     *   PlusCC / PlusCX   *
-     ***********************/
+    /*=====================+
+     |   PlusCC / PlusCX   |
+     +=====================*/
     
     inline decltype(auto)
     PlusCC<Double,Double,AVX::ND>::eval(const Consecutive<Double,AVX::ND>& a,
@@ -80,9 +80,9 @@ namespace CNORXZ
 	return o;
     }
 
-    /*************************
-     *   MinusCC / MinusCX   *
-     *************************/
+    /*=======================+
+     |   MinusCC / MinusCX   |
+     +=======================*/
 
     inline decltype(auto)
     MinusCC<Double,Double,AVX::ND>::eval(const Consecutive<Double,AVX::ND>& a,
@@ -144,9 +144,9 @@ namespace CNORXZ
 	return o;
     }
 
-    /***********************************
-     *   MultipliesCC / MultipliesCX   *
-     ***********************************/
+    /*=================================+
+     |   MultipliesCC / MultipliesCX   |
+     +=================================*/
 
     inline decltype(auto)
     MultipliesCC<Double,Double,AVX::ND>::eval(const Consecutive<Double,AVX::ND>& a,
@@ -210,9 +210,9 @@ namespace CNORXZ
     }
     
     
-    /*****************************
-     *   DividesCC / DividesCX   *
-     *****************************/
+    /*===========================+
+     |   DividesCC / DividesCX   |
+     +===========================*/
 
     inline decltype(auto)
     DividesCC<Double,Double,AVX::ND>::eval(const Consecutive<Double,AVX::ND>& a,

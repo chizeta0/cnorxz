@@ -14,9 +14,9 @@
 
 namespace CNORXZ
 {
-    /*************************
-     *   YIndex (private)    *
-     *************************/
+    /*=======================+
+     |   YIndex (private)    |
+     +=======================*/
 
     inline DPack YIndex::mkIndices() const
     {
@@ -130,9 +130,9 @@ namespace CNORXZ
     }
     
     
-    /***************
-     *   YIndex    *
-     ***************/
+    /*=============+
+     |   YIndex    |
+     +=============*/
 
     YIndex::YIndex(const YIndex& i) :
 	IndexInterface<YIndex,Vector<DType>>(i),
@@ -517,9 +517,9 @@ namespace CNORXZ
     }
 
 
-    /****************************
-     *   non-member functions   *
-     ****************************/
+    /*==========================+
+     |   non-member functions   |
+     +==========================*/
 
     YIndex yindex(const DPack& pack)
     {
@@ -541,9 +541,9 @@ namespace CNORXZ
 	return std::make_shared<YIndex>(is);
     }
 
-    /**********************
-     *   YRangeFactory    *
-     **********************/
+    /*====================+
+     |   YRangeFactory    |
+     +====================*/
 
     YRangeFactory::YRangeFactory(const Vector<RangePtr>& rvec) :
 	mRVec(rvec) {}
@@ -570,9 +570,9 @@ namespace CNORXZ
 	}
     }
 
-    /***************
-     *   YRange    *
-     ***************/
+    /*=============+
+     |   YRange    |
+     +=============*/
 
     RangePtr YRange::sub(SizeT i) const
     {
@@ -659,18 +659,18 @@ namespace CNORXZ
     
     YRange::YRange(Vector<RangePtr>&& rvec) : mRVec(std::forward<Vector<RangePtr>>(rvec)) {}
 
-    /****************************
-     *   non-member functions   *
-     ****************************/
+    /*==========================+
+     |   non-member functions   |
+     +==========================*/
 
     RangePtr yrange(const Vector<RangePtr>& rs)
     {
 	return YRangeFactory(rs).create();
     }
 
-    /*******************
-     *   Range Casts   *
-     *******************/
+    /*=================+
+     |   Range Casts   |
+     +=================*/
 
     Sptr<YRange> RangeCast<YRange>::func(const RangePtr& r)
     {

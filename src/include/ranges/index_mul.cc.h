@@ -2,8 +2,7 @@
 /**
    
    @file include/ranges/index_mul.cc.h
-   @brief ...
-
+   @brief Index multiplication template implementation.
 
    Copyright (c) 2022 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
@@ -18,9 +17,9 @@
 namespace CNORXZ
 {
 
-    /*********************
-     *   MIndexSptrMul   *
-     *********************/
+    /*===================+
+     |   MIndexSptrMul   |
+     +===================*/
 
     template <class BlockT, class... Indices, class I, SizeT... Is>
     decltype(auto) MIndexSptrMul::evalMX(const Sptr<GMIndex<BlockT,Indices...>>& a,
@@ -52,9 +51,9 @@ namespace CNORXZ
     }
 
     
-    /*****************
-     *   operator*   *
-     *****************/
+    /*===============+
+     |   operator*   |
+     +===============*/
 
     template <class I1, typename Meta1, class I2, typename Meta2>
     inline decltype(auto) operator*(const IndexInterface<I1,Meta1>& a,
@@ -122,9 +121,9 @@ namespace CNORXZ
 	return a.mul(b);
     }
 
-    /***************
-     *   iptrMul   *
-     ***************/
+    /*=============+
+     |   iptrMul   |
+     +=============*/
 
     template <class I1, class I2>
     decltype(auto) iptrMul(const Sptr<I1>& a, const Sptr<I2>& b)

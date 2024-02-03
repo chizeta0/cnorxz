@@ -17,9 +17,9 @@
 
 namespace CNORXZ
 {
-    /************
-     *   VPos   *
-     ************/
+    /*==========+
+     |   VPos   |
+     +==========*/
 
     template <class PosT>
     VPos<PosT>::VPos(const PosT& a) :
@@ -77,9 +77,9 @@ namespace CNORXZ
 	return std::make_unique<VPos<OPosT>>( (*this)(UPos(a->vval())) );
     }
 
-    /******************
-     *   VPos<MPos>   *
-     ******************/
+    /*================+
+     |   VPos<MPos>   |
+     +================*/
 
     template <class PosT1, class PosT2>
     VPos<MPos<PosT1,PosT2>>::VPos(const VPos& a) :
@@ -168,9 +168,9 @@ namespace CNORXZ
 	return std::make_unique<VPos<OPosT>>( (*this)(UPos(a->vval())) );
     }
 
-    /***************
-     *   VPosRef   *
-     ***************/
+    /*=============+
+     |   VPosRef   |
+     +=============*/
 
     template <class PosT>
     VPosRef<PosT>::VPosRef(const PosT* c) :
@@ -228,9 +228,9 @@ namespace CNORXZ
 	return std::make_unique<VPos<OPosT>>( (*mC)(UPos(a->vval())) );
     }
 
-    /*********************
-     *   VPosRef<MPos>   *
-     *********************/
+    /*===================+
+     |   VPosRef<MPos>   |
+     +===================*/
 
     template <class PosT1, class PosT2>
     VPosRef<MPos<PosT1,PosT2>>::VPosRef(const MPos<PosT1,PosT2>* c) :
@@ -298,9 +298,9 @@ namespace CNORXZ
 	return std::make_unique<VPos<OPosT>>( (*mC)(UPos(a->vval())) );
     }
     
-    /*******************
-     *   PosFromVPos   *
-     *******************/
+    /*=================+
+     |   PosFromVPos   |
+     +=================*/
 
     template <class PosT>
     inline decltype(auto) PosFromVPos<PosT>::make(const VPosBase* a)

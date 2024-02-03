@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/xindex.cc.h
-   @brief ...
+   @brief XIndexBase and XIndex template implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -18,9 +17,9 @@
 namespace CNORXZ
 {
 
-    /**************
-     *   XIndex   *
-     **************/
+    /*============+
+     |   XIndex   |
+     +============*/
     
     template <class Index, typename Meta>
     XIndex<Index,Meta>::XIndex(const IndexPtr<Index,Meta>& i) :

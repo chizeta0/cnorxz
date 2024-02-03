@@ -15,9 +15,9 @@
 namespace CNORXZ
 {
     
-    /*************************
-     *   RangeFactoryBase    *
-     *************************/
+    /*=======================+
+     |   RangeFactoryBase    |
+     +=======================*/
 
     Map<SizeT,Map<Vector<Uuid>,RangePtr>> RangeFactoryBase::sCreated;
     
@@ -56,9 +56,9 @@ namespace CNORXZ
 	return rx;
     }
 
-    /******************
-     *   RangeBase    *
-     ******************/
+    /*================+
+     |   RangeBase    |
+     +================*/
 
     RangeBase::RangeBase()
     {
@@ -101,9 +101,9 @@ namespace CNORXZ
 	return this->index(this->size());
     }
 
-    /****************************
-     *   Non-member functions   *
-     ****************************/
+    /*==========================+
+     |   Non-member functions   |
+     +==========================*/
 
     RangePack::operator RangePtr() const
     {

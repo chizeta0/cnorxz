@@ -2,10 +2,9 @@
 /**
    
    @file include/ranges/index_pack.cc.h
-   @brief ...
+   @brief Index pack template implementations.
 
-
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/
@@ -17,9 +16,9 @@
 
 namespace CNORXZ
 {
-    /*************
-     *   SPack   *
-     *************/
+    /*===========+
+     |   SPack   |
+     +===========*/
 
     template <class... Indices>
     constexpr SPack<Indices...>::SPack(const Sptr<Indices>&... is) :
@@ -96,9 +95,9 @@ namespace CNORXZ
 	return lex();
     }
 
-    /**************************
-     *   SPack (non-member)   *
-     **************************/
+    /*========================+
+     |   SPack (non-member)   |
+     +========================*/
 
     template <class... Indices>
     constexpr decltype(auto) spack(const Indices&... inds)
@@ -114,9 +113,9 @@ namespace CNORXZ
 	return SPack<Indices...>( inds... );
     }
 
-    /*************
-     *   DPack   *
-     *************/
+    /*===========+
+     |   DPack   |
+     +===========*/
 
     template <class... Indices>
     DPack::DPack(const SPack<Indices...>& p) :
@@ -127,9 +126,9 @@ namespace CNORXZ
     {}
 	
 
-    /**************************
-     *   DPack (non-member)   *
-     **************************/
+    /*========================+
+     |   DPack (non-member)   |
+     +========================*/
 
     template <class... Indices>
     DPack dpack(const Indices&... inds)

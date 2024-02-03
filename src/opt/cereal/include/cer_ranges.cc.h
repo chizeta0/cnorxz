@@ -22,9 +22,9 @@
 
 namespace CNORXZ
 {
-    /**************
-     *    save    *
-     **************/
+    /*============+
+     |    save    |
+     +============*/
 
     template <class Archive>
     void save(Archive& ar, const Uuid& id)
@@ -61,9 +61,9 @@ namespace CNORXZ
 	ar(cereal::make_nvp("sub", mRVec));
     }
 
-    /**************
-     *    load    *
-     **************/
+    /*============+
+     |    load    |
+     +============*/
     
     template <class Archive>
     void load(Archive& ar, Uuid& id)
