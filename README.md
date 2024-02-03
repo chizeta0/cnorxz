@@ -72,5 +72,75 @@ Finally, there are the container classes (arrays), which are derived from `CArra
 
 #### Expressions and Operations
 
+In the context of this library, *expressions* are classes representing an expression that is supposed to be executed at given points during an iteration proceedure that involves one or more indexed quantities. Each expression type must fulfill the following requirements:
+
+* There must be an implementation of `operator()` taking a multi-position argument indicating the position for the current iteration of each involved object according to its indices. The function can have an expression defined return value, which can be further processed.
+
+* There must be an implementation of `rootSteps()` taking an index ID as argument. The function should return jump sizes for each involved object corresponding to the given index.
+
+Each expression `Xpr` should be derived from the class `XprInterface<Xpr>`, where `Xpr` is a recurring template argument (static polymorphism).
+
+There are two important expression types:
+
+* *For* expressions: They represent a for loop over a given index.
+
+* *Operations*: They correspond to one or more indexed array types and given operation on or between them. If an operation handles nothing but the access to one single array, it is called *Operation* *Root*. 
+
+Example:
+```cpp
+#include "cnroxz.h"
+
+using namespace CNORZX;
+
+RangePtr r = CRangeFactory(3).create(); // [0,1,2]
+RangePtr s = CRangeFactory(5).create(); // [0,1,2,3,4]
+RangePtr t = URangeFactory<Int>(Vector<Int>{4,5,6}).create(); // [4,5,6]
+i = std::make_shared<CIndex>(r);
+j = std::make_shared<CIndex>(s);
+k = std::make_shared<UIndex<Int>>(t);
+
+MArray<Double> a(r*s*t); // 3-dim array, dimensions = [3,5,3], size = 45
+MArray<Double> b(r*t); // 2-dim array, dimensions = [3,3], size = 9
+MArray<Double> c(s*t); // 2-dim array, dimensions = [3,5], size = 15
+
+// set array element values of a,b,c here...
+
+c(j*k) += ( a(i*j*k) * b(j*k) * xpr(k) ).c(i);
+
+/* Explanation of the above line:
+
+c(j*k), a(i*j*k), b(j*k) and xpr(k) are operation roots, i.e.
+they manage access to the arrays c,a,b and the meta data space of index k
+
+The operations between the operation roots are also operations in the
+sense of this nomenclature, i.e. a(i*j*k) * b(j*k) is again an operation.
+
+The operation member function c() creates contraction, i.e. a for loop
+over the given index (i). If no further functions are specified, the values
+returned by the underlying operations are summed up for equivalent index
+combinations.
+
+The += invokes a for loop over the indices on the l.h.s.. The values returned
+by the expression on the r.h.s. are added to the l.h.s. Something similar could be done
+with a = operator. Then the values would just be assigned instead of added.
+
+*/
+
+// Equivalent C-stype for loop (if a,b,c were C-style arrays):
+
+for(size_t j = 0; j < s; ++j){
+	for(size_t k = 0; k < t; ++k){
+		int kv = k+4;
+		double x = 0;
+		// the contraction part:
+		for(size_t i = 0; i < r; ++i){
+			 x += a[i*s*t+j*t+k] * b[j*t+k] * kv;
+		}
+		c[j*t+k] += x;
+	}
+}
+
+```
+
 ...
 
