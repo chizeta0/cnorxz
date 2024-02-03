@@ -28,7 +28,7 @@ namespace CNORXZ
 	all indices are supposed to be derived from the corresponding
 	template instance
 
-	Indices are act as iterators over parameter spaces (ranges) and/or
+	Indices act as iterators over parameter spaces (ranges) and/or
 	the containers (arrays) defined on them
 
 	Moreover, indices are used to define operations on the

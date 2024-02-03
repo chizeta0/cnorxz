@@ -1,4 +1,6 @@
-# Container with Native Operation Routines by XZ (CNORXZ)
+# Container with Native Operation Routines and Expressions (CNORXZ)
+
+(as always, the name was there before the acronym)
 
 ![Image](./cnorxz_logo.png)
 
