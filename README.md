@@ -6,7 +6,7 @@
 
 ## Description
 
-This library provides a framework for handling multi dimensional containers, their meta data, and several kinds of operations on one or more of them.
+This library provides a framework for handling multi dimensional data containers (arrays or array-like types), their meta data, and several kinds of operations on one or more of them.
 
 ## Build instructions
 
