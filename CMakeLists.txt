@@ -1,11 +1,13 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
   
 project(cnorxz)
 
 # LIB VERSION
 
-set(VERSION_PART "pre")
-set(VERSION_TAG_HASH "6857e3fc7d0af25db3a925791d1cabc6342b930a")
+set(V_MAJOR 0)
+set(V_MINOR 0)
+set(V_PATCH 0)
+set(VERSION "${V_MAJOR}.${V_MINOR}.${V_PATCH}")
 
 # OPTIONS
 
@@ -20,21 +22,13 @@ include(cmake/check_avx.cmake)
 execute_process(COMMAND bash "-c" "git rev-parse HEAD" OUTPUT_VARIABLE GIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND bash "-c" "git rev-parse --abbrev-ref HEAD" OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# BUILD / CHECK VERSION STRING
+# BUILD VERSION STRING
 
-message(STATUS "${GIT_HASH}")
-message(STATUS "${VERSION_PART}")
-message(STATUS "${VERSION_TAG_HASH}")
-set(VERSION "${VERSION_PART}")
+message(STATUS "git hash = ${GIT_HASH}")
+message(STATUS "git branch = ${GIT_BRANCH}")
 if(NOT ("${GIT_BRANCH}" EQUAL "release"))
-  if(NOT ("${GIT_HASH}" EQUAL "${VERSION_TAG_HASH}"))
-    string(SUBSTRING ${GIT_HASH} 0 7 GIT_HASH_SHORT)
-    set(VERSION "${VERSION}-${GIT_BRANCH}-${GIT_HASH_SHORT}")
-  endif()
-else()
-  if(NOT ("${GIT_HASH}" EQUAL "${VERSION_TAG_HASH}"))
-    message(FATAL_ERROR "version mash-up, do not use, contact maintainer")
-  endif()
+  string(SUBSTRING ${GIT_HASH} 0 7 GIT_HASH_SHORT)
+  set(VERSION "${VERSION}-${GIT_BRANCH}-${GIT_HASH_SHORT}")
 endif()
 message(STATUS "version = ${VERSION}")
 
