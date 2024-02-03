@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file lib/ranges/range_base.cc
+   @brief RangeBase implementation.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include "ranges/ranges.h"
 #include "array/array.h"

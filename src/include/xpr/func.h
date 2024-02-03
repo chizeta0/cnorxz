@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/xpr/func.h
+   @brief Special function objects declarations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_func_h__
 #define __cxz_func_h__

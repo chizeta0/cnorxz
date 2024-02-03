@@ -2,12 +2,12 @@
 /**
    
    @file include/ranges/range_base.h
-   @brief RangeBase declaration
+   @brief RangeBase declaration.
 
    Include basic headers containing defintions and macros
    used throughout this library
 
-   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
    
 **/

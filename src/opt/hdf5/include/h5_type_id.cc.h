@@ -1,7 +1,7 @@
 // -*- C++ -*-
 /**
 
-   @file opt/hdf5/include/h5_type_id.h
+   @file opt/hdf5/include/h5_type_id.cc.h
    @brief TypeId template implementation.
 
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.

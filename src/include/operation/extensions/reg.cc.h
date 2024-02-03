@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/operation/extensions/reg.cc.h
+   @brief Register type template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_reg_cc_h__
 #define __cxz_reg_cc_h__

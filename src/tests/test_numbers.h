@@ -1,10 +1,18 @@
+// -*- C++ -*-
+/**
+   
+   @file tests/test_numbers.h
+   @brief Test numbers utilities.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __test_numbers_h__
 #define __test_numbers_h__
 
 #include <fstream>
-//#include "base/types.h"
-//#include "base/assert.h"
 #include "base/base.h"
 
 namespace CNORXZ

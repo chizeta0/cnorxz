@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file include/xpr/index_id.h
+   @brief Index ID type declarations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_index_id_h__
 #define __cxz_index_id_h__

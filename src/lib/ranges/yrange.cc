@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file lib/ranges/yrange.cc
+   @brief YRange and YIndex implementations.
+
+   Copyright (c) 2022 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include "ranges/ranges.h"
 #include "array/array.h"

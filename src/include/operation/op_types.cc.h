@@ -1,9 +1,18 @@
+// -*- C++ -*-
+/**
+   
+   @file include/operation/op_types.cc.h
+   @brief Operation types template implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #ifndef __cxz_op_types_cc_h__
 #define __cxz_op_types_cc_h__
 
 #include "op_types.h"
-//#include "xpr/xpr.h"
 #include "op_utility.h"
 #include "extensions/extensions.h"
 

@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file lib/ranges/index_pack.cc
+   @brief Index pack implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+
+**/
 
 #include "ranges/ranges.h"
 

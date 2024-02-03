@@ -1,3 +1,13 @@
+// -*- C++ -*-
+/**
+   
+   @file lib/ranges/index_format.cc
+   @brief Index formats implementations.
+
+   Copyright (c) 2024 Christian Zimmermann. All rights reserved.
+   Mail: chizeta@f3l.de
+   
+**/
 
 #include "ranges/index_format.h"
 
