@@ -70,7 +70,7 @@ Apart from range specific indices, there exist also special indices:
 
 #### Array types {#sec-array-types}
 
-Finally, there are the container classes (arrays), which are derived from `CArrayBase<T>` (const) or `ArrayBase<T>` for a given data type `T`. All arrays are defined on a range, their data can be accessed or iterated over using suitable indices. The array-type actually containing data is called `MArray<T>`. Moreover, there exist array-types that do not contain data, but view the data of other arrays or at least parts of the data. These are called `CSlice<T>` (const view) or `Slice`.
+Arrays or array-like types contain or view datasets and are derived from `CArrayBase<T>` (const) or `ArrayBase<T>` for a given data type `T`. All array types are defined on a range, their data can be accessed or iterated over using suitable indices. The array-type actually containing data is called `MArray<T>`. Moreover, there exist array-types that do not contain data, but view the data of other arrays or at least parts of the data. These are called `CSlice<T>` (const view) or `Slice`.
 
 #### Expressions and Operations
 
@@ -144,5 +144,11 @@ for(size_t j = 0; j < s; ++j){
 
 ```
 
-...
+More documentation will follow...
+
+## Acknowledgments
+
+GitHub Doxygen Task based on work by [satu0king](https://github.com/satu0king/Github-Documentation-With-Doxygen/tree/master).
+
+I want to thank Gesina Schwalbe for creating the logo.
 
