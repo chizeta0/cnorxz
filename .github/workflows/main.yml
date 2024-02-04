@@ -6,7 +6,7 @@ name: Doxygen Action
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ main ]
   
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
       uses: mattnotmitt/doxygen-action@v1.1.0
       with:
         # Path to Doxyfile
-        doxyfile-path: "./doc/doxy/Doxyfile"
+        doxyfile-path: "./Doxyfile"
         # Working directory
         working-directory: "./doc/doxy"
     
