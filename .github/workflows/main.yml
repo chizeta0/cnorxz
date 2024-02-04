@@ -4,6 +4,7 @@ name: Doxygen Action
 
 # Trigger workflow only on pushed to master branch:
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
   
