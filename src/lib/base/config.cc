@@ -31,5 +31,17 @@ namespace CNORXZ
 	{
 	    return String(CXX_FLAGS);
 	}
+
+	String definitions()
+	{
+	    String o;
+#ifdef HAVE_CEREAL
+	    o += "HAVE_CEREAL ";
+#endif
+#ifdef CXZ_HAVE_AVX
+	    o += "CXZ_HAVE_AVX ";
+#endif
+	    return o;
+	}
     }
 }

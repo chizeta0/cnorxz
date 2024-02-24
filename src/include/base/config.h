@@ -29,6 +29,9 @@ namespace CNORXZ
 
 	/** return compile flags */
 	String flags();
+
+	/** return compile definitions */
+	String definitions();
     }
 }
 

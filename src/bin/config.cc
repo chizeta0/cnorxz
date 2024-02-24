@@ -25,6 +25,7 @@ auto configMap()
     m["--version"] = CNORXZ::Config::version;
     m["--commit"] = CNORXZ::Config::commit;
     m["--flags"] = CNORXZ::Config::flags;
+    m["--definitions"] = CNORXZ::Config::definitions;
     return m;
 }
 
