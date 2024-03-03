@@ -234,6 +234,7 @@ namespace CNORXZ
     template <typename I, typename M>
     T& ArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
+	// TODO: if format of i is non-trivial, use that format without check (checks only in at()!)
 	if(this->formatIsTrivial()){
 	    return data()[i.lex()];
 	}
