@@ -1,8 +1,8 @@
 // -*- C++ -*-
 /**
    
-   @file tests/l_unit_test.cc
-   @brief MArray unit tests.
+   @file opt/mpi/tests/l_unit_test.cc
+   @brief L unit tests.
 
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
