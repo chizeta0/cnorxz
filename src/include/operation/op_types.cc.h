@@ -509,7 +509,41 @@ namespace CNORXZ
 	return i->xpr(i);
     }
 
+    /*============+
+     |    MapOp   |
+     +============*/
+
+    template <class Index, class F>
+    constexpr MapOp<Index,F>::MapOp(const Sptr<Index>& i, F&& f) :
+	mI(i),
+	mF(std::forward<F>(f))
+    {}
+
+    template <class Index, class F>
+    template <class PosT>
+    constexpr decltype(auto) MapOp<Index,F>::operator()(const PosT& pos) const
+    {
+	return mF(pos.val());
+    }
     
+    template <class Index, class F>
+    constexpr decltype(auto) MapOp<Index,F>::operator()() const
+    {
+	return mF(SPos<0>());
+    }
+
+    template <class Index, class F>
+    template <SizeT I>
+    constexpr decltype(auto) MapOp<Index,F>::rootSteps(const IndexId<I>& id) const
+    {
+	return mI->stepSize(id);
+    }
+
+    template <class Index, class F>
+    constexpr decltype(auto) mapop(const Sptr<Index>& i, F&& f)
+    {
+	return MapOp<Index,F>(i, std::forward<F>(f));
+    }
 }
 
 #endif

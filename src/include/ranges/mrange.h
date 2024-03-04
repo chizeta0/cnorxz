@@ -299,6 +299,12 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     constexpr decltype(auto) gmindexPtr(const FormatT& bs, const SPack<Indices...>& pack);
 
+    /** Create pointer to GMIndex from index pack (default format).
+	@param pack Pack of input indices.
+     */
+    template <class... Indices>
+    constexpr decltype(auto) gmindexPtr(const SPack<Indices...>& pack);
+
     /** Specialization for index multiplication with GMIndex on the l.h.s.
 	@param a First index of type GMIndex.
 	@param b Second index of arbitrary type.

@@ -35,78 +35,113 @@ namespace CNORXZ
     {
 	return Vector<T> { a };
     }
-    
+
+    template <typename T, typename U>
+    struct Concat
+    {
+	static constexpr Arr<T,2> cat(const T& a1, const U& a2)
+	{
+	    static_assert( std::is_same<T,U>::value, "types have to be vector, array or equal" );
+	    return Arr<T,2> { a1, a2 };
+	}
+    };
+
     template <typename T, SizeT N1, SizeT N2>
-    constexpr Arr<T,N1+N2> cat2(const Arr<T,N1>& a1, const Arr<T,N2>& a2)
+    struct Concat<Arr<T,N1>,Arr<T,N2>>
     {
-	return iter<0,N1+N2>
-	    ( [&](auto i) { if constexpr(i < N1) { return std::get<i>(a1); } else { return std::get<i-N1>(a2); } },
-	      [](const auto&... e) { return Arr<T,N1+N2> { e... }; } );
-    }
+	static constexpr Arr<T,N1+N2> cat(const Arr<T,N1>& a1, const Arr<T,N2>& a2)
+	{
+	    return iter<0,N1+N2>
+		( [&](auto i) { if constexpr(i < N1) { return std::get<i>(a1); } else { return std::get<i-N1>(a2); } },
+		  [](const auto&... e) { return Arr<T,N1+N2> { e... }; } );
+	}
+    };
 
     template <typename T, SizeT N1>
-    constexpr Arr<T,N1+1> cat2(const Arr<T,N1>& a1, const T& a2)
+    struct Concat<Arr<T,N1>,T>
     {
-	return iter<0,N1>
-	    ( [&](auto i) { return std::get<i>(a1); },
-	      [&](const auto&... e) { return Arr<T,N1+1> { e..., a2 }; } );
-    }
+	static constexpr Arr<T,N1+1> cat(const Arr<T,N1>& a1, const T& a2)
+	{
+	    return iter<0,N1>
+		( [&](auto i) { return std::get<i>(a1); },
+		  [&](const auto&... e) { return Arr<T,N1+1> { e..., a2 }; } );
+	}
+    };
 
     template <typename T, SizeT N1>
-    constexpr Arr<T,N1+1> cat2(const T& a1, const Arr<T,N1>& a2)
+    struct Concat<T,Arr<T,N1>>
     {
-	return iter<0,N1>
-	    ( [&](auto i) { return std::get<i>(a2); },
-	      [&](const auto&... e) { return Arr<T,N1+1> { a1, e... }; } );
-    }
+	static constexpr Arr<T,N1+1> cat(const T& a1, const Arr<T,N1>& a2)
+	{
+	    return iter<0,N1>
+		( [&](auto i) { return std::get<i>(a2); },
+		  [&](const auto&... e) { return Arr<T,N1+1> { a1, e... }; } );
+	}
+    };
 
-    template <typename T>
-    constexpr Arr<T,2> cat2(const T& a1, const T& a2)
-    {
-	return Arr<T,2> { a1, a2 };
-    }
 
     template <typename T, SizeT N2>
-    Vector<T> cat2(const Vector<T>& a1, const Arr<T,N2>& a2)
+    struct Concat<Vector<T>,Arr<T,N2>>
     {
-	Vector<T> o(a1.size()+N2);
-	std::copy(a1.begin(), a1.end(), o.begin());
-	std::copy(a2.begin(), a2.end(), o.begin()+a1.size());
-	return o;
-    }
+	static Vector<T> cat(const Vector<T>& a1, const Arr<T,N2>& a2)
+	{
+	    Vector<T> o(a1.size()+N2);
+	    std::copy(a1.begin(), a1.end(), o.begin());
+	    std::copy(a2.begin(), a2.end(), o.begin()+a1.size());
+	    return o;
+	}
+    };
 
     template <typename T, SizeT N1>
-    Vector<T> cat2(const Arr<T,N1>& a1, const Vector<T>& a2)
+    struct Concat<Arr<T,N1>,Vector<T>>
     {
-	Vector<T> o(N1+a2.size());
-	std::copy(a1.begin(), a1.end(), o.begin());
-	std::copy(a2.begin(), a2.end(), o.begin()+N1);
-	return o;
-    }
+	static Vector<T> cat(const Arr<T,N1>& a1, const Vector<T>& a2)
+	{
+	    Vector<T> o(N1+a2.size());
+	    std::copy(a1.begin(), a1.end(), o.begin());
+	    std::copy(a2.begin(), a2.end(), o.begin()+N1);
+	    return o;
+	}
+    };
 
     template <typename T>
-    Vector<T> cat2(const Vector<T>& a1, const Vector<T>& a2)
+    struct Concat<Vector<T>,Vector<T>>
     {
-	Vector<T> o(a1.size()+a2.size());
-	std::copy(a1.begin(), a1.end(), o.begin());
-	std::copy(a2.begin(), a2.end(), o.begin()+a1.size());
-	return o;
-    }
+	static Vector<T> cat(const Vector<T>& a1, const Vector<T>& a2)
+	{
+	    Vector<T> o(a1.size()+a2.size());
+	    std::copy(a1.begin(), a1.end(), o.begin());
+	    std::copy(a2.begin(), a2.end(), o.begin()+a1.size());
+	    return o;
+	}
+    };
 
     template <typename T>
-    Vector<T> cat2(const Vector<T>& a1, const T& a2)
+    struct Concat<Vector<T>,T>
     {
-	Vector<T> o(a1);
-	o.push_back(a2);
-	return o;
-    }
+	static Vector<T> cat(const Vector<T>& a1, const T& a2)
+	{
+	    Vector<T> o(a1);
+	    o.push_back(a2);
+	    return o;
+	}
+    };
 
-    template <typename T, SizeT N1>
-    Vector<T> cat2(const T& a1, const Vector<T>& a2)
+    template <typename T>
+    struct Concat<T,Vector<T>>
     {
-	Vector<T> o { a1 };
-	o.insert(o.end(), a2.begin(), a2.end());
-	return o;
+	static Vector<T> cat(const T& a1, const Vector<T>& a2)
+	{
+	    Vector<T> o { a1 };
+	    o.insert(o.end(), a2.begin(), a2.end());
+	    return o;
+	}
+    };
+
+    template <typename T1, typename T2>
+    decltype(auto) cat2(const T1& a1, const T2& a2)
+    {
+	return Concat<T1,T2>::cat(a1, a2);
     }
 
     template <typename T1, typename T2, typename... Ts>

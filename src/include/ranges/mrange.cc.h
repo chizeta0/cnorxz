@@ -79,7 +79,7 @@ namespace CNORXZ
     {
 	return gmformat
 	    ( iter<Is,NI>
-	      ( [&](auto i) { return ipack[i]->pmax(); },
+	      ( [&](auto i) { return ipack[i]->lmax(); },
 		[](const auto&... as) { return (as * ...); } )...,
 	      SPos<1>() );
     }
@@ -637,6 +637,12 @@ namespace CNORXZ
 	return std::make_shared<GMIndex<FormatT,Indices...>>(bs, pack);
     }    
     
+    template <class... Indices>
+    constexpr decltype(auto) gmindexPtr(const SPack<Indices...>& pack)
+    {
+	return std::make_shared<GMIndex<MFormat<sizeof...(Indices)>,Indices...>>(pack);
+    }
+
     template <class I1, class FormatT, class... Indices>
     decltype(auto) operator*(const Sptr<GMIndex<FormatT,Indices...>>& a, const Sptr<I1>& b)
     {

@@ -30,8 +30,8 @@ namespace CNORXZ
     template <typename I, typename M>
     const T& CArrayBase<T>::operator[](const IndexInterface<I,M>& i) const
     {
-	if(formatIsTrivial()){
-	    return data()[i.lex()];
+	if(formatIsTrivial() or not i.formatIsTrivial()){
+	    return data()[i.pos()];
 	}
 	else {
 	    auto ai = itLex(i);
@@ -130,19 +130,12 @@ namespace CNORXZ
 	else {
 	    if(i->formatIsTrivial()){
 		// try to apply container format.
-		// if the reformat changes the index type in any manner
-		// the format is not applicable:
-		if constexpr(std::is_same<decltype(i->reformat( Vector<SizeT>(), Vector<SizeT>() )),Index>::value){
-		    auto beg = begin();
-		    auto aformat = beg.deepFormat();
-		    auto amax = beg.deepMax();
-		    auto fi = i->reformat( aformat, amax );
-		    return coproot(*this, moveToPtr( fi ) );
-		}
-		else {
-		    this->checkFormatCompatibility(*i);
-		    return coproot(*this, i);
-		}
+		auto beg = begin();
+		auto aformat = beg.deepFormat();
+		auto amax = beg.deepMax();
+		//auto j = std::make_shared<Index>(*i); // use copy, otherwise would change i
+		i->reformat( aformat, amax );
+		return coproot(*this, i );
 	    }
 	    else {
 		// check if format is compatible
@@ -192,7 +185,7 @@ namespace CNORXZ
 	auto j = begin();
 	CXZ_ASSERT(acc.lmax().val() == j.lmax().val(),
 		   "got index of iteration space size = " << acc.lmax().val()
-		   << ", expected size = " << acc.lmax().val());
+		   << ", expected size = " << j.lmax().val());
 	Vector<SizeT> f1 = toVec(acc.deepFormat());
 	Vector<SizeT> f2 = j.deepFormat();
 	std::sort(f1.begin(),f1.end());
@@ -234,9 +227,8 @@ namespace CNORXZ
     template <typename I, typename M>
     T& ArrayBase<T>::operator[](const IndexInterface<I,M>& i)
     {
-	// TODO: if format of i is non-trivial, use that format without check (checks only in at()!)
-	if(this->formatIsTrivial()){
-	    return data()[i.lex()];
+	if(this->formatIsTrivial() or not i.formatIsTrivial()){
+	    return data()[i.pos()];
 	}
 	else {
 	    auto ai = itLex(i);
@@ -323,19 +315,12 @@ namespace CNORXZ
 	else {
 	    if(i->formatIsTrivial()){
 		// try to apply container format.
-		// if the reformat changes the index type in any manner
-		// the format is not applicable:
-		if constexpr(std::is_same<decltype(i->reformat( Vector<SizeT>(), Vector<SizeT>() )),Index>::value){
-		    auto beg = begin();
-		    auto aformat = beg.deepFormat();
-		    auto amax = beg.deepMax();
-		    auto fi = i->reformat( aformat, amax );
-		    return oproot(*this, moveToPtr( fi ) );
-		}
-		else {
-		    this->checkFormatCompatibility(*i);
-		    return oproot(*this, i);
-		}
+		auto beg = begin();
+		auto aformat = beg.deepFormat();
+		auto amax = beg.deepMax();
+		//auto j = std::make_shared<Index>(*i); // use copy, otherwise would change i
+		i->reformat( aformat, amax );
+		return oproot(*this, i );
 	    }
 	    else {
 		// check if format is compatible

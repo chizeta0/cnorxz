@@ -290,9 +290,35 @@ namespace CNORXZ
     template <class F, class Op, class IndexT>
     constexpr decltype(auto) contraction(F&& f, Op&& op, const Sptr<IndexT>& i);
 
+    // redundant? see xpr()
     template <class IndexT>
     constexpr decltype(auto) indexOp(const Sptr<IndexT>& i);
 
+    template <class Index, class F>
+    class MapOp : public OpInterface<MapOp<Index,F>>
+    {
+    public:
+	typedef OpInterface<MapOp<Index,F>> OI;
+
+	constexpr MapOp() = default;
+	
+	constexpr MapOp(const Sptr<Index>& i, F&& f);
+
+	template <class PosT>
+	constexpr decltype(auto) operator()(const PosT& pos) const;
+
+	constexpr decltype(auto) operator()() const;
+
+	template <SizeT I>
+	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+    private:
+	Sptr<Index> mI;
+	F mF;
+    };
+
+    template <class Index, class F>
+    constexpr decltype(auto) mapop(const Sptr<Index>& i, F&& f);
 }
 
 #endif

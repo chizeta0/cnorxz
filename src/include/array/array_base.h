@@ -45,7 +45,9 @@ namespace CNORXZ
 	/** default destructor */
 	virtual ~CArrayBase() = default;
 
-	/** const data element access
+	/** const data element access.
+	    If the array's format is trivial or the index is already non-trivially formatted,
+	    this is equivalent to data()[i.pos()]. Otherwise, the array's format is applied.
 	    @tparam I index type
 	    @tparam M meta data type
 	    @param i index
@@ -100,7 +102,8 @@ namespace CNORXZ
 	Sptr<CArrayBase<T>> sl(const IndexInterface<I,M>& begin,
 			       const IndexInterface<I,M>& end) const;
 
-	/** create operation on this container
+	/** create operation on this container.
+	    Caution: might modify the index format.
 	    @tparam Index type of operation index
 	    @param i operation index
 	 */
