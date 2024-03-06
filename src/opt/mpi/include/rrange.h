@@ -12,6 +12,8 @@
 #ifndef __cxz_mpi_rrange_h__
 #define __cxz_mpi_rrange_h__
 
+#include "cnorxz.h"
+
 namespace CNORXZ
 {
     /** ****
@@ -24,6 +26,143 @@ namespace CNORXZ
 	typedef RRange RangeType;
 	typedef Vector<SizeT> MetaType;
 
+	INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
+
+	/** Default constructor. */
+	RIndex() = default;
+
+	/** Move constructor. */
+	RIndex(RIndex&& i) = default;
+
+	/** Move assignment. */
+	RIndex& operator=(RIndex&& i) = default;
+
+	/** Copy constructor.
+	    No default copy: Have to copy sub-index instances
+	 */
+	RIndex(const RIndex& i);
+
+	/** Copy assigment.
+	    No default copy: Have to copy sub-index instances
+	 */
+	RIndex& operator=(const RIndex& i);
+
+	/** Construct from a range and an initial lexicographic position
+	    @param range Range to iterate over.
+	    @param lexpos Initial lexicographic position.
+	 */
+	RIndex(const RangePtr& range, SizeT lexpos = 0);
+
+	/** @copydoc IndexInterface::operator=(SizeT) */
+	RIndex& operator=(SizeT lexpos);
+
+	/** @copydoc IndexInterface::operator++() */
+	RIndex& operator++();
+
+	/** @copydoc IndexInterface::operator--() */
+	RIndex& operator--();
+
+	/** @copydoc IndexInterface::operator+() */
+	RIndex operator+(Int n) const;
+
+	/** @copydoc IndexInterface::operator-() */
+	RIndex operator-(Int n) const;
+
+	/** @copydoc IndexInterface::operator-(CIndex) */
+	SizeT operator-(const RIndex& i) const;
+
+	/** @copydoc IndexInterface::operator+=() */
+	RIndex& operator+=(Int n);
+
+	/** @copydoc IndexInterface::operator-=() */
+	RIndex& operator-=(Int n);
+
+	/** @copydoc IndexInterface::lex() */
+	SizeT lex() const;
+
+	/** @copydoc IndexInterface::pmax() */
+	UPos pmax() const;
+
+	/** @copydoc IndexInterface::lmax() */
+	UPos lmax() const;
+
+	/** @copydoc IndexInterface::id() */
+	IndexId<0> id() const;
+	
+	/** @copydoc IndexInterface::operator*() */
+	Vector<DType> operator*() const;
+
+	/** @copydoc IndexInterface::dim() */
+	SizeT dim() const;
+
+	/** @copydoc IndexInterface::range() */
+	Sptr<YRange> range() const;
+
+	/** @copydoc IndexInterface::stepSize() */
+	UPos stepSize(const IndexId<0> id) const;
+
+	/** @copydoc IndexInterface::stringMeta() */
+	String stringMeta() const;
+
+	/** @copydoc IndexInterface::meta() */
+	Vector<DType> meta() const;
+
+	/** @copydoc IndexInterface::at() */
+	RIndex& at(const Vector<DType>& meta);
+
+	/** @copydoc IndexInterface::prange() */
+	RangePtr prange(const RIndex& last) const;
+
+	/** @copydoc IndexInterface::deepFormat() */
+	Vector<SizeT> deepFormat() const;
+
+	/** @copydoc IndexInterface::deepMax() */
+	Vector<SizeT> deepMax() const;
+
+	/** @copydoc IndexInterface::reformat() */
+	RIndex& reformat(const Vector<SizeT>& f, const Vector<SizeT>& s);
+
+	/** @copydoc IndexInterface::ifor() */
+	DXpr<None> ifor(const DXpr<None>& xpr, NoF&& f) const;
+
+	/** @copydoc IndexInterface::formatIsTrivial() */
+	bool formatIsTrivial() const;
+
+	/** Replace sub-index instances.
+	    All linearized positions are updated accordingly.
+	    @param i Pointer to RIndex which provides the new sub-index instance 
+	 */
+	RIndex& operator()(const Sptr<RIndex>& i);
+
+	/** Update all linearized positions. */
+	RIndex& operator()();
+
+	/** Get all sub-indices
+	    @return Pack of sub-indices
+	 */
+	const CPack& pack() const;
+
+	/** Get index format.
+	    @return The format.
+	 */
+	const YFormat& format() const;
+
+	/** Get lexicographic (trivial) index format.
+	    @return The lexicographic format.
+	 */
+	const YFormat& lexFormat() const;
+
+	/** Set the index format.
+	    @param bs The new format.
+	 */
+	RIndex& setFormat(const YFormat& bs);
+
+	/** Set position of given sub index and update total index position.
+	    @param ind Sub-index number [0,dim()-1].
+	    @param lex Lexicographic position to be assigned to the index.
+	 */
+	RIndex& setSub(SizeT ind, SizeT lex);
+	
     private:
 	Sptr<RRange> mRange;
 	Vector<Sptr<CIndex>> mIs; // -> CPack!!!
@@ -62,7 +201,7 @@ namespace CNORXZ
 	RRangeFactory() = default;
 	virtual void make() override final;
 
-	Vector<SizeT> mGeom;
+	MArray<RangePtr> mRA;
     };
 
     /** ****
@@ -85,13 +224,16 @@ namespace CNORXZ
 	virtual const TypeInfo& metaType() const override final;
 	virtual RangePtr extend(const RangePtr& r) const override final;
 
+	int myrank() const;
+	
     private:
 
 	RRange() = default;
 	RRange(const RRange& a) = delete;
-	RRange(const Vector<RangePtr>& rvec);
+	RRange(const MArray<RangePtr>& rvec);
 
-	Vector<RangePtr> mRVec;
+	MArray<RangePtr> mRA;
+	int mMyRank = 0;
 
 	virtual Vector<Uuid> key() const override final;
     };
