@@ -367,8 +367,8 @@ namespace CNORXZ
 	/** Get sub-ranges. */
 	decltype(auto) space() const;
 
-	/** Get sub-range.
-	    @param pos Position of the sub-range.
+	/** Get meta data for given lexicographic position.
+	    @param pos Lexicographic position.
 	 */
 	const MetaType get(SizeT pos) const;
 

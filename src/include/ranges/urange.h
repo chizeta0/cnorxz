@@ -162,7 +162,10 @@ namespace CNORXZ
 
     /** ****
 	Uni-(1-)dimensional range with non-trivial meta data space
-	i.e. the parameter space can be arbitrary.
+	i.e. the parameter space can be arbitrary. However, the parameter space
+	is assumed to be ordered, i.e. the i-1-th element is assumed to be smaller
+	(according to std::less) than the i-th element.
+	(In the future, there will be another range type, where random ordering is possible.)
 	@tparam MetaT Meta data type.
      */
     template <typename MetaT>

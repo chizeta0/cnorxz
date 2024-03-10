@@ -29,6 +29,10 @@ namespace CNORXZ
 
 	template <SizeT I>
 	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+    private:
+	const T* mData;
+	COpRoot
     };
 
     template <typename T, class IndexT>
@@ -46,6 +50,9 @@ namespace CNORXZ
 
 	template <SizeT I>
 	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+
+    private:
+	
     };
 
     template <class CXpr>
