@@ -26,12 +26,12 @@ namespace CNORXZ
 	    @tparam IndexK Index type used to indicate the rank.
 	*/
 	template <class IndexI, class IndexK>
-	class RIndex : public IndexInterface<RIndex<IndexI,IndexK>,typename Index::MetaType>
+	class RIndex : public IndexInterface<RIndex<IndexI,IndexK>,typename IndexI::MetaType>
 	{
 	public:
-	    typedef IndexInterface<RIndex<IndexI,IndexK>,typename Index::MetaType> IB;
-	    typedef typename Index::MetaType MetaType;
-	    typedef RRange<typename Index::RangeType> RangeType;
+	    typedef IndexInterface<RIndex<IndexI,IndexK>,typename IndexI::MetaType> IB;
+	    typedef typename IndexI::MetaType MetaType;
+	    typedef RRange<typename IndexI::RangeType,typename IndexK::RangeType> RangeType;
 
 	    INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
 
@@ -141,7 +141,7 @@ namespace CNORXZ
 	    decltype(auto) xpr(const Sptr<RIndex<IndexI,IndexK>>& _this) const;
 
 	    /** Get the current rank. */
-	    int rank() const;
+	    SizeT rank() const;
 
 	    /** Get the local index on THIS rank. */
 	    Sptr<IndexI,IndexK> local() const;
@@ -149,24 +149,48 @@ namespace CNORXZ
 	
 	private:
 	    Sptr<RangeType> mRange; /**< RRange. */
-	    Sptr<IndexI> mJ; /**< Index on the local range of the THIS rank. */
+	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
 	    //!!!
 	};
 
-	// Factory!!!
+	// Traits!!!
+	
+	/** ****
+	    Specific factory for RRange.
+	    @tparam RangeI Local range type.
+	    @tparam RangeK Geometry range type.
+	 */
+	template <class RangeI, class RangeK>
+	class RRangeFactory : public RangeFactoryBase
+	{
+	public:
+	    /** Construct and setup factory.
+		@param ri Local range.
+		@param rk Geometry range.
+	     */
+	    RRangeFactory(const Sptr<RangeI>& ri, const Sptr<RangeK>& rk);
+	    
+	private:
+	    RRangeFactory() = default;
+	    virtual void make() override final;
+
+	    Sptr<RangeI> mRI;
+	    Sptr<RangeK> mRK;
+	};	
 
 	/** ****
 	    Range-Wrapper for ranges that are distributed on MPI ranks.
-	    @tparam Range Local range type.
+	    @tparam RangeI Local range type.
+	    @tparam RangeK Geometry range type.
 	*/
-	template <class Range>
-	class RRange : public RangeInterface<RRange<Range>>
+	template <class RangeI, class RangeK>
+	class RRange : public RangeInterface<RRange<RangeI,RangeK>>
 	{
 	public:
 	    typedef RangeBase RB;
-	    typedef RIndex<typename Range::IndexType> IndexType;
-	    typedef typename Range::MetaType MetaType;
+	    typedef RIndex<typename RangeI::IndexType,typename RangeK::IndexType> IndexType;
+	    typedef typename RangeI::MetaType MetaType;
 
 	    friend RRangeFactory<Range>;
 
@@ -180,10 +204,10 @@ namespace CNORXZ
 	    virtual RangePtr extend(const RangePtr& r) const override final;
 
 	    /** Get local range. */
-	    Sptr<Range> local() const;
+	    Sptr<RangeI> local() const;
 
 	    /** Get range of the rank geometry. */
-	    Sptr<YRange> geom() const;
+	    Sptr<RangeK> geom() const;
 	    
 	    /** Get meta data for given lexicographic position.
 		@param pos Lexicographic position.
@@ -214,8 +238,8 @@ namespace CNORXZ
 	    */
 	    RRange(const Sptr<Range>& loc, const Sptr<YRange>& geom);
 	
-	    Sptr<Range> mLocal; /**< Local range of THIS rank. */
-	    Sptr<YRange> mGeom; /**< Rank geometry range. */
+	    Sptr<RangeI> mLocal; /**< Local range of THIS rank. */
+	    Sptr<RangeK> mGeom; /**< Rank geometry range. */
 	
 	};
 
