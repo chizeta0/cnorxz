@@ -35,7 +35,6 @@ namespace CNORXZ
 
 	    INDEX_RANDOM_ACCESS_ITERATOR_DEFS(MetaType);
 
-	    // constructors!!!
 	    /** Default constructor. */
 	    RIndex() = default;
 

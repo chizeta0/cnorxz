@@ -13,6 +13,7 @@
 #define __cxz_mpi_rrange_cc_h__
 
 #include "rrange.h"
+#include "mpi_wrappers.h"
 
 namespace CNORXZ
 {
