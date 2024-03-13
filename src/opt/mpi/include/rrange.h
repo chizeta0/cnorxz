@@ -51,14 +51,11 @@ namespace CNORXZ
 	    RIndex& operator=(const RIndex& in);
 
 	    /** Construct from global range and format.
-		@param global Pointer to global range; this can be a RRange or the bare range (will be converted to a RRange).
+		@param global Pointer to global range (RRange).
 		@param lexpos Start position.
 	     */
 	    RIndex(const RangePtr& global, SizeT lexpos = 0);
 
-	    /** Construct from local index. */
-	    RIndex(const Sptr<IndexI,IndexK>& local);
-	    
 	    /** @copydoc IndexInterface::operator=(SizeT) */
 	    RIndex& operator=(SizeT pos);
 
@@ -191,7 +188,7 @@ namespace CNORXZ
 	    typedef RIndex<typename RangeI::IndexType,typename RangeK::IndexType> IndexType;
 	    typedef typename RangeI::MetaType MetaType;
 
-	    friend RRangeFactory<Range>;
+	    friend RRangeFactory<RangeI,RangeK>;
 
 	    virtual RangePtr sub(SizeT num) const override final;
 	    virtual MArray<RangePtr> sub() const override final;
@@ -221,7 +218,7 @@ namespace CNORXZ
 	    /** Get rank from lexicographic meta data position.
 		@param pos Lexicographic meta data position.
 	    */
-	    int getRank(SizeT pos) const;
+	    SizeT getRank(SizeT pos) const;
 
 	protected:
 
@@ -235,7 +232,7 @@ namespace CNORXZ
 		@param loc Local range.
 		@param geom Rank geometry range.
 	    */
-	    RRange(const Sptr<Range>& loc, const Sptr<YRange>& geom);
+	    RRange(const Sptr<RangeI>& loc, const Sptr<RangeK>& geom);
 	
 	    Sptr<RangeI> mLocal; /**< Local range of THIS rank. */
 	    Sptr<RangeK> mGeom; /**< Rank geometry range. */
@@ -246,8 +243,8 @@ namespace CNORXZ
 	    @param global Global range.
 	    @param geom Rank geometry.
 	*/
-	template <class GRange>
-	RangePtr rrange(const Sptr<GRange>& global, const Sptr<YRange>& geom);
+	template <class RangeJ, class RangeK>
+	RangePtr rrange(const Sptr<RangeJ>& global, const Sptr<RangeK>& geom);
 	
     } // namespace mpi
 } // namespace CNORXZ

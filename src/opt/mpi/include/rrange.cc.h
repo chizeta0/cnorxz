@@ -46,19 +46,12 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>::RIndex(const RangePtr& global, SizeT lexpos = 0) :
 	    mRange(rangeCast<RangeType>(global)),
-	    mI(std::make_shared<Index>(mRange->local())),
-	    mK(std::make_shared<YIndex>(mRange->geom()))
+	    mI(std::make_shared<IndexI>(mRange->local())),
+	    mK(std::make_shared<IndexK>(mRange->geom()))
 	{
 	    *this = lexpos;
 	}
 
-	template <class IndexI, class IndexK>
-	RIndex<IndexI,IndexK>::RIndex(const Sptr<Index>& local) :
-	{
-	    CXZ_ERROR("not implemented");
-	    //!!!
-	}
-	    
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator=(SizeT pos)
 	{
@@ -299,6 +292,11 @@ namespace CNORXZ
 	    mRI(ri),
 	    mRK(rk)
 	{
+	    int s = 0;
+	    MPI_Comm_size(MPI_COMM_WORLD, &s);
+	    CXZ_ASSERT(rk->size() == static_cast<SizeT>(s),
+		       "geometry rank size ( = " << rk->size()
+		       << ") does not match number of ranks ( = " << s <<  ")");
 	    if constexpr(has_static_sub<typename RangeI::IndexType>::value and
 			 has_static_sub<typename RangeK::IndexType>::value) {
 		static_assert(typename RangeI::NR == typename RangeK::NR,
@@ -323,6 +321,144 @@ namespace CNORXZ
 	    }
 	}
 
+	/*==============+
+	 |    RRange    |
+	 +==============*/
+
+	template <class RangeI, class RangeK>
+	RangePtr RRange<RangeI,RangeK>::sub(SizeT num) const
+	{
+	    if(num == 0){
+		return mGeom;
+	    }
+	    else if(num == 1){
+		return mLocal;
+	    }
+	    else {
+		CXZ_ERROR("out of range: " << num);
+		return nullptr;
+	    }
+	}
+	
+	template <class RangeI, class RangeK>
+	MArray<RangePtr> RRange<RangeI,RangeK>::sub() const
+	{
+	    RangePtr sr = SRangeFactory<SizeT,2>( Arr<SizeT,2> { 0, 1 } ).create();
+	    return MArray<RangePtr>( sr, Vector<RangePtr>( { mGeom, mLocal } ) );
+	}
+	
+	template <class RangeI, class RangeK>
+	SizeT RRange<RangeI,RangeK>::size() const
+	{
+	    return mGeom->size() * mLocal->size();
+	}
+	
+	template <class RangeI, class RangeK>
+	SizeT RRange<RangeI,RangeK>::dim() const
+	{
+	    return mGeom->dim() + mLocal->dim();
+	}
+	
+	template <class RangeI, class RangeK>
+	String RRange<RangeI,RangeK>::stringMeta(SizeT pos) const
+	{
+	    return (this->begin()+pos).stringMeta();
+	}
+	
+	template <class RangeI, class RangeK>
+	const TypeInfo& RRange<RangeI,RangeK>::type() const
+	{
+	    return typeid(RRange<RangeI,RangeK>);
+	}
+	
+	template <class RangeI, class RangeK>
+	const TypeInfo& RRange<RangeI,RangeK>::metaType() const
+	{
+	    return typeid(MetaType);
+	}
+	
+	template <class RangeI, class RangeK>
+	RangePtr RRange<RangeI,RangeK>::extend(const RangePtr& r) const
+	{
+	    CXZ_ERROR("not implemented");
+	    return nullptr;
+	}
+
+	template <class RangeI, class RangeK>
+	Sptr<RangeI> RRange<RangeI,RangeK>::local() const
+	{
+	    return mLocal;
+	}
+
+	template <class RangeI, class RangeK>
+	Sptr<RangeK> RRange<RangeI,RangeK>::geom() const
+	{
+	    return mGeom;
+	}
+	    
+	template <class RangeI, class RangeK>
+	const MetaType RRange<RangeI,RangeK>::get(SizeT pos) const
+	{
+	    return (this->begin()+pos)->meta();
+	}
+
+	template <class RangeI, class RangeK>
+	SizeT RRange<RangeI,RangeK>::getMeta(const MetaType& metaPos) const
+	{
+	    auto i = this->begin();
+	    return i.at(metaPos).pos();
+	}
+
+	template <class RangeI, class RangeK>
+	SizeT RRange<RangeI,RangeK>::getRank(SizeT pos) const
+	{
+	    return (this->begin()+pos)->rank();
+	}
+	
+	/*=========================+
+	 |    RRange (protected)   |
+	 +=========================*/
+
+	template <class RangeI, class RangeK>
+	RRange<RangeI,RangeK>::RRange(const Sptr<RangeI>& loc, const Sptr<RangeK>& geom) :
+	    mLocal(loc),
+	    mGeom(geom)
+	{}
+
+	/*===========================+
+	 |    non-member functions   |
+	 +===========================*/
+
+	template <class RangeJ, class RangeK>
+	RangePtr rrange(const Sptr<RangeJ>& global, const Sptr<RangeK>& geom)
+	{
+	    if constexpr(has_static_sub<typename RangeJ::IndexType>::value and
+			 has_static_sub<typename RangeK::IndexType>::value) {
+		static_assert(typename RangeI::NR == typename RangeK::NR,
+			      "ranges have to be of same dimension");
+
+		constexpr SizeT N = typename RangeI::NR;
+		auto mr = ifor<0,N>( [&](auto mu) {
+		    return split( global->space()[CSizeT<mu>{}], geom->space()[CSizeT<mu>{}] );
+		}, [](const auto&... r) { return xplMrange(r,...); } );
+		typedef std::remove_reference<decltype(mr)>::type RangeI;
+		return RRangeFactory<RangeI,RangeK>(mr, geom).create(); // explicit range type!!!
+	    }
+	    // other cases!!!
+	    else {
+		CXZ_ASSERT(global->dim() == geom->dim(),
+			   "ranges have to be of same dimension, got "
+			   << global->dim() << " and " << geom->dim());
+		Vector<RangePtr> o(global->dim());
+		for(SizeT mu = 0; mu != global->dim(); ++mu){
+		    o[mu] = split( global->space()[mu], geom->space()[mu] );
+		}
+		const Sptr<YRange> yr = xplYrange(o);
+		return RRangeFactory<YRange,RangeK>(yr, geom).create();
+	    }
+	}
+	
+	
     } // namespace mpi
 } // namespace CNORXZ
 
