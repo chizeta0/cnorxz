@@ -405,6 +405,12 @@ namespace CNORXZ
     template <class... Ranges>
     RangePtr mrange(const Sptr<Ranges>&... rs);
 
+    /** Create MRange pointer.
+	@param rs Pointer to sub-ranges. 
+     */
+    template <class... Ranges>
+    Sptr<MRange<Ranges...>> xplMrange(const Sptr<Ranges>&... rs);
+
     /** ****
 	Specialization of RangeCast for MRange.
 	@see RangeCast.

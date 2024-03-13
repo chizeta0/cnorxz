@@ -668,6 +668,11 @@ namespace CNORXZ
 	return YRangeFactory(rs).create();
     }
 
+    Sptr<YRange> xplYrange(const Vector<RangePtr>& rs)
+    {
+	return std::dynamic_pointer_cast<YRange>( yrange( rs ) );
+    }
+
     /*=================+
      |   Range Casts   |
      +=================*/

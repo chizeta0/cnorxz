@@ -441,7 +441,7 @@ namespace CNORXZ
 		auto mr = ifor<0,N>( [&](auto mu) {
 		    return split( global->space()[CSizeT<mu>{}], geom->space()[CSizeT<mu>{}] );
 		}, [](const auto&... r) { return xplMrange(r,...); } );
-		typedef std::remove_reference<decltype(mr)>::type RangeI;
+		typedef std::remove_reference<decltype(*mr)>::type RangeI;
 		return RRangeFactory<RangeI,RangeK>(mr, geom).create(); // explicit range type!!!
 	    }
 	    // other cases!!!

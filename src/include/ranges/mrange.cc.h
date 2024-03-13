@@ -807,6 +807,12 @@ namespace CNORXZ
     {
 	return MRangeFactory<Ranges...>(std::make_tuple(rs...)).create();
     }
+
+    template <class... Ranges>
+    Sptr<MRange<Ranges...>> xplMrange(const Sptr<Ranges>&... rs)
+    {
+	return std::dynamic_pointer_cast<MRange<Ranges...>>( mrange( rs... ) );
+    }
     
     template <class... Ranges>
     Sptr<MRange<Ranges...>> RangeCast<MRange<Ranges...>>::func(const RangePtr& r)

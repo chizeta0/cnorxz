@@ -343,6 +343,12 @@ namespace CNORXZ
      */
     RangePtr yrange(const Vector<RangePtr>& rs);
 
+    /** Create YRange from sub-ranges.
+	@param rs Vector of pointers to the sub-ranges used by the YRange.
+	@return A shared pointer to the created YRange.
+     */
+    Sptr<YRange> xplYrange(const Vector<RangePtr>& rs);
+
     /** ****
 	Specialize RangeCast for casts to YRange.
 	@see RangeCast
