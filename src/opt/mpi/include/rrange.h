@@ -243,8 +243,7 @@ namespace CNORXZ
 	    @param global Global range.
 	    @param geom Rank geometry.
 	*/
-	template <class RangeJ, class RangeK>
-	RangePtr rrange(const Sptr<RangeJ>& global, const Sptr<RangeK>& geom);
+	RangePtr rrange(const RangePtr& global, const RangePtr& geom);
 	
     } // namespace mpi
 } // namespace CNORXZ

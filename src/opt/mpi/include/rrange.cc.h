@@ -2,7 +2,7 @@
 /**
    
    @file opt/mpi/include/rrange.cc.h
-   @brief RRange and RIndex declaration.
+   @brief RRange and RIndex template implementation.
    
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
@@ -424,40 +424,6 @@ namespace CNORXZ
 	    mLocal(loc),
 	    mGeom(geom)
 	{}
-
-	/*===========================+
-	 |    non-member functions   |
-	 +===========================*/
-
-	template <class RangeJ, class RangeK>
-	RangePtr rrange(const Sptr<RangeJ>& global, const Sptr<RangeK>& geom)
-	{
-	    if constexpr(has_static_sub<typename RangeJ::IndexType>::value and
-			 has_static_sub<typename RangeK::IndexType>::value) {
-		static_assert(typename RangeI::NR == typename RangeK::NR,
-			      "ranges have to be of same dimension");
-
-		constexpr SizeT N = typename RangeI::NR;
-		auto mr = ifor<0,N>( [&](auto mu) {
-		    return split( global->space()[CSizeT<mu>{}], geom->space()[CSizeT<mu>{}] );
-		}, [](const auto&... r) { return xplMrange(r,...); } );
-		typedef std::remove_reference<decltype(*mr)>::type RangeI;
-		return RRangeFactory<RangeI,RangeK>(mr, geom).create(); // explicit range type!!!
-	    }
-	    // other cases!!!
-	    else {
-		CXZ_ASSERT(global->dim() == geom->dim(),
-			   "ranges have to be of same dimension, got "
-			   << global->dim() << " and " << geom->dim());
-		Vector<RangePtr> o(global->dim());
-		for(SizeT mu = 0; mu != global->dim(); ++mu){
-		    o[mu] = split( global->space()[mu], geom->space()[mu] );
-		}
-		const Sptr<YRange> yr = xplYrange(o);
-		return RRangeFactory<YRange,RangeK>(yr, geom).create();
-	    }
-	}
-	
 	
     } // namespace mpi
 } // namespace CNORXZ
