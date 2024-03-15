@@ -123,6 +123,14 @@ else()
   endif()
 endif()
 
+# CHECK LIBRARIES : mpi
+
+if(DEFINED ENABLE_mpi)
+  set(ENABLE_mpi ${ENABLE_mpi} CACHE BOOL "enable mpi")
+else()
+  set(ENABLE_mpi TRUE CACHE BOOL "enable mpi")
+endif()
+
 # DEFINES
 
 add_definitions(-DVERSION="${VERSION}")

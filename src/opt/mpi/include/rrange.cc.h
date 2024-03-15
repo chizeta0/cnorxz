@@ -14,6 +14,7 @@
 
 #include "rrange.h"
 #include "mpi_wrappers.h"
+#include "mpi_wrappers.cc.h"
 
 namespace CNORXZ
 {
@@ -27,24 +28,24 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>::RIndex(const RIndex& in) :
 	    mRange(in.mRange),
-	    mI(std::make_shared<Index>(mRange->local())),
-	    mK(std::make_shared<YIndex>(mRange->geom()))
+	    mI(std::make_shared<IndexI>(mRange->local())),
+	    mK(std::make_shared<IndexK>(mRange->geom()))
 	{
 	    *this = in.lex();
 	}
 
 	template <class IndexI, class IndexK>
-	RIndex& RIndex<IndexI,IndexK>::operator=(const RIndex& in)
+	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator=(const RIndex& in)
 	{
 	    mRange = in.mRange;
-	    mI = std::make_shared<Index>(mRange->local());
-	    mK = std::make_shared<YIndex>(mRange->geom());
+	    mI = std::make_shared<IndexI>(mRange->local());
+	    mK = std::make_shared<IndexK>(mRange->geom());
 	    *this = in.lex();
 	    return *this;
 	}
 
 	template <class IndexI, class IndexK>
-	RIndex<IndexI,IndexK>::RIndex(const RangePtr& global, SizeT lexpos = 0) :
+	RIndex<IndexI,IndexK>::RIndex(const RangePtr& global, SizeT lexpos) :
 	    mRange(rangeCast<RangeType>(global)),
 	    mI(std::make_shared<IndexI>(mRange->local())),
 	    mK(std::make_shared<IndexK>(mRange->geom()))
@@ -56,7 +57,7 @@ namespace CNORXZ
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator=(SizeT pos)
 	{
 	    IB::mPos = pos; // = lex
-	    if(lexpos >= lmax().val()){
+	    if(pos >= lmax().val()){
 		IB::mPos = pmax().val();
 		return *this;
 	    }
@@ -155,15 +156,15 @@ namespace CNORXZ
 	}
 
 	template <class IndexI, class IndexK>
-	constexpr RIndex<IndexI,IndexK>::decltype(auto) pmax() const
+	constexpr decltype(auto) RIndex<IndexI,IndexK>::pmax() const
 	{
-	    return mK->lmax().val() * mI->lmax().val();
+	    return UPos(mK->lmax().val() * mI->lmax().val());
 	}
 
 	template <class IndexI, class IndexK>
-	constexpr RIndex<IndexI,IndexK>::decltype(auto) lmax() const
+	constexpr decltype(auto) RIndex<IndexI,IndexK>::lmax() const
 	{
-	    return mK->lmax().val() * mI->lmax().val();
+	    return UPos(mK->lmax().val() * mI->lmax().val());
 	}
 
 	template <class IndexI, class IndexK>
@@ -173,7 +174,7 @@ namespace CNORXZ
 	}
 
 	template <class IndexI, class IndexK>
-	MetaType RIndex<IndexI,IndexK>::operator*() const
+	typename RIndex<IndexI,IndexK>::MetaType RIndex<IndexI,IndexK>::operator*() const
 	{
 	    return meta();
 	}
@@ -185,7 +186,7 @@ namespace CNORXZ
 	}
 
 	template <class IndexI, class IndexK>
-	Sptr<RangeType> RIndex<IndexI,IndexK>::range() const
+	Sptr<typename RIndex<IndexI,IndexK>::RangeType> RIndex<IndexI,IndexK>::range() const
 	{
 	    return mRange;
 	}
@@ -194,7 +195,7 @@ namespace CNORXZ
 	template <SizeT I>
 	decltype(auto) RIndex<IndexI,IndexK>::stepSize(const IndexId<I>& id) const
 	{
-	    return mK->stepSize(id) * mI->lmax().val() + mI->stepSize(id);
+	    return mK->stepSize(id) * mI->lmax() + mI->stepSize(id);
 	}
 
 	template <class IndexI, class IndexK>
@@ -202,16 +203,20 @@ namespace CNORXZ
 	{
 	    const SizeT r = mK->lex();
 	    String o;
-	    broadcast(r, mI->stringMeta(), &o);
+	    auto x = mI->stringMeta();
+	    bcast(x, r);
 	    return o;
 	}
 
 	template <class IndexI, class IndexK>
-	MetaType RIndex<IndexI,IndexK>::meta() const
+	typename RIndex<IndexI,IndexK>::MetaType RIndex<IndexI,IndexK>::meta() const
 	{
-	    const SizeT r = mK->lex();
 	    MetaType o;
-	    broadcast(r, mI->meta(), &o);
+	    if constexpr(Typemap<MetaType>::exists){
+		auto x = mI->meta();
+		const SizeT r = mK->lex();
+		bcast(x, r);
+	    }
 	    return o;
 	}
 
@@ -253,7 +258,7 @@ namespace CNORXZ
 	constexpr decltype(auto) RIndex<IndexI,IndexK>::ifor(const Xpr& xpr, F&& f) const
 	{
 	    CXZ_ERROR("not implemented");
-	    return 0;
+	    return xpr;
 	}
 
 	template <class IndexI, class IndexK>
@@ -276,7 +281,7 @@ namespace CNORXZ
 	}
 
 	template <class IndexI, class IndexK>
-	Sptr<Index> RIndex<IndexI,IndexK>::local() const
+	Sptr<IndexI> RIndex<IndexI,IndexK>::local() const
 	{
 	    return mI;
 	}
@@ -299,8 +304,9 @@ namespace CNORXZ
 		       << ") does not match number of ranks ( = " << s <<  ")");
 	    if constexpr(has_static_sub<typename RangeI::IndexType>::value and
 			 has_static_sub<typename RangeK::IndexType>::value) {
-		static_assert(typename RangeI::NR == typename RangeK::NR,
-			      "ranges have to be of same dimension");
+		constexpr SizeT NRI = RangeI::NR;
+		constexpr SizeT NRK = RangeK::NR;
+		static_assert(NRI == NRK, "ranges have to be of same dimension");
 	    }
 	    else {
 		CXZ_ASSERT(ri->dim() == rk->dim(), "ranges have to be of same dimension, got "
@@ -311,7 +317,7 @@ namespace CNORXZ
 	template <class RangeI, class RangeK>
 	void RRangeFactory<RangeI,RangeK>::make()
 	{
-	    Vector<Uuid> key = { mRI->key(), mRK->key() };
+	    Vector<Uuid> key = { mRI->id(), mRK->id() };
 	    const auto& info = typeid(RRange<RangeI,RangeK>);
 	    mProd = this->fromCreated(info, key);
 	    if(mProd == nullptr) {
@@ -397,7 +403,7 @@ namespace CNORXZ
 	}
 	    
 	template <class RangeI, class RangeK>
-	const MetaType RRange<RangeI,RangeK>::get(SizeT pos) const
+	const typename RRange<RangeI,RangeK>::MetaType RRange<RangeI,RangeK>::get(SizeT pos) const
 	{
 	    return (this->begin()+pos)->meta();
 	}
@@ -424,6 +430,12 @@ namespace CNORXZ
 	    mLocal(loc),
 	    mGeom(geom)
 	{}
+
+	template <class RangeI, class RangeK>
+	Vector<Uuid> RRange<RangeI,RangeK>::key() const
+	{
+	    return Vector<Uuid> { mLocal->id(), mGeom->id() };
+	}
 	
     } // namespace mpi
 } // namespace CNORXZ

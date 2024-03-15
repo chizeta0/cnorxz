@@ -18,42 +18,42 @@ namespace CNORXZ
 	struct Typemap<int>
 	{
 	    static constexpr bool exists = true;
-	    static constexpr MPI_Datatype value = MPI_INT;
+	    static MPI_Datatype value() { return MPI_INT; }
 	};
 
 	template <>
 	struct Typemap<unsigned>
 	{
 	    static constexpr bool exists = true;
-	    static constexpr MPI_Datatype value = MPI_UNSIGNED;
+	    static MPI_Datatype value() { return MPI_UNSIGNED; }
 	};
 
 	template <>
 	struct Typemap<long int>
 	{
 	    static constexpr bool exists = true;
-	    static constexpr MPI_Datatype value = MPI_LONG;
+	    static MPI_Datatype value() { return MPI_LONG; }
 	};
 
 	template <>
 	struct Typemap<unsigned long>
 	{
 	    static constexpr bool exists = true;
-	    static constexpr MPI_Datatype value = MPI_UNSIGNED_LONG;
+	    static MPI_Datatype value() { return MPI_UNSIGNED_LONG; }
 	};
 
 	template <>
 	struct Typemap<double>
 	{
 	    static constexpr bool exists = true;
-	    static constexpr MPI_Datatype value = MPI_DOUBLE;
+	    static MPI_Datatype value() { return MPI_DOUBLE; }
 	};
 
 	template <>
 	struct Typemap<float>
 	{
 	    static constexpr bool exists = true;
-	    static constexpr MPI_Datatype value = MPI_FLOAT;
+	    static MPI_Datatype value() { return MPI_FLOAT; }
 	};
 
 	// further !!!

@@ -20,6 +20,14 @@ namespace CNORXZ
 {
     namespace mpi
     {
+	// class declarations
+
+	template <class RangeI, class RangeK>
+	class RRange;
+
+	template <class IndexI, class IndexK>
+	class RIndex;
+	
 	// wrapper functions
 	
 	/** Get number of THIS rank. */

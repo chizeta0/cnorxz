@@ -12,4 +12,8 @@ if(ENABLE_cereal)
   add_subdirectory(opt/cereal)
 endif()
 
+if(ENABLE_mpi)
+  add_subdirectory(opt/mpi)
+endif()
+
 install(DIRECTORY include/ DESTINATION ${INSTALL_PATH}/include/cnorxz)

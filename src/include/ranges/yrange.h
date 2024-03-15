@@ -311,6 +311,7 @@ namespace CNORXZ
     public:
 	typedef RangeBase RB;
 	typedef YIndex IndexType;
+	typedef typename IndexType::MetaType MetaType;
 
 	friend YRangeFactory;
 

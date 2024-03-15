@@ -12,7 +12,7 @@
 #ifndef __cxz_mpi_rrange_h__
 #define __cxz_mpi_rrange_h__
 
-#include "cnorxz.h"
+#include "mpi_base.h"
 
 namespace CNORXZ
 {
@@ -140,7 +140,7 @@ namespace CNORXZ
 	    SizeT rank() const;
 
 	    /** Get the local index on THIS rank. */
-	    Sptr<IndexI,IndexK> local() const;
+	    Sptr<IndexI> local() const;
 	    //!!!
 	
 	private:
@@ -237,6 +237,7 @@ namespace CNORXZ
 	    Sptr<RangeI> mLocal; /**< Local range of THIS rank. */
 	    Sptr<RangeK> mGeom; /**< Rank geometry range. */
 	
+	    virtual Vector<Uuid> key() const override final;
 	};
 
 	/** Create RRange from global range and given rank geometry.

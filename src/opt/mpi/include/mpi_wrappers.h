@@ -12,8 +12,7 @@
 #ifndef __cxz_mpi_wrappers_h__
 #define __cxz_mpi_wrappers_h__
 
-#include "mpi.h"
-#include "cnorxz.h"
+#include "mpi_base.h"
 #include "typemap.h"
 
 namespace CNORXZ
