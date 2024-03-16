@@ -380,6 +380,7 @@ namespace CNORXZ
 	    static_assert(std::is_fundamental<MetaT>::value, "got non-fundamental type");
 	    CXZ_ASSERT(r->dim() == 1, "range cast into URange<Int>: source range must have dim = 1, got " << r->dim());
 	    Sptr<URange<MetaT>> o = nullptr;
+	    // TODO: cast from CRange!!!
 	    o = transform<SizeT>(r); if(o) return o;
 	    o = transform<Int>(r); if(o) return o;
 	    o = transform<LInt>(r); if(o) return o;

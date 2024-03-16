@@ -25,6 +25,29 @@ namespace
     using Test::Numbers;
     using namespace CNORXZ::mpi;
 
+    class MPIEnv : public ::testing::Environment
+    {
+    public:
+
+	MPIEnv(int argc, char** argv) : mArgc(argc), mArgv(argv) {}
+	
+	virtual ~MPIEnv() override {}
+
+	virtual void SetUp() override
+	{
+	    MPI_Init(&mArgc, &mArgv);
+	}
+
+	virtual void TearDown() override
+	{
+	    MPI_Finalize();
+	}
+
+    protected:
+	int mArgc;
+	char** mArgv;
+    };
+    
     class RRange_Test : public ::testing::Test
     {
     protected:
@@ -63,9 +86,38 @@ namespace
     TEST_F(RRange_Test, Basics)
     {
 	EXPECT_EQ(mRRange->size(), mGRange->size());
+    }
+
+    TEST_F(RRange_Test, Local)
+    {
 	typedef UIndex<Int> UI;
 	MIndex<UI,UI,UI,UI> mi(mRRange->sub(1));
+	MIndex<CIndex,CIndex,CIndex,CIndex> ri(mRRange->sub(0));
 	EXPECT_EQ(mi.lmax().val(), mGRange->size()/mRRange->sub(0)->size());
+	EXPECT_EQ(ri.lmax().val(), getNumRanks());
+	const SizeT rank = getRankNumber();
+	ri = rank;
+	iter<0,4>( [&](auto i) {
+	    UI xi = *mi.pack()[i];
+	    const SizeT max = xi.lmax().val();
+	    const Int s = mGRange->sub(i)->size()/2;
+	    const SizeT rx = ri.pack()[i]->lex();
+	    for(; xi.lex() != max; ++xi){
+		EXPECT_EQ(*xi, static_cast<Int>(xi.lex()) - s + static_cast<Int>(max*rx));
+	    }
+	}, NoF {} );
+    }
+    
+    TEST_F(RRange_Test, Global)
+    {
+	RIndex<YIndex,YIndex> rgi(mRRange);
+	YIndex gi(mGRange);
+	for(SizeT c = 0; gi.lex() != gi.lmax().val(); ++gi, ++rgi, ++c) {
+	    const String s1 = gi.stringMeta();
+	    const String s2 = rgi.stringMeta();
+	    EXPECT_EQ(rgi.lex(), c);
+	    EXPECT_EQ(s1 ,s2);
+	}
     }
     
 }
@@ -73,8 +125,6 @@ namespace
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
-    MPI_Init(&argc, &argv);
-    const int ret = RUN_ALL_TESTS();
-    MPI_Finalize();
-    return ret;
+    ::testing::AddGlobalTestEnvironment( new MPIEnv(argc, argv) );
+    return RUN_ALL_TESTS();
 }

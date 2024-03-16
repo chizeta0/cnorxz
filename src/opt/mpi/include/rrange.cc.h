@@ -72,8 +72,8 @@ namespace CNORXZ
 	    if constexpr(has_static_sub<IndexI>::value){
 		constexpr SizeT NI = index_dim<IndexI>::value;
 		iter<0,NI>( [&](auto mu) {
-		    const SizeT jmu = (IB::mPos / ilf[mu].val()*klf[mu].val()) %
-			i[mu]->lmax().val()*k[mu]->lmax().val();
+		    const SizeT jmu = (IB::mPos / (ilf[mu].val()*klf[mu].val())) %
+			(i[mu]->lmax().val() * k[mu]->lmax().val());
 		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
 		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
 		}, NoF{} );
@@ -81,8 +81,8 @@ namespace CNORXZ
 	    else if constexpr( has_static_sub<IndexK>::value){
 		constexpr SizeT NI = index_dim<IndexK>::value;
 		iter<0,NI>( [&](auto mu) {
-		    const SizeT jmu = (IB::mPos / ilf[mu].val()*klf[mu].val()) %
-			i[mu]->lmax().val()*k[mu]->lmax().val();
+		    const SizeT jmu = (IB::mPos / (ilf[mu].val()*klf[mu].val())) %
+			(i[mu]->lmax().val() * k[mu]->lmax().val());
 		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
 		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
 		}, NoF{} );
@@ -90,8 +90,8 @@ namespace CNORXZ
 	    else {
 		const SizeT NI = mI->dim();
 		for(SizeT mu = 0; mu != NI; ++mu){
-		    const SizeT jmu = (IB::mPos / ilf[mu].val()*klf[mu].val()) %
-			i[mu]->lmax().val()*k[mu]->lmax().val();
+		    const SizeT jmu = (IB::mPos / (ilf[mu].val()*klf[mu].val())) %
+			(i[mu]->lmax().val() * k[mu]->lmax().val());
 		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
 		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
 		}
@@ -203,8 +203,10 @@ namespace CNORXZ
 	{
 	    const SizeT r = mK->lex();
 	    String o;
-	    auto x = mI->stringMeta();
-	    bcast(x, r);
+	    if(r == getRankNumber()){
+		o = mI->stringMeta();
+	    }
+	    bcast(o, r);
 	    return o;
 	}
 
@@ -213,9 +215,11 @@ namespace CNORXZ
 	{
 	    MetaType o;
 	    if constexpr(Typemap<MetaType>::exists){
-		auto x = mI->meta();
 		const SizeT r = mK->lex();
-		bcast(x, r);
+		if(r == getRankNumber()){
+		    o = mI->meta();
+		}
+		bcast(o, r);
 	    }
 	    return o;
 	}
