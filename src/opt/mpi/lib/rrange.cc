@@ -51,7 +51,9 @@ namespace CNORXZ
 		auto jb = global->begin();
 		auto je = global->begin();
 		MArray<RangePtr> o(geom);
-		o(k) = operation( [&](const SizeT x){ jb = n*x; je = n*(x+1)-1; return jb.prange(je); } , xpr(k) );
+		o(k) = operation( [&](const SizeT x){
+		    jb = n*x; je = n*(x+1)-1; return jb.prange(je);
+		} , xpr(k) );
 		return o;
 	    }
 	}
@@ -66,7 +68,7 @@ namespace CNORXZ
 		}
 	    }
 	    assert(o);
-	    auto loc = rangeCast<YRange>(global);
+	    auto loc = rangeCast<YRange>(o);
 	    auto geo = rangeCast<YRange>(geom);
 	    RRangeFactory<YRange,YRange> xx(loc, geo);
 	    return RRangeFactory<YRange,YRange>(loc, geo).create();

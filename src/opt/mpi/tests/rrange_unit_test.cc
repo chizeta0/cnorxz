@@ -34,6 +34,14 @@ namespace
 	    CXZ_ASSERT(getNumRanks() == 4, "exptected 4 ranks");
 	    Vector<Int> xs(12);
 	    Vector<Int> ts(16);
+	    for(SizeT i = 0; i != xs.size(); ++i){
+		const Int x = static_cast<Int>(i) - static_cast<Int>(xs.size()/2);
+		xs[i] = x;
+	    }
+	    for(SizeT i = 0; i != ts.size(); ++i){
+		const Int t = static_cast<Int>(i) - static_cast<Int>(ts.size()/2);
+		ts[i] = t;
+	    }
 	    mXRange = URangeFactory<Int>(xs).create();
 	    mTRange = URangeFactory<Int>(ts).create();
 	    Vector<RangePtr> rs { mTRange, mXRange, mXRange, mXRange };
@@ -55,6 +63,9 @@ namespace
     TEST_F(RRange_Test, Basics)
     {
 	EXPECT_EQ(mRRange->size(), mGRange->size());
+	typedef UIndex<Int> UI;
+	MIndex<UI,UI,UI,UI> mi(mRRange->sub(1));
+	EXPECT_EQ(mi.lmax().val(), mGRange->size()/mRRange->sub(0)->size());
     }
     
 }
