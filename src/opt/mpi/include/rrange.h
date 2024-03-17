@@ -141,16 +141,25 @@ namespace CNORXZ
 
 	    /** Get the local index on THIS rank. */
 	    Sptr<IndexI> local() const;
-	    //!!!
 	
 	private:
 	    Sptr<RangeType> mRange; /**< RRange. */
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
-	    //!!!
 	};
 
 	// Traits!!!
+	template <class I>
+	struct is_rank_index
+	{
+	    constexpr bool value = false;
+	};
+
+	template <class IndexI, class IndexK>
+	struct is_rank_index<IndexI,IndexK>
+	{
+	    constexpr bool value = true;
+	};
 	
 	/** ****
 	    Specific factory for RRange.
