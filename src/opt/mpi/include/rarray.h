@@ -102,10 +102,14 @@ namespace CNORXZ
 
 	    /** Get local array object. */
 	    const CArrayBase<T>& local() const;
-	
+
+	    /** Get rank geometry. */
+	    RangePtr geom() const;
+	    
 	private:
 	    ObjHandle<CArrayBase<T>> mA;
 	    RangePtr mGeom;
+	    RangePtr mGlobal;
 	};
 
 	/** ****

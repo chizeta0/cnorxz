@@ -20,7 +20,8 @@ namespace CNORXZ
 	template <typename T>
 	RCArray<T>::RCArray(const Sptr<CArrayBase<T>> a, const RangePtr& geom) :
 	    mA(a),
-	    mGeom(geom)
+	    mGeom(geom),
+	    mGlobal(RRangeFactory(a->range(),mGeom).create())
 	{}
 
 	template <typename T>
@@ -53,22 +54,30 @@ namespace CNORXZ
 	template <class... Indices>
 	T RCArray<T>::operator[](const SPack<Indices...>& pack) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return T();
 	}
 
 	template <typename T>
 	template <class... Indices>
 	T RCArray<T>::at(const SPack<Indices...>& pack) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return T();
 	}
 
 	template <typename T>
 	T RCArray<T>::operator[](const DPack& pack) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return T();
 	}
 
 	template <typename T>
 	T RCArray<T>::at(const DPack& pack) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return T();
 	}
 
 	template <typename T>
@@ -76,23 +85,31 @@ namespace CNORXZ
 	Sptr<CArrayBase<T>> RCArray<T>::sl(const IndexInterface<I,M>& begin,
 					   const IndexInterface<I,M>& end) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return nullptr;
 	}
 
 	template <typename T>
 	template <class Index>
 	COpRoot<T,Index> RCArray<T>::operator()(const Sptr<Index>& i) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return COpRoot<T,Index>();
 	}
 
 	template <typename T>
 	template <class... Indices>
 	inline decltype(auto) RCArray<T>::operator()(const SPack<Indices...>& pack) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return COpRoot<T,Index>();
 	}
 
 	template <typename T>
 	inline decltype(auto) RCArray<T>::operator()(const DPack& pack) const
 	{
+	    CXZ_ERROR("not implemented");
+	    return COpRoot<T,Index>();
 	}
 
 	template <typename T>
@@ -110,27 +127,31 @@ namespace CNORXZ
 	template <typename T>
 	RangePtr RCArray<T>::range() const
 	{
-	    return RRangeFactory(mA->range(),mGeom).create();
+	    return mGlobal;
 	}
 
 	template <typename T>
 	const_iterator RCArray<T>::begin() const
 	{
+	    return const_iterator(mA.data(), mGlobal);
 	}
 
 	template <typename T>
 	const_iterator RCArray<T>::end() const
 	{
+	    return const_iterator(mA.data(), mGlobal, mGlobal->size());
 	}
 
 	template <typename T>
 	const_iterator RCArray<T>::cbegin() const
 	{
+	    return const_iterator(mA.data(), mGlobal);
 	}
 
 	template <typename T>
 	const_iterator RCArray<T>::cend() const
 	{
+	    return const_iterator(mA.data(), mGlobal, mGlobal->size());
 	}
 
 	template <typename T>
@@ -145,6 +166,11 @@ namespace CNORXZ
 	    return *mA;
 	}
 
+	template <typename T>
+	RangePtr RCArray<T>::geom() const
+	{
+	    return mGeom;
+	}
 	
     } // namespace mpi
 } // namespace CNORXZ
