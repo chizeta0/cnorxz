@@ -38,6 +38,7 @@ namespace CNORXZ
 	MArray& init(const RangePtr& range);
 	MArray& extend(const RangePtr& range);
 
+	virtual Uptr<CArrayBase<T>> copy() const override;
 	virtual const T* data() const override;
 	virtual T* data() override;
 	virtual const_iterator cbegin() const override;

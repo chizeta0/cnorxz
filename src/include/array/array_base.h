@@ -45,6 +45,9 @@ namespace CNORXZ
 	/** default destructor */
 	virtual ~CArrayBase() = default;
 
+	/** Return unique pointer copy of itself. */
+	virtual Uptr<CArrayBase> copy() const = 0;
+	
 	/** const data element access.
 	    If the array's format is trivial or the index is already non-trivially formatted,
 	    this is equivalent to data()[i.pos()]. Otherwise, the array's format is applied.

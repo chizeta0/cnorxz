@@ -30,6 +30,12 @@ namespace CNORXZ
     {}
 
     template <typename T>
+    Uptr<CArrayBase<T>> CSlice<T>::copy() const
+    {
+	return std::make_unique<CSlice<T>>(*this);
+    }
+
+    template <typename T>
     const T* CSlice<T>::data() const
     {
 	return mCParent->data() + mOff;
@@ -75,6 +81,12 @@ namespace CNORXZ
 	mBlockSizes(blockSizes),
 	mOff(off)
     {}
+
+    template <typename T>
+    Uptr<CArrayBase<T>> Slice<T>::copy() const
+    {
+	return std::make_unique<Slice<T>>(*this);
+    }
 
     template <typename T>
     T* Slice<T>::data()

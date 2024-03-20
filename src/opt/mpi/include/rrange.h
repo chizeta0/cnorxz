@@ -152,13 +152,13 @@ namespace CNORXZ
 	template <class I>
 	struct is_rank_index
 	{
-	    constexpr bool value = false;
+	    static constexpr bool value = false;
 	};
 
 	template <class IndexI, class IndexK>
-	struct is_rank_index<IndexI,IndexK>
+	struct is_rank_index<RIndex<IndexI,IndexK>>
 	{
-	    constexpr bool value = true;
+	    static constexpr bool value = true;
 	};
 	
 	/** ****

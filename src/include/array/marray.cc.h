@@ -62,6 +62,12 @@ namespace CNORXZ
     }
 
     template <typename T>
+    Uptr<CArrayBase<T>> MArray<T>::copy() const
+    {
+	return std::make_unique<MArray<T>>(*this);
+    }
+
+    template <typename T>
     const T* MArray<T>::data() const
     {
 	return mCont.data();

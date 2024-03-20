@@ -41,7 +41,8 @@ namespace CNORXZ
 	 */
 	CSlice(const RangePtr& range, const CArrayBase<T>* parent,
 	       const YFormat& blockSizes, SizeT off);
-	
+
+	virtual Uptr<CArrayBase<T>> copy() const override;
 	virtual const T* data() const override;
 	virtual const_iterator cbegin() const override;
 	virtual const_iterator cend() const override;
@@ -82,6 +83,7 @@ namespace CNORXZ
 	Slice(const RangePtr& range, ArrayBase<T>* parent,
 	      const YFormat& blockSizes, SizeT off);
 
+	virtual Uptr<CArrayBase<T>> copy() const override;
 	virtual const T* data() const override;
 	virtual T* data() override;
 	virtual const_iterator cbegin() const override;
