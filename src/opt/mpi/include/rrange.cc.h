@@ -274,8 +274,7 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	decltype(auto) RIndex<IndexI,IndexK>::xpr(const Sptr<RIndex<IndexI,IndexK>>& _this) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return 0;
+	    return _this->local()->xpr( _this->local() );
 	}
 
 	template <class IndexI, class IndexK>

@@ -115,7 +115,7 @@ namespace CNORXZ
     
     CIndex& CIndex::at(const SizeT& metaPos)
     {
-	IB::mPos = metaPos;
+	IB::mPos = metaPos < lmax().val() ? metaPos : lmax().val();
 	return *this;
     }
 
@@ -204,6 +204,9 @@ namespace CNORXZ
     
     SizeT CRange::getMeta(SizeT metaPos) const
     {
+	if(metaPos >= size()){
+	    return size();
+	}
 	return metaPos;
     }
     

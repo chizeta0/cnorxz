@@ -185,7 +185,8 @@ namespace CNORXZ
 	 */
 	SizeT get(SizeT pos) const;
 
-	/** return position for given meta data
+	/** return position for given meta data.
+	    Returns size() if metaPos is out of scope.
 	    @param metaPos meta data, size type
 	 */
 	SizeT getMeta(SizeT metaPos) const;

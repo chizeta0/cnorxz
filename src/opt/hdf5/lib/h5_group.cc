@@ -93,6 +93,7 @@ namespace CNORXZ
 		const String next = name.substr(delimpos+1);
 		auto g = getGroup(thisname);
 		g->open();
+		CHECK;
 		return g->get(next);
 	    }
 	    auto i = this->getIndexTo(thisname);
@@ -101,7 +102,7 @@ namespace CNORXZ
 
 	Sptr<Group> Group::getGroup(const String& name) const
 	{
-	    auto group = this->get(name);
+	    ContentPtr group = this->get(name);
 	    CXZ_ASSERT(group->type() == ContentType::GROUP,
 		       "element '" << name << "' is not of type GROUP");
 	    return std::dynamic_pointer_cast<Group>( group );
@@ -236,6 +237,7 @@ namespace CNORXZ
 	    auto dvec = [](const String& n) { return Vector<DType>({DType(n)}); };
 	    auto i = mCont.begin();
 	    i.at(dvec(name));
+	    CXZ_ASSERT(i != mCont.end(), "no element '" << name << "' in group " << path());
 	    return i;
 	}
 
@@ -245,6 +247,7 @@ namespace CNORXZ
 	    auto dvec = [](const String& n) { return Vector<DType>({DType(n)}); };
 	    auto i = mCont.begin();
 	    i.at(dvec(name));
+	    CXZ_ASSERT(i != mCont.end(), "no element '" << name << "' in group " << path());
 	    return i;
 	}
 	

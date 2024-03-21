@@ -197,6 +197,7 @@ namespace CNORXZ
 	const MetaType* get() const;
 
 	/** Get range position for given meta data.
+	    Returns size() if metaPos is not part of the range.
 	    @param metaPos Meta data.
 	    @return Position of the given meta data if it is contained by the range.
 	 */
