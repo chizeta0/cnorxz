@@ -12,16 +12,34 @@
 #ifndef __cxz_mpi_rarray_cc_h__
 #define __cxz_mpi_rarray_cc_h__
 
+#include "rarray.h"
+#include "raindex.h"
+
 namespace CNORXZ
 {
     namespace mpi
     {
 
 	template <typename T>
-	RCArray<T>::RCArray(const Sptr<CArrayBase<T>> a, const RangePtr& geom) :
-	    mA(a),
+	RCArray<T>::RCArray(const RCArray& a) :
+	    mA(a.mA->copy()),
+	    mGeom(a.mGeom),
+	    mGlobal(a.mGlobal)
+	{}
+
+	template <typename T>
+	RCArray<T>& RCArray<T>::operator=(const RCArray& a)
+	{
+	    mA = ObjHandle<CArrayBase<T>>(a.mA->copy());
+	    mGeom = a.mGeom;
+	    mGlobal = a.mGlobal;
+	}
+
+	template <typename T>
+	RCArray<T>::RCArray(const CArrayBase<T>& a, const RangePtr& geom) :
+	    mA(a.copy()),
 	    mGeom(geom),
-	    mGlobal(RRangeFactory(a->range(),mGeom).create())
+	    mGlobal(RRangeFactory(rangeCast<YRange>(a.range()),rangeCast<YRange>(mGeom)).create())
 	{}
 
 	template <typename T>
@@ -102,14 +120,16 @@ namespace CNORXZ
 	inline decltype(auto) RCArray<T>::operator()(const SPack<Indices...>& pack) const
 	{
 	    CXZ_ERROR("not implemented");
-	    return COpRoot<T,Index>();
+	    //return COpRoot<T,Index>();
+	    return 0;
 	}
 
 	template <typename T>
 	inline decltype(auto) RCArray<T>::operator()(const DPack& pack) const
 	{
 	    CXZ_ERROR("not implemented");
-	    return COpRoot<T,Index>();
+	    //return COpRoot<T,Index>();
+	    return 0;
 	}
 
 	template <typename T>
@@ -131,27 +151,27 @@ namespace CNORXZ
 	}
 
 	template <typename T>
-	const_iterator RCArray<T>::begin() const
+	typename RCArray<T>::const_iterator RCArray<T>::begin() const
 	{
-	    return const_iterator(mA.data(), mGlobal);
+	    return const_iterator(mA->data(), mGlobal);
 	}
 
 	template <typename T>
-	const_iterator RCArray<T>::end() const
+	typename RCArray<T>::const_iterator RCArray<T>::end() const
 	{
-	    return const_iterator(mA.data(), mGlobal, mGlobal->size());
+	    return const_iterator(mA->data(), mGlobal, mGlobal->size());
 	}
 
 	template <typename T>
-	const_iterator RCArray<T>::cbegin() const
+	typename RCArray<T>::const_iterator RCArray<T>::cbegin() const
 	{
-	    return const_iterator(mA.data(), mGlobal);
+	    return const_iterator(mA->data(), mGlobal);
 	}
 
 	template <typename T>
-	const_iterator RCArray<T>::cend() const
+	typename RCArray<T>::const_iterator RCArray<T>::cend() const
 	{
-	    return const_iterator(mA.data(), mGlobal, mGlobal->size());
+	    return const_iterator(mA->data(), mGlobal, mGlobal->size());
 	}
 
 	template <typename T>

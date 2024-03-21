@@ -12,7 +12,10 @@
 #ifndef __cxz_mpi_raindex_cc_h__
 #define __cxz_mpi_raindex_cc_h__
 
-namespace CNOXRZ
+#include <cstring>
+#include "raindex.h"
+
+namespace CNORXZ
 {
     namespace mpi
     {
@@ -20,7 +23,7 @@ namespace CNOXRZ
 	RAIndex<T>::RAIndex(const T* loc, const RangePtr& range, SizeT lexpos) :
 	    RIndex<YIndex,YIndex>(range, lexpos),
 	    mLoc(loc),
-	    mCur(i.rank()),
+	    mCur(rank()),
 	    mThisRank(getRankNumber())
 	{
 	    setBufferSize();
@@ -30,9 +33,9 @@ namespace CNOXRZ
 
 	template <typename T>
 	RAIndex<T>::RAIndex(const T* loc, const RIndex<YIndex,YIndex>& i) :
-	    RIndex<YIndex,YIndex>(i)
+	    RIndex<YIndex,YIndex>(i),
 	    mLoc(loc),
-	    mCur(i.rank()),
+	    mCur(rank()),
 	    mThisRank(getRankNumber())
 	{
 	    setBufferSize();
@@ -65,25 +68,25 @@ namespace CNOXRZ
 	template <typename T>
 	const T& RAIndex<T>::operator*() const
 	{
+	    if(mCur != rank()){
+		setBuffer();
+	    }
 	    if(rank() != mThisRank){
-		if(mCur != rank()){
-		    setBuffer();
-		}
 		return mBuf[local()->pos() % mBufSize];
 	    }
 	    else {
-		mLoc[local()->pos()];
+		return mLoc[local()->pos()];
 	    }
 	}
 
 	template <typename T>
 	const T* RAIndex<T>::operator->() const
 	{
+	    if(mCur != rank()){
+		setBuffer();
+	    }
 	    if(rank() != mThisRank){
-		if(mCur != rank()){
-		    setBuffer();
-		}
-		return mBuf + local()->pos() % mBufSize;
+		return mBuf.data() + local()->pos() % mBufSize;
 	    }
 	    else {
 		return mLoc + local()->pos();
@@ -104,16 +107,20 @@ namespace CNOXRZ
 	}
 
 	template <typename T>
-	void RAIndex<T>::setBuffer()
+	void RAIndex<T>::setBuffer() const
 	{
 	    if(mBuf.size() != mBufSize){
 		mBuf.resize(mBufSize);
 	    }
 	    // A Bcast alternative with const pointer to source would be better...
-	    std::memcpy(mBuf.data(), mLoc + local()->pos() / mBufSize, mBufSize*sizeof(T));
+	    const T* d = mLoc + (local()->pos() / mBufSize) * mBufSize;
+	    std::memcpy(mBuf.data(), d, mBufSize*sizeof(T));
 	    MPI_Bcast(mBuf.data(), mBufSize*sizeof(T), MPI_BYTE, static_cast<int>(rank()),
 		      MPI_COMM_WORLD );
+	    mCur = rank();
 	}
 	
     } // namespace mpi
 } // namespace CNOXRZ
+
+#endif

@@ -12,3 +12,5 @@
 #include "mpi_wrappers.cc.h"
 //#include "rop_types.cc.h"
 #include "rrange.cc.h"
+#include "raindex.cc.h"
+#include "rarray.cc.h"

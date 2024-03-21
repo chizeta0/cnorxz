@@ -13,6 +13,7 @@
 #define __cxz_mpi_rarray_h__
 
 #include "cnorxz.h"
+#include "raindex.h"
 
 namespace CNORXZ
 {
@@ -26,15 +27,18 @@ namespace CNORXZ
 	class RCArray
 	{
 	public:
-	    typedef RAIndex const_iterator;
+	    typedef RAIndex<T> const_iterator;
 
-	    DEFAULT_MEMBERS(RCArray);
+	    DEFAULT_C(RCArray);
+	    DEFAULT_MOVE(RCArray);
+	    RCArray(const RCArray& a);
+	    RCArray& operator=(const RCArray& a);
 	    
 	    /** Construct from local array object.
 		@param a Local array.
 		@param geom Rank geometry.
 	     */
-	    RCArray(const Sptr<CArrayBase<T>> a, const RangePtr& geom);
+	    RCArray(const CArrayBase<T>& a, const RangePtr& geom);
 
 	    /** @copydoc CArrayBase::operator[] */
 	    template <typename I, typename M>

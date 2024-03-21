@@ -13,6 +13,7 @@
 #define __cxz_mpi_raindex_h__
 
 #include "cnorxz.h"
+#include "rrange.h"
 
 namespace CNORXZ
 {
@@ -49,11 +50,11 @@ namespace CNORXZ
 	    
 	private:
 
-	    void setBuffer();
+	    void setBuffer() const;
 	    
 	    const T* mLoc = nullptr;
-	    Vector<T> mBuf; // used if iterating over content on different rank
-	    SizeT mCur; // current rank in the buffer
+	    mutable Vector<T> mBuf; // used if iterating over content on different rank
+	    mutable SizeT mCur; // current rank in the buffer
 	    SizeT mBufSize;
 	    SizeT mThisRank;
 	};

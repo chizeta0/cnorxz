@@ -27,6 +27,12 @@ namespace CNORXZ
 
 	template <class IndexI, class IndexK>
 	class RIndex;
+
+	template <typename T>
+	class RAIndex;
+
+	template <typename T>
+	class RArray;
 	
 	// wrapper functions
 	

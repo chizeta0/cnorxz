@@ -41,7 +41,7 @@ namespace CNORXZ
     template <typename T>
     ObjHandle<T>& ObjHandle<T>::operator=(ObjHandle&& a)
     {
-	mC = a.mC;
+	mC = std::move(a.mC);
 	return *this;
     }
     

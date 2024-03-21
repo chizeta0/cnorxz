@@ -11,10 +11,10 @@
 
 #include "mpi_base.h"
 #include "mpi_wrappers.h"
-//#include "raindex.h"
-//#include "rarray.h"
-//#include "rop_types.h"
 #include "rrange.h"
+#include "raindex.h"
+#include "rarray.h"
+//#include "rop_types.h"
 #include "typemap.h"
 
 #include "cnorxz_mpi.cc.h"

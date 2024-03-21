@@ -77,16 +77,23 @@ namespace
 	    mGeom = YRangeFactory(gs).create();
 	    mRRange = rrange(mGRange, mGeom);
 	    const SizeT size = ts.size()*xs.size()*xs.size()*xs.size();
-	    Vector<Double> vec = Numbers::get(0,size/4+10);
-	    Vector<Double> data(size);
-	    Vector<Double> mData(size*4);
+	    const SizeT locsize = size/4;
+	    Vector<Double> vec = Numbers::get(0,locsize+10);
+	    Vector<Double> data(locsize);
+	    mData.resize(size);
 	    const SizeT myrank = getRankNumber();
-	    for(SizeT i = 0; i != size; ++i){
+	    for(SizeT i = 0; i != locsize; ++i){
+		assert(i < data.size());
 		data[i] = vec[i] * vec[i+myrank] / vec[i+2*myrank];
-		mData[i + size*myrank] = data[i];
-		MPI_Bcast(mData.data() + size*i, size, MPI_DOUBLE, i, MPI_COMM_WORLD);
+		assert(i + locsize*myrank < mData.size());
+		mData[i + locsize*myrank] = data[i];
 	    }
-	    mLoc = std::make_shared<MArray<Double>>( mRRange->sub(1), data);
+	    MPI_Barrier(MPI_COMM_WORLD);
+	    for(SizeT r = 0; r != 4; ++r){
+		MPI_Bcast(mData.data() + locsize*r, locsize, MPI_DOUBLE, r, MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
+	    }
+	    mLoc = MArray<Double>( mRRange->sub(1), data);
 	    mA = RCArray<Double>(mLoc, mGeom);
 	}
 
@@ -95,22 +102,23 @@ namespace
 	RangePtr mGRange;
 	RangePtr mGeom;
 	RangePtr mRRange;
-	Sptr<MArray<Double>> mLoc;
-	RCArray mA;
+        MArray<Double> mLoc;
+	RCArray<Double> mA;
 	Vector<Double> mData;
     };
 
-    TEST_F(RArray_Test, Basics)
+    TEST_F(RCArray_Test, Basics)
     {
 	EXPECT_EQ(mA.size(), mRRange->size());
     }
-    
-    TEST_F(RArray_Test, GlobalIterate)
+
+    TEST_F(RCArray_Test, GlobalIterate)
     {
 	const SizeT size = mRRange->sub(1)->size();
 	auto e = mA.end();
 	for(auto i = mA.begin(); i != e; ++i){
-	    EXPECT_EQ(*i, mData[i.rank()*size + i.local().pos()]);
+	    const Double x = *i;
+	    EXPECT_EQ(x, mData[i.rank()*size + i.local()->pos()]);
 	}
     }
 }
