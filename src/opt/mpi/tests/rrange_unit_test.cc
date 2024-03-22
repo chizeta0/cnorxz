@@ -119,6 +119,43 @@ namespace
 	    EXPECT_EQ(s1 ,s2);
 	}
     }
+
+    TEST_F(RRange_Test, Global2)
+    {
+	typedef UIndex<Int> UI;
+	typedef MIndex<UI,UI,UI,UI> LocI;
+	typedef MIndex<CIndex,CIndex,CIndex,CIndex> RankI;
+	RIndex<LocI,RankI> rgi(mRRange);
+	LocI gi(mGRange);
+	for(SizeT c = 0; gi.lex() != gi.lmax().val(); ++gi, ++rgi, ++c) {
+	    const String s1 = gi.stringMeta();
+	    const String s2 = rgi.stringMeta();
+	    EXPECT_EQ(rgi.lex(), c);
+	    EXPECT_EQ(s1 ,s2);
+	}
+	rgi = 0;
+	gi = 0;
+	auto xi = gi;
+	gi = 10;
+	xi.at( gi.meta() );
+	EXPECT_EQ( xi.lex(), gi.lex() );
+	//VCHECK(toString(rgi.local()->meta()));
+	VCHECK(rgi.local()->at( gi.meta() ).lex());
+	/*
+	auto j = rgi;
+	for(auto i = rgi; i.lex() != i.lmax().val(); ++i){
+	    j.at( i.meta() );
+	    if(getRankNumber() == 0){
+		EXPECT_EQ(i.lex(), j.lex());
+		EXPECT_EQ(i.rank(), j.rank());
+		EXPECT_EQ(i.local()->lex(), j.local()->lex());
+	    }
+	    if(i.lex() == 50) {
+		break;
+	    }
+	}
+	*/
+    }
     
 }
 

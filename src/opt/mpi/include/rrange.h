@@ -136,6 +136,9 @@ namespace CNORXZ
 	    /** @copydoc IndexInterface::xpr() */
 	    decltype(auto) xpr(const Sptr<RIndex<IndexI,IndexK>>& _this) const;
 
+	    /** Update index position according to the sub-indices. */
+	    RIndex& operator()();
+	    
 	    /** Get the current rank. */
 	    SizeT rank() const;
 
@@ -254,8 +257,15 @@ namespace CNORXZ
 	    @param geom Rank geometry.
 	*/
 	RangePtr rrange(const RangePtr& global, const RangePtr& geom);
-	
+
     } // namespace mpi
+
+    template <class RangeI, class RangeK>
+    struct RangeCast<mpi::RRange<RangeI,RangeK>>
+    {
+	static Sptr<mpi::RRange<RangeI,RangeK>> func(const RangePtr& r);
+    };
+	
 } // namespace CNORXZ
 
 #endif

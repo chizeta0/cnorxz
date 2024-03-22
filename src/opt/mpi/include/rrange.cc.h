@@ -227,7 +227,29 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::at(const MetaType& metaPos)
 	{
-	    CXZ_ERROR("not implemented");
+	    //VCHECK(toString(metaPos));
+	    //VCHECK(toString(mI->meta()));
+	    mI->at(metaPos);
+	    //VCHECK(toString(mI->meta()));
+	    const size_t lex = mI->lex();
+	    //VCHECK(lex);
+	    Vector<size_t> lexs(mK->lmax().val());
+	    MPI_Allgather(&lex, 1, MPI_UNSIGNED_LONG, lexs.data(), 1, MPI_UNSIGNED_LONG,
+			  MPI_COMM_WORLD);
+	    VCHECK(toString(lexs));
+	    SizeT root = 0;
+	    VCHECK(mI->lmax().val());
+	    for(; root != lexs.size() and lexs[root] == mI->lmax().val(); ++root) {}
+	    if(root == lexs.size()){ // metaPos not in rrange
+		*this = lmax().val();
+		assert(0);
+	    }
+	    else {
+		*mK = root;
+		*mI = lexs[root];
+		VCHECK(lexs[root]);
+		(*this)();
+	    }
 	    return *this;
 	}
 
@@ -275,6 +297,42 @@ namespace CNORXZ
 	decltype(auto) RIndex<IndexI,IndexK>::xpr(const Sptr<RIndex<IndexI,IndexK>>& _this) const
 	{
 	    return _this->local()->xpr( _this->local() );
+	}
+
+	template <class IndexI, class IndexK>
+	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator()()
+	{
+	    if constexpr(has_static_sub<IndexI>::value){
+		constexpr SizeT NI = index_dim<IndexI>::value;
+		IB::mPos = iter<0,NI>
+		    ([&](auto i) {
+			return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+			    mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
+			    mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
+			    mK->lexFormat()[i].val();
+		    }, [](const auto&... e) { return (e + ...); });
+	    }
+	    else if constexpr( has_static_sub<IndexK>::value){
+		constexpr SizeT NI = index_dim<IndexK>::value;
+		IB::mPos = iter<0,NI>
+		    ([&](auto i) {
+			return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+			    mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
+			    mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
+			    mK->lexFormat()[i].val();
+		    }, [](const auto&... e) { return (e + ...); });
+	    }
+	    else {
+		const SizeT NI = mI->dim();
+		IB::mPos = 0;
+		for(SizeT i = 0; i != NI; ++i){
+		    IB::mPos += mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+			mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
+			mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
+			mK->lexFormat()[i].val();
+		}
+	    }
+	    return *this;
 	}
 
 	template <class IndexI, class IndexK>
@@ -365,7 +423,7 @@ namespace CNORXZ
 	template <class RangeI, class RangeK>
 	SizeT RRange<RangeI,RangeK>::dim() const
 	{
-	    return mGeom->dim() + mLocal->dim();
+	    return 2;
 	}
 	
 	template <class RangeI, class RangeK>
@@ -439,8 +497,23 @@ namespace CNORXZ
 	{
 	    return Vector<Uuid> { mLocal->id(), mGeom->id() };
 	}
-	
+
+	/*============================+
+	 |    non-member functions    |
+	 +============================*/
+
     } // namespace mpi
+
+    template <class RangeI, class RangeK>
+    Sptr<mpi::RRange<RangeI,RangeK>> RangeCast<mpi::RRange<RangeI,RangeK>>::func(const RangePtr& r)
+    {
+	CXZ_ASSERT(r->dim() == 2, "expected RRange");
+	Sptr<RangeI> loc = rangeCast<RangeI>(r->sub(1));
+	Sptr<RangeK> geom = rangeCast<RangeK>(r->sub(0));
+	return std::dynamic_pointer_cast<mpi::RRange<RangeI,RangeK>>
+	    ( mpi::RRangeFactory( loc, geom ).create() );
+    }
+	
 } // namespace CNORXZ
 
 #endif
