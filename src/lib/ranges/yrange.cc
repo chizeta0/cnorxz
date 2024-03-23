@@ -64,9 +64,15 @@ namespace CNORXZ
     {
 	mLex = 0;
 	IB::mPos = 0;
+	bool outOfScope = false;
 	for(SizeT i = 0; i != dim(); ++i){
+	    outOfScope |= mIs[i]->lex() >= mIs[i]->lmax().val();
 	    mLex += mIs[i]->lex() * mLexFormat[i].val();
 	    IB::mPos += mIs[i]->pos() * mFormat[i].val();
+	}
+	if(outOfScope){
+	    IB::mPos = pmax().val();
+	    mLex = lmax().val();
 	}
     }
     
