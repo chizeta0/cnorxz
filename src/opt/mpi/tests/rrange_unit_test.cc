@@ -134,17 +134,11 @@ namespace
 	    EXPECT_EQ(s1 ,s2);
 	}
 	rgi = 0;
-	gi = 0;
-	auto xi = gi;
-	gi = 10;
-	xi.at( gi.meta() );
-	EXPECT_EQ( xi.lex(), gi.lex() );
-	//VCHECK(toString(rgi.local()->meta()));
-	VCHECK(rgi.local()->at( gi.meta() ).lex());
-	/*
 	auto j = rgi;
 	for(auto i = rgi; i.lex() != i.lmax().val(); ++i){
 	    j.at( i.meta() );
+	    //const auto imeta = toString(i.meta());
+	    //const auto jmeta = toString(j.meta());
 	    if(getRankNumber() == 0){
 		EXPECT_EQ(i.lex(), j.lex());
 		EXPECT_EQ(i.rank(), j.rank());
@@ -154,7 +148,6 @@ namespace
 		break;
 	    }
 	}
-	*/
     }
     
 }

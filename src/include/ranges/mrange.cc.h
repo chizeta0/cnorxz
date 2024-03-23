@@ -60,8 +60,12 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     inline void GMIndex<FormatT,Indices...>::mkPos()
     {
+	bool outOfScope = false;
 	mLex = iter<0,NI>
-	    ([&](auto i) { return mIPack[i]->lex() * mLexFormat[i].val(); },
+	    ([&](auto i) {
+		outOfScope |= mIPack[i]->lex() >= mIPack[i]->lmax().val();
+		return mIPack[i]->lex() * mLexFormat[i].val();
+	    },
 	     [](const auto&... e) { return (e + ...); });
 	if constexpr(not std::is_same<FormatT,None>::value){
 	    IB::mPos = iter<0,NI>
@@ -70,6 +74,10 @@ namespace CNORXZ
 	}
 	else {
 	    IB::mPos = mLex;
+	}
+	if(outOfScope){
+	    IB::mPos = pmax().val();
+	    mLex = lmax().val();
 	}
     }
 
@@ -433,9 +441,7 @@ namespace CNORXZ
     GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::at(const MetaType& metaPos)
     {
 	iter<0,NI>( [&](auto i) { mIPack[i]->at( std::get<i>(metaPos) ); }, NoF {} );
-	IB::mPos = iter<0,NI>
-	    ( [&](auto i) { return mIPack[i]->pos()*format()[i].val(); },
-	      [](const auto&... xs) { return (xs + ...); });
+	mkPos();
 	return *this;
     }
 

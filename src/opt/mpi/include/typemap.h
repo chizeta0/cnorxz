@@ -12,6 +12,7 @@ namespace CNORXZ
 	struct Typemap
 	{
 	    static constexpr bool exists = false;
+	    static MPI_Datatype value() { return MPI_BYTE; }
 	};
 
 	template <>
@@ -56,6 +57,28 @@ namespace CNORXZ
 	    static MPI_Datatype value() { return MPI_FLOAT; }
 	};
 
+	template <typename T, SizeT N>
+	struct Typemap<Arr<T,N>>
+	{
+	    static constexpr bool exists = Typemap<T>::exists;
+	    static MPI_Datatype value() { return Typemap<T>::value(); }
+	};
+
+	template <typename T>
+	struct Typemap<Vector<T>>
+	{
+	    static constexpr bool exists = Typemap<T>::exists;
+	    static MPI_Datatype value() { return Typemap<T>::value(); }
+	};
+
+	template <typename... Ts>
+	struct Typemap<Tuple<Ts...>>
+	{
+	    static constexpr bool exists = ( Typemap<Ts>::exists and ... );
+	    static MPI_Datatype value() { return MPI_BYTE; }
+	};
+	
+	
 	// further !!!
 	
     } // namespace mpi

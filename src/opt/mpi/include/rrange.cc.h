@@ -221,24 +221,24 @@ namespace CNORXZ
 		}
 		bcast(o, r);
 	    }
+	    else {
+		// TODO: In general don't allow RIndices if broadcast for MetaType
+		// does not exitst (once DType broadcast is implemented)!!!
+		CXZ_ERROR("no broadcast implementation for given meta type ("
+			  << typeid(MetaType).name() << ") available");
+	    }
 	    return o;
 	}
 
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::at(const MetaType& metaPos)
 	{
-	    //VCHECK(toString(metaPos));
-	    //VCHECK(toString(mI->meta()));
 	    mI->at(metaPos);
-	    //VCHECK(toString(mI->meta()));
 	    const size_t lex = mI->lex();
-	    //VCHECK(lex);
 	    Vector<size_t> lexs(mK->lmax().val());
 	    MPI_Allgather(&lex, 1, MPI_UNSIGNED_LONG, lexs.data(), 1, MPI_UNSIGNED_LONG,
 			  MPI_COMM_WORLD);
-	    VCHECK(toString(lexs));
 	    SizeT root = 0;
-	    VCHECK(mI->lmax().val());
 	    for(; root != lexs.size() and lexs[root] == mI->lmax().val(); ++root) {}
 	    if(root == lexs.size()){ // metaPos not in rrange
 		*this = lmax().val();
@@ -247,7 +247,6 @@ namespace CNORXZ
 	    else {
 		*mK = root;
 		*mI = lexs[root];
-		VCHECK(lexs[root]);
 		(*this)();
 	    }
 	    return *this;
@@ -302,6 +301,9 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator()()
 	{
+	    if(mI->lex() >= mI->lmax().val()){
+		IB::mPos = lmax().val();
+	    }
 	    if constexpr(has_static_sub<IndexI>::value){
 		constexpr SizeT NI = index_dim<IndexI>::value;
 		IB::mPos = iter<0,NI>
