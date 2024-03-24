@@ -14,67 +14,70 @@
 
 namespace CNORXZ
 {
-    template <typename T, class IndexT>
-    class CROpRoot : public COpInterface<CROpRoot<T,IndexT>>
+    namespace mpi
     {
-    public:
-	typedef COpInterface<CROpRoot<T,IndexT>> OI;
+	template <typename T, class IndexT>
+	class CROpRoot : public COpInterface<CROpRoot<T,IndexT>>
+	{
+	public:
+	    typedef COpInterface<CROpRoot<T,IndexT>> OI;
 
-	constexpr CROpRoot() = default;
+	    constexpr CROpRoot() = default;
 
-    	template <class PosT>
-	constexpr decltype(auto) operator()(const PosT& pos) const;
+	    template <class PosT>
+	    constexpr decltype(auto) operator()(const PosT& pos) const;
 
-	constexpr decltype(auto) operator()() const;
+	    constexpr decltype(auto) operator()() const;
 
-	template <SizeT I>
-	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+	    template <SizeT I>
+	    constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
-    private:
-	const T* mData;
-	COpRoot
-    };
+	private:
+	    const T* mData;
+	    COpRoot
+	};
 
-    template <typename T, class IndexT>
-    class ROpRoot : public OpInterface<ROpRoot<T,IndexT>>
-    {
-    public:
-	typedef OpInterface<ROpRoot<T,IndexT>> OI;
+	template <typename T, class IndexT>
+	class ROpRoot : public OpInterface<ROpRoot<T,IndexT>>
+	{
+	public:
+	    typedef OpInterface<ROpRoot<T,IndexT>> OI;
 
-	constexpr ROpRoot() = default;
+	    constexpr ROpRoot() = default;
 
-	template <class PosT>
-	constexpr decltype(auto) operator()(const PosT& pos) const;
+	    template <class PosT>
+	    constexpr decltype(auto) operator()(const PosT& pos) const;
 
-	constexpr decltype(auto) operator()() const;
+	    constexpr decltype(auto) operator()() const;
 
-	template <SizeT I>
-	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+	    template <SizeT I>
+	    constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
-    private:
+	private:
 	
-    };
+	};
 
-    template <class CXpr>
-    class RContraction : public OpInterfacte<RContraction<CXpr>>
-    {
-    public:
-	typedef OpInterfacte<RContraction<CXpr>> OI;
+	template <class CXpr>
+	class RContraction : public OpInterfacte<RContraction<CXpr>>
+	{
+	public:
+	    typedef OpInterfacte<RContraction<CXpr>> OI;
 
-	constexpr RContraction() = default;
-	constexpr RContraction(CXpr&& cxpr);
+	    constexpr RContraction() = default;
+	    constexpr RContraction(CXpr&& cxpr);
 
-	template <class PosT>
-	constexpr decltype(auto) operator()(const PosT& pos) const;
+	    template <class PosT>
+	    constexpr decltype(auto) operator()(const PosT& pos) const;
 
-	constexpr decltype(auto) operator()() const;
+	    constexpr decltype(auto) operator()() const;
 
-	template <SizeT I>
-	constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
+	    template <SizeT I>
+	    constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
-    private:
-	CXpr mCXpr;
-    };
-}
+	private:
+	    CXpr mCXpr;
+	};
+    } // namespace mpi
+} // namespace CNORXZ
 
 #endif

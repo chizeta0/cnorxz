@@ -146,6 +146,7 @@ namespace CNORXZ
 	    Sptr<IndexI> local() const;
 	
 	private:
+	    SizeT mLex = 0;
 	    Sptr<RangeType> mRange; /**< RRange. */
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */

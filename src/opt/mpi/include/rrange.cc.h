@@ -56,9 +56,9 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator=(SizeT pos)
 	{
-	    IB::mPos = pos; // = lex
-	    if(pos >= lmax().val()){
-		IB::mPos = pmax().val();
+	    mLex = pos; // = lex
+	    if(mLex >= lmax().val()){
+		mLex = lmax().val();
 		return *this;
 	    }
 	    // pos is the lexicographic position of the global range.
@@ -72,7 +72,7 @@ namespace CNORXZ
 	    if constexpr(has_static_sub<IndexI>::value){
 		constexpr SizeT NI = index_dim<IndexI>::value;
 		iter<0,NI>( [&](auto mu) {
-		    const SizeT jmu = (IB::mPos / (ilf[mu].val()*klf[mu].val())) %
+		    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
 			(i[mu]->lmax().val() * k[mu]->lmax().val());
 		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
 		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
@@ -81,7 +81,7 @@ namespace CNORXZ
 	    else if constexpr( has_static_sub<IndexK>::value){
 		constexpr SizeT NI = index_dim<IndexK>::value;
 		iter<0,NI>( [&](auto mu) {
-		    const SizeT jmu = (IB::mPos / (ilf[mu].val()*klf[mu].val())) %
+		    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
 			(i[mu]->lmax().val() * k[mu]->lmax().val());
 		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
 		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
@@ -90,7 +90,7 @@ namespace CNORXZ
 	    else {
 		const SizeT NI = mI->dim();
 		for(SizeT mu = 0; mu != NI; ++mu){
-		    const SizeT jmu = (IB::mPos / (ilf[mu].val()*klf[mu].val())) %
+		    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
 			(i[mu]->lmax().val() * k[mu]->lmax().val());
 		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
 		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
@@ -98,6 +98,7 @@ namespace CNORXZ
 	    }
 	    *mI = l;
 	    *mK = r;
+	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
 	    return *this;
 	}
 
@@ -152,13 +153,13 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	SizeT RIndex<IndexI,IndexK>::lex() const
 	{
-	    return IB::mPos;
+	    return mLex;
 	}
 
 	template <class IndexI, class IndexK>
 	constexpr decltype(auto) RIndex<IndexI,IndexK>::pmax() const
 	{
-	    return UPos(mK->lmax().val() * mI->lmax().val());
+	    return UPos(mK->pmax().val() * mI->pmax().val());
 	}
 
 	template <class IndexI, class IndexK>
@@ -302,11 +303,11 @@ namespace CNORXZ
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator()()
 	{
 	    if(mI->lex() >= mI->lmax().val()){
-		IB::mPos = lmax().val();
+		mLex = lmax().val();
 	    }
 	    if constexpr(has_static_sub<IndexI>::value){
 		constexpr SizeT NI = index_dim<IndexI>::value;
-		IB::mPos = iter<0,NI>
+		mLex = iter<0,NI>
 		    ([&](auto i) {
 			return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
 			    mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
@@ -316,7 +317,7 @@ namespace CNORXZ
 	    }
 	    else if constexpr( has_static_sub<IndexK>::value){
 		constexpr SizeT NI = index_dim<IndexK>::value;
-		IB::mPos = iter<0,NI>
+		mLex = iter<0,NI>
 		    ([&](auto i) {
 			return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
 			    mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
@@ -326,14 +327,15 @@ namespace CNORXZ
 	    }
 	    else {
 		const SizeT NI = mI->dim();
-		IB::mPos = 0;
+		mLex = 0;
 		for(SizeT i = 0; i != NI; ++i){
-		    IB::mPos += mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+		    mLex += mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
 			mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
 			mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
 			mK->lexFormat()[i].val();
 		}
 	    }
+	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
 	    return *this;
 	}
 
