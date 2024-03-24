@@ -137,15 +137,10 @@ namespace
 	auto j = rgi;
 	for(auto i = rgi; i.lex() != i.lmax().val(); ++i){
 	    j.at( i.meta() );
-	    //const auto imeta = toString(i.meta());
-	    //const auto jmeta = toString(j.meta());
 	    if(getRankNumber() == 0){
 		EXPECT_EQ(i.lex(), j.lex());
 		EXPECT_EQ(i.rank(), j.rank());
 		EXPECT_EQ(i.local()->lex(), j.local()->lex());
-	    }
-	    if(i.lex() == 50) {
-		break;
 	    }
 	}
     }
