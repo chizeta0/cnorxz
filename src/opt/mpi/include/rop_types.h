@@ -20,7 +20,7 @@ namespace CNORXZ
 	class CROpRoot : public COpInterface<CROpRoot<T,IndexT>>
 	{
 	public:
-	    typedef COpInterface<CROpRoot<T,IndexT>> OI;
+	    typedef COpInterface<CROpRoot<T,IndexT >> OI;
 
 	    constexpr CROpRoot() = default;
 
@@ -33,8 +33,11 @@ namespace CNORXZ
 	    constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
 	private:
-	    const T* mData;
-	    COpRoot
+	    // 
+	    const T* mData; // must include all needed data, also that of other ranks (to be transmitted before!)
+	    // maps the global (!) position to mData!!
+	    const SizeT* mPos; // position map (needed to indicate position to data transmitted from other ranks)
+	    Sptr<IndexT> mIndex;
 	};
 
 	template <typename T, class IndexT>

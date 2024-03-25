@@ -14,24 +14,20 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr decltype(auto) CROpRoot<T,IndexT>::operator()(const PosT& pos) const
 	{
-	    const SizeT L = mIndex->lmax().val();
-	    const SizeT m = mIndex->myrank();
-	    const SizeT dst = ( m + pos.val() ) % L;
-	    const SizeT src = ( m - pos.val() + L ) % L;
-	    
+	    return (mData+mPos[pos.val()])[pos.next().val()];
 	}
 
 	template <typename T, class IndexT>
 	constexpr decltype(auto) CROpRoot<T,IndexT>::operator()() const
 	{
-
+	    return (mData+mPos[0])[0];
 	}
 
 	template <typename T, class IndexT>
 	template <SizeT I>
 	constexpr decltype(auto) CROpRoot<T,IndexT>::rootSteps(const IndexId<I>& id) const
 	{
-
+	    
 	}
     
 	/*===============+
