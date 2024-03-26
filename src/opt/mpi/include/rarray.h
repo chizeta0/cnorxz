@@ -109,11 +109,20 @@ namespace CNORXZ
 
 	    /** Get rank geometry. */
 	    RangePtr geom() const;
+
+	    /** Load all data from other ranks that is accessed by i2 in a loop over i1.
+		@param i1 Loop index.
+		@param i2 Access index.
+	     */
+	    template <class Index1, class Index2>
+	    void load(const Sptr<Index1>& i1, const Sptr<Index2>& i2) const;
 	    
 	private:
 	    ObjHandle<CArrayBase<T>> mA;
 	    RangePtr mGeom;
 	    RangePtr mGlobal;
+	    mutable Vector<T> mBuf; // data from other ranks
+	    mutable Vector<const T*> mMap; // point to positions in mA or mBuf
 	};
 
 	/** ****

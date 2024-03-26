@@ -191,6 +191,44 @@ namespace CNORXZ
 	{
 	    return mGeom;
 	}
+
+	SizeT getRankedSize(const RangePtr& r, const RangePtr& x)
+	{
+	    SizeT rsize = 1;
+	    for(SizeT mu = 0; mu != r->dim(); ++mu){
+		const RangePtr s = r->sub(mu);
+		const RangePtr y = x->sub(mu);
+		if(s->size() > 1){
+		    rsize *= getRankedSize(s,y);
+		}
+		else {
+		    
+		}
+	    }
+	    return rsize;
+	}
+	
+	template <typename T>
+	template <class Index1, class Index2>
+	void RCArray<T>::load(const Sptr<Index1>& i1, const Sptr<Index2>& i2) const
+	{
+	    const SizeT rsize = getRankedSize(mGeom);
+	    if(mMap.size() != rsize){
+		mMap.resize(rsize);
+	    }
+	    const SizeT block = ; // size of un-ranked range
+	    Vector<T> sendbuf;
+	    SizeT sendc = 0;
+	    SizeT recvc = 0;
+	    // make src-tar-map!!!
+	    i1->ifor( operation( [](const SizeT ptar, const SizeT psrc) {
+		const SizeT sendr = psrc/mA.size();
+		const SizeT recvr = ptar/mA.size();
+		if(sendr == getRankNumber()) {  }
+		if(recvr == getRankNumber()) {  }
+	    }, pos(i1), pos(i2) ) );
+	    // MPI_Sendrecv()!!!
+	}
 	
     } // namespace mpi
 } // namespace CNORXZ
