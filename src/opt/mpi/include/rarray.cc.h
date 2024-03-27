@@ -212,6 +212,9 @@ namespace CNORXZ
 	template <class Index1, class Index2>
 	void RCArray<T>::load(const Sptr<Index1>& i1, const Sptr<Index2>& i2) const
 	{
+	    VCHECK(i1->lex());
+	    VCHECK(i2->lex());
+	    /*
 	    const SizeT rsize = getRankedSize(mGeom);
 	    if(mMap.size() != rsize){
 		mMap.resize(rsize);
@@ -228,6 +231,7 @@ namespace CNORXZ
 		if(recvr == getRankNumber()) {  }
 	    }, pos(i1), pos(i2) ) );
 	    // MPI_Sendrecv()!!!
+	    */
 	}
 	
     } // namespace mpi
