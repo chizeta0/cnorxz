@@ -54,6 +54,15 @@ namespace CNORXZ
 	}
 
 	template <class IndexI, class IndexK>
+	RIndex<IndexI,IndexK>::RIndex(const Sptr<IndexI>& i, const Sptr<IndexK>& k) :
+	    mRange(rangeCast<RangeType>( RRangeFactory(i->range(), k->range()).create() )),
+	    mI(i),
+	    mK(k)
+	{
+	    (*this)();
+	}
+
+	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator=(SizeT pos)
 	{
 	    mLex = pos; // = lex
@@ -196,7 +205,7 @@ namespace CNORXZ
 	template <SizeT I>
 	decltype(auto) RIndex<IndexI,IndexK>::stepSize(const IndexId<I>& id) const
 	{
-	    return mK->stepSize(id) * mI->lmax() + mI->stepSize(id);
+	    return getRankStepSize(id) * mI->pmax() + mI->stepSize(id);
 	}
 
 	template <class IndexI, class IndexK>
@@ -283,8 +292,7 @@ namespace CNORXZ
 	template <class Xpr, class F>
 	constexpr decltype(auto) RIndex<IndexI,IndexK>::ifor(const Xpr& xpr, F&& f) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return xpr;
+	    return mI->ifor(xpr, std::forward<F>(f));
 	}
 
 	template <class IndexI, class IndexK>
@@ -299,6 +307,13 @@ namespace CNORXZ
 	    return _this->local()->xpr( _this->local() );
 	}
 
+	template <class IndexI, class IndexK>
+	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator()(const Sptr<IndexI>& i)
+	{
+	    mI = i;
+	    return (*this)();
+	}
+	
 	template <class IndexI, class IndexK>
 	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::operator()()
 	{

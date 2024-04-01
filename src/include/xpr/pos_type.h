@@ -93,11 +93,13 @@ namespace CNORXZ
     private:
 	SizeT mExt = 0;
 	const SizeT* mMap = nullptr;
-
+	SizeT mMax = 0;
+	SizeT mMax2 = 0; // !!!!
+	
     public:
 	DEFAULT_MEMBERS(FPos);
 
-	inline FPos(SizeT ext, const SizeT* map);
+	inline FPos(SizeT ext, const SizeT* map, SizeT max = 0, SizeT max2 = 0);
 
 	constexpr SizeT size() const;
 	constexpr const SizeT& val() const;
@@ -118,6 +120,10 @@ namespace CNORXZ
 	constexpr decltype(auto) operator<<(const PosT& a) const;
 
 	explicit constexpr operator SizeT() const;
+
+	constexpr SizeT max() const;
+	constexpr SizeT max2() const { return mMax2; }
+	constexpr const SizeT* map() const { return mMap; }
     };
 
     template <SizeT N, SizeT... Ms>
@@ -151,6 +157,8 @@ namespace CNORXZ
 	explicit constexpr operator FPos() const;
 
 	explicit constexpr operator SizeT() const;
+
+	constexpr SizeT max() const;
     };
 
     template <class BPosT, class NPosT>

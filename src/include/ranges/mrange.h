@@ -163,7 +163,7 @@ namespace CNORXZ
 
 	// replace sub-index instances; only use if you know what you are doing!
 	/** Replace sub-index instances and update index position correspondingly.
-	    @param new index instances.
+	    @param mi New index instances.
 	 */
 	GMIndex& operator()(const Sptr<MIndex<Indices...>>& mi);
 
@@ -285,6 +285,12 @@ namespace CNORXZ
      */
     template <class... Indices>
     constexpr decltype(auto) mindex(const SPack<Indices...>& pack);
+
+    /** Create pointer to MIndex from index pack.
+	@param is Input index pointers.
+     */
+    template <class... Indices>
+    constexpr decltype(auto) mindexPtr(const Sptr<Indices>&... is);
 
     /** Create pointer to MIndex from index pack.
 	@param pack Pack of input indices.

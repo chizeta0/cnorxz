@@ -187,7 +187,8 @@ namespace CNORXZ
      |   FPos   |
      +==========*/
 
-    inline FPos::FPos(SizeT ext, const SizeT* map) : mExt(ext), mMap(map) {}
+    inline FPos::FPos(SizeT ext, const SizeT* map, SizeT max, SizeT max2) :
+	mExt(ext), mMap(map), mMax(max), mMax2(max2) {}
     
     constexpr SizeT FPos::size() const
     {
@@ -214,6 +215,7 @@ namespace CNORXZ
     template <class PosT1>
     constexpr UPos FPos::operator()(const PosT1& a) const
     {
+	assert(0);
 	return UPos(mExt * mMap[a.val()]);
     }
 
@@ -234,6 +236,11 @@ namespace CNORXZ
 	return val();
     }
 
+    constexpr SizeT FPos::max() const
+    {
+	return mMax;
+    }
+    
     /*===========+
      |   SFPos   |
      +===========*/
@@ -320,6 +327,12 @@ namespace CNORXZ
 	return val();
     }
 
+    template <SizeT N, SizeT... Ms>
+    constexpr SizeT SFPos<N,Ms...>::max() const
+    {
+	return sizeof...(Ms); // CHECK!!!
+    }
+    
     /*==========+
      |   MPos   |
      +==========*/

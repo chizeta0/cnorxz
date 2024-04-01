@@ -56,6 +56,12 @@ namespace CNORXZ
 	     */
 	    RIndex(const RangePtr& global, SizeT lexpos = 0);
 
+	    /** Construct from local index and rank index.
+		@param i Local index.
+		@param k Rank index.
+	     */
+	    RIndex(const Sptr<IndexI>& i, const Sptr<IndexK>& k);
+	    
 	    /** @copydoc IndexInterface::operator=(SizeT) */
 	    RIndex& operator=(SizeT pos);
 
@@ -136,6 +142,11 @@ namespace CNORXZ
 	    /** @copydoc IndexInterface::xpr() */
 	    decltype(auto) xpr(const Sptr<RIndex<IndexI,IndexK>>& _this) const;
 
+	    /** Replace local index instance and update index position correspondingly.
+		@param i New index instances.
+	     */
+	    RIndex& operator()(const Sptr<IndexI>& i);
+
 	    /** Update index position according to the sub-indices. */
 	    RIndex& operator()();
 	    
@@ -150,7 +161,49 @@ namespace CNORXZ
 	    Sptr<RangeType> mRange; /**< RRange. */
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
+
+	    mutable std::map<PtrId,Vector<SizeT>> mRankMap;
+
+	    template <SizeT I>
+	    decltype(auto) getRankStepSize(const IndexId<I>& id) const
+	    {
+		auto ss = mI->stepSize(id);
+		FPos x;
+		VCHECK(typeid(ss).name());
+		VCHECK(typeid(x).name());
+		assert(0);
+		if constexpr(std::is_same<decltype(ss),FPos>::value){
+		    assert(0);
+		    if(mRankMap.count(id.id()) != 0){
+			return FPos(ss.val(), mRankMap[id.id()].data());
+		    }
+		    else {
+			Vector<SizeT> mp(ss.max());
+			for(SizeT i = 0; i != mp.size(); ++i){
+			    //max2 = num ranks in this dir (preliminary solution)!!!
+			    mp[i] = ( ss.map()[i] / ss.max() ) % ss.max2(); 
+			}
+			mRankMap[id.id()] = mp;
+			return FPos(ss.val(), mp.data());
+		    }
+		}
+		else {
+		    return SPos<0> {};
+		}
+	    }
 	};
+
+	template <class IndexI, class IndexK>
+	constexpr decltype(auto) rindex(const Sptr<IndexI>& i, const Sptr<IndexK>& k)
+	{
+	    return RIndex<IndexI,IndexK>(i,k);
+	}
+
+	template <class IndexI, class IndexK>
+	constexpr decltype(auto) rindexPtr(const Sptr<IndexI>& i, const Sptr<IndexK>& k)
+	{
+	    return std::make_shared<RIndex<IndexI,IndexK>>(i,k);
+	}
 
 	// Traits!!!
 	template <class I>

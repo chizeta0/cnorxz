@@ -632,6 +632,12 @@ namespace CNORXZ
     }
 
     template <class... Indices>
+    constexpr decltype(auto) mindexPtr(const Sptr<Indices>&... is)
+    {
+	return std::make_shared<MIndex<Indices...>>(is...);
+    }
+
+    template <class... Indices>
     constexpr decltype(auto) mindexPtr(const SPack<Indices...>& pack)
     {
 	return std::make_shared<MIndex<Indices...>>(pack);
