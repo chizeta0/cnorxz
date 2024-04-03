@@ -142,7 +142,7 @@ namespace CNORXZ
     template <class Index, typename Meta>
     UPos XIndex<Index,Meta>::stepSize(const IndexId<0>& id) const
     {
-	return mI->stepSize(id);
+	return UPos(mI->stepSize(id).val());
     }
 
     template <class Index, typename Meta>

@@ -205,7 +205,7 @@ namespace CNORXZ
 	template <SizeT I>
 	decltype(auto) RIndex<IndexI,IndexK>::stepSize(const IndexId<I>& id) const
 	{
-	    return getRankStepSize(id) * mI->pmax() + mI->stepSize(id);
+	    return getRankStepSize(id);
 	}
 
 	template <class IndexI, class IndexK>

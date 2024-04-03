@@ -74,7 +74,6 @@ namespace
 	decltype(auto) stepSize(const IndexId<I>& id) const
 	{
 	    // TODO: new Pos Type!!!
-	    //assert(0);
 	    return FPos( mI->stepSize(id).val(), mMap.data(), mI->lmax().val(), mR->lmax().val() );
 	}
 
@@ -182,7 +181,7 @@ void run2(const Env& env)
 	shift(rgi->local()->pack()[C3], ri->pack()[C3])
     ), ri );
     VCHECK(srgi->lmax().val());
-    
+
     *rgj = 0;
     while(rgj->rank() != 1){
 	++*rgj;
