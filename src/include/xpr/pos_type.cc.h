@@ -215,7 +215,6 @@ namespace CNORXZ
     template <class PosT1>
     constexpr UPos FPos::operator()(const PosT1& a) const
     {
-	assert(0);
 	return UPos(mExt * mMap[a.val()]);
     }
 

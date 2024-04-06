@@ -23,8 +23,8 @@ namespace
 	Env()
 	{
 	    CXZ_ASSERT(getNumRanks() == 4, "exptected 4 ranks");
-	    Vector<Int> xs(12);
-	    Vector<Int> ts(16);
+	    Vector<Int> xs(L);
+	    Vector<Int> ts(T);
 	    for(SizeT i = 0; i != xs.size(); ++i){
 		const Int x = static_cast<Int>(i) - static_cast<Int>(xs.size()/2);
 		xs[i] = x;
@@ -45,6 +45,8 @@ namespace
 	    mRRange = rrange(mGRange, mGeom);
 	}
 
+	SizeT T = 16;
+	SizeT L = 12;
 	RangePtr mSRange;
 	RangePtr mXRange;
 	RangePtr mTRange;
@@ -53,48 +55,6 @@ namespace
 	RangePtr mRRange;
     };
 
-    template <class Index, class IndexR>
-    class IndexMap : public Index
-    {
-    public:
-	typedef typename Index::IB IB;
-	typedef typename Index::RangeType RangeType;
-
-	DEFAULT_MEMBERS(IndexMap);
-
-	IndexMap(const Sptr<Index>& i, const Vector<SizeT>& map, const Sptr<IndexR>& r) :
-	    Index(*i), mI(i), mR(r), mMap(map) {}
-
-	constexpr decltype(auto) id() const
-	{
-	    return mI->id();
-	}
-
-	template <SizeT I>
-	decltype(auto) stepSize(const IndexId<I>& id) const
-	{
-	    // TODO: new Pos Type!!!
-	    return FPos( mI->stepSize(id).val(), mMap.data(), mI->lmax().val(), mR->lmax().val() );
-	}
-
-    private:
-	Sptr<Index> mI;
-	Sptr<IndexR> mR;
-	Vector<SizeT> mMap;
-    };
-
-    template <class Index, class IndexR>
-    constexpr decltype(auto) shift(const Sptr<Index>& i, const Sptr<IndexR>& r)
-    {
-	// only one-dim indices!!!
-	auto j = *i;
-	Vector<SizeT> mp(j.lmax().val());
-	const SizeT L = i->lmax().val()*r->lmax().val();
-	for(j = 0; j.lex() != j.lmax().val(); ++j){
-	    mp[j.lex()] = ( j.lex() + 1 + L) % L;
-	}
-	return std::make_shared<IndexMap<Index,IndexR>>(i, mp, r);
-    }
     
     template <class Index>
     class PosOp : public COpInterface<PosOp<Index>>
@@ -105,17 +65,22 @@ namespace
 	constexpr PosOp() = default;
 
 	constexpr PosOp(const Sptr<Index>& i, SizeT block) :
-	    mMyrank(getRankNumber()), mI(i), mBlock(block) {}
+	    mMyrank(getRankNumber()), mI(i), mBlock(block)
+	{
+	    //VCHECK(mI->id().id());
+	}
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& pos) const
 	{
-	    return static_cast<SizeT>(pos)+mMyrank*mBlock;
+	    return static_cast<SizeT>(pos);
+	    //return static_cast<SizeT>(pos)+mMyrank*mBlock;
 	}
 
 	constexpr decltype(auto) operator()() const
 	{
-	    return static_cast<SizeT>(mMyrank*mBlock);
+	    return static_cast<SizeT>(0);
+	    //return static_cast<SizeT>(mMyrank*mBlock);
 	}
 
 	template <SizeT I>
@@ -135,6 +100,93 @@ namespace
     {
 	return PosOp<Index>(i, block);
     }
+
+    template <class PosT>
+    struct MkFPos
+    {
+	static constexpr decltype(auto) mk(const PosT& pos, const SizeT* map)
+	{
+	    return FPos(pos.val(), map);
+	}
+    };
+
+    template <class BPosT, class NPosT>
+    constexpr decltype(auto) mkMPos(const BPosT& bpos, const NPosT& npos)
+    {
+	return MPos<BPosT,NPosT>(bpos, npos);
+    }
+
+    template <class BPosT, class NPosT>
+    struct MkFPos<MPos<BPosT,NPosT>>
+    {
+	static constexpr decltype(auto) mk(const MPos<BPosT,NPosT>& pos, const SizeT* map)
+	{
+	    return mkMPos( MkFPos<BPosT>::mk( pos, map ), MkFPos<NPosT>::mk( pos.next(), map ) );
+	}
+    };
+
+    template <class PosT>
+    constexpr decltype(auto) mkFPos(const PosT& pos, const SizeT* map)
+    {
+	return MkFPos<PosT>::mk(pos, map);
+    }
+
+    template <class TarIndex, class SrcIndex, class Xpr>
+    class MapXpr : public XprInterface<MapXpr<TarIndex,SrcIndex,Xpr>>
+    {
+    private:
+	Sptr<TarIndex> mTi;
+	Sptr<SrcIndex> mSi;
+	Vector<SizeT> mMap;
+	Xpr mXpr;
+	typedef decltype(mkFPos( mXpr.rootSteps(mTi->id()), mMap.data() )) Ext;
+	Ext mExt;
+    
+    public:
+
+	MapXpr() = default;
+
+	// src local
+	template <class F>
+	MapXpr(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si, const F& f, Xpr&& xpr) :
+	    mTi(ti), mSi(si), mMap(mSi->local()->lmax().val()), mXpr(std::forward<Xpr>(xpr)),
+	    mExt(mkFPos( mXpr.rootSteps(mTi->id()), mMap.data() ))
+	{
+	    //VCHECK(mTi->id().id());
+	    auto six = *si;
+	    auto sie = si->range()->end();
+	    auto tix = *ti;
+	    for(six = 0; six != sie; ++six){
+		tix.at( f(*six) );
+		if(six.rank() == getRankNumber()){
+		    mMap[six.local()->lex()] = tix.pos();
+		}
+	    }
+	}
+
+	template <class PosT>
+	decltype(auto) operator()(const PosT& last) const
+	{
+	    return mXpr( last.next() + mExt( last ) );
+	}
+
+	decltype(auto) operator()() const
+	{
+	    return mXpr( mExt( UPos(0) ) );
+	}
+
+	template <SizeT I>
+	decltype(auto) rootSteps(const IndexId<I>& id) const
+	{
+	    return mSi->stepSize(id) << mXpr.rootSteps(id);
+	}
+    };
+
+    template <class TarIndex, class SrcIndex, class F, class Xpr>
+    decltype(auto) mapXpr(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si, const F& f, Xpr&& xpr)
+    {
+	return MapXpr<TarIndex,SrcIndex,Xpr>(ti,si,f,std::forward<Xpr>(xpr));
+    }
 }
 
 void run2(const Env& env)
@@ -145,6 +197,8 @@ void run2(const Env& env)
     typedef UIndex<Int> UI;
     typedef MIndex<UI,UI,UI,UI> LocI;
     typedef MIndex<CIndex,CIndex,CIndex,CIndex> RankI;
+    const SizeT T = env.T;
+    const SizeT L = env.L;
     auto rgi = std::make_shared<RIndex<LocI,RankI>>(env.mRRange);
     auto rgj = std::make_shared<RIndex<LocI,RankI>>(env.mRRange);
     auto rgk = std::make_shared<RIndex<LocI,RankI>>(env.mRRange);
@@ -152,7 +206,7 @@ void run2(const Env& env)
     LocI gj(env.mGRange);
     auto ri = std::make_shared<RankI>(env.mGeom);
     constexpr auto C0 = CSizeT<0> {};
-    constexpr auto C1 = CSizeT<1> {};
+    //constexpr auto C1 = CSizeT<1> {};
     constexpr auto C2 = CSizeT<2> {};
     constexpr auto C3 = CSizeT<3> {};
 
@@ -173,21 +227,27 @@ void run2(const Env& env)
     for(auto& sb: sendbuf){
 	sb.reserve(data.size());
     }
-
-    auto srgi = rindexPtr( mindexPtr(
-	shift(rgi->local()->pack()[C0], ri->pack()[C0]),
-	rgi->local()->pack()[C1],
-	shift(rgi->local()->pack()[C2], ri->pack()[C2]),
-	shift(rgi->local()->pack()[C3], ri->pack()[C3])
-    ), ri );
-    VCHECK(srgi->lmax().val());
-
+    
     *rgj = 0;
     while(rgj->rank() != 1){
 	++*rgj;
     }
     *rgj->local() = 0;
-    rgi->ifor( operation
+
+    auto shift = [&](const auto& x){
+	auto o = x;
+	std::get<0>(o) += 1;
+	if(std::get<0>(o) >= static_cast<int>(T)/2) { std::get<0>(o) -= T; }
+	std::get<2>(o) += 1;
+	if(std::get<2>(o) >= static_cast<int>(L)/2) { std::get<2>(o) -= L; }
+	std::get<3>(o) += 1;
+	if(std::get<3>(o) >= static_cast<int>(L)/2) { std::get<3>(o) -= L; }
+	return o;
+    };
+    
+    SizeT cntx = 0;
+    rgi->ifor( mapXpr(rgj, rgi, shift,
+		      operation
 	       ( [&](SizeT p) {
 		   gj = rgj->lex();
 		   *gj.pack()[C0] = (gj.pack()[C0]->lex() + 1) % gj.pack()[C0]->lmax().val();
@@ -195,12 +255,15 @@ void run2(const Env& env)
 		   *gj.pack()[C3] = (gj.pack()[C3]->lex() + 1) % gj.pack()[C3]->lmax().val();
 		   gj();
 		   *rgk = gj.lex();
+		   
 		   if(myrank == 1){
+		       assert(p == rgk->pos());
 		       std::cout << p << " " << rgk->pos() << " " << rgj->pos() << std::endl;
 		   }
 		   ++*rgj->local();
 		   (*rgj)();
-	       } , posop(srgi, rgi->local()->pmax().val()) ) ,
+		   ++cntx;
+	       } , posop(rgj, rgi->local()->pmax().val()) ) ) ,
 	       NoF {} )();
     
     MPI_Barrier(MPI_COMM_WORLD);

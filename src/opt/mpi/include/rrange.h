@@ -162,31 +162,6 @@ namespace CNORXZ
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
 
-	    mutable std::map<PtrId,Vector<SizeT>> mRankMap;
-
-	    template <SizeT I>
-	    decltype(auto) getRankStepSize(const IndexId<I>& id) const
-	    {
-		auto ss = mI->stepSize(id);
-		if constexpr(std::is_same<decltype(ss),FPos>::value){
-		    if(mRankMap.count(id.id()) != 0){
-			return FPos(ss.val(), mRankMap[id.id()].data(), ss.max(), ss.max2());
-		    }
-		    else {
-			Vector<SizeT> mp(ss.max());
-			const SizeT b = mI->pmax().val() / ss.val();
-			for(SizeT i = 0; i != mp.size(); ++i){
-			    //max2 = num ranks in this dir (preliminary solution)!!!
-			    mp[i] = ( ( ss.map()[i] / ss.max() ) % ss.max2() ) * b + ss.map()[i];
-			}
-			mRankMap[id.id()] = mp;
-			return FPos(ss.val(), mp.data(), ss.max(), ss.max2());
-		    }
-		}
-		else {
-		    return ss;
-		}
-	    }
 	};
 
 	template <class IndexI, class IndexK>

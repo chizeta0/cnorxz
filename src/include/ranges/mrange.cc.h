@@ -412,9 +412,14 @@ namespace CNORXZ
     template <SizeT I>
     decltype(auto) GMIndex<FormatT,Indices...>::stepSize(const IndexId<I>& id) const
     {
+	// TODO: also for YRange!!!
+	const auto own = [&]() {
+	    if constexpr(I != 0){ return SPos<0> {}; }
+	    else { return UPos(id == this->id() ? 1 : 0); }
+	};
 	return iter<0,NI>
 	    ( [&](auto i) { return mIPack[i]->stepSize(id) * format()[i]; },
-	      [](const auto&... ss) { return ( ss + ... ); });
+	      [](const auto&... ss) { return ( ss + ... ); }) + own();
     }
 
     template <class FormatT, class... Indices>

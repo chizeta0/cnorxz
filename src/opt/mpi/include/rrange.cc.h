@@ -205,7 +205,12 @@ namespace CNORXZ
 	template <SizeT I>
 	decltype(auto) RIndex<IndexI,IndexK>::stepSize(const IndexId<I>& id) const
 	{
-	    return getRankStepSize(id);
+	    const auto own = [&]() {
+		if constexpr(I != 0){ return SPos<0> {}; }
+		else { return UPos(id == this->id() ? 1 : 0); }
+	    };
+	    return mI->stepSize(id) + own();
+	    //return getRankStepSize(id);
 	}
 
 	template <class IndexI, class IndexK>
@@ -249,9 +254,14 @@ namespace CNORXZ
 	    MPI_Allgather(&lex, 1, MPI_UNSIGNED_LONG, lexs.data(), 1, MPI_UNSIGNED_LONG,
 			  MPI_COMM_WORLD);
 	    SizeT root = 0;
-	    for(; root != lexs.size() and lexs[root] == mI->lmax().val(); ++root) {}
+	    for(; root != lexs.size(); ++root) {
+		if(lexs[root] != mI->lmax().val()){
+		    break;
+		}
+	    }
 	    if(root == lexs.size()){ // metaPos not in rrange
 		*this = lmax().val();
+		VCHECK(toString(metaPos));
 		assert(0);
 	    }
 	    else {
