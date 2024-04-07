@@ -64,23 +64,19 @@ namespace
 
 	constexpr PosOp() = default;
 
-	constexpr PosOp(const Sptr<Index>& i, SizeT block) :
-	    mMyrank(getRankNumber()), mI(i), mBlock(block)
-	{
-	    //VCHECK(mI->id().id());
-	}
+	constexpr PosOp(const Sptr<Index>& i) :
+	    mMyrank(getRankNumber()), mI(i)
+	{}
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& pos) const
 	{
 	    return static_cast<SizeT>(pos);
-	    //return static_cast<SizeT>(pos)+mMyrank*mBlock;
 	}
 
 	constexpr decltype(auto) operator()() const
 	{
 	    return static_cast<SizeT>(0);
-	    //return static_cast<SizeT>(mMyrank*mBlock);
 	}
 
 	template <SizeT I>
@@ -92,13 +88,13 @@ namespace
     private:
 	SizeT mMyrank;
 	Sptr<Index> mI;
-	SizeT mBlock;
+	//SizeT mBlock;
     };
 
     template <class Index>
-    constexpr decltype(auto) posop(const Sptr<Index>& i, SizeT block)
+    constexpr decltype(auto) posop(const Sptr<Index>& i)
     {
-	return PosOp<Index>(i, block);
+	return PosOp<Index>(i);
     }
 
     template <class PosT>
@@ -219,10 +215,6 @@ void run2(const Env& env)
     for(SizeT i = 0; i != data.size(); ++i){
 	data[i] = static_cast<Double>(LSize*myrank*blocks+i);
     }
-    Vector<Vector<SizeT>> cnt(Nranks);
-    for(auto& c: cnt){
-	c.resize(Nranks);
-    }
     Vector<Vector<Double>> sendbuf(Nranks);
     for(auto& sb: sendbuf){
 	sb.reserve(data.size());
@@ -244,27 +236,100 @@ void run2(const Env& env)
 	if(std::get<3>(o) >= static_cast<int>(L)/2) { std::get<3>(o) -= L; }
 	return o;
     };
-    
+
+    Vector<Vector<SizeT>> request(Nranks);
     SizeT cntx = 0;
+    const SizeT locsz = rgi->local()->lmax().val();
+    // First loop: setup send buffer
     rgi->ifor( mapXpr(rgj, rgi, shift,
 		      operation
-	       ( [&](SizeT p) {
-		   gj = rgj->lex();
-		   *gj.pack()[C0] = (gj.pack()[C0]->lex() + 1) % gj.pack()[C0]->lmax().val();
-		   *gj.pack()[C2] = (gj.pack()[C2]->lex() + 1) % gj.pack()[C2]->lmax().val();
-		   *gj.pack()[C3] = (gj.pack()[C3]->lex() + 1) % gj.pack()[C3]->lmax().val();
-		   gj();
-		   *rgk = gj.lex();
-		   
-		   if(myrank == 1){
-		       assert(p == rgk->pos());
-		       std::cout << p << " " << rgk->pos() << " " << rgj->pos() << std::endl;
-		   }
-		   ++*rgj->local();
-		   (*rgj)();
-		   ++cntx;
-	       } , posop(rgj, rgi->local()->pmax().val()) ) ) ,
+		      ( [&](SizeT p, SizeT q) {
+			  const SizeT r = p / locsz;
+			  if(myrank != r){
+			      request[r].insert(p % locsz);
+			  }
+			  /*
+			    gj = rgj->lex();
+			    *gj.pack()[C0] = (gj.pack()[C0]->lex() + 1) % gj.pack()[C0]->lmax().val();
+			    *gj.pack()[C2] = (gj.pack()[C2]->lex() + 1) % gj.pack()[C2]->lmax().val();
+			    *gj.pack()[C3] = (gj.pack()[C3]->lex() + 1) % gj.pack()[C3]->lmax().val();
+			    gj();
+			    *rgk = gj.lex();
+			    if(myrank == 1){
+			    std::cout << p << " " << rgk->pos() << ", "
+			    << r << " " << rgk->rank() << ", "
+			    << q << " " << rgj->local()->pos() << std::endl;
+			    assert(p == rgk->pos());
+			    assert(r == rgk->rank());
+			    assert(q == rgj->local()->pos());
+			    }
+			  */
+			  /*
+			    ++*rgj->local();
+			    (*rgj)();
+			    ++cntx;
+			  */
+	       } , posop(rgj), posop(rgi) ) ) ,
 	       NoF {} )();
+
+    // transfer:
+    Vector<SizeT> reqsizes(Nranks);
+    SizeT bufsize = 0;
+    Vector<Vector<SizeT>> ext(Nranks);
+    for(auto& e: ext){
+	e.resize(Nranks);
+    }
+    for(SizeT i = 0; i != Nranks; ++i){
+	reqsizes[i] = request[i].size();
+	bufsize += reqsizes[i]*blocks;
+	ext[myrank][i] = reqsize[i];
+    }
+    MPI_Status stat;
+    // transfer requests:
+    for(SizeT o = 1; o != Nranks; ++o){
+	const SizeT dstr = (myrank + o) % Nranks;
+	const SizeT srcr = (myrank - o + Nranks) % Nranks;
+	SizeT sendsize = 0;
+	MPI_Sendrecv(reqsizes.data()+dstr, 1, MPI_ULONG, dstr, 0,
+		     &sendsize, 1, MPI_ULONG, srcr, 0, MPI_COMM_WORLD, &stat);
+	ext[srcr][myrank] = sendsize;
+	Vector<SizeT> sendpos(sendsize);
+	MPI_Sendrecv(requests[dstr].data(), reqsizes[dstr], MPI_ULONG, dstr, 0,
+		     sendpos.data(), sendsize, MPI_ULONG, srcr, 0, MPI_COMM_WORLD, &stat);
+	sendbuf[srcr].resize(sendsize*blocks);
+	for(SizeT i = 0; i != sendsize; ++i){
+	    std::memcpy( sendbuf[srcr]+i, data.data()+sendpos[i]*blocks, blocks );
+	}
+    }
+    // transfer data:
+    for(SizeT o = 1; o != Nranks; ++o){
+	const SizeT dstr = (myrank + o) % Nranks;
+	const SizeT srcr = (myrank - o + Nranks) % Nranks;
+	SizeT off = 0;
+	for(SizeT p = 0; p != srcr; ++p){
+	    off += ext[myrank][p];
+	}
+	MPI_Sendrecv(sendbuf[dstr].data(), ext[dstr][myrank]*blocks, MPI_DOUBLE, dstr, 0,
+		     buf.data()+off*blocks, ext[myrank][srcr]*blocks, MPI_DOUBLE, srcr, 0,
+		     MPI_COMM_WORLD, &stat);
+    }
+
+    // Second loop: Assign map to target buffer positions:
+    Vector<SizeT> cnt(Nranks);
+    rgi->ifor( mapXpr(rgj, rgi, shift,
+		      operation
+		      ( [&](SizeT p, SizeT q) {
+			  const SizeT r = p / locsz;
+			  if(myrank != r){
+			      SizeT off = 0;
+			      for(SizeT s = 0; s != r; ++s){
+				  off += ext[myrank][s];
+			      }
+			      map[p] = buf.data() + off*blocks + cnt[r]*blocks;
+			      ++cnt[r];
+			  }
+			  map[q] = data.data() + q*blocks;
+		      } , posop(rgj), posop(rgi) ) ) )();
     
     MPI_Barrier(MPI_COMM_WORLD);
 }
