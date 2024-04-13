@@ -72,30 +72,42 @@ namespace CNORXZ
 	template <class... Indices>
 	T RCArray<T>::operator[](const SPack<Indices...>& pack) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return T();
+	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
+	    if constexpr(is_rank_index<I0>::value){
+		return *(begin() + pack.lex());
+	    }
+	    else {
+		return (*mA)[pack];
+	    }
 	}
 
 	template <typename T>
 	template <class... Indices>
 	T RCArray<T>::at(const SPack<Indices...>& pack) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return T();
+	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
+	    if constexpr(is_rank_index<I0>::value){
+		CXZ_ASSERT(pack[CSizeT<0>{}]->rank() == getNumRanks(),
+			   "rank number out of scope");
+		return *(begin() + pack.lex());
+	    }
+	    else {
+		return mA->at(pack);
+	    }
 	}
 
 	template <typename T>
 	T RCArray<T>::operator[](const DPack& pack) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return T();
+	    // TODO: assert that none of the indices is rank index
+	    return (*mA)[pack];
 	}
 
 	template <typename T>
 	T RCArray<T>::at(const DPack& pack) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return T();
+	    // TODO: assert that none of the indices is rank index
+	    return mA->at(pack);
 	}
 
 	template <typename T>
@@ -103,8 +115,13 @@ namespace CNORXZ
 	Sptr<CArrayBase<T>> RCArray<T>::sl(const IndexInterface<I,M>& begin,
 					   const IndexInterface<I,M>& end) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return nullptr;
+	    if constexpr(is_rank_index<I>::value){
+		CXZ_ERROR("not implemented");
+		return nullptr;
+	    }
+	    else {
+		return mA->sl(begin, end);
+	    }
 	}
 
 	template <typename T>
