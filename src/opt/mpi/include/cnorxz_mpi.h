@@ -14,7 +14,7 @@
 #include "rrange.h"
 #include "raindex.h"
 #include "rarray.h"
-//#include "rop_types.h"
+#include "rop_types.h"
 #include "typemap.h"
 
 #include "cnorxz_mpi.cc.h"

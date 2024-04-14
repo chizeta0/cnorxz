@@ -16,14 +16,16 @@ namespace CNORXZ
 {
     namespace mpi
     {
-	template <typename T, class IndexT>
-	class CROpRoot : public COpInterface<CROpRoot<T,IndexT>>
+	template <typename T, class RIndexT, class IndexT>
+	class CROpRoot : public COpInterface<CROpRoot<T,RIndexT,IndexT>>
 	{
 	public:
-	    typedef COpInterface<CROpRoot<T,IndexT >> OI;
+	    typedef COpInterface<CROpRoot<T,RIndexT,IndexT>> OI;
 
 	    constexpr CROpRoot() = default;
-
+	    constexpr CROpRoot(const RArray<T>& a, const Sptr<RIndexT>& ri,
+			       const Sptr<IndexT>& li);
+	    
 	    template <class PosT>
 	    constexpr decltype(auto) operator()(const PosT& pos) const;
 
@@ -33,20 +35,25 @@ namespace CNORXZ
 	    constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
 	private:
-	    // 
-	    const T* mData; // must include all needed data, also that of other ranks (to be transmitted before!)
-	    // maps the global (!) position to mData!!
-	    const SizeT* mPos; // position map (needed to indicate position to data transmitted from other ranks)
+
+	    const T** mData;
+	    Sptr<RIndexT> mRIndex;
 	    Sptr<IndexT> mIndex;
 	};
 
-	template <typename T, class IndexT>
-	class ROpRoot : public OpInterface<ROpRoot<T,IndexT>>
+	template <typename T, class RIndexT, class IndexT>
+	constexpr decltype(auto) croproot(const RArray<T>& a, const Sptr<RIndexT>& ri,
+					  const Sptr<IndexT>& li);
+	
+	template <typename T, class RIndexT, class IndexT>
+	class ROpRoot : public OpInterface<ROpRoot<T,RIndexT,IndexT>>
 	{
 	public:
-	    typedef OpInterface<ROpRoot<T,IndexT>> OI;
+	    typedef OpInterface<ROpRoot<T,RIndexT,IndexT>> OI;
 
 	    constexpr ROpRoot() = default;
+	    constexpr ROpRoot(RArray<T>& a, const Sptr<RIndexT>& ri,
+			      const Sptr<IndexT>& li);
 
 	    template <class PosT>
 	    constexpr decltype(auto) operator()(const PosT& pos) const;
@@ -57,9 +64,17 @@ namespace CNORXZ
 	    constexpr decltype(auto) rootSteps(const IndexId<I>& id) const;
 
 	private:
-	
+
+	    T** mData;
+	    Sptr<RIndexT> mRIndex;
+	    Sptr<IndexT> mIndex;
 	};
 
+	template <typename T, class RIndexT, class IndexT>
+	constexpr decltype(auto) roproot(RArray<T>& a, const Sptr<RIndexT>& ri,
+					 const Sptr<IndexT>& li);
+
+	/*
 	template <class CXpr>
 	class RContraction : public OpInterfacte<RContraction<CXpr>>
 	{
@@ -80,6 +95,7 @@ namespace CNORXZ
 	private:
 	    CXpr mCXpr;
 	};
+	*/
     } // namespace mpi
 } // namespace CNORXZ
 

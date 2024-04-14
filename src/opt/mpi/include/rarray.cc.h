@@ -14,6 +14,7 @@
 
 #include "rarray.h"
 #include "raindex.h"
+#include "rop_types.h"
 
 namespace CNORXZ
 {
@@ -136,17 +137,27 @@ namespace CNORXZ
 	template <class... Indices>
 	inline decltype(auto) RCArray<T>::operator()(const SPack<Indices...>& pack) const
 	{
-	    CXZ_ERROR("not implemented");
-	    //return COpRoot<T,Index>();
-	    return 0;
+	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
+	    if constexpr(is_rank_index<I0>::value){
+		// preliminary:
+		CXZ_ASSERT(this->formatIsTrivial(),
+			   "array has non-trivial format, rank operations require trivial format");
+		auto ri = pack[CSizeT<0>{}];
+		auto li = iter<1,sizeof...(Indices)>
+		    ( [&](auto i) { return pack[CSizeT<i>{}]; },
+		      [](const auto&... x) { return mindexPtr( (x * ...) ); } );
+		return roproot(*this, ri, li);
+	    }
+	    else {
+		return (*mA)(pack);
+	    }
 	}
 
 	template <typename T>
 	inline decltype(auto) RCArray<T>::operator()(const DPack& pack) const
 	{
-	    CXZ_ERROR("not implemented");
-	    //return COpRoot<T,Index>();
-	    return 0;
+	    // TODO: assert that none of the indices is rank index
+	    return (*mA)(pack);
 	}
 
 	template <typename T>
