@@ -110,13 +110,31 @@ namespace CNORXZ
 	    /** Get rank geometry. */
 	    RangePtr geom() const;
 
+	    /** Get the buffer map.
+		buffermap()[r (ranked)][i] returns the same as
+		loc[r * i] if 'loc' is a purely local array with the same content.
+		The buffer needs to be initialized before according to required range.
+	     */
+	    const Vector<const T*> buffermap() const;
+	    
 	    /** Load all data from other ranks that is accessed by i2 in a loop over i1.
-		@param i1 Loop index.
-		@param i2 Access index.
+		imap indicates the position of i2 for a given position of i1.
+		@param lpi Loop index.
+		@param ai Access index.
+		@param imap Index position map.
 	     */
 	    template <class Index1, class Index2>
-	    void load(const Sptr<Index1>& i1, const Sptr<Index2>& i2) const;
-	    
+	    void load(const Sptr<Index1>& lpi, const Sptr<Index2>& ai,
+		      const Sptr<Vector<SizeT>>& imap) const;
+
+	    /** Load all data from other ranks that is accessed by f(i).
+		@param lpi Loop index.
+		@param f Map function.
+		@return Index position map.
+	     */
+	    template <class Index, class F>
+	    Sptr<Vector<SizeT>> load(const Sptr<Index>& lpi, const F& f) const;
+
 	private:
 	    ObjHandle<CArrayBase<T>> mA;
 	    RangePtr mGeom;

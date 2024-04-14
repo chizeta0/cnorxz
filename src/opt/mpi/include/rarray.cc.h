@@ -146,7 +146,7 @@ namespace CNORXZ
 		auto li = iter<1,sizeof...(Indices)>
 		    ( [&](auto i) { return pack[CSizeT<i>{}]; },
 		      [](const auto&... x) { return mindexPtr( (x * ...) ); } );
-		return roproot(*this, ri, li);
+		return croproot(*this, ri, li);
 	    }
 	    else {
 		return (*mA)(pack);
@@ -220,46 +220,111 @@ namespace CNORXZ
 	    return mGeom;
 	}
 
-	SizeT getRankedSize(const RangePtr& r, const RangePtr& x)
-	{
-	    SizeT rsize = 1;
-	    for(SizeT mu = 0; mu != r->dim(); ++mu){
-		const RangePtr s = r->sub(mu);
-		const RangePtr y = x->sub(mu);
-		if(s->size() > 1){
-		    rsize *= getRankedSize(s,y);
-		}
-		else {
-		    
-		}
-	    }
-	    return rsize;
-	}
-	
 	template <typename T>
 	template <class Index1, class Index2>
-	void RCArray<T>::load(const Sptr<Index1>& i1, const Sptr<Index2>& i2) const
+	void RCArray<T>::load(const Sptr<Index1>& lpi, const Sptr<Index2>& ai,
+			      const Sptr<Vector<SizeT>>& imap) const;
 	{
-	    VCHECK(i1->lex());
-	    VCHECK(i2->lex());
-	    /*
-	    const SizeT rsize = getRankedSize(mGeom);
-	    if(mMap.size() != rsize){
-		mMap.resize(rsize);
+	    // TODO: blocks!!!
+	    const SizeT myrank = getRankNumber();
+	    const SizeT Nranks = getNumRanks();
+
+	    const SizeT mapsize = ai->range()->size();
+	    mMap = Vector<const T*>(mapsize,nullptr);
+	    Vector<Vector<T>> sendbuf(Nranks);
+	    for(auto& sb: sendbuf){
+		sb.reserve(mData.size());
 	    }
-	    const SizeT block = ; // size of un-ranked range
-	    Vector<T> sendbuf;
-	    SizeT sendc = 0;
-	    SizeT recvc = 0;
-	    // make src-tar-map!!!
-	    i1->ifor( operation( [](const SizeT ptar, const SizeT psrc) {
-		const SizeT sendr = psrc/mA.size();
-		const SizeT recvr = ptar/mA.size();
-		if(sendr == getRankNumber()) {  }
-		if(recvr == getRankNumber()) {  }
-	    }, pos(i1), pos(i2) ) );
-	    // MPI_Sendrecv()!!!
-	    */
+	    Vector<Vector<SizeT>> request(Nranks);
+	    const SizeT locsz = lpi->local()->lmax().val();
+
+	    // First loop: setup send buffer
+	    lpi->ifor( mapXpr(ai, lpi, imap,
+			      operation
+			      ( [&](SizeT p, SizeT q) {
+				  const SizeT r = p / locsz;
+				  if(myrank != r){
+				      request[r].push_back(p % locsz);
+				  }
+			      } , posop(ai), posop(lpi) ) ) ,
+		       NoF {} )();
+
+	    // transfer:
+	    Vector<SizeT> reqsizes(Nranks);
+	    SizeT bufsize = 0;
+	    Vector<Vector<SizeT>> ext(Nranks);
+	    for(auto& e: ext){
+		e.resize(Nranks);
+	    }
+	    for(SizeT i = 0; i != Nranks; ++i){
+		reqsizes[i] = request[i].size();
+		bufsize += reqsizes[i]*blocks;
+		ext[myrank][i] = reqsizes[i];
+	    }
+	    mBuf.resize(bufsize);
+	    MPI_Status stat;
+
+	    // transfer requests:
+	    for(SizeT o = 1; o != Nranks; ++o){
+		const SizeT dstr = (myrank + o) % Nranks;
+		const SizeT srcr = (myrank - o + Nranks) % Nranks;
+		SizeT sendsize = 0;
+		MPI_Sendrecv(reqsizes.data()+dstr, 1, MPI_UNSIGNED_LONG, dstr, 0,
+			     &sendsize, 1, MPI_UNSIGNED_LONG, srcr, 0, MPI_COMM_WORLD, &stat);
+		ext[srcr][myrank] = sendsize;
+		Vector<SizeT> sendpos(sendsize);
+		MPI_Sendrecv(request[dstr].data(), reqsizes[dstr], MPI_UNSIGNED_LONG, dstr, 0,
+			     sendpos.data(), sendsize, MPI_UNSIGNED_LONG, srcr, 0, MPI_COMM_WORLD, &stat);
+		sendbuf[srcr].resize(sendsize*blocks);
+		for(SizeT i = 0; i != sendsize; ++i){
+		    std::memcpy( sendbuf[srcr].data()+i*blocks, mData.data()+sendpos[i]*blocks, blocks*sizeof(T) );
+		}
+	    }
+
+	    const MPI_Datatype dt = Typemap<T>::value();
+	
+	    // transfer data:
+	    for(SizeT o = 1; o != Nranks; ++o){
+		const SizeT dstr = (myrank + o) % Nranks;
+		const SizeT srcr = (myrank - o + Nranks) % Nranks;
+		SizeT off = 0;
+		for(SizeT p = 0; p != srcr; ++p){
+		    off += ext[myrank][p];
+		}
+	
+		MPI_Sendrecv(sendbuf[dstr].data(), ext[dstr][myrank]*blocks, dt, dstr, 0,
+			     mBuf.data()+off*blocks, ext[myrank][srcr]*blocks, dt, srcr, 0,
+			     MPI_COMM_WORLD, &stat);
+	
+	    }
+
+	    // Second loop: Assign map to target buffer positions:
+	    Vector<SizeT> cnt(Nranks);
+	    lpi->ifor( mapXpr(ai, lpi, imap,
+			      operation
+			      ( [&](SizeT p, SizeT q) {
+				  const SizeT r = p / locsz;
+				  if(myrank != r){
+				      SizeT off = 0;
+				      for(SizeT s = 0; s != r; ++s){
+					  off += ext[myrank][s];
+				      }
+				      mMap[p] = mBuf.data() + off*blocks + cnt[r]*blocks;
+				      ++cnt[r];
+				  }
+				  mMap[q + myrank*locsz] = mData.data() + q*blocks;
+			      } , posop(ai), posop(lpi) ) ), NoF {} )();
+	    
+	}
+
+	template <typename T>
+	template <class Index, class F>
+	Sptr<Vector<SizeT>> RCArray<T>::load(const Sptr<Index>& i, const F& f) const
+	{
+	    Sptr<Vector<SizeT>> imap = std::make_shared<Vector<SizeT>>();
+
+	    load(i, /**/, imap);
+	    return imap;
 	}
 	
     } // namespace mpi
