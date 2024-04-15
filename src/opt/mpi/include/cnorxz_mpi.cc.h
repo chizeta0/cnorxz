@@ -14,3 +14,4 @@
 #include "rrange.cc.h"
 #include "raindex.cc.h"
 #include "rarray.cc.h"
+#include "rmap_xpr.cc.h"

@@ -12,6 +12,8 @@
 #ifndef __cxz_mpi_rop_types_h__
 #define __cxz_mpi_rop_types_h__
 
+#include "operation/operation.h"
+
 namespace CNORXZ
 {
     namespace mpi

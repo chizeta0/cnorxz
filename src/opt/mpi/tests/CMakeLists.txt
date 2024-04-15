@@ -14,6 +14,8 @@ target_link_libraries(mpirautest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INI
 set(MPI_TEST_COMMAND mpirun -n 4 mpirautest)
 add_test(NAME mpirautest COMMAND ${MPI_TEST_COMMAND})
 
-add_executable(riexp rindex_exp.cc)
-add_dependencies(riexp cnorxz cnorxzmpi test_lib)
-target_link_libraries(riexp ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MPI_LIBS} cnorxz cnorxzmpi test_lib)
+add_executable(mpisbutest setbuf_unit_test.cc)
+add_dependencies(mpisbutest cnorxz cnorxzmpi test_lib)
+target_link_libraries(mpisbutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MPI_LIBS} cnorxz cnorxzmpi test_lib)
+set(MPI_TEST_COMMAND mpirun -n 4 mpisbutest)
+add_test(NAME mpisbutest COMMAND ${MPI_TEST_COMMAND})

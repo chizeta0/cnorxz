@@ -19,36 +19,13 @@
 #include "test_numbers.h"
 #include "rrange.cc.h"
 #include "rarray.cc.h"
+#include "mpi_env.h"
 
 namespace
 {
     using namespace CNORXZ;
     using Test::Numbers;
     using namespace CNORXZ::mpi;
-
-    class MPIEnv : public ::testing::Environment
-    {
-    public:
-
-	MPIEnv(int argc, char** argv) : mArgc(argc), mArgv(argv) {}
-	
-	virtual ~MPIEnv() override {}
-
-	virtual void SetUp() override
-	{
-	    MPI_Init(&mArgc, &mArgv);
-	}
-
-	virtual void TearDown() override
-	{
-	    MPI_Finalize();
-	}
-
-    protected:
-	int mArgc;
-	char** mArgv;
-    };
-
 
     class RCArray_Test : public ::testing::Test
     {

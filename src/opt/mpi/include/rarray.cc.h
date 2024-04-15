@@ -225,6 +225,7 @@ namespace CNORXZ
 	void RCArray<T>::load(const Sptr<Index1>& lpi, const Sptr<Index2>& ai,
 			      const Sptr<Vector<SizeT>>& imap) const
 	{
+	    // TODO: use setupBuffer from the test!!!
 	    // TODO: blocks!!!
 	    const SizeT blocks = 0; assert(0); // TODO!!!
 	    

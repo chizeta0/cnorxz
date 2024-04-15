@@ -16,5 +16,6 @@
 #include "rarray.h"
 #include "rop_types.h"
 #include "typemap.h"
+#include "rmap_xpr.h"
 
 #include "cnorxz_mpi.cc.h"

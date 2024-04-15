@@ -16,14 +16,25 @@
 
 namespace CNORXZ
 {
-    template <class TarIndex, class SrcIndex, class F>
-    static void setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
-			 const F& f, const Sptr<Vector<SizeT>>& m);
 
     template <class TarIndex, class SrcIndex, class F>
-    static Sptr<Vector<SizeT>> setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
-					const F& f);
+    struct MapSetup
+    {
+	static void setup(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+			  const F& f, const Sptr<Vector<SizeT>>& m);
+	
+	static Sptr<Vector<SizeT>> setup(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+					 const F& f);
+    };
 
+    template <class TarIndex, class SrcIndex, class F>
+    void setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+		  const F& f, const Sptr<Vector<SizeT>>& m);
+
+    template <class TarIndex, class SrcIndex, class F>
+    Sptr<Vector<SizeT>> setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+				 const F& f);
+    
     template <class TarIndex, class SrcIndex, class Xpr>
     class MapXpr : public XprInterface<MapXpr<TarIndex,SrcIndex,Xpr>>
     {

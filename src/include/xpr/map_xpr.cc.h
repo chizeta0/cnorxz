@@ -17,27 +17,41 @@
 namespace CNORXZ
 {
     template <class TarIndex, class SrcIndex, class F>
-    static void setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
-			 const F& f, const Sptr<Vector<SizeT>>& m)
+    void
+    MapSetup<TarIndex,SrcIndex,F>::setup(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+					 const F& f, const Sptr<Vector<SizeT>>& m)
     {
 	auto six = *si;
 	auto sie = si->range()->end();
 	auto tix = *ti;
 	for(six = 0; six != sie; ++six){
 	    tix.at( f(*six) );
-	    if(six.rank() == getRankNumber()){
-		(*m)[six.local()->lex()] = tix.pos();
-	    }
+	    (*m)[six->lex()] = tix.pos();
 	}
     }
 
     template <class TarIndex, class SrcIndex, class F>
-    static Sptr<Vector<SizeT>> setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
-					const F& f)
+    Sptr<Vector<SizeT>>
+    MapSetup<TarIndex,SrcIndex,F>::setup(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+					 const F& f)
     {
-	auto o = std::make_shared<Vector<SizeT>>(si->local()->lmax().val());
+	auto o = std::make_shared<Vector<SizeT>>(si->lmax().val());
 	setupMap(ti,si,f,o);
 	return o;
+    }
+
+    template <class TarIndex, class SrcIndex, class F>
+    void setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+		  const F& f, const Sptr<Vector<SizeT>>& m)
+    {
+	MapSetup<TarIndex,SrcIndex,F>::setup(ti,si,f,m);
+    }
+
+    template <class TarIndex, class SrcIndex, class F>
+    Sptr<Vector<SizeT>> setupMap(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
+				 const F& f)
+    {
+	return MapSetup<TarIndex,SrcIndex,F>::setup(ti,si,f);
     }
 
     template <class TarIndex, class SrcIndex, class Xpr>
@@ -45,11 +59,11 @@ namespace CNORXZ
     MapXpr<TarIndex,SrcIndex,Xpr>::MapXpr(const Sptr<TarIndex>& ti, const Sptr<SrcIndex>& si,
 					  const F& f, Xpr&& xpr) :
 	mTi(ti), mSi(si),
-	mMap(std::make_shared<Vector<SizeT>>(mSi->local()->lmax().val())),
+	mMap(nullptr),
 	mXpr(std::forward<Xpr>(xpr)),
 	mExt(mkFPos( mXpr.rootSteps(mTi->id()), mMap->data() ))
     {
-	setupMap(ti,si,f,mMap);
+	mMap = setupMap(ti,si,f);
     }
 
     template <class TarIndex, class SrcIndex, class Xpr>
