@@ -126,6 +126,9 @@ namespace CNORXZ
 	constexpr const SizeT* map() const { return mMap; }
     };
 
+    template <class PosT>
+    constexpr decltype(auto) mkFPos(const PosT& pos, const SizeT* map);
+    
     template <SizeT N, SizeT... Ms>
     class SFPos
     {
@@ -196,6 +199,9 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr decltype(auto) operator<<(const PosT& a) const;
     };
+
+    template <class BPosT, class NPosT>
+    constexpr decltype(auto) mkMPos(const BPosT& bpos, const NPosT& npos);
 
     // treat as scalar pos!
     class DPos : public ObjHandle<VPosBase>

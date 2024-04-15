@@ -294,15 +294,14 @@ namespace CNORXZ
     template <class IndexT>
     constexpr decltype(auto) indexOp(const Sptr<IndexT>& i);
 
-    template <class Index, class F>
-    class MapOp : public OpInterface<MapOp<Index,F>>
+    template <class Index>
+    class PosOp : public COpInterface<PosOp<Index>>
     {
     public:
-	typedef OpInterface<MapOp<Index,F>> OI;
+	typedef COpInterface<PosOp<Index>> OI;
 
-	constexpr MapOp() = default;
-	
-	constexpr MapOp(const Sptr<Index>& i, F&& f);
+	constexpr PosOp() = default;
+	constexpr PosOp(const Sptr<Index>& i);
 
 	template <class PosT>
 	constexpr decltype(auto) operator()(const PosT& pos) const;
@@ -314,11 +313,14 @@ namespace CNORXZ
 
     private:
 	Sptr<Index> mI;
-	F mF;
     };
 
-    template <class Index, class F>
-    constexpr decltype(auto) mapop(const Sptr<Index>& i, F&& f);
+    template <class Index>
+    constexpr decltype(auto) posop(const Sptr<Index>& i)
+    {
+	return PosOp<Index>(i);
+    }
+
 }
 
 #endif

@@ -17,12 +17,6 @@ namespace
 {
     using namespace CNORXZ;
 
-    template <class PosT1, class PosT2>
-    constexpr auto mkMPos(const PosT1& a, const PosT2& b)
-    {
-	return MPos<PosT1,PosT2>(a,b);
-    }
-
     class Pos_Test : public ::testing::Test
     {
     protected:

@@ -239,6 +239,31 @@ namespace CNORXZ
     {
 	return mMax;
     }
+
+    template <class PosT>
+    struct MkFPos
+    {
+	static constexpr decltype(auto) mk(const PosT& pos, const SizeT* map)
+	{
+	    return FPos(pos.val(), map);
+	}
+    };
+
+    template <class BPosT, class NPosT>
+    struct MkFPos<MPos<BPosT,NPosT>>
+    {
+	static constexpr decltype(auto) mk(const MPos<BPosT,NPosT>& pos, const SizeT* map)
+	{
+	    return mkMPos( MkFPos<BPosT>::mk( pos, map ), MkFPos<NPosT>::mk( pos.next(), map ) );
+	}
+    };
+
+    template <class PosT>
+    constexpr decltype(auto) mkFPos(const PosT& pos, const SizeT* map)
+    {
+	return MkFPos<PosT>::mk(pos, map);
+    }
+
     
     /*===========+
      |   SFPos   |
@@ -423,6 +448,12 @@ namespace CNORXZ
 	return extend(a);
     }
     
+    template <class BPosT, class NPosT>
+    constexpr decltype(auto) mkMPos(const BPosT& bpos, const NPosT& npos)
+    {
+	return MPos<BPosT,NPosT>(bpos, npos);
+    }
+
     /*==========+
      |   DPos   |
      +==========*/

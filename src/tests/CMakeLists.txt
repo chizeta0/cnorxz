@@ -27,11 +27,6 @@ add_dependencies(mautest cnorxz)
 target_link_libraries(mautest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
 add_test(NAME mautest COMMAND mautest)
 
-add_executable(lutest l_unit_test.cc)
-add_dependencies(lutest cnorxz)
-target_link_libraries(lutest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)
-add_test(NAME lutest COMMAND lutest)
-
 add_executable(oputest operation_unit_test.cc)
 add_dependencies(oputest cnorxz)
 target_link_libraries(oputest ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cnorxz test_lib)

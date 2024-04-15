@@ -223,9 +223,11 @@ namespace CNORXZ
 	template <typename T>
 	template <class Index1, class Index2>
 	void RCArray<T>::load(const Sptr<Index1>& lpi, const Sptr<Index2>& ai,
-			      const Sptr<Vector<SizeT>>& imap) const;
+			      const Sptr<Vector<SizeT>>& imap) const
 	{
 	    // TODO: blocks!!!
+	    const SizeT blocks = 0; assert(0); // TODO!!!
+	    
 	    const SizeT myrank = getRankNumber();
 	    const SizeT Nranks = getNumRanks();
 
@@ -233,7 +235,7 @@ namespace CNORXZ
 	    mMap = Vector<const T*>(mapsize,nullptr);
 	    Vector<Vector<T>> sendbuf(Nranks);
 	    for(auto& sb: sendbuf){
-		sb.reserve(mData.size());
+		sb.reserve(mA->size());
 	    }
 	    Vector<Vector<SizeT>> request(Nranks);
 	    const SizeT locsz = lpi->local()->lmax().val();
@@ -277,7 +279,7 @@ namespace CNORXZ
 			     sendpos.data(), sendsize, MPI_UNSIGNED_LONG, srcr, 0, MPI_COMM_WORLD, &stat);
 		sendbuf[srcr].resize(sendsize*blocks);
 		for(SizeT i = 0; i != sendsize; ++i){
-		    std::memcpy( sendbuf[srcr].data()+i*blocks, mData.data()+sendpos[i]*blocks, blocks*sizeof(T) );
+		    std::memcpy( sendbuf[srcr].data()+i*blocks, mA->data()+sendpos[i]*blocks, blocks*sizeof(T) );
 		}
 	    }
 
@@ -312,7 +314,7 @@ namespace CNORXZ
 				      mMap[p] = mBuf.data() + off*blocks + cnt[r]*blocks;
 				      ++cnt[r];
 				  }
-				  mMap[q + myrank*locsz] = mData.data() + q*blocks;
+				  mMap[q + myrank*locsz] = mA->data() + q*blocks;
 			      } , posop(ai), posop(lpi) ) ), NoF {} )();
 	    
 	}
@@ -323,7 +325,7 @@ namespace CNORXZ
 	{
 	    Sptr<Vector<SizeT>> imap = std::make_shared<Vector<SizeT>>();
 
-	    load(i, /**/, imap);
+	    //load(i, /**/, imap);
 	    return imap;
 	}
 	

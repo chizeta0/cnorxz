@@ -15,3 +15,4 @@
 #include "for.cc.h"
 #include "index_id.cc.h"
 #include "func.cc.h"
+#include "map_xpr.cc.h"
