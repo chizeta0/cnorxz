@@ -225,31 +225,48 @@ namespace CNORXZ
 	void RCArray<T>::load(const Sptr<Index1>& lpi, const Sptr<Index2>& ai,
 			      const Sptr<Vector<SizeT>>& imap) const
 	{
-	    // TODO: use setupBuffer from the test!!!
 	    // TODO: blocks!!!
 	    const SizeT blocks = 0; assert(0); // TODO!!!
 	    
+	    setupBuffer(ai, lpi, imap, *mA, mBuf, mMap, blocks);
+	}
+
+	template <typename T>
+	template <class Index, class F>
+	Sptr<Vector<SizeT>> RCArray<T>::load(const Sptr<Index>& i, const F& f) const
+	{
+	    Sptr<Vector<SizeT>> imap = std::make_shared<Vector<SizeT>>();
+
+	    //load(i, /**/, imap);
+	    return imap;
+	}
+
+	template <class TarI, class RTarI, class SrcI, class RSrcI, typename T>
+	void setupBuffer(const Sptr<RIndex<TarI,RTarI>>& rgj, const Sptr<RIndex<SrcI,RSrcI>>& rgi,
+			 const Sptr<Vector<SizeT>>& imap, const CArrayBase<T>& data,
+			 Vector<T>& buf, Vector<const T*>& map, const SizeT blocks)
+	{
 	    const SizeT myrank = getRankNumber();
 	    const SizeT Nranks = getNumRanks();
 
-	    const SizeT mapsize = ai->range()->size();
-	    mMap = Vector<const T*>(mapsize,nullptr);
+	    const SizeT mapsize = rgj->range()->size();
+	    map = Vector<const T*>(mapsize,nullptr);
 	    Vector<Vector<T>> sendbuf(Nranks);
 	    for(auto& sb: sendbuf){
-		sb.reserve(mA->size());
+		sb.reserve(data.size());
 	    }
 	    Vector<Vector<SizeT>> request(Nranks);
-	    const SizeT locsz = lpi->local()->lmax().val();
+	    const SizeT locsz = rgi->local()->lmax().val();
 
 	    // First loop: setup send buffer
-	    lpi->ifor( mapXpr(ai, lpi, imap,
+	    rgi->ifor( mapXpr(rgj, rgi, imap,
 			      operation
 			      ( [&](SizeT p, SizeT q) {
 				  const SizeT r = p / locsz;
 				  if(myrank != r){
 				      request[r].push_back(p % locsz);
 				  }
-			      } , posop(ai), posop(lpi) ) ) ,
+			      } , posop(rgj), posop(rgi) ) ) ,
 		       NoF {} )();
 
 	    // transfer:
@@ -264,7 +281,7 @@ namespace CNORXZ
 		bufsize += reqsizes[i]*blocks;
 		ext[myrank][i] = reqsizes[i];
 	    }
-	    mBuf.resize(bufsize);
+	    buf.resize(bufsize);
 	    MPI_Status stat;
 
 	    // transfer requests:
@@ -280,7 +297,7 @@ namespace CNORXZ
 			     sendpos.data(), sendsize, MPI_UNSIGNED_LONG, srcr, 0, MPI_COMM_WORLD, &stat);
 		sendbuf[srcr].resize(sendsize*blocks);
 		for(SizeT i = 0; i != sendsize; ++i){
-		    std::memcpy( sendbuf[srcr].data()+i*blocks, mA->data()+sendpos[i]*blocks, blocks*sizeof(T) );
+		    std::memcpy( sendbuf[srcr].data()+i*blocks, data.data()+sendpos[i]*blocks, blocks*sizeof(T) );
 		}
 	    }
 
@@ -296,14 +313,14 @@ namespace CNORXZ
 		}
 	
 		MPI_Sendrecv(sendbuf[dstr].data(), ext[dstr][myrank]*blocks, dt, dstr, 0,
-			     mBuf.data()+off*blocks, ext[myrank][srcr]*blocks, dt, srcr, 0,
+			     buf.data()+off*blocks, ext[myrank][srcr]*blocks, dt, srcr, 0,
 			     MPI_COMM_WORLD, &stat);
 	
 	    }
 
 	    // Second loop: Assign map to target buffer positions:
 	    Vector<SizeT> cnt(Nranks);
-	    lpi->ifor( mapXpr(ai, lpi, imap,
+	    rgi->ifor( mapXpr(rgj, rgi, imap,
 			      operation
 			      ( [&](SizeT p, SizeT q) {
 				  const SizeT r = p / locsz;
@@ -312,23 +329,13 @@ namespace CNORXZ
 				      for(SizeT s = 0; s != r; ++s){
 					  off += ext[myrank][s];
 				      }
-				      mMap[p] = mBuf.data() + off*blocks + cnt[r]*blocks;
+				      map[p] = buf.data() + off*blocks + cnt[r]*blocks;
 				      ++cnt[r];
 				  }
-				  mMap[q + myrank*locsz] = mA->data() + q*blocks;
-			      } , posop(ai), posop(lpi) ) ), NoF {} )();
-	    
+				  map[q + myrank*locsz] = data.data() + q*blocks;
+			      } , posop(rgj), posop(rgi) ) ), NoF {} )();
 	}
 
-	template <typename T>
-	template <class Index, class F>
-	Sptr<Vector<SizeT>> RCArray<T>::load(const Sptr<Index>& i, const F& f) const
-	{
-	    Sptr<Vector<SizeT>> imap = std::make_shared<Vector<SizeT>>();
-
-	    //load(i, /**/, imap);
-	    return imap;
-	}
 	
     } // namespace mpi
 } // namespace CNORXZ
