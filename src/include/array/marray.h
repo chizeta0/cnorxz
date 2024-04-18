@@ -44,11 +44,9 @@ namespace CNORXZ
 	virtual const_iterator cbegin() const override;
 	virtual const_iterator cend() const override;
 	virtual bool isView() const override;
+	virtual bool formatIsTrivial() const override final;
 
 	SERIALIZATION_FUNCTIONS;
-
-    protected:
-	virtual bool formatIsTrivial() const override final;
 	
     private:
 	Vector<T> mCont;

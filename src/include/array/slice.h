@@ -47,11 +47,10 @@ namespace CNORXZ
 	virtual const_iterator cbegin() const override;
 	virtual const_iterator cend() const override;
 	virtual bool isView() const override final;
-
-    protected:
-
 	virtual bool formatIsTrivial() const override final;
 	
+    protected:
+
 	const CArrayBase<T>* mCParent = nullptr; /**< pointer to the original container */
 	YFormat mBlockSizes; /**< the format */
 	SizeT mOff = 0; /** pointer offset w.r.t. the original pointer */
@@ -89,8 +88,6 @@ namespace CNORXZ
 	virtual const_iterator cbegin() const override;
 	virtual const_iterator cend() const override;
 	virtual bool isView() const override final;
-
-    protected:
 	virtual bool formatIsTrivial() const override final;
 
     private:
