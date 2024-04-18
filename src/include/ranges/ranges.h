@@ -16,6 +16,7 @@
 #include "xindex.h"
 #include "yrange.h"
 #include "urange.h"
+#include "wrange.h"
 #include "srange.h"
 #include "crange.h"
 #include "prange.h"

@@ -171,11 +171,19 @@ namespace CNORXZ
     
     // definition: ranges/urange.h
     template <typename Meta>
-    class URange; // generic simple range (uni-dimensional)
+    class URange; // generic simple range (uni-dimensional, ordered)
 
     // definition: ranges/urange.h
     template <typename Meta>
     class UIndex;
+
+    // definition: ranges/wrange.h
+    template <typename Meta>
+    class WRange; // generic simple range (uni-dimensional)
+
+    // definition: ranges/wrange.h
+    template <typename Meta>
+    class WIndex;
 
     // definition: ranges/prange.h
     template <class Range>
