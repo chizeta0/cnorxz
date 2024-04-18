@@ -117,15 +117,16 @@ namespace CNORXZ
 	     */
 	    const Vector<const T*> buffermap() const;
 	    
-	    /** Load all data from other ranks that is accessed by i2 in a loop over i1.
-		imap indicates the position of i2 for a given position of i1.
-		@param lpi Loop index.
-		@param ai Access index.
+	    /** Load all data from other ranks that is accessed by ai in a loop over lpi.
+		imap indicates the global (!) position of ai for a given (local) position of lpi.
+		@param lpi Loop rank index.
+		@param ai Access rank index.
+		@param i Index for non-ranked dimensions.
 		@param imap Index position map.
 	     */
-	    template <class Index1, class Index2>
-	    void load(const Sptr<Index1>& lpi, const Sptr<Index2>& ai,
-		      const Sptr<Vector<SizeT>>& imap) const;
+	    template <class TarI, class RTarI, class SrcI, class RSrcI, class I>
+	    void load(const Sptr<RIndex<TarI,RTarI>>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
+		      const Sptr<I>& i, const Sptr<Vector<SizeT>>& imap) const;
 
 	    /** Load all data from other ranks that is accessed by f(i).
 		@param lpi Loop index.

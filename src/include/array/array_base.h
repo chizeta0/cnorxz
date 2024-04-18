@@ -149,6 +149,19 @@ namespace CNORXZ
 	/** check if container views the data, i.e. it does not own it */
 	virtual bool isView() const = 0;
 
+	/** Perform compatibility checks
+	    @tparam Acc index type or index pack type
+	    @param acc index or index pack.
+	 */
+	template <class Acc>
+	void checkFormatCompatibility(const Acc& acc) const;
+
+	/** check if format is trivial
+	    @return true if container is data owning array, else return
+	    result of the corresponding container index
+	 */
+	virtual bool formatIsTrivial() const = 0;
+
     protected:
 	RangePtr mRange; /**< the container range */
 
@@ -171,18 +184,6 @@ namespace CNORXZ
 	template <class Acc>
 	const_iterator itLexSave(const Acc& acc) const;
 
-	/** Perform compatibility checks
-	    @tparam Acc index type or index pack type
-	    @param acc index or index pack.
-	 */
-	template <class Acc>
-	void checkFormatCompatibility(const Acc& acc) const;
-
-	/** check if format is trivial
-	    @return true if container is data owning array, else return
-	    result of the corresponding container index
-	 */
-	virtual bool formatIsTrivial() const = 0;
     };
 
     /** ****
