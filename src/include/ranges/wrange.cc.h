@@ -312,6 +312,18 @@ namespace CNORXZ
     }
 
     template <typename MetaT>
+    const SizeT* WRange<MetaT>::spaceToPos() const
+    {
+	return mSpaceToPos.data();
+    }
+
+    template <typename MetaT>
+    const SizeT* WRange<MetaT>::posToSpace() const
+    {
+	return mPosToSpace.data();
+    }
+
+    template <typename MetaT>
     SizeT WRange<MetaT>::getMeta(const MetaT& meta) const
     {
 	auto b = mSpace.begin();

@@ -51,6 +51,20 @@ namespace
 	RangePtr ur;
     };
 
+    class WR_Test : public ::testing::Test
+    {
+    protected:
+
+	WR_Test()
+	{
+	    mMeta = { "These", "are", "test", "strings", "foo", "bar", "baz" };
+	    wr = WRangeFactory<String>(mMeta).create();
+	}
+
+	Vector<String> mMeta;
+	RangePtr wr;
+    };
+
     class MR_Test : public ::testing::Test
     {
     protected:
@@ -209,6 +223,38 @@ namespace
 	    EXPECT_EQ(*i, mMeta[i.lex()+begPos]);
 	}
 	EXPECT_EQ(prx->orig(),ur);
+    }
+
+    TEST_F(WR_Test, Basics)
+    {
+	auto wrx = std::dynamic_pointer_cast<WRange<String>>(wr);
+	EXPECT_FALSE(wrx == nullptr);
+	EXPECT_EQ(wr->size(), mMeta.size());
+	EXPECT_EQ(wrx->size(), mMeta.size());
+	
+	EXPECT_TRUE(wrx->begin() != wrx->end());
+	EXPECT_FALSE(wrx->begin() == wrx->end());
+	EXPECT_EQ(wrx->begin().pos(), 0u);
+	EXPECT_EQ(wrx->end().pos(), mMeta.size());
+
+	EXPECT_TRUE(wr->begin() != wr->end());
+	EXPECT_FALSE(wr->begin() == wr->end());
+	EXPECT_EQ(wr->begin().pos(), 0u);
+	EXPECT_EQ(wr->end().pos(), mMeta.size());
+
+	SizeT cnt = 0;
+	auto endxi = wr->end();
+	for(auto xi = wr->begin(); xi != endxi; ++xi){
+	    EXPECT_EQ(xi.pos(), cnt);
+	    EXPECT_TRUE(*xi == DType(mMeta[cnt]));
+	    EXPECT_EQ((*xi).str(), mMeta[cnt]);
+	    ++cnt;
+	}
+
+	SizeT cnt2 = 0;
+	for(const auto& x: *wrx){
+	    EXPECT_EQ(x, mMeta[cnt2++]);
+	}
     }
 
     TEST_F(MR_Test, Basics2d)
