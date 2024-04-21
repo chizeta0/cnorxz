@@ -49,7 +49,7 @@ namespace CNORXZ
 
 	template <typename T>
 	template <class IndexI, class IndexK>
-	RCArray<T>::RCArray(const RRange<IndexI,IndexK>& range) :
+	RCArray<T>::RCArray(const Sptr<RRange<IndexI,IndexK>>& range) :
 	    mA(std::make_unique<T>(range->local())),
 	    mGeom(range->geom()),
 	    mGlobal(range)
@@ -258,9 +258,9 @@ namespace CNORXZ
 	    return imap;
 	}
 
-	/*===============+
-	 |    RCArray    |
-	 +===============*/
+	/*==============+
+	 |    RArray    |
+	 +==============*/
 
 	template <typename T>
 	RArray<T>::RArray(const RArray& a) :
@@ -278,7 +278,7 @@ namespace CNORXZ
 
 	template <typename T>
 	template <class IndexI, class IndexK>
-	RArray<T>::RArray(const RRange<IndexI,IndexK>& range) :
+	RArray<T>::RArray(const Sptr<RRange<IndexI,IndexK>>& range) :
 	    RCArray<T>(range),
 	    mB(dynamic_cast<ArrayBase<T>*>(RCA::mA.get()))
 	{}

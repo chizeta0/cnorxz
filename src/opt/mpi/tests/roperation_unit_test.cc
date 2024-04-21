@@ -45,6 +45,7 @@ namespace
 	    RangePtr g1 = CRangeFactory(1).create();
 	    RangePtr g2 = CRangeFactory(2).create();
 	    mGeom = g2*g1*g1*g2*g1;
+	    mGeom2 = g2*g1*g1*g2;
 	    
 	    mRXRange = rrange(mXRange, g2*g1*g1*g2);
 	    RangePtr scr = mSpRange*mSpRange;
@@ -88,6 +89,7 @@ namespace
 	RangePtr mSpRange;
 	RangePtr mMRange;
 	RangePtr mGeom;
+	RangePtr mGeom2;
 
 	RCArray<Double> mM1;
 	RCArray<Double> mM2;
@@ -103,7 +105,8 @@ namespace
     TEST_F(ROp_Test, Contract)
     {
 	Vector<Double> comp(mRXRange->size());
-	//RArray<Double> res( MArray<Double>(mMRange), mGeom );
+	RArray<Double> res( MArray<Double>(mRXRange->sub(1)), mGeom2 );
+	EXPECT_EQ(res.size(), comp.size());
 	typedef UIndex<SizeT> UI;
 	RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>> x(mRXRange);
 	RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>> y(mRXRange);

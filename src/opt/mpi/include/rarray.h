@@ -38,7 +38,7 @@ namespace CNORXZ
 		@param range The range.
 	     */
 	    template <class IndexI, class IndexK>
-	    RCArray(const RRange<IndexI,IndexK>& range);
+	    RCArray(const Sptr<RRange<IndexI,IndexK>>& range);
 	    
 	    /** Construct from local array object.
 		@param a Local array.
@@ -142,10 +142,12 @@ namespace CNORXZ
 	    template <class Index, class F>
 	    Sptr<Vector<SizeT>> load(const Sptr<Index>& lpi, const F& f) const;
 
-	private:
+	protected:
 	    ObjHandle<CArrayBase<T>> mA;
 	    RangePtr mGeom;
 	    RangePtr mGlobal;
+
+	private:
 	    mutable Vector<T> mBuf; // data from other ranks
 	    mutable Vector<const T*> mMap; // point to positions in mA or mBuf
 	};
@@ -181,7 +183,7 @@ namespace CNORXZ
 		@param range The range.
 	     */
 	    template <class IndexI, class IndexK>
-	    RArray(const RRange<IndexI,IndexK>& range);
+	    RArray(const Sptr<RRange<IndexI,IndexK>>& range);
 	    
 	    /** Construct from local array object.
 		@param a Local array.
