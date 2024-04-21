@@ -33,6 +33,12 @@ namespace CNORXZ
 	    DEFAULT_MOVE(RCArray);
 	    RCArray(const RCArray& a);
 	    RCArray& operator=(const RCArray& a);
+
+	    /** Construct from a rank range.
+		@param range The range.
+	     */
+	    template <class IndexI, class IndexK>
+	    RCArray(const RRange<IndexI,IndexK>& range);
 	    
 	    /** Construct from local array object.
 		@param a Local array.
@@ -153,6 +159,8 @@ namespace CNORXZ
 	{
 	public:
 	    typedef RCArray<T> RCA;
+	    typedef typename RCA::const_iterator const_iterator;
+	    typedef RBIndex<T> iterator;
 	
 	    using RCA::operator[];
 	    using RCA::operator();
@@ -164,9 +172,74 @@ namespace CNORXZ
 	    using RCA::cend;
 	    using RCA::sl;
 
-	    DEFAULT_MEMBERS(RArray);
+	    DEFAULT_C(RArray);
+	    DEFAULT_MOVE(RArray);
+	    RArray(const RArray& a);
+	    RArray& operator=(const RArray& a);
 
-	
+	    /** Construct from a rank range.
+		@param range The range.
+	     */
+	    template <class IndexI, class IndexK>
+	    RArray(const RRange<IndexI,IndexK>& range);
+	    
+	    /** Construct from local array object.
+		@param a Local array.
+		@param geom Rank geometry.
+	     */
+	    RArray(const ArrayBase<T>& a, const RangePtr& geom);
+
+	    /** Assign value at a position indicated by an index.
+		@param i Index indicating the position.
+		@param val Value.
+	     */
+	    template <typename I, typename M>
+	    RArray& set(const IndexInterface<I,M>& i, const T& val);
+
+	    /** Assign value at a position indicated by an index pack.
+		@param pack Index pack indicating the position.
+		@param val Value.
+	     */
+	    template <class... Indices>
+	    RArray& set(const SPack<Indices...>& pack, const T& val);
+
+	    /** Assign value at a position indicated by an index pack.
+		@param pack Index pack indicating the position.
+		@param val Value.
+	     */
+	    RArray& set(const DPack& pack, const T& val);
+
+	    /** @copydoc ArrayBase::sl() */
+	    template <typename I, typename M>
+	    Sptr<ArrayBase<T>> sl(const IndexInterface<I,M>& begin,
+				  const IndexInterface<I,M>& end);
+
+	    /** @copydoc ArrayBase::operator() */
+	    template <class Index>
+	    OpRoot<T,Index> operator()(const Sptr<Index>& i);
+
+	    /** @copydoc ArrayBase::operator() */
+	    template <class... Indices>
+	    inline decltype(auto) operator()(const SPack<Indices...>& pack);
+
+	    /** @copydoc ArrayBase::operator() */
+	    inline decltype(auto) operator()(const DPack& pack);
+
+	    /** @copydoc ArrayBase::data() */
+	    T* data();
+
+	    /** @copydoc ArrayBase::begin() */
+	    iterator begin();
+
+	    /** @copydoc ArrayBase::end() */
+	    iterator end();
+	    
+	    /** Get local array object. */
+	    ArrayBase<T>& local();
+
+	private:
+	    ArrayBase<T>* mB = nullptr;
+
 	};
 
 	template <class TarI, class RTarI, class SrcI, class RSrcI, typename T>

@@ -21,6 +21,10 @@ namespace CNORXZ
     namespace mpi
     {
 
+	/*===============+
+	 |    RCArray    |
+	 +===============*/
+	
 	template <typename T>
 	RCArray<T>::RCArray(const RCArray& a) :
 	    mA(a.mA->copy()),
@@ -41,6 +45,14 @@ namespace CNORXZ
 	    mA(a.copy()),
 	    mGeom(geom),
 	    mGlobal(RRangeFactory(rangeCast<YRange>(a.range()),rangeCast<YRange>(mGeom)).create())
+	{}
+
+	template <typename T>
+	template <class IndexI, class IndexK>
+	RCArray<T>::RCArray(const RRange<IndexI,IndexK>& range) :
+	    mA(std::make_unique<T>(range->local())),
+	    mGeom(range->geom()),
+	    mGlobal(range)
 	{}
 
 	template <typename T>
@@ -241,10 +253,145 @@ namespace CNORXZ
 	Sptr<Vector<SizeT>> RCArray<T>::load(const Sptr<Index>& i, const F& f) const
 	{
 	    Sptr<Vector<SizeT>> imap = std::make_shared<Vector<SizeT>>();
-
+	    CXZ_ERROR("!!!");
 	    //load(i, /**/, imap);
 	    return imap;
 	}
+
+	/*===============+
+	 |    RCArray    |
+	 +===============*/
+
+	template <typename T>
+	RArray<T>::RArray(const RArray& a) :
+	    RCArray<T>(a),
+	    mB(dynamic_cast<ArrayBase<T>*>(RCA::mA.get()))
+	{}
+
+	template <typename T>
+	RArray<T>& RArray<T>::operator=(const RArray& a)
+	{
+	    RCArray<T>::operator=(a);
+	    mB = dynamic_cast<ArrayBase<T>*>(RCA::mA.get());
+	    return *this;
+	}
+
+	template <typename T>
+	template <class IndexI, class IndexK>
+	RArray<T>::RArray(const RRange<IndexI,IndexK>& range) :
+	    RCArray<T>(range),
+	    mB(dynamic_cast<ArrayBase<T>*>(RCA::mA.get()))
+	{}
+	    
+	template <typename T>
+	RArray<T>::RArray(const ArrayBase<T>& a, const RangePtr& geom) :
+	    RCArray<T>(a, geom),
+	    mB(dynamic_cast<ArrayBase<T>*>(RCA::mA.get()))
+	{}
+
+	template <typename T>
+	template <typename I, typename M>
+	RArray<T>& RArray<T>::set(const IndexInterface<I,M>& i, const T& val)
+	{
+	    auto it = begin() + i.lex();
+	    it.set(val);
+	    return *this;
+	}
+
+	template <typename T>
+	template <class... Indices>
+	RArray<T>& RArray<T>::set(const SPack<Indices...>& pack, const T& val)
+	{
+	    auto it = begin() + pack.lex();
+	    it.set(val);
+	    return *this;
+	}
+
+	template <typename T>
+	RArray<T>& RArray<T>::set(const DPack& pack, const T& val)
+	{
+	    auto it = begin() + pack.lex();
+	    it.set(val);
+	    return *this;
+	}
+
+	template <typename T>
+	template <typename I, typename M>
+	Sptr<ArrayBase<T>> RArray<T>::sl(const IndexInterface<I,M>& begin,
+					 const IndexInterface<I,M>& end)
+	{
+	    if constexpr(is_rank_index<I>::value){
+		CXZ_ERROR("not implemented");
+		return nullptr;
+	    }
+	    else {
+		return mB->sl(begin, end);
+	    }
+	}
+
+	template <typename T>
+	template <class Index>
+	OpRoot<T,Index> RArray<T>::operator()(const Sptr<Index>& i)
+	{
+	    CXZ_ERROR("not implemented");
+	    return OpRoot<T,Index>();
+	}
+
+	template <typename T>
+	template <class... Indices>
+	inline decltype(auto) RArray<T>::operator()(const SPack<Indices...>& pack)
+	{
+	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
+	    if constexpr(is_rank_index<I0>::value){
+		// preliminary:
+		CXZ_ASSERT(this->formatIsTrivial(),
+			   "array has non-trivial format, rank operations require trivial format");
+		auto ri = pack[CSizeT<0>{}];
+		auto li = iter<1,sizeof...(Indices)>
+		    ( [&](auto i) { return pack[CSizeT<i>{}]; },
+		      [](const auto&... x) { return mindexPtr( (x * ...) ); } );
+		return croproot(*this, ri, li);
+	    }
+	    else {
+		return (*mB)(pack);
+	    }
+	}
+
+	template <typename T>
+	inline decltype(auto) RArray<T>::operator()(const DPack& pack)
+	{
+	    // TODO: assert that none of the indices is rank index
+	    return (*mB)(pack);
+	}
+
+	template <typename T>
+	T* RArray<T>::data()
+	{
+	    return mB->data();
+	}
+
+	template <typename T>
+	typename RArray<T>::iterator RArray<T>::begin()
+	{
+	    return iterator(mB->data(), RCA::mGlobal);
+	}
+
+	template <typename T>
+	typename RArray<T>::iterator RArray<T>::end()
+	{
+	    return iterator(mB->data(), RCA::mGlobal, RCA::mGlobal->size());
+	}
+	    
+	template <typename T>
+	ArrayBase<T>& RArray<T>::local()
+	{
+	    return *mB;
+	}
+	
+	
+	/*============================+
+	 |    non-member functions    |
+	 +============================*/
 
 	template <class TarI, class RTarI, class SrcI, class RSrcI, typename T>
 	void setupBuffer(const Sptr<RIndex<TarI,RTarI>>& rgi, const Sptr<RIndex<SrcI,RSrcI>>& rgj,

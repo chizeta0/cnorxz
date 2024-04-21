@@ -77,6 +77,12 @@ namespace CNORXZ
 
 	/** get pointer to data (const) */
 	const T* operator->() const;
+
+	/** get object. */
+	T* get();
+
+	/** get object. */
+	const T* get() const;
     };
     
 }

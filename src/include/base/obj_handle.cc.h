@@ -69,6 +69,18 @@ namespace CNORXZ
 	return &*mC;
     }
 
+    template <typename T>
+    T* ObjHandle<T>::get()
+    {
+	return &*mC;
+    }
+    
+    template <typename T>
+    const T* ObjHandle<T>::get() const
+    {
+	return &*mC;
+    }
+
 }
 
 #endif
