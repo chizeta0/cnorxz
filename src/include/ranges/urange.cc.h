@@ -363,7 +363,18 @@ namespace CNORXZ
 	template <typename T>
 	static inline Sptr<URange<MetaT>> transform(const RangePtr& r)
 	{
-	    if(r->type() == typeid(PRange<URange<T>>)){
+	    if(r->type() == typeid(CRange)){
+		auto rr = std::dynamic_pointer_cast<CRange>(r);
+		Vector<MetaT> v(rr->size());
+		std::transform(rr->begin(), rr->end(), v.begin(),
+			       [](const T& x) { return static_cast<MetaT>(x); } );
+		return std::dynamic_pointer_cast<URange<MetaT>>
+		    ( URangeFactory<MetaT>(std::move(v)).create() );
+	    }
+	    else if(r->type() == typeid(PRange<CRange>)){
+		return transform<T>( std::dynamic_pointer_cast<PRange<CRange>>(r)->derive() );
+	    }
+	    else if(r->type() == typeid(PRange<URange<T>>)){
 		return transform<T>( std::dynamic_pointer_cast<PRange<URange<T>>>(r)->derive() );
 	    }
 	    else if(r->type() == typeid(URange<T>)){

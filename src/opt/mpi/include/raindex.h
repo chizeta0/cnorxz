@@ -54,11 +54,32 @@ namespace CNORXZ
 	    
 	    const T* mLoc = nullptr;
 	    mutable Vector<T> mBuf; // used if iterating over content on different rank
-	    mutable SizeT mCur; // current rank in the buffer
+	    mutable SizeT mMin; // current global minimum position in the buffer
+	    mutable SizeT mMax; // current global maximum position in the buffer
 	    SizeT mBufSize;
 	    SizeT mThisRank;
 	};
 
+	template <typename T>
+	class RBIndex : public RAIndex<T>
+	{
+	public:
+	    typedef RAIndex<T> AI;
+	    typedef typename AI::IB IB;
+
+	    DEFAULT_MEMBERS(RBIndex);
+	    RBIndex(T* loc, const RangePtr& range, SizeT lexpos = 0);
+	    RBIndex(T* loc, const RAIndex<T>& i);
+
+	    RBIndex operator+(Int n) const;
+	    RBIndex operator-(Int n) const;
+
+	    RBIndex& set(const T& val);
+	    
+	private:
+	    T* mLoc = nullptr;
+	};
+	
     } // namespace mpi
 } // namespace CNOXRZ
 

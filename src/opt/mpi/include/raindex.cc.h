@@ -19,11 +19,16 @@ namespace CNORXZ
 {
     namespace mpi
     {
+	/*===============+
+	 |    RAIndex    |
+	 +===============*/
+	 
 	template <typename T>
 	RAIndex<T>::RAIndex(const T* loc, const RangePtr& range, SizeT lexpos) :
 	    RIndex<YIndex,YIndex>(range, lexpos),
 	    mLoc(loc),
-	    mCur(rank()),
+	    mMin(0),
+	    mMax(0),
 	    mThisRank(getRankNumber())
 	{
 	    setBufferSize();
@@ -35,7 +40,8 @@ namespace CNORXZ
 	RAIndex<T>::RAIndex(const T* loc, const RIndex<YIndex,YIndex>& i) :
 	    RIndex<YIndex,YIndex>(i),
 	    mLoc(loc),
-	    mCur(rank()),
+	    mMin(0),
+	    mMax(0),
 	    mThisRank(getRankNumber())
 	{
 	    setBufferSize();
@@ -68,7 +74,7 @@ namespace CNORXZ
 	template <typename T>
 	const T& RAIndex<T>::operator*() const
 	{
-	    if(mCur != rank()){
+	    if(this->pos() < mMin or this->pos() >= mMax){
 		setBuffer();
 	    }
 	    if(rank() != mThisRank){
@@ -82,7 +88,7 @@ namespace CNORXZ
 	template <typename T>
 	const T* RAIndex<T>::operator->() const
 	{
-	    if(mCur != rank()){
+	    if(this->pos() < mMin or this->pos() >= mMax){
 		setBuffer();
 	    }
 	    if(rank() != mThisRank){
@@ -117,9 +123,51 @@ namespace CNORXZ
 	    std::memcpy(mBuf.data(), d, mBufSize*sizeof(T));
 	    MPI_Bcast(mBuf.data(), mBufSize*sizeof(T), MPI_BYTE, static_cast<int>(rank()),
 		      MPI_COMM_WORLD );
-	    mCur = rank();
+	    mMin = (this->pos() / mBufSize) * mBufSize;
+	    mMax = (this->pos() / mBufSize + 1) * mBufSize;
 	}
-	
+
+	/*===============+
+	 |    RBIndex    |
+	 +===============*/
+
+	template <typename T>
+	RBIndex<T>::RBIndex(T* loc, const RangePtr& range, SizeT lexpos) :
+	    RAIndex<T>(loc, range, lexpos),
+	    mLoc(loc)
+	{}
+
+	template <typename T>
+	RBIndex<T>::RBIndex(T* loc, const RAIndex<T>& i) :
+	    RAIndex<T>(loc, i),
+	    mLoc(loc)
+	{}
+
+	template <typename T>
+	RBIndex<T> RBIndex<T>::operator+(Int n) const
+	{
+	    RBIndex<T> o = *this;
+	    return o += n;
+	}
+
+	template <typename T>
+	RBIndex<T> RBIndex<T>::operator-(Int n) const
+	{
+	    RBIndex<T> o = *this;
+	    return o -= n;
+	}
+
+	template <typename T>
+	RBIndex<T>& RBIndex<T>::set(const T& val)
+	{
+	    if(AI::rank() == AI::mThisRank){
+		mLoc[AI::local()->pos()] = val;
+	    }
+	    AI::setBuffer();
+	    return *this;
+	}
+
+
     } // namespace mpi
 } // namespace CNOXRZ
 

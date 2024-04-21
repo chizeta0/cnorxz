@@ -115,7 +115,7 @@ namespace CNORXZ
 		loc[r * i] if 'loc' is a purely local array with the same content.
 		The buffer needs to be initialized before according to required range.
 	     */
-	    const Vector<const T*> buffermap() const;
+	    const Vector<const T*>& buffermap() const;
 	    
 	    /** Load all data from other ranks that is accessed by ai in a loop over lpi.
 		imap indicates the global (!) position of ai for a given (local) position of lpi.

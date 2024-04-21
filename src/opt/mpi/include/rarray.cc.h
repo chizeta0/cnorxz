@@ -221,6 +221,12 @@ namespace CNORXZ
 	}
 
 	template <typename T>
+	const Vector<const T*>& RCArray<T>::buffermap() const
+	{
+	    return mBuf;
+	}
+	
+	template <typename T>
 	template <class TarI, class RTarI, class SrcI, class RSrcI, class I>
 	void RCArray<T>::load(const Sptr<RIndex<TarI,RTarI>>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
 			      const Sptr<I>& i, const Sptr<Vector<SizeT>>& imap) const
