@@ -114,7 +114,7 @@ namespace
 	setupBuffer(rgj, rgi, fmap, data, buf, map, mSRange->size());
 
 	EXPECT_EQ(mRRange->sub(1)->size(), 16*12*12*12/4);
-	// Third loop: Check:
+	// Fourth loop: Check:
 	for(*rgi = 0, gi = 0; rgi->lex() != rgi->lmax().val(); ++*rgi, ++gi){
 	    gj = gi.lex();
 	    *gj.pack()[C0] = (gj.pack()[C0]->lex() + 1) % gj.pack()[C0]->lmax().val();

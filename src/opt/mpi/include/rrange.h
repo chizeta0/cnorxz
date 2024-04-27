@@ -155,7 +155,10 @@ namespace CNORXZ
 
 	    /** Get the local index on THIS rank. */
 	    Sptr<IndexI> local() const;
-	
+
+	    /** Get index indicating the current rank this index points to. */
+	    Sptr<IndexK> rankI() const;
+	    
 	private:
 	    SizeT mLex = 0;
 	    Sptr<RangeType> mRange; /**< RRange. */

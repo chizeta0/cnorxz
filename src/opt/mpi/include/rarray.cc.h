@@ -393,8 +393,8 @@ namespace CNORXZ
 	 |    non-member functions    |
 	 +============================*/
 
-	template <class TarI, class RTarI, class SrcI, class RSrcI, typename T>
-	void setupBuffer(const Sptr<RIndex<TarI,RTarI>>& rgi, const Sptr<RIndex<SrcI,RSrcI>>& rgj,
+	template <class LoopI, class SrcI, class RSrcI, typename T>
+	void setupBuffer(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& rgj,
 			 const Sptr<Vector<SizeT>>& imap, const CArrayBase<T>& data,
 			 Vector<T>& buf, Vector<const T*>& map, const SizeT blocks)
 	{
@@ -408,18 +408,32 @@ namespace CNORXZ
 		sb.reserve(data.size());
 	    }
 	    Vector<Vector<SizeT>> request(Nranks);
-	    const SizeT locsz = rgi->local()->lmax().val();
+	    const SizeT locsz = rgj->local()->lmax().val();
 
-	    // First loop: setup send buffer
-	    rgi->ifor( mapXpr(rgj, rgi, imap,
+	    // ==== new ====
+
+	    // First loop: Find out what's needed
+	    Vector<bool> required(rgj->lmax().val(),false);
+	    lpi->ifor( mapXpr(rgj, lpi, imap,
 			      operation
-			      ( [&](SizeT p, SizeT q) {
-				  const SizeT r = p / locsz;
+			      ( [&](SizeT j) {
+				  const SizeT r = j / locsz;
 				  if(myrank != r){
-				      request[r].push_back(p % locsz);
+				      required[j] = true;
 				  }
-			      } , posop(rgj), posop(rgi) ) ) ,
+			      } , posop(rgj) ) ),
 		       NoF {} )();
+	    
+	    // Second loop: setup send buffer
+	    auto mi = mindexPtr(rgj->rankI(), rgj->local());
+	    mi->ifor( operation
+		      ( [&](SizeT p) {
+			  const SizeT r = p / locsz;
+			  if(myrank != r and required[p]){
+			      request[r].push_back(p % locsz);
+			  }
+		      } , posop(mi) ) ,
+		NoF {} )();
 
 	    // transfer:
 	    Vector<SizeT> reqsizes(Nranks);
@@ -470,22 +484,24 @@ namespace CNORXZ
 	
 	    }
 
-	    // Second loop: Assign map to target buffer positions:
+	    // Third loop: Assign map to target buffer positions:
 	    Vector<SizeT> cnt(Nranks);
-	    rgi->ifor( mapXpr(rgj, rgi, imap,
-			      operation
-			      ( [&](SizeT p, SizeT q) {
-				  const SizeT r = p / locsz;
-				  if(myrank != r){
-				      SizeT off = 0;
-				      for(SizeT s = 0; s != r; ++s){
-					  off += ext[myrank][s];
-				      }
-				      map[p] = buf.data() + off*blocks + cnt[r]*blocks;
-				      ++cnt[r];
-				  }
-				  map[q + myrank*locsz] = data.data() + q*blocks;
-			      } , posop(rgj), posop(rgi) ) ), NoF {} )();
+	    mi->ifor( operation
+		      ( [&](SizeT p) {
+			  const SizeT r = p / locsz;
+			  const SizeT l = p % locsz;
+			  if(myrank != r and required[p]){
+			      SizeT off = 0;
+			      for(SizeT s = 0; s != r; ++s){
+				  off += ext[myrank][s];
+			      }
+			      map[p] = buf.data() + off*blocks + cnt[r]*blocks;
+			      ++cnt[r];
+			  }
+			  if(myrank == r){
+			      map[p] = data.data() + l*blocks;
+			  }
+		      } , posop(mi) ), NoF {} )();
 	}
 
 	

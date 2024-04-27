@@ -376,6 +376,11 @@ namespace CNORXZ
 	    return mI;
 	}
 	
+	template <class IndexI, class IndexK>
+	Sptr<IndexK> RIndex<IndexI,IndexK>::rankI() const
+	{
+	    return mK;
+	}
 	
 	/*=====================+
 	 |    RRangeFactory    |

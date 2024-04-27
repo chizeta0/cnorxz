@@ -244,8 +244,8 @@ namespace CNORXZ
 
 	};
 
-	template <class TarI, class RTarI, class SrcI, class RSrcI, typename T>
-	void setupBuffer(const Sptr<RIndex<TarI,RTarI>>& rgj, const Sptr<RIndex<SrcI,RSrcI>>& rgi,
+	template <class LoopI, class SrcI, class RSrcI, typename T>
+	void setupBuffer(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& rgj,
 			 const Sptr<Vector<SizeT>>& imap, const CArrayBase<T>& data,
 			 Vector<T>& buf, Vector<const T*>& map, const SizeT blocks);
 
