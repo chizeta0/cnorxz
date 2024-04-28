@@ -152,7 +152,7 @@ namespace CNORXZ
 	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
 	    if constexpr(is_rank_index<I0>::value){
 		// preliminary:
-		CXZ_ASSERT(this->formatIsTrivial(),
+		CXZ_ASSERT(mA->formatIsTrivial(),
 			   "array has non-trivial format, rank operations require trivial format");
 		auto ri = pack[CSizeT<0>{}];
 		auto li = iter<1,sizeof...(Indices)>
@@ -235,15 +235,15 @@ namespace CNORXZ
 	template <typename T>
 	const Vector<const T*>& RCArray<T>::buffermap() const
 	{
-	    return mBuf;
+	    return mMap;
 	}
 	
 	template <typename T>
-	template <class TarI, class RTarI, class SrcI, class RSrcI, class I>
-	void RCArray<T>::load(const Sptr<RIndex<TarI,RTarI>>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
+	template <class LoopI, class SrcI, class RSrcI, class I>
+	void RCArray<T>::load(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
 			      const Sptr<I>& i, const Sptr<Vector<SizeT>>& imap) const
 	{
-	    mA->checkFormatCompatibility(ai->local()*i);
+	    mA->checkFormatCompatibility(mindex(ai->local()*i));
 	    const SizeT blocks = i->pmax().val();
 	    setupBuffer(lpi, ai, imap, *mA, mBuf, mMap, blocks);
 	}

@@ -381,7 +381,13 @@ namespace CNORXZ
 	{
 	    return mK;
 	}
-	
+
+	template <class IndexI, class IndexK, class I1>
+	decltype(auto) operator*(const Sptr<RIndex<IndexI,IndexK>>& a, const Sptr<I1>& b)
+	{
+	    return iptrMul(a, b);
+	}
+
 	/*=====================+
 	 |    RRangeFactory    |
 	 +=====================*/

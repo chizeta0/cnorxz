@@ -25,7 +25,7 @@ namespace CNORXZ
 	    typedef COpInterface<CROpRoot<T,RIndexT,IndexT>> OI;
 
 	    constexpr CROpRoot() = default;
-	    constexpr CROpRoot(const RArray<T>& a, const Sptr<RIndexT>& ri,
+	    constexpr CROpRoot(const RCArray<T>& a, const Sptr<RIndexT>& ri,
 			       const Sptr<IndexT>& li);
 	    
 	    template <class PosT>
@@ -38,13 +38,13 @@ namespace CNORXZ
 
 	private:
 
-	    const T** mData;
+	    const T* const* mData;
 	    Sptr<RIndexT> mRIndex;
 	    Sptr<IndexT> mIndex;
 	};
 
 	template <typename T, class RIndexT, class IndexT>
-	constexpr decltype(auto) croproot(const RArray<T>& a, const Sptr<RIndexT>& ri,
+	constexpr decltype(auto) croproot(const RCArray<T>& a, const Sptr<RIndexT>& ri,
 					  const Sptr<IndexT>& li);
 	
 	template <typename T, class RIndexT, class IndexT>

@@ -130,8 +130,8 @@ namespace CNORXZ
 		@param i Index for non-ranked dimensions.
 		@param imap Index position map.
 	     */
-	    template <class TarI, class RTarI, class SrcI, class RSrcI, class I>
-	    void load(const Sptr<RIndex<TarI,RTarI>>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
+	    template <class LoopI, class SrcI, class RSrcI, class I>
+	    void load(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
 		      const Sptr<I>& i, const Sptr<Vector<SizeT>>& imap) const;
 
 	    /** Load all data from other ranks that is accessed by f(i).

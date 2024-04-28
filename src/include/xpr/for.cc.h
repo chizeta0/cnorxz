@@ -150,7 +150,9 @@ namespace CNORXZ
 	constexpr SPos<I> i;
 	const auto pos = last + mExt( i );
 	if constexpr(I < N-1){
-	    return mF(mXpr(pos),exec<I+1>(last));
+	    auto x = mXpr(pos);
+	    mF(x,exec<I+1>(last));
+	    return x;
 	}
 	else {
 	    return mXpr(pos);
@@ -164,7 +166,9 @@ namespace CNORXZ
 	constexpr SPos<I> i;
 	const auto pos = mExt( i );
 	if constexpr(I < N-1){
-	    return mF(mXpr(pos),exec<I+1>());
+	    auto x = mXpr(pos);
+	    mF(x,exec<I+1>());
+	    return x;
 	}
 	else {
 	    return mXpr(pos);

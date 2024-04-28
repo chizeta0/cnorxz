@@ -11,14 +11,14 @@ namespace CNORXZ
 	 +================*/
     
 	template <typename T, class RIndexT, class IndexT>
-	constexpr CROpRoot<T,RIndexT,IndexT>::CROpRoot(const RArray<T>& a, const Sptr<RIndexT>& ri,
+	constexpr CROpRoot<T,RIndexT,IndexT>::CROpRoot(const RCArray<T>& a, const Sptr<RIndexT>& ri,
 						       const Sptr<IndexT>& li) :
-	    mData(a.map()),
+	    mData(a.buffermap().data()),
 	    mRIndex(ri),
 	    mIndex(li)
 	{
-	    CXZ_ASSERT(a.map().size() == ri->lmax().val(),
-		       "data map not properly initialized: map size = " << a.map.size()
+	    CXZ_ASSERT(a.buffermap().size() == ri->lmax().val(),
+		       "data map not properly initialized: map size = " << a.buffermap().size()
 		       << ", rank index range size = " << ri->lmax().val());
 	}
 
@@ -43,7 +43,7 @@ namespace CNORXZ
 	}
 
 	template <typename T, class RIndexT, class IndexT>
-	constexpr decltype(auto) croproot(const RArray<T>& a, const Sptr<RIndexT>& ri,
+	constexpr decltype(auto) croproot(const RCArray<T>& a, const Sptr<RIndexT>& ri,
 					  const Sptr<IndexT>& li)
 	{
 	    return CROpRoot<T,RIndexT,IndexT>(a,ri,li);
@@ -56,12 +56,12 @@ namespace CNORXZ
 	template <typename T, class RIndexT, class IndexT>
 	constexpr ROpRoot<T,RIndexT,IndexT>::ROpRoot(RArray<T>& a, const Sptr<RIndexT>& ri,
 						     const Sptr<IndexT>& li) :
-	    mData(a.map()),
+	    mData(a.buffermap().data()),
 	    mRIndex(ri),
 	    mIndex(li)
 	{
-	    CXZ_ASSERT(a.map().size() == ri->lmax().val(),
-		       "data map not properly initialized: map size = " << a.map.size()
+	    CXZ_ASSERT(a.buffermap().size() == ri->lmax().val(),
+		       "data map not properly initialized: map size = " << a.buffermap().size()
 		       << ", rank index range size = " << ri->lmax().val());
 	}
 

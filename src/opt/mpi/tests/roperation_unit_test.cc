@@ -108,19 +108,25 @@ namespace
 	RArray<Double> res( MArray<Double>(mRXRange->sub(1)), mGeom2 );
 	EXPECT_EQ(res.size(), comp.size());
 	typedef UIndex<SizeT> UI;
-	RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>> x(mRXRange);
-	RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>> y(mRXRange);
-	SIndex<SizeT,4> A(mSpRange);
-	SIndex<SizeT,4> B(mSpRange);
-	/*
+	auto x = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto y = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto xy = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto A = std::make_shared<SIndex<SizeT,4>>(mSpRange);
+	auto B = std::make_shared<SIndex<SizeT,4>>(mSpRange);
+
+	Sptr<Vector<SizeT>> imap1;
+	Sptr<Vector<SizeT>> imap2;
+	
 	// block 1:
-	mM1.load(,A*B*a*b);
-	mM2.load(,A*B*a*b);
-	res(y) += (mM1(x*A*B*a*b) * mM2(xy*B*A*b*a)).c(x*A*B*a*b);
+	//mM1.load(mindexPtr(y*x), x, mindexPtr(A*B), imap1);
+	//mM2.load(mindexPtr(y*x), xy, mindexPtr(A*B), imap2);
+	/*
+	res(y) = ( mM1(x*A*B) * mM2(xy*B*A)).c(mindexPtr(x*A*B));
 	// block 2:
+	
 	mM1.load(,A*B*a*b);
 	mM2.load(,A*B*a*b);
-	res(y) += (mM1(x*A*B*a*b) * mM2(xy*B*A*b*a)).c(x*A*B*a*b);
+	res(y) += (mM1(x*A*B*a*b) * mM2(xy*B*A*b*a)).c(mindexPtr(x*A*B));
 	// block 3:
 	mM1.load(,A*B*a*b);
 	mM2.load(,A*B*a*b);

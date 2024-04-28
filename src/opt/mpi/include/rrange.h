@@ -179,6 +179,13 @@ namespace CNORXZ
 	    return std::make_shared<RIndex<IndexI,IndexK>>(i,k);
 	}
 
+	/** Make index pack of a RIndex and another index.
+	    @param a pointer to RIndex.
+	    @param b pointer to another index.
+	*/
+	template <class IndexI, class IndexK, class I1>
+	decltype(auto) operator*(const Sptr<RIndex<IndexI,IndexK>>& a, const Sptr<I1>& b);
+
 	// Traits!!!
 	template <class I>
 	struct is_rank_index

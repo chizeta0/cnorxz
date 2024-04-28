@@ -247,7 +247,7 @@ namespace
     TEST_F(For_Test, SFor)
     {
 	auto loop = mkSFor<sSize>(IndexId<0>(mId1), TestXpr1( IndexId<0>(mId1) ),
-				  [](const auto& a, const auto& b) { return a + b; });
+				  [](auto& a, const auto& b) { return a += b; });
 
 	const UPos rs = loop.rootSteps(IndexId<0>(mId1));
 	EXPECT_EQ(rs.val(), 1u);

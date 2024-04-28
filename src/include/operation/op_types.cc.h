@@ -379,6 +379,12 @@ namespace CNORXZ
 	return OpRoot<T,IndexT>(a, ind);
     }
 
+    template <typename T, class IndexT>
+    constexpr decltype(auto) oproot(T* a, const Sptr<IndexT>& ind)
+    {
+	return OpRoot<T,IndexT>(a, ind);
+    }
+
     /*=================+
      |   Operation     |
      +=================*/
