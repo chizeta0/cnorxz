@@ -28,7 +28,7 @@ namespace CNORXZ
 	for(six = 0; six != sie; ++six){
 	    tix.at( f(*six) );
 	    if(six.rank() == mpi::getRankNumber()){
-		(*m)[six.local()->lex()] = tix.pos();
+		(*m)[six.local()->pos()] = tix.pos();
 	    }
 	}
     }

@@ -428,11 +428,16 @@ namespace CNORXZ
 	const String blim = "(";
 	const String elim = ")";
 	const String dlim = ",";
-	return iter<1,NI>
-	    ( [&](auto i) { return mIPack[i]->stringMeta(); },
-	      [&](const auto&... xs) {
-		  return blim + mIPack[CSizeT<0>{}]->stringMeta() + ( (dlim + xs) + ... ) + elim;
-	      } );
+	if constexpr(NI == 1){
+	    return blim + mIPack[CSizeT<0>{}]->stringMeta() + elim;
+	}
+	else {
+	    return iter<1,NI>
+		( [&](auto i) { return mIPack[i]->stringMeta(); },
+		  [&](const auto&... xs) {
+		      return blim + mIPack[CSizeT<0>{}]->stringMeta() + ( (dlim + xs) + ... ) + elim;
+		  } );
+	}
     }
     
     template <class FormatT, class... Indices>

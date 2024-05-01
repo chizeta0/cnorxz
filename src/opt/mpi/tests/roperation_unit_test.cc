@@ -108,22 +108,28 @@ namespace
 	RArray<Double> res( MArray<Double>(mRXRange->sub(1)), mGeom2 );
 	EXPECT_EQ(res.size(), comp.size());
 	typedef UIndex<SizeT> UI;
-	auto x = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto xl = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
 	auto y = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
 	auto xy = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto x = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
 	auto A = std::make_shared<SIndex<SizeT,4>>(mSpRange);
 	auto B = std::make_shared<SIndex<SizeT,4>>(mSpRange);
 
 	Sptr<Vector<SizeT>> imap1;
 	Sptr<Vector<SizeT>> imap2;
+	auto AB = mindexPtr(A*B);
+	auto BA = mindexPtr(B*A);
+	auto myx = mindexPtr(y*xl);
 	
 	// block 1:
-	//mM1.load(mindexPtr(y*x), x, mindexPtr(A*B), imap1);
-	//mM2.load(mindexPtr(y*x), xy, mindexPtr(A*B), imap2);
+	//imap1 = setupMap(x, xl, [](const auto& vec) { return vec; } );
+	//imap2 = setupMap(xy, myx, [](const auto& vec) { return std::get<0>(vec); } );
+	//mM1.load(xl, x, AB, imap1);
+	//mM2.load(myx, xy, BA, imap2);
+	//res(y).a(mindexPtr(y*xl), [](auto& t, const auto& s) { t += s; },
+	//	 mapXpr( x, xl, imap1, mapXpr( xy, myx, imap2, (mM1(x*A*B) * mM2(xy*B*A)).c(AB) ) ) );
 	/*
-	res(y) = ( mM1(x*A*B) * mM2(xy*B*A)).c(mindexPtr(x*A*B));
 	// block 2:
-	
 	mM1.load(,A*B*a*b);
 	mM2.load(,A*B*a*b);
 	res(y) += (mM1(x*A*B*a*b) * mM2(xy*B*A*b*a)).c(mindexPtr(x*A*B));

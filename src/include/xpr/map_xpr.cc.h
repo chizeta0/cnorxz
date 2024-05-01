@@ -26,7 +26,7 @@ namespace CNORXZ
 	auto tix = *ti;
 	for(six = 0; six != sie; ++six){
 	    tix.at( f(*six) );
-	    (*m)[six->lex()] = tix.pos();
+	    (*m)[six.pos()] = tix.pos();
 	}
     }
 

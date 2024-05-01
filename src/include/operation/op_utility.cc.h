@@ -52,7 +52,7 @@ namespace CNORXZ
     inline auto pos_unpack_args(const F& f, const PosT& pos, const Tuple<Ops...>& args)
     {
 	static_assert(is_pos_type<PosT>::value, "got non-pos-type");
-	static_assert((is_operation<Ops>::value and ...), "got non-operation type");
+	static_assert((is_xpr<Ops>::value and ...), "got non-operation type");
 	typedef std::make_index_sequence<sizeof...(Ops)> Idxs;
 	typedef std::index_sequence<op_size<Ops>::value...> OpSizes;
 	return pos_unpack_args_i(f, pos, args, OpSizes{}, Idxs{});

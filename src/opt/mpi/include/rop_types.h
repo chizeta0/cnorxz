@@ -46,7 +46,7 @@ namespace CNORXZ
 	template <typename T, class RIndexT, class IndexT>
 	constexpr decltype(auto) croproot(const RCArray<T>& a, const Sptr<RIndexT>& ri,
 					  const Sptr<IndexT>& li);
-	
+
 	template <typename T, class RIndexT, class IndexT>
 	class ROpRoot : public OpInterface<ROpRoot<T,RIndexT,IndexT>>
 	{
