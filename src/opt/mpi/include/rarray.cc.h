@@ -331,20 +331,20 @@ namespace CNORXZ
 
 	template <typename T>
 	template <class Index>
-	OpRoot<T,Index> RArray<T>::operator()(const Sptr<Index>& i)
+	COpRoot<T,Index> RArray<T>::operator()(const Sptr<Index>& i) const
 	{
 	    CXZ_ERROR("not implemented");
-	    return OpRoot<T,Index>();
+	    return COpRoot<T,Index>();
 	}
 
 	template <typename T>
 	template <class... Indices>
-	inline decltype(auto) RArray<T>::operator()(const SPack<Indices...>& pack)
+	inline decltype(auto) RArray<T>::operator()(const SPack<Indices...>& pack) const
 	{
 	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
 	    if constexpr(is_rank_index<I0>::value){
 		// preliminary:
-		CXZ_ASSERT(this->formatIsTrivial(),
+		CXZ_ASSERT(mB->formatIsTrivial(),
 			   "array has non-trivial format, rank operations require trivial format");
 		auto ri = pack[CSizeT<0>{}];
 		auto li = iter<1,sizeof...(Indices)>
@@ -358,9 +358,44 @@ namespace CNORXZ
 	}
 
 	template <typename T>
-	inline decltype(auto) RArray<T>::operator()(const DPack& pack)
+	inline decltype(auto) RArray<T>::operator()(const DPack& pack) const
 	{
 	    // TODO: assert that none of the indices is rank index
+	    return (*mB)(pack);
+	}
+
+	template <typename T>
+	template <class Index>
+	OpRoot<T,Index> RArray<T>::rop(const Sptr<Index>& i)
+	{
+	    return (*mB)(i);
+	}
+	
+	template <typename T>
+	template <class... Indices>
+	inline decltype(auto) RArray<T>::rop(const SPack<Indices...>& pack)
+	{
+	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
+	    if constexpr(is_rank_index<I0>::value){
+		// preliminary:
+		CXZ_ASSERT(mB->formatIsTrivial(),
+			   "array has non-trivial format, rank operations require trivial format");
+		/*
+		auto ri = pack[CSizeT<0>{}];
+		auto li = iter<1,sizeof...(Indices)>
+		    ( [&](auto i) { return pack[CSizeT<i>{}]; },
+		      [](const auto&... x) { return mindexPtr( (x * ...) ); } );
+		*/
+		return oproot(*mB, mindexPtr(pack));
+	    }
+	    else {
+		return (*mB)(pack);
+	    }
+	}
+	
+	template <typename T>
+	inline decltype(auto) RArray<T>::rop(const DPack& pack)
+	{
 	    return (*mB)(pack);
 	}
 
@@ -387,7 +422,6 @@ namespace CNORXZ
 	{
 	    return *mB;
 	}
-	
 	
 	/*============================+
 	 |    non-member functions    |
@@ -485,21 +519,25 @@ namespace CNORXZ
 	    }
 
 	    // Third loop: Assign map to target buffer positions:
+	    const SizeT myrankoff = myrank*locsz;
+	    assert(mapsize == Nranks*locsz);
 	    Vector<SizeT> cnt(Nranks);
 	    mi->ifor( operation
 		      ( [&](SizeT p) {
 			  const SizeT r = p / locsz;
 			  const SizeT l = p % locsz;
+			  const SizeT mpidx = (p - myrankoff + mapsize) % mapsize;
 			  if(myrank != r and required[p]){
 			      SizeT off = 0;
 			      for(SizeT s = 0; s != r; ++s){
 				  off += ext[myrank][s];
 			      }
-			      map[p] = buf.data() + off*blocks + cnt[r]*blocks;
+			      map[mpidx] = buf.data() + off*blocks + cnt[r]*blocks;
 			      ++cnt[r];
 			  }
 			  if(myrank == r){
-			      map[p] = data.data() + l*blocks;
+			      assert(mpidx < locsz);
+			      map[mpidx] = data.data() + l*blocks;
 			  }
 		      } , posop(mi) ), NoF {} )();
 	}

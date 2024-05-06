@@ -51,15 +51,20 @@ namespace
 	    RangePtr scr = mSpRange*mSpRange;
 	    const Vector<Double> vec = Numbers::get(0,mRXRange->sub(1)->size()+2);
 	    RangePtr ltr = mRXRange->sub(1)->sub(0);
-	    RangePtr llr = mRXRange->sub(1)->sub(1);
-	    mMRange = ltr*llr*llr*llr*scr;
+	    RangePtr ll1r = mRXRange->sub(1)->sub(1);
+	    RangePtr ll2r = mRXRange->sub(1)->sub(2);
+	    RangePtr ll3r = mRXRange->sub(1)->sub(3);
+	    mMRange = ltr*ll1r*ll2r*ll3r*scr;
 	    Vector<Double> data(mMRange->size());
 	    Vector<Double> data2(mMRange->size());
 	    for(SizeT i = 0; i != mRXRange->sub(1)->size(); ++i){
 		for(SizeT j = 0; j != scr->size(); ++j){
 		    const SizeT k = i*scr->size() + j; 
-		    data[k] = vec[i] + static_cast<Double>(j-scr->size()) / static_cast<Double>((myrank+1)*(T*L*L*L));
-		    data2[k] = vec[i] + static_cast<Double>((j*2-scr->size())*i) / static_cast<Double>((myrank+1)*50);
+		    data[k] = vec[i] * static_cast<Double>(j+2);
+		    data2[k] = vec[i] / static_cast<Double>(j+2);
+		    if(k > 0){ 
+			assert(data[k] != data[k-1]);
+		    }
 		}
 	    }
 	    mM1 = RCArray<Double>( MArray<Double>(mMRange, data), mGeom );
@@ -68,12 +73,15 @@ namespace
 	    mAll2 = Vector<Double>(data2.size() * getNumRanks());
 	    typedef RIndex<MIndex<CIndex,CIndex,CIndex,CIndex>,MIndex<CIndex,CIndex,CIndex,CIndex>> RI;
 	    const SizeT scrs = scr->size();
+	    auto rix = RI(mRXRange);
+	    assert(rix.lmax().val() == 27648);
+	    assert(scrs == 16);
 	    for(auto ri = RI(mRXRange); ri.lex() != ri.lmax().val(); ++ri){
 		Double* buf = mAll1.data() + scrs*ri.lex();
 		Double* buf2 = mAll2.data() + scrs*ri.lex();
 		if(ri.rank() == myrank){
-		    std::memcpy(buf, data.data()+ri.local()->lex()*scrs, scrs);
-		    std::memcpy(buf2, data2.data()+ri.local()->lex()*scrs, scrs);
+		    std::memcpy(buf, data.data()+ri.local()->lex()*scrs, scrs*sizeof(Double));
+		    std::memcpy(buf2, data2.data()+ri.local()->lex()*scrs, scrs*sizeof(Double));
 		}
 		MPI_Bcast(buf, scrs, MPI_DOUBLE, ri.rank(), MPI_COMM_WORLD);
 		MPI_Bcast(buf2, scrs, MPI_DOUBLE, ri.rank(), MPI_COMM_WORLD);
@@ -100,6 +108,52 @@ namespace
     TEST_F(ROp_Test, Check)
     {
 	EXPECT_EQ(mM1.size(), mM2.size());
+    }
+
+    TEST_F(ROp_Test, Difference)
+    {
+	RArray<Double> res( MArray<Double>(mM1.range()->sub(1)), mGeom );
+	Vector<Double> comp( mXRange->size()*mSpRange->size()*mSpRange->size() );
+	EXPECT_EQ(res.size(), comp.size());
+
+	typedef UIndex<SizeT> UI;
+	
+	auto xp = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto xm = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto x = std::make_shared<RIndex<MIndex<UI,UI,UI,UI>,MIndex<UI,UI,UI,UI>>>(mRXRange);
+	auto A = std::make_shared<SIndex<SizeT,4>>(mSpRange);
+	auto B = std::make_shared<SIndex<SizeT,4>>(mSpRange);
+	auto AB = mindexPtr(A*B);
+	
+	Sptr<Vector<SizeT>> imap1;
+	imap1 = setupMap(xp, x, [&](const auto& vec) {
+	    return std::make_tuple((std::get<0>(vec)+1)%T, (std::get<1>(vec)+1)%L,
+				   (std::get<2>(vec)+1)%L, (std::get<3>(vec)+1)%L); } );
+	mM1.load(x, xp, AB, imap1);
+	res.rop(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
+
+	for(SizeT x0 = 0; x0 != T; ++x0) { 
+	for(SizeT x1 = 0; x1 != L; ++x1)
+	for(SizeT x2 = 0; x2 != L; ++x2)
+	for(SizeT x3 = 0; x3 != L; ++x3)
+	for(SizeT A = 0; A != 4; ++A)
+	for(SizeT B = 0; B != 4; ++B) {
+	    const SizeT xi = x0*L*L*L + x1*L*L + x2*L + x3;
+	    const SizeT x0p = (x0+1)%T;
+	    const SizeT x1p = (x1+1)%L;
+	    const SizeT x2p = (x2+1)%L;
+	    const SizeT x3p = (x3+1)%L;
+	    const SizeT xpi = x0p*L*L*L + x1p*L*L + x2p*L + x3p;
+	    const SizeT pi = xpi*4*4 + A*4 + B;
+	    const SizeT ri = xi*4*4 + A*4 + B;
+	    comp[ri] = mAll1[pi] - mAll1[ri];
+	}}
+	
+	for(auto i = res.begin(); i.lex() != i.lmax().val(); ++i){
+	    const auto a1 = *i;
+	    const auto a2 = comp[i.lex()];
+	    EXPECT_EQ(a1, a2);
+	}
     }
 
     TEST_F(ROp_Test, Contract)
@@ -141,7 +195,6 @@ namespace
 	mM1.load(,A*B*a*b);
 	mM2.load(,A*B*a*b);
 	res(y) += (mM1(x*A*B*a*b) * mM2(xy*B*A*b*a)).c(x*A*B*a*b);
-	*/
 	// comparison loop
 	for(SizeT x0 = 0; x0 != T; ++x0) { VCHECK(x0);
 	for(SizeT x1 = 0; x1 != L; ++x1)
@@ -165,6 +218,7 @@ namespace
 	    comp[yi] += mAll1[i1] * mAll2[i2];
 	}}
 	VCHECK(comp[123]);
+	*/
 	/*
 	for(auto i = res.begin(); i.lex() != i.lmax().val(); ++i){
 	    EXPECT_EQ(*i, comp[i.lex()]);

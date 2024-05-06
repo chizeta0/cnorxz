@@ -56,33 +56,54 @@ namespace CNORXZ
 	template <typename T, class RIndexT, class IndexT>
 	constexpr ROpRoot<T,RIndexT,IndexT>::ROpRoot(RArray<T>& a, const Sptr<RIndexT>& ri,
 						     const Sptr<IndexT>& li) :
-	    mData(a.buffermap().data()),
+	    mData(a.data()),
 	    mRIndex(ri),
 	    mIndex(li)
 	{
-	    CXZ_ASSERT(a.buffermap().size() == ri->lmax().val(),
-		       "data map not properly initialized: map size = " << a.buffermap().size()
-		       << ", rank index range size = " << ri->lmax().val());
+	    CXZ_ERROR("nope");
+	}
+	
+	template <typename T, class RIndexT, class IndexT>
+	template <class Op>
+	constexpr ROpRoot<T,RIndexT,IndexT>& ROpRoot<T,RIndexT,IndexT>::operator=(const Op& in)
+	{
+	    OI::a(mIndex, [](auto& a, const auto& b) { a = b; }, in);
+	    return *this;
+	}
+	
+	template <typename T, class RIndexT, class IndexT>
+	template <class Op>
+	constexpr ROpRoot<T,RIndexT,IndexT>& ROpRoot<T,RIndexT,IndexT>::operator+=(const Op& in)
+	{
+	    OI::a(mIndex, [](auto& a, const auto& b) { a += b; }, in);
+	    return *this;
+	}
+	
+	template <typename T, class RIndexT, class IndexT>
+	constexpr ROpRoot<T,RIndexT,IndexT>& ROpRoot<T,RIndexT,IndexT>::operator=(const ROpRoot& in)
+	{
+	    OI::a(mIndex, [](auto& a, const auto& b) { a = b; }, in);
+	    return *this;
 	}
 
 	template <typename T, class RIndexT, class IndexT>
 	template <class PosT>
 	constexpr decltype(auto) ROpRoot<T,RIndexT,IndexT>::operator()(const PosT& pos) const
 	{
-	    return (mData[pos.val()])[pos.next().val()];
+	    return mData[pos.val()];
 	}
 
 	template <typename T, class RIndexT, class IndexT>
 	constexpr decltype(auto) ROpRoot<T,RIndexT,IndexT>::operator()() const
 	{
-	    return (mData[0])[0];
+	    return mData[0];
 	}
 
 	template <typename T, class RIndexT, class IndexT>
 	template <SizeT I>
 	constexpr decltype(auto) ROpRoot<T,RIndexT,IndexT>::rootSteps(const IndexId<I>& id) const
 	{
-	    return mRIndex->stepSize(id) << mIndex->stepSize(id);
+	    return mIndex->stepSize(id);
 	}
     
 	template <typename T, class RIndexT, class IndexT>

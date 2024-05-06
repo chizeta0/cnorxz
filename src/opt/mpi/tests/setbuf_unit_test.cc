@@ -114,6 +114,9 @@ namespace
 	setupBuffer(rgj, rgi, fmap, data, buf, map, mSRange->size());
 
 	EXPECT_EQ(mRRange->sub(1)->size(), 16*12*12*12/4);
+	const SizeT locsz = rgj->local()->lmax().val();
+	const SizeT myrankoff = myrank*locsz;
+	const SizeT mapsize = map.size();
 	// Fourth loop: Check:
 	for(*rgi = 0, gi = 0; rgi->lex() != rgi->lmax().val(); ++*rgi, ++gi){
 	    gj = gi.lex();
@@ -124,13 +127,17 @@ namespace
 	    *rgj = gj.lex();
 
 	    if(rgi->rank() == myrank){
-		EXPECT_TRUE(map.data()[rgj->pos()] != nullptr);
-
-		const Double vn = *map[rgj->pos()]/blocks;
+		const SizeT mpidx = (rgj->pos() - myrankoff + mapsize) % mapsize;
+		VCHECK(mpidx);
+		assert(mpidx < map.size());
+		EXPECT_TRUE(map.data()[mpidx] != nullptr);
+		if(map.data()[mpidx] == nullptr) continue;
+		
+		const Double vn = *map[mpidx]/blocks;
 		const SizeT xp = static_cast<SizeT>(vn);
 		const SizeT orank = xp / mRRange->sub(1)->size();
 		if(myrank == 0){
-		    std::cout << " pos = " << rgj->pos() << " , val = " << *map[rgj->pos()]
+		    std::cout << " pos = " << rgj->pos() << " , val = " << *map[mpidx]
 			      << " , val_norm = " << vn << " , origin rank =  "
 			      << orank << std::endl;
 		}

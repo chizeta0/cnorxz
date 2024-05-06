@@ -43,6 +43,7 @@ namespace CNORXZ
 	    Sptr<IndexT> mIndex;
 	};
 
+
 	template <typename T, class RIndexT, class IndexT>
 	constexpr decltype(auto) croproot(const RCArray<T>& a, const Sptr<RIndexT>& ri,
 					  const Sptr<IndexT>& li);
@@ -57,6 +58,14 @@ namespace CNORXZ
 	    constexpr ROpRoot(RArray<T>& a, const Sptr<RIndexT>& ri,
 			      const Sptr<IndexT>& li);
 
+	    template <class Op>
+	    constexpr ROpRoot& operator=(const Op& in);
+
+	    template <class Op>
+	    constexpr ROpRoot& operator+=(const Op& in);
+
+	    constexpr ROpRoot& operator=(const ROpRoot& in);
+
 	    template <class PosT>
 	    constexpr decltype(auto) operator()(const PosT& pos) const;
 
@@ -67,7 +76,7 @@ namespace CNORXZ
 
 	private:
 
-	    T** mData;
+	    T* mData;
 	    Sptr<RIndexT> mRIndex;
 	    Sptr<IndexT> mIndex;
 	};
@@ -99,6 +108,13 @@ namespace CNORXZ
 	};
 	*/
     } // namespace mpi
+
+    template <typename T, class RIndexT, class IndexT>
+    struct op_size<mpi::CROpRoot<T,RIndexT,IndexT>>
+    {
+	static constexpr SizeT value = 2;
+    };
+    
 } // namespace CNORXZ
 
 #endif

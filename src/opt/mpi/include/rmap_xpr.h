@@ -17,14 +17,15 @@
 
 namespace CNORXZ
 {
-    template <class TarIndex, class SrcI, class RSrcI, class F>
-    struct MapSetup<TarIndex,mpi::RIndex<SrcI,RSrcI>,F>
+    template <class TarI, class RTarI, class SrcIndex, class F>
+    struct MapSetup<mpi::RIndex<TarI,RTarI>,SrcIndex,F>
     {
-	static void setup(const Sptr<TarIndex>& ti, const Sptr<mpi::RIndex<SrcI,RSrcI>>& si,
+	static void setup(const Sptr<mpi::RIndex<TarI,RTarI>>& ti,
+			  const Sptr<SrcIndex>& si,
 			  const F& f, const Sptr<Vector<SizeT>>& m);
 
-	static Sptr<Vector<SizeT>> setup(const Sptr<TarIndex>& ti,
-					 const Sptr<mpi::RIndex<SrcI,RSrcI>>& si,
+	static Sptr<Vector<SizeT>> setup(const Sptr<mpi::RIndex<TarI,RTarI>>& ti,
+					 const Sptr<SrcIndex>& si,
 					 const F& f);
     };
 }
