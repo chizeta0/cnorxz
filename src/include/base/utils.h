@@ -13,6 +13,7 @@
 #define __cxz_utils_h__
 
 #include <cstdlib>
+#include <algorithm>
 #include "types.h"
 
 namespace CNORXZ
