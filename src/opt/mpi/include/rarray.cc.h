@@ -237,27 +237,17 @@ namespace CNORXZ
 	{
 	    return mMap;
 	}
-	
+
 	template <typename T>
-	template <class LoopI, class SrcI, class RSrcI, class I>
-	void RCArray<T>::load(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
-			      const Sptr<I>& i, const Sptr<Vector<SizeT>>& imap) const
+	template <class SrcI, class RSrcI, class I>
+	void RCArray<T>::load(const Sptr<RIndex<SrcI,RSrcI>>& ai,
+			      const Sptr<I>& i, const Vector<bool>& required) const
 	{
 	    mA->checkFormatCompatibility(mindex(ai->local()*i));
 	    const SizeT blocks = i->pmax().val();
-	    setupBuffer(lpi, ai, imap, *mA, mBuf, mMap, blocks);
+	    setupBuffer(ai, required, *mA, mBuf, mMap, blocks);
 	}
-
-	template <typename T>
-	template <class Index, class F>
-	Sptr<Vector<SizeT>> RCArray<T>::load(const Sptr<Index>& i, const F& f) const
-	{
-	    Sptr<Vector<SizeT>> imap = std::make_shared<Vector<SizeT>>();
-	    CXZ_ERROR("!!!");
-	    //load(i, /**/, imap);
-	    return imap;
-	}
-
+	
 	/*==============+
 	 |    RArray    |
 	 +==============*/
@@ -427,14 +417,14 @@ namespace CNORXZ
 	 |    non-member functions    |
 	 +============================*/
 
-	template <class LoopI, class SrcI, class RSrcI, typename T>
-	void setupBuffer(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& rgj,
-			 const Sptr<Vector<SizeT>>& imap, const CArrayBase<T>& data,
+	template <class SrcI, class RSrcI, typename T>
+	void setupBuffer(const Sptr<RIndex<SrcI,RSrcI>>& rgj,
+			 const Vector<bool>& required, const CArrayBase<T>& data,
 			 Vector<T>& buf, Vector<const T*>& map, const SizeT blocks)
 	{
 	    const SizeT myrank = getRankNumber();
 	    const SizeT Nranks = getNumRanks();
-
+	    const SizeT locsz = rgj->local()->lmax().val();
 	    const SizeT mapsize = rgj->range()->size();
 	    map = Vector<const T*>(mapsize,nullptr);
 	    Vector<Vector<T>> sendbuf(Nranks);
@@ -442,22 +432,7 @@ namespace CNORXZ
 		sb.reserve(data.size());
 	    }
 	    Vector<Vector<SizeT>> request(Nranks);
-	    const SizeT locsz = rgj->local()->lmax().val();
 
-	    // ==== new ====
-
-	    // First loop: Find out what's needed
-	    Vector<bool> required(rgj->lmax().val(),false);
-	    lpi->ifor( mapXpr(rgj, lpi, imap,
-			      operation
-			      ( [&](SizeT j) {
-				  const SizeT r = j / locsz;
-				  if(myrank != r){
-				      required[j] = true;
-				  }
-			      } , posop(rgj) ) ),
-		       NoF {} )();
-	    
 	    // Second loop: setup send buffer
 	    auto mi = mindexPtr(rgj->rankI(), rgj->local());
 	    mi->ifor( operation
@@ -540,8 +515,8 @@ namespace CNORXZ
 			      map[mpidx] = data.data() + l*blocks;
 			  }
 		      } , posop(mi) ), NoF {} )();
-	}
 
+	}
 	
     } // namespace mpi
 } // namespace CNORXZ

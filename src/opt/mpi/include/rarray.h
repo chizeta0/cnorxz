@@ -122,25 +122,17 @@ namespace CNORXZ
 		The buffer needs to be initialized before according to required range.
 	     */
 	    const Vector<const T*>& buffermap() const;
-	    
+
 	    /** Load all data from other ranks that is accessed by ai in a loop over lpi.
 		imap indicates the global (!) position of ai for a given (local) position of lpi.
-		@param lpi Loop rank index.
 		@param ai Access rank index.
 		@param i Index for non-ranked dimensions.
-		@param imap Index position map.
+		@param required Vector of booleans indicating global positions to load.
 	     */
-	    template <class LoopI, class SrcI, class RSrcI, class I>
-	    void load(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& ai,
-		      const Sptr<I>& i, const Sptr<Vector<SizeT>>& imap) const;
+	    template <class SrcI, class RSrcI, class I>
+	    void load(const Sptr<RIndex<SrcI,RSrcI>>& ai,
+		      const Sptr<I>& i, const Vector<bool>& required) const;
 
-	    /** Load all data from other ranks that is accessed by f(i).
-		@param lpi Loop index.
-		@param f Map function.
-		@return Index position map.
-	     */
-	    template <class Index, class F>
-	    Sptr<Vector<SizeT>> load(const Sptr<Index>& lpi, const F& f) const;
 
 	protected:
 	    ObjHandle<CArrayBase<T>> mA;
@@ -255,9 +247,9 @@ namespace CNORXZ
 
 	};
 
-	template <class LoopI, class SrcI, class RSrcI, typename T>
-	void setupBuffer(const Sptr<LoopI>& lpi, const Sptr<RIndex<SrcI,RSrcI>>& rgj,
-			 const Sptr<Vector<SizeT>>& imap, const CArrayBase<T>& data,
+	template <class SrcI, class RSrcI, typename T>
+	void setupBuffer(const Sptr<RIndex<SrcI,RSrcI>>& rgj,
+			 const Vector<bool>& required, const CArrayBase<T>& data,
 			 Vector<T>& buf, Vector<const T*>& map, const SizeT blocks);
 
 	

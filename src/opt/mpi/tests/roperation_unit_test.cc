@@ -129,7 +129,11 @@ namespace
 	imap1 = setupMap(xp, x, [&](const auto& vec) {
 	    return std::make_tuple((std::get<0>(vec)+1)%T, (std::get<1>(vec)+1)%L,
 				   (std::get<2>(vec)+1)%L, (std::get<3>(vec)+1)%L); } );
-	mM1.load(x, xp, AB, imap1);
+	Vector<bool> req(xp->range()->size(), false);
+	for(const auto& r: *imap1){
+	    req[r] = true;
+	}
+	mM1.load(xp, AB, req);
 	res.rop(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
 
 	for(SizeT x0 = 0; x0 != T; ++x0) { 

@@ -110,8 +110,13 @@ namespace
 	    return o;
 	};
 
-	const Sptr<Vector<SizeT>> fmap = setupMap(rgj, rgi, shift);
-	setupBuffer(rgj, rgi, fmap, data, buf, map, mSRange->size());
+	Vector<bool> req(mRRange->size(), false);
+	for(auto ii = *rgi; ii.lex() != ii.lmax().val(); ++ii){
+	    auto jj = ii;
+	    jj.at( shift( ii.meta() ) );
+	    req[jj.pos()] = true;
+	}
+	setupBuffer(rgi, req, data, buf, map, mSRange->size());
 
 	EXPECT_EQ(mRRange->sub(1)->size(), 16*12*12*12/4);
 	const SizeT locsz = rgj->local()->lmax().val();
@@ -128,10 +133,7 @@ namespace
 
 	    if(rgi->rank() == myrank){
 		const SizeT mpidx = (rgj->pos() - myrankoff + mapsize) % mapsize;
-		VCHECK(mpidx);
-		assert(mpidx < map.size());
 		EXPECT_TRUE(map.data()[mpidx] != nullptr);
-		if(map.data()[mpidx] == nullptr) continue;
 		
 		const Double vn = *map[mpidx]/blocks;
 		const SizeT xp = static_cast<SizeT>(vn);
