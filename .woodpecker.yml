@@ -6,6 +6,7 @@ steps:
         pull: true
         commands:
             - source /opt/rh/gcc-toolset-9/enable
+            - source /etc/profile.d/modules.sh	    
             - module use --append /usr/share/modulefiles
             - module load mpi
             - mkdir build-gcc
