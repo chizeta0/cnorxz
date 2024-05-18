@@ -16,6 +16,7 @@ steps:
             - cmake3 -DSCALAR_BUILD=on ..
             - make -j2
             - make test
+            - cat /woodpecker/src/git.f3l.de/chizeta/cnorxz/build-gcc/Testing/Temporary/LastTest.log
             - cd ..
             - mkdir build-clang
             - cd build-clang
