@@ -4,6 +4,9 @@ steps:
     build:
         image: chizeta/centos:8
         commands:
+            - useradd test
+            - su test
+            - cd
             - source /opt/rh/gcc-toolset-9/enable
             - source /etc/profile.d/modules.sh
             - module use --append /usr/share/modulefiles
