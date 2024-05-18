@@ -3,12 +3,13 @@
 steps:
     build:
         image: chizeta/centos:8
+        pull: true
         commands:
             - source /opt/rh/gcc-toolset-9/enable
             - source /etc/profile.d/modules.sh
             - module use --append /usr/share/modulefiles
             - module load mpi
-            - chown -R test .
+            - chown -R test:test .
             - su test
             - mkdir build-gcc
             - cd build-gcc
