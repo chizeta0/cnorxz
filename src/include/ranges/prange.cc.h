@@ -367,9 +367,8 @@ namespace CNORXZ
     {
 	Vector<MetaType> meta(this->size());
 	auto i = mRange->begin();
-	SizeT j = 0;
-	for(const auto& p: mParts){
-	    meta[j++] = *(i = p);
+	for(SizeT j = 0; j != meta.size(); ++j){
+	    meta[j] = *(i = mParts[j]);
 	}
 	return URangeFactory<MetaType>( meta ).create();
     }
