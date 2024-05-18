@@ -8,7 +8,7 @@ steps:
             - source /etc/profile.d/modules.sh
             - module use --append /usr/share/modulefiles
             - module load mpi
-            - chown -R test:test .
+            - chown -R test .
             - su test
             - mkdir build-gcc
             - cd build-gcc
