@@ -5,8 +5,8 @@ steps:
         image: chizeta/centos:8
         commands:
             - source /opt/rh/gcc-toolset-9/enable
-	    - module load mpi
-	    - mpifort --version
+            - module load mpi
+            - mpifort --version
             - mkdir build-gcc
             - cd build-gcc
             - cmake3 -DSCALAR_BUILD=on ..
