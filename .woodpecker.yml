@@ -3,8 +3,8 @@
 steps:
     build:
         image: chizeta/centos:8
-	pull: true
-	user: test
+        pull: true
+        user: test
         commands:
             - source /opt/rh/gcc-toolset-9/enable
             - source /etc/profile.d/modules.sh
