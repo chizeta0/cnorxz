@@ -9,7 +9,7 @@ steps:
         pull: true
         when:
             branch: [main, dev]
-            event: [push, pull_request]
+            event: [push, pull_request, manual]
         commands:
             - source /opt/rh/gcc-toolset-9/enable
             - source /etc/profile.d/modules.sh
