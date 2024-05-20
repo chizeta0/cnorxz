@@ -21,12 +21,12 @@ steps:
             - cd build-gcc
             - cmake3 -DSCALAR_BUILD=on ..
             - make -j2
-            - make test
-            - cat /woodpecker/src/git.f3l.de/chizeta/cnorxz/build-gcc/Testing/Temporary/LastTest.log
             - cd ..
             - mkdir build-clang
             - cd build-clang
             - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 -DSCALAR_BUILD=on ..
             - make -j2
+            - cd ../build-gcc
             - make test
-            - cat /woodpecker/src/git.f3l.de/chizeta/cnorxz/build-clang/Testing/Temporary/LastTest.log
+            - cd ../build-clang
+            - make test
