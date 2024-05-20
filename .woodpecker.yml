@@ -27,6 +27,4 @@ steps:
             - CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake3 -DSCALAR_BUILD=on ..
             - make -j2
             - cd ../build-gcc
-            - make test
-            - cd ../build-clang
-            - make test
+            - make test && cd ../build-clang && make test
