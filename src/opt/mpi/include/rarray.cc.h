@@ -48,9 +48,9 @@ namespace CNORXZ
 	{}
 
 	template <typename T>
-	template <class IndexI, class IndexK>
-	RCArray<T>::RCArray(const Sptr<RRange<IndexI,IndexK>>& range) :
-	    mA(std::make_unique<T>(range->local())),
+	template <class RangeI, class RangeK>
+	RCArray<T>::RCArray(const Sptr<RRange<RangeI,RangeK>>& range) :
+	    mA(std::make_unique<MArray<T>>(range->local())),
 	    mGeom(range->geom()),
 	    mGlobal(range)
 	{}

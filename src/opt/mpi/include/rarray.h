@@ -37,8 +37,8 @@ namespace CNORXZ
 	    /** Construct from a rank range.
 		@param range The range.
 	     */
-	    template <class IndexI, class IndexK>
-	    RCArray(const Sptr<RRange<IndexI,IndexK>>& range);
+	    template <class RangeI, class RangeK>
+	    RCArray(const Sptr<RRange<RangeI,RangeK>>& range);
 	    
 	    /** Construct from local array object.
 		@param a Local array.
