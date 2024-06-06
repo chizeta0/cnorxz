@@ -221,14 +221,17 @@ namespace CNORXZ
 
 	    /** @copydoc ArrayBase::operator() */
 	    template <class Index>
-	    OpRoot<T,Index> rop(const Sptr<Index>& i);
+	    OpRoot<T,Index> operator()(const Sptr<Index>& i);
+	    //OpRoot<T,Index> rop(const Sptr<Index>& i);
 
 	    /** @copydoc ArrayBase::operator() */
 	    template <class... Indices>
-	    inline decltype(auto) rop(const SPack<Indices...>& pack);
+	    inline decltype(auto) operator()(const SPack<Indices...>& pack);
+	    //inline decltype(auto) rop(const SPack<Indices...>& pack);
 
 	    /** @copydoc ArrayBase::operator() */
-	    inline decltype(auto) rop(const DPack& pack);
+	    inline decltype(auto) operator()(const DPack& pack);
+	    //inline decltype(auto) rop(const DPack& pack);
 
 	    /** @copydoc ArrayBase::data() */
 	    T* data();

@@ -76,7 +76,8 @@ namespace CNORXZ
 
 	private:
 
-	    T* mData;
+	    ArrayBase<T>* mLocal;
+	    const T* const* mData;
 	    Sptr<RIndexT> mRIndex;
 	    Sptr<IndexT> mIndex;
 	};

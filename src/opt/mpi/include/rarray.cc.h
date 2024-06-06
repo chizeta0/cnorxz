@@ -356,27 +356,29 @@ namespace CNORXZ
 
 	template <typename T>
 	template <class Index>
-	OpRoot<T,Index> RArray<T>::rop(const Sptr<Index>& i)
+	OpRoot<T,Index> RArray<T>::operator()(const Sptr<Index>& i)
+	//OpRoot<T,Index> RArray<T>::rop(const Sptr<Index>& i)
 	{
 	    return (*mB)(i);
 	}
 	
 	template <typename T>
 	template <class... Indices>
-	inline decltype(auto) RArray<T>::rop(const SPack<Indices...>& pack)
+	inline decltype(auto) RArray<T>::operator()(const SPack<Indices...>& pack)
+	//inline decltype(auto) RArray<T>::rop(const SPack<Indices...>& pack)
 	{
 	    typedef typename std::remove_reference<decltype(*pack[CSizeT<0>{}])>::type I0;
 	    if constexpr(is_rank_index<I0>::value){
 		// preliminary:
 		CXZ_ASSERT(mB->formatIsTrivial(),
 			   "array has non-trivial format, rank operations require trivial format");
-		/*
+		
 		auto ri = pack[CSizeT<0>{}];
 		auto li = iter<1,sizeof...(Indices)>
 		    ( [&](auto i) { return pack[CSizeT<i>{}]; },
 		      [](const auto&... x) { return mindexPtr( (x * ...) ); } );
-		*/
-		return oproot(*mB, mindexPtr(pack));
+		return roproot(*this, ri, li);
+		//return oproot(*mB, mindexPtr(pack));
 	    }
 	    else {
 		return (*mB)(pack);
@@ -384,7 +386,8 @@ namespace CNORXZ
 	}
 	
 	template <typename T>
-	inline decltype(auto) RArray<T>::rop(const DPack& pack)
+	inline decltype(auto) RArray<T>::operator()(const DPack& pack)
+	//inline decltype(auto) RArray<T>::rop(const DPack& pack)
 	{
 	    return (*mB)(pack);
 	}

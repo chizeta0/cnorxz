@@ -133,8 +133,10 @@ namespace
 	for(const auto& r: *imap1){
 	    req[r] = true;
 	}
+	res.load(x, AB, req); // DUMMY, not used...
 	mM1.load(xp, AB, req);
-	res.rop(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
+	//res.rop(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
+	res(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
 
 	for(SizeT x0 = 0; x0 != T; ++x0) { 
 	for(SizeT x1 = 0; x1 != L; ++x1)
