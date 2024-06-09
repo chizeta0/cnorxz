@@ -29,7 +29,7 @@ namespace CNORXZ
     ObjHandle<T>::ObjHandle(const ObjHandle& a) : mC(a.mC->copy()) {}
 
     template <typename T>
-    ObjHandle<T>::ObjHandle(ObjHandle&& a) : mC(a.mC) {}
+    ObjHandle<T>::ObjHandle(ObjHandle&& a) : mC(std::move(a.mC)) {}
 
     template <typename T>
     ObjHandle<T>& ObjHandle<T>::operator=(const ObjHandle& a)
