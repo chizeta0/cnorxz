@@ -70,6 +70,15 @@ namespace CNORXZ
 	return nullptr;
     }
 
+    RangePtr RangeBase::savesub(SizeT num) const
+    {
+	CXZ_ASSERT(num < dim(), "sub-range position = " << num
+		   << " exceeds range dimension = " << dim());
+	RangePtr o = sub(num);
+	CXZ_ASSERT(o != nullptr, "no sub-range at position = " << num);
+	return o;
+    }
+    
     MArray<RangePtr> RangeBase::sub() const
     {
 	return MArray<RangePtr>();

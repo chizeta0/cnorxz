@@ -107,6 +107,12 @@ namespace CNORXZ
 	virtual RangePtr sub(SizeT num) const;
 
 	/** Access sub-ranges.
+	    Same as sub(), but performs domain and memory safety checks.
+	    @param num size type argument
+	 */
+	virtual RangePtr savesub(SizeT num) const;
+	
+	/** Access sub-ranges.
 	    In the case the range is multi-dimensional this function returns an
 	    array of all sub-ranges (empty is one-dimensional)
 	 */
