@@ -70,43 +70,57 @@ namespace CNORXZ
 		mLex = lmax().val();
 		return *this;
 	    }
-	    // pos is the lexicographic position of the global range.
-	    // Hence, have to consider the rank geometry.
-	    const auto& i = mI->pack();
-	    const auto& k = mK->pack();
-	    const auto& ilf = mI->lexFormat();
-	    const auto& klf = mK->lexFormat();
-	    SizeT r = 0;
-	    SizeT l = 0;
-	    if constexpr(has_static_sub<IndexI>::value){
-		constexpr SizeT NI = index_dim<IndexI>::value;
-		iter<0,NI>( [&](auto mu) {
-		    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
-			(i[mu]->lmax().val() * k[mu]->lmax().val());
-		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
-		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
-		}, NoF{} );
-	    }
-	    else if constexpr( has_static_sub<IndexK>::value){
-		constexpr SizeT NI = index_dim<IndexK>::value;
-		iter<0,NI>( [&](auto mu) {
-		    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
-			(i[mu]->lmax().val() * k[mu]->lmax().val());
-		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
-		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
-		}, NoF{} );
+	    if constexpr(index_is_multi<IndexI>::value and index_is_multi<IndexK>::value) {
+		
+		// pos is the lexicographic position of the global range.
+		// Hence, have to consider the rank geometry.
+		const auto& i = mI->pack();
+		const auto& k = mK->pack();
+		const auto& ilf = mI->lexFormat();
+		const auto& klf = mK->lexFormat();
+		SizeT r = 0;
+		SizeT l = 0;
+		if constexpr(has_static_sub<IndexI>::value){
+		    constexpr SizeT NI = index_dim<IndexI>::value;
+		    iter<0,NI>( [&](auto mu) {
+			const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
+			    (i[mu]->lmax().val() * k[mu]->lmax().val());
+			r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
+			l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
+		    }, NoF{} );
+		}
+		else if constexpr( has_static_sub<IndexK>::value){
+		    constexpr SizeT NI = index_dim<IndexK>::value;
+		    iter<0,NI>( [&](auto mu) {
+			const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
+			    (i[mu]->lmax().val() * k[mu]->lmax().val());
+			r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
+			l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
+		    }, NoF{} );
+		}
+		else {
+		    
+		    if(i.size() == 0){ // yindices / dindices with no lower instance:
+			*mK = pos / mI->lmax().val();
+			*mI = pos % mI->lmax().val();
+		    }
+		    else {
+			const SizeT NI = mI->dim();
+			for(SizeT mu = 0; mu != NI; ++mu){
+			    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
+				(i[mu]->lmax().val() * k[mu]->lmax().val());
+			    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
+			    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
+			}
+		    }
+		}
+		*mI = l;
+		*mK = r;
 	    }
 	    else {
-		const SizeT NI = mI->dim();
-		for(SizeT mu = 0; mu != NI; ++mu){
-		    const SizeT jmu = (mLex / (ilf[mu].val()*klf[mu].val())) %
-			(i[mu]->lmax().val() * k[mu]->lmax().val());
-		    r += ( jmu / i[mu]->lmax().val() ) * klf[mu].val();
-		    l += ( jmu % i[mu]->lmax().val() ) * ilf[mu].val();
-		}
+		*mK = pos / mI->lmax().val();
+		*mI = pos % mI->lmax().val();
 	    }
-	    *mI = l;
-	    *mK = r;
 	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
 	    return *this;
 	}
@@ -330,34 +344,38 @@ namespace CNORXZ
 	    if(mI->lex() >= mI->lmax().val()){
 		mLex = lmax().val();
 	    }
-	    if constexpr(has_static_sub<IndexI>::value){
-		constexpr SizeT NI = index_dim<IndexI>::value;
-		mLex = iter<0,NI>
-		    ([&](auto i) {
-			return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
-			    mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
-			    mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
-			    mK->lexFormat()[i].val();
-		    }, [](const auto&... e) { return (e + ...); });
-	    }
-	    else if constexpr( has_static_sub<IndexK>::value){
-		constexpr SizeT NI = index_dim<IndexK>::value;
-		mLex = iter<0,NI>
-		    ([&](auto i) {
-			return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
-			    mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
-			    mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
-			    mK->lexFormat()[i].val();
-		    }, [](const auto&... e) { return (e + ...); });
-	    }
-	    else {
-		const SizeT NI = mI->dim();
-		mLex = 0;
-		for(SizeT i = 0; i != NI; ++i){
-		    mLex += mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
-			mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
-			mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
-			mK->lexFormat()[i].val();
+	    if constexpr(index_is_multi<IndexI>::value and index_is_multi<IndexK>::value){
+		if constexpr(has_static_sub<IndexI>::value){
+		    constexpr SizeT NI = index_dim<IndexI>::value;
+		    mLex = iter<0,NI>
+			([&](auto i) {
+			    return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+				mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
+				mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
+				mK->lexFormat()[i].val();
+			}, [](const auto&... e) { return (e + ...); });
+		}
+		else if constexpr( has_static_sub<IndexK>::value){
+		    constexpr SizeT NI = index_dim<IndexK>::value;
+		    mLex = iter<0,NI>
+			([&](auto i) {
+			    return mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+				mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
+				mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
+				mK->lexFormat()[i].val();
+			}, [](const auto&... e) { return (e + ...); });
+		}
+		else {
+		    if(mI->pack().size() != 0){
+			const SizeT NI = mI->dim();
+			mLex = 0;
+			for(SizeT i = 0; i != NI; ++i){
+			    mLex += mK->pack()[i]->lex() * mK->lexFormat()[i].val() *
+				mI->lexFormat()[i].val() * mI->pack()[i]->lmax().val() +
+				mI->pack()[i]->lex() * mI->lexFormat()[i].val() *
+				mK->lexFormat()[i].val();
+			}
+		    }
 		}
 	    }
 	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
