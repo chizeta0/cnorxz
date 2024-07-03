@@ -323,8 +323,18 @@ namespace CNORXZ
 	template <class Index>
 	COpRoot<T,Index> RArray<T>::operator()(const Sptr<Index>& i) const
 	{
-	    CXZ_ERROR("not implemented");
-	    return COpRoot<T,Index>();
+	    //CXZ_ERROR("not implemented");
+	    /*
+	    if constexpr(index_is_multi<Index>::value){
+		return (*this)(i->pack());
+	    }
+	    else {
+		return (*this)(SPack<Index>(i));
+	    }
+	    */
+	    //return COpRoot<T,Index>();
+	    // TODO: This is preliminary!!!
+	    return coproot(*mB, i);
 	}
 
 	template <typename T>
