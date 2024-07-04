@@ -182,6 +182,13 @@ namespace CNORXZ
 	/** Assign new index format. */
 	GMIndex& setFormat(const FormatT& bs);
 
+	/** Set position of given sub index and update total index position.
+            @param ind Sub-index number [0,dim()-1].
+            @param lex Lexicographic position to be assigned to the index.
+         */
+	template <SizeT I>
+	GMIndex& setSub(CSizeT<I> ind, SizeT lex);
+
     private:
 	template <SizeT... Is>
 	static constexpr decltype(auto) mkLexFormat(const SPack<Indices...>& ipack, Isq<Is...> is);

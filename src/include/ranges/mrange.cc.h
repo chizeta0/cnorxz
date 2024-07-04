@@ -629,6 +629,15 @@ namespace CNORXZ
 	return *this;
     }
 
+    template <class FormatT, class... Indices>
+    template <SizeT I>
+    GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::setSub(CSizeT<I> ind, SizeT lex)
+    {
+	mIPack[ind] = lex;
+	return operator()();
+    }
+
+    
     template <class... Indices>
     constexpr decltype(auto) mindex(const Sptr<Indices>&... is)
     {
