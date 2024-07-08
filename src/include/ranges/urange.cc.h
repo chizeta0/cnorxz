@@ -393,7 +393,19 @@ namespace CNORXZ
 	static inline Sptr<URange<MetaT>> cast(const RangePtr& r)
 	{
 	    static_assert(std::is_fundamental<MetaT>::value, "got non-fundamental type");
-	    CXZ_ASSERT(r->dim() == 1, "range cast into URange<Int>: source range must have dim = 1, got " << r->dim());
+	    if constexpr(std::is_same<SizeT,MetaT>::value){
+		if(r->dim() > 1){
+		    Vector<MetaT> v(r->size());
+		    for(SizeT i = 0; i != v.size(); ++i) {
+			v[i] = i;
+		    }
+		    return std::dynamic_pointer_cast<URange<SizeT>>
+			( URangeFactory<SizeT>(std::move(v)).create() );
+		}
+	    }
+	    else {
+		CXZ_ASSERT(r->dim() == 1, "range cast into URange<Int>: source range must have dim = 1, got " << r->dim());
+	    }
 	    Sptr<URange<MetaT>> o = nullptr;
 	    // TODO: cast from CRange!!!
 	    o = transform<SizeT>(r); if(o) return o;
