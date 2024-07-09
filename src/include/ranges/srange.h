@@ -88,7 +88,7 @@ namespace CNORXZ
 
 	/** @copydoc IndexInterface::stepSize() */
 	template <SizeT I>
-	UPos stepSize(const IndexId<I>& id) const;
+	decltype(auto) stepSize(const IndexId<I>& id) const;
 
 	/** @copydoc IndexInterface::stringMeta() */
 	String stringMeta() const;

@@ -128,9 +128,14 @@ namespace CNORXZ
 
     template <typename MetaT, SizeT S>
     template <SizeT I>
-    UPos SIndex<MetaT,S>::stepSize(const IndexId<I>& id) const
+    decltype(auto) SIndex<MetaT,S>::stepSize(const IndexId<I>& id) const
     {
-	return UPos(id == this->id() ? 1 : 0);
+	if constexpr(I != 0){
+	    return SPos<0>();
+	}
+	else {
+	    return UPos(id == this->id() ? 1 : 0);
+	}
     }
 
     template <typename MetaT, SizeT S>
