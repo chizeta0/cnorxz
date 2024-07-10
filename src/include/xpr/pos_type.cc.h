@@ -17,7 +17,7 @@
 
 namespace CNORXZ
 {
-
+    
     /*==========+
      |   SPos   |
      +==========*/
@@ -36,40 +36,40 @@ namespace CNORXZ
 
     template <SizeT N>
     template <SizeT N1>
-    constexpr auto SPos<N>::operator+(const SPos<N1>& a) const
+    constexpr decltype(auto) SPos<N>::operator+(const SPos<N1>& a) const
     {
 	return SPos<N+N1>();
     }
 
     template <SizeT N>
     template <SizeT N1>
-    constexpr auto SPos<N>::operator-(const SPos<N1>& a) const
+    constexpr decltype(auto) SPos<N>::operator-(const SPos<N1>& a) const
     {
 	return SPos<N-N1>();
     }
 
     template <SizeT N>
     template <SizeT N1>
-    constexpr auto SPos<N>::operator*(const SPos<N1>& a) const
+    constexpr decltype(auto) SPos<N>::operator*(const SPos<N1>& a) const
     {
 	return SPos<N*N1>();
     }
 
     template <SizeT N>
     template <SizeT N1>
-    constexpr auto SPos<N>::operator()(const SPos<N1>& a) const
+    constexpr decltype(auto) SPos<N>::operator()(const SPos<N1>& a) const
     {
 	return SPos<N*N1>();
     }
 
     template <SizeT N>
-    constexpr auto SPos<N>::operator+(const UPos& a) const
+    constexpr decltype(auto) SPos<N>::operator+(const UPos& a) const
     {
 	return UPos(N+a.val());
     }
     
     template <SizeT N>
-    constexpr auto SPos<N>::operator*(const UPos& a) const
+    constexpr decltype(auto) SPos<N>::operator*(const UPos& a) const
     {
 	if constexpr(N == 0){
 	    return SPos<0>();
@@ -80,7 +80,7 @@ namespace CNORXZ
     }
 
     template <SizeT N>
-    constexpr auto SPos<N>::operator()(const UPos& a) const
+    constexpr decltype(auto) SPos<N>::operator()(const UPos& a) const
     {
 	if constexpr(N == 0){
 	    return SPos<0>();
@@ -187,8 +187,8 @@ namespace CNORXZ
      |   FPos   |
      +==========*/
 
-    inline FPos::FPos(SizeT ext, const SizeT* map, SizeT max, SizeT max2) :
-	mExt(ext), mMap(map), mMax(max), mMax2(max2) {}
+    inline FPos::FPos(SizeT ext, const SizeT* map, SizeT max) :
+	mExt(ext), mMap(map), mMax(max) {}
     
     constexpr SizeT FPos::size() const
     {

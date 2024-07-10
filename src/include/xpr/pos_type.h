@@ -24,33 +24,33 @@ namespace CNORXZ
 	constexpr SPos() = default;
 	constexpr SPos(const SPos& a) = default;
 	constexpr SPos(SPos&& a) = default;
-
+	
 	constexpr SizeT size() const;
 	constexpr SizeT val() const;
 	
 	template <SizeT N1>
-	constexpr auto operator+(const SPos<N1>& a) const;
+	constexpr decltype(auto) operator+(const SPos<N1>& a) const;
 	template <SizeT N1>
-	constexpr auto operator-(const SPos<N1>& a) const;
+	constexpr decltype(auto) operator-(const SPos<N1>& a) const;
 	template <SizeT N1>
-	constexpr auto operator*(const SPos<N1>& a) const;
+	constexpr decltype(auto) operator*(const SPos<N1>& a) const;
 	template <SizeT N1>
-	constexpr auto operator()(const SPos<N1>& a) const;
-
-	constexpr auto operator+(const UPos& a) const;
-	constexpr auto operator*(const UPos& a) const;
-	constexpr auto operator()(const UPos& a) const;
+	constexpr decltype(auto) operator()(const SPos<N1>& a) const;
 	
+	constexpr decltype(auto) operator+(const UPos& a) const;
+	constexpr decltype(auto) operator*(const UPos& a) const;
+	constexpr decltype(auto) operator()(const UPos& a) const;
+
 	template <class PosT>
 	constexpr decltype(auto) extend(const PosT& a) const;
-
+	
 	template <class PosT>
 	constexpr decltype(auto) operator<<(const PosT& a) const;
 	
 	explicit constexpr operator UPos() const;
 	explicit constexpr operator SizeT() const;
     };
-
+    
     class UPos
     {
     private:
@@ -94,12 +94,11 @@ namespace CNORXZ
 	SizeT mExt = 0;
 	const SizeT* mMap = nullptr;
 	SizeT mMax = 0;
-	SizeT mMax2 = 0; // !!!!
 	
     public:
 	DEFAULT_MEMBERS(FPos);
 
-	inline FPos(SizeT ext, const SizeT* map, SizeT max = 0, SizeT max2 = 0);
+	inline FPos(SizeT ext, const SizeT* map, SizeT max = 0);
 
 	constexpr SizeT size() const;
 	constexpr const SizeT& val() const;
@@ -122,7 +121,6 @@ namespace CNORXZ
 	explicit constexpr operator SizeT() const;
 
 	constexpr SizeT max() const;
-	constexpr SizeT max2() const { return mMax2; }
 	constexpr const SizeT* map() const { return mMap; }
     };
 
