@@ -27,20 +27,19 @@ namespace CNORXZ
 	
 	constexpr SizeT size() const;
 	constexpr SizeT val() const;
-	
-	template <SizeT N1>
-	constexpr decltype(auto) operator+(const SPos<N1>& a) const;
+
 	template <SizeT N1>
 	constexpr decltype(auto) operator-(const SPos<N1>& a) const;
-	template <SizeT N1>
-	constexpr decltype(auto) operator*(const SPos<N1>& a) const;
-	template <SizeT N1>
-	constexpr decltype(auto) operator()(const SPos<N1>& a) const;
-	
-	constexpr decltype(auto) operator+(const UPos& a) const;
-	constexpr decltype(auto) operator*(const UPos& a) const;
-	constexpr decltype(auto) operator()(const UPos& a) const;
 
+	template <class PosT>
+	constexpr decltype(auto) operator+(const PosT& a) const;
+
+	template <class PosT>
+	constexpr decltype(auto) operator*(const PosT& a) const;
+
+	template <class PosT>
+	constexpr decltype(auto) operator()(const PosT& a) const;
+	
 	template <class PosT>
 	constexpr decltype(auto) extend(const PosT& a) const;
 	
@@ -69,15 +68,15 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr UPos operator-(const PosT& a) const;
 
-	constexpr SPos<0> operator*(const SPos<0>& a) const;
+	//constexpr SPos<0> operator*(const SPos<0>& a) const;
 
         template <class PosT>
-	constexpr UPos operator*(const PosT& a) const;
+	constexpr decltype(auto) operator*(const PosT& a) const;
 
-	constexpr SPos<0> operator()(const SPos<0>& a) const;
+	//constexpr SPos<0> operator()(const SPos<0>& a) const;
 
 	template <class PosT>
-	constexpr UPos operator()(const PosT& a) const;
+	constexpr decltype(auto) operator()(const PosT& a) const;
 
         template <class PosT>
         constexpr decltype(auto) extend(const PosT& a) const;
@@ -107,10 +106,10 @@ namespace CNORXZ
 	constexpr UPos operator+(const PosT1& a) const;
 
 	template <class PosT1>
-	constexpr FPos operator*(const PosT1& a) const;
+	constexpr decltype(auto) operator*(const PosT1& a) const;
 
 	template <class PosT>
-	constexpr UPos operator()(const PosT& a) const;
+	constexpr decltype(auto) operator()(const PosT& a) const;
 
 	template <class PosT>
 	constexpr decltype(auto) extend(const PosT& a) const;
@@ -138,17 +137,15 @@ namespace CNORXZ
 	constexpr SizeT size() const;
 	constexpr SizeT val() const;
 
-	template <SizeT N1>
-	constexpr auto operator+(const SPos<N1>& a) const;
-	template <SizeT N1>
-	constexpr auto operator*(const SPos<N1>& a) const;
-	template <SizeT N1>
-	constexpr auto operator()(const SPos<N1>& a) const;
+	template <class PosT>
+	constexpr decltype(auto) operator+(const PosT& a) const;
 
-	constexpr auto operator+(const UPos& a) const;
-	constexpr auto operator*(const UPos& a) const;
-	constexpr auto operator()(const UPos& a) const;
+	template <class PosT>
+	constexpr decltype(auto) operator*(const PosT& a) const;
 
+	template <class PosT>
+	constexpr decltype(auto) operator()(const PosT& a) const;
+	
 	template <class PosT>
 	constexpr decltype(auto) extend(const PosT& a) const;
 

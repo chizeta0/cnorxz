@@ -36,60 +36,56 @@ namespace CNORXZ
 
     template <SizeT N>
     template <SizeT N1>
-    constexpr decltype(auto) SPos<N>::operator+(const SPos<N1>& a) const
-    {
-	return SPos<N+N1>();
-    }
-
-    template <SizeT N>
-    template <SizeT N1>
     constexpr decltype(auto) SPos<N>::operator-(const SPos<N1>& a) const
     {
 	return SPos<N-N1>();
     }
 
     template <SizeT N>
-    template <SizeT N1>
-    constexpr decltype(auto) SPos<N>::operator*(const SPos<N1>& a) const
+    template <class PosT>
+    constexpr decltype(auto) SPos<N>::operator+(const PosT& a) const
     {
-	return SPos<N*N1>();
+	if constexpr(is_epos_type<PosT>::value){
+	    a+(*this);
+	}
+	else if constexpr(is_static_pos_type<PosT>::value){
+	    return SPos<N+a.val()>{};
+	}
+	else {
+	    return UPos(N+a.val());
+	}
     }
 
     template <SizeT N>
-    template <SizeT N1>
-    constexpr decltype(auto) SPos<N>::operator()(const SPos<N1>& a) const
+    template <class PosT>
+    constexpr decltype(auto) SPos<N>::operator*(const PosT& a) const
     {
-	return SPos<N*N1>();
+	if constexpr(N == 0) {
+	    return SPos<0>{};
+	}
+	else if constexpr(is_static_pos_type<PosT>::value){
+	    return SPos<N*a.val()>{};
+	}
+	else {
+	    return UPos(N*a.val());
+	}
     }
 
     template <SizeT N>
-    constexpr decltype(auto) SPos<N>::operator+(const UPos& a) const
+    template <class PosT>
+    constexpr decltype(auto) SPos<N>::operator()(const PosT& a) const
     {
-	return UPos(N+a.val());
+	if constexpr(N == 0) {
+	    return SPos<0>{};
+	}
+	else if constexpr(is_static_pos_type<PosT>::value){
+	    return SPos<N*a.val()>{};
+	}
+	else {
+	    return UPos(N*a.val());
+	}
     }
     
-    template <SizeT N>
-    constexpr decltype(auto) SPos<N>::operator*(const UPos& a) const
-    {
-	if constexpr(N == 0){
-	    return SPos<0>();
-	}
-	else {
-	    return UPos(N*a.val());
-	}
-    }
-
-    template <SizeT N>
-    constexpr decltype(auto) SPos<N>::operator()(const UPos& a) const
-    {
-	if constexpr(N == 0){
-	    return SPos<0>();
-	}
-	else {
-	    return UPos(N*a.val());
-	}
-    }
-
     template <SizeT N>
     template <class PosT>
     constexpr decltype(auto) SPos<N>::extend(const PosT& a) const
@@ -135,7 +131,12 @@ namespace CNORXZ
     template <class PosT>
     constexpr UPos UPos::operator+(const PosT& in) const
     {
-	return UPos(mExt + in.val());
+	if constexpr(is_epos_type<PosT>::value){
+	    return in+(*this);
+	}
+	else {
+	    return UPos(mExt + in.val());
+	}
     }
 
     template <class PosT>
@@ -144,26 +145,29 @@ namespace CNORXZ
 	return UPos(mExt - in.val());
     }
 
-    constexpr SPos<0> UPos::operator*(const SPos<0>& a) const
-    {
-	return SPos<0>();
-    }
-    
     template <class PosT>
-    constexpr UPos UPos::operator*(const PosT& in) const
+    constexpr decltype(auto) UPos::operator*(const PosT& in) const
     {
-	return UPos(mExt * in.val());
+	if constexpr(is_epos_type<PosT>::value){
+	    return in*(*this);
+	}
+	if constexpr(std::is_same<PosT,SPos<0>>::value){
+	    return SPos<0>{};
+	}
+	else {
+	    return UPos(mExt * in.val());
+	}
     }
 
-    constexpr SPos<0> UPos::operator()(const SPos<0>& a) const
-    {
-	return SPos<0>();
-    }
-	
     template <class PosT>
-    constexpr UPos UPos::operator()(const PosT& in) const
+    constexpr decltype(auto) UPos::operator()(const PosT& in) const
     {
-	return UPos(mExt * in.val());
+	if constexpr(std::is_same<PosT,SPos<0>>::value){
+	    return SPos<0>{};
+	}
+	else {
+	    return UPos(mExt * in.val());
+	}
     }
 	
     template <class PosT>
@@ -205,15 +209,15 @@ namespace CNORXZ
     {
 	return UPos(mExt + a.val());
     }
-
+    
     template <class PosT>
-    constexpr FPos FPos::operator*(const PosT& in) const
+    constexpr decltype(auto) FPos::operator*(const PosT& in) const
     {
 	return FPos(mExt * in.val(), mMap);
     }
-
+    
     template <class PosT1>
-    constexpr UPos FPos::operator()(const PosT1& a) const
+    constexpr decltype(auto) FPos::operator()(const PosT1& a) const
     {
 	return UPos(mExt * mMap[a.val()]);
     }
@@ -284,45 +288,42 @@ namespace CNORXZ
 	return N;
     }
 
-    template <SizeT N, SizeT... Ms>
-    template <SizeT N1>
-    constexpr auto SFPos<N,Ms...>::operator+(const SPos<N1>& a) const
+    template <SizeT N, SizeT... Ms> 
+    template <class PosT>
+    constexpr decltype(auto) SFPos<N,Ms...>::operator+(const PosT& a) const
     {
-	return SPos<N+N1>();
+	if constexpr(is_static_pos_type<PosT>::value){
+	    return SPos<N+a.val()>();
+	}
+	else {
+	    return UPos(N + a.val());
+	}
     }
     
-    template <SizeT N, SizeT... Ms>
-    template <SizeT N1>
-    constexpr auto SFPos<N,Ms...>::operator*(const SPos<N1>& a) const
+    template <SizeT N, SizeT... Ms> 
+    template <class PosT>
+    constexpr decltype(auto) SFPos<N,Ms...>::operator*(const PosT& a) const
     {
-	return SFPos<N*N1,Ms...>();
+	if constexpr(is_static_pos_type<PosT>::value){
+	    return SFPos<N*a.val(),Ms...>();
+	}
+	else {
+	    return FPos(N * a.val(), &sMs[0]);
+	}
     }
 
     template <SizeT N, SizeT... Ms>
-    template <SizeT N1>
-    constexpr auto SFPos<N,Ms...>::operator()(const SPos<N1>& a) const
+    template <class PosT>
+    constexpr decltype(auto) SFPos<N,Ms...>::operator()(const PosT& a) const
     {
-	constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
-	return SPos<N*std::get<a.val()>(ms)>();
-    }
-
-    template <SizeT N, SizeT... Ms>
-    constexpr auto SFPos<N,Ms...>::operator+(const UPos& a) const
-    {
-	return UPos(N + a.val());
-    }
-    
-    template <SizeT N, SizeT... Ms>
-    constexpr auto SFPos<N,Ms...>::operator*(const UPos& a) const
-    {
-	return FPos(N * a.val(), &sMs[0]);
-    }
-
-    template <SizeT N, SizeT... Ms>
-    constexpr auto SFPos<N,Ms...>::operator()(const UPos& a) const
-    {
-	constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
-	return UPos(N * ms[a.val()]);
+	if constexpr(is_static_pos_type<PosT>::value){
+	    constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
+	    return SPos<N*std::get<a.val()>(ms)>();
+	}
+	else {
+	    constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
+	    return UPos(N * ms[a.val()]);
+	}
     }
 
     template <SizeT N, SizeT... Ms>
