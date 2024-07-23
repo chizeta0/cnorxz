@@ -307,7 +307,7 @@ namespace CNORXZ
 	constexpr decltype(auto) operator()(const PosT& a) const;
 
 	constexpr decltype(auto) val() const;
-	constexpr decltype(auto) next() const;
+	//constexpr decltype(auto) next() const;
 
 	constexpr decltype(auto) scal() const;
 
@@ -385,7 +385,7 @@ namespace CNORXZ
 
     template <SizeT N, class BPosT, class OPosT>
     decltype(auto) mkEPos(const BPosT& a, const OPosT& b);
-    
+
     template <class BPosT, class OPosT, SizeT... Is>
     decltype(auto) mkiEPos(const BPosT& a, const OPosT& b, std::index_sequence<Is...> is);
 

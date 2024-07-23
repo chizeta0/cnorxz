@@ -151,22 +151,29 @@ namespace CNORXZ
 	if constexpr(is_epos_type<PosT>::value){
 	    return in*(*this);
 	}
-	if constexpr(std::is_same<PosT,SPos<0>>::value){
-	    return SPos<0>{};
-	}
 	else {
-	    return UPos(mExt * in.val());
+	    if constexpr(std::is_same<PosT,SPos<0>>::value){
+		return SPos<0>{};
+	    }
+	    else {
+		return UPos(mExt * in.val());
+	    }
 	}
     }
 
     template <class PosT>
     constexpr decltype(auto) UPos::operator()(const PosT& in) const
     {
-	if constexpr(std::is_same<PosT,SPos<0>>::value){
-	    return SPos<0>{};
+	if constexpr(is_epos_type<PosT>::value){
+	    return in*(*this);
 	}
 	else {
-	    return UPos(mExt * in.val());
+	    if constexpr(std::is_same<PosT,SPos<0>>::value){
+		return SPos<0>{};
+	    }
+	    else {
+		return UPos(mExt * in.val());
+	    }
 	}
     }
 	
@@ -211,15 +218,25 @@ namespace CNORXZ
     }
     
     template <class PosT>
-    constexpr decltype(auto) FPos::operator*(const PosT& in) const
+    constexpr decltype(auto) FPos::operator*(const PosT& a) const
     {
-	return FPos(mExt * in.val(), mMap);
+	if constexpr(is_epos_type<PosT>::value){
+	    return FPos(mExt * a.scal().val(), mMap);
+	}
+	else {
+	    return FPos(mExt * a.val(), mMap);
+	}
     }
     
     template <class PosT1>
     constexpr decltype(auto) FPos::operator()(const PosT1& a) const
     {
-	return UPos(mExt * mMap[a.val()]);
+	if constexpr(is_epos_type<PosT1>::value){
+	    return UPos(mExt * mMap[a.scal().val()]);
+	}
+	else {
+	    return UPos(mExt * mMap[a.val()]);
+	}
     }
 
     template <class PosT>
@@ -305,10 +322,20 @@ namespace CNORXZ
     constexpr decltype(auto) SFPos<N,Ms...>::operator*(const PosT& a) const
     {
 	if constexpr(is_static_pos_type<PosT>::value){
-	    return SFPos<N*a.val(),Ms...>();
+	    if constexpr(is_epos_type<PosT>::value){
+		return SFPos<N*a.scal().val(),Ms...>();
+	    }
+	    else {
+		return SFPos<N*a.val(),Ms...>();
+	    }
 	}
 	else {
-	    return FPos(N * a.val(), &sMs[0]);
+	    if constexpr(is_epos_type<PosT>::value){
+		return FPos(N * a.scal().val(), &sMs[0]);
+	    }
+	    else {
+		return FPos(N * a.val(), &sMs[0]);
+	    }
 	}
     }
 
@@ -318,11 +345,21 @@ namespace CNORXZ
     {
 	if constexpr(is_static_pos_type<PosT>::value){
 	    constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
-	    return SPos<N*std::get<a.val()>(ms)>();
+	    if constexpr(is_epos_type<PosT>::value){
+		return SPos<N*std::get<a.scal().val()>(ms)>();
+	    }
+	    else {
+		return SPos<N*std::get<a.val()>(ms)>();
+	    }
 	}
 	else {
 	    constexpr Arr<SizeT,sizeof...(Ms)> ms({ Ms... });
-	    return UPos(N * ms[a.val()]);
+	    if constexpr(is_epos_type<PosT>::value){
+		return UPos(N * ms[a.scal().val()]);
+	    }
+	    else {
+		return UPos(N * ms[a.val()]);
+	    }
 	}
     }
 
@@ -673,7 +710,8 @@ namespace CNORXZ
     {
 	return iter<0,sizeof...(OPosTs)>
 	    ( [&](auto i) { return std::get<i>(mP); },
-	      [&](const auto&... e) { return EPos<decltype(BPosT::operator*(a)),OPosTs...>
+	      [&](const auto&... e) { return EPos<decltype(BPosT::operator*(a)),
+						  decltype(e*a)...>
 		    (BPosT::operator*(a),e*a...); } );
     }
 
@@ -683,7 +721,8 @@ namespace CNORXZ
     {
 	return iter<0,sizeof...(OPosTs)>
 	    ( [&](auto i) { return std::get<i>(mP); },
-	      [&](const auto&... e) { return EPos<decltype(BPosT::operator()(a)),OPosTs...>
+	      [&](const auto&... e) { return EPos<decltype(BPosT::operator()(a)),
+						  decltype(e*a)...>
 		    (BPosT::operator()(a),e*a...); } );
     }
 
@@ -694,12 +733,13 @@ namespace CNORXZ
 	return ival(std::index_sequence_for<OPosTs...>{});
     }
 
+    /*
     template <class BPosT, class... OPosTs>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::next() const
     {
 	return inext(std::index_sequence_for<OPosTs...>{});
     }
-
+    */
     template <class BPosT, class... OPosTs>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::scal() const
     {
@@ -724,7 +764,7 @@ namespace CNORXZ
 	    return Arr<SizeT,is.size()> { (BPosT::val()+std::get<Is>(mP).val())... };
 	}
     }
-
+    /*
     template <class BPosT, class... OPosTs>
     template <SizeT... Is>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::inext(std::index_sequence<Is...> is) const
@@ -732,7 +772,7 @@ namespace CNORXZ
 	typedef EPos<decltype(next()),decltype(std::get<Is>(mP).next())...> OEPosT;
 	return OEPosT(BPosT::next(), std::get<Is>(mP).next()...);
     }
-
+    */
     /*===============================+
      |   Traits and Helper-Classes   |
      +===============================*/
