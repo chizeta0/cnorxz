@@ -46,7 +46,7 @@ namespace CNORXZ
     constexpr decltype(auto) SPos<N>::operator+(const PosT& a) const
     {
 	if constexpr(is_epos_type<PosT>::value){
-	    a+(*this);
+	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) + a;
 	}
 	else if constexpr(is_static_pos_type<PosT>::value){
 	    return SPos<N+a.val()>{};
@@ -132,7 +132,7 @@ namespace CNORXZ
     constexpr UPos UPos::operator+(const PosT& in) const
     {
 	if constexpr(is_epos_type<PosT>::value){
-	    return in+(*this);
+	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) + in;
 	}
 	else {
 	    return UPos(mExt + in.val());
@@ -149,7 +149,7 @@ namespace CNORXZ
     constexpr decltype(auto) UPos::operator*(const PosT& in) const
     {
 	if constexpr(is_epos_type<PosT>::value){
-	    return in*(*this);
+	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) * in;
 	}
 	else {
 	    if constexpr(std::is_same<PosT,SPos<0>>::value){
@@ -165,7 +165,8 @@ namespace CNORXZ
     constexpr decltype(auto) UPos::operator()(const PosT& in) const
     {
 	if constexpr(is_epos_type<PosT>::value){
-	    return in*(*this);
+	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) * in;
+	    //return in*(*this);
 	}
 	else {
 	    if constexpr(std::is_same<PosT,SPos<0>>::value){
@@ -686,33 +687,68 @@ namespace CNORXZ
     constexpr EPos<BPosT,OPosTs...>::EPos(const BPosT& b, const OPosTs&... os) :
 	BPosT(b),
 	mP(os...)
-    {}
+    {
+	static_assert(static_pos_size<BPosT>::value == 1, "only single pos types allowed");
+	static_assert(((static_pos_size<OPosTs>::value == 1) and ...), "only single pos types allowed");
+    }
 
     template <class BPosT, class... OPosTs>
     constexpr EPos<BPosT,OPosTs...>::EPos(BPosT&& b, OPosTs&&... os) :
 	BPosT(b),
 	mP(os...)
-    {}
+    {
+	static_assert(static_pos_size<BPosT>::value == 1, "only single pos types allowed");
+	static_assert(((static_pos_size<OPosTs>::value == 1) and ...), "only single pos types allowed");
+    }
 
+    // TODO: transform to trivial epos if not epos!!!
     template <class BPosT, class... OPosTs>
     template <class PosT>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::operator+(const PosT& a) const
     {
-	return iter<0,sizeof...(OPosTs)>
-	    ( [&](auto i) { return std::get<i>(mP); },
-	      [&](const auto&... e) { return EPos<decltype(BPosT::operator+(a)),OPosTs...>
-		    (BPosT::operator+(a),e...); } );
+	static_assert(static_pos_size<BPosT>::value == 1, "only single pos types allowed");
+	static_assert(((static_pos_size<OPosTs>::value == 1) and ...), "only single pos types allowed");
+	if constexpr(is_epos_type<PosT>::value){
+	    return iter<0,sizeof...(OPosTs)>
+		( [&](auto i) { return std::get<i>(mP)+a.template get<i>(); },
+		  [&](const auto&... e) { return epos(BPosT::operator+(a),e...); } );
+	}
+	else {
+	    auto ax = mkEPos<sizeof...(OPosTs)>(a,a*SPos<0>{});
+	    return iter<0,sizeof...(OPosTs)>
+		( [&](auto i) { return std::get<i>(mP)+ax.template get<i>(); },
+		  [&](const auto&... e) { return epos(BPosT::operator+(ax),e...); } );
+	}
     }
     
     template <class BPosT, class... OPosTs>
     template <class PosT>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::operator*(const PosT& a) const
     {
+	static_assert(static_pos_size<BPosT>::value == 1, "only single pos types allowed");
+	static_assert(((static_pos_size<OPosTs>::value == 1) and ...), "only single pos types allowed");
+	if constexpr(is_epos_type<PosT>::value){
+	    return iter<0,sizeof...(OPosTs)>
+		( [&](auto i) { auto x = scal(); auto y = a.scal();
+		    auto q = std::get<i>(mP); auto p = a.template get<i>();
+		    return x*p+q*(y+p); },
+		    [&](const auto&... e) { return epos(BPosT::operator*(a.scal()),e...); } );
+	}
+	else {
+	    auto ax = mkEPos<sizeof...(OPosTs)>(a,a*SPos<0>{});
+	    return iter<0,sizeof...(OPosTs)>
+		( [&](auto i) { auto x = scal(); auto y = ax.scal();
+		    auto q = std::get<i>(mP); auto p = ax.template get<i>();
+		    return x*p+q*(y+p); },
+		  [&](const auto&... e) { return epos(BPosT::operator*(a),e...); } );
+	}
+	/*
 	return iter<0,sizeof...(OPosTs)>
 	    ( [&](auto i) { return std::get<i>(mP); },
 	      [&](const auto&... e) { return EPos<decltype(BPosT::operator*(a)),
 						  decltype(e*a)...>
 		    (BPosT::operator*(a),e*a...); } );
+	*/
     }
 
     template <class BPosT, class... OPosTs>
@@ -733,13 +769,6 @@ namespace CNORXZ
 	return ival(std::index_sequence_for<OPosTs...>{});
     }
 
-    /*
-    template <class BPosT, class... OPosTs>
-    constexpr decltype(auto) EPos<BPosT,OPosTs...>::next() const
-    {
-	return inext(std::index_sequence_for<OPosTs...>{});
-    }
-    */
     template <class BPosT, class... OPosTs>
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::scal() const
     {
@@ -764,15 +793,14 @@ namespace CNORXZ
 	    return Arr<SizeT,is.size()> { (BPosT::val()+std::get<Is>(mP).val())... };
 	}
     }
-    /*
+
     template <class BPosT, class... OPosTs>
-    template <SizeT... Is>
-    constexpr decltype(auto) EPos<BPosT,OPosTs...>::inext(std::index_sequence<Is...> is) const
+    constexpr decltype(auto) epos(const BPosT& b, const OPosTs&... os)
     {
-	typedef EPos<decltype(next()),decltype(std::get<Is>(mP).next())...> OEPosT;
-	return OEPosT(BPosT::next(), std::get<Is>(mP).next()...);
+	return EPos<BPosT,OPosTs...>(b,os...);
     }
-    */
+
+    
     /*===============================+
      |   Traits and Helper-Classes   |
      +===============================*/
@@ -780,6 +808,8 @@ namespace CNORXZ
     template <class BPosT, class OPosT, SizeT N>
     decltype(auto) MkEPos<BPosT,OPosT,N>::mk(const BPosT& a, const OPosT& b)
     {
+	static_assert(static_pos_size<BPosT>::value == 1, "only single pos types allowed");
+	static_assert(static_pos_size<OPosT>::value == 1, "only single pos types allowed");
 	return mkiEPos(a, b, std::make_index_sequence<N>{});
     }
 
@@ -788,8 +818,9 @@ namespace CNORXZ
     {
 	const BPosT& ax = static_cast<const BPosT&>(a);
 	const OPosT& bx = static_cast<const OPosT&>(b);
-	return MPos<decltype(mkEPos<N>(ax,bx)),decltype(mkEPos<N>(a.next(),b.next()))>
-	    (mkEPos<N>(ax,bx), mkEPos<N>(a.next(),b.next()));
+	typedef decltype(mkEPos<N>(ax,bx)) T1;
+	typedef decltype(mkEPos<N>(a.next(),b.next())) T2;
+	return MPos<T1,T2>(mkEPos<N>(ax,bx), mkEPos<N>(a.next(),b.next()));
     }
 
     template <SizeT N, class BPosT, class OPosT>

@@ -307,14 +307,16 @@ namespace CNORXZ
 	constexpr decltype(auto) operator()(const PosT& a) const;
 
 	constexpr decltype(auto) val() const;
-	//constexpr decltype(auto) next() const;
-
 	constexpr decltype(auto) scal() const;
 
 	template <SizeT I>
 	constexpr decltype(auto) get() const;
     };
 
+    template <class BPosT, class... OPosTs>
+    constexpr decltype(auto) epos(const BPosT& b, const OPosTs&... os);
+
+	
     /*===============================+
      |   Traits and Helper-Classes   |
      +===============================*/
