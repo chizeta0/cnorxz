@@ -37,6 +37,19 @@ namespace CNORXZ
 	template <SizeT J>
 	constexpr decltype(auto) operator!=(const IndexId<J>& a) const;
     };
+
+    template <class T>
+    struct static_index_id
+    {
+	static constexpr SizeT value = 0;
+    };
+
+    template <SizeT I>
+    struct static_index_id<IndexId<I>>
+    {
+	static constexpr SizeT value = I;
+    };
+    
 }
 
 #endif
