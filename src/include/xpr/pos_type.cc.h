@@ -129,9 +129,10 @@ namespace CNORXZ
     }
     
     template <class PosT>
-    constexpr UPos UPos::operator+(const PosT& in) const
+    constexpr decltype(auto) UPos::operator+(const PosT& in) const
     {
 	if constexpr(is_epos_type<PosT>::value){
+	    //return in;
 	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) + in;
 	}
 	else {
@@ -711,13 +712,13 @@ namespace CNORXZ
 	if constexpr(is_epos_type<PosT>::value){
 	    return iter<0,sizeof...(OPosTs)>
 		( [&](auto i) { return std::get<i>(mP)+a.template get<i>(); },
-		  [&](const auto&... e) { return epos(BPosT::operator+(a),e...); } );
+		  [&](const auto&... e) { return epos(BPosT::operator+(a.scal()),e...); } );
 	}
 	else {
 	    auto ax = mkEPos<sizeof...(OPosTs)>(a,a*SPos<0>{});
 	    return iter<0,sizeof...(OPosTs)>
 		( [&](auto i) { return std::get<i>(mP)+ax.template get<i>(); },
-		  [&](const auto&... e) { return epos(BPosT::operator+(ax),e...); } );
+		  [&](const auto&... e) { return epos(BPosT::operator+(a),e...); } );
 	}
     }
     

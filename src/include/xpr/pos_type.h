@@ -63,7 +63,7 @@ namespace CNORXZ
 	constexpr const SizeT& val() const;
 
 	template <class PosT>
-	constexpr UPos operator+(const PosT& a) const;
+	constexpr decltype(auto) operator+(const PosT& a) const;
 
 	template <class PosT>
 	constexpr UPos operator-(const PosT& a) const;
