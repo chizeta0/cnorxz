@@ -311,6 +311,9 @@ namespace CNORXZ
 
 	template <SizeT I>
 	constexpr decltype(auto) get() const;
+
+	template <SizeT I>
+	constexpr decltype(auto) oget() const; // offset only
     };
 
     template <class BPosT, class... OPosTs>

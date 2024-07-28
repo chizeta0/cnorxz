@@ -711,13 +711,13 @@ namespace CNORXZ
 	static_assert(((static_pos_size<OPosTs>::value == 1) and ...), "only single pos types allowed");
 	if constexpr(is_epos_type<PosT>::value){
 	    return iter<0,sizeof...(OPosTs)>
-		( [&](auto i) { return std::get<i>(mP)+a.template get<i>(); },
+		( [&](auto i) { return std::get<i>(mP)+a.template oget<i>(); },
 		  [&](const auto&... e) { return epos(BPosT::operator+(a.scal()),e...); } );
 	}
 	else {
 	    auto ax = mkEPos<sizeof...(OPosTs)>(a,a*SPos<0>{});
 	    return iter<0,sizeof...(OPosTs)>
-		( [&](auto i) { return std::get<i>(mP)+ax.template get<i>(); },
+		( [&](auto i) { return std::get<i>(mP)+ax.template oget<i>(); },
 		  [&](const auto&... e) { return epos(BPosT::operator+(a),e...); } );
 	}
     }
@@ -731,7 +731,7 @@ namespace CNORXZ
 	if constexpr(is_epos_type<PosT>::value){
 	    return iter<0,sizeof...(OPosTs)>
 		( [&](auto i) { auto x = scal(); auto y = a.scal();
-		    auto q = std::get<i>(mP); auto p = a.template get<i>();
+		    auto q = std::get<i>(mP); auto p = a.template oget<i>();
 		    return x*p+q*(y+p); },
 		    [&](const auto&... e) { return epos(BPosT::operator*(a.scal()),e...); } );
 	}
@@ -739,7 +739,7 @@ namespace CNORXZ
 	    auto ax = mkEPos<sizeof...(OPosTs)>(a,a*SPos<0>{});
 	    return iter<0,sizeof...(OPosTs)>
 		( [&](auto i) { auto x = scal(); auto y = ax.scal();
-		    auto q = std::get<i>(mP); auto p = ax.template get<i>();
+		    auto q = std::get<i>(mP); auto p = ax.template oget<i>();
 		    return x*p+q*(y+p); },
 		  [&](const auto&... e) { return epos(BPosT::operator*(a),e...); } );
 	}
@@ -781,6 +781,13 @@ namespace CNORXZ
     constexpr decltype(auto) EPos<BPosT,OPosTs...>::get() const
     {
 	return scal()+std::get<I>(mP);
+    }
+
+    template <class BPosT, class... OPosTs>
+    template <SizeT I>
+    constexpr decltype(auto) EPos<BPosT,OPosTs...>::oget() const
+    {
+	return std::get<I>(mP);
     }
 
     template <class BPosT, class... OPosTs>
