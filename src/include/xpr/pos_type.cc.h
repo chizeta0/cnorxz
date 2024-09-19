@@ -60,14 +60,19 @@ namespace CNORXZ
     template <class PosT>
     constexpr decltype(auto) SPos<N>::operator*(const PosT& a) const
     {
-	if constexpr(N == 0) {
-	    return SPos<0>{};
-	}
-	else if constexpr(is_static_pos_type<PosT>::value){
-	    return SPos<N*a.val()>{};
+	if constexpr(is_epos_type<PosT>::value){
+	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) * a;
 	}
 	else {
-	    return UPos(N*a.val());
+	    if constexpr(N == 0) {
+		return SPos<0>{};
+	    }
+	    else if constexpr(is_static_pos_type<PosT>::value){
+		return SPos<N*a.val()>{};
+	    }
+	    else {
+		return UPos(N*a.val());
+	    }
 	}
     }
 
@@ -75,14 +80,19 @@ namespace CNORXZ
     template <class PosT>
     constexpr decltype(auto) SPos<N>::operator()(const PosT& a) const
     {
-	if constexpr(N == 0) {
-	    return SPos<0>{};
-	}
-	else if constexpr(is_static_pos_type<PosT>::value){
-	    return SPos<N*a.val()>{};
+	if constexpr(is_epos_type<PosT>::value){
+	    return mkEPos<epos_size<PosT>::value>(*this,SPos<0>{}) * a;
 	}
 	else {
-	    return UPos(N*a.val());
+	    if constexpr(N == 0) {
+		return SPos<0>{};
+	    }
+	    else if constexpr(is_static_pos_type<PosT>::value){
+		return SPos<N*a.val()>{};
+	    }
+	    else {
+		return UPos(N*a.val());
+	    }
 	}
     }
     
