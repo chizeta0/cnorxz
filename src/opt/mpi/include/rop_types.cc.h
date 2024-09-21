@@ -1,4 +1,7 @@
 
+#ifndef __cxz_mpi_rop_types_cc_h__
+#define __cxz_mpi_rop_types_cc_h__
+
 #include "rop_types.h"
 
 namespace CNORXZ
@@ -152,3 +155,5 @@ namespace CNORXZ
 	*/
     } // namespace mpi    
 } // namespace CNORXZ
+
+#endif
