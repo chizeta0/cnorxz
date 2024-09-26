@@ -501,7 +501,7 @@ namespace CNORXZ
     template <class FormatT, class... Indices>
     GMIndex<FormatT,Indices...>& GMIndex<FormatT,Indices...>::operator()(const Sptr<MIndex<Indices...>>& mi)
     {
-	mIPack = mi.pack();
+	mIPack = mi->pack();
 	mkPos();
 	return *this;
     }
