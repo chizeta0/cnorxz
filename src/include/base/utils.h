@@ -145,6 +145,12 @@ namespace CNORXZ
 	return Concat<T1,T2>::cat(a1, a2);
     }
 
+    template <typename T>
+    decltype(auto) concat(const T& a)
+    {
+	return a;
+    }
+    
     template <typename T1, typename T2, typename... Ts>
     decltype(auto) concat(const T1& a1, const T2& a2, const Ts&... as)
     {

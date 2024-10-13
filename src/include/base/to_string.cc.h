@@ -69,12 +69,17 @@ namespace CNORXZ
     {
 	const String blim = "(";
 	const String elim = ")";
-	const String dlim = ",";
-	return iter<1,sizeof...(Ts)>
-	    ( [&](auto i) { return toString(std::get<i>(t)); },
-	      [&](const auto&... xs) {
-		  return blim + toString(std::get<0>(t)) + ( (dlim + xs) + ... ) + elim;
-	      } );
+	if constexpr(sizeof...(Ts) == 1){
+	    return blim + toString(std::get<0>(t)) + elim;
+	}
+	else {
+	    const String dlim = ",";
+	    return iter<1,sizeof...(Ts)>
+		( [&](auto i) { return toString(std::get<i>(t)); },
+		  [&](const auto&... xs) {
+		      return blim + toString(std::get<0>(t)) + ( (dlim + xs) + ... ) + elim;
+		  } );
+	}
     }
 
     template <typename T, typename S>

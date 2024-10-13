@@ -61,14 +61,16 @@ namespace CNORXZ
 	RAIndex<T> RAIndex<T>::operator+(Int n) const
 	{
 	    RAIndex<T> o = *this;
-	    return o += n;
+	    o += n;
+	    return o;
 	}
 
 	template <typename T>
 	RAIndex<T> RAIndex<T>::operator-(Int n) const
 	{
 	    RAIndex<T> o = *this;
-	    return o -= n;
+	    o -= n;
+	    return o;
 	}
 
 	template <typename T>

@@ -29,7 +29,8 @@ namespace CNORXZ
 	RIndex<IndexI,IndexK>::RIndex(const RIndex& in) :
 	    mRange(in.mRange),
 	    mI(std::make_shared<IndexI>(mRange->local())),
-	    mK(std::make_shared<IndexK>(mRange->geom()))
+	    mK(std::make_shared<IndexK>(mRange->geom())),
+	    mNRanks(getNumRanks())
 	{
 	    *this = in.lex();
 	}
@@ -40,6 +41,7 @@ namespace CNORXZ
 	    mRange = in.mRange;
 	    mI = std::make_shared<IndexI>(mRange->local());
 	    mK = std::make_shared<IndexK>(mRange->geom());
+	    mNRanks = getNumRanks();
 	    *this = in.lex();
 	    return *this;
 	}
@@ -48,7 +50,8 @@ namespace CNORXZ
 	RIndex<IndexI,IndexK>::RIndex(const RangePtr& global, SizeT lexpos) :
 	    mRange(rangeCast<RangeType>(global)),
 	    mI(std::make_shared<IndexI>(mRange->local())),
-	    mK(std::make_shared<IndexK>(mRange->geom()))
+	    mK(std::make_shared<IndexK>(mRange->geom())),
+	    mNRanks(getNumRanks())
 	{
 	    *this = lexpos;
 	}
@@ -57,7 +60,8 @@ namespace CNORXZ
 	RIndex<IndexI,IndexK>::RIndex(const Sptr<IndexI>& i, const Sptr<IndexK>& k) :
 	    mRange(rangeCast<RangeType>( RRangeFactory(i->range(), k->range()).create() )),
 	    mI(i),
-	    mK(k)
+	    mK(k),
+	    mNRanks(getNumRanks())
 	{
 	    (*this)();
 	}
@@ -264,7 +268,7 @@ namespace CNORXZ
 	{
 	    mI->at(metaPos);
 	    const size_t lex = mI->lex();
-	    Vector<size_t> lexs(mK->lmax().val());
+	    Vector<size_t> lexs(mNRanks);
 	    MPI_Allgather(&lex, 1, MPI_UNSIGNED_LONG, lexs.data(), 1, MPI_UNSIGNED_LONG,
 			  MPI_COMM_WORLD);
 	    SizeT root = 0;
@@ -418,9 +422,12 @@ namespace CNORXZ
 	{
 	    int s = 0;
 	    MPI_Comm_size(MPI_COMM_WORLD, &s);
-	    CXZ_ASSERT(rk->size() == static_cast<SizeT>(s),
-		       "geometry rank size ( = " << rk->size()
-		       << ") does not match number of ranks ( = " << s <<  ")");
+	    //CXZ_ASSERT(rk->size() == static_cast<SizeT>(s),
+	    //       "geometry rank size ( = " << rk->size()
+	    //	       << ") does not match number of ranks ( = " << s <<  ")");
+	    CXZ_ASSERT(static_cast<SizeT>(s) % rk->size() == 0,
+		       "geometry dimension (" << rk->size()
+		       << ") does not divide number of ranks (" << s << ")");
 	    if constexpr(has_static_sub<typename RangeI::IndexType>::value and
 			 has_static_sub<typename RangeK::IndexType>::value) {
 		constexpr SizeT NRI = RangeI::NR;

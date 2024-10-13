@@ -164,7 +164,7 @@ namespace CNORXZ
 	    Sptr<RangeType> mRange; /**< RRange. */
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
-
+	    SizeT mNRanks; /**< Number of ranks; in general different from but dividable by mK's maximum. */
 	};
 
 	template <class IndexI, class IndexK>
