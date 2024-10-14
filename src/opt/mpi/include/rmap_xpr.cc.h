@@ -36,7 +36,9 @@ namespace CNORXZ
 	    for(six = 0; six != sie; ++six){
 		tix.at( f(*six) );
 		if(six.rank() == myrank){
-		    const SizeT idx = (tix.pos() - locsz*tix.rank() + tarsize) % tarsize;
+		    //const SizeT idx = (tix.pos() - locsz*tix.rank() + tarsize) % tarsize;
+		    const SizeT idx = (tix.pos() - locsz*myrank + tarsize) % tarsize;
+		    //const SizeT idx = tix.pos();
 		    (*m)[six.local()->pos()] = idx;
 		}
 	    }
@@ -46,7 +48,9 @@ namespace CNORXZ
 		       << mapsize << ", expected " << six.pmax().val());
 	    for(six = 0; six != sie; ++six){
 		tix.at( f(*six) );
-		const SizeT idx = (tix.pos() - locsz*tix.rank() + tarsize) % tarsize;
+		//const SizeT idx = (tix.pos() - locsz*tix.rank() + tarsize) % tarsize;
+		const SizeT idx = (tix.pos() - locsz*myrank + tarsize) % tarsize;
+		//const SizeT idx = tix.pos()
 		(*m)[six.pos()] = idx;
 	    }
 	}

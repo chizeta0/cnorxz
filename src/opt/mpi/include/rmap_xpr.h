@@ -20,6 +20,7 @@ namespace CNORXZ
     template <class TarI, class RTarI, class SrcIndex, class F>
     struct MapSetup<mpi::RIndex<TarI,RTarI>,SrcIndex,F>
     {
+	// CAUTION: This needs to be aware of entire geometry!!!
 	static void setup(const Sptr<mpi::RIndex<TarI,RTarI>>& ti,
 			  const Sptr<SrcIndex>& si,
 			  const F& f, const Sptr<Vector<SizeT>>& m);

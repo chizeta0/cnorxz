@@ -57,11 +57,12 @@ namespace
 	    mMRange = ltr*ll1r*ll2r*ll3r*scr;
 	    Vector<Double> data(mMRange->size());
 	    Vector<Double> data2(mMRange->size());
+	    Double xxx = 1;
 	    for(SizeT i = 0; i != mRXRange->sub(1)->size(); ++i){
 		for(SizeT j = 0; j != scr->size(); ++j){
 		    const SizeT k = i*scr->size() + j; 
-		    data[k] = vec[i] * static_cast<Double>(j+2);
-		    data2[k] = vec[i] / static_cast<Double>(j+2);
+		    data[k] = vec[i] * static_cast<Double>(j+2) + (xxx += 3*mpi::getRankNumber());
+		    data2[k] = vec[i] / static_cast<Double>(j+2) + (xxx += 5*mpi::getRankNumber());
 		    if(k > 0){ 
 			assert(data[k] != data[k-1]);
 		    }
@@ -108,8 +109,14 @@ namespace
     TEST_F(ROp_Test, Check)
     {
 	EXPECT_EQ(mM1.size(), mM2.size());
+	EXPECT_EQ(mM1.size(), mAll1.size());
+	for(auto i = mM1.begin(); i.lex() != i.lmax().val(); ++i){
+	    const auto a1 = *i;
+	    const auto a2 = mAll1[i.lex()];
+	    EXPECT_EQ(a1, a2);
+	}
     }
-
+    
     TEST_F(ROp_Test, Difference)
     {
 	RArray<Double> res( MArray<Double>(mM1.range()->sub(1)), mGeom );
@@ -131,7 +138,7 @@ namespace
 				   (std::get<2>(vec)+1)%L, (std::get<3>(vec)+1)%L); } );
 	Vector<bool> req(xp->range()->size(), false);
 	for(const auto& r: *imap1){
-	    req[r] = true;
+	    req[(r+mpi::getRankNumber()*16*12*12*12/4)%req.size()] = true;
 	}
 	res.load(x, AB, req); // DUMMY, not used...
 	mM1.load(xp, AB, req);
@@ -161,7 +168,7 @@ namespace
 	    EXPECT_EQ(a1, a2);
 	}
     }
-
+    
     TEST_F(ROp_Test, Contract)
     {
 	Vector<Double> comp(mRXRange->size());
