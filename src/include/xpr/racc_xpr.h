@@ -1,8 +1,8 @@
 
 // rank access expression, fix rank position to current rank
 
-#ifndef __cxz_mpi_racc_xpr_h__
-#define __cxz_mpi_racc_xpr_h__
+#ifndef __cxz_racc_xpr_h__
+#define __cxz_racc_xpr_h__
 
 #include "mpi_base.h"
 
@@ -12,12 +12,12 @@ namespace CNORXZ
     {
 
 	template <SizeT L, class Xpr, class F = NoF>
-	class RankAccXpr : public XprInterface<RankAccXpr<L,Xpr,F>>
+	class AccXpr : public XprInterface<AccXpr<L,Xpr,F>>
 	{
 	public:
-	    DEFAULT_MEMBERS(RankAccXpr);
+	    DEFAULT_MEMBERS(AccXpr);
 
-	    constexpr RankAccXpr(SizeT size, const IndexId<L>& id, const Xpr& xpr, F&& f);
+	    constexpr AccXpr(SizeT n, const IndexId<L>& id, const Xpr& xpr, F&& f);
 
 	    template <class PosT>
 	    inline decltype(auto) operator()(const PosT& last) const;
@@ -28,7 +28,7 @@ namespace CNORXZ
 	    inline decltype(auto) rootSteps(const IndexId<I>& id) const;
 	    
 	private:
-	    SizeT mSize = 0;
+	    SizeT mN = 0;
 	    IndexId<L> mId;
 	    Xpr mXpr;
 	    typedef decltype(mXpr.rootSteps(mId)) XPosT;
@@ -37,8 +37,7 @@ namespace CNORXZ
 	};
 
 	template <SizeT L, class Xpr, class F = NoF>
-	constexpr decltype(auto) rankaccxpr(SizeT size, const IndexId<L>& id,
-					    const Xpr& xpr, F&& f);
+	constexpr decltype(auto) accxpr(SizeT n, const IndexId<L>& id, const Xpr& xpr, F&& f);
     }
 }
 
