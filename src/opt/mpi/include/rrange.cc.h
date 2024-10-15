@@ -30,7 +30,9 @@ namespace CNORXZ
 	    mRange(in.mRange),
 	    mI(std::make_shared<IndexI>(mRange->local())),
 	    mK(std::make_shared<IndexK>(mRange->geom())),
-	    mNRanks(getNumRanks())
+	    mNRanks(getNumRanks()),
+	    mRankOffset(in.mRankOffset),
+	    mRankFormat(in.mRankFormat)
 	{
 	    *this = in.lex();
 	}
@@ -42,6 +44,8 @@ namespace CNORXZ
 	    mI = std::make_shared<IndexI>(mRange->local());
 	    mK = std::make_shared<IndexK>(mRange->geom());
 	    mNRanks = getNumRanks();
+	    mRankOffset = in.mRankOffset;
+	    mRankFormat = in.mRankFormat;
 	    *this = in.lex();
 	    return *this;
 	}
@@ -271,19 +275,25 @@ namespace CNORXZ
 	    Vector<size_t> lexs(mNRanks);
 	    MPI_Allgather(&lex, 1, MPI_UNSIGNED_LONG, lexs.data(), 1, MPI_UNSIGNED_LONG,
 			  MPI_COMM_WORLD);
-	    SizeT root = 0;
-	    for(; root != lexs.size(); ++root) {
+	    SizeT root = mRankOffset;
+	    //SizeT root = 0;
+	    for(; root < lexs.size(); root += mRankFormat) {
+	    //for(; root < lexs.size(); ++root) {
 		if(lexs[root] != mI->lmax().val()){
 		    break;
 		}
 	    }
-	    if(root == lexs.size()){ // metaPos not in rrange
+	    if(root >= lexs.size()){ // metaPos not in rrange
 		*this = lmax().val();
 		VCHECK(toString(metaPos));
 		assert(0);
 	    }
 	    else {
-		*mK = root;
+		assert((root-mRankOffset) % mRankFormat == 0);
+		const SizeT kx = (root-mRankOffset) / mRankFormat;
+		CXZ_ASSERT(kx < mK->lmax().val(), "invalid rank; check rankFormat!");
+		*mK = kx;
+		//*mK = root;
 		*mI = lexs[root];
 		(*this)();
 	    }
@@ -404,12 +414,27 @@ namespace CNORXZ
 	    return mK;
 	}
 
+	template <class IndexI, class IndexK>
+	void RIndex<IndexI,IndexK>::setRankFormat(SizeT rankFormat)
+	{
+	    mRankFormat = rankFormat;
+	    CXZ_ASSERT(mNRanks % mRankFormat == 0, "rankFormat (" << mRankFormat
+		       << ") does not divide total number of ranks (" << mNRanks << ")");
+	}
+	
+	template <class IndexI, class IndexK>
+	SizeT RIndex<IndexI,IndexK>::rankFormat() const
+	{
+	    return mRankFormat;
+	}
+
 	template <class IndexI, class IndexK, class I1>
 	decltype(auto) operator*(const Sptr<RIndex<IndexI,IndexK>>& a, const Sptr<I1>& b)
 	{
 	    return iptrMul(a, b);
 	}
 
+	
 	/*=====================+
 	 |    RRangeFactory    |
 	 +=====================*/

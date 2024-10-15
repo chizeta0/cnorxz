@@ -158,6 +158,12 @@ namespace CNORXZ
 
 	    /** Get index indicating the current rank this index points to. */
 	    Sptr<IndexK> rankI() const;
+
+	    /** Set the rank format. */
+	    void setRankFormat(SizeT rankFormat);
+
+	    /** Get the rank format. */
+	    SizeT rankFormat() const;
 	    
 	private:
 	    SizeT mLex = 0;
@@ -165,6 +171,8 @@ namespace CNORXZ
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
 	    SizeT mNRanks; /**< Number of ranks; in general different from but dividable by mK's maximum. */
+	    SizeT mRankOffset = 0; /** < Offset in case this index only serves a sub-slice of ranks .*/
+	    SizeT mRankFormat = 1; /**< Frequency of ranks to be served by this index. */
 	};
 
 	template <class IndexI, class IndexK>
