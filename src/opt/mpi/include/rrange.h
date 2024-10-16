@@ -171,8 +171,8 @@ namespace CNORXZ
 	    Sptr<IndexI> mI; /**< Index on the local range of the THIS rank. */
 	    Sptr<IndexK> mK; /**< Multi-index indicating the current rank. */
 	    SizeT mNRanks; /**< Number of ranks; in general different from but dividable by mK's maximum. */
-	    SizeT mRankOffset = 0; /** < Offset in case this index only serves a sub-slice of ranks .*/
 	    SizeT mRankFormat = 1; /**< Frequency of ranks to be served by this index. */
+	    SizeT mRankOffset = 0; /** < Offset in case this index only serves a sub-slice of ranks .*/
 	};
 
 	template <class IndexI, class IndexK>

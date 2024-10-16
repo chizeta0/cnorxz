@@ -31,8 +31,8 @@ namespace CNORXZ
 	    mI(std::make_shared<IndexI>(mRange->local())),
 	    mK(std::make_shared<IndexK>(mRange->geom())),
 	    mNRanks(getNumRanks()),
-	    mRankOffset(in.mRankOffset),
-	    mRankFormat(in.mRankFormat)
+	    mRankFormat(in.mRankFormat),
+	    mRankOffset(in.mRankOffset)
 	{
 	    *this = in.lex();
 	}
@@ -55,7 +55,9 @@ namespace CNORXZ
 	    mRange(rangeCast<RangeType>(global)),
 	    mI(std::make_shared<IndexI>(mRange->local())),
 	    mK(std::make_shared<IndexK>(mRange->geom())),
-	    mNRanks(getNumRanks())
+	    mNRanks(getNumRanks()),
+	    mRankFormat(1),
+	    mRankOffset(0)
 	{
 	    *this = lexpos;
 	}
@@ -65,7 +67,9 @@ namespace CNORXZ
 	    mRange(rangeCast<RangeType>( RRangeFactory(i->range(), k->range()).create() )),
 	    mI(i),
 	    mK(k),
-	    mNRanks(getNumRanks())
+	    mNRanks(getNumRanks()),
+	    mRankFormat(1),
+	    mRankOffset(0)
 	{
 	    (*this)();
 	}
@@ -329,8 +333,11 @@ namespace CNORXZ
 	template <class Xpr, class F>
 	constexpr decltype(auto) RIndex<IndexI,IndexK>::ifor(const Xpr& xpr, F&& f) const
 	{
-	    return accxpr( mpi::getRankNumber(), mK->id(), mI->ifor(xpr, std::forward<F>(f)),
-			   NoF {});
+	    const SizeT r = getRankNumber();
+	    const SizeT off = r % mRankFormat;
+	    //assert(off == mRankOffset);
+	    const SizeT n = ( (r-off) / mRankFormat ) % mK->pmax().val();
+	    return accxpr( n, mK->id(), mI->ifor(xpr, std::forward<F>(f)), NoF {});
 	}
 
 	template <class IndexI, class IndexK>
@@ -417,7 +424,11 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	void RIndex<IndexI,IndexK>::setRankFormat(SizeT rankFormat)
 	{
+	    const SizeT nr = getRankNumber();
 	    mRankFormat = rankFormat;
+	    const SizeT kmax = mK->pmax().val();
+	    const SizeT nextblocks = kmax * mRankFormat;
+	    mRankOffset = nr % mRankFormat + ( nr / nextblocks ) * nextblocks;
 	    CXZ_ASSERT(mNRanks % mRankFormat == 0, "rankFormat (" << mRankFormat
 		       << ") does not divide total number of ranks (" << mNRanks << ")");
 	}
