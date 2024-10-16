@@ -138,11 +138,10 @@ namespace
 				   (std::get<2>(vec)+1)%L, (std::get<3>(vec)+1)%L); } );
 	Vector<bool> req(xp->range()->size(), false);
 	for(const auto& r: *imap1){
-	    req[(r+mpi::getRankNumber()*16*12*12*12/4)%req.size()] = true;
+	    req[r] = true;
 	}
 	res.load(x, AB, req); // DUMMY, not used...
 	mM1.load(xp, AB, req);
-	//res.rop(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
 	res(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );
 
 	for(SizeT x0 = 0; x0 != T; ++x0) { 

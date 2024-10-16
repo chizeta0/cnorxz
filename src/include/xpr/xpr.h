@@ -16,5 +16,6 @@
 #include "index_id.h"
 #include "func.h"
 #include "map_xpr.h"
+#include "acc_xpr.h"
 
 #include "xpr.cc.h"

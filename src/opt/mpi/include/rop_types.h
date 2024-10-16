@@ -116,6 +116,12 @@ namespace CNORXZ
 	static constexpr SizeT value = 2;
     };
     
+    template <typename T, class RIndexT, class IndexT>
+    struct op_size<mpi::ROpRoot<T,RIndexT,IndexT>>
+    {
+	static constexpr SizeT value = 2;
+    };
+    
 } // namespace CNORXZ
 
 #endif

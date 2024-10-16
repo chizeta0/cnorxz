@@ -119,9 +119,9 @@ namespace
 	setupBuffer(rgi, req, data, buf, map, mSRange->size());
 
 	EXPECT_EQ(mRRange->sub(1)->size(), 16*12*12*12/4);
-	const SizeT locsz = rgj->local()->lmax().val();
-	const SizeT myrankoff = myrank*locsz;
-	const SizeT mapsize = map.size();
+	//const SizeT locsz = rgj->local()->lmax().val();
+	//const SizeT myrankoff = myrank*locsz;
+	//const SizeT mapsize = map.size();
 	// Fourth loop: Check:
 	for(*rgi = 0, gi = 0; rgi->lex() != rgi->lmax().val(); ++*rgi, ++gi){
 	    gj = gi.lex();
@@ -132,7 +132,8 @@ namespace
 	    *rgj = gj.lex();
 
 	    if(rgi->rank() == myrank){
-		const SizeT mpidx = (rgj->pos() - myrankoff + mapsize) % mapsize;
+		const SizeT mpidx = rgj->pos();
+		//const SizeT mpidx = (rgj->pos() - myrankoff + mapsize) % mapsize;
 		EXPECT_TRUE(map.data()[mpidx] != nullptr);
 		
 		const Double vn = *map[mpidx]/blocks;

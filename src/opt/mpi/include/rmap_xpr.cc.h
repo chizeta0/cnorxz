@@ -23,23 +23,26 @@ namespace CNORXZ
 							const Sptr<SrcIndex>& si,
 							const F& f, const Sptr<Vector<SizeT>>& m)
     {
+	// This was the old shift, keep it here as comment if we want to introduce other shifts
+	// in order to reduce memory consumption by the maps;
+	// remember to invert the shift in the map xpr BEFORE calling the map!
+	//const SizeT locsz = tix.local()->pmax().val();
+	//const SizeT tarsize = locsz*mpi::getNumRanks();
+	//const SizeT idx = (tix.pos() - locsz*myrank + tarsize) % tarsize;
+
 	auto six = *si;
 	auto sie = si->range()->end();
 	auto tix = *ti;
-	const SizeT locsz = tix.local()->pmax().val();
-	const SizeT tarsize = locsz*mpi::getNumRanks();
 	const SizeT mapsize = m->size();
 	const SizeT myrank = mpi::getRankNumber();
 	if constexpr(mpi::is_rank_index<SrcIndex>::value){
-	    CXZ_ASSERT(mapsize == six.local()->pmax().val(), "map not well-formatted: size = "
+	    CXZ_ASSERT(mapsize == six.pmax().val(), "map not well-formatted: size = "
 		       << mapsize << ", expected " << six.local()->pmax().val());
 	    for(six = 0; six != sie; ++six){
 		tix.at( f(*six) );
 		if(six.rank() == myrank){
-		    //const SizeT idx = (tix.pos() - locsz*tix.rank() + tarsize) % tarsize;
-		    const SizeT idx = (tix.pos() - locsz*myrank + tarsize) % tarsize;
-		    //const SizeT idx = tix.pos();
-		    (*m)[six.local()->pos()] = idx;
+		    const SizeT idx = tix.pos();
+		    (*m)[six.pos()] = idx;
 		}
 	    }
 	}
@@ -48,9 +51,7 @@ namespace CNORXZ
 		       << mapsize << ", expected " << six.pmax().val());
 	    for(six = 0; six != sie; ++six){
 		tix.at( f(*six) );
-		//const SizeT idx = (tix.pos() - locsz*tix.rank() + tarsize) % tarsize;
-		const SizeT idx = (tix.pos() - locsz*myrank + tarsize) % tarsize;
-		//const SizeT idx = tix.pos()
+		const SizeT idx = tix.pos()
 		(*m)[six.pos()] = idx;
 	    }
 	}
@@ -62,13 +63,7 @@ namespace CNORXZ
 							const Sptr<SrcIndex>& si,
 							const F& f)
     {
-	SizeT mapsize = 0;
-	if constexpr(mpi::is_rank_index<SrcIndex>::value){
-	    mapsize = si->local()->lmax().val();
-	}
-	else {
-	    mapsize = si->lmax().val();
-	}
+	const SizeT mapsize = si->pmax().val();
 	auto o = std::make_shared<Vector<SizeT>>(mapsize);
 	setup(ti,si,f,o);
 	return o;

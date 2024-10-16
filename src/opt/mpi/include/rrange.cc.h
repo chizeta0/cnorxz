@@ -231,8 +231,7 @@ namespace CNORXZ
 		if constexpr(I != 0){ return SPos<0> {}; }
 		else { return UPos(id == this->id() ? 1 : 0); }
 	    };
-	    return mI->stepSize(id) + own();
-	    //return getRankStepSize(id);
+	    return mK->stepSize(id) * mI->pmax() * UPos(mRankFormat) + mI->stepSize(id) + own();
 	}
 
 	template <class IndexI, class IndexK>
@@ -330,7 +329,8 @@ namespace CNORXZ
 	template <class Xpr, class F>
 	constexpr decltype(auto) RIndex<IndexI,IndexK>::ifor(const Xpr& xpr, F&& f) const
 	{
-	    return mI->ifor(xpr, std::forward<F>(f));
+	    return accxpr( mpi::getRankNumber(), mK->id(), mI->ifor(xpr, std::forward<F>(f)),
+			   NoF {});
 	}
 
 	template <class IndexI, class IndexK>

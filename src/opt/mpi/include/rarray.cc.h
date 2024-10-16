@@ -169,6 +169,7 @@ namespace CNORXZ
 	inline decltype(auto) RCArray<T>::operator()(const DPack& pack) const
 	{
 	    // TODO: assert that none of the indices is rank index
+	    CXZ_ERROR("not implemented");
 	    return (*mA)(pack);
 	}
 
@@ -361,6 +362,7 @@ namespace CNORXZ
 	inline decltype(auto) RArray<T>::operator()(const DPack& pack) const
 	{
 	    // TODO: assert that none of the indices is rank index
+	    CXZ_ERROR("not implemented");
 	    return (*mB)(pack);
 	}
 
@@ -507,14 +509,13 @@ namespace CNORXZ
 	    }
 
 	    // Third loop: Assign map to target buffer positions:
-	    const SizeT myrankoff = myrank*locsz;
 	    assert(mapsize == Nranks*locsz);
 	    Vector<SizeT> cnt(Nranks);
 	    mi->ifor( operation
 		      ( [&](SizeT p) {
 			  const SizeT r = p / locsz;
 			  const SizeT l = p % locsz;
-			  const SizeT mpidx = (p - myrankoff + mapsize) % mapsize;
+			  const SizeT mpidx = p;
 			  if(myrank != r and required[p]){
 			      SizeT off = 0;
 			      for(SizeT s = 0; s != r; ++s){
@@ -524,7 +525,7 @@ namespace CNORXZ
 			      ++cnt[r];
 			  }
 			  if(myrank == r){
-			      assert(mpidx < locsz);
+			      assert(mpidx < (myrank+1)*locsz);
 			      map[mpidx] = data.data() + l*blocks;
 			  }
 		      } , posop(mi) ), NoF {} )();

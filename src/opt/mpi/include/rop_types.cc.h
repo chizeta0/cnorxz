@@ -29,12 +29,16 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr decltype(auto) CROpRoot<T,RIndexT,IndexT>::operator()(const PosT& pos) const
 	{
+	    //CXZ_ASSERT(pos.val() < mRIndex->pmax().val(), pos.val() << ">=" << mRIndex->pmax().val());
+	    //CXZ_ASSERT(mData[pos.val()] != nullptr, "data[" << pos.val() << "] == null");
+	    //CXZ_ASSERT(pos.next().val() < mIndex->pmax().val(), pos.val() << ">=" << mIndex->pmax().val());
 	    return (mData[pos.val()])[pos.next().val()];
 	}
 
 	template <typename T, class RIndexT, class IndexT>
 	constexpr decltype(auto) CROpRoot<T,RIndexT,IndexT>::operator()() const
 	{
+	    //CXZ_ASSERT(mData[0] != nullptr, "data[" << 0 << "] == null");
 	    return (mData[0])[0];
 	}
 
@@ -61,11 +65,9 @@ namespace CNORXZ
 						     const Sptr<IndexT>& li) :
 	    mLocal(&a.local()),
 	    mData(a.buffermap().data()),
-	    //mData(a.data()),
 	    mRIndex(ri),
 	    mIndex(li)
 	{
-	    //CXZ_ERROR("nope");
 	    CXZ_ASSERT(a.buffermap().size() == ri->lmax().val(),
 		       "data map not properly initialized: map size = " << a.buffermap().size()
 		       << ", rank index range size = " << ri->lmax().val());
@@ -75,8 +77,8 @@ namespace CNORXZ
 	template <class Op>
 	constexpr ROpRoot<T,RIndexT,IndexT>& ROpRoot<T,RIndexT,IndexT>::operator=(const Op& in)
 	{
-	    (*mLocal)(mindexPtr(mRIndex->local()*mIndex)) = in;
-	    //OI::a(mIndex, [](auto& a, const auto& b) { a = b; }, in);
+	    (*mLocal)(mindexPtr(mRIndex->local()*mIndex)).a
+		(mindexPtr(mRIndex*mIndex),[](auto& a, const auto& b) { a = b; }, in);
 	    return *this;
 	}
 	
@@ -84,16 +86,16 @@ namespace CNORXZ
 	template <class Op>
 	constexpr ROpRoot<T,RIndexT,IndexT>& ROpRoot<T,RIndexT,IndexT>::operator+=(const Op& in)
 	{
-	    (*mLocal)(mindexPtr(mRIndex->local()*mIndex)) += in;
-	    //OI::a(mIndex, [](auto& a, const auto& b) { a += b; }, in);
+	    (*mLocal)(mindexPtr(mRIndex->local()*mIndex)).a
+		(mindexPtr(mRIndex*mIndex),[](auto& a, const auto& b) { a += b; }, in);
 	    return *this;
 	}
 	
 	template <typename T, class RIndexT, class IndexT>
 	constexpr ROpRoot<T,RIndexT,IndexT>& ROpRoot<T,RIndexT,IndexT>::operator=(const ROpRoot& in)
 	{
-	    (*mLocal)(mindexPtr(mRIndex->local()*mIndex)) = in;
-	    //OI::a(mIndex, [](auto& a, const auto& b) { a = b; }, in);
+	    (*mLocal)(mindexPtr(mRIndex->local()*mIndex)).a
+		(mindexPtr(mRIndex*mIndex),[](auto& a, const auto& b) { a = b; }, in);
 	    return *this;
 	}
 
@@ -101,12 +103,16 @@ namespace CNORXZ
 	template <class PosT>
 	constexpr decltype(auto) ROpRoot<T,RIndexT,IndexT>::operator()(const PosT& pos) const
 	{
+	    //CXZ_ASSERT(pos.val() < mRIndex->pmax().val(), pos.val() << ">=" << mRIndex->pmax().val());
+	    //CXZ_ASSERT(mData[pos.val()] != nullptr, "data[" << pos.val() << "] == null");
+	    //CXZ_ASSERT(pos.next().val() < mIndex->pmax().val(), pos.val() << ">=" << mIndex->pmax().val());
 	    return (mData[pos.val()])[pos.next().val()];
 	}
 
 	template <typename T, class RIndexT, class IndexT>
 	constexpr decltype(auto) ROpRoot<T,RIndexT,IndexT>::operator()() const
 	{
+	    //CXZ_ASSERT(mData[0] != nullptr, "data[" << 0 << "] == null");
 	    return (mData[0])[0];
 	}
 
