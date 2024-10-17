@@ -32,7 +32,8 @@ namespace CNORXZ
 	    mK(std::make_shared<IndexK>(mRange->geom())),
 	    mNRanks(getNumRanks()),
 	    mRankFormat(in.mRankFormat),
-	    mRankOffset(in.mRankOffset)
+	    mRankOffset(in.mRankOffset),
+	    mStepRatio(in.mStepRatio)
 	{
 	    *this = in.lex();
 	}
@@ -46,6 +47,7 @@ namespace CNORXZ
 	    mNRanks = getNumRanks();
 	    mRankOffset = in.mRankOffset;
 	    mRankFormat = in.mRankFormat;
+	    mStepRatio = mStepRatio;
 	    *this = in.lex();
 	    return *this;
 	}
@@ -57,7 +59,8 @@ namespace CNORXZ
 	    mK(std::make_shared<IndexK>(mRange->geom())),
 	    mNRanks(getNumRanks()),
 	    mRankFormat(1),
-	    mRankOffset(0)
+	    mRankOffset(0),
+	    mStepRatio(mI->pmax().val())
 	{
 	    *this = lexpos;
 	}
@@ -69,7 +72,8 @@ namespace CNORXZ
 	    mK(k),
 	    mNRanks(getNumRanks()),
 	    mRankFormat(1),
-	    mRankOffset(0)
+	    mRankOffset(0),
+	    mStepRatio(mI->pmax().val())
 	{
 	    (*this)();
 	}
@@ -133,6 +137,8 @@ namespace CNORXZ
 		*mK = pos / mI->lmax().val();
 		*mI = pos % mI->lmax().val();
 	    }
+	    // replace line once we know what to do !!!
+	    //IB::mPos = mK->pos() * mStepRatio + mI->pos();
 	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
 	    return *this;
 	}
@@ -399,6 +405,7 @@ namespace CNORXZ
 		    }
 		}
 	    }
+	    //IB::mPos = mK->pos() * mStepRatio + mI->pos();
 	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
 	    return *this;
 	}
@@ -422,21 +429,33 @@ namespace CNORXZ
 	}
 
 	template <class IndexI, class IndexK>
-	void RIndex<IndexI,IndexK>::setRankFormat(SizeT rankFormat)
+	void RIndex<IndexI,IndexK>::setRankFormat(SizeT rankFormat, SizeT stepRatio)
 	{
 	    const SizeT nr = getRankNumber();
 	    mRankFormat = rankFormat;
+	    CXZ_ASSERT(mNRanks % mRankFormat == 0, "rankFormat (" << mRankFormat
+		       << ") does not divide total number of ranks (" << mNRanks << ")");
+	    mStepRatio = stepRatio;
+	    if(mStepRatio == 0){
+		mStepRatio = mI->pmax().val();
+	    }
+	    CXZ_ASSERT(mStepRatio % mRankFormat == 0, "rankFormat (" << mRankFormat
+		       << ") does not divide stepRatio (" << mStepRatio << ")");
 	    const SizeT kmax = mK->pmax().val();
 	    const SizeT nextblocks = kmax * mRankFormat;
 	    mRankOffset = nr % mRankFormat + ( nr / nextblocks ) * nextblocks;
-	    CXZ_ASSERT(mNRanks % mRankFormat == 0, "rankFormat (" << mRankFormat
-		       << ") does not divide total number of ranks (" << mNRanks << ")");
 	}
 	
 	template <class IndexI, class IndexK>
 	SizeT RIndex<IndexI,IndexK>::rankFormat() const
 	{
 	    return mRankFormat;
+	}
+
+	template <class IndexI, class IndexK>
+	SizeT RIndex<IndexI,IndexK>::stepRatio() const
+	{
+	    return mStepRatio;
 	}
 
 	template <class IndexI, class IndexK, class I1>

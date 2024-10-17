@@ -159,11 +159,18 @@ namespace CNORXZ
 	    /** Get index indicating the current rank this index points to. */
 	    Sptr<IndexK> rankI() const;
 
-	    /** Set the rank format. */
-	    void setRankFormat(SizeT rankFormat);
+	    /** Set the rank format.
+		@param rankFormat Format of the rank index K.
+		@param stepRatio stepSize of K over stepsize of I; needs to be dividable by rankFormat.
+		If stepRatio == 0, it is set to the default value = mI->pmax().val().
+	     */
+	    void setRankFormat(SizeT rankFormat, SizeT stepRatio = 0);
 
 	    /** Get the rank format. */
 	    SizeT rankFormat() const;
+
+	    /** Get step ratio. */
+	    SizeT stepRatio() const;
 	    
 	private:
 	    SizeT mLex = 0;
@@ -173,6 +180,7 @@ namespace CNORXZ
 	    SizeT mNRanks; /**< Number of ranks; in general different from but dividable by mK's maximum. */
 	    SizeT mRankFormat = 1; /**< Frequency of ranks to be served by this index. */
 	    SizeT mRankOffset = 0; /** < Offset in case this index only serves a sub-slice of ranks .*/
+	    SizeT mStepRatio; /**< Ratio between the stepsizes of mK and mI. */
 	};
 
 	template <class IndexI, class IndexK>
