@@ -171,6 +171,18 @@ namespace CNORXZ
 
 	    /** Get step ratio. */
 	    SizeT stepRatio() const;
+
+	    /** Check if index points to the same global position on each rank. */
+	    bool isSynchronous() const;
+
+	    /** Check if index points to own rank on each rank. */
+	    bool isLocalized() const;
+
+	    /** Set internl rank index to own rank. Results in non-synchronous state. */
+	    RIndex& localize();
+
+	    /** Get this rank considering rank format. */
+	    SizeT myrank() const;
 	    
 	private:
 	    SizeT mLex = 0;

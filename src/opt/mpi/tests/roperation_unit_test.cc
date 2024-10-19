@@ -140,6 +140,7 @@ namespace
 	for(const auto& r: *imap1){
 	    req[r] = true;
 	}
+	x->localize();
 	res.load(x, AB, req); // DUMMY, not used...
 	mM1.load(xp, AB, req);
 	res(x*A*B) = mapXpr(xp,x,imap1, mM1(xp*A*B) - mM1(x*A*B) );

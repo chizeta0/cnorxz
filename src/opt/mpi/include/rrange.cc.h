@@ -339,10 +339,10 @@ namespace CNORXZ
 	template <class Xpr, class F>
 	constexpr decltype(auto) RIndex<IndexI,IndexK>::ifor(const Xpr& xpr, F&& f) const
 	{
-	    const SizeT r = getRankNumber();
-	    const SizeT off = r % mRankFormat;
-	    //assert(off == mRankOffset);
-	    const SizeT n = ( (r-off) / mRankFormat ) % mK->pmax().val();
+	    //const SizeT r = getRankNumber();
+	    //const SizeT off = r % mRankFormat;
+	    //const SizeT n = ( (r-off) / mRankFormat ) % mK->pmax().val();
+	    const SizeT n = mK->lex();
 	    return accxpr( n, mK->id(), mI->ifor(xpr, std::forward<F>(f)), NoF {});
 	}
 
@@ -456,6 +456,60 @@ namespace CNORXZ
 	SizeT RIndex<IndexI,IndexK>::stepRatio() const
 	{
 	    return mStepRatio;
+	}
+
+	template <class IndexI, class IndexK>
+	bool RIndex<IndexI,IndexK>::isSynchronous() const
+	{
+	    const size_t lx = lex();
+	    Vector<size_t> lexs(mNRanks);
+	    MPI_Allgather(&lx, 1, MPI_UNSIGNED_LONG, lexs.data(), 1, MPI_UNSIGNED_LONG,
+			  MPI_COMM_WORLD);
+	    const size_t glex = lexs[0];
+	    bool o = true;
+	    for(const auto& l: lexs){
+		if(l != glex){
+		    o = false;
+		    break;
+		}
+	    }
+	    return o;
+	}
+
+	template <class IndexI, class IndexK>
+	bool RIndex<IndexI,IndexK>::isLocalized() const
+	{
+	    const size_t lx = mK->lex();
+	    const unsigned short is = (lx == myrank());
+	    Vector<unsigned short> iss(mNRanks);
+	    MPI_Allgather(&is, 1, MPI_UNSIGNED_SHORT, iss.data(), 1, MPI_UNSIGNED_SHORT,
+			  MPI_COMM_WORLD);
+	    bool o = true;
+	    for(const auto& l: iss){
+		if(not l){
+		    o = false;
+		    break;
+		}
+	    }
+	    return o;
+	}
+	
+	template <class IndexI, class IndexK>
+	RIndex<IndexI,IndexK>& RIndex<IndexI,IndexK>::localize()
+	{
+	    (*mK) = myrank();
+	    (*this)();
+	    return *this;
+	}
+	
+	template <class IndexI, class IndexK>
+	SizeT RIndex<IndexI,IndexK>::myrank() const
+	{
+	    const SizeT r = getRankNumber();
+	    const SizeT off = r % mRankFormat;
+	    assert((r-off)/mRankFormat == r/mRankFormat);
+	    const SizeT n = ( (r-off) / mRankFormat ) % mK->pmax().val();
+	    return n;
 	}
 
 	template <class IndexI, class IndexK, class I1>
