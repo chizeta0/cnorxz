@@ -149,6 +149,7 @@ namespace CNORXZ
 	mPMax(mkPMax()),
 	mLMax(mkLMax())
     {
+	// TODO: copy sub-index instances!!!
 	*this = i.lex();
     }
     
@@ -161,6 +162,7 @@ namespace CNORXZ
 	mLexFormat = i.mLexFormat;
 	mPMax = mkPMax();
 	mLMax = mkLMax();
+	// TODO: copy sub-index instances!!!
 	return *this = i.lex();
     }
 

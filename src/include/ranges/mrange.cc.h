@@ -169,6 +169,9 @@ namespace CNORXZ
 	mLMax(mkLMax(mIPack)),
 	mPMax(mkPMax(mIPack,mFormat))
     {
+	mIPack = iter<0,sizeof...(Indices)>
+	    ( [&](auto j) { return i.pack()[j]; },
+	      [](const auto&... e) { return SPack<Indices...>(std::make_shared<Indices>(*e) ...); } );
 	*this = i.lex();
     }
 
@@ -182,6 +185,10 @@ namespace CNORXZ
 	mFormat = i.mFormat;
 	mLMax = mkLMax(mIPack);
 	mPMax = mkPMax(mIPack,mFormat);
+	//iter<0,sizeof...(Indices)>( [&](auto j) { *mIPack[j] = *i.pack()[j]; }, NoF {} );
+	mIPack = iter<0,sizeof...(Indices)>
+	    ( [&](auto j) { return i.pack()[j]; },
+	      [](const auto&... e) { return SPack<Indices...>(std::make_shared<Indices>(*e) ...); } );
 	return *this = i.lex();
     }
 

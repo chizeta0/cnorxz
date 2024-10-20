@@ -247,7 +247,7 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	String RIndex<IndexI,IndexK>::stringMeta() const
 	{
-	    const SizeT r = mK->lex();
+	    const SizeT r = mK->lex()*mRankFormat;
 	    String o;
 	    if(r == getRankNumber()){
 		o = mI->stringMeta();
@@ -261,7 +261,7 @@ namespace CNORXZ
 	{
 	    MetaType o;
 	    if constexpr(Typemap<MetaType>::exists){
-		const SizeT r = mK->lex();
+		const SizeT r = mK->lex()*mRankFormat;
 		if(r == getRankNumber()){
 		    o = mI->meta();
 		}
