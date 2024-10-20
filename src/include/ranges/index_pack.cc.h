@@ -68,7 +68,7 @@ namespace CNORXZ
     template <class... Indices2>
     constexpr decltype(auto) SPack<Indices...>::mul(const SPack<Indices2...>& p) const
     {
-	return SPack<Indices...,Indices2...>( std::tuple_cat(mIs, all()) );
+	return SPack<Indices...,Indices2...>( std::tuple_cat(mIs, p.all()) );
     }
 
     template <class... Indices>
