@@ -18,7 +18,8 @@ namespace CNORXZ
 						       const Sptr<IndexT>& li) :
 	    mData(a.buffermap().data()),
 	    mRIndex(ri),
-	    mIndex(li)
+	    mIndex(li),
+	    mLOff(mIndex->pos())
 	{
 	    CXZ_ASSERT(a.buffermap().size() == ri->lmax().val(),
 		       "data map not properly initialized: map size = " << a.buffermap().size()
@@ -32,14 +33,21 @@ namespace CNORXZ
 	    //CXZ_ASSERT(pos.val() < mRIndex->pmax().val(), pos.val() << ">=" << mRIndex->pmax().val());
 	    //CXZ_ASSERT(mData[pos.val()] != nullptr, "data[" << pos.val() << "] == null");
 	    //CXZ_ASSERT(pos.next().val() < mIndex->pmax().val(), pos.val() << ">=" << mIndex->pmax().val());
-	    return (mData[pos.val()])[pos.next().val()];
+	    if constexpr(is_epos_type<PosT>::value){
+		// PRELIMINARY!!!
+		// discards potential vector entries in pos (only pos.next() is considered)!!!
+		return vreg(mData[pos.val()[0]]+mLOff,pos.next());
+	    }
+	    else {
+		return (mData[pos.val()])[mLOff+pos.next().val()];
+	    }
 	}
 
 	template <typename T, class RIndexT, class IndexT>
 	constexpr decltype(auto) CROpRoot<T,RIndexT,IndexT>::operator()() const
 	{
 	    //CXZ_ASSERT(mData[0] != nullptr, "data[" << 0 << "] == null");
-	    return (mData[0])[0];
+	    return (mData[0])[mLOff];
 	}
 
 	template <typename T, class RIndexT, class IndexT>
@@ -66,7 +74,8 @@ namespace CNORXZ
 	    mLocal(&a.local()),
 	    mData(a.buffermap().data()),
 	    mRIndex(ri),
-	    mIndex(li)
+	    mIndex(li),
+	    mLOff(mIndex->pos())
 	{
 	    CXZ_ASSERT(a.buffermap().size() == ri->lmax().val(),
 		       "data map not properly initialized: map size = " << a.buffermap().size()
@@ -106,7 +115,21 @@ namespace CNORXZ
 	    //CXZ_ASSERT(pos.val() < mRIndex->pmax().val(), pos.val() << ">=" << mRIndex->pmax().val());
 	    //CXZ_ASSERT(mData[pos.val()] != nullptr, "data[" << pos.val() << "] == null");
 	    //CXZ_ASSERT(pos.next().val() < mIndex->pmax().val(), pos.val() << ">=" << mIndex->pmax().val());
-	    return (mData[pos.val()])[pos.next().val()];
+	    if constexpr(is_epos_type<PosT>::value){
+		// PRELIMINARY!!!
+		// discards potential vector entries in pos (only pos.next() is considered)!!!
+		if constexpr(pos_type_is_consecutive<PosT>::value){
+		    return vreg(mData[pos.val()[0]]+mLOff,pos.next());
+		}
+		else {
+		    // non-consecutive data cannot be directly accessed
+		    // so there is no non-const (write) access!
+		    return vreg(const_cast<const T*>(mData[pos.val()[0]]+mLOff),pos.next());
+		}
+	    }
+	    else {
+		return (mData[pos.val()])[mLOff+pos.next().val()];
+	    }
 	}
 
 	template <typename T, class RIndexT, class IndexT>

@@ -151,7 +151,7 @@ namespace CNORXZ
     }
 
     template <class PosT>
-    constexpr UPos UPos::operator-(const PosT& in) const
+    constexpr decltype(auto) UPos::operator-(const PosT& in) const
     {
 	return UPos(mExt - in.val());
     }
@@ -458,7 +458,7 @@ namespace CNORXZ
 
     template <class BPosT, class NPosT>
     template <class PosT>
-    constexpr auto MPos<BPosT,NPosT>::operator+(const PosT& a) const
+    constexpr decltype(auto) MPos<BPosT,NPosT>::operator+(const PosT& a) const
     {
 	typedef decltype(BPosT::operator+(a)) OBPosT;
 	typedef decltype(mNext + a.next()) ONPosT;
@@ -467,7 +467,7 @@ namespace CNORXZ
 
     template <class BPosT, class NPosT>
     template <class PosT>
-    constexpr auto MPos<BPosT,NPosT>::operator*(const PosT& a) const
+    constexpr decltype(auto) MPos<BPosT,NPosT>::operator*(const PosT& a) const
     {
 	typedef decltype(BPosT::operator*(a)) OBPosT;
 	typedef decltype(mNext * a) ONPosT;
@@ -476,7 +476,7 @@ namespace CNORXZ
 
     template <class BPosT, class NPosT>
     template <class PosT>
-    constexpr auto MPos<BPosT,NPosT>::operator()(const PosT& a) const
+    constexpr decltype(auto) MPos<BPosT,NPosT>::operator()(const PosT& a) const
     {
 	typedef decltype(BPosT::operator()(a)) OBPosT;
 	typedef decltype(mNext(a)) ONPosT;

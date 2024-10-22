@@ -41,6 +41,7 @@ namespace CNORXZ
 	    const T* const* mData;
 	    Sptr<RIndexT> mRIndex;
 	    Sptr<IndexT> mIndex;
+	    SizeT mLOff; // local index offset (position)
 	};
 
 
@@ -80,6 +81,7 @@ namespace CNORXZ
 	    const T* const* mData;
 	    Sptr<RIndexT> mRIndex;
 	    Sptr<IndexT> mIndex;
+	    SizeT mLOff; // local index offset (position)
 	};
 
 	template <typename T, class RIndexT, class IndexT>

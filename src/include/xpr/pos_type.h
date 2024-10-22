@@ -66,7 +66,7 @@ namespace CNORXZ
 	constexpr decltype(auto) operator+(const PosT& a) const;
 
 	template <class PosT>
-	constexpr UPos operator-(const PosT& a) const;
+	constexpr decltype(auto) operator-(const PosT& a) const;
 
 	//constexpr SPos<0> operator*(const SPos<0>& a) const;
 
@@ -179,14 +179,14 @@ namespace CNORXZ
 	constexpr const NPosT& next() const;
 
 	template <class PosT>
-	constexpr auto operator+(const PosT& a) const;
+	constexpr decltype(auto) operator+(const PosT& a) const;
 
 	template <class PosT>
-	constexpr auto operator*(const PosT& a) const;
+	constexpr decltype(auto) operator*(const PosT& a) const;
 
 	// same as operator*, except for FPos/SFPos, where map is executed
 	template <class PosT>
-	constexpr auto operator()(const PosT& a) const;
+	constexpr decltype(auto) operator()(const PosT& a) const;
 	
 	template <class PosT>
 	constexpr decltype(auto) extend(const PosT& a) const;
