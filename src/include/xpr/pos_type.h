@@ -129,9 +129,9 @@ namespace CNORXZ
     template <SizeT N, SizeT... Ms>
     class SFPos
     {
-    private:
-	static Arr<SizeT,sizeof...(Ms)> sMs;
     public:
+	static Arr<SizeT,sizeof...(Ms)> permutation;
+
 	constexpr SFPos() = default;
 
 	constexpr SizeT size() const;

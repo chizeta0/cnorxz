@@ -280,6 +280,17 @@ namespace CNORXZ
 	{
 	    return FPos(pos.val(), map);
 	}
+
+	template <SizeT... Is>
+    	static constexpr decltype(auto) mks(const PosT& pos, std::index_sequence<Is...> is)
+	{
+	    if constexpr(is_static_pos_type<PosT>::value){
+		return SFPos<pos.val(),Is...> {};
+	    }
+	    else {
+		return mk(pos, &SFPos<0,Is...>::permutation[0]);
+	    }
+	}
     };
 
     template <class BPosT, class NPosT>
@@ -289,6 +300,13 @@ namespace CNORXZ
 	{
 	    return mkMPos( MkFPos<BPosT>::mk( pos, map ), MkFPos<NPosT>::mk( pos.next(), map ) );
 	}
+
+	template <SizeT... Is>
+	static constexpr decltype(auto) mks(const MPos<BPosT,NPosT>& pos,
+					    std::index_sequence<Is...> is)
+	{
+	    return mkMPos( MkFPos<BPosT>::mks( pos, is ), MkFPos<NPosT>::mks( pos.next(), is ) );
+	}
     };
 
     template <class PosT>
@@ -297,13 +315,19 @@ namespace CNORXZ
 	return MkFPos<PosT>::mk(pos, map);
     }
 
+    template <class PosT, SizeT... Is>
+    constexpr decltype(auto) mkSFPos(const PosT& pos, std::index_sequence<Is...> is)
+    {
+	return MkFPos<PosT>::mks(pos, is);
+    }
+
     
     /*===========+
      |   SFPos   |
      +===========*/
 
     template <SizeT N, SizeT... Ms>
-    Arr<SizeT,sizeof...(Ms)> SFPos<N,Ms...>::sMs = { Ms... };
+    Arr<SizeT,sizeof...(Ms)> SFPos<N,Ms...>::permutation = { Ms... };
     
     template <SizeT N, SizeT... Ms>
     constexpr SizeT SFPos<N,Ms...>::size() const
@@ -343,10 +367,10 @@ namespace CNORXZ
 	}
 	else {
 	    if constexpr(is_epos_type<PosT>::value){
-		return FPos(N * a.scal().val(), &sMs[0]);
+		return FPos(N * a.scal().val(), &permutation[0]);
 	    }
 	    else {
-		return FPos(N * a.val(), &sMs[0]);
+		return FPos(N * a.val(), &permutation[0]);
 	    }
 	}
     }
@@ -392,7 +416,7 @@ namespace CNORXZ
     template <SizeT N, SizeT... Ms>
     constexpr SFPos<N,Ms...>::operator FPos() const
     {
-	return FPos(N, &sMs[0]);
+	return FPos(N, &permutation[0]);
     }
 
     template <SizeT N, SizeT... Ms>
