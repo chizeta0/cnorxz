@@ -481,12 +481,18 @@ namespace CNORXZ
     }
 
     template <class BPosT, class NPosT>
+    constexpr const BPosT& MPos<BPosT,NPosT>::bpos() const
+    {
+	return *this;
+    }
+
+    template <class BPosT, class NPosT>
     template <class PosT>
     constexpr decltype(auto) MPos<BPosT,NPosT>::operator+(const PosT& a) const
     {
-	typedef decltype(BPosT::operator+(a)) OBPosT;
+	typedef decltype(BPosT::operator+(a.bpos())) OBPosT;
 	typedef decltype(mNext + a.next()) ONPosT;
-	return MPos<OBPosT,ONPosT>( BPosT::operator+(a), mNext + a.next() );
+	return MPos<OBPosT,ONPosT>( BPosT::operator+(a.bpos()), mNext + a.next() );
     }
 
     template <class BPosT, class NPosT>

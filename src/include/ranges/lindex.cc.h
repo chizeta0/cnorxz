@@ -49,7 +49,13 @@ namespace CNORXZ
     template <class Xpr, class F>
     decltype(auto) LIndex<Index,L>::ifor(const Xpr& xpr, F&& f) const
     {
-	return For<L,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
+	if constexpr(index_has_const_size<Index>::value){
+	    constexpr SizeT S = index_const_size<Index>::value;
+	    return SFor<S,L,Xpr,F>(this->id(), xpr, std::forward<F>(f));
+	}
+	else {
+	    return For<L,Xpr,F>(this->pmax().val(), this->id(), xpr, std::forward<F>(f));
+	}
     }
     
     template <class Index, SizeT L, class I1>

@@ -177,6 +177,7 @@ namespace CNORXZ
 
 	constexpr SizeT size() const;
 	constexpr const NPosT& next() const;
+	constexpr const BPosT& bpos() const;
 
 	template <class PosT>
 	constexpr decltype(auto) operator+(const PosT& a) const;

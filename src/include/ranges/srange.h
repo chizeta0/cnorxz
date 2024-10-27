@@ -247,6 +247,22 @@ namespace CNORXZ
     {
 	static constexpr bool value = true;
     };
+
+    /** ***
+	SIndex has static range size
+	@see index_expression_exists
+     */    
+    template <typename MetaT, SizeT S>
+    struct index_has_const_size<SIndex<MetaT,S>>
+    { static constexpr bool value = true; };
+
+    /** ***
+	SIndex has static range size
+	@see index_expression_exists
+     */    
+    template <typename MetaT, SizeT S>
+    struct index_const_size<SIndex<MetaT,S>>
+    { static constexpr SizeT value = S; };
 }
 
 #endif
