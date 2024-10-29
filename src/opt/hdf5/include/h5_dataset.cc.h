@@ -22,7 +22,7 @@ namespace CNORXZ
 	Dataset& Dataset::init(const ArrayBase<T>& data)
 	{
 	    const hid_t tid = getTypeId(*data.data());
-	    VCHECK(tid);
+	    //VCHECK(tid);
 	    init(data.range(), tid);
 	    if(data.begin().formatIsTrivial()){
 		Vector<hsize_t> dims(mDataRange->dim());
