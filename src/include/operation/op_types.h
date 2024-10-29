@@ -159,6 +159,9 @@ namespace CNORXZ
         template <class Op>
         constexpr OpCont& operator+=(const Op& in);
 
+        template <class Op>
+        constexpr OpCont& operator-=(const Op& in);
+
         constexpr OpCont& operator=(const OpCont& in);
 
 	template <class PosT>
@@ -195,6 +198,9 @@ namespace CNORXZ
 
         template <class Op>
         constexpr OpRoot& operator+=(const Op& in);
+
+        template <class Op>
+        constexpr OpRoot& operator-=(const Op& in);
 
         constexpr OpRoot& operator=(const OpRoot& in);
         

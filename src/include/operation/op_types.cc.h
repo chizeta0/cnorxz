@@ -238,6 +238,14 @@ namespace CNORXZ
     }
 
     template <typename T, class IndexT>
+    template <class Op>
+    constexpr OpCont<T,IndexT>& OpCont<T,IndexT>::operator-=(const Op& o)
+    {
+	OI::a(mIndex, [](auto& a1, const auto& a2) { a1 -= a2; }, o);
+        return *this;
+    }
+
+    template <typename T, class IndexT>
     constexpr OpCont<T,IndexT>& OpCont<T,IndexT>::operator=(const OpCont<T,IndexT>& o)
     {
 	OI::a(mIndex, [](auto& a1, const auto& a2) { a1 = a2; }, o);
@@ -325,6 +333,14 @@ namespace CNORXZ
     constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator+=(const Op& o)
     {
 	OI::a(mIndex, [](auto& a, const auto& b) { a += b; }, o);
+        return *this;
+    }
+
+    template <typename T, class IndexT>
+    template <class Op>
+    constexpr OpRoot<T,IndexT>& OpRoot<T,IndexT>::operator-=(const Op& o)
+    {
+	OI::a(mIndex, [](auto& a, const auto& b) { a -= b; }, o);
         return *this;
     }
 
