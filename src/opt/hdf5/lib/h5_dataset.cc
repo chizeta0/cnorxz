@@ -105,9 +105,56 @@ namespace CNORXZ
 	    return *this;
 	}
 
+	Dataset& Dataset::init(const RangePtr& dataRange, hid_t type, const void* data)
+	{
+	    init(dataRange, type);
+	    Vector<hsize_t> dims(mDataRange->dim());
+	    for(SizeT i = 0; i != dims.size(); ++i){
+		dims[i] = mDataRange->sub(i)->size();
+	    }
+	    const hid_t memspace = H5Screate_simple(dims.size(), dims.data(), NULL);
+	    H5Dwrite(mId, mType, memspace, mFilespace, H5P_DEFAULT, data);
+	    H5Sclose(memspace);
+	    return *this;
+	}
+
+	void Dataset::readbase(void* dest, RangePtr readrange, Sptr<YIndex> beg) const
+	{
+	    // TODO: Check if readrange is compatible with mDataRange!!!
+	    if(not readrange){
+		readrange = mDataRange;
+	    }
+	    Vector<hsize_t> dims(readrange->dim());
+	    for(SizeT i = 0; i != dims.size(); ++i){
+		dims[i] = readrange->sub(i)->size();
+	    }
+	    if(beg){
+		const Vector<hsize_t> fpos = mkOff(beg);
+		H5Sselect_hyperslab(mFilespace, H5S_SELECT_SET, fpos.data(), NULL, dims.data(), NULL);
+	    }
+	    const hid_t mem_space_id = H5Screate_simple(static_cast<hsize_t>(dims.size()),
+							dims.data(), nullptr);
+	    const hid_t xfer_plist_id = H5Pcreate(H5P_DATASET_XFER);
+	    //MArray<T> out(readrange);
+	    const herr_t err = H5Dread(mId, mType, mem_space_id, mFilespace, xfer_plist_id, dest);
+	    CXZ_ASSERT(err >= 0, "error while reading dataset '" << mName
+		       << "', errorcode :" << err);
+	    H5Pclose(xfer_plist_id);
+	    H5Sclose(mem_space_id);
+	}
+
 	const RangePtr& Dataset::dataRange() const
 	{
 	    return mDataRange;
+	}
+	
+        Vector<hsize_t> Dataset::mkOff(const Sptr<YIndex>& beg) const
+	{
+	    Vector<hsize_t> off(beg->dim());
+	    for(SizeT i = 0; i != beg->dim(); ++i){
+		off[i] = beg->pack().get(i)->lex();
+	    }
+	    return off;
 	}
 	
     }

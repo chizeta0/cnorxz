@@ -48,8 +48,22 @@ namespace CNORXZ
 		@param dataRange A potentially multi-dimensional range characterizing the dataset.
 		@param type Data type id.
 	     */
-	    Dataset& init(const RangePtr& dataRange, hid_t type);
+	    virtual Dataset& init(const RangePtr& dataRange, hid_t type);
 
+	    /** Initalize the dataset.
+		@param dataRange A potentially multi-dimensional range characterizing the dataset.
+		@param type Data type id.
+		@param data Pointer to raw data.
+	     */
+	    virtual Dataset& init(const RangePtr& dataRange, hid_t type, const void* data);
+
+	    /** Read the dataset.
+		@param dest Pointer to destination.
+		@param readrange Range of the destination data.
+		@param beg Position within the file space.
+	     */
+	    virtual void readbase(void* dest, RangePtr readrange, Sptr<YIndex> beg) const;
+	    
 	    /** Initalize the dataset.
 		@param data Array containing the dataset.
 	    */
@@ -62,6 +76,8 @@ namespace CNORXZ
 	    const RangePtr& dataRange() const;
 	    
 	protected:
+	    Vector<hsize_t> mkOff(const Sptr<YIndex>& beg) const;
+	    
 	    RangePtr mDataRange; /**< The data range. */
 	    hid_t mType; /**< The data type identifier. */
 	    hid_t mFilespace; /**< The hdf5 file space identifier. */
@@ -89,6 +105,14 @@ namespace CNORXZ
 	     */
 	    MArray<T> read() const;
 
+	    /** Read the dataset using range of given index.
+		The index position is ignored.
+		@param idx Index specifying the range type.
+		@return Array containing the dataset values.
+	     */
+	    template <class I, typename M>
+	    MArray<T> read(const IndexInterface<I,M>& idx) const;
+
 	    /** Read a given subset of the dataset.
 		The subset needs to be hypercubic.
 		@param beg Index indicating the begin edge of the hypercube.
@@ -100,8 +124,10 @@ namespace CNORXZ
 
 	private:
 
+	    //template <class I, typename M>
+	    //Vector<hsize_t> mkFPos(const IndexInterface<I,M>& beg) const;
 	    template <class I, typename M>
-	    Vector<hsize_t> mkFPos(const IndexInterface<I,M>& beg) const;
+	    Sptr<YIndex> toYptr(const IndexInterface<I,M>& beg) const;
 	};
     }
 }
