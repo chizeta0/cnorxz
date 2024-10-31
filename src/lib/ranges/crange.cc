@@ -225,6 +225,11 @@ namespace CNORXZ
 	return toString(pos);
     }
 
+    String CRange::stype() const
+    {
+	return "C";
+    }
+
     const TypeInfo& CRange::type() const
     {
 	return typeid(CRange);

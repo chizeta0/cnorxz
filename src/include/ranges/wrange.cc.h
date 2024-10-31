@@ -357,6 +357,12 @@ namespace CNORXZ
     }
     
     template <typename MetaT>
+    String WRange<MetaT>::stype() const
+    {
+	return "W";
+    }
+    
+    template <typename MetaT>
     const TypeInfo& WRange<MetaT>::type() const
     {
 	return typeid(WRange<MetaT>);

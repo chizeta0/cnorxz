@@ -605,6 +605,12 @@ namespace CNORXZ
 	{
 	    return (this->begin()+pos).stringMeta();
 	}
+
+	template <class RangeI, class RangeK>
+	String RRange<RangeI,RangeK>::stype() const
+	{
+	    return "R";
+	}
 	
 	template <class RangeI, class RangeK>
 	const TypeInfo& RRange<RangeI,RangeK>::type() const

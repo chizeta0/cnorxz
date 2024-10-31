@@ -118,7 +118,7 @@ namespace CNORXZ
 	 */
 	virtual MArray<RangePtr> sub() const;
 
-	/** Range size */
+	/** Range size. */
 	virtual SizeT size() const = 0;
 
 	/** Range dimension.
@@ -128,42 +128,45 @@ namespace CNORXZ
 	 */
 	virtual SizeT dim() const = 0;
 
-	/** Range type */
+	/** Range type. */
 	virtual const TypeInfo& type() const = 0;
 
-	/** The type of the range's meta data */
+	/** The type of the range's meta data. */
 	virtual const TypeInfo& metaType() const = 0;
 
+	/** String identifier indicating the range's type. */
+	virtual String stype() const = 0;
+	
 	/** Meta data in string format at lexicographic position pos.
-	    @param pos size type argument
+	    @param pos size type argument.
 	 */
         virtual String stringMeta(SizeT pos) const = 0;
 
 	/** Return DIndex iterating over the range's parameter space.
-	    @param pos index position, size type argument
+	    @param pos index position, size type argument.
 	 */
 	virtual DIndex index(SizeT pos = 0) const = 0;
 
 	/** Create extended range.
 	    Creates a new range consisting of the meta data spaces
-	    of this range and the range r
-	    @param r shared pointer to range used for extension
+	    of this range and the range r.
+	    @param r shared pointer to range used for extension.
 	 */
 	virtual RangePtr extend(const RangePtr& r) const = 0;
 
-	/** check if ranges are the same */
+	/** check if ranges are the same. */
 	bool operator==(const RangeBase& in) const;
 
-	/** check if ranges are not the same */
+	/** check if ranges are not the same. */
 	bool operator!=(const RangeBase& in) const;
 
-	/** return the range's uuid */
+	/** return the range's uuid. */
         Uuid id() const;
 
-	/** return a DIndex pointing to the range's first element */
+	/** return a DIndex pointing to the range's first element. */
 	DIndex begin() const;
 
-	/** return a DIndex pointing to the element after the range's last element */
+	/** return a DIndex pointing to the element after the range's last element. */
 	DIndex end() const;
 	
 	friend RangeFactoryBase;

@@ -320,6 +320,7 @@ namespace CNORXZ
 	virtual SizeT size() const override final;
 	virtual SizeT dim() const override final;
 	virtual String stringMeta(SizeT pos) const override final;
+	virtual String stype() const override final;
 	virtual const TypeInfo& type() const override final;
 	virtual const TypeInfo& metaType() const override final;
 	virtual RangePtr extend(const RangePtr& r) const override final;

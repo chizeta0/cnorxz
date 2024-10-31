@@ -327,6 +327,12 @@ namespace CNORXZ
     }
     
     template <typename MetaT>
+    String URange<MetaT>::stype() const
+    {
+	return "U";
+    }
+    
+    template <typename MetaT>
     const TypeInfo& URange<MetaT>::type() const
     {
 	return typeid(URange<MetaT>);

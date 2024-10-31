@@ -295,6 +295,12 @@ namespace CNORXZ
     }
 
     template <typename MetaType, SizeT S>
+    String SRange<MetaType,S>::stype() const
+    {
+	return "S";
+    }
+    
+    template <typename MetaType, SizeT S>
     const TypeInfo& SRange<MetaType,S>::type() const 
     {
 	return typeid(SRange<MetaType,S>);

@@ -321,6 +321,12 @@ namespace CNORXZ
     }
     
     template <class RangeT>
+    String PRange<RangeT>::stype() const
+    {
+	return "P";
+    }
+
+    template <class RangeT>
     const TypeInfo& PRange<RangeT>::type() const
     {
 	return typeid(PRange<RangeT>);

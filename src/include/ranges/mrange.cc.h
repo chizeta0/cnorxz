@@ -773,6 +773,12 @@ namespace CNORXZ
     }
 
     template <class... Ranges>
+    String MRange<Ranges...>::stype() const
+    {
+	return "M";
+    }
+
+    template <class... Ranges>
     const TypeInfo& MRange<Ranges...>::type() const
     {
 	return typeid(MRange<Ranges...>);

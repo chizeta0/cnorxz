@@ -628,6 +628,11 @@ namespace CNORXZ
 	}
 	return out;
     }
+
+    String YRange::stype() const
+    {
+	return "Y";
+    }
     
     const TypeInfo& YRange::type() const
     {
