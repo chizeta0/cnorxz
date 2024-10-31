@@ -39,6 +39,13 @@ namespace CNORXZ
 	    return pos - beg;
 	}
 
+	template <class F>
+	decltype(auto) Group::get(const String& name, F&& f)
+	{
+	    auto i = this->getIndexTo(name);
+	    return f(*i);
+	}
+	
 	template <typename... Ts>
 	Sptr<STable<Ts...>> Group::getTable(const String& name, Tuple<Ts...> proto)
 	{
@@ -105,6 +112,17 @@ namespace CNORXZ
 		tab->appendRecord(d);
 	    }
 	    *ii = tab;
+	    return *this;
+	}
+
+	template <class F, typename... Args>
+	Group& Group::add(const String& name, F&& f, const Args&... args)
+	{
+	    CXZ_ASSERT(this->isOpen(), "tried to extend closed group");
+	    Vector<String> nvec({name});
+	    mCont.extend( URangeFactory<String>( nvec ).create() );
+	    auto ii = getIndexTo(name);
+	    *ii = f(args...);
 	    return *this;
 	}
 

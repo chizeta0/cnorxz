@@ -96,6 +96,13 @@ namespace CNORXZ
 	     */
 	    const MArray<ContentPtr>& get() const;
 
+	    /** Get object contained by this group.
+		@param name Object name.
+		@param f Function to interpret the object.
+	     */
+	    template <class F>
+	    decltype(auto) get(const String& name, F&& f);
+	    
 	    /** Add a new group to this group.
 		@param name Name of the created group.
 	     */
@@ -118,6 +125,13 @@ namespace CNORXZ
 	     */
 	    template <typename T>
 	    Group& addDataset(const String& name, const ArrayBase<T>& data);
+
+	    /** Add new object to this group.
+		@param name Object name.
+		@param f Function used to create the object.
+	     */
+	    template <class F, typename... Args>
+	    Group& add(const String& name, F&& f, const Args&... args);
 
 	    /** Iterate over all group elements (const).
 		@param f function object to be executed on each group element.

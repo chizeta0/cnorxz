@@ -22,8 +22,6 @@ namespace CNORXZ
 	Dataset& Dataset::init(const ArrayBase<T>& data)
 	{
 	    const hid_t tid = getTypeId(*data.data());
-	    //VCHECK(tid);
-	    //init(data.range(), tid);
 	    if(data.begin().formatIsTrivial()){
 		init(data.range(), tid, data.data());
 	    }
@@ -41,7 +39,7 @@ namespace CNORXZ
 	template <typename T>
 	MArray<T> SDataset<T>::read() const
 	{
-	    MArray<T> out(mDataRange);
+	    MArray<T> out(mFileRange);
 	    readbase(out.data(), nullptr, nullptr);
 	    return out;
 	}
@@ -50,12 +48,12 @@ namespace CNORXZ
 	template <class I, typename M>
 	MArray<T> SDataset<T>::read(const IndexInterface<I,M>& idx) const
 	{
-	    CXZ_ASSERT(idx.dim() == mDataRange->dim(), "got index of inconsistent dimension, got"
-		       << idx.dim() << ", expected " << mDataRange->dim());
+	    CXZ_ASSERT(idx.dim() == mFileRange->dim(), "got index of inconsistent dimension, got"
+		       << idx.dim() << ", expected " << mFileRange->dim());
 	    const RangePtr outrange = idx.range();
-	    CXZ_ASSERT(outrange->size() == mDataRange->size(),
+	    CXZ_ASSERT(outrange->size() == mFileRange->size(),
 		       "got index of range of inconsistent size, expected "
-		       << mDataRange->size() << ", got " << outrange->size());
+		       << mFileRange->size() << ", got " << outrange->size());
 	    MArray<T> out(outrange);
 	    readbase(out.data(), outrange, nullptr);
 	    return out;
@@ -65,8 +63,8 @@ namespace CNORXZ
 	template <class I, typename M>
 	MArray<T> SDataset<T>::read(const IndexInterface<I,M>& beg, const IndexInterface<I,M>& end) const
 	{
-	    CXZ_ASSERT(beg.dim() == mDataRange->dim(), "got index of inconsistent dimension, got"
-		       << beg.dim() << ", expected " << mDataRange->dim());
+	    CXZ_ASSERT(beg.dim() == mFileRange->dim(), "got index of inconsistent dimension, got"
+		       << beg.dim() << ", expected " << mFileRange->dim());
 	    const RangePtr outrange = beg.prange(end);
 	    MArray<T> out(outrange);
 	    readbase(out.data(), outrange, toYptr(beg));

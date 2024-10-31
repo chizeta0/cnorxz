@@ -57,6 +57,13 @@ namespace CNORXZ
 	     */
 	    virtual Dataset& init(const RangePtr& dataRange, hid_t type, const void* data);
 
+	    /** Write data into dataset.
+		@param dataRange A potentially multi-dimensional range characterizing the format of the data to be written.
+		@param pos Position on target.
+		@param data Pointer to raw data to be writte.
+	     */
+	    virtual Dataset& writebase(const RangePtr& dataRange, Sptr<YIndex> pos, const void* data);
+	    
 	    /** Read the dataset.
 		@param dest Pointer to destination.
 		@param readrange Range of the destination data.
@@ -78,14 +85,14 @@ namespace CNORXZ
 	protected:
 	    Vector<hsize_t> mkOff(const Sptr<YIndex>& beg) const;
 	    
-	    RangePtr mDataRange; /**< The data range. */
+	    RangePtr mFileRange; /**< The range of the dataset. */
 	    hid_t mType; /**< The data type identifier. */
 	    hid_t mFilespace; /**< The hdf5 file space identifier. */
 	    
 	};
 
 	/** ****
-	    Class to handle hdf5 datasets, the value type is known at compile time.
+	    Class to handle hdf5 datasets, the value type is assumed to be known at compile time.
 	    @tparam T Dataset value type.
 	 */
 	template <typename T>
