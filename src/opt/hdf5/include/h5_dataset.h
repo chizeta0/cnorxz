@@ -48,14 +48,14 @@ namespace CNORXZ
 		@param dataRange A potentially multi-dimensional range characterizing the dataset.
 		@param type Data type id.
 	     */
-	    virtual Dataset& init(const RangePtr& dataRange, hid_t type);
+	    virtual Dataset& initbase(const RangePtr& dataRange, hid_t type);
 
 	    /** Initalize the dataset.
 		@param dataRange A potentially multi-dimensional range characterizing the dataset.
 		@param type Data type id.
 		@param data Pointer to raw data.
 	     */
-	    virtual Dataset& init(const RangePtr& dataRange, hid_t type, const void* data);
+	    virtual Dataset& initbase(const RangePtr& dataRange, hid_t type, const void* data);
 
 	    /** Write data into dataset.
 		@param dataRange A potentially multi-dimensional range characterizing the format of the data to be written.

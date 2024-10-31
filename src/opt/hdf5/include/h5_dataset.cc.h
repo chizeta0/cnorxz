@@ -23,7 +23,7 @@ namespace CNORXZ
 	{
 	    const hid_t tid = getTypeId(*data.data());
 	    if(data.begin().formatIsTrivial()){
-		init(data.range(), tid, data.data());
+		initbase(data.range(), tid, data.data());
 	    }
 	    else {
 		CXZ_ERROR("Got array type with non-trivial format; non-contiguous data formats are not supported yet!");

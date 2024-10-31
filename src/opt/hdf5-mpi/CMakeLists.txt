@@ -1,0 +1,33 @@
+
+find_package(HDF5 REQUIRED COMPONENTS C HL)
+if(HDF5_FOUND)
+  include_directories(${HDF5_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "HDF5 not found")
+endif()
+message(STATUS "hdf5 libs = ${HDF5_LIBRARIES}")
+set(HDF5_LIBS ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES})
+
+find_package(MPI REQUIRED)
+if(MPI_FOUND)
+  include_directories(${MPI_C_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "MPI not found")
+endif()
+message(STATUS "mpi lib = ${MPI_C_LIBRARIES}")
+set(MPI_LIBS ${MPI_LIBRARIES})
+
+if(HDF5_IS_PARALLEL)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../hdf5/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../mpi/include)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+  add_subdirectory(lib)
+  #add_subdirectory(tests)
+
+  install(CODE "execute_process(COMMAND sed -i \"s|CXZ_H5_MPI_BUILD_MODE 1|CXZ_H5_MPI_BUILD_MODE 0|g;\" ${CMAKE_CURRENT_SOURCE_DIR}/include/h5_mpi_base.h)")
+  install(DIRECTORY include/ DESTINATION ${INSTALL_PATH}/include/cnorxz/hdf5-mpi)
+  install(CODE "execute_process(COMMAND sed -i \"s|CXZ_H5_MPI_BUILD_MODE 0|CXZ_H5_MPI_BUILD_MODE 1|g;\" ${CMAKE_CURRENT_SOURCE_DIR}/include/h5_mpi_base.h)")
+else()
+  message(WARNING "no parallel support in available HDF5 library")
+endif()

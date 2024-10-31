@@ -2,7 +2,7 @@
 /**
 
    @file opt/hdf5/lib/h5_file.cc
-   @brief Group implementations.
+   @brief File implementations.
 
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
@@ -47,14 +47,14 @@ namespace CNORXZ
 	    if(mRo){
 		CXZ_ASSERT( ex == 1, "could not open file as read-only: '"
 			    << fn << "' does not exist'");
-		mId = H5Fopen( fn.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
+		mId = H5Fopen( fn.c_str(), H5F_ACC_RDONLY, mFAPL_id );
 	    }
 	    else {
 		if(ex == 1){
-		    mId = H5Fopen( fn.c_str(), H5F_ACC_RDWR, H5P_DEFAULT );
+		    mId = H5Fopen( fn.c_str(), H5F_ACC_RDWR, mFAPL_id );
 		}
 		else {
-		    mId = H5Fcreate( fn.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
+		    mId = H5Fcreate( fn.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, mFAPL_id );
 		}
 	    }
 	    CXZ_ASSERT( mId > 0, "error while opening file '" << fn << "'" );

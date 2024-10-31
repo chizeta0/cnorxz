@@ -16,4 +16,8 @@ if(ENABLE_mpi)
   add_subdirectory(opt/mpi)
 endif()
 
+if(ENABLE_hdf5 AND ENABLE_mpi)
+  add_subdirectory(opt/hdf5-mpi)
+endif()
+
 install(DIRECTORY include/ DESTINATION ${INSTALL_PATH}/include/cnorxz)

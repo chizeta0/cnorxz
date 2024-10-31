@@ -2,7 +2,7 @@
 /**
 
    @file opt/hdf5/include/h5_file.h
-   @brief Group declaration.
+   @brief File declaration.
 
    Copyright (c) 2024 Christian Zimmermann. All rights reserved.
    Mail: chizeta@f3l.de
@@ -52,8 +52,9 @@ namespace CNORXZ
 	     */
 	    bool ishdf5() const;
 
-	private:
+	protected:
 	    bool mRo = true;
+	    hid_t mFAPL_id = H5P_DEFAULT;
 	};
     }
 }

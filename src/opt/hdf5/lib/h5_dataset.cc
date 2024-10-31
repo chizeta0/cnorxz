@@ -84,7 +84,7 @@ namespace CNORXZ
 	    return H5Lexists(mParent->id(), mName.c_str(), H5P_DEFAULT) > 0;
 	}
 
-	Dataset& Dataset::init(const RangePtr& fileRange, hid_t type)
+	Dataset& Dataset::initbase(const RangePtr& fileRange, hid_t type)
 	{
 	    CXZ_ASSERT(not isOpen(), "tried to initialize dataset that is already extisting");
 	    mFileRange = fileRange;
@@ -105,9 +105,9 @@ namespace CNORXZ
 	    return *this;
 	}
 
-	Dataset& Dataset::init(const RangePtr& writeRange, hid_t type, const void* data)
+	Dataset& Dataset::initbase(const RangePtr& writeRange, hid_t type, const void* data)
 	{
-	    init(writeRange, type);
+	    initbase(writeRange, type);
 	    writebase(writeRange, std::make_shared<YIndex>(mFileRange), data);
 	    return *this;
 	}
