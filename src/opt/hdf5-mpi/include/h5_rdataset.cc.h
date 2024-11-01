@@ -23,7 +23,7 @@ namespace CNORXZ
 	{
 	    const hid_t tid = getTypeId(*data.data());
 	    if(data.begin().formatIsTrivial()){
-		init(data.range(), tid, data.data());
+		dynamic_cast<Dataset*>(this)->initbase(data.range(), tid, data.data());
 	    }
 	    else {
 		CXZ_ERROR("Got array type with non-trivial format; non-contiguous data formats are not supported yet!");
@@ -39,7 +39,7 @@ namespace CNORXZ
 	template <typename T>
 	mpi::RArray<T> SRDataset<T>::read(const RangePtr& geom) const
 	{
-	    RangePtr rr = mpi::rrange(mFileRange, geom);
+	    auto rr = rangeCast<mpi::RRange<YRange,YRange>>( mpi::rrange(mFileRange, geom) );
 	    mpi::RArray<T> out(rr);
 	    readbase(out.data(), rr, nullptr);
 	    return out;
@@ -48,3 +48,4 @@ namespace CNORXZ
     }
 }
     
+#endif

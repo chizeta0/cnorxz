@@ -43,7 +43,7 @@ namespace CNORXZ
 	decltype(auto) Group::get(const String& name, F&& f)
 	{
 	    auto i = this->getIndexTo(name);
-	    return f(*i);
+	    return f(name,this,*i);
 	}
 	
 	template <typename... Ts>
@@ -122,7 +122,7 @@ namespace CNORXZ
 	    Vector<String> nvec({name});
 	    mCont.extend( URangeFactory<String>( nvec ).create() );
 	    auto ii = getIndexTo(name);
-	    *ii = f(args...);
+	    *ii = f(name, this, args...);
 	    return *this;
 	}
 

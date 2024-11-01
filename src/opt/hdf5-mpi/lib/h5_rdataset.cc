@@ -26,6 +26,11 @@ namespace CNORXZ
 	    }
 	}
 
+	RDataset::~RDataset()
+	{
+	    this->close();
+	}
+
 	RDataset& RDataset::initbase(const RangePtr& fileRange, hid_t type)
 	{
 	    RangePtr fr = fileRange;
@@ -42,6 +47,7 @@ namespace CNORXZ
 		fr = yrange(rs);
 	    }
 	    Dataset::initbase(fr, type);
+	    MPI_Barrier(MPI_COMM_WORLD);
 	    return *this;
 	}
 	    
@@ -49,14 +55,15 @@ namespace CNORXZ
 	{
 	    //bool todo = true;
 	    RangePtr dr = writeRange;
-	    if(dr->stype() == "R"){
+	    bool parallel = dr->stype() == "R";
+	    if(parallel){
 		dr = writeRange->sub(1);
 	    }
 	    CXZ_ASSERT(dr->dim() == mFileRange->dim(), "dimension of data range ("
 		       << dr->dim() << ") different from dimension of file range ("
 		       << mFileRange->dim() << ")");
 	    Vector<hsize_t> offset(mFileRange->dim());
-	    if(dr->stype() == "R"){
+	    if(parallel){
 		mpi::RIndex<YIndex,YIndex> idx(writeRange);
 		idx.localize();
 		const SizeT rat = mpi::getNumRanks() / idx.rankI()->lmax().val();
@@ -79,6 +86,7 @@ namespace CNORXZ
 	    for(SizeT i = 0; i != dims.size(); ++i){
 		dims[i] = dr->sub(i)->size();
 	    }
+	    VCHECK(toString(offset));
 	    H5Sselect_hyperslab(mFilespace, H5S_SELECT_SET, offset.data(), NULL, dims.data(), NULL);
 	    const hid_t memspace = H5Screate_simple(dims.size(), dims.data(), NULL);
 	    const hid_t xfer_plist_id = H5Pcreate(H5P_DATASET_XFER);
@@ -86,23 +94,25 @@ namespace CNORXZ
 	    H5Dwrite(mId, mType, memspace, mFilespace, xfer_plist_id, data);
 	    H5Pclose(xfer_plist_id);
 	    H5Sclose(memspace);
+	    MPI_Barrier(MPI_COMM_WORLD);
 	    return *this;
 	}
 
-	void Dataset::readbase(void* dest, RangePtr readRange, Sptr<YIndex> beg) const
+	void RDataset::readbase(void* dest, RangePtr readRange, Sptr<YIndex> beg) const
 	{
 	    RangePtr dr = readRange;
+	    bool parallel = dr->stype() == "R";
 	    if(not dr){
 		dr = mFileRange;
 	    }
-	    if(dr->stype() == "R"){
+	    if(parallel){
 		dr = readRange->sub(1);
 	    }
 	    CXZ_ASSERT(dr->dim() == mFileRange->dim(), "dimension of data range ("
 		       << dr->dim() << ") different from dimension of file range ("
 		       << mFileRange->dim() << ")");
 	    Vector<hsize_t> offset(mFileRange->dim());
-	    if(dr->stype() == "R"){
+	    if(parallel){
 		mpi::RIndex<YIndex,YIndex> idx(readRange);
 		idx.localize();
 		const SizeT rat = mpi::getNumRanks() / idx.rankI()->lmax().val();
@@ -123,7 +133,7 @@ namespace CNORXZ
 
 	    Vector<hsize_t> dims(mFileRange->dim());
 	    for(SizeT i = 0; i != dims.size(); ++i){
-		dims[i] = readRange->sub(i)->size();
+		dims[i] = dr->sub(i)->size();
 	    }
 	    H5Sselect_hyperslab(mFilespace, H5S_SELECT_SET, offset.data(), NULL, dims.data(), NULL);
 	    const hid_t mem_space_id = H5Screate_simple(static_cast<hsize_t>(dims.size()),
@@ -136,6 +146,7 @@ namespace CNORXZ
 		       << "', errorcode :" << err);
 	    H5Pclose(xfer_plist_id);
 	    H5Sclose(mem_space_id);
+	    MPI_Barrier(MPI_COMM_WORLD);
 	}
 
 	bool RDataset::checkHaveParallel() const

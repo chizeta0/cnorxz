@@ -56,6 +56,13 @@ namespace CNORXZ
 	
 	Group& Group::close()
 	{
+	    if(mCont.range() != nullptr){
+		for(auto& x: mCont){
+		    if(x != nullptr){
+			x->close();
+		    }
+		}
+	    }
 	    if(mId != 0){
 		H5Gclose(mId);
 	    }

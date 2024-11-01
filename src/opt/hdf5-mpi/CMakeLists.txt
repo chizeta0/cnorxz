@@ -23,7 +23,7 @@ if(HDF5_IS_PARALLEL)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
   add_subdirectory(lib)
-  #add_subdirectory(tests)
+  add_subdirectory(tests)
 
   install(CODE "execute_process(COMMAND sed -i \"s|CXZ_H5_MPI_BUILD_MODE 1|CXZ_H5_MPI_BUILD_MODE 0|g;\" ${CMAKE_CURRENT_SOURCE_DIR}/include/h5_mpi_base.h)")
   install(DIRECTORY include/ DESTINATION ${INSTALL_PATH}/include/cnorxz/hdf5-mpi)

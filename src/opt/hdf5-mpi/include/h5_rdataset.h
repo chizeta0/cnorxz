@@ -36,6 +36,7 @@ namespace CNORXZ
 		@param _parent Parent content object.
 	     */
 	    RDataset(const String& name, const ContentBase* _parent);
+	    virtual ~RDataset();
 
 	    virtual RDataset& initbase(const RangePtr& fileRange, hid_t type) override;
 	    virtual RDataset& writebase(const RangePtr& writeRange, Sptr<YIndex> pos,
@@ -46,7 +47,7 @@ namespace CNORXZ
 		@param data Array containing the dataset.
 	    */
 	    template <typename T>
-	    Dataset& init(const mpi::RArray<T>& data);
+	    RDataset& init(const mpi::RArray<T>& data);
 
 	private:
 	    bool checkHaveParallel() const;

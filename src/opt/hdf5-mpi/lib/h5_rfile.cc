@@ -25,6 +25,7 @@ namespace CNORXZ
 
 	RFile::~RFile()
 	{
+	    this->close();
 	    if(mFAPL_id){
 		H5Pclose(mFAPL_id);
 	    }
