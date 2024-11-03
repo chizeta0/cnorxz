@@ -11,5 +11,6 @@
 
 #include "h5_rfile.h"
 #include "h5_rdataset.h"
+#include "h5_mpi_utils.h"
 
 #include "cnorxz_hdf5_mpi.cc.h"

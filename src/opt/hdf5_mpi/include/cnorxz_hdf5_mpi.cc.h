@@ -10,3 +10,4 @@
  **/
 
 #include "h5_rdataset.cc.h"
+#include "h5_mpi_utils.cc.h"

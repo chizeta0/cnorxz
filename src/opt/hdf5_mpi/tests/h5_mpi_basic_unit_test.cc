@@ -75,17 +75,19 @@ namespace
 	h5f.open();
 	h5f.addGroup("dir");
 	auto dir = h5f.getGroup("dir");
-	dir->add("dat", [](const String& name, const ContentBase* par, const RArray<Double>& d)
-	{ auto o = std::make_shared<SRDataset<Double>>( name, par ); o->init(d); return o; }, mA );
+	//dir->add("dat", [](const String& name, const ContentBase* par, const RArray<Double>& d)
+	//{ auto o = std::make_shared<SRDataset<Double>>( name, par ); o->init(d); return o; }, mA );
+	addRDataset(*dir, "dat", mA);
 	h5f.close();
     }
 
     TEST_F(RDataset_test, Read)
     {
 	RFile h5f(mFilename, false);
-	auto dat = h5f.open().getGroup("dir")->open().get("dat", [](const String& name, const ContentBase* par, auto& i)
-	{ (*i)->close(); auto dset = std::make_shared<SRDataset<Double>>(name, par); *i = dset;
-	    return dset; } );
+	//auto dat = h5f.open().getGroup("dir")->open().get("dat", [](const String& name, const ContentBase* par, auto& i)
+	//{ (*i)->close(); auto dset = std::make_shared<SRDataset<Double>>(name, par); *i = dset;
+	//    return dset; } );
+	auto dat = getRDataset<Double>(h5f.open().getGroup("dir")->open(),"dat");
 	auto a = dat->read(mGeom);
 	h5f.close();
 
