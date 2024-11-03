@@ -12,7 +12,7 @@
 #ifndef __cxz_h5_mpi_utils_h__
 #define __cxz_h5_mpi_utils_h__
 
-#include "h5_group.h"
+#include "h5_mpi_base.h"
 #include "h5_rdataset.h"
 
 namespace CNORXZ
