@@ -36,7 +36,7 @@ namespace CNORXZ
 		@param _parent Parent content object.
 	     */
 	    RDataset(const String& name, const ContentBase* _parent);
-	    virtual ~RDataset();
+	    //virtual ~RDataset();
 
 	    virtual RDataset& initbase(const RangePtr& fileRange, hid_t type) override;
 	    virtual RDataset& writebase(const RangePtr& writeRange, Sptr<YIndex> pos,

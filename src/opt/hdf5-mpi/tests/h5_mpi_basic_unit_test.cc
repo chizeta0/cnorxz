@@ -83,31 +83,11 @@ namespace
     TEST_F(RDataset_test, Read)
     {
 	RFile h5f(mFilename, false);
-	h5f.open();
-	//h5f.addGroup("dir");
-	auto dir = h5f.getGroup("dir");
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
-	dir->open();
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
-	auto dat = dir->get("dat", [](const String& name, const ContentBase* par, auto& i)
-	{ i->close(); auto dset = std::make_shared<SRDataset<Double>>(name, par); i = dset;
+	auto dat = h5f.open().getGroup("dir")->open().get("dat", [](const String& name, const ContentBase* par, auto& i)
+	{ (*i)->close(); auto dset = std::make_shared<SRDataset<Double>>(name, par); *i = dset;
 	    return dset; } );
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
 	auto a = dat->read(mGeom);
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
-	dat->close();
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
-	dir->close();
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
 	h5f.close();
-	CHECK;
-	MPI_Barrier(MPI_COMM_WORLD);
 
 	auto i = std::make_shared<CIndex>(mLR);
 	i->ifor( operation( [](Double a, Double b) { EXPECT_EQ(a,b); }, mA(i), a(i) ), NoF{} )();

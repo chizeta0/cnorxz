@@ -21,14 +21,6 @@ namespace CNORXZ
 	{
 	    CXZ_ASSERT( checkHaveParallel(), "tried to open dataset in parallel mode while file"
 			<< parent()->filename() << " was opened in serial mode");
-	    if(exists()){
-		open();
-	    }
-	}
-
-	RDataset::~RDataset()
-	{
-	    this->close();
 	}
 
 	RDataset& RDataset::initbase(const RangePtr& fileRange, hid_t type)
@@ -86,7 +78,6 @@ namespace CNORXZ
 	    for(SizeT i = 0; i != dims.size(); ++i){
 		dims[i] = dr->sub(i)->size();
 	    }
-	    VCHECK(toString(offset));
 	    H5Sselect_hyperslab(mFilespace, H5S_SELECT_SET, offset.data(), NULL, dims.data(), NULL);
 	    const hid_t memspace = H5Screate_simple(dims.size(), dims.data(), NULL);
 	    const hid_t xfer_plist_id = H5Pcreate(H5P_DATASET_XFER);

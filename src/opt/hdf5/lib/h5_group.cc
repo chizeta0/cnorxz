@@ -100,7 +100,6 @@ namespace CNORXZ
 		const String next = name.substr(delimpos+1);
 		auto g = getGroup(thisname);
 		g->open();
-		CHECK;
 		return g->get(next);
 	    }
 	    auto i = this->getIndexTo(thisname);
@@ -170,8 +169,8 @@ namespace CNORXZ
 	{
 	    const hid_t id = H5Dopen(loc_id, name, H5P_DEFAULT);
 	    if(not H5Aexists(id, "CLASS")){
-		return false;
 		H5Dclose(id);
+		return false;
 	    }
 	    hid_t attrid = H5Aopen(id, "CLASS", H5P_DEFAULT);
 	    const hid_t atype = H5Aget_type(attrid);

@@ -43,7 +43,7 @@ namespace CNORXZ
 	decltype(auto) Group::get(const String& name, F&& f)
 	{
 	    auto i = this->getIndexTo(name);
-	    return f(name,this,*i);
+	    return f(name,this,i);
 	}
 	
 	template <typename... Ts>
