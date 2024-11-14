@@ -17,6 +17,7 @@
 #include "wrange.cc.h"
 #include "srange.cc.h"
 #include "crange.cc.h"
+#include "yrange.cc.h"
 #include "prange.cc.h"
 #include "dindex.cc.h"
 #include "lindex.cc.h"

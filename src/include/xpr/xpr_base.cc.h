@@ -16,6 +16,35 @@
 
 namespace CNORXZ
 {
+    // TODO: move to a better place!!!
+    template <class PosT>
+    struct PosFromDPos
+    {
+	static constexpr decltype(auto) mk(const DPos& pos)
+	{
+	    if constexpr(std::is_same<PosT,DPos>::value or std::is_same<PosT,DPosRef>::value){
+		return pos;
+	    }
+	    else {
+		return UPos(pos.val());
+	    }
+	}
+    };
+
+    template <class BPosT, class NPosT>
+    struct PosFromDPos<MPos<BPosT,NPosT>>
+    {
+	static constexpr decltype(auto) mk(const DPos& pos)
+	{
+	    return mkMPos( PosFromDPos<BPosT>::mk(pos), PosFromDPos<NPosT>::mk( pos.sub() ) );
+	}
+    };
+    
+    template <class PosT>
+    constexpr decltype(auto) mkMPosFromDPos(const DPos& pos)
+    {
+	return PosFromDPos<PosT>::mk(pos);
+    }
     
     /*==========+
      |   VXpr   |
@@ -35,13 +64,28 @@ namespace CNORXZ
     template <typename T, class Xpr>
     T VXpr<T,Xpr>::vexec(const DPos& last) const
     {
-	return (*this)(last);
+	typedef typename std::remove_reference<decltype(this->rootSteps(IndexId<0>{}))>::type Ext;
+	typedef decltype((*this)()) RetT;
+	if constexpr(std::is_same<RetT,void>::value){
+	    (*this)(mkMPosFromDPos<Ext>(last));
+	    return None {};
+	}
+	else {
+	    return (*this)(mkMPosFromDPos<Ext>(last));
+	}
     }
 
     template <typename T, class Xpr>
     T VXpr<T,Xpr>::vexec() const
     {
-	return (*this)();
+	typedef decltype((*this)()) RetT;
+	if constexpr(std::is_same<RetT,void>::value){
+	    (*this)();
+	    return None {};
+	}
+	else {
+	    return (*this)();
+	}
     }
     
     template <typename T, class Xpr>

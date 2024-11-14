@@ -154,6 +154,10 @@ namespace CNORXZ
 	/** @copydoc IndexInterface::ifor() */
 	DXpr<None> ifor(const DXpr<None>& xpr, NoF&& f) const;
 
+	/** @copydoc IndexInterface::ifor() */
+	template <class Xpr>
+	DXpr<None> ifor(const Xpr& xpr, NoF&& f) const;
+
 	/** @copydoc IndexInterface::formatIsTrivial() */
 	bool formatIsTrivial() const;
 
@@ -361,6 +365,12 @@ namespace CNORXZ
 	static Sptr<YRange> func(const RangePtr& r);
     };
 
+    /** Make index pack of a YIndex and another index.
+	@param a pointer to YIndex.
+	@param b pointer to another index.
+     */
+    template <class I>
+    decltype(auto) operator*(const Sptr<YIndex>& a, const Sptr<I>& b);
    
 }
 
