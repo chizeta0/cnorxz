@@ -248,6 +248,13 @@ namespace CNORXZ
 	    const SizeT blocks = i->pmax().val();
 	    setupBuffer(ai, required, *mA, mBuf, mMap, blocks);
 	}
+
+	template <typename T>
+	void RCArray<T>::clear() const
+	{
+	    mBuf.resize(0);
+	    mMap.resize(0);
+	}
 	
 	/*==============+
 	 |    RArray    |

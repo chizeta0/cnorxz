@@ -110,7 +110,10 @@ namespace CNORXZ
     
     inline decltype(auto) YIndex::mkIFor(SizeT i, const DXpr<None>& xpr, NoF&& f) const
     {
-	if(i == mIs.size()-1){
+	if(i == mIs.size()){
+	    return DXpr<None>(xpr);
+	}
+	else if(i == mIs.size()-1){
 	    return mIs[i]->ifor( xpr, std::forward<NoF>(f) );
 	}
 	else {
@@ -335,11 +338,16 @@ namespace CNORXZ
 	const String blim = "[";
 	const String elim = "]";
 	const String dlim = ",";
-	return blim +
-	    std::accumulate(std::next(mIs.all().begin()), mIs.all().end(), mIs[0]->stringMeta(),
-			    [&](const auto& s, const auto& e)
-			    { return s + dlim + e->stringMeta(); } ) +
-	    elim;
+	if(mIs.size() == 0){
+	    return blim + elim;
+	}
+	else {
+	    return blim +
+		std::accumulate(std::next(mIs.all().begin()), mIs.all().end(), mIs[0]->stringMeta(),
+				[&](const auto& s, const auto& e)
+				{ return s + dlim + e->stringMeta(); } ) +
+		elim;
+	}
     }
    
     Vector<DType> YIndex::meta() const

@@ -117,7 +117,7 @@ namespace CNORXZ
 	bool formatIsTrivial() const;
 	
 	/** @copydoc IndexInterface::xpr() */
-	COpRoot<SizeT,CIndex> xpr(const Sptr<CIndex>& _this) const;
+	PosOp<CIndex> xpr(const Sptr<CIndex>& _this) const;
 
     private:
 	Sptr<RangeType> mRangePtr;

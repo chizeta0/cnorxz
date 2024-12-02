@@ -303,6 +303,10 @@ namespace CNORXZ
     class OpRoot;
 
     // definition: operation/op_types.h
+    template <class Index>
+    class PosOp;
+
+    // definition: operation/op_types.h
     template <class F, class... Ops>
     class Operation;
 

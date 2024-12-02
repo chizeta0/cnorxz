@@ -134,6 +134,9 @@ namespace CNORXZ
 		      const Sptr<I>& i, const Vector<bool>& required) const;
 
 
+	    /** Clear data loaded from other ranks. */
+	    void clear() const;
+	    
 	protected:
 	    ObjHandle<CArrayBase<T>> mA;
 	    RangePtr mGeom;
@@ -165,6 +168,7 @@ namespace CNORXZ
 	    using RCA::cbegin;
 	    using RCA::cend;
 	    using RCA::sl;
+	    using RCA::local;
 
 	    DEFAULT_C(RArray);
 	    DEFAULT_MOVE(RArray);

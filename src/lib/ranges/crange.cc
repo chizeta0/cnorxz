@@ -119,17 +119,9 @@ namespace CNORXZ
 	return *this;
     }
 
-    COpRoot<SizeT,CIndex> CIndex::xpr(const Sptr<CIndex>& _this) const
+    PosOp<CIndex> CIndex::xpr(const Sptr<CIndex>& _this) const
     {
-	// preliminary solution (TODO: implement xpr that simply returns PosT value):
-	static Vector<SizeT> m;
-	if(m.size() < _this->lmax().val()){
-	    m.resize(_this->lmax().val());
-	    for(SizeT i = 0; i != m.size(); ++i) {
-		m[i] = i;
-	    }
-	}
-	return coproot(m.data(), _this);
+	return posop(_this);
     }
 
     RangePtr CIndex::prange(const CIndex& last) const
