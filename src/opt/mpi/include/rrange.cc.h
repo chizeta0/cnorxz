@@ -247,6 +247,7 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	String RIndex<IndexI,IndexK>::stringMeta() const
 	{
+	    CXZ_ASSERT(isSynchronous(), "index not in synchronous position");
 	    const SizeT r = mK->lex()*mRankFormat;
 	    String o;
 	    if(r == getRankNumber()){
@@ -259,6 +260,7 @@ namespace CNORXZ
 	template <class IndexI, class IndexK>
 	typename RIndex<IndexI,IndexK>::MetaType RIndex<IndexI,IndexK>::meta() const
 	{
+	    CXZ_ASSERT(isSynchronous(), "index not in synchronous position");
 	    MetaType o;
 	    if constexpr(Typemap<MetaType>::exists){
 		const SizeT r = mK->lex()*mRankFormat;
@@ -404,6 +406,9 @@ namespace CNORXZ
 			}
 		    }
 		}
+	    }
+	    else {
+		mLex = mK->lex() * mI->lmax().val() + mI->lex();
 	    }
 	    //IB::mPos = mK->pos() * mStepRatio + mI->pos();
 	    IB::mPos = mK->pos() * mI->pmax().val() + mI->pos();
